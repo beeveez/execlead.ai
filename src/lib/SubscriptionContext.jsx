@@ -63,7 +63,7 @@ export const SubscriptionProvider = ({ children }) => {
   };
 
   return (
-    <SubscriptionContext.Provider value={{ profile, subscription, loading, refreshProfile }}>
+    <SubscriptionContext.Provider value={{ profile, subscription, renewalDate, loading, refreshProfile }}>
       {children}
     </SubscriptionContext.Provider>
   );

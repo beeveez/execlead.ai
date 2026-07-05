@@ -43,6 +43,7 @@ import FeatureManagement from '@/pages/FeatureManagement';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
+import BillingAdmin from '@/pages/BillingAdmin';
 import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
@@ -106,6 +107,7 @@ const AuthenticatedApp = () => {
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
+          <Route path="/billing-admin" element={<BillingAdmin />} />
         </Route>
       </Route>
 

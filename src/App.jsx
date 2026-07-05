@@ -44,6 +44,7 @@ import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import BillingAdmin from '@/pages/BillingAdmin';
+import Pricing from '@/pages/Pricing';
 import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
     <Routes>
       {/* Public */}
       <Route path="/" element={<Landing />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

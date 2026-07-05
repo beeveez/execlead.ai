@@ -64,7 +64,7 @@ export const DEFAULT_FEATURES = [
   { id: "executive_portfolio", name: "Executive Portfolio", description: "Build your executive portfolio", category: "Career", icon: "FolderOpen", minimumPlan: "executive", isEnabled: true, sortOrder: 41 },
   { id: "board_readiness_assessment", name: "Board Readiness Assessment", description: "Assess your readiness for board roles", category: "Career", icon: "Award", minimumPlan: "executive", isEnabled: true, sortOrder: 42 },
 
-  { id: "team_dashboard", name: "Team Dashboard", description: "Organization-wide team analytics", category: "Enterprise", icon: "LayoutDashboard", minimumPlan: "enterprise", isEnabled: true, sortOrder: 50 },
+  { id: "team_dashboard", name: "Enterprise Dashboard", description: "Organization-wide enterprise analytics", category: "Enterprise", icon: "LayoutDashboard", minimumPlan: "enterprise", isEnabled: true, sortOrder: 50 },
   { id: "hr_dashboard", name: "HR Dashboard", description: "HR analytics and workforce insights", category: "Enterprise", icon: "Users", minimumPlan: "enterprise", isEnabled: true, sortOrder: 51 },
   { id: "department_analytics", name: "Department Analytics", description: "Per-department performance analytics", category: "Analytics", icon: "BarChart3", minimumPlan: "enterprise", isEnabled: true, sortOrder: 52 },
   { id: "seat_management", name: "Seat Management", description: "Manage organization seats and licenses", category: "Enterprise", icon: "UserPlus", minimumPlan: "enterprise", isEnabled: true, sortOrder: 53 },
@@ -78,7 +78,17 @@ export const DEFAULT_FEATURES = [
   { id: "ai_usage_dashboard", name: "AI Usage Dashboard", description: "Track AI token and cost usage", category: "Analytics", icon: "Cpu", minimumPlan: "enterprise", isEnabled: true, sortOrder: 61 },
   { id: "dedicated_customer_success", name: "Dedicated Customer Success", description: "Dedicated success manager", category: "Enterprise", icon: "Headset", minimumPlan: "enterprise", isEnabled: true, sortOrder: 62 },
   { id: "enterprise_analytics", name: "Enterprise Analytics", description: "Advanced enterprise-wide analytics", category: "Analytics", icon: "TrendingUp", minimumPlan: "enterprise", isEnabled: true, sortOrder: 63 },
-  { id: "admin_console", name: "Admin Console", description: "Full platform administration console", category: "Enterprise", icon: "Shield", minimumPlan: "enterprise", isEnabled: true, sortOrder: 64 }
+  { id: "admin_console", name: "Admin Console", description: "Full platform administration console", category: "Enterprise", icon: "Shield", minimumPlan: "enterprise", isEnabled: true, sortOrder: 64 },
+
+  { id: "promotion_readiness", name: "Promotion Readiness", description: "Track and assess employee promotion readiness", category: "Enterprise", icon: "TrendingUp", minimumPlan: "enterprise", isEnabled: true, sortOrder: 65 },
+  { id: "succession_planning", name: "Succession Planning", description: "Identify and develop future leaders", category: "Enterprise", icon: "Users", minimumPlan: "enterprise", isEnabled: true, sortOrder: 66 },
+  { id: "learning_analytics", name: "Learning Analytics", description: "Track learning outcomes and ROI across the organization", category: "Analytics", icon: "BarChart3", minimumPlan: "enterprise", isEnabled: true, sortOrder: 67 },
+  { id: "scim_ready", name: "SCIM Ready", description: "Automated user provisioning via SCIM protocol", category: "Enterprise", icon: "UserPlus", minimumPlan: "enterprise", isEnabled: true, sortOrder: 68 },
+  { id: "azure_ad", name: "Azure AD", description: "Azure Active Directory integration", category: "Enterprise", icon: "KeyRound", minimumPlan: "enterprise", isEnabled: true, sortOrder: 69 },
+  { id: "google_workspace", name: "Google Workspace", description: "Google Workspace SSO integration", category: "Enterprise", icon: "KeyRound", minimumPlan: "enterprise", isEnabled: true, sortOrder: 70 },
+  { id: "quarterly_business_reviews", name: "Quarterly Business Reviews", description: "Regular QBR sessions with your success team", category: "Enterprise", icon: "Calendar", minimumPlan: "enterprise", isEnabled: true, sortOrder: 71 },
+  { id: "priority_support", name: "Priority Support", description: "Priority response support channel", category: "Enterprise", icon: "Headset", minimumPlan: "enterprise", isEnabled: true, sortOrder: 72 },
+  { id: "enterprise_sla", name: "Enterprise SLA", description: "Service level agreement with uptime guarantees", category: "Enterprise", icon: "Shield", minimumPlan: "enterprise", isEnabled: true, sortOrder: 73 }
 ];
 
 export function getFeaturesForPlan(planId) {

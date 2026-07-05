@@ -54,7 +54,7 @@ export default function Landing() {
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#journey" className="hover:text-white transition-colors">Journey</a>
             <a href="#paths" className="hover:text-white transition-colors">Learning</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
           </div>
           <div className="flex items-center gap-3">
             {authed ? (
@@ -317,8 +317,14 @@ export default function Landing() {
                 <h3 className="text-white font-semibold text-lg mb-1">{plan.name}</h3>
                 <p className="text-white/40 text-xs mb-4">{plan.description}</p>
                 <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-3xl font-bold text-white">${getPrice(plan)}</span>
-                  <span className="text-white/30 text-sm">/ {cycle === "monthly" ? "mo" : "yr"}</span>
+                  {plan.customPricing ? (
+                    <span className="text-2xl font-bold text-white">Custom Pricing</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold text-white">${getPrice(plan)}</span>
+                      <span className="text-white/30 text-sm">/ {cycle === "monthly" ? "mo" : "yr"}</span>
+                    </>
+                  )}
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((f, j) => (
@@ -329,7 +335,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Link
-                  to={authed ? "/billing" : "/register"}
+                  to={plan.customPricing ? "/pricing" : (authed ? "/billing" : "/register")}
                   className={`block text-center font-medium py-3 rounded-xl transition-colors ${
                     plan.recommended
                       ? "bg-indigo-500 hover:bg-indigo-600 text-white"
@@ -340,6 +346,9 @@ export default function Landing() {
                 </Link>
               </motion.div>
             ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Compare all features <ArrowRight size={14} /></Link>
           </div>
         </div>
       </section>
@@ -389,8 +398,8 @@ export default function Landing() {
               <p className="text-white/30 text-xs mt-1">Develop Executive Leaders. Not Interview Candidates.</p>
             </div>
             <div className="flex items-center gap-6 text-sm text-white/30">
+              <Link to="/pricing" className="hover:text-white/60 transition-colors">Pricing</Link>
               <a href="#features" className="hover:text-white/60 transition-colors">Features</a>
-              <a href="#pricing" className="hover:text-white/60 transition-colors">Pricing</a>
               <Link to="/login" className="hover:text-white/60 transition-colors">Sign In</Link>
             </div>
           </div>

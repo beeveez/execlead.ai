@@ -1,0 +1,54 @@
+{
+  "name": "DemoRequest",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "num_employees": {
+      "type": "string"
+    },
+    "num_learners": {
+      "type": "string"
+    },
+    "current_lms": {
+      "type": "string"
+    },
+    "current_leadership_program": {
+      "type": "string"
+    },
+    "business_email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "expected_rollout_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "comments": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "qualified",
+        "closed"
+      ],
+      "default": "new"
+    }
+  },
+  "required": [
+    "company_name",
+    "business_email"
+  ]
+}

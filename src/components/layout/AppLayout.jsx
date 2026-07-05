@@ -6,7 +6,7 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
-  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText
+  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/journal", label: "Journal", icon: PenLine },
   { path: "/resume", label: "Resume AI", icon: FileText },
+  { path: "/career-studio", label: "Career Studio", icon: Briefcase },
   { path: "/profile", label: "Profile", icon: UserCircle },
   { path: "/enterprise", label: "Enterprise", icon: Building2 },
   { path: "/ai-usage", label: "AI Usage", icon: Cpu },

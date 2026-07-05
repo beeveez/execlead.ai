@@ -1,0 +1,47 @@
+{
+  "name": "CareerResume",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "template": {
+      "type": "string",
+      "default": "executive_modern"
+    },
+    "content": {
+      "type": "string"
+    },
+    "ats_score": {
+      "type": "number",
+      "default": 0
+    },
+    "executive_score": {
+      "type": "number",
+      "default": 0
+    },
+    "linkedin_score": {
+      "type": "number",
+      "default": 0
+    },
+    "promotion_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "job_match_score": {
+      "type": "number",
+      "default": 0
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

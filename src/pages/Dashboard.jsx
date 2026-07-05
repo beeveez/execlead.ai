@@ -7,7 +7,7 @@ import { DAILY_CHALLENGES } from "@/lib/constants";
 import {
   Swords, Brain, MessageSquare, GraduationCap, BarChart3, Building2,
   BookOpen, TrendingUp, Flame, Target, Crown, Zap, ArrowRight, Calendar,
-  Scale, PenLine, FileText
+  Scale, PenLine, FileText, Briefcase
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
@@ -25,6 +25,7 @@ export default function Dashboard() {
   const { profile, loading: loadingProfile } = useSubscription();
   const [recentResults, setRecentResults] = useState([]);
   const [resumeData, setResumeData] = useState(null);
+  const [careerResume, setCareerResume] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +37,8 @@ export default function Dashboard() {
         if (resumes.length > 0) {
           try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
         }
+        const careerResumes = await base44.entities.CareerResume.list("-updated_date", 1);
+        if (careerResumes.length > 0) setCareerResume(careerResumes[0]);
       } catch (e) {}
       setLoading(false);
     };
@@ -148,6 +151,26 @@ export default function Dashboard() {
           </div>
         </Link>
       )}
+
+      {/* Career Studio */}
+      <Link to="/career-studio" className="group block bg-gradient-to-br from-indigo-500/10 to-blue-500/5 border border-indigo-500/10 rounded-xl p-5 hover:border-indigo-500/20 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2 text-indigo-400 text-xs font-medium uppercase tracking-wider">
+            <Briefcase size={14} /> Career Studio
+          </div>
+          {careerResume && (
+            <div className="flex items-center gap-3">
+              {careerResume.ats_score > 0 && <span className="text-xs text-white/40">ATS: <span className="text-white font-bold">{careerResume.ats_score}</span></span>}
+              {careerResume.executive_score > 0 && <span className="text-xs text-white/40">Exec: <span className="text-white font-bold">{careerResume.executive_score}</span></span>}
+            </div>
+          )}
+        </div>
+        <p className="text-white/60 text-sm">{careerResume ? careerResume.title : "Build your executive resume"}</p>
+        <p className="text-white/30 text-xs mt-1">Resume Builder · Cover Letters · LinkedIn · ATS · Job Match</p>
+        <div className="flex items-center gap-1 text-indigo-400 text-xs mt-3 group-hover:gap-2 transition-all">
+          Open Studio <ArrowRight size={12} />
+        </div>
+      </Link>
 
       {/* Today's Challenge + Daily Lesson */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

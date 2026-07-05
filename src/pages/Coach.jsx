@@ -1,0 +1,198 @@
+import React, { useState, useEffect, useRef } from "react";
+import { base44 } from "@/api/base44Client";
+import { AI_PERSONALITIES } from "@/lib/constants";
+import { Send, Loader2, Bot, User, RotateCcw } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import { motion } from "framer-motion";
+
+export default function Coach() {
+  const [profile, setProfile] = useState(null);
+  const [personality, setPersonality] = useState(AI_PERSONALITIES[0]);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const profiles = await base44.entities.UserProfile.list();
+      if (profiles.length > 0) {
+        setProfile(profiles[0]);
+        const p = AI_PERSONALITIES.find(a => a.id === profiles[0].ai_personality);
+        if (p) setPersonality(p);
+      }
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput("");
+    setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    setLoading(true);
+
+    try {
+      const history = messages.map(m => `${m.role === "user" ? "USER" : personality.name.toUpperCase()}: ${m.content}`).join("\n\n");
+
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are "${personality.name}" - ${personality.description}
+Traits: ${personality.traits.join(", ")}
+
+You are coaching a professional targeting the role of "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT services company'}".
+
+TRUTH ENGINE ACTIVE: If the user makes any claims, analyze them for truthfulness. Challenge exaggerations, inflated metrics, false ownership, and vague claims. Always push for specifics and evidence.
+
+CONVERSATION SO FAR:
+${history}
+
+USER: ${userMsg}
+
+Respond as ${personality.name}. Be direct, insightful, and challenging. Push the user to think like an executive. If they give weak answers, call it out constructively. Use examples and frameworks when helpful.`,
+      });
+
+      setMessages(prev => [...prev, { role: "assistant", content: res }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: "assistant", content: "I apologize, there was an issue. Please try again." }]);
+    }
+    setLoading(false);
+  };
+
+  const selectPersonality = async (p) => {
+    setPersonality(p);
+    setMessages([]);
+    if (profile) {
+      await base44.entities.UserProfile.update(profile.id, { ai_personality: p.id });
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col" style={{ height: "calc(100vh - 7rem)" }}>
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-white mb-3">AI Executive Coach</h1>
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {AI_PERSONALITIES.map(p => (
+            <button
+              key={p.id}
+              onClick={() => selectPersonality(p)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                personality.id === p.id
+                  ? "bg-indigo-500/15 text-indigo-400 ring-1 ring-indigo-500/30"
+                  : "bg-white/5 text-white/40 hover:text-white/70"
+              }`}
+            >
+              <span>{p.icon}</span>
+              {p.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Chat area */}
+      <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-1">
+        {messages.length === 0 && (
+          <div className="text-center py-20">
+            <div className="text-4xl mb-4">{personality.icon}</div>
+            <h2 className="text-white font-semibold text-lg mb-1">{personality.name}</h2>
+            <p className="text-white/30 text-sm max-w-md mx-auto mb-6">{personality.description}</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {[
+                "How do I prepare for a CIO interview?",
+                "Challenge my leadership experience",
+                "Help me with executive presence",
+                "Review my approach to P&L management"
+              ].map(s => (
+                <button
+                  key={s}
+                  onClick={() => { setInput(s); }}
+                  className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {messages.map((msg, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}
+          >
+            {msg.role === "assistant" && (
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                <Bot size={16} className="text-indigo-400" />
+              </div>
+            )}
+            <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
+              msg.role === "user"
+                ? "bg-indigo-500/15 text-white/90"
+                : "bg-white/[0.05] text-white/80"
+            }`}>
+              {msg.role === "user" ? (
+                <p className="text-sm">{msg.content}</p>
+              ) : (
+                <div className="text-sm prose prose-invert prose-sm max-w-none">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              )}
+            </div>
+            {msg.role === "user" && (
+              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                <User size={16} className="text-white/40" />
+              </div>
+            )}
+          </motion.div>
+        ))}
+
+        {loading && (
+          <div className="flex gap-3">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+              <Bot size={16} className="text-indigo-400" />
+            </div>
+            <div className="bg-white/[0.05] rounded-xl px-4 py-3">
+              <Loader2 size={16} className="animate-spin text-indigo-400" />
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="flex gap-2">
+        {messages.length > 0 && (
+          <button
+            onClick={() => setMessages([])}
+            className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/30 hover:text-white/60 transition-colors"
+            title="New conversation"
+          >
+            <RotateCcw size={18} />
+          </button>
+        )}
+        <div className="flex-1 relative">
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
+            placeholder={`Ask ${personality.name} anything...`}
+            className="w-full bg-white/5 border border-white/10 rounded-lg pl-4 pr-12 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+          />
+          <button
+            onClick={sendMessage}
+            disabled={!input.trim() || loading}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-indigo-400 hover:text-indigo-300 disabled:opacity-30 transition-colors"
+          >
+            <Send size={18} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

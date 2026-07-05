@@ -1,0 +1,62 @@
+{
+  "name": "ChallengeResult",
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "user_answer": {
+      "type": "string"
+    },
+    "executive_score": {
+      "type": "number"
+    },
+    "leadership_score": {
+      "type": "number"
+    },
+    "commercial_score": {
+      "type": "number"
+    },
+    "confidence_score": {
+      "type": "number"
+    },
+    "strategic_score": {
+      "type": "number"
+    },
+    "executive_presence_score": {
+      "type": "number"
+    },
+    "communication_score": {
+      "type": "number"
+    },
+    "truthfulness_score": {
+      "type": "number"
+    },
+    "ai_feedback": {
+      "type": "string"
+    },
+    "truth_analysis": {
+      "type": "string"
+    },
+    "rewritten_answer": {
+      "type": "string"
+    },
+    "target_company": {
+      "type": "string"
+    },
+    "target_role": {
+      "type": "string"
+    },
+    "ai_personality": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "question",
+    "category",
+    "user_answer"
+  ]
+}

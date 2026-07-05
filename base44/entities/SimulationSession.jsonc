@@ -1,0 +1,61 @@
+{
+  "name": "SimulationSession",
+  "type": "object",
+  "properties": {
+    "session_type": {
+      "type": "string",
+      "enum": [
+        "45min_interview",
+        "60min_interview",
+        "panel_interview",
+        "board_interview",
+        "customer_escalation",
+        "executive_service_review",
+        "major_incident_bridge",
+        "business_review",
+        "qbr_simulation",
+        "negotiation_meeting",
+        "vendor_dispute",
+        "crisis_management"
+      ]
+    },
+    "target_company": {
+      "type": "string"
+    },
+    "target_role": {
+      "type": "string"
+    },
+    "interviewer_profile": {
+      "type": "string"
+    },
+    "ai_personality": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "abandoned"
+      ],
+      "default": "in_progress"
+    },
+    "overall_score": {
+      "type": "number"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "messages_json": {
+      "type": "string"
+    },
+    "scores_json": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_type",
+    "target_company",
+    "target_role"
+  ]
+}

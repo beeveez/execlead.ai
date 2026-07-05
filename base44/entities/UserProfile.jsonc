@@ -1,0 +1,76 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "target_company": {
+      "type": "string"
+    },
+    "target_role": {
+      "type": "string"
+    },
+    "ai_personality": {
+      "type": "string",
+      "default": "henry_lie"
+    },
+    "interview_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "promotion_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "leadership_maturity": {
+      "type": "number",
+      "default": 0
+    },
+    "commercial_maturity": {
+      "type": "number",
+      "default": 0
+    },
+    "communication_growth": {
+      "type": "number",
+      "default": 0
+    },
+    "executive_presence": {
+      "type": "number",
+      "default": 0
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "sessions_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "challenges_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "streak_days": {
+      "type": "number",
+      "default": 0
+    },
+    "last_active_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "weak_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strong_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "target_company",
+    "target_role"
+  ]
+}

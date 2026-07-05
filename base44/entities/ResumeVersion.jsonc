@@ -1,0 +1,29 @@
+{
+  "name": "ResumeVersion",
+  "type": "object",
+  "properties": {
+    "file_url": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
+    },
+    "extracted_data": {
+      "type": "string"
+    },
+    "learning_roadmap": {
+      "type": "string"
+    },
+    "enhancement_report": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "file_url",
+    "file_name"
+  ]
+}

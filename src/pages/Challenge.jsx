@@ -17,11 +17,16 @@ export default function Challenge() {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [step, setStep] = useState("select");
+  const [resumeData, setResumeData] = useState(null);
 
   useEffect(() => {
     const load = async () => {
       const profiles = await base44.entities.UserProfile.list();
       if (profiles.length > 0) setProfile(profiles[0]);
+      const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
+      if (resumes.length > 0) {
+        try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
+      }
     };
     load();
   }, []);
@@ -35,7 +40,8 @@ export default function Challenge() {
       const res = await callAI("challenge", {
         prompt: `Generate ONE challenging executive interview question for the category "${cat}".
 The candidate targets: ${profile?.target_role || "Senior Manager"} at ${profile?.target_company || "a major IT company"}.
-Make it scenario-based and test executive thinking. Return ONLY the question.`,
+${resumeData ? `CANDIDATE BACKGROUND: ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${[...(resumeData.technical_skills || []), ...(resumeData.leadership_skills || [])].slice(0, 8).join(", ")}.` : ""}
+Make it scenario-based and tailored to their actual experience. Return ONLY the question.`,
       });
       setQuestion(res);
     } catch (e) {

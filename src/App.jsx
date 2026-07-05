@@ -34,6 +34,7 @@ import AIUsage from '@/pages/AIUsage';
 import EnterpriseDashboard from '@/pages/EnterpriseDashboard';
 import Profile from '@/pages/Profile';
 import AdminConsole from '@/pages/AdminConsole';
+import ResumeIntelligence from '@/pages/ResumeIntelligence';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
           <Route path="/career" element={<Career />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/resume" element={<ResumeIntelligence />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/notifications" element={<Notifications />} />

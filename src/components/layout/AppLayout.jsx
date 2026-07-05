@@ -5,7 +5,7 @@ import TopBar from "@/components/layout/TopBar";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
-  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard
+  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { path: "/companies", label: "Companies", icon: Building2 },
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/journal", label: "Journal", icon: PenLine },
+  { path: "/resume", label: "Resume AI", icon: FileText },
   { path: "/profile", label: "Profile", icon: UserCircle },
   { path: "/enterprise", label: "Enterprise", icon: Building2 },
   { path: "/ai-usage", label: "AI Usage", icon: Cpu },

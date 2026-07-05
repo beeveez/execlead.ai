@@ -12,6 +12,7 @@ export default function Coach() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+  const [resumeData, setResumeData] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -20,6 +21,10 @@ export default function Coach() {
         setProfile(profiles[0]);
         const p = AI_PERSONALITIES.find(a => a.id === profiles[0].ai_personality);
         if (p) setPersonality(p);
+      }
+      const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
+      if (resumes.length > 0) {
+        try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
       }
     };
     load();
@@ -46,6 +51,7 @@ Leadership style: ${personality.leadership_style}
 Question style: ${personality.question_style}
 
 You are coaching a professional targeting the role of "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT services company'}".
+${resumeData ? `CANDIDATE BACKGROUND: Currently ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${[...(resumeData.technical_skills || []), ...(resumeData.leadership_skills || [])].slice(0, 8).join(", ")}. Tailor your coaching to their actual experience.` : ""}
 
 TRUTH ENGINE ACTIVE: If the user makes any claims, analyze them for truthfulness. Challenge exaggerations, inflated metrics, false ownership, and vague claims. Always push for specifics and evidence.
 

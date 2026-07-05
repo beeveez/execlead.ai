@@ -1,0 +1,38 @@
+{
+  "name": "Achievement",
+  "type": "object",
+  "properties": {
+    "achievement_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "xp_reward": {
+      "type": "number",
+      "default": 0
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "challenge",
+        "streak",
+        "simulation",
+        "debate",
+        "learning",
+        "level",
+        "score"
+      ]
+    }
+  },
+  "required": [
+    "achievement_id",
+    "name"
+  ]
+}

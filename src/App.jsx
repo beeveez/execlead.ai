@@ -28,6 +28,12 @@ import Career from '@/pages/Career';
 import Analytics from '@/pages/Analytics';
 import Journal from '@/pages/Journal';
 import Settings from '@/pages/Settings';
+import Billing from '@/pages/Billing';
+import Notifications from '@/pages/Notifications';
+import AIUsage from '@/pages/AIUsage';
+import EnterpriseDashboard from '@/pages/EnterpriseDashboard';
+import Profile from '@/pages/Profile';
+import AdminConsole from '@/pages/AdminConsole';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -73,6 +79,12 @@ const AuthenticatedApp = () => {
           <Route path="/career" element={<Career />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/billing" element={<Billing />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/ai-usage" element={<AIUsage />} />
+          <Route path="/enterprise" element={<EnterpriseDashboard />} />
+          <Route path="/admin" element={<AdminConsole />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>

@@ -1,0 +1,49 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "paid",
+        "pending",
+        "failed",
+        "refunded"
+      ],
+      "default": "paid"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "plan": {
+      "type": "string"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ]
+    },
+    "invoice_number": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "amount",
+    "period_start",
+    "period_end"
+  ]
+}

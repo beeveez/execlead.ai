@@ -1,0 +1,49 @@
+{
+  "name": "Organization",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "brand_color": {
+      "type": "string",
+      "default": "#6366f1"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "free",
+        "professional",
+        "executive",
+        "enterprise"
+      ],
+      "default": "enterprise"
+    },
+    "seats_total": {
+      "type": "number",
+      "default": 10
+    },
+    "seats_used": {
+      "type": "number",
+      "default": 0
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

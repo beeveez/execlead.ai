@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import TopBar from "@/components/layout/TopBar";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
-  LogOut, Menu, X, ChevronRight
+  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -17,6 +18,11 @@ const NAV_ITEMS = [
   { path: "/companies", label: "Companies", icon: Building2 },
   { path: "/analytics", label: "Analytics", icon: BarChart3 },
   { path: "/journal", label: "Journal", icon: PenLine },
+  { path: "/profile", label: "Profile", icon: UserCircle },
+  { path: "/enterprise", label: "Enterprise", icon: Building2 },
+  { path: "/ai-usage", label: "AI Usage", icon: Cpu },
+  { path: "/admin", label: "Admin", icon: Shield },
+  { path: "/billing", label: "Billing", icon: CreditCard },
   { path: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -132,6 +138,7 @@ export default function AppLayout() {
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 pt-14 lg:pt-0 min-h-screen">
+        <TopBar />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <Outlet />
         </div>

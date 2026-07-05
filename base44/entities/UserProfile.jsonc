@@ -100,6 +100,46 @@
       "items": {
         "type": "string"
       }
+    },
+    "xp_points": {
+      "type": "number",
+      "default": 0
+    },
+    "profile_photo": {
+      "type": "string"
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "resume_url": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "custom_role": {
+      "type": "string"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "default": "free"
+    },
+    "subscription_status": {
+      "type": "string",
+      "default": "active"
+    },
+    "subscription_cycle": {
+      "type": "string",
+      "default": "monthly"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bio": {
+      "type": "string"
     }
   },
   "required": [

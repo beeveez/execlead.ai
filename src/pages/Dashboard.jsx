@@ -9,6 +9,7 @@ import {
   Scale, PenLine
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
 
 const QUICK_ACTIONS = [
   { path: "/challenge", label: "Challenge", desc: "Test your readiness", icon: Swords, color: "from-indigo-600 to-violet-600" },
@@ -54,6 +55,10 @@ export default function Dashboard() {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const todaysChallenge = DAILY_CHALLENGES[dayOfYear % DAILY_CHALLENGES.length];
 
+  // Gamification
+  const levelInfo = getLevel(profile.xp_points || 0);
+  const unlockedAchievements = checkAchievements(profile);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -92,6 +97,28 @@ export default function Dashboard() {
           <TrendingUp size={18} className="text-cyan-400" />
           <span className="text-white font-bold">{profile.promotion_readiness || 0}%</span>
           <span className="text-white/30 text-sm">promotion ready</span>
+        </div>
+      </div>
+
+      {/* XP & Level Progress */}
+      <div className="bg-gradient-to-r from-indigo-500/10 to-violet-500/5 border border-indigo-500/10 rounded-xl p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{levelInfo.current.icon}</span>
+            <div>
+              <div className="text-white font-semibold text-sm">Level {levelInfo.current.level} · {levelInfo.current.title}</div>
+              <div className="text-white/40 text-xs">{profile.xp_points || 0} XP{unlockedAchievements.length > 0 && ` · ${unlockedAchievements.length} achievements`}</div>
+            </div>
+          </div>
+          {levelInfo.next && (
+            <div className="text-right">
+              <div className="text-white/40 text-xs">{levelInfo.next.title}</div>
+              <div className="text-white/30 text-xs">{levelInfo.next.xp - (profile.xp_points || 0)} XP to go</div>
+            </div>
+          )}
+        </div>
+        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-700" style={{ width: `${levelInfo.progress}%` }} />
         </div>
       </div>
 

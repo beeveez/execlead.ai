@@ -4,6 +4,7 @@ import { QUESTION_CATEGORIES, SCORE_DIMENSIONS, AI_PERSONALITIES } from "@/lib/c
 import { Swords, RotateCcw, Loader2, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import { callAI } from "@/lib/ai";
 
 const SCORE_KEYS = SCORE_DIMENSIONS.map(d => d.key);
 
@@ -31,7 +32,7 @@ export default function Challenge() {
     setStep("answer");
     try {
       const personality = AI_PERSONALITIES.find(p => p.id === profile?.ai_personality) || AI_PERSONALITIES[0];
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("challenge", {
         prompt: `Generate ONE challenging executive interview question for the category "${cat}".
 The candidate targets: ${profile?.target_role || "Senior Manager"} at ${profile?.target_company || "a major IT company"}.
 Make it scenario-based and test executive thinking. Return ONLY the question.`,
@@ -48,7 +49,7 @@ Make it scenario-based and test executive thinking. Return ONLY the question.`,
     setLoading(true);
     try {
       const personality = AI_PERSONALITIES.find(p => p.id === profile?.ai_personality) || AI_PERSONALITIES[0];
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("challenge", {
         prompt: `You are "${personality.name}" - ${personality.description}
 
 EVALUATE this executive interview answer.
@@ -87,6 +88,7 @@ Score across ALL 12 dimensions (0-100). For ai_feedback, explain WHY each score 
       if (profile) {
         await base44.entities.UserProfile.update(profile.id, {
           challenges_completed: (profile.challenges_completed || 0) + 1,
+          xp_points: (profile.xp_points || 0) + 50,
         });
       }
 

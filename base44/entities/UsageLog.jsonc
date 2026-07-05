@@ -1,0 +1,34 @@
+{
+  "name": "UsageLog",
+  "type": "object",
+  "properties": {
+    "module": {
+      "type": "string",
+      "enum": [
+        "coach",
+        "simulator",
+        "challenge",
+        "debate",
+        "academy",
+        "companies",
+        "career",
+        "metrics",
+        "other"
+      ]
+    },
+    "tokens_estimated": {
+      "type": "number",
+      "default": 0
+    },
+    "cost_estimated": {
+      "type": "number",
+      "default": 0
+    },
+    "model": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "module"
+  ]
+}

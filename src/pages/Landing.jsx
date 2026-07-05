@@ -52,15 +52,7 @@ export default function Landing() {
   useEffect(() => {
     const check = async () => {
       try {
-        const isAuthed = await base44.auth.isAuthenticated();
-        if (isAuthed) {
-          const profiles = await base44.entities.UserProfile.list();
-          if (profiles.length > 0) {
-            window.location.href = "/dashboard";
-            return;
-          }
-        }
-        setAuthed(isAuthed);
+        setAuthed(await base44.auth.isAuthenticated());
       } catch (e) {}
     };
     check();

@@ -1,17 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "@/lib/AuthContext";
 
 export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2" }) {
-  const { isAuthenticated } = useAuth();
-  const target = isAuthenticated ? "/dashboard" : "/";
-
   const sizeClass = size === "sm" ? "text-base" : "text-lg";
 
   return (
     <Link
-      to={target}
+      to="/"
       aria-label="EXECLEAD.AI — Go to home"
       className="inline-flex items-center cursor-pointer select-none group"
     >

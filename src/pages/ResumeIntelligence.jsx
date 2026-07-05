@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
-import { EXTRACTION_SCHEMA, buildExtractionPrompt, buildRoadmapPrompt, buildEnhancementPrompt } from "@/lib/resume";
+import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildRoadmapPrompt, buildTruthEnginePrompt } from "@/lib/resume";
 import ResumeUpload from "@/components/resume/ResumeUpload";
 import ExecutiveProfile from "@/components/resume/ExecutiveProfile";
 import CareerTimeline from "@/components/resume/CareerTimeline";
 import SkillGapAnalysis from "@/components/resume/SkillGapAnalysis";
 import LearningRoadmap from "@/components/resume/LearningRoadmap";
-import ResumeEnhancement from "@/components/resume/ResumeEnhancement";
+import TruthEngineReport from "@/components/resume/TruthEngineReport";
 import VersionCompare from "@/components/resume/VersionCompare";
-import { FileText, Loader2, Target, Clock, ShieldAlert, Compass, GitCompare, GitBranch } from "lucide-react";
+import ResumePrivacy from "@/components/resume/ResumePrivacy";
+import { FileText, Loader2, Target, Clock, ShieldAlert, Compass, GitCompare, GitBranch, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TABS = [
@@ -17,13 +18,15 @@ const TABS = [
   { id: "timeline", label: "Career Timeline", icon: Clock },
   { id: "gaps", label: "Skill Gaps", icon: ShieldAlert },
   { id: "roadmap", label: "Learning Roadmap", icon: Compass },
-  { id: "enhancement", label: "Enhancement", icon: FileText },
+  { id: "truth", label: "Truth Engine", icon: Shield },
   { id: "compare", label: "Version Compare", icon: GitCompare },
+  { id: "privacy", label: "Privacy", icon: Shield },
 ];
 
 const PROCESSING_STEPS = [
   "Extracting resume data with AI...",
-  "Generating roadmap & enhancement analysis...",
+  "Running Truth Engine analysis...",
+  "Generating personalized roadmap...",
   "Saving results...",
 ];
 
@@ -53,8 +56,12 @@ export default function ResumeIntelligence() {
   }, []);
 
   let parsedData = null;
+  let truthData = null;
   if (current?.extracted_data) {
     try { parsedData = JSON.parse(current.extracted_data); } catch {}
+  }
+  if (current?.enhancement_report) {
+    try { truthData = JSON.parse(current.enhancement_report); } catch { truthData = null; }
   }
 
   const handleUpload = async (file) => {
@@ -73,9 +80,9 @@ export default function ResumeIntelligence() {
 
       setProcessStep(1);
 
-      const [roadmap, enhancement] = await Promise.all([
+      const [truth, road] = await Promise.all([
+        callAI("resume", { prompt: buildTruthEnginePrompt(profile?.target_role), file_urls: [file_url], response_json_schema: TRUTH_ENGINE_SCHEMA }),
         callAI("resume", { prompt: buildRoadmapPrompt(extracted, profile) }),
-        callAI("resume", { prompt: buildEnhancementPrompt(profile?.target_role), file_urls: [file_url] }),
       ]);
 
       setProcessStep(2);
@@ -84,9 +91,11 @@ export default function ResumeIntelligence() {
         file_url, file_name: file.name,
         version_number: versions.length + 1,
         extracted_data: JSON.stringify(extracted),
-        learning_roadmap: roadmap,
-        enhancement_report: enhancement,
+        learning_roadmap: road,
+        enhancement_report: JSON.stringify(truth),
       });
+
+      setProcessStep(3);
 
       if (profile) await base44.entities.UserProfile.update(profile.id, { resume_url: file_url });
 
@@ -103,6 +112,13 @@ export default function ResumeIntelligence() {
     }
   };
 
+  const handleDelete = async () => {
+    const vs = await base44.entities.ResumeVersion.list("-created_date", 20);
+    setVersions(vs);
+    setCurrent(vs[0] || null);
+    setActiveTab("profile");
+  };
+
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   return (
@@ -112,7 +128,7 @@ export default function ResumeIntelligence() {
           <FileText size={12} className="text-indigo-400" /> AI Resume Intelligence
         </div>
         <h1 className="text-2xl font-bold text-white">Resume Analysis & Executive Assessment</h1>
-        <p className="text-white/40 text-sm mt-1">Upload your resume for AI-powered extraction, scoring, and personalized roadmap</p>
+        <p className="text-white/40 text-sm mt-1">Your resume powers every module — coaching, interviews, and recommendations adapt to your actual experience</p>
       </div>
 
       {error && <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm">{error}</div>}
@@ -164,8 +180,9 @@ export default function ResumeIntelligence() {
               {activeTab === "timeline" && <CareerTimeline data={parsedData} />}
               {activeTab === "gaps" && <SkillGapAnalysis data={parsedData} targetRole={profile?.target_role} />}
               {activeTab === "roadmap" && <LearningRoadmap roadmap={current.learning_roadmap} />}
-              {activeTab === "enhancement" && <ResumeEnhancement report={current.enhancement_report} />}
+              {activeTab === "truth" && <TruthEngineReport report={truthData || current.enhancement_report} />}
               {activeTab === "compare" && <VersionCompare versions={versions} />}
+              {activeTab === "privacy" && <ResumePrivacy resumeVersion={current} onDeleted={handleDelete} />}
             </div>
 
             {versions.length > 1 && (

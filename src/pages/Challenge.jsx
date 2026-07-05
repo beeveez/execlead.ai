@@ -5,6 +5,7 @@ import { Swords, RotateCcw, Loader2, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { callAI } from "@/lib/ai";
+import { getFlatSkills } from "@/lib/resume";
 
 const SCORE_KEYS = SCORE_DIMENSIONS.map(d => d.key);
 
@@ -40,7 +41,7 @@ export default function Challenge() {
       const res = await callAI("challenge", {
         prompt: `Generate ONE challenging executive interview question for the category "${cat}".
 The candidate targets: ${profile?.target_role || "Senior Manager"} at ${profile?.target_company || "a major IT company"}.
-${resumeData ? `CANDIDATE BACKGROUND: ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${[...(resumeData.technical_skills || []), ...(resumeData.leadership_skills || [])].slice(0, 8).join(", ")}.` : ""}
+${resumeData ? `CANDIDATE BACKGROUND: ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${getFlatSkills(resumeData).slice(0, 8).join(", ")}.` : ""}
 Make it scenario-based and tailored to their actual experience. Return ONLY the question.`,
       });
       setQuestion(res);

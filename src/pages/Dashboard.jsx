@@ -6,7 +6,7 @@ import { DAILY_CHALLENGES } from "@/lib/constants";
 import {
   Swords, Brain, MessageSquare, GraduationCap, BarChart3, Building2,
   BookOpen, TrendingUp, Flame, Target, Crown, Zap, ArrowRight, Calendar,
-  Scale, PenLine
+  Scale, PenLine, FileText
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recentResults, setRecentResults] = useState([]);
+  const [resumeData, setResumeData] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -32,6 +33,10 @@ export default function Dashboard() {
         if (profiles.length > 0) setProfile(profiles[0]);
         const results = await base44.entities.ChallengeResult.list("-created_date", 5);
         setRecentResults(results);
+        const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
+        if (resumes.length > 0) {
+          try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
+        }
       } catch (e) {}
       setLoading(false);
     };
@@ -121,6 +126,29 @@ export default function Dashboard() {
           <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-700" style={{ width: `${levelInfo.progress}%` }} />
         </div>
       </div>
+
+      {/* Resume Intelligence */}
+      {resumeData && (
+        <Link to="/resume" className="group block bg-gradient-to-br from-violet-500/10 to-indigo-500/5 border border-violet-500/10 rounded-xl p-5 hover:border-violet-500/20 transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-violet-400 text-xs font-medium uppercase tracking-wider">
+              <FileText size={14} /> Resume Intelligence
+            </div>
+            <span className="text-2xl font-bold text-white">{resumeData.resume_health_score || Math.round(((resumeData.executive_readiness_score || 0) + (resumeData.leadership_maturity || 0) + (resumeData.commercial_maturity || 0)) / 3)}<span className="text-sm text-white/30">/100</span></span>
+          </div>
+          <p className="text-white/60 text-sm">Resume Health Score</p>
+          {resumeData.skill_gaps?.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {resumeData.skill_gaps.slice(0, 3).map((g, i) => (
+                <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400">{typeof g === "string" ? g : g.gap}</span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-1 text-violet-400 text-xs mt-3 group-hover:gap-2 transition-all">
+            View Full Analysis <ArrowRight size={12} />
+          </div>
+        </Link>
+      )}
 
       {/* Today's Challenge + Daily Lesson */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

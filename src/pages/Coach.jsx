@@ -4,6 +4,7 @@ import { AI_PERSONALITIES } from "@/lib/constants";
 import { Send, Loader2, Bot, User, RotateCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
+import { getFlatSkills } from "@/lib/resume";
 
 export default function Coach() {
   const [profile, setProfile] = useState(null);
@@ -51,7 +52,7 @@ Leadership style: ${personality.leadership_style}
 Question style: ${personality.question_style}
 
 You are coaching a professional targeting the role of "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT services company'}".
-${resumeData ? `CANDIDATE BACKGROUND: Currently ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${[...(resumeData.technical_skills || []), ...(resumeData.leadership_skills || [])].slice(0, 8).join(", ")}. Tailor your coaching to their actual experience.` : ""}
+${resumeData ? `CANDIDATE BACKGROUND: Currently ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${getFlatSkills(resumeData).slice(0, 8).join(", ")}. Tailor your coaching to their actual experience.` : ""}
 
 TRUTH ENGINE ACTIVE: If the user makes any claims, analyze them for truthfulness. Challenge exaggerations, inflated metrics, false ownership, and vague claims. Always push for specifics and evidence.
 

@@ -3,9 +3,12 @@ import { base44 } from "@/api/base44Client";
 import { BookOpen, Loader2, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
+import { callAI } from "@/lib/ai";
+import { getFlatSkills } from "@/lib/resume";
 
 export default function Career() {
   const [profile, setProfile] = useState(null);
+  const [resumeData, setResumeData] = useState(null);
   const [advice, setAdvice] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -13,6 +16,10 @@ export default function Career() {
     const load = async () => {
       const profiles = await base44.entities.UserProfile.list();
       if (profiles.length > 0) setProfile(profiles[0]);
+      const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
+      if (resumes.length > 0) {
+        try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
+      }
     };
     load();
   }, []);
@@ -28,11 +35,19 @@ export default function Career() {
         communication: Math.round(results.reduce((a, r) => a + (r.communication_score || 0), 0) / results.length),
       } : null;
 
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("career", {
         prompt: `You are a world-class executive career advisor. Create a personalized career development plan.
 
 TARGET ROLE: ${profile?.target_role || "Senior Manager"}
 TARGET COMPANY: ${profile?.target_company || "IT Services Company"}
+${resumeData ? `
+CANDIDATE'S ACTUAL EXPERIENCE:
+- Current Role: ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}
+- Skills: ${getFlatSkills(resumeData).slice(0, 10).join(", ")}
+- Certifications: ${(resumeData.certifications || []).map(c => typeof c === "string" ? c : c.name).join(", ") || "None"}
+- Executive Readiness: ${resumeData.executive_readiness_score || 0}/100
+- Skill Gaps: ${(resumeData.skill_gaps || []).map(g => typeof g === "string" ? g : g.gap).join(", ") || "None identified"}
+Tailor ALL recommendations to their actual experience.` : ""}
 ${avgScores ? `RECENT PERFORMANCE SCORES (avg from last ${results.length} challenges):
 - Executive: ${avgScores.executive}/100
 - Leadership: ${avgScores.leadership}/100

@@ -4,9 +4,12 @@ import { SESSION_TYPES, INTERVIEWER_PROFILES, AI_PERSONALITIES, DIFFICULTY_LEVEL
 import { Brain, Send, Loader2, Bot, User, Play, Square } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
+import { callAI } from "@/lib/ai";
+import { buildSimulatorPrompt } from "@/lib/resume";
 
 export default function Simulator() {
   const [profile, setProfile] = useState(null);
+  const [resumeData, setResumeData] = useState(null);
   const [step, setStep] = useState("setup");
   const [sessionType, setSessionType] = useState("");
   const [interviewer, setInterviewer] = useState("");
@@ -23,6 +26,10 @@ export default function Simulator() {
     const load = async () => {
       const profiles = await base44.entities.UserProfile.list();
       if (profiles.length > 0) setProfile(profiles[0]);
+      const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
+      if (resumes.length > 0) {
+        try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
+      }
     };
     load();
   }, []);
@@ -48,14 +55,15 @@ export default function Simulator() {
       });
       setSession(s);
 
-      const res = await base44.integrations.Core.InvokeLLM({
+      const resumeContext = resumeData ? `\n${buildSimulatorPrompt(resumeData, profile?.target_role, profile?.target_company)}` : "";
+      const res = await callAI("simulator", {
         prompt: `You are a "${interviewer}" at "${profile?.target_company || 'a major IT company'}" conducting a "${typeLabel}" (${duration} minutes, ${difficulty} difficulty).
 
 Your personality: ${personality.name} - ${personality.description}
 Communication style: ${personality.communication_style}
 Question style: ${personality.question_style}
 
-The candidate is interviewing for: ${profile?.target_role || "Senior Manager"}.
+The candidate is interviewing for: ${profile?.target_role || "Senior Manager"}.${resumeContext}
 
 Start the session. Introduce yourself, set the context, and ask your first question. Stay in character. Difficulty: ${difficulty}.`,
       });
@@ -80,7 +88,7 @@ Start the session. Introduce yourself, set the context, and ask your first quest
     const history = messages.map(m => `${m.role === "user" ? "CANDIDATE" : interviewer.toUpperCase()}: ${m.content}`).join("\n\n");
 
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("simulator", {
         prompt: `You are a "${interviewer}" at "${profile?.target_company}" conducting a "${typeLabel}" (${difficulty} difficulty).
 Personality: ${personality.name} - ${personality.description}
 Communication style: ${personality.communication_style}
@@ -107,7 +115,7 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
     const typeLabel = SESSION_TYPES.find(s => s.id === sessionType)?.label || sessionType;
 
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("simulator", {
         prompt: `Evaluate this complete ${typeLabel} session (${difficulty} difficulty).
 
 FULL TRANSCRIPT:

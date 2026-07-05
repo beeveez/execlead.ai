@@ -42,6 +42,7 @@ import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
+import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
@@ -104,6 +105,7 @@ const AuthenticatedApp = () => {
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/connected-accounts" element={<ConnectedAccounts />} />
         </Route>
       </Route>
 

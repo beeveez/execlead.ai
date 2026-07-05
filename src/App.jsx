@@ -8,6 +8,7 @@ import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -123,11 +124,13 @@ function App() {
     <AuthProvider>
       <SubscriptionProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
+        <ErrorBoundary>
+          <Router>
+            <ScrollToTop />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </ErrorBoundary>
       </QueryClientProvider>
       </SubscriptionProvider>
     </AuthProvider>

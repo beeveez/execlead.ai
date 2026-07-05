@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import ScoreCard from "@/components/dashboard/ScoreCard";
 import { DAILY_CHALLENGES } from "@/lib/constants";
 import {
@@ -54,8 +54,7 @@ export default function Dashboard() {
   }
 
   if (!profile) {
-    window.location.href = "/onboarding";
-    return null;
+    return <Navigate to="/onboarding" replace />;
   }
 
   // Daily challenge based on day of year

@@ -2,9 +2,9 @@ import { base44 } from "@/api/base44Client";
 import { DEFAULT_FEATURES, PLAN_LIMITS, getFeaturesForPlan, getFeatureCatalog } from "./featureCatalog";
 
 const basePlans = [
-  { id: "free", name: "Free", description: "Start your executive journey", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Start Free", recommended: false, enterpriseOnly: false, visible: true, color: "#94a3b8", icon: "🌱", sortOrder: 0 },
-  { id: "professional", name: "Professional", description: "For ambitious leaders", monthlyPrice: 29, annualPrice: 290, currency: "USD", badge: null, buttonText: "Start 14-Day Trial", recommended: false, enterpriseOnly: false, visible: true, color: "#6366f1", icon: "🚀", sortOrder: 1 },
-  { id: "executive", name: "Executive", description: "For senior executives", monthlyPrice: 79, annualPrice: 790, currency: "USD", badge: "Most Popular", buttonText: "Start 14-Day Trial", recommended: true, enterpriseOnly: false, visible: true, color: "#a855f7", icon: "👑", sortOrder: 2 },
+  { id: "free", name: "Free", description: "Designed for users exploring executive leadership", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Get Started Free", recommended: false, enterpriseOnly: false, visible: true, color: "#94a3b8", icon: "🌱", sortOrder: 0 },
+  { id: "professional", name: "Professional", description: "Designed for aspiring leaders", monthlyPrice: 29, annualPrice: 290, currency: "USD", badge: "Most Popular", buttonText: "Upgrade", recommended: true, enterpriseOnly: false, visible: true, color: "#6366f1", icon: "🚀", sortOrder: 1 },
+  { id: "executive", name: "Executive", description: "Designed for senior managers and executives", monthlyPrice: 79, annualPrice: 790, currency: "USD", badge: null, buttonText: "Upgrade", recommended: false, enterpriseOnly: false, visible: true, color: "#a855f7", icon: "👑", sortOrder: 2 },
   { id: "enterprise", name: "Enterprise", description: "For organizations building the next generation of technology leaders", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Contact Sales", recommended: false, enterpriseOnly: true, visible: true, color: "#10b981", icon: "🏢", sortOrder: 3, customPricing: true, seatInfo: "Starting at 100 seats" }
 ];
 

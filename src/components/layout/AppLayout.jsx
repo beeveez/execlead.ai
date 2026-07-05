@@ -10,30 +10,75 @@ import {
   LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt
 } from "lucide-react";
 
-const NAV_ITEMS = [
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/academy", label: "Academy", icon: GraduationCap },
-  { path: "/coach", label: "Coach", icon: MessageSquare },
-  { path: "/simulator", label: "Simulator", icon: Brain },
-  { path: "/debate", label: "Debate", icon: Scale },
-  { path: "/career", label: "Career", icon: BookOpen },
-  { path: "/companies", label: "Companies", icon: Building2 },
-  { path: "/analytics", label: "Analytics", icon: BarChart3 },
-  { path: "/journal", label: "Journal", icon: PenLine },
-  { path: "/resume", label: "Resume AI", icon: FileText },
-  { path: "/career-studio", label: "Career Studio", icon: Briefcase },
-  { path: "/profile", label: "Profile", icon: UserCircle },
-  { path: "/enterprise", label: "Enterprise", icon: Building2 },
-  { path: "/ai-usage", label: "AI Usage", icon: Cpu },
-  { path: "/admin", label: "Admin", icon: Shield },
-  { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
-  { path: "/feature-management", label: "Features", icon: Boxes },
-  { path: "/compare-plans", label: "Compare Plans", icon: Layers },
-  { path: "/billing", label: "Billing", icon: CreditCard },
-  { path: "/settings", label: "Settings", icon: SettingsIcon },
-  { path: "/connected-accounts", label: "Connected Accounts", icon: Link2 },
-  { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
+const NAV_GROUPS = [
+  {
+    label: "Platform",
+    items: [
+      { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/academy", label: "Academy", icon: GraduationCap },
+      { path: "/coach", label: "Coach", icon: MessageSquare },
+      { path: "/simulator", label: "Simulator", icon: Brain },
+      { path: "/debate", label: "Debate", icon: Scale },
+    ],
+  },
+  {
+    label: "Career",
+    items: [
+      { path: "/career", label: "Career Advisor", icon: BookOpen },
+      { path: "/companies", label: "Companies", icon: Building2 },
+      { path: "/resume", label: "Resume AI", icon: FileText },
+      { path: "/career-studio", label: "Career Studio", icon: Briefcase },
+      { path: "/journal", label: "Journal", icon: PenLine },
+    ],
+  },
+  {
+    label: "Intelligence",
+    items: [
+      { path: "/analytics", label: "Analytics", icon: BarChart3 },
+      { path: "/ai-usage", label: "AI Usage", icon: Cpu },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { path: "/profile", label: "Profile", icon: UserCircle },
+      { path: "/billing", label: "Billing", icon: CreditCard },
+      { path: "/compare-plans", label: "Compare Plans", icon: Layers },
+      { path: "/settings", label: "Settings", icon: SettingsIcon },
+      { path: "/connected-accounts", label: "Connected Accounts", icon: Link2 },
+    ],
+  },
+  {
+    label: "Enterprise & Admin",
+    items: [
+      { path: "/enterprise", label: "Enterprise", icon: Building2 },
+      { path: "/admin", label: "Admin", icon: Shield },
+      { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
+      { path: "/feature-management", label: "Features", icon: Boxes },
+      { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
+    ],
+  },
 ];
+
+const ALL_ITEMS = NAV_GROUPS.flatMap(g => g.items);
+
+function NavItem({ item, active, onClick }) {
+  return (
+    <Link
+      to={item.path}
+      onClick={onClick}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
+        active
+          ? "bg-indigo-500/10 text-indigo-400"
+          : "text-white/40 hover:text-white/80 hover:bg-white/5"
+      }`}
+    >
+      <item.icon size={18} className={active ? "text-indigo-400" : "text-white/30 group-hover:text-white/60"} />
+      {item.label}
+      {active && <ChevronRight size={14} className="ml-auto text-indigo-400/50" />}
+    </Link>
+  );
+}
 
 export default function AppLayout() {
   const location = useLocation();
@@ -51,25 +96,17 @@ export default function AppLayout() {
         <div className="p-6 border-b border-white/5">
           <Logo />
         </div>
-        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          {NAV_ITEMS.map(item => {
-            const active = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                  active
-                    ? "bg-indigo-500/10 text-indigo-400"
-                    : "text-white/40 hover:text-white/80 hover:bg-white/5"
-                }`}
-              >
-                <item.icon size={18} className={active ? "text-indigo-400" : "text-white/30 group-hover:text-white/60"} />
-                {item.label}
-                {active && <ChevronRight size={14} className="ml-auto text-indigo-400/50" />}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 p-3 overflow-y-auto">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="mb-4">
+              <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/20">{group.label}</div>
+              <div className="space-y-0.5">
+                {group.items.map(item => (
+                  <NavItem key={item.path} item={item} active={location.pathname === item.path} />
+                ))}
+              </div>
+            </div>
+          ))}
         </nav>
         <div className="p-3 border-t border-white/5">
           <button
@@ -107,27 +144,21 @@ export default function AppLayout() {
       {/* Mobile Overlay */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
-          <div className="w-72 h-full bg-[#0d0d14] border-r border-white/5 p-4" onClick={e => e.stopPropagation()}>
+          <div className="w-72 h-full bg-[#0d0d14] border-r border-white/5 p-4 overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="mb-6 pb-4 border-b border-white/5">
               <Logo showAiTag={false} />
             </div>
-            <nav className="space-y-0.5">
-              {NAV_ITEMS.map(item => {
-                const active = location.pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      active ? "bg-indigo-500/10 text-indigo-400" : "text-white/40 hover:text-white/80"
-                    }`}
-                  >
-                    <item.icon size={18} />
-                    {item.label}
-                  </Link>
-                );
-              })}
+            <nav>
+              {NAV_GROUPS.map((group) => (
+                <div key={group.label} className="mb-4">
+                  <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/20">{group.label}</div>
+                  <div className="space-y-0.5">
+                    {group.items.map(item => (
+                      <NavItem key={item.path} item={item} active={location.pathname === item.path} onClick={() => setMobileOpen(false)} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </nav>
             <button
               onClick={handleLogout}

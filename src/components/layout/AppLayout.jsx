@@ -43,7 +43,7 @@ export default function AppLayout() {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-[#0d0d14] border-r border-white/5 fixed h-full z-30">
         <div className="p-6 border-b border-white/5">
-          <Link to="/" className="block">
+          <Link to="/dashboard" className="block" aria-label="Go to Executive Dashboard">
             <h1 className="text-lg font-bold tracking-tight">
               <span className="text-indigo-400">EXEC</span>
               <span className="text-white/80">LEAD</span>
@@ -86,7 +86,7 @@ export default function AppLayout() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/">
+          <Link to="/dashboard" aria-label="Go to Executive Dashboard">
             <h1 className="text-base font-bold">
               <span className="text-indigo-400">EXEC</span>
               <span className="text-white/80">LEAD</span>

@@ -38,6 +38,9 @@ import AdminConsole from '@/pages/AdminConsole';
 import ResumeIntelligence from '@/pages/ResumeIntelligence';
 import CareerStudio from '@/pages/CareerStudio';
 import PricingAdmin from '@/pages/PricingAdmin';
+import ComparePlans from '@/pages/ComparePlans';
+import FeatureManagement from '@/pages/FeatureManagement';
+import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -73,25 +76,27 @@ const AuthenticatedApp = () => {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/challenge" element={<Challenge />} />
+          <Route path="/challenge" element={<FeatureGate featureId="daily_executive_challenge"><Challenge /></FeatureGate>} />
           <Route path="/coach" element={<Coach />} />
-          <Route path="/simulator" element={<Simulator />} />
-          <Route path="/debate" element={<Debate />} />
-          <Route path="/academy" element={<Academy />} />
+          <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />
+          <Route path="/debate" element={<FeatureGate featureId="executive_debate"><Debate /></FeatureGate>} />
+          <Route path="/academy" element={<FeatureGate featureId="executive_academy"><Academy /></FeatureGate>} />
           <Route path="/metrics" element={<Metrics />} />
-          <Route path="/companies" element={<Companies />} />
-          <Route path="/career" element={<Career />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="/resume" element={<ResumeIntelligence />} />
-          <Route path="/career-studio" element={<CareerStudio />} />
+          <Route path="/companies" element={<FeatureGate featureId="company_intelligence"><Companies /></FeatureGate>} />
+          <Route path="/career" element={<FeatureGate featureId="career_advisor"><Career /></FeatureGate>} />
+          <Route path="/analytics" element={<FeatureGate featureId="leadership_analytics"><Analytics /></FeatureGate>} />
+          <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />
+          <Route path="/resume" element={<FeatureGate featureId="resume_intelligence"><ResumeIntelligence /></FeatureGate>} />
+          <Route path="/career-studio" element={<FeatureGate featureId="career_studio"><CareerStudio /></FeatureGate>} />
+          <Route path="/compare-plans" element={<ComparePlans />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/ai-usage" element={<AIUsage />} />
-          <Route path="/enterprise" element={<EnterpriseDashboard />} />
-          <Route path="/admin" element={<AdminConsole />} />
+          <Route path="/ai-usage" element={<FeatureGate featureId="ai_usage_dashboard"><AIUsage /></FeatureGate>} />
+          <Route path="/enterprise" element={<FeatureGate featureId="team_dashboard"><EnterpriseDashboard /></FeatureGate>} />
+          <Route path="/admin" element={<FeatureGate featureId="admin_console"><AdminConsole /></FeatureGate>} />
           <Route path="/pricing-admin" element={<PricingAdmin />} />
+          <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>

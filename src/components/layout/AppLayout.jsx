@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import TopBar from "@/components/layout/TopBar";
+import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
@@ -43,14 +44,7 @@ export default function AppLayout() {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-[#0d0d14] border-r border-white/5 fixed h-full z-30">
         <div className="p-6 border-b border-white/5">
-          <Link to="/dashboard" className="block" aria-label="Go to Executive Dashboard">
-            <h1 className="text-lg font-bold tracking-tight">
-              <span className="text-indigo-400">EXEC</span>
-              <span className="text-white/80">LEAD</span>
-              <span className="text-indigo-400">.</span>
-              <span className="text-[10px] text-white/30 ml-2 font-normal tracking-widest uppercase">AI</span>
-            </h1>
-          </Link>
+          <Logo />
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {NAV_ITEMS.map(item => {
@@ -86,14 +80,7 @@ export default function AppLayout() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/dashboard" aria-label="Go to Executive Dashboard">
-            <h1 className="text-base font-bold">
-              <span className="text-indigo-400">EXEC</span>
-              <span className="text-white/80">LEAD</span>
-              <span className="text-indigo-400">.</span>
-              <span className="text-[10px] text-white/30 ml-1">AI</span>
-            </h1>
-          </Link>
+          <Logo size="sm" aiTagClass="ml-1" />
           <div className="flex items-center gap-2">
             <Link to="/billing" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5">
               {loadingSub ? (
@@ -117,11 +104,7 @@ export default function AppLayout() {
         <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
           <div className="w-72 h-full bg-[#0d0d14] border-r border-white/5 p-4" onClick={e => e.stopPropagation()}>
             <div className="mb-6 pb-4 border-b border-white/5">
-              <h1 className="text-lg font-bold">
-                <span className="text-indigo-400">EXEC</span>
-                <span className="text-white/80">LEAD</span>
-                <span className="text-indigo-400">.</span>
-              </h1>
+              <Logo showAiTag={false} />
             </div>
             <nav className="space-y-0.5">
               {NAV_ITEMS.map(item => {

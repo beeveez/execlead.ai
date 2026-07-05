@@ -7,6 +7,7 @@ import {
   Building2, BookOpen, Shield, Zap, Target, TrendingUp, Crown, Check
 } from "lucide-react";
 import { COMPANIES, LEARNING_PATHS } from "@/lib/constants";
+import Logo from "@/components/layout/Logo";
 
 const FEATURES = [
   { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation." },
@@ -70,14 +71,7 @@ export default function Landing() {
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#08080d]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold">
-              <span className="text-indigo-400">EXEC</span>
-              <span className="text-white/80">LEAD</span>
-              <span className="text-indigo-400">.</span>
-              <span className="text-[10px] text-white/30 ml-1 tracking-widest">AI</span>
-            </span>
-          </div>
+          <Logo aiTagClass="ml-1" />
           <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#journey" className="hover:text-white transition-colors">Journey</a>
@@ -407,12 +401,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
-              <span className="text-lg font-bold">
-                <span className="text-indigo-400">EXEC</span>
-                <span className="text-white/80">LEAD</span>
-                <span className="text-indigo-400">.</span>
-                <span className="text-[10px] text-white/30 ml-1 tracking-widest">AI</span>
-              </span>
+              <Logo aiTagClass="ml-1" />
               <p className="text-white/30 text-xs mt-1">Develop Executive Leaders. Not Interview Candidates.</p>
             </div>
             <div className="flex items-center gap-6 text-sm text-white/30">

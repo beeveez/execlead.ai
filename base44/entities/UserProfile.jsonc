@@ -10,7 +10,7 @@
     },
     "ai_personality": {
       "type": "string",
-      "default": "henry_lie"
+      "default": "executive_mentor"
     },
     "interview_readiness": {
       "type": "number",

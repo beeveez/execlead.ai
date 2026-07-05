@@ -104,7 +104,7 @@ For "rewritten_answer", rewrite their answer in truthful, polished executive lan
         rewritten_answer: res.rewritten_answer,
         target_company: profile?.target_company,
         target_role: profile?.target_role,
-        ai_personality: profile?.ai_personality || "henry_lie",
+        ai_personality: profile?.ai_personality || "executive_mentor",
       });
 
       // Update profile

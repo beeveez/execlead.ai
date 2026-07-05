@@ -22,8 +22,8 @@ export const QUESTION_CATEGORIES = [
 
 export const AI_PERSONALITIES = [
   {
-    id: "henry_lie",
-    name: "Henry Lie",
+    id: "executive_mentor",
+    name: "Executive Mentor",
     subtitle: "Executive Coach",
     description: "Constructive, structured, ITIL expert. Risk-focused, business-driven executive mentor.",
     traits: ["Constructive", "Structured", "ITIL Expert", "Risk Focused", "Business Driven"],

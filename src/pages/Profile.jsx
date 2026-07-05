@@ -11,7 +11,7 @@ export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ target_company: "", target_role: "", ai_personality: "henry_lie" });
+  const [form, setForm] = useState({ target_company: "", target_role: "", ai_personality: "executive_mentor" });
   const [results, setResults] = useState([]);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Profile() {
         setForm({
           target_company: profiles[0].target_company,
           target_role: profiles[0].target_role,
-          ai_personality: profiles[0].ai_personality || "henry_lie",
+          ai_personality: profiles[0].ai_personality || "executive_mentor",
         });
       }
       const res = await base44.entities.ChallengeResult.list("-created_date", 50);

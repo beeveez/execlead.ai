@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { LESSON_CATEGORIES } from "@/lib/constants";
+import { LEARNING_PATHS } from "@/lib/constants";
 import { GraduationCap, Loader2, ChevronRight, BookOpen, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,17 +27,17 @@ export default function Academy() {
     setLoading(true);
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Create a concise executive leadership lesson on "${cat}" for someone targeting "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT services company'}".
+        prompt: `Create a concise executive leadership lesson on "${cat}" for someone targeting "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT company'}".
 
 Structure:
-1. **Lesson Title** - Give it a compelling name
+1. **Lesson Title** - Compelling name
 2. **Executive Insight** - One powerful insight (2-3 sentences)
 3. **Key Concepts** - 3-4 key concepts with brief explanations
 4. **Real-World Application** - A practical scenario
-5. **Executive Exercise** - One actionable exercise they can do today
+5. **Executive Exercise** - One actionable exercise for today
 6. **Pro Tip** - One insider tip from the executive world
 
-Keep it focused, practical, and executive-level. No fluff. Under 500 words total.`,
+Keep it focused, practical, executive-level. Under 500 words.`,
       });
 
       const lessonId = `${cat}_${Date.now()}`;
@@ -61,25 +61,18 @@ Keep it focused, practical, and executive-level. No fluff. Under 500 words total
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
           <GraduationCap size={12} className="text-amber-400" />
-          Leadership Academy
+          Executive Academy
         </div>
         <h1 className="text-2xl font-bold text-white">Daily Executive Lessons</h1>
-        <p className="text-white/40 text-sm mt-1">
-          {completedLessons.length} lessons completed
-        </p>
+        <p className="text-white/40 text-sm mt-1">{completedLessons.length} lessons completed · {LEARNING_PATHS.length} learning paths</p>
       </div>
 
       <AnimatePresence mode="wait">
         {!lesson ? (
           <motion.div key="categories" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {LESSON_CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => generateLesson(cat)}
-                  disabled={loading}
-                  className="group flex items-center justify-between px-4 py-4 bg-white/[0.03] hover:bg-amber-500/5 border border-white/5 hover:border-amber-500/15 rounded-xl text-left transition-all"
-                >
+              {LEARNING_PATHS.map(cat => (
+                <button key={cat} onClick={() => generateLesson(cat)} disabled={loading} className="group flex items-center justify-between px-4 py-4 bg-white/[0.03] hover:bg-amber-500/5 border border-white/5 hover:border-amber-500/15 rounded-xl text-left transition-all">
                   <div className="flex items-center gap-3">
                     <BookOpen size={18} className="text-white/20 group-hover:text-amber-400 transition-colors" />
                     <span className="text-sm text-white/50 group-hover:text-white/80 font-medium transition-colors">{cat}</span>
@@ -93,29 +86,17 @@ Keep it focused, practical, and executive-level. No fluff. Under 500 words total
           <motion.div key="lesson" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             {loading ? (
               <div className="flex items-center justify-center py-20 gap-3 text-white/40">
-                <Loader2 size={20} className="animate-spin" />
-                Generating your lesson...
+                <Loader2 size={20} className="animate-spin" /> Generating your lesson...
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
                   <div className="text-xs text-amber-400 font-medium uppercase tracking-wider mb-4">{category}</div>
-                  <div className="text-white/80 text-sm leading-relaxed prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                  </div>
+                  <div className="text-white/80 text-sm leading-relaxed prose prose-invert prose-sm max-w-none"><ReactMarkdown>{lesson.content}</ReactMarkdown></div>
                 </div>
-
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-emerald-400 text-sm">
-                    <Check size={16} />
-                    Lesson completed
-                  </div>
-                  <button
-                    onClick={() => setLesson(null)}
-                    className="px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Choose Another Topic
-                  </button>
+                  <div className="flex items-center gap-2 text-emerald-400 text-sm"><Check size={16} /> Lesson completed</div>
+                  <button onClick={() => setLesson(null)} className="px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-sm font-medium transition-colors">Choose Another Topic</button>
                 </div>
               </div>
             )}

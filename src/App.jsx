@@ -13,17 +13,21 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 
+import Landing from '@/pages/Landing';
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import Onboarding from '@/pages/Onboarding';
 import Challenge from '@/pages/Challenge';
 import Coach from '@/pages/Coach';
 import Simulator from '@/pages/Simulator';
+import Debate from '@/pages/Debate';
 import Academy from '@/pages/Academy';
 import Metrics from '@/pages/Metrics';
 import Companies from '@/pages/Companies';
 import Career from '@/pages/Career';
-import Profile from '@/pages/Profile';
+import Analytics from '@/pages/Analytics';
+import Journal from '@/pages/Journal';
+import Settings from '@/pages/Settings';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -47,23 +51,29 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
+      {/* Public */}
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
+      {/* Protected */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/challenge" element={<Challenge />} />
           <Route path="/coach" element={<Coach />} />
           <Route path="/simulator" element={<Simulator />} />
+          <Route path="/debate" element={<Debate />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/metrics" element={<Metrics />} />
           <Route path="/companies" element={<Companies />} />
           <Route path="/career" element={<Career />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/journal" element={<Journal />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
 

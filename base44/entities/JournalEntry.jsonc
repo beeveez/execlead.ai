@@ -1,0 +1,40 @@
+{
+  "name": "JournalEntry",
+  "type": "object",
+  "properties": {
+    "entry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "title": {
+      "type": "string"
+    },
+    "reflection": {
+      "type": "string"
+    },
+    "lessons_learned": {
+      "type": "string"
+    },
+    "leadership_wins": {
+      "type": "string"
+    },
+    "mistakes": {
+      "type": "string"
+    },
+    "mood": {
+      "type": "string",
+      "enum": [
+        "inspired",
+        "confident",
+        "neutral",
+        "challenged",
+        "frustrated"
+      ],
+      "default": "neutral"
+    }
+  },
+  "required": [
+    "title",
+    "reflection"
+  ]
+}

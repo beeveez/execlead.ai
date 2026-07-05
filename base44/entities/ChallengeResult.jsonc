@@ -20,19 +20,34 @@
     "commercial_score": {
       "type": "number"
     },
-    "confidence_score": {
-      "type": "number"
-    },
-    "strategic_score": {
+    "communication_score": {
       "type": "number"
     },
     "executive_presence_score": {
       "type": "number"
     },
-    "communication_score": {
+    "business_acumen_score": {
+      "type": "number"
+    },
+    "strategic_thinking_score": {
+      "type": "number"
+    },
+    "customer_focus_score": {
+      "type": "number"
+    },
+    "financial_thinking_score": {
+      "type": "number"
+    },
+    "decision_quality_score": {
+      "type": "number"
+    },
+    "confidence_score": {
       "type": "number"
     },
     "truthfulness_score": {
+      "type": "number"
+    },
+    "overall_score": {
       "type": "number"
     },
     "ai_feedback": {

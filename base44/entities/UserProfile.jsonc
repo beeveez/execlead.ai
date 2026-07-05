@@ -2,10 +2,43 @@
   "name": "UserProfile",
   "type": "object",
   "properties": {
+    "full_name": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "years_experience": {
+      "type": "number"
+    },
+    "current_role": {
+      "type": "string"
+    },
+    "current_company": {
+      "type": "string"
+    },
     "target_company": {
       "type": "string"
     },
     "target_role": {
+      "type": "string"
+    },
+    "leadership_experience": {
+      "type": "string"
+    },
+    "certifications": {
+      "type": "string"
+    },
+    "career_goals": {
+      "type": "string"
+    },
+    "preferred_learning_style": {
+      "type": "string"
+    },
+    "growth_plan": {
       "type": "string"
     },
     "ai_personality": {

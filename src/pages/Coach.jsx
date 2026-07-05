@@ -41,7 +41,9 @@ export default function Coach() {
 
       const res = await base44.integrations.Core.InvokeLLM({
         prompt: `You are "${personality.name}" - ${personality.description}
-Traits: ${personality.traits.join(", ")}
+Communication style: ${personality.communication_style}
+Leadership style: ${personality.leadership_style}
+Question style: ${personality.question_style}
 
 You are coaching a professional targeting the role of "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT services company'}".
 

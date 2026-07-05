@@ -3,19 +3,21 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
-  BarChart3, Building2, BookOpen, User, LogOut, Menu, X, ChevronRight
+  BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
+  LogOut, Menu, X, ChevronRight
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/challenge", label: "Challenge", icon: Swords },
-  { path: "/simulator", label: "Simulator", icon: Brain },
-  { path: "/coach", label: "AI Coach", icon: MessageSquare },
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/academy", label: "Academy", icon: GraduationCap },
-  { path: "/metrics", label: "Metrics", icon: BarChart3 },
-  { path: "/companies", label: "Companies", icon: Building2 },
+  { path: "/coach", label: "Coach", icon: MessageSquare },
+  { path: "/simulator", label: "Simulator", icon: Brain },
+  { path: "/debate", label: "Debate", icon: Scale },
   { path: "/career", label: "Career", icon: BookOpen },
-  { path: "/profile", label: "Profile", icon: User },
+  { path: "/companies", label: "Companies", icon: Building2 },
+  { path: "/analytics", label: "Analytics", icon: BarChart3 },
+  { path: "/journal", label: "Journal", icon: PenLine },
+  { path: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export default function AppLayout() {
@@ -31,12 +33,14 @@ export default function AppLayout() {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-[#0d0d14] border-r border-white/5 fixed h-full z-30">
         <div className="p-6 border-b border-white/5">
-          <h1 className="text-lg font-bold tracking-tight">
-            <span className="text-indigo-400">EXEC</span>
-            <span className="text-white/80">LEAD</span>
-            <span className="text-indigo-400">.</span>
-            <span className="text-[10px] text-white/30 ml-2 font-normal tracking-widest uppercase">AI</span>
-          </h1>
+          <Link to="/" className="block">
+            <h1 className="text-lg font-bold tracking-tight">
+              <span className="text-indigo-400">EXEC</span>
+              <span className="text-white/80">LEAD</span>
+              <span className="text-indigo-400">.</span>
+              <span className="text-[10px] text-white/30 ml-2 font-normal tracking-widest uppercase">AI</span>
+            </h1>
+          </Link>
         </div>
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {NAV_ITEMS.map(item => {
@@ -72,12 +76,14 @@ export default function AppLayout() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-base font-bold">
-            <span className="text-indigo-400">EXEC</span>
-            <span className="text-white/80">LEAD</span>
-            <span className="text-indigo-400">.</span>
-            <span className="text-[10px] text-white/30 ml-1">AI</span>
-          </h1>
+          <Link to="/">
+            <h1 className="text-base font-bold">
+              <span className="text-indigo-400">EXEC</span>
+              <span className="text-white/80">LEAD</span>
+              <span className="text-indigo-400">.</span>
+              <span className="text-[10px] text-white/30 ml-1">AI</span>
+            </h1>
+          </Link>
           <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 p-1">
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>

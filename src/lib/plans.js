@@ -45,9 +45,12 @@ export const PLANS = {
       "Truth Engine",
       "Executive Academy",
       "Career Advisor",
-      "Progress Analytics",
-      "Daily Challenges",
-      "Unlimited company research"
+      "Company Intelligence",
+      "Leadership Analytics",
+      "Daily Executive Challenge",
+      "Executive Journal",
+      "Resume Builder",
+      "ATS Resume Analyzer"
     ],
     limits: {
       daily_coaching: Infinity,
@@ -74,16 +77,18 @@ export const PLANS = {
     color: "#a855f7",
     icon: "👑",
     features: [
+      "Everything in Professional",
       "Board Meeting Simulator",
       "CIO Coaching",
       "CFO Coaching",
-      "Executive Review Simulations",
+      "COO Coaching",
+      "Executive Presentation Coach",
+      "Executive Review Simulator",
       "Customer Escalation Simulator",
       "Crisis Management",
-      "Executive Presentation Coach",
-      "Salary Negotiation Coach",
-      "Advanced Analytics",
-      "Executive Leadership Assessment"
+      "Executive Negotiation Coach",
+      "Executive Storytelling",
+      "Executive Strategy Workshops"
     ],
     limits: {
       daily_coaching: Infinity,
@@ -110,17 +115,20 @@ export const PLANS = {
     color: "#10b981",
     icon: "🏢",
     features: [
+      "Everything in Executive",
       "Team Dashboard",
-      "Department Analytics",
       "HR Dashboard",
-      "Manager Dashboard",
+      "Department Analytics",
       "Seat Management",
       "Role Management",
       "Company Branding",
       "Custom Learning Paths",
       "Organization Reports",
       "SSO Ready",
-      "Audit Logs"
+      "Audit Logs",
+      "API Access",
+      "AI Usage Dashboard",
+      "Dedicated Customer Success"
     ],
     limits: {
       daily_coaching: Infinity,

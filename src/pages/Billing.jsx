@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { PLANS, PLAN_LIST, getPlan } from "@/lib/plans";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { PAYMENT_PROVIDERS, processPayment } from "@/lib/payments";
-import { CreditCard, Check, Loader2, Calendar, X } from "lucide-react";
+import { CreditCard, Loader2, Calendar, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ExpandableFeatureList from "@/components/billing/ExpandableFeatureList";
 
 export default function Billing() {
   const { profile, subscription, refreshProfile } = useSubscription();
@@ -138,10 +139,9 @@ export default function Billing() {
               <h3 className="text-white font-bold">{plan.name}</h3>
               <p className="text-white/40 text-xs mb-3">{plan.description}</p>
               <div className="mb-4"><span className="text-2xl font-bold text-white">${plan.price[cycle]}</span><span className="text-white/40 text-sm">/{cycle === "monthly" ? "mo" : "yr"}</span></div>
-              <ul className="space-y-1.5 mb-5">
-                {plan.features.slice(0, 5).map((f, i) => (<li key={i} className="flex items-start gap-2 text-xs text-white/50"><Check size={12} className="text-emerald-400 mt-0.5 flex-shrink-0" /> {f}</li>))}
-                {plan.features.length > 5 && <li className="text-xs text-white/30">+ {plan.features.length - 5} more</li>}
-              </ul>
+              <div className="mb-5">
+                <ExpandableFeatureList features={plan.features} />
+              </div>
               {isCurrent ? <div className="w-full py-2.5 rounded-lg text-center text-sm text-white/30 bg-white/5">Current Plan</div>
                 : isUpgrade ? <button onClick={() => setUpgradePlan(plan)} className="w-full py-2.5 rounded-lg text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">Upgrade</button>
                 : <div className="w-full py-2.5 rounded-lg text-center text-sm text-white/30 bg-white/5">Included</div>}

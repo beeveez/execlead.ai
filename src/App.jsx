@@ -37,6 +37,7 @@ import Profile from '@/pages/Profile';
 import AdminConsole from '@/pages/AdminConsole';
 import ResumeIntelligence from '@/pages/ResumeIntelligence';
 import CareerStudio from '@/pages/CareerStudio';
+import PricingAdmin from '@/pages/PricingAdmin';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -90,6 +91,7 @@ const AuthenticatedApp = () => {
           <Route path="/ai-usage" element={<AIUsage />} />
           <Route path="/enterprise" element={<EnterpriseDashboard />} />
           <Route path="/admin" element={<AdminConsole />} />
+          <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>

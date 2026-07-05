@@ -1,0 +1,65 @@
+{
+  "name": "PricingPlan",
+  "type": "object",
+  "properties": {
+    "plan_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "monthly_price": {
+      "type": "number",
+      "default": 0
+    },
+    "annual_price": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "badge": {
+      "type": "string"
+    },
+    "button_text": {
+      "type": "string"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended": {
+      "type": "boolean",
+      "default": false
+    },
+    "enterprise_only": {
+      "type": "boolean",
+      "default": false
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0
+    },
+    "color": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan_id",
+    "name"
+  ]
+}

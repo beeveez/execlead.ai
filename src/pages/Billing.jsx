@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { PLANS, PLAN_LIST, getPlan } from "@/lib/plans";
 import { useSubscription } from "@/lib/SubscriptionContext";
+import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { PAYMENT_PROVIDERS, processPayment } from "@/lib/payments";
-import { CreditCard, Loader2, Calendar, X } from "lucide-react";
+import { CreditCard, Loader2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ExpandableFeatureList from "@/components/billing/ExpandableFeatureList";
 
 export default function Billing() {
-  const { profile, subscription, refreshProfile } = useSubscription();
+  const { profile, refreshProfile } = useSubscription();
+  const { plans, cycle, setCycle, getPrice, getPlanById } = usePricingCatalog();
   const [invoices, setInvoices] = useState([]);
-  const [cycle, setCycle] = useState("monthly");
   const [upgradePlan, setUpgradePlan] = useState(null);
   const [provider, setProvider] = useState("stripe");
   const [processing, setProcessing] = useState(false);
@@ -31,14 +31,15 @@ export default function Billing() {
     if (profile?.subscription_cycle) setCycle(profile.subscription_cycle);
   }, [profile?.subscription_cycle]);
 
-  const currentPlan = getPlan(profile);
+  const currentPlan = profile ? (getPlanById(profile.subscription_plan) || getPlanById("free")) : null;
+  const currentPlanIndex = plans.findIndex(p => p.id === currentPlan?.id);
 
   const handleUpgrade = async () => {
     if (!upgradePlan || !profile) return;
     setProcessing(true);
     try {
-      const price = upgradePlan.price[cycle];
-      const result = await processPayment({ provider, amount: price, currency: "USD", planId: upgradePlan.id, billingCycle: cycle });
+      const price = getPrice(upgradePlan);
+      const result = await processPayment({ provider, amount: price, currency: upgradePlan.currency || "USD", planId: upgradePlan.id, billingCycle: cycle });
 
       if (result.success) {
         await base44.entities.UserProfile.update(profile.id, {
@@ -88,7 +89,7 @@ export default function Billing() {
     } catch (e) {}
   };
 
-  if (loading || !profile) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  if (loading || !profile || !currentPlan) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -99,7 +100,6 @@ export default function Billing() {
         <h1 className="text-2xl font-bold text-white">Manage Your Plan</h1>
       </div>
 
-      {/* Current Plan */}
       <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 rounded-xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -111,7 +111,7 @@ export default function Billing() {
               </div>
             </div>
             <div className="flex items-center gap-4 mt-3">
-              <span className="text-2xl font-bold text-white">${currentPlan.price[cycle]}<span className="text-sm text-white/40 font-normal">/{cycle === "monthly" ? "mo" : "yr"}</span></span>
+              <span className="text-2xl font-bold text-white">${getPrice(currentPlan)}<span className="text-sm text-white/40 font-normal">/{cycle === "monthly" ? "mo" : "yr"}</span></span>
               <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">{profile?.subscription_status || "active"}</span>
             </div>
           </div>
@@ -121,24 +121,23 @@ export default function Billing() {
         </div>
       </div>
 
-      {/* Cycle Toggle */}
       <div className="flex items-center justify-center gap-3">
         <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
         <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
       </div>
 
-      {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {PLAN_LIST.map(plan => {
+        {plans.map(plan => {
           const isCurrent = plan.id === currentPlan.id;
-          const isUpgrade = PLAN_LIST.findIndex(p => p.id === plan.id) > PLAN_LIST.findIndex(p => p.id === currentPlan.id);
+          const planIndex = plans.findIndex(p => p.id === plan.id);
+          const isUpgrade = planIndex > currentPlanIndex;
           return (
             <div key={plan.id} className={`relative rounded-xl border p-5 transition-all ${isCurrent ? "border-indigo-500/30 bg-indigo-500/5" : "border-white/5 bg-white/[0.02]"}`}>
               {isCurrent && <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-500 rounded-full text-[10px] font-bold text-white">CURRENT</div>}
               <div className="text-2xl mb-2">{plan.icon}</div>
               <h3 className="text-white font-bold">{plan.name}</h3>
               <p className="text-white/40 text-xs mb-3">{plan.description}</p>
-              <div className="mb-4"><span className="text-2xl font-bold text-white">${plan.price[cycle]}</span><span className="text-white/40 text-sm">/{cycle === "monthly" ? "mo" : "yr"}</span></div>
+              <div className="mb-4"><span className="text-2xl font-bold text-white">${getPrice(plan)}</span><span className="text-white/40 text-sm">/{cycle === "monthly" ? "mo" : "yr"}</span></div>
               <div className="mb-5">
                 <ExpandableFeatureList features={plan.features} />
               </div>
@@ -150,7 +149,6 @@ export default function Billing() {
         })}
       </div>
 
-      {/* Invoices */}
       <div>
         <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Payment History</h2>
         {invoices.length === 0 ? (
@@ -178,7 +176,6 @@ export default function Billing() {
         )}
       </div>
 
-      {/* Upgrade Modal */}
       <AnimatePresence>
         {upgradePlan && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setUpgradePlan(null)}>
@@ -188,7 +185,7 @@ export default function Billing() {
                 <button onClick={() => setUpgradePlan(null)} className="text-white/30 hover:text-white/60"><X size={18} /></button>
               </div>
               <div className="bg-white/[0.03] rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-between mb-2"><span className="text-white/60 text-sm">{upgradePlan.name} Plan</span><span className="text-white font-bold">${upgradePlan.price[cycle]}/{cycle === "monthly" ? "mo" : "yr"}</span></div>
+                <div className="flex items-center justify-between mb-2"><span className="text-white/60 text-sm">{upgradePlan.name} Plan</span><span className="text-white font-bold">${getPrice(upgradePlan)}/{cycle === "monthly" ? "mo" : "yr"}</span></div>
                 <p className="text-white/40 text-xs">Billed {cycle}</p>
               </div>
               <div className="mb-4">
@@ -202,7 +199,7 @@ export default function Billing() {
                 </div>
               </div>
               <button onClick={handleUpgrade} disabled={processing} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-30 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                {processing ? <Loader2 size={18} className="animate-spin" /> : <>Pay ${upgradePlan.price[cycle]} & Upgrade</>}
+                {processing ? <Loader2 size={18} className="animate-spin" /> : <>Pay ${getPrice(upgradePlan)} & Upgrade</>}
               </button>
               <p className="text-white/20 text-xs text-center mt-3">Secure payment via {PAYMENT_PROVIDERS[provider].name}</p>
             </motion.div>

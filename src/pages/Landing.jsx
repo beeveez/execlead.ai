@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { COMPANIES, LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
+import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 
 const FEATURES = [
   { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation." },
@@ -20,23 +21,7 @@ const FEATURES = [
   { icon: BarChart3, title: "Leadership Analytics", desc: "Radar charts, trends, and heat maps tracking your executive growth." },
 ];
 
-const PRICING = [
-  {
-    name: "Free", price: "$0", period: "forever",
-    features: ["3 challenges per day", "1 AI coach persona", "Basic dashboard", "Community access"],
-    cta: "Start Free", highlight: false
-  },
-  {
-    name: "Executive", price: "$49", period: "per month",
-    features: ["Unlimited challenges", "All 11 AI personas", "Full simulator access", "Debate mode", "Truth Engine", "Career advisor", "Leadership analytics", "Priority AI"],
-    cta: "Start 14-Day Trial", highlight: true
-  },
-  {
-    name: "Enterprise", price: "Custom", period: "per year",
-    features: ["Everything in Executive", "Team analytics", "Custom learning paths", "Dedicated success manager", "SSO & compliance", "Custom company profiles"],
-    cta: "Contact Sales", highlight: false
-  },
-];
+// Pricing is sourced from the centralized pricing catalog via usePricingCatalog hook
 
 const FAQS = [
   { q: "Is this just an interview prep tool?", a: "No. EXECLEAD.AI is a complete leadership development platform. Interviews become easy when you genuinely think, communicate, and lead like an executive." },
@@ -48,6 +33,7 @@ const FAQS = [
 
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
+  const { plans: pricingPlans, cycle, setCycle, getPrice } = usePricingCatalog();
 
   useEffect(() => {
     const check = async () => {
@@ -299,34 +285,40 @@ export default function Landing() {
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-32 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
             <p className="text-white/40 max-w-2xl mx-auto">Start free. Upgrade when you're ready to go all-in on your executive journey.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PRICING.map((plan, i) => (
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
+            <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pricingPlans.map((plan, i) => (
               <motion.div
-                key={i}
+                key={plan.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 className={`rounded-2xl p-8 ${
-                  plan.highlight
+                  plan.recommended
                     ? "bg-gradient-to-b from-indigo-500/10 to-transparent border-2 border-indigo-500/30 relative"
                     : "bg-white/[0.02] border border-white/5"
                 }`}
               >
-                {plan.highlight && (
+                {plan.badge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-                    Most Popular
+                    {plan.badge}
                   </div>
                 )}
-                <h3 className="text-white font-semibold text-lg mb-2">{plan.name}</h3>
+                <div className="text-2xl mb-2">{plan.icon}</div>
+                <h3 className="text-white font-semibold text-lg mb-1">{plan.name}</h3>
+                <p className="text-white/40 text-xs mb-4">{plan.description}</p>
                 <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-3xl font-bold text-white">{plan.price}</span>
-                  <span className="text-white/30 text-sm">/ {plan.period}</span>
+                  <span className="text-3xl font-bold text-white">${getPrice(plan)}</span>
+                  <span className="text-white/30 text-sm">/ {cycle === "monthly" ? "mo" : "yr"}</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((f, j) => (
@@ -337,14 +329,14 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Link
-                  to="/register"
+                  to={authed ? "/billing" : "/register"}
                   className={`block text-center font-medium py-3 rounded-xl transition-colors ${
-                    plan.highlight
+                    plan.recommended
                       ? "bg-indigo-500 hover:bg-indigo-600 text-white"
                       : "bg-white/5 hover:bg-white/10 text-white/70"
                   }`}
                 >
-                  {plan.cta}
+                  {plan.buttonText}
                 </Link>
               </motion.div>
             ))}

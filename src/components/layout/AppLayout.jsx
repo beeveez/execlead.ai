@@ -7,7 +7,7 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
-  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase
+  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -26,6 +26,7 @@ const NAV_ITEMS = [
   { path: "/enterprise", label: "Enterprise", icon: Building2 },
   { path: "/ai-usage", label: "AI Usage", icon: Cpu },
   { path: "/admin", label: "Admin", icon: Shield },
+  { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
   { path: "/billing", label: "Billing", icon: CreditCard },
   { path: "/settings", label: "Settings", icon: SettingsIcon },
 ];

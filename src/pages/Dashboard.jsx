@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import { Link } from "react-router-dom";
 import ScoreCard from "@/components/dashboard/ScoreCard";
 import { DAILY_CHALLENGES } from "@/lib/constants";
@@ -21,16 +22,14 @@ const QUICK_ACTIONS = [
 ];
 
 export default function Dashboard() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, loading: loadingProfile } = useSubscription();
   const [recentResults, setRecentResults] = useState([]);
   const [resumeData, setResumeData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const profiles = await base44.entities.UserProfile.list();
-        if (profiles.length > 0) setProfile(profiles[0]);
         const results = await base44.entities.ChallengeResult.list("-created_date", 5);
         setRecentResults(results);
         const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
@@ -43,7 +42,7 @@ export default function Dashboard() {
     load();
   }, []);
 
-  if (loading) {
+  if (loading || loadingProfile) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-6 h-6 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />

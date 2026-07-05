@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import TopBar from "@/components/layout/TopBar";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
 
 export default function AppLayout() {
   const location = useLocation();
+  const { subscription, loading: loadingSub } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
@@ -91,9 +93,21 @@ export default function AppLayout() {
               <span className="text-[10px] text-white/30 ml-1">AI</span>
             </h1>
           </Link>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 p-1">
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          <div className="flex items-center gap-2">
+            <Link to="/billing" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5">
+              {loadingSub ? (
+                <span className="text-xs text-white/20">···</span>
+              ) : (
+                <>
+                  <span className="text-xs">{subscription.icon}</span>
+                  <span className="text-xs font-medium" style={{ color: subscription.color }}>{subscription.planName}</span>
+                </>
+              )}
+            </Link>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 p-1">
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
       </div>
 

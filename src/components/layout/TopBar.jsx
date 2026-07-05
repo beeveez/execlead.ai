@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { PLANS, getPlan } from "@/lib/plans";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import { Bell, CreditCard } from "lucide-react";
 
 export default function TopBar() {
+  const { subscription, loading } = useSubscription();
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
   const [showNotifs, setShowNotifs] = useState(false);
-  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const profiles = await base44.entities.UserProfile.list();
-        if (profiles.length > 0) setProfile(profiles[0]);
         const notifs = await base44.entities.Notification.list("-created_date", 10);
         setNotifications(notifs);
         setUnread(notifs.filter(n => !n.read).length);
@@ -32,13 +30,18 @@ export default function TopBar() {
     setUnread(0);
   };
 
-  const plan = getPlan(profile);
-
   return (
     <div className="hidden lg:flex items-center justify-end gap-3 px-8 py-2.5 border-b border-white/5">
       <Link to="/billing" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
         <CreditCard size={14} className="text-white/40" />
-        <span className="text-xs font-medium" style={{ color: plan.color }}>{plan.name}</span>
+        {loading ? (
+          <span className="text-xs text-white/20">···</span>
+        ) : (
+          <span className="text-xs font-medium flex items-center gap-1">
+            <span>{subscription.icon}</span>
+            <span style={{ color: subscription.color }}>{subscription.planName}</span>
+          </span>
+        )}
       </Link>
       <div className="relative">
         <button onClick={() => setShowNotifs(!showNotifs)} className="relative p-2 rounded-lg hover:bg-white/5 transition-colors">

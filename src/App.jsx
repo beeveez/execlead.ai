@@ -4,6 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -99,6 +100,7 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <AuthProvider>
+      <SubscriptionProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
@@ -106,6 +108,7 @@ function App() {
         </Router>
         <Toaster />
       </QueryClientProvider>
+      </SubscriptionProvider>
     </AuthProvider>
   )
 }

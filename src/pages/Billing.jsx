@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { PLANS, PLAN_LIST, getPlan } from "@/lib/plans";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import { PAYMENT_PROVIDERS, processPayment } from "@/lib/payments";
 import { CreditCard, Check, Loader2, Calendar, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Billing() {
-  const [profile, setProfile] = useState(null);
+  const { profile, subscription, refreshProfile } = useSubscription();
   const [invoices, setInvoices] = useState([]);
   const [cycle, setCycle] = useState("monthly");
   const [upgradePlan, setUpgradePlan] = useState(null);
@@ -17,11 +18,6 @@ export default function Billing() {
   useEffect(() => {
     const load = async () => {
       try {
-        const profiles = await base44.entities.UserProfile.list();
-        if (profiles.length > 0) {
-          setProfile(profiles[0]);
-          setCycle(profiles[0].subscription_cycle || "monthly");
-        }
         const invs = await base44.entities.Invoice.list("-created_date", 10);
         setInvoices(invs);
       } catch (e) {}
@@ -29,6 +25,10 @@ export default function Billing() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (profile?.subscription_cycle) setCycle(profile.subscription_cycle);
+  }, [profile?.subscription_cycle]);
 
   const currentPlan = getPlan(profile);
 
@@ -65,10 +65,10 @@ export default function Billing() {
           icon: "🎉", action_url: "/billing",
         });
 
-        setProfile({ ...profile, subscription_plan: upgradePlan.id, subscription_cycle: cycle });
         setUpgradePlan(null);
         const invs = await base44.entities.Invoice.list("-created_date", 10);
         setInvoices(invs);
+        await refreshProfile();
       }
     } catch (e) { console.error(e); }
     setProcessing(false);
@@ -83,11 +83,11 @@ export default function Billing() {
         message: "Your subscription has been canceled. You're now on the Free plan.",
         icon: "⚠️",
       });
-      setProfile({ ...profile, subscription_plan: "free", subscription_status: "canceled" });
+      await refreshProfile();
     } catch (e) {}
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  if (loading || !profile) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">

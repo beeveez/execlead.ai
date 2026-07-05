@@ -3,31 +3,25 @@ import { base44 } from "@/api/base44Client";
 import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
 import { UserCircle, Loader2, Camera, Linkedin, FileText, Upload, Trophy, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSubscription } from "@/lib/SubscriptionContext";
 
 export default function Profile() {
-  const [profile, setProfile] = useState(null);
+  const { profile, refreshProfile } = useSubscription();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({});
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const profiles = await base44.entities.UserProfile.list();
-        if (profiles.length > 0) {
-          setProfile(profiles[0]);
-          setForm({
-            bio: profiles[0].bio || "",
-            linkedin_url: profiles[0].linkedin_url || "",
-            skills: (profiles[0].skills || []).join(", "),
-          });
-        }
-      } catch (e) {}
-      setLoading(false);
-    };
-    load();
-  }, []);
+    if (profile) {
+      setForm({
+        bio: profile.bio || "",
+        linkedin_url: profile.linkedin_url || "",
+        skills: (profile.skills || []).join(", "),
+      });
+    }
+    setLoading(false);
+  }, [profile]);
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
@@ -36,7 +30,7 @@ export default function Profile() {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       await base44.entities.UserProfile.update(profile.id, { profile_photo: file_url });
-      setProfile({ ...profile, profile_photo: file_url });
+      await refreshProfile();
     } catch (e) {}
     setUploading(false);
   };
@@ -48,7 +42,7 @@ export default function Profile() {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       await base44.entities.UserProfile.update(profile.id, { resume_url: file_url });
-      setProfile({ ...profile, resume_url: file_url });
+      await refreshProfile();
     } catch (e) {}
     setUploading(false);
   };
@@ -59,13 +53,12 @@ export default function Profile() {
       await base44.entities.UserProfile.update(profile.id, {
         bio: form.bio, linkedin_url: form.linkedin_url, skills,
       });
-      setProfile({ ...profile, bio: form.bio, linkedin_url: form.linkedin_url, skills });
+      await refreshProfile();
       setEditing(false);
     } catch (e) {}
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
-  if (!profile) return null;
+  if (loading || !profile) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   const levelInfo = getLevel(profile.xp_points || 0);
   const unlocked = checkAchievements(profile);

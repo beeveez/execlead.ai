@@ -5,9 +5,10 @@ import {
 } from "@/lib/constants";
 import { Settings as SettingsIcon, Save, Loader2, User, Sliders } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSubscription } from "@/lib/SubscriptionContext";
 
 export default function Settings() {
-  const [profile, setProfile] = useState(null);
+  const { profile, refreshProfile } = useSubscription();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -18,40 +19,35 @@ export default function Settings() {
   });
 
   useEffect(() => {
-    const load = async () => {
-      const profiles = await base44.entities.UserProfile.list();
-      if (profiles.length > 0) {
-        setProfile(profiles[0]);
-        setForm({
-          full_name: profiles[0].full_name || "",
-          country: profiles[0].country || "",
-          industry: profiles[0].industry || "",
-          years_experience: profiles[0].years_experience || 0,
-          current_role: profiles[0].current_role || "",
-          current_company: profiles[0].current_company || "",
-          target_company: profiles[0].target_company || "",
-          target_role: profiles[0].target_role || "",
-          leadership_experience: profiles[0].leadership_experience || "",
-          certifications: profiles[0].certifications || "",
-          career_goals: profiles[0].career_goals || "",
-          preferred_learning_style: profiles[0].preferred_learning_style || "",
-          ai_personality: profiles[0].ai_personality || "executive_mentor",
-        });
-      }
-      setLoading(false);
-    };
-    load();
-  }, []);
+    if (profile) {
+      setForm({
+        full_name: profile.full_name || "",
+        country: profile.country || "",
+        industry: profile.industry || "",
+        years_experience: profile.years_experience || 0,
+        current_role: profile.current_role || "",
+        current_company: profile.current_company || "",
+        target_company: profile.target_company || "",
+        target_role: profile.target_role || "",
+        leadership_experience: profile.leadership_experience || "",
+        certifications: profile.certifications || "",
+        career_goals: profile.career_goals || "",
+        preferred_learning_style: profile.preferred_learning_style || "",
+        ai_personality: profile.ai_personality || "executive_mentor",
+      });
+    }
+    setLoading(false);
+  }, [profile]);
 
   const handleSave = async () => {
     if (!profile) return;
     setSaving(true);
     await base44.entities.UserProfile.update(profile.id, form);
-    setProfile({ ...profile, ...form });
+    await refreshProfile();
     setSaving(false);
   };
 
-  if (loading) {
+  if (loading || !profile) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-6 h-6 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />

@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Cpu, DollarSign, Zap, TrendingUp, Loader2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
 import { motion } from "framer-motion";
+import { useSubscription } from "@/lib/SubscriptionContext";
 
 const MODULE_LABELS = {
   coach: "AI Coach", simulator: "Simulator", challenge: "Challenge", debate: "Debate",
@@ -10,6 +11,7 @@ const MODULE_LABELS = {
 };
 
 export default function AIUsage() {
+  const { subscription } = useSubscription();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,7 +68,12 @@ export default function AIUsage() {
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
           <Cpu size={12} className="text-indigo-400" /> AI Cost Management
         </div>
-        <h1 className="text-2xl font-bold text-white">AI Usage Dashboard</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-white">AI Usage Dashboard</h1>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-xs font-medium" style={{ color: subscription.color }}>
+            <span>{subscription.icon}</span> {subscription.planName}
+          </span>
+        </div>
         <p className="text-white/40 text-sm mt-1">Track token consumption and estimated costs across modules</p>
       </div>
 

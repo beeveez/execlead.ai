@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
@@ -40,6 +40,8 @@ import CareerStudio from '@/pages/CareerStudio';
 import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
+import CourseHome from '@/pages/CourseHome';
+import Lesson from '@/pages/Lesson';
 import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
@@ -80,7 +82,11 @@ const AuthenticatedApp = () => {
           <Route path="/coach" element={<Coach />} />
           <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />
           <Route path="/debate" element={<FeatureGate featureId="executive_debate"><Debate /></FeatureGate>} />
-          <Route path="/academy" element={<FeatureGate featureId="executive_academy"><Academy /></FeatureGate>} />
+          <Route path="/academy" element={<FeatureGate featureId="executive_academy"><Outlet /></FeatureGate>}>
+            <Route index element={<Academy />} />
+            <Route path=":courseSlug" element={<CourseHome />} />
+            <Route path=":courseSlug/:lessonId" element={<Lesson />} />
+          </Route>
           <Route path="/metrics" element={<Metrics />} />
           <Route path="/companies" element={<FeatureGate featureId="company_intelligence"><Companies /></FeatureGate>} />
           <Route path="/career" element={<FeatureGate featureId="career_advisor"><Career /></FeatureGate>} />

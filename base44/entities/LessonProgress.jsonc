@@ -11,12 +11,30 @@
     "category": {
       "type": "string"
     },
+    "course_id": {
+      "type": "string"
+    },
+    "module_id": {
+      "type": "string"
+    },
     "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "bookmarked": {
       "type": "boolean",
       "default": false
     },
     "notes": {
       "type": "string"
+    },
+    "quiz_score": {
+      "type": "number",
+      "default": 0
+    },
+    "time_spent_minutes": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

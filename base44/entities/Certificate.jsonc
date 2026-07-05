@@ -1,0 +1,31 @@
+{
+  "name": "Certificate",
+  "type": "object",
+  "properties": {
+    "certificate_id": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_name": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "verification_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "certificate_id",
+    "course_id",
+    "course_name",
+    "user_name"
+  ]
+}

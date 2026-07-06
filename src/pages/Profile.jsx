@@ -16,6 +16,9 @@ import ExperienceSection from "@/components/profile/ExperienceSection";
 import EducationSection from "@/components/profile/EducationSection";
 import PrivacySection from "@/components/profile/PrivacySection";
 import AccountSection from "@/components/profile/AccountSection";
+import ProfileCompleteness from "@/components/profile/ProfileCompleteness";
+import ResumeSyncModal from "@/components/profile/ResumeSyncModal";
+import { extractResumeIdentity } from "@/lib/resumeSync";
 import { Loader2, Save, UserCircle } from "lucide-react";
 
 export default function Profile() {
@@ -26,6 +29,8 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [syncData, setSyncData] = useState(null);
+  const [syncFileName, setSyncFileName] = useState("");
 
   useEffect(() => {
     if (profile) {
@@ -88,11 +93,25 @@ export default function Profile() {
       await base44.entities.UserProfile.update(profile.id, { resume_url: file_url });
       setForm(prev => prev ? { ...prev, resume_url: file_url } : prev);
       await refreshProfile();
-      toast({ title: "Resume Uploaded", description: "Your resume has been updated." });
+      toast({ title: "Resume Uploaded", description: "Extracting data to populate your identity..." });
+
+      const extracted = await extractResumeIdentity(file_url);
+      if (extracted) {
+        setSyncData(extracted);
+        setSyncFileName(file.name);
+      } else {
+        toast({ title: "Extraction Failed", description: "Could not parse resume data.", variant: "destructive" });
+      }
     } catch (e) {
       toast({ title: "Upload Failed", description: "Could not upload resume.", variant: "destructive" });
     }
     setUploadingResume(false);
+  };
+
+  const handleSyncApply = (syncedForm) => {
+    setForm(syncedForm);
+    setSyncData(null);
+    toast({ title: "Identity Populated", description: "Review and click Save Changes to persist." });
   };
 
   const handleSave = async () => {
@@ -187,11 +206,27 @@ export default function Profile() {
       </div>
 
       <div className="flex gap-8">
-        <ProfileSidebar active={activeSection} onSelect={setActiveSection} />
+        <div className="hidden lg:block w-64 flex-shrink-0 space-y-4">
+          <ProfileSidebar active={activeSection} onSelect={setActiveSection} />
+          <ProfileCompleteness form={form} />
+        </div>
         <div className="flex-1 min-w-0">
+          <div className="lg:hidden mb-4">
+            <ProfileCompleteness form={form} />
+          </div>
           {sections[activeSection]}
         </div>
       </div>
+
+      {syncData && (
+        <ResumeSyncModal
+          extractedForm={syncData}
+          currentForm={form}
+          fileName={syncFileName}
+          onApply={handleSyncApply}
+          onClose={() => setSyncData(null)}
+        />
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ export default function ResumeSection({ resumeUrl, onResumeUpload, uploadingResu
   const inputRef = useRef(null);
 
   return (
-    <SectionCard title="Resume" description="Upload, manage, and analyze your resume." icon={FileText}>
+    <SectionCard title="Resume" description="Upload your resume to auto-populate your Executive Identity." icon={FileText}>
       {resumeUrl ? (
         <div className="space-y-3">
           <div className="flex items-center gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-lg">
@@ -46,7 +46,7 @@ export default function ResumeSection({ resumeUrl, onResumeUpload, uploadingResu
               </div>
               <div>
                 <p className="text-white font-medium text-sm">Upload your resume</p>
-                <p className="text-white/30 text-xs mt-1">PDF or DOCX</p>
+                <p className="text-white/30 text-xs mt-1">PDF or DOCX · Auto-populates your profile</p>
               </div>
             </div>
           )}

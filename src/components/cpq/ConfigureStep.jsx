@@ -21,11 +21,13 @@ export default function ConfigureStep({ config, updateConfig, catalog }) {
   const { modules, seatTiers, aiPackages, supportPackages, discountRules, currencies, taxRules } = catalog;
 
   const toggleModule = (id) => {
+    if (Array.isArray(id)) { updateConfig("moduleIds", id); return; }
     const ids = config.moduleIds.includes(id) ? config.moduleIds.filter(x => x !== id) : [...config.moduleIds, id];
     updateConfig("moduleIds", ids);
   };
 
   const toggleService = (id) => {
+    if (Array.isArray(id)) { updateConfig("serviceIds", id); return; }
     const ids = config.serviceIds.includes(id) ? config.serviceIds.filter(x => x !== id) : [...config.serviceIds, id];
     updateConfig("serviceIds", ids);
   };

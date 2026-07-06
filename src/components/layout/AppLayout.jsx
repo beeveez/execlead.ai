@@ -8,8 +8,12 @@ import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
   LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt,
-  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound
+  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound, Code2
 } from "lucide-react";
+import { useDeveloper } from "@/lib/DeveloperContext";
+import DebugPanel from "@/components/developer/DebugPanel";
+import DeveloperBadge from "@/components/developer/DeveloperBadge";
+import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 
 const NAV_GROUPS = [
   {
@@ -70,6 +74,7 @@ const NAV_GROUPS = [
       { path: "/feature-management", label: "Features", icon: Boxes },
       { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
       { path: "/sso", label: "SSO & Identity", icon: KeyRound },
+      { path: "/developer", label: "Developer", icon: Code2 },
     ],
   },
 ];
@@ -123,6 +128,9 @@ export default function AppLayout() {
           ))}
         </nav>
         <div className="p-3 border-t border-white/5">
+          <div className="mb-2 flex justify-center">
+            <DeveloperBadge />
+          </div>
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/30 hover:text-red-400 hover:bg-red-500/5 w-full transition-colors"
@@ -187,11 +195,13 @@ export default function AppLayout() {
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 pt-14 lg:pt-0 min-h-screen">
+        <ImpersonationBanner />
         <TopBar />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>
+      <DebugPanel />
     </div>
   );
 }

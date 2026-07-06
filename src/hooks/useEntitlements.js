@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSubscription } from "@/lib/SubscriptionContext";
+import { useDeveloper } from "@/lib/DeveloperContext";
 import { DEFAULT_FEATURES, PLAN_TIERS, getFeatureCatalog, getUpgradePlan } from "@/lib/featureCatalog";
 
 export function useEntitlements() {
   const { profile } = useSubscription();
+  const { isSuperAdmin, developerMode, simulatedPlan, featureOverrides, impersonation, getEffectivePlan } = useDeveloper();
   const [features, setFeatures] = useState(DEFAULT_FEATURES);
   const [loading, setLoading] = useState(true);
 
@@ -18,14 +20,25 @@ export function useEntitlements() {
     return () => { active = false; };
   }, []);
 
-  const planId = profile?.subscription_plan || "free";
+  const realPlan = profile?.subscription_plan || "free";
+  const planId = getEffectivePlan(realPlan);
   const userTier = PLAN_TIERS[planId] ?? 0;
+  const isSimulating = Boolean(simulatedPlan || impersonation);
 
   const hasAccess = useCallback((featureId) => {
+    // Feature simulator explicit override takes precedence
+    if (featureOverrides[featureId] !== undefined) {
+      return featureOverrides[featureId];
+    }
+    // Developer mode → unlock all
+    if (developerMode) return true;
+    // Super admin not simulating → unlock all
+    if (isSuperAdmin && !isSimulating) return true;
+    // Normal plan-based check
     const f = features.find(x => x.id === featureId);
     if (!f || !f.isEnabled) return false;
     return userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0);
-  }, [features, userTier]);
+  }, [features, userTier, isSuperAdmin, developerMode, isSimulating, featureOverrides]);
 
   const getFeature = useCallback((featureId) => features.find(x => x.id === featureId), [features]);
 

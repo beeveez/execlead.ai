@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Shield, Users, Building, DollarSign, Loader2, Server, Activity, Flag } from "lucide-react";
 import { motion } from "framer-motion";
+import { isPlatformAdmin } from "@/lib/roles";
 
 export default function AdminConsole() {
   const [user, setUser] = useState(null);
@@ -16,7 +17,7 @@ export default function AdminConsole() {
         const me = await base44.auth.me();
         setUser(me);
 
-        if (me.role === "admin") {
+        if (isPlatformAdmin(me.role)) {
           const [userProfiles, organizations, invoices, usageLogs, challenges, simulations] = await Promise.all([
             base44.entities.UserProfile.list(),
             base44.entities.Organization.list(),
@@ -46,7 +47,7 @@ export default function AdminConsole() {
 
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
-  if (!user || user.role !== "admin") {
+  if (!user || !isPlatformAdmin(user.role)) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">

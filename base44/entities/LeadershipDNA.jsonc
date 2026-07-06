@@ -1,0 +1,35 @@
+{
+  "name": "LeadershipDNA",
+  "type": "object",
+  "properties": {
+    "competency_scores_json": {
+      "type": "string"
+    },
+    "strengths_json": {
+      "type": "string"
+    },
+    "weaknesses_json": {
+      "type": "string"
+    },
+    "growth_summary": {
+      "type": "string"
+    },
+    "career_trajectory": {
+      "type": "string"
+    },
+    "recommendations": {
+      "type": "string"
+    },
+    "leadership_archetype": {
+      "type": "string"
+    },
+    "executive_readiness_score": {
+      "type": "number",
+      "default": 0
+    },
+    "data_sources_json": {
+      "type": "string"
+    }
+  },
+  "required": []
+}

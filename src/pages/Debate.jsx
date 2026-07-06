@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { AI_PERSONALITIES, QUESTION_CATEGORIES } from "@/lib/constants";
 import { Swords, Send, Loader2, Bot, User, RotateCcw, Flame, ShieldAlert } from "lucide-react";
+import { callAI } from "@/lib/ai";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -43,7 +44,7 @@ export default function Debate() {
     setStep("debate");
     try {
       const p = personality || AI_PERSONALITIES[0];
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("debate", {
         prompt: `You are "${p.name}" - ${p.description}
 Communication style: ${p.communication_style}
 Leadership style: ${p.leadership_style}
@@ -76,7 +77,7 @@ Generate ONE provocative executive debate topic in the category "${cat}". State 
 
     try {
       if (currentRound <= MIN_ROUNDS) {
-        const res = await base44.integrations.Core.InvokeLLM({
+        const res = await callAI("debate", {
           prompt: `You are "${p.name}" in an executive DEBATE.
 Communication style: ${p.communication_style}
 Question style: ${p.question_style}
@@ -99,7 +100,7 @@ Continue the debate. This is round ${currentRound}. Push deeper. Ask for specifi
         setRound(currentRound);
       } else {
         // Final evaluation after 5+ rounds
-        const res = await base44.integrations.Core.InvokeLLM({
+        const res = await callAI("debate", {
           prompt: `You are "${p.name}" evaluating an executive debate that has lasted ${currentRound} rounds.
 
 Topic: ${topic}
@@ -139,7 +140,7 @@ Provide your final debate evaluation as JSON.`,
     const p = personality || AI_PERSONALITIES[0];
     const history = messages.map(m => `${m.role === "user" ? "CANDIDATE" : p.name.toUpperCase()}: ${m.content}`).join("\n\n");
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const res = await callAI("debate", {
         prompt: `Evaluate this executive debate (${round} rounds).
 Topic: ${topic}
 Conversation:

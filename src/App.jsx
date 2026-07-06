@@ -46,6 +46,9 @@ import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import BillingAdmin from '@/pages/BillingAdmin';
 import Pricing from '@/pages/Pricing';
+import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
+import LeadershipDNA from '@/pages/LeadershipDNA';
+import Marketplace from '@/pages/Marketplace';
 import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
@@ -87,6 +90,8 @@ const AuthenticatedApp = () => {
           <Route path="/coach" element={<Coach />} />
           <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />
           <Route path="/debate" element={<FeatureGate featureId="executive_debate"><Debate /></FeatureGate>} />
+          <Route path="/council" element={<FeatureGate featureId="executive_council"><ExecutiveCouncil /></FeatureGate>} />
+          <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/academy" element={<FeatureGate featureId="executive_academy"><Outlet /></FeatureGate>}>
             <Route index element={<Academy />} />
             <Route path=":courseSlug" element={<CourseHome />} />
@@ -96,6 +101,7 @@ const AuthenticatedApp = () => {
           <Route path="/companies" element={<FeatureGate featureId="company_intelligence"><Companies /></FeatureGate>} />
           <Route path="/career" element={<FeatureGate featureId="career_advisor"><Career /></FeatureGate>} />
           <Route path="/analytics" element={<FeatureGate featureId="leadership_analytics"><Analytics /></FeatureGate>} />
+          <Route path="/leadership-dna" element={<FeatureGate featureId="leadership_dna"><LeadershipDNA /></FeatureGate>} />
           <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />
           <Route path="/resume" element={<FeatureGate featureId="resume_intelligence"><ResumeIntelligence /></FeatureGate>} />
           <Route path="/career-studio" element={<FeatureGate featureId="career_studio"><CareerStudio /></FeatureGate>} />

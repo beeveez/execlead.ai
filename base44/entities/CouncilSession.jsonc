@@ -1,0 +1,25 @@
+{
+  "name": "CouncilSession",
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string"
+    },
+    "personas_json": {
+      "type": "string"
+    },
+    "perspectives_json": {
+      "type": "string"
+    },
+    "consolidated_recommendation": {
+      "type": "string"
+    },
+    "overall_confidence": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "question"
+  ]
+}

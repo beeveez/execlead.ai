@@ -50,6 +50,10 @@ export const DEFAULT_FEATURES = [
   { id: "linkedin_optimizer", name: "LinkedIn Optimizer", description: "Optimize your LinkedIn executive presence", category: "Career", icon: "Linkedin", minimumPlan: "professional", isEnabled: true, sortOrder: 22 },
   { id: "career_studio", name: "Career Studio", description: "Complete career document workspace", category: "Career", icon: "Briefcase", minimumPlan: "professional", isEnabled: true, sortOrder: 23 },
 
+  { id: "executive_council", name: "Executive Council", description: "AI advisory board with multiple executive personas", category: "Coaching", icon: "Users", minimumPlan: "professional", isEnabled: true, sortOrder: 24 },
+  { id: "leadership_dna", name: "Leadership DNA", description: "Living executive profile with AI-generated growth insights", category: "Analytics", icon: "Fingerprint", minimumPlan: "professional", isEnabled: true, sortOrder: 25 },
+  { id: "marketplace", name: "EXECLEAD Marketplace", description: "Premium content marketplace for leadership development", category: "Platform", icon: "Store", minimumPlan: "free", isEnabled: true, sortOrder: 26 },
+
   { id: "board_meeting_simulator", name: "Board Meeting Simulator", description: "Practice board-level presentations", category: "Simulator", icon: "Brain", minimumPlan: "executive", isEnabled: true, sortOrder: 30 },
   { id: "cio_coaching", name: "CIO Coaching", description: "Mentorship from former CIO persona", category: "Coaching", icon: "Users", minimumPlan: "executive", isEnabled: true, sortOrder: 31 },
   { id: "cfo_coaching", name: "CFO Coaching", description: "Mentorship from former CFO persona", category: "Coaching", icon: "DollarSign", minimumPlan: "executive", isEnabled: true, sortOrder: 32 },

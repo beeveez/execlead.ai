@@ -7,7 +7,8 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
-  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt
+  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt,
+  Users, Fingerprint, Store
 } from "lucide-react";
 
 const NAV_GROUPS = [
@@ -19,6 +20,8 @@ const NAV_GROUPS = [
       { path: "/coach", label: "Coach", icon: MessageSquare },
       { path: "/simulator", label: "Simulator", icon: Brain },
       { path: "/debate", label: "Debate", icon: Scale },
+      { path: "/council", label: "Council", icon: Users },
+      { path: "/marketplace", label: "Marketplace", icon: Store },
     ],
   },
   {
@@ -35,6 +38,7 @@ const NAV_GROUPS = [
     label: "Intelligence",
     items: [
       { path: "/analytics", label: "Analytics", icon: BarChart3 },
+      { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint },
       { path: "/ai-usage", label: "AI Usage", icon: Cpu },
     ],
   },

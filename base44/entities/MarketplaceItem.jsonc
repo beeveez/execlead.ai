@@ -1,0 +1,90 @@
+{
+  "name": "MarketplaceItem",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "learning_path",
+        "company_pack",
+        "interview_pack",
+        "certification_track",
+        "executive_playbook",
+        "presentation_template",
+        "case_study",
+        "industry_framework"
+      ]
+    },
+    "category": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "creator_name": {
+      "type": "string"
+    },
+    "creator_type": {
+      "type": "string",
+      "enum": [
+        "execlead",
+        "partner",
+        "creator"
+      ],
+      "default": "execlead"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "content_preview": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "downloads": {
+      "type": "number",
+      "default": 0
+    },
+    "rating": {
+      "type": "number",
+      "default": 0
+    },
+    "duration_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "executive"
+      ],
+      "default": "executive"
+    }
+  },
+  "required": [
+    "title",
+    "type"
+  ]
+}

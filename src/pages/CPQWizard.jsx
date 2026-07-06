@@ -37,6 +37,7 @@ export default function CPQWizard() {
   const [generatedQuote, setGeneratedQuote] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [emailWarning, setEmailWarning] = useState(false);
+  const [proposalPdfUrl, setProposalPdfUrl] = useState(null);
 
   const breakdown = useMemo(() => catalog ? calculateQuote(config, catalog) : null, [config, catalog]);
   const updateConfig = (key, value) => setConfig(prev => ({ ...prev, [key]: value }));
@@ -107,7 +108,10 @@ export default function CPQWizard() {
       let pdfUrl = null;
       try {
         pdfUrl = await generateProposalPDF(quote, breakdown, catalog);
-        if (pdfUrl) await base44.entities.CPQQuote.update(quote.id, { pdf_url: pdfUrl });
+        if (pdfUrl) {
+          await base44.entities.CPQQuote.update(quote.id, { pdf_url: pdfUrl });
+          setProposalPdfUrl(pdfUrl);
+        }
       } catch (e) {}
 
       // Build and send customer confirmation email (HTML with buttons)
@@ -211,6 +215,7 @@ export default function CPQWizard() {
       breakdown={breakdown}
       catalog={catalog}
       emailWarning={emailWarning}
+      pdfUrl={proposalPdfUrl}
       onNewQuote={() => { setGeneratedQuote(null); setStep(1); setConfig({ ...config, moduleIds: [], serviceIds: [] }); }}
       onViewQuotes={() => navigate("/cpq-dashboard")}
     />

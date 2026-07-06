@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useCPQCatalog } from "@/hooks/useCPQCatalog";
 import { calculateQuote, formatCPQPrice } from "@/lib/cpqEngine";
 import PriceSummary from "@/components/cpq/PriceSummary";
+import ProposalStatusTracker from "@/components/cpq/ProposalStatusTracker";
 import { Loader2, ArrowLeft, FileText } from "lucide-react";
 
 export default function CPQQuoteView() {
@@ -87,6 +88,8 @@ export default function CPQQuoteView() {
           <PriceSummary breakdown={breakdown} catalog={catalog} />
         </div>
       )}
+
+      <ProposalStatusTracker quote={quote} pdfUrl={quote.pdf_url} />
     </div>
   );
 }

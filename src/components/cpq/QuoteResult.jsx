@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, FileText, Plus, ArrowRight, AlertTriangle, Mail } from "lucide-react";
 import PriceSummary from "./PriceSummary";
+import ProposalStatusTracker from "./ProposalStatusTracker";
 
 function Row({ label, value }) {
   return (
@@ -12,7 +13,7 @@ function Row({ label, value }) {
   );
 }
 
-export default function QuoteResult({ quote, breakdown, catalog, emailWarning, onNewQuote, onViewQuotes }) {
+export default function QuoteResult({ quote, breakdown, catalog, emailWarning, pdfUrl, onNewQuote, onViewQuotes }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-gradient-to-b from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-2xl p-8 text-center">
@@ -56,6 +57,8 @@ export default function QuoteResult({ quote, breakdown, catalog, emailWarning, o
         </div>
         <PriceSummary breakdown={breakdown} catalog={catalog} />
       </div>
+
+      <ProposalStatusTracker quote={quote} emailWarning={emailWarning} pdfUrl={pdfUrl} />
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <button onClick={onNewQuote} className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-colors">

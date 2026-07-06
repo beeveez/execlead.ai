@@ -1,0 +1,45 @@
+{
+  "name": "Purchase",
+  "type": "object",
+  "properties": {
+    "item_id": {
+      "type": "string"
+    },
+    "item_title": {
+      "type": "string"
+    },
+    "item_type": {
+      "type": "string"
+    },
+    "item_icon": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "creator_name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "content_preview": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "item_id",
+    "item_title"
+  ]
+}

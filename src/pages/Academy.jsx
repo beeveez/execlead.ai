@@ -1,14 +1,21 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { COURSES, searchAcademy, getRecommendedCourses } from "@/lib/courseCatalog";
 import { useAcademy } from "@/hooks/useAcademy";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { GraduationCap, Search, Award, BookOpen, Sparkles } from "lucide-react";
+import { GraduationCap, Search, Award, BookOpen, Sparkles, ShoppingBag } from "lucide-react";
 import CourseCard from "@/components/academy/CourseCard";
+import PurchasedContentCard from "@/components/academy/PurchasedContentCard";
 
 export default function Academy() {
   const { profile } = useSubscription();
   const { getCourseProgress, certificates, getCompletedCount, loading } = useAcademy();
   const [query, setQuery] = useState("");
+  const [purchases, setPurchases] = useState([]);
+
+  useEffect(() => {
+    base44.entities.Purchase.list("-created_date", 100).then(setPurchases).catch(() => {});
+  }, []);
 
   const recommended = useMemo(() => getRecommendedCourses(profile?.target_role), [profile?.target_role]);
   const filtered = useMemo(() => query ? searchAcademy(query) : COURSES, [query]);
@@ -34,6 +41,15 @@ export default function Academy() {
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
         <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search courses, modules, lessons..." className="w-full bg-white/[0.03] border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm text-white/80 focus:outline-none focus:border-amber-500/30 transition-colors" />
       </div>
+
+      {!isSearching && purchases.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3"><ShoppingBag size={14} className="text-indigo-400" /><h2 className="text-sm font-semibold text-white/70">My Purchased Content</h2></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {purchases.map(p => <PurchasedContentCard key={p.id} purchase={p} />)}
+          </div>
+        </div>
+      )}
 
       {!isSearching && recommended.length > 0 && (
         <div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { X, Star, Clock, Download, Check, Loader2 } from "lucide-react";
@@ -25,10 +25,32 @@ export default function MarketplaceDetail({ item, onClose }) {
   const [purchasing, setPurchasing] = useState(false);
   const [purchased, setPurchased] = useState(false);
 
+  useEffect(() => {
+    const checkPurchased = async () => {
+      try {
+        const existing = await base44.entities.Purchase.filter({ item_id: item.id });
+        if (existing.length > 0) setPurchased(true);
+      } catch (e) {}
+    };
+    checkPurchased();
+  }, [item.id]);
+
   const handlePurchase = async () => {
     setPurchasing(true);
     try {
       await base44.entities.MarketplaceItem.update(item.id, { downloads: (item.downloads || 0) + 1 });
+      await base44.entities.Purchase.create({
+        item_id: item.id,
+        item_title: item.title,
+        item_type: item.type,
+        item_icon: item.icon,
+        price: item.price,
+        currency: item.currency,
+        creator_name: item.creator_name,
+        category: item.category,
+        content_preview: item.content_preview,
+        tags: item.tags,
+      });
       setPurchased(true);
     } catch (e) {}
     setPurchasing(false);

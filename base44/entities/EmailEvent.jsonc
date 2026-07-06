@@ -1,0 +1,40 @@
+{
+  "name": "EmailEvent",
+  "type": "object",
+  "properties": {
+    "recipient": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "delivery_status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "failed",
+        "not_configured"
+      ],
+      "default": "sent"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "email_type": {
+      "type": "string"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "entity_name": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "recipient",
+    "subject"
+  ]
+}

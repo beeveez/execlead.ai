@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, FileText, Plus, ArrowRight } from "lucide-react";
+import { CheckCircle2, FileText, Plus, ArrowRight, AlertTriangle, Mail } from "lucide-react";
 import PriceSummary from "./PriceSummary";
 
 function Row({ label, value }) {
@@ -12,7 +12,7 @@ function Row({ label, value }) {
   );
 }
 
-export default function QuoteResult({ quote, breakdown, catalog, onNewQuote, onViewQuotes }) {
+export default function QuoteResult({ quote, breakdown, catalog, emailWarning, onNewQuote, onViewQuotes }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-gradient-to-b from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-2xl p-8 text-center">
@@ -27,6 +27,19 @@ export default function QuoteResult({ quote, breakdown, catalog, onNewQuote, onV
         </div>
         <div className="mt-4 text-white/30 text-xs">Valid until: {quote.valid_until} · Status: <span className="text-amber-400 capitalize">{quote.status}</span></div>
       </div>
+
+      {emailWarning && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
+          <AlertTriangle size={20} className="text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <div className="text-amber-400 font-medium text-sm">Email provider not configured</div>
+            <div className="text-white/40 text-xs mt-0.5">Proposal was submitted successfully, but no email was sent.</div>
+          </div>
+          <Link to="/email-settings" className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-xs font-medium transition-colors whitespace-nowrap">
+            <Mail size={12} /> Configure Email
+          </Link>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">

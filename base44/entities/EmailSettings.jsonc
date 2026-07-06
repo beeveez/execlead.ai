@@ -1,0 +1,28 @@
+{
+  "name": "EmailSettings",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": [
+        "resend",
+        "sendgrid",
+        "ses"
+      ],
+      "default": "resend"
+    },
+    "from_email": {
+      "type": "string"
+    },
+    "from_name": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "provider"
+  ]
+}

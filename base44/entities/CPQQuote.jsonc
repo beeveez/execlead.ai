@@ -102,6 +102,9 @@
     },
     "notes": {
       "type": "string"
+    },
+    "pdf_url": {
+      "type": "string"
     }
   },
   "required": [

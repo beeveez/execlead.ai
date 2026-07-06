@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCPQCatalog } from "@/hooks/useCPQCatalog";
 import { calculateQuote, generateProposalNumber } from "@/lib/cpqEngine";
-import { sendPaymentEmail, EMAIL_TYPES, logBillingEvent } from "@/lib/payments";
+import { logBillingEvent } from "@/lib/payments";
+import { sendTransactionalEmail, buildProposalConfirmationEmail, buildSalesNotificationEmail } from "@/lib/emailProvider";
+import { generateProposalPDF } from "@/lib/proposalPdf";
 import OrgProfileStep from "@/components/cpq/OrgProfileStep";
 import ConfigureStep from "@/components/cpq/ConfigureStep";
 import PriceSummary from "@/components/cpq/PriceSummary";
@@ -34,6 +36,7 @@ export default function CPQWizard() {
   });
   const [generatedQuote, setGeneratedQuote] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [emailWarning, setEmailWarning] = useState(false);
 
   const breakdown = useMemo(() => catalog ? calculateQuote(config, catalog) : null, [config, catalog]);
   const updateConfig = (key, value) => setConfig(prev => ({ ...prev, [key]: value }));
@@ -93,7 +96,89 @@ export default function CPQWizard() {
       const quoteUrl = `${window.location.origin}/cpq/quote/${quote.id}`;
       const totalStr = breakdown.convertedTotal.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
-      // Run all side effects in parallel; one failure won't block the others
+      // Send confirmation to the logged-in user's account email
+      let customerEmail = orgProfile.customer_email;
+      try {
+        const me = await base44.auth.me();
+        if (me?.email) customerEmail = me.email;
+      } catch (e) {}
+
+      // Generate proposal PDF and upload
+      let pdfUrl = null;
+      try {
+        pdfUrl = await generateProposalPDF(quote, breakdown, catalog);
+        if (pdfUrl) await base44.entities.CPQQuote.update(quote.id, { pdf_url: pdfUrl });
+      } catch (e) {}
+
+      // Build and send customer confirmation email (HTML with buttons)
+      const customerHtml = buildProposalConfirmationEmail({
+        name: orgProfile.organization_name,
+        proposalNumber,
+        organization: orgProfile.organization_name,
+        status: quote.status,
+        contractValue: `${breakdown.currency} ${totalStr}`,
+        validUntil: quote.valid_until,
+        viewUrl: quoteUrl,
+        downloadUrl: pdfUrl || quoteUrl,
+      });
+
+      // Build and send sales rep notification
+      const salesHtml = buildSalesNotificationEmail({
+        proposalNumber,
+        organization: orgProfile.organization_name,
+        industry: orgProfile.industry,
+        country: orgProfile.country,
+        email: customerEmail,
+        seats: breakdown.seats,
+        contractLength: breakdown.contractLength,
+        currency: breakdown.currency,
+        annualValue: breakdown.annualEquivalent.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+        total: totalStr,
+        requiresApproval: breakdown.discount.requiresApproval,
+        quoteUrl,
+      });
+
+      // Send emails via the provider abstraction layer
+      const [customerResult] = await Promise.all([
+        sendTransactionalEmail({
+          to: customerEmail,
+          subject: `Proposal ${proposalNumber} — EXECLEAD.AI Enterprise`,
+          html: customerHtml,
+          emailType: "proposal_confirmation",
+          entityId: quote.id,
+          entityName: orgProfile.organization_name,
+        }),
+        sendTransactionalEmail({
+          to: "sales@execlead.ai",
+          subject: `[Sales] New Enterprise Proposal — ${orgProfile.organization_name} (${breakdown.currency} ${totalStr})`,
+          html: salesHtml,
+          emailType: "proposal_sales_notify",
+          entityId: quote.id,
+          entityName: orgProfile.organization_name,
+        }),
+      ]);
+
+      // Show admin warning if email provider not configured
+      if (!customerResult.configured) setEmailWarning(true);
+
+      // Create Deal Desk task
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 1);
+      try {
+        await base44.entities.Task.create({
+          title: `Review Enterprise Proposal ${proposalNumber}`,
+          description: `${orgProfile.organization_name} (${orgProfile.industry}, ${orgProfile.country}) submitted a proposal worth ${breakdown.currency} ${totalStr} over ${breakdown.contractLength} year(s). Contact: ${customerEmail}.${breakdown.discount.requiresApproval ? " Discount approval required." : ""}`,
+          assignee: "Deal Desk",
+          status: "open",
+          priority: breakdown.grandTotal >= 100000 ? "urgent" : breakdown.grandTotal >= 50000 ? "high" : "medium",
+          due_date: dueDate.toISOString().split("T")[0],
+          related_entity_id: quote.id,
+          related_entity_type: "cpq_quote",
+          task_type: "deal_desk",
+        });
+      } catch (e) {}
+
+      // Record billing event + notification (best-effort)
       await Promise.allSettled([
         logBillingEvent({
           event_type: "enterprise_request",
@@ -102,7 +187,7 @@ export default function CPQWizard() {
           currency: config.currency,
           plan_id: "enterprise",
           billing_cycle: "annual",
-          metadata: JSON.stringify({ proposal_number: proposalNumber, contract_length: config.contractLength }),
+          metadata: JSON.stringify({ proposal_number: proposalNumber, contract_length: config.contractLength, email_sent: customerResult.sent }),
         }),
         base44.entities.Notification.create({
           type: "subscription",
@@ -110,31 +195,6 @@ export default function CPQWizard() {
           message: `Your enterprise proposal ${proposalNumber} for ${orgProfile.organization_name} has been received. Our team will contact you within 24 hours.`,
           icon: "📋",
           action_url: `/cpq/quote/${quote.id}`,
-        }),
-        sendPaymentEmail(EMAIL_TYPES.CPQ_QUOTE_SUBMITTED, orgProfile.customer_email, {
-          name: orgProfile.organization_name,
-          proposalNumber,
-          validUntil: quote.valid_until,
-          organization: orgProfile.organization_name,
-          seats: breakdown.seats,
-          contractLength: breakdown.contractLength,
-          currency: breakdown.currency,
-          total: totalStr,
-          quoteUrl,
-        }),
-        sendPaymentEmail(EMAIL_TYPES.CPQ_QUOTE_SALES, "sales@execlead.ai", {
-          proposalNumber,
-          organization: orgProfile.organization_name,
-          industry: orgProfile.industry,
-          country: orgProfile.country,
-          email: orgProfile.customer_email,
-          seats: breakdown.seats,
-          contractLength: breakdown.contractLength,
-          currency: breakdown.currency,
-          annualValue: breakdown.annualEquivalent.toLocaleString(undefined, { maximumFractionDigits: 0 }),
-          total: totalStr,
-          requiresApproval: breakdown.discount.requiresApproval,
-          quoteUrl,
         }),
       ]);
     } catch (e) {
@@ -150,6 +210,7 @@ export default function CPQWizard() {
       quote={generatedQuote}
       breakdown={breakdown}
       catalog={catalog}
+      emailWarning={emailWarning}
       onNewQuote={() => { setGeneratedQuote(null); setStep(1); setConfig({ ...config, moduleIds: [], serviceIds: [] }); }}
       onViewQuotes={() => navigate("/cpq-dashboard")}
     />

@@ -476,7 +476,10 @@ export async function sendPaymentEmail(type, to, data) {
   try {
     const { subject, body } = template(data);
     await base44.integrations.Core.SendEmail({ to, subject, body, from_name: "EXECLEAD.AI" });
-  } catch (e) {}
+  } catch (e) {
+    console.error(`[sendPaymentEmail] Failed to send "${type}" to ${to}:`, e);
+    throw e;
+  }
 }
 
 // ============================================================

@@ -87,56 +87,59 @@ export default function CPQWizard() {
         });
       }
 
-      await logBillingEvent({
-        event_type: "enterprise_request",
-        status: "success",
-        amount: breakdown.grandTotal,
-        currency: config.currency,
-        plan_id: "enterprise",
-        billing_cycle: "annual",
-        metadata: JSON.stringify({ proposal_number: proposalNumber, contract_length: config.contractLength }),
-      });
-
-      await base44.entities.Notification.create({
-        type: "subscription",
-        title: "Proposal Submitted",
-        message: `Your enterprise proposal ${proposalNumber} for ${orgProfile.organization_name} has been received. Our team will contact you within 24 hours.`,
-        icon: "📋",
-        action_url: `/cpq/quote/${quote.id}`,
-      });
+      // Show success immediately — side effects run independently below
+      setGeneratedQuote(quote);
 
       const quoteUrl = `${window.location.origin}/cpq/quote/${quote.id}`;
       const totalStr = breakdown.convertedTotal.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
-      await sendPaymentEmail(EMAIL_TYPES.CPQ_QUOTE_SUBMITTED, orgProfile.customer_email, {
-        name: orgProfile.organization_name,
-        proposalNumber,
-        validUntil: quote.valid_until,
-        organization: orgProfile.organization_name,
-        seats: breakdown.seats,
-        contractLength: breakdown.contractLength,
-        currency: breakdown.currency,
-        total: totalStr,
-        quoteUrl,
-      });
-
-      await sendPaymentEmail(EMAIL_TYPES.CPQ_QUOTE_SALES, "sales@execlead.ai", {
-        proposalNumber,
-        organization: orgProfile.organization_name,
-        industry: orgProfile.industry,
-        country: orgProfile.country,
-        email: orgProfile.customer_email,
-        seats: breakdown.seats,
-        contractLength: breakdown.contractLength,
-        currency: breakdown.currency,
-        annualValue: breakdown.annualEquivalent.toLocaleString(undefined, { maximumFractionDigits: 0 }),
-        total: totalStr,
-        requiresApproval: breakdown.discount.requiresApproval,
-        quoteUrl,
-      });
-
-      setGeneratedQuote(quote);
-    } catch (e) {}
+      // Run all side effects in parallel; one failure won't block the others
+      await Promise.allSettled([
+        logBillingEvent({
+          event_type: "enterprise_request",
+          status: "success",
+          amount: breakdown.grandTotal,
+          currency: config.currency,
+          plan_id: "enterprise",
+          billing_cycle: "annual",
+          metadata: JSON.stringify({ proposal_number: proposalNumber, contract_length: config.contractLength }),
+        }),
+        base44.entities.Notification.create({
+          type: "subscription",
+          title: "Proposal Submitted",
+          message: `Your enterprise proposal ${proposalNumber} for ${orgProfile.organization_name} has been received. Our team will contact you within 24 hours.`,
+          icon: "📋",
+          action_url: `/cpq/quote/${quote.id}`,
+        }),
+        sendPaymentEmail(EMAIL_TYPES.CPQ_QUOTE_SUBMITTED, orgProfile.customer_email, {
+          name: orgProfile.organization_name,
+          proposalNumber,
+          validUntil: quote.valid_until,
+          organization: orgProfile.organization_name,
+          seats: breakdown.seats,
+          contractLength: breakdown.contractLength,
+          currency: breakdown.currency,
+          total: totalStr,
+          quoteUrl,
+        }),
+        sendPaymentEmail(EMAIL_TYPES.CPQ_QUOTE_SALES, "sales@execlead.ai", {
+          proposalNumber,
+          organization: orgProfile.organization_name,
+          industry: orgProfile.industry,
+          country: orgProfile.country,
+          email: orgProfile.customer_email,
+          seats: breakdown.seats,
+          contractLength: breakdown.contractLength,
+          currency: breakdown.currency,
+          annualValue: breakdown.annualEquivalent.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+          total: totalStr,
+          requiresApproval: breakdown.discount.requiresApproval,
+          quoteUrl,
+        }),
+      ]);
+    } catch (e) {
+      console.error("[CPQ] Quote generation failed:", e);
+    }
     setGenerating(false);
   };
 

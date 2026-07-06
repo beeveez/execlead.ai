@@ -1,0 +1,51 @@
+{
+  "name": "LegacyCaseStudy",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "leadership": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "company_size": {
+      "type": "string"
+    },
+    "technology": {
+      "type": "string"
+    },
+    "risk": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "result": {
+      "type": "string"
+    },
+    "lessons": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

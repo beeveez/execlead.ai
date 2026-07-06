@@ -54,6 +54,7 @@ import SuccessionPlanning from '@/pages/SuccessionPlanning';
 import PromotionReadiness from '@/pages/PromotionReadiness';
 import LearningAssignments from '@/pages/LearningAssignments';
 import SSOIdentity from '@/pages/SSOIdentity';
+import ExecutiveLegacy from '@/pages/ExecutiveLegacy';
 import DeveloperConsole from '@/pages/DeveloperConsole';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
@@ -109,6 +110,7 @@ const AuthenticatedApp = () => {
           <Route path="/career" element={<FeatureGate featureId="career_advisor"><Career /></FeatureGate>} />
           <Route path="/analytics" element={<FeatureGate featureId="leadership_analytics"><Analytics /></FeatureGate>} />
           <Route path="/leadership-dna" element={<FeatureGate featureId="leadership_dna"><LeadershipDNA /></FeatureGate>} />
+          <Route path="/executive-legacy" element={<FeatureGate featureId="executive_legacy"><ExecutiveLegacy /></FeatureGate>} />
           <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />
           <Route path="/resume" element={<FeatureGate featureId="resume_intelligence"><ResumeIntelligence /></FeatureGate>} />
           <Route path="/career-studio" element={<FeatureGate featureId="career_studio"><CareerStudio /></FeatureGate>} />

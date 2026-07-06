@@ -1,0 +1,52 @@
+{
+  "name": "ExecutiveLegacy",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "years_experience": {
+      "type": "number",
+      "default": 35
+    },
+    "major_decisions": {
+      "type": "string"
+    },
+    "lessons_learned": {
+      "type": "string"
+    },
+    "leadership_philosophy": {
+      "type": "string"
+    },
+    "failures": {
+      "type": "string"
+    },
+    "successes": {
+      "type": "string"
+    },
+    "negotiation_style": {
+      "type": "string"
+    },
+    "transformation_stories": {
+      "type": "string"
+    },
+    "board_experiences": {
+      "type": "string"
+    },
+    "mentoring_sessions": {
+      "type": "string"
+    },
+    "decision_frameworks": {
+      "type": "string"
+    },
+    "recorded_conversations": {
+      "type": "string"
+    },
+    "competency_scores_json": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

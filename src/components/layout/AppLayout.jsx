@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
   LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt,
-  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound, Code2
+  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound, Code2, Award
 } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import DebugPanel from "@/components/developer/DebugPanel";
@@ -43,6 +43,7 @@ const NAV_GROUPS = [
     items: [
       { path: "/analytics", label: "Analytics", icon: BarChart3 },
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint },
+      { path: "/executive-legacy", label: "Legacy", icon: Award },
       { path: "/ai-usage", label: "AI Usage", icon: Cpu },
     ],
   },

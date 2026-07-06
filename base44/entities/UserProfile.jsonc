@@ -5,7 +5,37 @@
     "full_name": {
       "type": "string"
     },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "preferred_name": {
+      "type": "string"
+    },
+    "mobile_number": {
+      "type": "string"
+    },
     "country": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "professional_headline": {
+      "type": "string"
+    },
+    "bio": {
       "type": "string"
     },
     "industry": {
@@ -25,6 +55,77 @@
     },
     "target_role": {
       "type": "string"
+    },
+    "target_country": {
+      "type": "string"
+    },
+    "expected_salary": {
+      "type": "number"
+    },
+    "preferred_industry": {
+      "type": "string"
+    },
+    "work_preference": {
+      "type": "string",
+      "enum": [
+        "remote",
+        "hybrid",
+        "onsite"
+      ]
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "github_url": {
+      "type": "string"
+    },
+    "portfolio_url": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string"
+    },
+    "profile_photo": {
+      "type": "string"
+    },
+    "resume_url": {
+      "type": "string"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "experience_json": {
+      "type": "string"
+    },
+    "education_json": {
+      "type": "string"
+    },
+    "certifications_json": {
+      "type": "string"
+    },
+    "privacy_profile": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private",
+        "recruiter_visible"
+      ],
+      "default": "private"
+    },
+    "hide_salary": {
+      "type": "boolean",
+      "default": false
+    },
+    "hide_resume": {
+      "type": "boolean",
+      "default": false
+    },
+    "hide_email": {
+      "type": "boolean",
+      "default": false
     },
     "leadership_experience": {
       "type": "string"
@@ -105,15 +206,6 @@
       "type": "number",
       "default": 0
     },
-    "profile_photo": {
-      "type": "string"
-    },
-    "linkedin_url": {
-      "type": "string"
-    },
-    "resume_url": {
-      "type": "string"
-    },
     "organization_id": {
       "type": "string"
     },
@@ -131,15 +223,6 @@
     "subscription_cycle": {
       "type": "string",
       "default": "monthly"
-    },
-    "skills": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "bio": {
-      "type": "string"
     }
   },
   "required": [

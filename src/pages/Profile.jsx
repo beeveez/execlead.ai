@@ -1,190 +1,195 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
-import { UserCircle, Loader2, Camera, Linkedin, FileText, Upload, Trophy, Star } from "lucide-react";
-import { motion } from "framer-motion";
+import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
+import { toast } from "@/components/ui/use-toast";
+import { safeParse } from "@/components/profile/FormFields";
+import ProfileSidebar from "@/components/profile/ProfileSidebar";
+import PersonalInfoSection from "@/components/profile/PersonalInfoSection";
+import ExecutiveProfileSection from "@/components/profile/ExecutiveProfileSection";
+import TargetCareerSection from "@/components/profile/TargetCareerSection";
+import ResumeSection from "@/components/profile/ResumeSection";
+import SocialLinksSection from "@/components/profile/SocialLinksSection";
+import CertificationsSection from "@/components/profile/CertificationsSection";
+import SkillsSection from "@/components/profile/SkillsSection";
+import ExperienceSection from "@/components/profile/ExperienceSection";
+import EducationSection from "@/components/profile/EducationSection";
+import PrivacySection from "@/components/profile/PrivacySection";
+import AccountSection from "@/components/profile/AccountSection";
+import { Loader2, Save, UserCircle } from "lucide-react";
 
 export default function Profile() {
+  const { user } = useAuth();
   const { profile, refreshProfile } = useSubscription();
-  const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState(null);
+  const [activeSection, setActiveSection] = useState("personal");
+  const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setForm({
-        bio: profile.bio || "",
-        linkedin_url: profile.linkedin_url || "",
-        skills: (profile.skills || []).join(", "),
+        ...profile,
+        first_name: profile.first_name || "",
+        last_name: profile.last_name || "",
+        display_name: profile.display_name || "",
+        preferred_name: profile.preferred_name || "",
+        mobile_number: profile.mobile_number || "",
+        city: profile.city || "",
+        timezone: profile.timezone || "",
+        language: profile.language || "",
+        professional_headline: profile.professional_headline || "",
+        target_country: profile.target_country || "",
+        expected_salary: profile.expected_salary ?? null,
+        preferred_industry: profile.preferred_industry || "",
+        work_preference: profile.work_preference || "",
+        github_url: profile.github_url || "",
+        portfolio_url: profile.portfolio_url || "",
+        website_url: profile.website_url || "",
+        privacy_profile: profile.privacy_profile || "private",
+        hide_salary: profile.hide_salary || false,
+        hide_resume: profile.hide_resume || false,
+        hide_email: profile.hide_email || false,
+        experience: safeParse(profile.experience_json, []),
+        education: safeParse(profile.education_json, []),
+        certifications: safeParse(profile.certifications_json, []),
+        skills: profile.skills || [],
       });
     }
-    setLoading(false);
-  }, [profile]);
+  }, [profile?.id]);
+
+  const setField = (field, value) => {
+    setForm(prev => prev ? { ...prev, [field]: value } : prev);
+  };
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !profile) return;
-    setUploading(true);
+    setUploadingPhoto(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       await base44.entities.UserProfile.update(profile.id, { profile_photo: file_url });
+      setForm(prev => prev ? { ...prev, profile_photo: file_url } : prev);
       await refreshProfile();
-    } catch (e) {}
-    setUploading(false);
+      toast({ title: "Photo Updated", description: "Your profile photo has been updated." });
+    } catch (e) {
+      toast({ title: "Upload Failed", description: "Could not upload photo.", variant: "destructive" });
+    }
+    setUploadingPhoto(false);
   };
 
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !profile) return;
-    setUploading(true);
+    setUploadingResume(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       await base44.entities.UserProfile.update(profile.id, { resume_url: file_url });
+      setForm(prev => prev ? { ...prev, resume_url: file_url } : prev);
       await refreshProfile();
-    } catch (e) {}
-    setUploading(false);
+      toast({ title: "Resume Uploaded", description: "Your resume has been updated." });
+    } catch (e) {
+      toast({ title: "Upload Failed", description: "Could not upload resume.", variant: "destructive" });
+    }
+    setUploadingResume(false);
   };
 
-  const saveProfile = async () => {
+  const handleSave = async () => {
+    if (!form || !profile) return;
+    setSaving(true);
     try {
-      const skills = form.skills.split(",").map(s => s.trim()).filter(Boolean);
+      const fullName = [form.first_name, form.last_name].filter(Boolean).join(" ") || form.full_name;
       await base44.entities.UserProfile.update(profile.id, {
-        bio: form.bio, linkedin_url: form.linkedin_url, skills,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        full_name: fullName,
+        display_name: form.display_name,
+        preferred_name: form.preferred_name,
+        mobile_number: form.mobile_number,
+        country: form.country,
+        city: form.city,
+        timezone: form.timezone,
+        language: form.language,
+        professional_headline: form.professional_headline,
+        bio: form.bio,
+        current_company: form.current_company,
+        current_role: form.current_role,
+        industry: form.industry,
+        years_experience: form.years_experience ? Number(form.years_experience) : null,
+        target_company: form.target_company,
+        target_role: form.target_role,
+        target_country: form.target_country,
+        expected_salary: form.expected_salary ? Number(form.expected_salary) : null,
+        preferred_industry: form.preferred_industry,
+        work_preference: form.work_preference,
+        linkedin_url: form.linkedin_url,
+        github_url: form.github_url,
+        portfolio_url: form.portfolio_url,
+        website_url: form.website_url,
+        privacy_profile: form.privacy_profile,
+        hide_salary: form.hide_salary,
+        hide_resume: form.hide_resume,
+        hide_email: form.hide_email,
+        skills: form.skills,
+        experience_json: JSON.stringify(form.experience),
+        education_json: JSON.stringify(form.education),
+        certifications_json: JSON.stringify(form.certifications),
       });
       await refreshProfile();
-      setEditing(false);
-    } catch (e) {}
+      toast({ title: "Profile Updated", description: "Your changes have been saved successfully." });
+    } catch (e) {
+      toast({ title: "Save Failed", description: "Could not save your changes.", variant: "destructive" });
+    }
+    setSaving(false);
   };
 
-  if (loading || !profile) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  if (!form || !profile) {
+    return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  }
 
-  const levelInfo = getLevel(profile.xp_points || 0);
-  const unlocked = checkAchievements(profile);
-  const locked = ACHIEVEMENTS.filter(a => !unlocked.find(u => u.id === a.id));
+  const displayName = form.display_name || form.full_name || "Executive";
+  const headline = form.professional_headline || form.current_role || "";
+
+  const sections = {
+    personal: <PersonalInfoSection form={form} setField={setField} user={user} onPhotoUpload={handlePhotoUpload} uploadingPhoto={uploadingPhoto} />,
+    executive: <ExecutiveProfileSection form={form} setField={setField} />,
+    target: <TargetCareerSection form={form} setField={setField} />,
+    resume: <ResumeSection resumeUrl={form.resume_url} onResumeUpload={handleResumeUpload} uploadingResume={uploadingResume} />,
+    social: <SocialLinksSection form={form} setField={setField} />,
+    certifications: <CertificationsSection items={form.certifications} onChange={arr => setField("certifications", arr)} />,
+    skills: <SkillsSection skills={form.skills} onChange={arr => setField("skills", arr)} />,
+    experience: <ExperienceSection items={form.experience} onChange={arr => setField("experience", arr)} />,
+    education: <EducationSection items={form.education} onChange={arr => setField("education", arr)} />,
+    privacy: <PrivacySection form={form} setField={setField} />,
+    account: <AccountSection user={user} />,
+  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-          <UserCircle size={12} className="text-indigo-400" /> Executive Profile
-        </div>
-        <h1 className="text-2xl font-bold text-white">{profile.full_name || "Executive"}</h1>
-      </div>
-
-      {/* Profile Header */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-indigo-500/10 flex items-center justify-center text-2xl font-bold text-indigo-400 overflow-hidden">
-              {profile.profile_photo ? <img src={profile.profile_photo} alt="" className="w-full h-full object-cover" /> : (profile.full_name || "U").charAt(0)}
+    <div className="max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-lg font-bold text-indigo-400 overflow-hidden">
+            {form.profile_photo ? <img src={form.profile_photo} alt="" className="w-full h-full object-cover" /> : displayName.charAt(0)}
+          </div>
+          <div>
+            <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-0.5">
+              <UserCircle size={12} className="text-indigo-400" /> Executive Identity Center
             </div>
-            <label className="absolute bottom-0 right-0 w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-600 transition-colors">
-              {uploading ? <Loader2 size={14} className="animate-spin text-white" /> : <Camera size={14} className="text-white" />}
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-            </label>
-          </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-white">{profile.full_name}</h2>
-            <p className="text-white/40 text-sm">{profile.current_role || "Executive"} at {profile.current_company || "—"}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-lg">{levelInfo.current.icon}</span>
-              <span className="text-sm text-white/60">Level {levelInfo.current.level} · {levelInfo.current.title}</span>
-              <span className="text-white/30 text-xs">· {profile.xp_points || 0} XP</span>
-            </div>
-            <div className="mt-3 h-2 bg-white/5 rounded-full overflow-hidden max-w-xs">
-              <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-700" style={{ width: `${levelInfo.progress}%` }} />
-            </div>
-            {levelInfo.next && <p className="text-white/30 text-xs mt-1">{levelInfo.next.xp - (profile.xp_points || 0)} XP to {levelInfo.next.title}</p>}
+            <h1 className="text-xl font-bold text-white">{displayName}</h1>
+            {headline && <p className="text-white/40 text-sm">{headline}</p>}
           </div>
         </div>
+        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-white text-sm font-medium transition-colors">
+          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          Save Changes
+        </button>
       </div>
 
-      {/* Career Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Current Position</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-white/40">Role</span><span className="text-white/70">{profile.current_role || "—"}</span></div>
-            <div className="flex justify-between"><span className="text-white/40">Company</span><span className="text-white/70">{profile.current_company || "—"}</span></div>
-            <div className="flex justify-between"><span className="text-white/40">Experience</span><span className="text-white/70">{profile.years_experience || 0} years</span></div>
-            <div className="flex justify-between"><span className="text-white/40">Industry</span><span className="text-white/70">{profile.industry || "—"}</span></div>
-          </div>
-        </div>
-        <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Target</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-white/40">Role</span><span className="text-indigo-400">{profile.target_role || "—"}</span></div>
-            <div className="flex justify-between"><span className="text-white/40">Company</span><span className="text-white/70">{profile.target_company || "—"}</span></div>
-            <div className="flex justify-between"><span className="text-white/40">Country</span><span className="text-white/70">{profile.country || "—"}</span></div>
-            <div className="flex justify-between"><span className="text-white/40">Learning</span><span className="text-white/70">{profile.preferred_learning_style || "—"}</span></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bio & Links */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider">About</h3>
-          <button onClick={() => setEditing(!editing)} className="text-xs text-indigo-400 hover:text-indigo-300">{editing ? "Cancel" : "Edit"}</button>
-        </div>
-        {editing ? (
-          <div className="space-y-3">
-            <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder="Executive bio..." rows={3} className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 resize-none" />
-            <input value={form.linkedin_url} onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))} placeholder="LinkedIn URL" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" />
-            <input value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} placeholder="Skills (comma separated)" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" />
-            <button onClick={saveProfile} className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition-colors">Save</button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-white/60 text-sm leading-relaxed">{profile.bio || "No bio added yet. Click edit to add your executive bio."}</p>
-            {profile.skills && profile.skills.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {profile.skills.map((s, i) => <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-indigo-500/10 text-indigo-400">{s}</span>)}
-              </div>
-            )}
-            <div className="flex items-center gap-3 pt-2">
-              {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300"><Linkedin size={14} /> LinkedIn</a>}
-              <label className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 cursor-pointer">
-                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-                {profile.resume_url ? "Resume uploaded" : "Upload resume"}
-                <input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} className="hidden" />
-              </label>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "Challenges", value: profile.challenges_completed || 0, icon: Star, color: "text-yellow-400" },
-          { label: "Sessions", value: profile.sessions_completed || 0, icon: Trophy, color: "text-indigo-400" },
-          { label: "Streak", value: profile.streak_days || 0, icon: Star, color: "text-orange-400" },
-        ].map(s => (
-          <div key={s.label} className="bg-white/[0.03] border border-white/5 rounded-xl p-4 text-center">
-            <s.icon size={18} className={`${s.color} mx-auto`} />
-            <div className="text-2xl font-bold text-white mt-1">{s.value}</div>
-            <div className="text-white/30 text-xs">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Achievements */}
-      <div>
-        <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Achievements</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {ACHIEVEMENTS.map(ach => {
-            const isUnlocked = unlocked.find(u => u.id === ach.id);
-            return (
-              <motion.div key={ach.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`rounded-xl border p-4 text-center transition-all ${isUnlocked ? "bg-indigo-500/5 border-indigo-500/15" : "bg-white/[0.02] border-white/5 opacity-40"}`}>
-                <div className="text-3xl mb-2" style={{ filter: isUnlocked ? "none" : "grayscale(1)" }}>{ach.icon}</div>
-                <p className="text-white/70 text-xs font-medium">{ach.name}</p>
-                <p className="text-white/30 text-[10px] mt-0.5">{ach.description}</p>
-              </motion.div>
-            );
-          })}
+      <div className="flex gap-8">
+        <ProfileSidebar active={activeSection} onSelect={setActiveSection} />
+        <div className="flex-1 min-w-0">
+          {sections[activeSection]}
         </div>
       </div>
     </div>

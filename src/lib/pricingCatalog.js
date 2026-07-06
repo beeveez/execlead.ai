@@ -5,10 +5,11 @@ const basePlans = [
   { id: "free", name: "Free", description: "Designed for users exploring executive leadership", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Get Started Free", recommended: false, enterpriseOnly: false, visible: true, color: "#94a3b8", icon: "🌱", sortOrder: 0 },
   { id: "professional", name: "Professional", description: "Designed for aspiring leaders", monthlyPrice: 29, annualPrice: 290, currency: "USD", badge: "Most Popular", buttonText: "Upgrade", recommended: true, enterpriseOnly: false, visible: true, color: "#6366f1", icon: "🚀", sortOrder: 1 },
   { id: "executive", name: "Executive", description: "Designed for senior managers and executives", monthlyPrice: 79, annualPrice: 790, currency: "USD", badge: null, buttonText: "Upgrade", recommended: false, enterpriseOnly: false, visible: true, color: "#a855f7", icon: "👑", sortOrder: 2 },
-  { id: "enterprise", name: "Enterprise", description: "For organizations building the next generation of technology leaders", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Contact Sales", recommended: false, enterpriseOnly: true, visible: true, color: "#10b981", icon: "🏢", sortOrder: 3, customPricing: true, seatInfo: "Starting at 100 seats" }
+  { id: "enterprise", name: "Enterprise", description: "For organizations building the next generation of technology leaders", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Contact Sales", recommended: false, enterpriseOnly: true, visible: true, color: "#10b981", icon: "🏢", sortOrder: 3, customPricing: true, seatInfo: "Starting at 100 seats" },
+  { id: "developer_unlimited", name: "Developer Unlimited", description: "Hidden plan for super admins — never charged, full access", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Developer", recommended: false, enterpriseOnly: false, visible: false, color: "#f59e0b", icon: "⚡", sortOrder: 4 }
 ];
 
-const tierOrder = (id) => ({ free: 0, professional: 1, executive: 2, enterprise: 3 })[id] ?? 0;
+const tierOrder = (id) => ({ free: 0, professional: 1, executive: 2, enterprise: 3, developer_unlimited: 4 })[id] ?? 0;
 
 const deriveFeatures = (planId, catalog) =>
   catalog

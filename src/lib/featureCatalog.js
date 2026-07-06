@@ -1,12 +1,13 @@
 import { base44 } from "@/api/base44Client";
 
-export const PLAN_TIERS = { free: 0, professional: 1, executive: 2, enterprise: 3 };
+export const PLAN_TIERS = { free: 0, professional: 1, executive: 2, enterprise: 3, developer_unlimited: 4 };
 
 export const PLAN_LIMITS = {
   free: { daily_coaching: 5, weekly_challenges: 3, companies: 1, career_paths: 1 },
   professional: { daily_coaching: Infinity, weekly_challenges: Infinity, companies: Infinity, career_paths: Infinity },
   executive: { daily_coaching: Infinity, weekly_challenges: Infinity, companies: Infinity, career_paths: Infinity },
-  enterprise: { daily_coaching: Infinity, weekly_challenges: Infinity, companies: Infinity, career_paths: Infinity }
+  enterprise: { daily_coaching: Infinity, weekly_challenges: Infinity, companies: Infinity, career_paths: Infinity },
+  developer_unlimited: { daily_coaching: Infinity, weekly_challenges: Infinity, companies: Infinity, career_paths: Infinity }
 };
 
 export const FEATURE_ALIASES = {

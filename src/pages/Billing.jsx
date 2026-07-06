@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import { processPayment, sendPaymentEmail, EMAIL_TYPES, formatCurrency } from "@/lib/payments";
+import { processPayment, sendPaymentEmail, EMAIL_TYPES, formatCurrency, isDeveloperUnlimited, DEVELOPER_PLAN_ID, logBillingEvent } from "@/lib/payments";
 import { CreditCard, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CurrentPlanCard from "@/components/billing/CurrentPlanCard";
@@ -46,6 +46,12 @@ export default function Billing() {
     try {
       const latestInvoice = invoices[0];
       await base44.entities.UserProfile.update(profile.id, { subscription_status: "canceled", subscription_plan: "free" });
+      await logBillingEvent({
+        event_type: "subscription_canceled",
+        status: "success",
+        plan_id: currentPlan?.id,
+        metadata: { from: currentPlan?.id, to: "free" },
+      });
       await base44.entities.Notification.create({
         type: "subscription", title: "Subscription Canceled",
         message: "Your subscription has been canceled. You're now on the Free plan.",
@@ -64,6 +70,11 @@ export default function Billing() {
     if (!profile) return;
     try {
       await base44.entities.UserProfile.update(profile.id, { subscription_status: "active" });
+      await logBillingEvent({
+        event_type: "subscription_resumed",
+        status: "success",
+        plan_id: currentPlan?.id,
+      });
       await base44.entities.Notification.create({
         type: "subscription", title: "Subscription Resumed",
         message: "Your subscription has been resumed. Welcome back!",
@@ -126,6 +137,33 @@ export default function Billing() {
         onResume={handleResume}
         onSwitchCycle={handleSwitchCycle}
       />
+
+      {isDeveloperUnlimited(profile) && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
+          <span className="text-2xl">⚡</span>
+          <div>
+            <div className="text-amber-400 font-medium text-sm">Developer Unlimited</div>
+            <div className="text-white/40 text-xs">Full platform access · Never charged · Super Admin mode</div>
+          </div>
+        </div>
+      )}
+
+      {!isDeveloperUnlimited(profile) && profile.subscription_plan !== "free" && profile.subscription_status === "active" && (
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                <CreditCard size={16} className="text-indigo-400" />
+              </div>
+              <div>
+                <div className="text-white/80 text-sm font-medium">Payment Method</div>
+                <div className="text-white/30 text-xs">Managed securely by {currentPlan?.id ? "Stripe" : "provider"} · Card details never stored on EXECLEAD.AI</div>
+              </div>
+            </div>
+            <button className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Update</button>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-center gap-3">
         <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>

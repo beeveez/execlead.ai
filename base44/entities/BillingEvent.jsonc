@@ -1,0 +1,74 @@
+{
+  "name": "BillingEvent",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "payment_success",
+        "payment_failed",
+        "subscription_created",
+        "subscription_updated",
+        "subscription_canceled",
+        "subscription_renewed",
+        "subscription_resumed",
+        "refund_processed",
+        "trial_started",
+        "trial_ended",
+        "coupon_applied",
+        "checkout_completed",
+        "cycle_changed",
+        "plan_changed",
+        "enterprise_request"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "pending"
+      ],
+      "default": "success"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ]
+    },
+    "transaction_id": {
+      "type": "string"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "coupon_code": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_type"
+  ]
+}

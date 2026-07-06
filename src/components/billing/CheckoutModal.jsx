@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import { PAYMENT_PROVIDERS, COUNTRIES, calculateTax, calculateDiscount, formatCurrency, processPayment, startTrial, incrementCouponUsage, sendPaymentEmail, EMAIL_TYPES } from "@/lib/payments";
+import { PAYMENT_PROVIDERS, COUNTRIES, calculateTax, calculateDiscount, formatCurrency, processPayment, startTrial, incrementCouponUsage, sendPaymentEmail, EMAIL_TYPES, getPaymentError, logBillingEvent } from "@/lib/payments";
 import { base44 } from "@/api/base44Client";
 import CouponInput from "@/components/billing/CouponInput";
+import EnterpriseContactForm from "@/components/billing/EnterpriseContactForm";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 
 export default function CheckoutModal({ plan, cycle: initialCycle, profile, onClose, onSuccess }) {
@@ -16,6 +17,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
   const [mode, setMode] = useState("pay");
 
   const hasTrial = plan.buttonText?.toLowerCase().includes("trial");
+  const isEnterprise = plan.enterpriseOnly || plan.customPricing;
   const subtotal = getPrice(plan);
   const discount = calculateDiscount(coupon, subtotal);
   const taxableAmount = subtotal - discount;
@@ -37,7 +39,18 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
         await completeSubscription(plan, cycle, total, result.transaction_id);
       }
     } catch (e) {
-      setError(e.message || "Payment failed. Please try again.");
+      const err = getPaymentError(e);
+      setError(err.message);
+      await logBillingEvent({
+        event_type: "payment_failed",
+        status: "failed",
+        amount: total,
+        currency: plan.currency || "USD",
+        provider,
+        plan_id: plan.id,
+        billing_cycle: cycle,
+        error_message: err.message,
+      });
     }
     setProcessing(false);
   };
@@ -76,7 +89,14 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
         onSuccess();
       }
     } catch (e) {
-      setError(e.message || "Failed to start trial");
+      const err = getPaymentError(e);
+      setError(err.message);
+      await logBillingEvent({
+        event_type: "payment_failed",
+        status: "failed",
+        plan_id: plan.id,
+        error_message: err.message,
+      });
     }
     setProcessing(false);
   };
@@ -116,6 +136,10 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
 
     onSuccess();
   };
+
+  if (isEnterprise) {
+    return <EnterpriseContactForm plan={plan} onClose={onClose} onSuccess={onSuccess} />;
+  }
 
   return (
     <AnimatePresence>

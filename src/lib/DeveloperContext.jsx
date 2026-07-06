@@ -93,7 +93,7 @@ export const DeveloperProvider = ({ children }) => {
   const getEffectivePlan = useCallback((realPlan) => {
     if (state.impersonation?.plan) return state.impersonation.plan;
     if (state.simulatedPlan) return state.simulatedPlan;
-    if (state.developerMode && isSuperAdminUser) return "enterprise";
+    if (state.developerMode && isSuperAdminUser) return "developer_unlimited";
     return realPlan;
   }, [state.impersonation, state.simulatedPlan, state.developerMode, isSuperAdminUser]);
 

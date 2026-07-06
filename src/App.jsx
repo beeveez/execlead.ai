@@ -45,6 +45,7 @@ import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import BillingAdmin from '@/pages/BillingAdmin';
+import PaymentSettings from '@/pages/PaymentSettings';
 import Pricing from '@/pages/Pricing';
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
@@ -126,6 +127,7 @@ const AuthenticatedApp = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
+          <Route path="/payment-settings" element={<PaymentSettings />} />
           <Route path="/developer" element={<DeveloperConsole />} />
           <Route path="/hr-dashboard" element={<FeatureGate featureId="hr_dashboard"><HRDashboard /></FeatureGate>} />
           <Route path="/succession-planning" element={<FeatureGate featureId="succession_planning"><SuccessionPlanning /></FeatureGate>} />

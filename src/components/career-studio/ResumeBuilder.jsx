@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { RESUME_TEMPLATES, defaultResumeContent } from "@/lib/careerStudio";
@@ -16,6 +16,8 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showList, setShowList] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const dropdownFileRef = useRef(null);
+  const emptyFileRef = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 8000);
@@ -143,10 +145,10 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
                 ))}
                 <div className="border-t border-white/5 mt-2 pt-2 space-y-1">
                   <button onClick={() => createResume()} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10"><Plus size={14} /> New Resume</button>
-                  <label className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10 cursor-pointer">
+                  <button onClick={() => dropdownFileRef.current?.click()} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10 cursor-pointer">
                     {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Upload Resume
-                    <input type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
-                  </label>
+                  </button>
+                  <input ref={dropdownFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
                 </div>
               </div>
             </>
@@ -192,10 +194,10 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
           <p className="text-white/40 text-sm mb-4">No resume yet. Create one to get started.</p>
           <div className="flex justify-center gap-2">
             <button onClick={() => createResume()} className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"><Plus size={14} /> Create from Scratch</button>
-            <label className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-sm font-medium cursor-pointer">
+            <button onClick={() => emptyFileRef.current?.click()} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-sm font-medium cursor-pointer">
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Upload Existing
-              <input type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
-            </label>
+            </button>
+            <input ref={emptyFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
           </div>
         </div>
       )}

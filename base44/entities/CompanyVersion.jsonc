@@ -1,0 +1,29 @@
+{
+  "name": "CompanyVersion",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
+    },
+    "snapshot_json": {
+      "type": "string"
+    },
+    "change_summary": {
+      "type": "string"
+    },
+    "created_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_id",
+    "version_number"
+  ]
+}

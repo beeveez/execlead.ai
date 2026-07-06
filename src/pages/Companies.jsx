@@ -18,7 +18,7 @@ export default function Companies() {
   useEffect(() => {
     const load = async () => {
       try {
-        const list = await base44.entities.Company.filter({ is_archived: false }, "name", 500);
+        const list = await base44.entities.Company.filter({ status: "approved" }, "name", 500);
         setCompanies(list);
       } catch (e) {}
       setLoading(false);

@@ -179,6 +179,90 @@
     "is_archived": {
       "type": "boolean",
       "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "archived"
+      ],
+      "default": "approved"
+    },
+    "company_type": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private",
+        "subsidiary",
+        "government",
+        "non_profit"
+      ],
+      "default": "private"
+    },
+    "stock_symbol": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "executive_behaviors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "promotion_expectations": {
+      "type": "string"
+    },
+    "recommended_certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_books": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_courses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strategic_priorities": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "quality_score": {
+      "type": "number",
+      "default": 0
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "review_notes": {
+      "type": "string"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
     }
   },
   "required": [

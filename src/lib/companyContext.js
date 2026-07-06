@@ -70,7 +70,7 @@ export const fetchTargetCompany = async (profile) => {
   const name = profile?.target_company;
   if (!name) return null;
   try {
-    const list = await base44.entities.Company.filter({ name }, "name", 5);
+    const list = await base44.entities.Company.filter({ name, status: "approved" }, "name", 5);
     return list[0] || null;
   } catch (e) {
     return null;

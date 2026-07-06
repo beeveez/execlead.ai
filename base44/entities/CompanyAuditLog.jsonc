@@ -1,0 +1,42 @@
+{
+  "name": "CompanyAuditLog",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete",
+        "archive",
+        "restore",
+        "duplicate",
+        "import",
+        "export",
+        "restore_version",
+        "status_change"
+      ]
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "entity_name": {
+      "type": "string"
+    },
+    "before_json": {
+      "type": "string"
+    },
+    "after_json": {
+      "type": "string"
+    },
+    "performed_by_name": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "action"
+  ]
+}

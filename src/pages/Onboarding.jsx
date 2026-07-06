@@ -12,6 +12,7 @@ export default function Onboarding() {
   const [form, setForm] = useState({ full_name: "", country: "", target_company: "", target_role: "" });
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisStep, setAnalysisStep] = useState(0);
   const [resumeData, setResumeData] = useState(null);
@@ -25,7 +26,12 @@ export default function Onboarding() {
   const filteredCompanies = COMPANIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
   const handleFile = async (file) => {
-    if (!file || !file.name.match(/\.(pdf|docx?|PDF|DOCX?)$/)) return;
+    if (!file) return;
+    if (!file.name.match(/\.(pdf|docx?|PDF|DOCX?)$/)) {
+      setUploadError("Please upload a PDF or DOCX file.");
+      return;
+    }
+    setUploadError("");
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -33,7 +39,12 @@ export default function Onboarding() {
       setFileName(file.name);
       setUploading(false);
       runAnalysis(file_url);
-    } catch (e) { setUploading(false); }
+    } catch (e) {
+      setUploading(false);
+      setUploadError(e?.message || "Failed to upload your resume. Please try again.");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const runAnalysis = async (url) => {
@@ -225,6 +236,12 @@ export default function Onboarding() {
                   </div>
                 )}
               </div>
+              {uploadError && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start gap-2">
+                  <ShieldAlert size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-red-400 text-xs">{uploadError}</p>
+                </div>
+              )}
               <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-4">
                 <p className="text-white/50 text-xs leading-relaxed">
                   <Zap size={12} className="inline text-indigo-400 mb-0.5" /> <strong className="text-white/70">What you unlock:</strong> Executive readiness scoring, skill gap analysis, personalized interview questions, adaptive coaching, tailored learning roadmap, and resume truth engine analysis.

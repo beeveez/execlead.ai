@@ -1,7 +1,7 @@
 import React from "react";
 import { TextField, SelectField, SectionCard } from "./FormFields";
+import CountrySelect from "@/components/common/CountrySelect";
 import { Target, Monitor, Building, MapPin } from "lucide-react";
-import { COUNTRIES } from "@/lib/payments";
 
 const INDUSTRIES = ["Technology", "Finance", "Healthcare", "Manufacturing", "Retail", "Consulting", "Education", "Government", "Media", "Energy", "Real Estate", "Transportation", "Other"];
 
@@ -19,7 +19,10 @@ export default function TargetCareerSection({ form, setField }) {
         <TextField label="Target Role" value={form.target_role} onChange={v => setField("target_role", v)} placeholder="Chief Technology Officer" />
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <SelectField label="Target Country" value={form.target_country} onChange={v => setField("target_country", v)} options={COUNTRIES.map(c => ({ value: c.name, label: c.name }))} />
+        <div>
+          <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Target Country</label>
+          <CountrySelect value={form.target_country} onChange={v => setField("target_country", v)} />
+        </div>
         <SelectField label="Preferred Industry" value={form.preferred_industry} onChange={v => setField("preferred_industry", v)} options={INDUSTRIES} />
       </div>
       <TextField label="Expected Salary (USD)" value={form.expected_salary} onChange={v => setField("expected_salary", v)} placeholder="250000" type="number" />

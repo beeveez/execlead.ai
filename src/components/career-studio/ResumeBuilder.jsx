@@ -18,7 +18,9 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 8000);
     loadResumes();
+    return () => clearTimeout(timer);
   }, []);
 
   const loadResumes = async () => {

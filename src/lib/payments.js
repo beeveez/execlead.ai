@@ -427,6 +427,8 @@ export const EMAIL_TYPES = {
   RENEWAL_REMINDER: "renewal_reminder",
   TRIAL_STARTED: "trial_started",
   TRIAL_ENDING: "trial_ending",
+  CPQ_QUOTE_SUBMITTED: "cpq_quote_submitted",
+  CPQ_QUOTE_SALES: "cpq_quote_sales",
 };
 
 const EMAIL_TEMPLATES = {
@@ -457,6 +459,14 @@ const EMAIL_TEMPLATES = {
   [EMAIL_TYPES.TRIAL_ENDING]: (d) => ({
     subject: "Your Trial is Ending Soon - EXECLEAD.AI",
     body: `Hi ${d.name || "there"},\n\nYour trial of the ${d.plan} plan ends on ${d.trialEnd}.\n\nAdd a payment method to continue enjoying premium features.\n\nEXECLEAD.AI Team`,
+  }),
+  [EMAIL_TYPES.CPQ_QUOTE_SUBMITTED]: (d) => ({
+    subject: `Proposal ${d.proposalNumber} - EXECLEAD.AI Enterprise`,
+    body: `Hi ${d.name || "there"},\n\nThank you for your interest in EXECLEAD.AI Enterprise.\n\nYour proposal has been received and is now under review.\n\nProposal Number: ${d.proposalNumber}\nValid Until: ${d.validUntil}\nOrganization: ${d.organization}\nSeats: ${d.seats}\nContract: ${d.contractLength} year(s)\nGrand Total: ${d.currency} ${d.total}\n\nOur enterprise team will contact you within 24 hours to discuss next steps.\n\nView your proposal: ${d.quoteUrl}\n\nEXECLEAD.AI Enterprise Team`,
+  }),
+  [EMAIL_TYPES.CPQ_QUOTE_SALES]: (d) => ({
+    subject: `[Sales] New Enterprise Proposal - ${d.organization} (${d.currency} ${d.total})`,
+    body: `New enterprise CPQ proposal submitted.\n\nProposal: ${d.proposalNumber}\nOrganization: ${d.organization}\nIndustry: ${d.industry}\nCountry: ${d.country}\nContact: ${d.email}\nSeats: ${d.seats}\nContract: ${d.contractLength} year(s)\nAnnual Value: ${d.currency} ${d.annualValue}\nGrand Total: ${d.currency} ${d.total}\n\n${d.requiresApproval ? "⚠ DISCOUNT APPROVAL REQUIRED\n" : ""}Review at: ${d.quoteUrl}`,
   }),
 };
 

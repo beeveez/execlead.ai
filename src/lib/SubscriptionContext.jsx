@@ -6,7 +6,7 @@ import { getPlan } from '@/lib/plans';
 const SubscriptionContext = createContext(null);
 
 export const SubscriptionProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [renewalDate, setRenewalDate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +14,9 @@ export const SubscriptionProvider = ({ children }) => {
   const loadProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const profiles = await base44.entities.UserProfile.list();
+      const profiles = user?.id
+        ? await base44.entities.UserProfile.filter({ created_by_id: user.id })
+        : await base44.entities.UserProfile.list();
       const p = profiles[0] || null;
       setProfile(p);
       if (p) {
@@ -41,7 +43,7 @@ export const SubscriptionProvider = ({ children }) => {
       return;
     }
     loadProfile();
-  }, [isAuthenticated, loadProfile]);
+  }, [isAuthenticated, user?.id, loadProfile]);
 
   const refreshProfile = useCallback(async () => {
     await loadProfile();

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Users, Package, Bot, Headset, Calendar, Coins, ArrowRight } from "lucide-react";
+import { Users, Package, Bot, Headset, Calendar, Coins, ArrowRight, AlertCircle, TrendingUp } from "lucide-react";
 import { useCPQCatalog } from "@/hooks/useCPQCatalog";
 import { calculateQuote } from "@/lib/cpqEngine";
 
@@ -33,11 +33,15 @@ export default function EnterpriseCalculator() {
     return <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-white/10 border-t-emerald-400 rounded-full animate-spin" /></div>;
   }
 
-  const currencySymbol = breakdown.currencySymbol || "$";
-  const fmt = (n) => `${currencySymbol}${Math.round(n).toLocaleString()}`;
-  const monthlyCost = breakdown.grandTotal / (breakdown.contractLength * 12);
-  const oneYearTotal = breakdown.annualRecurring + breakdown.servicesCost;
-  const savings = breakdown.contractLength > 1 ? (oneYearTotal * breakdown.contractLength) - breakdown.grandTotal : 0;
+  const symbol = breakdown.currencySymbol || "$";
+  const fmt = (n) => `${symbol}${Math.round(n).toLocaleString()}`;
+  const monthlyInvestment = breakdown.monthlyEquivalent;
+  const annualValue = breakdown.annualEquivalent;
+
+  // ROI estimate: assume 10% of users are managers, each replacing $5,000/yr in external coaching
+  const managers = Math.round(breakdown.seats * 0.1);
+  const coachingReplaced = managers * 5000;
+  const estimatedROI = annualValue > 0 ? Math.round(((coachingReplaced - annualValue) / annualValue) * 100) : 0;
 
   const modules = catalog.modules.filter(m => m.type === "module" && m.is_active !== false);
 
@@ -114,17 +118,32 @@ export default function EnterpriseCalculator() {
           <div className="text-white/30 text-xs mt-2">{breakdown.contractLength} year contract · {config.seats} users</div>
         </motion.div>
 
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-3">
-          <div className="flex justify-between text-sm"><span className="text-white/40">Monthly Equivalent</span><span className="text-white/70 font-medium">{fmt(monthlyCost)}</span></div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+            <div className="text-lg font-bold text-white/80">{fmt(monthlyInvestment)}</div>
+            <div className="text-white/30 text-xs mt-0.5">Monthly Investment</div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+            <div className={`text-lg font-bold ${estimatedROI >= 0 ? "text-emerald-400" : "text-amber-400"}`}>{estimatedROI}%</div>
+            <div className="text-white/30 text-xs mt-0.5">Estimated ROI</div>
+          </div>
+        </div>
+
+        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-2.5">
           <div className="flex justify-between text-sm"><span className="text-white/40">Annual Recurring</span><span className="text-white/70 font-medium">{fmt(breakdown.annualRecurring)}</span></div>
           {breakdown.servicesCost > 0 && <div className="flex justify-between text-sm"><span className="text-white/40">Services</span><span className="text-white/70 font-medium">{fmt(breakdown.servicesCost)}</span></div>}
           {breakdown.tax.amount > 0 && <div className="flex justify-between text-sm"><span className="text-white/40">Tax ({(breakdown.tax.rate * 100).toFixed(0)}%)</span><span className="text-white/70 font-medium">{fmt(breakdown.tax.amount)}</span></div>}
-          {savings > 0 && (
+          {breakdown.multiYearSavings > 0 && (
             <div className="flex justify-between text-sm pt-2 border-t border-white/5">
               <span className="text-emerald-400">Multi-Year Savings</span>
-              <span className="text-emerald-400 font-bold">{fmt(savings)}</span>
+              <span className="text-emerald-400 font-bold">{fmt(breakdown.multiYearSavings)}</span>
             </div>
           )}
+        </div>
+
+        <div className="flex items-start gap-2 px-1">
+          <AlertCircle size={14} className="text-white/20 flex-shrink-0 mt-0.5" />
+          <p className="text-white/30 text-xs leading-relaxed">This is an estimate. Final pricing will be customized during your consultation.</p>
         </div>
 
         <Link to="/cpq" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">

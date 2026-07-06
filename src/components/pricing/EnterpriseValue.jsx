@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { GraduationCap, Users, Layers, TrendingDown, BookOpen, TrendingUp, GitBranch, Gauge, Globe } from "lucide-react";
+import { GraduationCap, Users, Layers, TrendingDown, BookOpen, TrendingUp, Gauge, Rocket, Shield } from "lucide-react";
 import { ENTERPRISE_OUTCOMES } from "@/lib/pricingContent";
 
-const ICONS = { GraduationCap, Users, Layers, TrendingDown, BookOpen, TrendingUp, GitBranch, Gauge, Globe };
+const ICONS = { GraduationCap, Users, Layers, TrendingDown, BookOpen, TrendingUp, Gauge, Rocket, Shield };
 
 export default function EnterpriseValue() {
   return (

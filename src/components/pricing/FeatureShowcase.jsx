@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronDown, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { FEATURE_GROUPS } from "@/lib/pricingContent";
 
 const TIER_CONFIG = [
@@ -30,8 +30,8 @@ function TierColumn({ config, isMobile }) {
       <p className="text-white/30 text-xs">{config.note}</p>
       {groups.map((group, i) => (
         <div key={i}>
-          <h4 className={`text-xs font-semibold uppercase tracking-wider ${accent.text} mb-2`}>{group.category}</h4>
-          <ul className="space-y-1.5">
+          <h4 className={`text-xs font-semibold uppercase tracking-wider ${accent.text} mb-3`}>{group.category}</h4>
+          <ul className={`space-y-2 ${group.items.length > 7 ? "grid grid-cols-2 gap-x-3 gap-y-2" : ""}`}>
             {group.items.map((item, j) => (
               <li key={j} className="flex items-start gap-2 text-xs text-white/50">
                 <Check size={12} className={`${accent.text} mt-0.5 flex-shrink-0`} />
@@ -45,11 +45,7 @@ function TierColumn({ config, isMobile }) {
   );
 
   if (isMobile) {
-    return (
-      <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">
-        {content}
-      </div>
-    );
+    return <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">{content}</div>;
   }
 
   return (

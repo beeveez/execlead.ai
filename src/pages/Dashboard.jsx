@@ -3,10 +3,13 @@ import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { Link, Navigate } from "react-router-dom";
 import ScoreCard from "@/components/dashboard/ScoreCard";
+import LearningProgress from "@/components/dashboard/LearningProgress";
+import RecentSimulations from "@/components/dashboard/RecentSimulations";
+import AIRecommendations from "@/components/dashboard/AIRecommendations";
 import { DAILY_CHALLENGES } from "@/lib/constants";
 import {
-  Swords, Brain, MessageSquare, GraduationCap, BarChart3, Building2,
-  BookOpen, TrendingUp, Flame, Target, Crown, Zap, ArrowRight, Calendar,
+  Swords, Brain, MessageSquare, GraduationCap,
+  TrendingUp, Flame, Target, Crown, Zap, ArrowRight, Calendar,
   Scale, PenLine, FileText, Briefcase
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -224,7 +227,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent + Analytics Link */}
+      {/* Learning Progress */}
+      <LearningProgress />
+
+      {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -255,27 +261,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div>
-          <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Continue Learning</h2>
-          <div className="space-y-2">
-            <Link to="/career" className="flex items-center gap-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-lg px-4 py-3 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center"><BookOpen size={16} className="text-blue-400" /></div>
-              <div className="flex-1"><p className="text-white/80 text-sm font-medium">Career Advisor</p><p className="text-white/30 text-xs">Review your promotion roadmap</p></div>
-              <ArrowRight size={14} className="text-white/20" />
-            </Link>
-            <Link to="/companies" className="flex items-center gap-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-lg px-4 py-3 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center"><Building2 size={16} className="text-violet-400" /></div>
-              <div className="flex-1"><p className="text-white/80 text-sm font-medium">Company Intelligence</p><p className="text-white/30 text-xs">Research {profile.target_company}</p></div>
-              <ArrowRight size={14} className="text-white/20" />
-            </Link>
-            <Link to="/analytics" className="flex items-center gap-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-lg px-4 py-3 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center"><BarChart3 size={16} className="text-emerald-400" /></div>
-              <div className="flex-1"><p className="text-white/80 text-sm font-medium">Leadership Analytics</p><p className="text-white/30 text-xs">Track your executive growth</p></div>
-              <ArrowRight size={14} className="text-white/20" />
-            </Link>
-          </div>
-        </div>
+        <RecentSimulations />
       </div>
+
+      {/* AI Recommendations */}
+      <AIRecommendations profile={profile} />
     </div>
   );
 }

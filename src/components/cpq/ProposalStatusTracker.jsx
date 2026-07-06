@@ -1,39 +1,35 @@
 import React from "react";
-import { Check, FileText, Send, Mail, UserCheck, FileSignature, CreditCard, DollarSign, Building2 } from "lucide-react";
+import { Check, FileText, Send, UserCheck, FileSignature, CreditCard, DollarSign, Building2, CheckCircle2 } from "lucide-react";
 
 const STAGES = [
   { key: "created", label: "Proposal Created", icon: FileText },
-  { key: "submitted", label: "Proposal Submitted", icon: Send },
-  { key: "email", label: "Confirmation Email Sent", icon: Mail },
-  { key: "assigned", label: "Assigned to Sales", icon: UserCheck },
-  { key: "contract", label: "Contract Generated", icon: FileSignature },
-  { key: "invoice", label: "Invoice Issued", icon: CreditCard },
-  { key: "payment", label: "Payment Received", icon: DollarSign },
-  { key: "activated", label: "Organization Activated", icon: Building2 },
+  { key: "submitted", label: "Submitted", icon: Send },
+  { key: "accepted", label: "Accepted", icon: UserCheck },
+  { key: "contract_signed", label: "Contract Signed", icon: FileSignature },
+  { key: "invoice_issued", label: "Invoice Issued", icon: CreditCard },
+  { key: "payment_pending", label: "Payment Pending", icon: DollarSign },
+  { key: "paid", label: "Paid", icon: Check },
+  { key: "provisioned", label: "Organization Provisioned", icon: Building2 },
+  { key: "active", label: "Enterprise Active", icon: CheckCircle2 },
 ];
 
-export default function ProposalStatusTracker({ quote, emailWarning, pdfUrl }) {
-  const status = quote.status || "submitted";
-  const invoiceStatuses = ["approved", "accepted", "under_review"];
-  const paymentStatuses = ["accepted"];
+const STATUS_ORDER = ["draft", "submitted", "under_review", "accepted", "contract_signed", "invoice_issued", "payment_pending", "paid", "provisioned", "active"];
 
-  const completed = {
-    created: true,
-    submitted: status !== "draft",
-    email: !emailWarning,
-    assigned: status !== "draft",
-    contract: !!(pdfUrl || quote.pdf_url),
-    invoice: invoiceStatuses.includes(status),
-    payment: paymentStatuses.includes(status),
-    activated: status === "accepted",
-  };
+export default function ProposalStatusTracker({ quote }) {
+  const status = quote.status || "submitted";
+  const currentIdx = STATUS_ORDER.indexOf(status);
+
+  const completed = {};
+  STAGES.forEach((stage, i) => {
+    completed[stage.key] = i <= currentIdx && currentIdx >= 0;
+  });
 
   const completedCount = Object.values(completed).filter(Boolean).length;
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">Proposal Lifecycle</h3>
+        <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">Order-to-Cash Lifecycle</h3>
         <span className="text-xs text-white/30">{completedCount} / {STAGES.length} complete</span>
       </div>
       <div className="space-y-1">

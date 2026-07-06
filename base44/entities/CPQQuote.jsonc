@@ -16,9 +16,15 @@
         "submitted",
         "under_review",
         "approved",
+        "accepted",
+        "contract_signed",
+        "invoice_issued",
+        "payment_pending",
+        "paid",
+        "provisioned",
+        "active",
         "rejected",
-        "expired",
-        "accepted"
+        "expired"
       ],
       "default": "draft"
     },
@@ -104,6 +110,86 @@
       "type": "string"
     },
     "pdf_url": {
+      "type": "string"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "accepted_by_name": {
+      "type": "string"
+    },
+    "contract_url": {
+      "type": "string"
+    },
+    "contract_signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_name": {
+      "type": "string"
+    },
+    "signature_title": {
+      "type": "string"
+    },
+    "terms_accepted": {
+      "type": "boolean",
+      "default": false
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "invoice_id": {
+      "type": "string"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "paid",
+        "failed",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "credit_card",
+        "bank_transfer",
+        "wire_transfer",
+        "purchase_order"
+      ]
+    },
+    "payment_provider": {
+      "type": "string"
+    },
+    "payment_transaction_id": {
+      "type": "string"
+    },
+    "po_number": {
+      "type": "string"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "portal_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "share_token": {
+      "type": "string"
+    },
+    "change_request_notes": {
       "type": "string"
     }
   },

@@ -25,6 +25,16 @@
       ],
       "default": "enterprise"
     },
+    "plan_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "suspended",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
     "seats_total": {
       "type": "number",
       "default": 10
@@ -41,6 +51,61 @@
     },
     "description": {
       "type": "string"
+    },
+    "quote_id": {
+      "type": "string"
+    },
+    "proposal_number": {
+      "type": "string"
+    },
+    "ai_package_id": {
+      "type": "string"
+    },
+    "support_package_id": {
+      "type": "string"
+    },
+    "enabled_modules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "admin_user_id": {
+      "type": "string"
+    },
+    "admin_email": {
+      "type": "string"
+    },
+    "contract_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "contract_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "renewal_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "contract_url": {
+      "type": "string"
+    },
+    "annual_value": {
+      "type": "number",
+      "default": 0
+    },
+    "grand_total": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "contract_length_years": {
+      "type": "number",
+      "default": 1
     }
   },
   "required": [

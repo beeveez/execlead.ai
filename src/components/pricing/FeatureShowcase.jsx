@@ -15,8 +15,8 @@ const ACCENT_MAP = {
   emerald: { text: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", dot: "bg-emerald-500" },
 };
 
-function TierColumn({ tier, config, isMobile }) {
-  const groups = FEATURE_GROUPS[tier.id];
+function TierColumn({ config, isMobile }) {
+  const groups = FEATURE_GROUPS[config.id];
   const accent = ACCENT_MAP[config.accent];
 
   const content = (
@@ -53,7 +53,7 @@ function TierColumn({ tier, config, isMobile }) {
   }
 
   return (
-    <div className={`bg-white/[0.02] border border-white/5 rounded-2xl p-6 ${tier === "executive" ? `ring-1 ${accent.border}` : ""}`}>
+    <div className={`bg-white/[0.02] border border-white/5 rounded-2xl p-6 ${config.id === "executive" ? `ring-1 ${accent.border}` : ""}`}>
       {content}
     </div>
   );
@@ -67,7 +67,7 @@ export default function FeatureShowcase() {
       {/* Desktop: 3 columns */}
       <div className="hidden lg:grid lg:grid-cols-3 gap-5">
         {TIER_CONFIG.map((config) => (
-          <TierColumn key={config.id} tier={config.id} config={config} />
+          <TierColumn key={config.id} config={config} />
         ))}
       </div>
 
@@ -96,7 +96,7 @@ export default function FeatureShowcase() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
           >
-            <TierColumn tier={TIER_CONFIG[activeTier].id} config={TIER_CONFIG[activeTier]} isMobile />
+            <TierColumn config={TIER_CONFIG[activeTier]} isMobile />
           </motion.div>
         </AnimatePresence>
       </div>

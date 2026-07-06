@@ -35,7 +35,7 @@ export const PLAN_CONTENT = {
     audience: ["Organizations", "Government", "Consulting", "Technology", "Banking", "Healthcare", "Global Enterprises"],
     benefits: ["Develop Future Leaders", "Succession Planning", "Leadership Analytics", "SSO & SCIM", "Dedicated Support"],
     roi: "Transform your organization's leadership capability.",
-    cta: "Book Demo",
+    cta: "Configure Proposal",
     startingUsers: 100,
     accent: "text-emerald-400",
     ring: "border-emerald-500/30",

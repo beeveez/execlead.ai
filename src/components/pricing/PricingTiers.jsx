@@ -86,12 +86,12 @@ export default function PricingTiers({ plans, cycle, getPrice, authed }) {
               <div className="mt-5">
                 {isCustom ? (
                   <div className="space-y-2">
-                    <Link to="#demo" className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">
+                    <Link to={authed ? "/cpq" : "/register"} className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">
                       {content.cta} <ArrowRight size={14} />
                     </Link>
                     <div className="grid grid-cols-2 gap-2">
-                      <Link to="/cpq" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
-                        Request Proposal
+                      <Link to="#demo" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
+                        Book Demo
                       </Link>
                       <a href="mailto:sales@execlead.ai" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
                         Talk to Sales

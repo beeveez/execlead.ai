@@ -335,14 +335,16 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Link
-                  to={plan.customPricing ? "/cpq" : (authed ? "/billing" : "/register")}
+                  to={plan.customPricing ? (authed ? "/cpq" : "/register") : (authed ? "/billing" : "/register")}
                   className={`block text-center font-medium py-3 rounded-xl transition-colors ${
-                    plan.recommended
-                      ? "bg-indigo-500 hover:bg-indigo-600 text-white"
-                      : "bg-white/5 hover:bg-white/10 text-white/70"
+                    plan.customPricing
+                      ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                      : plan.recommended
+                        ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                        : "bg-white/5 hover:bg-white/10 text-white/70"
                   }`}
                 >
-                  {plan.buttonText}
+                  {plan.customPricing ? "Configure Proposal" : plan.buttonText}
                 </Link>
               </motion.div>
             ))}

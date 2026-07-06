@@ -16,12 +16,16 @@ import Faq from "@/components/pricing/Faq";
 import FoundingMember from "@/components/pricing/FoundingMember";
 import TrustBadges from "@/components/pricing/TrustBadges";
 import BookDemoForm from "@/components/pricing/BookDemoForm";
+import ShareYourJourney from "@/components/pricing/ShareYourJourney";
+import ReferralProgram from "@/components/referral/ReferralProgram";
+import { captureReferralCode } from "@/lib/socialShare";
 
 export default function Pricing() {
   const [authed, setAuthed] = useState(false);
   const { plans, cycle, setCycle, getPrice } = usePricingCatalog();
 
   useEffect(() => {
+    captureReferralCode();
     base44.auth.isAuthenticated().then(setAuthed).catch(() => {});
   }, []);
 
@@ -78,6 +82,13 @@ export default function Pricing() {
       <section className="pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <FoundingMember />
+        </div>
+      </section>
+
+      {/* Share Your Journey */}
+      <section className="py-20 px-4 bg-white/[0.01]">
+        <div className="max-w-6xl mx-auto">
+          <ShareYourJourney authed={authed} />
         </div>
       </section>
 
@@ -156,6 +167,13 @@ export default function Pricing() {
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Organizations across industries trust EXECLEAD.AI to develop their next generation of leaders.</p>
           </div>
           <SocialProof />
+        </div>
+      </section>
+
+      {/* Refer & Earn */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <ReferralProgram authed={authed} />
         </div>
       </section>
 

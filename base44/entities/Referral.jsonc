@@ -1,0 +1,53 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referral_code": {
+      "type": "string"
+    },
+    "referrer_user_id": {
+      "type": "string"
+    },
+    "referrer_name": {
+      "type": "string"
+    },
+    "invitee_email": {
+      "type": "string"
+    },
+    "invitee_user_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "invited",
+        "clicked",
+        "registered",
+        "converted"
+      ],
+      "default": "invited"
+    },
+    "converted_plan": {
+      "type": "string"
+    },
+    "reward_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "earned",
+        "redeemed"
+      ],
+      "default": "pending"
+    },
+    "reward_type": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "referral_code",
+    "referrer_user_id"
+  ]
+}

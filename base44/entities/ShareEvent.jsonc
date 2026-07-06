@@ -1,0 +1,52 @@
+{
+  "name": "ShareEvent",
+  "type": "object",
+  "properties": {
+    "achievement_type": {
+      "type": "string"
+    },
+    "achievement_title": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string"
+    },
+    "privacy_level": {
+      "type": "string",
+      "enum": [
+        "public",
+        "connections",
+        "private"
+      ],
+      "default": "public"
+    },
+    "hide_name": {
+      "type": "boolean",
+      "default": false
+    },
+    "hide_score": {
+      "type": "boolean",
+      "default": false
+    },
+    "hide_company": {
+      "type": "boolean",
+      "default": false
+    },
+    "executive_score": {
+      "type": "number"
+    },
+    "leadership_level": {
+      "type": "string"
+    },
+    "referrer_user_id": {
+      "type": "string"
+    },
+    "referral_code": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "achievement_type",
+    "platform"
+  ]
+}

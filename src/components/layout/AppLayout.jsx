@@ -5,7 +5,8 @@ import TopBar from "@/components/layout/TopBar";
 import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
-import { getNavGroups, normalizeRole } from "@/lib/roles";
+import { getNavGroups, normalizeRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
+import DeveloperSwitch from "@/components/developer/DeveloperSwitch";
 import RoleRoute from "@/components/RoleRoute";
 import { LogOut, Menu, X, ChevronRight } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
@@ -37,7 +38,11 @@ export default function AppLayout() {
   const { subscription, loading: loadingSub } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navGroups = getNavGroups(normalizeRole(user?.role));
+  const { developerMode, canAccessDeveloper } = useDeveloper();
+  const showWorkspace = canAccessDeveloper && developerMode;
+  const navGroups = showWorkspace
+    ? [...getNavGroups("customer"), ...DEVELOPER_WORKSPACE_NAV]
+    : getNavGroups(normalizeRole(user?.role));
 
   const handleLogout = () => {
     base44.auth.logout("/login");
@@ -63,8 +68,9 @@ export default function AppLayout() {
           ))}
         </nav>
         <div className="p-3 border-t border-white/5">
-          <div className="mb-2 flex justify-center">
+          <div className="mb-2 space-y-2">
             <DeveloperBadge />
+            <DeveloperSwitch />
           </div>
           <button
             onClick={handleLogout}

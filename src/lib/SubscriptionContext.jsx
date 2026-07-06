@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
-import { getPlan } from '@/lib/plans';
+import { getPlan, PLANS } from '@/lib/plans';
+import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 
 const SubscriptionContext = createContext(null);
@@ -61,7 +62,8 @@ export const SubscriptionProvider = ({ children }) => {
     await loadProfile();
   }, [loadProfile]);
 
-  const plan = getPlan(profile);
+  const isDevUser = canAccessDeveloperWorkspace(user?.role);
+  const plan = isDevUser ? PLANS.developer_unlimited : getPlan(profile);
 
   const subscription = {
     planName: plan.name,

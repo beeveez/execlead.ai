@@ -59,6 +59,13 @@ import LearningAssignments from '@/pages/LearningAssignments';
 import SSOIdentity from '@/pages/SSOIdentity';
 import ExecutiveLegacy from '@/pages/ExecutiveLegacy';
 import DeveloperConsole from '@/pages/DeveloperConsole';
+import AuditLogs from '@/pages/developer/AuditLogs';
+import SystemHealth from '@/pages/developer/SystemHealth';
+import ApiKeys from '@/pages/developer/ApiKeys';
+import DatabaseTools from '@/pages/developer/DatabaseTools';
+import MigrationHistory from '@/pages/developer/MigrationHistory';
+import DeploymentCenter from '@/pages/developer/DeploymentCenter';
+import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -138,6 +145,13 @@ const AuthenticatedApp = () => {
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
           <Route path="/developer" element={<DeveloperConsole />} />
+          <Route path="/developer/audit-logs" element={<AuditLogs />} />
+          <Route path="/developer/system-health" element={<SystemHealth />} />
+          <Route path="/developer/api-keys" element={<ApiKeys />} />
+          <Route path="/developer/database" element={<DatabaseTools />} />
+          <Route path="/developer/migrations" element={<MigrationHistory />} />
+          <Route path="/developer/deployments" element={<DeploymentCenter />} />
+          <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/cpq" element={<CPQWizard />} />
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />

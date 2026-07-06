@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/AuthContext";
-import { isSuperAdmin } from "@/lib/roles";
+import { canAccessDeveloperWorkspace, normalizeRole } from "@/lib/roles";
 
 const STORAGE_KEY = "execlead_developer_state";
 const DeveloperContext = createContext(null);
@@ -27,15 +27,21 @@ export const DeveloperProvider = ({ children }) => {
   const [state, setState] = useState(defaultState);
 
   useEffect(() => {
-    if (user && isSuperAdmin(user.role)) {
-      setState(loadState());
+    if (user && canAccessDeveloperWorkspace(user.role)) {
+      const loaded = loadState();
+      // Developer role is always in developer mode — cannot be toggled off
+      if (normalizeRole(user.role) === "developer") {
+        setState({ ...loaded, developerMode: true });
+      } else {
+        setState(loaded);
+      }
     } else {
       setState(defaultState);
     }
   }, [user?.id, user?.role]);
 
   useEffect(() => {
-    if (user && isSuperAdmin(user.role)) {
+    if (user && canAccessDeveloperWorkspace(user.role)) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch {}
@@ -43,11 +49,16 @@ export const DeveloperProvider = ({ children }) => {
   }, [state, user?.id, user?.role]);
 
   const userRole = user?.role;
-  const isSuperAdminUser = isSuperAdmin(userRole);
+  const canAccessDev = canAccessDeveloperWorkspace(userRole);
+  const isSuperAdminUser = normalizeRole(userRole) === "super_admin";
 
   const toggleDeveloperMode = useCallback(() => {
-    setState((prev) => ({ ...prev, developerMode: !prev.developerMode }));
-  }, []);
+    setState((prev) => {
+      // Developer role cannot toggle off — always in developer mode
+      if (normalizeRole(userRole) === "developer") return prev;
+      return { ...prev, developerMode: !prev.developerMode };
+    });
+  }, [userRole]);
 
   const setSimulatedPlan = useCallback((plan) => {
     setState((prev) => ({ ...prev, simulatedPlan: plan === prev.simulatedPlan ? null : plan }));
@@ -93,9 +104,9 @@ export const DeveloperProvider = ({ children }) => {
   const getEffectivePlan = useCallback((realPlan) => {
     if (state.impersonation?.plan) return state.impersonation.plan;
     if (state.simulatedPlan) return state.simulatedPlan;
-    if (state.developerMode && isSuperAdminUser) return "developer_unlimited";
+    if (canAccessDev && state.developerMode) return "developer_unlimited";
     return realPlan;
-  }, [state.impersonation, state.simulatedPlan, state.developerMode, isSuperAdminUser]);
+  }, [state.impersonation, state.simulatedPlan, state.developerMode, canAccessDev]);
 
   const getEffectiveRole = useCallback((realRole) => {
     if (state.impersonation?.role) return state.impersonation.role;
@@ -106,6 +117,7 @@ export const DeveloperProvider = ({ children }) => {
     <DeveloperContext.Provider value={{
       ...state,
       isSuperAdmin: isSuperAdminUser,
+      canAccessDeveloper: canAccessDev,
       isSimulating,
       getEffectivePlan,
       getEffectiveRole,

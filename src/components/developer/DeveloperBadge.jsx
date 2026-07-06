@@ -3,8 +3,8 @@ import { useDeveloper } from "@/lib/DeveloperContext";
 import { Code2 } from "lucide-react";
 
 export default function DeveloperBadge() {
-  const { developerMode, isSuperAdmin } = useDeveloper();
-  if (!isSuperAdmin || !developerMode) return null;
+  const { developerMode, canAccessDeveloper } = useDeveloper();
+  if (!canAccessDeveloper || !developerMode) return null;
 
   return (
     <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/20">

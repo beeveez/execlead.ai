@@ -5,7 +5,7 @@ import { DEFAULT_FEATURES, PLAN_TIERS, getFeatureCatalog, getUpgradePlan } from 
 
 export function useEntitlements() {
   const { profile } = useSubscription();
-  const { isSuperAdmin, developerMode, simulatedPlan, featureOverrides, impersonation, getEffectivePlan } = useDeveloper();
+  const { canAccessDeveloper, developerMode, simulatedPlan, featureOverrides, impersonation, getEffectivePlan } = useDeveloper();
   const [features, setFeatures] = useState(DEFAULT_FEATURES);
   const [loading, setLoading] = useState(true);
 
@@ -33,12 +33,12 @@ export function useEntitlements() {
     // Developer mode → unlock all
     if (developerMode) return true;
     // Super admin not simulating → unlock all
-    if (isSuperAdmin && !isSimulating) return true;
+    if (canAccessDeveloper && !isSimulating) return true;
     // Normal plan-based check
     const f = features.find(x => x.id === featureId);
     if (!f || !f.isEnabled) return false;
     return userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0);
-  }, [features, userTier, isSuperAdmin, developerMode, isSimulating, featureOverrides]);
+  }, [features, userTier, canAccessDeveloper, developerMode, isSimulating, featureOverrides]);
 
   const getFeature = useCallback((featureId) => features.find(x => x.id === featureId), [features]);
 

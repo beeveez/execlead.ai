@@ -4,7 +4,7 @@ import {
   UserCircle, CreditCard, Settings as SettingsIcon,
   Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
   Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes,
-  Cpu, TrendingUp
+  Cpu, TrendingUp, GitBranch, Rocket
 } from "lucide-react";
 
 // ============================================================
@@ -54,6 +54,11 @@ export function normalizeRole(role) {
   if (ROLE_ALIASES[role]) return ROLE_ALIASES[role];
   if (ROLES[role]) return role;
   return "customer";
+}
+
+export function canAccessDeveloperWorkspace(role) {
+  const r = normalizeRole(role);
+  return r === "developer" || r === "super_admin";
 }
 
 // ============================================================
@@ -208,6 +213,45 @@ export const NAV_GROUPS = [
   },
 ];
 
+export const DEVELOPER_WORKSPACE_NAV = [
+  {
+    label: "Workspace",
+    items: [
+      { path: "/developer", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+    ],
+  },
+  {
+    label: "Configuration",
+    items: [
+      { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
+      { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
+      { path: "/email-settings", label: "Email Settings", icon: Mail },
+      { path: "/payment-settings", label: "Payment Providers", icon: Lock },
+    ],
+  },
+  {
+    label: "Sales & Data",
+    items: [
+      { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
+      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
+      { path: "/company-admin", label: "Company Admin", icon: Database },
+      { path: "/developer/organizations", label: "Organization Admin", icon: Network },
+      { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { path: "/developer/system-health", label: "System Health", icon: Cpu },
+      { path: "/developer/api-keys", label: "API Keys", icon: KeyRound },
+      { path: "/developer/database", label: "Database Tools", icon: Database },
+      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
+      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
+    ],
+  },
+];
+
 export function getNavGroups(role) {
   const normalized = normalizeRole(role);
   return NAV_GROUPS
@@ -233,6 +277,13 @@ export const ROUTE_ACCESS = {
   "/sso": ENTERPRISE_ADMIN_ROLES,
   "/admin": ["enterprise_admin", "platform_admin", "super_admin", "support"],
   "/developer": ["developer", "super_admin"],
+  "/developer/audit-logs": ["developer", "super_admin"],
+  "/developer/system-health": ["developer", "super_admin"],
+  "/developer/api-keys": ["developer", "super_admin"],
+  "/developer/database": ["developer", "super_admin"],
+  "/developer/migrations": ["developer", "super_admin"],
+  "/developer/deployments": ["developer", "super_admin"],
+  "/developer/organizations": ["developer", "super_admin"],
   "/feature-management": ["developer", "super_admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],
   "/billing-admin": ["platform_admin", "super_admin", "finance"],

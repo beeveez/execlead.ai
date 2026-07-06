@@ -5,7 +5,7 @@ import { CheckCircle2, Circle } from "lucide-react";
 export default function ProfileCompleteness({ form }) {
   const { sections, overall } = calculateCompleteness(form);
 
-  const orderedKeys = ["personal", "executive", "experience", "education", "certifications", "skills", "social"];
+  const orderedKeys = ["personal", "executive", "experience", "education", "certifications", "skills", "social", "languages", "projects", "awards"];
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">

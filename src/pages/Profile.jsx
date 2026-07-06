@@ -60,6 +60,9 @@ export default function Profile() {
         education: safeParse(profile.education_json, []),
         certifications: safeParse(profile.certifications_json, []),
         skills: profile.skills || [],
+        languages: safeParse(profile.languages_json, []),
+        projects: safeParse(profile.projects_json, []),
+        awards: safeParse(profile.awards_json, []),
       });
     }
   }, [profile?.id]);
@@ -109,54 +112,69 @@ export default function Profile() {
     setUploadingResume(false);
   };
 
-  const handleSyncApply = (syncedForm) => {
+  const handleSyncApply = async (syncedForm) => {
     setForm(syncedForm);
     setSyncData(null);
-    toast({ title: "Identity Populated", description: "Review and click Save Changes to persist." });
+    setSaving(true);
+    try {
+      await persistForm(syncedForm);
+      toast({ title: "Identity Updated", description: "Your Executive Identity has been populated from your resume." });
+    } catch (e) {
+      toast({ title: "Save Failed", description: "Could not persist identity.", variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
+  const persistForm = async (formData) => {
+    if (!profile) return;
+    const fullName = [formData.first_name, formData.last_name].filter(Boolean).join(" ") || formData.full_name;
+    await base44.entities.UserProfile.update(profile.id, {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      full_name: fullName,
+      display_name: formData.display_name,
+      preferred_name: formData.preferred_name,
+      mobile_number: formData.mobile_number,
+      country: formData.country,
+      city: formData.city,
+      timezone: formData.timezone,
+      language: formData.language,
+      professional_headline: formData.professional_headline,
+      bio: formData.bio,
+      current_company: formData.current_company,
+      current_role: formData.current_role,
+      industry: formData.industry,
+      years_experience: formData.years_experience ? Number(formData.years_experience) : null,
+      target_company: formData.target_company,
+      target_role: formData.target_role,
+      target_country: formData.target_country,
+      expected_salary: formData.expected_salary ? Number(formData.expected_salary) : null,
+      preferred_industry: formData.preferred_industry,
+      work_preference: formData.work_preference,
+      linkedin_url: formData.linkedin_url,
+      github_url: formData.github_url,
+      portfolio_url: formData.portfolio_url,
+      website_url: formData.website_url,
+      privacy_profile: formData.privacy_profile,
+      hide_salary: formData.hide_salary,
+      hide_resume: formData.hide_resume,
+      hide_email: formData.hide_email,
+      skills: formData.skills,
+      experience_json: JSON.stringify(formData.experience),
+      education_json: JSON.stringify(formData.education),
+      certifications_json: JSON.stringify(formData.certifications),
+      languages_json: JSON.stringify(formData.languages || []),
+      projects_json: JSON.stringify(formData.projects || []),
+      awards_json: JSON.stringify(formData.awards || []),
+    });
+    await refreshProfile();
   };
 
   const handleSave = async () => {
     if (!form || !profile) return;
     setSaving(true);
     try {
-      const fullName = [form.first_name, form.last_name].filter(Boolean).join(" ") || form.full_name;
-      await base44.entities.UserProfile.update(profile.id, {
-        first_name: form.first_name,
-        last_name: form.last_name,
-        full_name: fullName,
-        display_name: form.display_name,
-        preferred_name: form.preferred_name,
-        mobile_number: form.mobile_number,
-        country: form.country,
-        city: form.city,
-        timezone: form.timezone,
-        language: form.language,
-        professional_headline: form.professional_headline,
-        bio: form.bio,
-        current_company: form.current_company,
-        current_role: form.current_role,
-        industry: form.industry,
-        years_experience: form.years_experience ? Number(form.years_experience) : null,
-        target_company: form.target_company,
-        target_role: form.target_role,
-        target_country: form.target_country,
-        expected_salary: form.expected_salary ? Number(form.expected_salary) : null,
-        preferred_industry: form.preferred_industry,
-        work_preference: form.work_preference,
-        linkedin_url: form.linkedin_url,
-        github_url: form.github_url,
-        portfolio_url: form.portfolio_url,
-        website_url: form.website_url,
-        privacy_profile: form.privacy_profile,
-        hide_salary: form.hide_salary,
-        hide_resume: form.hide_resume,
-        hide_email: form.hide_email,
-        skills: form.skills,
-        experience_json: JSON.stringify(form.experience),
-        education_json: JSON.stringify(form.education),
-        certifications_json: JSON.stringify(form.certifications),
-      });
-      await refreshProfile();
+      await persistForm(form);
       toast({ title: "Profile Updated", description: "Your changes have been saved successfully." });
     } catch (e) {
       toast({ title: "Save Failed", description: "Could not save your changes.", variant: "destructive" });

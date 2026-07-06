@@ -106,6 +106,15 @@
     "certifications_json": {
       "type": "string"
     },
+    "languages_json": {
+      "type": "string"
+    },
+    "projects_json": {
+      "type": "string"
+    },
+    "awards_json": {
+      "type": "string"
+    },
     "privacy_profile": {
       "type": "string",
       "enum": [

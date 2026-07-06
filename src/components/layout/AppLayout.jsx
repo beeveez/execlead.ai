@@ -4,88 +4,14 @@ import { base44 } from "@/api/base44Client";
 import TopBar from "@/components/layout/TopBar";
 import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import {
-  LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
-  BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
-  LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt, Lock,
-  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound, Code2, Award, Calculator, Database, Mail
-} from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { getNavGroups, normalizeRole } from "@/lib/roles";
+import RoleRoute from "@/components/RoleRoute";
+import { LogOut, Menu, X, ChevronRight } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import DebugPanel from "@/components/developer/DebugPanel";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
-
-const NAV_GROUPS = [
-  {
-    label: "Platform",
-    items: [
-      { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/academy", label: "Academy", icon: GraduationCap },
-      { path: "/coach", label: "Coach", icon: MessageSquare },
-      { path: "/simulator", label: "Simulator", icon: Brain },
-      { path: "/debate", label: "Debate", icon: Scale },
-      { path: "/council", label: "Council", icon: Users },
-      { path: "/marketplace", label: "Marketplace", icon: Store },
-    ],
-  },
-  {
-    label: "Career",
-    items: [
-      { path: "/career", label: "Career Advisor", icon: BookOpen },
-      { path: "/companies", label: "Companies", icon: Building2 },
-      { path: "/resume", label: "Resume AI", icon: FileText },
-      { path: "/career-studio", label: "Career Studio", icon: Briefcase },
-      { path: "/journal", label: "Journal", icon: PenLine },
-    ],
-  },
-  {
-    label: "Intelligence",
-    items: [
-      { path: "/analytics", label: "Analytics", icon: BarChart3 },
-      { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint },
-      { path: "/executive-legacy", label: "Legacy", icon: Award },
-      { path: "/ai-usage", label: "AI Usage", icon: Cpu },
-    ],
-  },
-  {
-    label: "HR & Talent",
-    items: [
-      { path: "/hr-dashboard", label: "HR Dashboard", icon: Users },
-      { path: "/succession-planning", label: "Succession", icon: Network },
-      { path: "/promotion-readiness", label: "Promotion", icon: TrendingUp },
-      { path: "/learning-assignments", label: "Assignments", icon: ClipboardCheck },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { path: "/profile", label: "Profile", icon: UserCircle },
-      { path: "/billing", label: "Billing", icon: CreditCard },
-      { path: "/compare-plans", label: "Compare Plans", icon: Layers },
-      { path: "/settings", label: "Settings", icon: SettingsIcon },
-      { path: "/connected-accounts", label: "Connected Accounts", icon: Link2 },
-    ],
-  },
-  {
-    label: "Enterprise & Admin",
-    items: [
-      { path: "/enterprise", label: "Enterprise", icon: Building2 },
-      { path: "/admin", label: "Admin", icon: Shield },
-      { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
-      { path: "/feature-management", label: "Features", icon: Boxes },
-      { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
-      { path: "/payment-settings", label: "Payment Settings", icon: Lock },
-      { path: "/sso", label: "SSO & Identity", icon: KeyRound },
-      { path: "/developer", label: "Developer", icon: Code2 },
-      { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
-      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: BarChart3 },
-      { path: "/company-admin", label: "Company Admin", icon: Database },
-      { path: "/email-settings", label: "Email Settings", icon: Mail },
-    ],
-  },
-];
-
-const ALL_ITEMS = NAV_GROUPS.flatMap(g => g.items);
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -107,8 +33,11 @@ function NavItem({ item, active, onClick }) {
 
 export default function AppLayout() {
   const location = useLocation();
+  const { user } = useAuth();
   const { subscription, loading: loadingSub } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navGroups = getNavGroups(normalizeRole(user?.role));
 
   const handleLogout = () => {
     base44.auth.logout("/login");
@@ -122,12 +51,12 @@ export default function AppLayout() {
           <Logo />
         </div>
         <nav className="flex-1 p-3 overflow-y-auto">
-          {NAV_GROUPS.map((group) => (
+          {navGroups.map((group) => (
             <div key={group.label} className="mb-4">
               <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/20">{group.label}</div>
               <div className="space-y-0.5">
                 {group.items.map(item => (
-                  <NavItem key={item.path} item={item} active={location.pathname === item.path} />
+                  <NavItem key={`${item.path}-${item.label}`} item={item} active={location.pathname === item.path} />
                 ))}
               </div>
             </div>
@@ -177,12 +106,12 @@ export default function AppLayout() {
               <Logo showAiTag={false} />
             </div>
             <nav>
-              {NAV_GROUPS.map((group) => (
+              {navGroups.map((group) => (
                 <div key={group.label} className="mb-4">
                   <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/20">{group.label}</div>
                   <div className="space-y-0.5">
                     {group.items.map(item => (
-                      <NavItem key={item.path} item={item} active={location.pathname === item.path} onClick={() => setMobileOpen(false)} />
+                      <NavItem key={`${item.path}-${item.label}`} item={item} active={location.pathname === item.path} onClick={() => setMobileOpen(false)} />
                     ))}
                   </div>
                 </div>
@@ -199,12 +128,14 @@ export default function AppLayout() {
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Main Content — every page is role-enforced via RoleRoute */}
       <main className="flex-1 lg:ml-64 pt-14 lg:pt-0 min-h-screen">
         <ImpersonationBanner />
         <TopBar />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
-          <Outlet />
+          <RoleRoute>
+            <Outlet />
+          </RoleRoute>
         </div>
       </main>
       <DebugPanel />

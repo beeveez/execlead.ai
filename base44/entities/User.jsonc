@@ -4,17 +4,24 @@
   "properties": {
     "role": {
       "type": "string",
-      "description": "The role of the user in the app",
+      "description": "The role of the user in the app. Roles govern access scope and are independent of subscription plans.",
       "enum": [
-        "super_admin",
-        "platform_admin",
+        "guest",
+        "customer",
+        "enterprise_user",
         "enterprise_admin",
+        "support",
+        "sales",
+        "finance",
+        "content_manager",
+        "platform_admin",
+        "developer",
+        "super_admin",
+        "free_user",
+        "professional_user",
+        "executive_user",
         "instructor",
         "coach",
-        "enterprise_user",
-        "executive_user",
-        "professional_user",
-        "free_user",
         "admin",
         "user"
       ]

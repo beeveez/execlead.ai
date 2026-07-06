@@ -1,45 +1,293 @@
+import {
+  LayoutDashboard, GraduationCap, MessageSquare, Brain, Scale,
+  Briefcase, FileText, Building2, BarChart3, PenLine,
+  UserCircle, CreditCard, Settings as SettingsIcon,
+  Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
+  Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes,
+  Cpu, TrendingUp
+} from "lucide-react";
+
+// ============================================================
+// ROLE DEFINITIONS
+// Roles are INDEPENDENT of subscription plans.
+//   - Subscription plans unlock product features (FeatureGate).
+//   - Roles govern access scope and navigation visibility.
+// Plans must NEVER grant administrative access — only roles do.
+// ============================================================
+
 export const ROLES = {
-  super_admin: { label: "Super Admin", tier: 100, plan: "enterprise", description: "Unrestricted platform access" },
-  platform_admin: { label: "Platform Admin", tier: 90, plan: "enterprise", description: "Platform-wide administration" },
-  enterprise_admin: { label: "Enterprise Admin", tier: 80, plan: "enterprise", description: "Organization administration" },
-  instructor: { label: "Instructor", tier: 70, plan: "executive", description: "Create and manage learning content" },
-  coach: { label: "Coach", tier: 60, plan: "executive", description: "Provide coaching to users" },
-  enterprise_user: { label: "Enterprise User", tier: 50, plan: "enterprise", description: "Full enterprise feature access" },
-  executive_user: { label: "Executive User", tier: 40, plan: "executive", description: "Executive-tier features" },
-  professional_user: { label: "Professional User", tier: 30, plan: "professional", description: "Professional-tier features" },
-  free_user: { label: "Free User", tier: 10, plan: "free", description: "Basic free-tier access" },
-  admin: { label: "Admin", tier: 100, plan: "enterprise", description: "Legacy admin role" },
-  user: { label: "User", tier: 10, plan: "free", description: "Legacy user role" },
+  guest: { label: "Guest", tier: 0, description: "Unauthenticated visitor" },
+  customer: { label: "Customer", tier: 10, description: "Standard platform user" },
+  enterprise_user: { label: "Enterprise User", tier: 20, description: "Enterprise organization member" },
+  enterprise_admin: { label: "Enterprise Admin", tier: 30, description: "Enterprise organization administrator" },
+  support: { label: "Support", tier: 40, description: "Customer support agent" },
+  sales: { label: "Sales", tier: 45, description: "Sales representative" },
+  finance: { label: "Finance", tier: 50, description: "Finance and billing manager" },
+  content_manager: { label: "Content Manager", tier: 55, description: "Learning content and company data manager" },
+  platform_admin: { label: "Platform Admin", tier: 90, description: "Platform-wide administration" },
+  developer: { label: "Developer", tier: 95, description: "Developer tools and diagnostics" },
+  super_admin: { label: "Super Admin", tier: 100, description: "Unrestricted platform access" },
+
+  // Legacy role entries — kept for backward compatibility, excluded from ROLE_LIST
+  free_user: { label: "Free User", tier: 10, description: "Legacy — maps to Customer", legacy: true },
+  professional_user: { label: "Professional User", tier: 10, description: "Legacy — maps to Customer", legacy: true },
+  executive_user: { label: "Executive User", tier: 10, description: "Legacy — maps to Customer", legacy: true },
+  instructor: { label: "Instructor", tier: 55, description: "Legacy — maps to Content Manager", legacy: true },
+  coach: { label: "Coach", tier: 10, description: "Legacy — maps to Customer", legacy: true },
+  admin: { label: "Admin", tier: 100, description: "Legacy — maps to Super Admin", legacy: true },
+  user: { label: "User", tier: 10, description: "Legacy — maps to Customer", legacy: true },
 };
 
+// Legacy role → normalized role
+const ROLE_ALIASES = {
+  admin: "super_admin",
+  user: "customer",
+  free_user: "customer",
+  professional_user: "customer",
+  executive_user: "customer",
+  instructor: "content_manager",
+  coach: "customer",
+};
+
+export function normalizeRole(role) {
+  if (!role) return "customer";
+  if (ROLE_ALIASES[role]) return ROLE_ALIASES[role];
+  if (ROLES[role]) return role;
+  return "customer";
+}
+
+// ============================================================
+// ROLE SETS — control nav group visibility
+// ============================================================
+
+const ALL_AUTHED = [
+  "customer", "enterprise_user", "enterprise_admin", "support", "sales",
+  "finance", "content_manager", "platform_admin", "developer", "super_admin",
+];
+const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_admin", "platform_admin", "super_admin"];
+const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "platform_admin", "super_admin"];
+
+// ============================================================
+// NAVIGATION GROUPS — single source of truth for the sidebar.
+// Filtered by role via getNavGroups().
+// ============================================================
+
+export const NAV_GROUPS = [
+  {
+    label: "Platform",
+    roles: ALL_AUTHED,
+    items: [
+      { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/academy", label: "Academy", icon: GraduationCap },
+      { path: "/coach", label: "Coach", icon: MessageSquare },
+      { path: "/simulator", label: "Simulator", icon: Brain },
+      { path: "/debate", label: "Debate", icon: Scale },
+    ],
+  },
+  {
+    label: "Career",
+    roles: ALL_AUTHED,
+    items: [
+      { path: "/career-studio", label: "Career Studio", icon: Briefcase },
+      { path: "/resume", label: "Resume AI", icon: FileText },
+      { path: "/companies", label: "Companies", icon: Building2 },
+      { path: "/journal", label: "Journal", icon: PenLine },
+    ],
+  },
+  {
+    label: "Insights",
+    roles: ALL_AUTHED,
+    items: [
+      { path: "/analytics", label: "Analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Account",
+    roles: ALL_AUTHED,
+    items: [
+      { path: "/profile", label: "Profile", icon: UserCircle },
+      { path: "/billing", label: "Billing", icon: CreditCard },
+      { path: "/settings", label: "Settings", icon: SettingsIcon },
+    ],
+  },
+
+  // Enterprise (Customer sidebar + org tools)
+  {
+    label: "Enterprise",
+    roles: ENTERPRISE_ROLES,
+    items: [
+      { path: "/enterprise", label: "Organization", icon: Network },
+      { path: "/learning-assignments", label: "Learning Assignments", icon: ClipboardCheck },
+      { path: "/hr-dashboard", label: "Department Analytics", icon: BarChart3 },
+      { path: "/succession-planning", label: "Seat Usage", icon: Users },
+      { path: "/promotion-readiness", label: "Organization Reports", icon: FileText },
+    ],
+  },
+
+  // Enterprise Admin (Enterprise + admin tools)
+  {
+    label: "Administration",
+    roles: ENTERPRISE_ADMIN_ROLES,
+    items: [
+      { path: "/admin", label: "User Management", icon: Shield },
+      { path: "/enterprise", label: "Organization Settings", icon: SettingsIcon },
+      { path: "/analytics", label: "Reports", icon: BarChart3 },
+      { path: "/hr-dashboard", label: "Team Dashboard", icon: Users },
+    ],
+  },
+
+  // Functional roles — scoped toolsets added to the customer sidebar
+  {
+    label: "Support",
+    roles: ["support", "platform_admin", "super_admin"],
+    items: [
+      { path: "/admin", label: "User Support", icon: Shield },
+    ],
+  },
+  {
+    label: "Sales",
+    roles: ["sales", "platform_admin", "super_admin"],
+    items: [
+      { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
+      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
+    ],
+  },
+  {
+    label: "Finance",
+    roles: ["finance", "platform_admin", "super_admin"],
+    items: [
+      { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
+      { path: "/payment-settings", label: "Payment Settings", icon: Lock },
+    ],
+  },
+  {
+    label: "Content",
+    roles: ["content_manager", "platform_admin", "super_admin"],
+    items: [
+      { path: "/company-admin", label: "Company Admin", icon: Database },
+    ],
+  },
+
+  // Developer Mode — Developer + Super Admin only
+  {
+    label: "Developer",
+    roles: ["developer", "super_admin"],
+    items: [
+      { path: "/developer", label: "Developer Console", icon: Code2 },
+      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+    ],
+  },
+
+  // Platform Administration — Platform Admin + Super Admin
+  {
+    label: "Platform Administration",
+    roles: ["platform_admin", "super_admin"],
+    items: [
+      { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
+      { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
+      { path: "/payment-settings", label: "Payment Settings", icon: Lock },
+      { path: "/email-settings", label: "Email Settings", icon: Mail },
+      { path: "/sso", label: "SSO & Identity", icon: KeyRound },
+      { path: "/company-admin", label: "Company Admin", icon: Database },
+      { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
+      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
+    ],
+  },
+
+  // Super Admin — full system access
+  {
+    label: "System",
+    roles: ["super_admin"],
+    items: [
+      { path: "/admin", label: "Admin", icon: Shield },
+      { path: "/developer", label: "Developer", icon: Code2 },
+      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+      { path: "/admin", label: "Audit Logs", icon: FileText },
+      { path: "/developer", label: "System Health", icon: Cpu },
+    ],
+  },
+];
+
+export function getNavGroups(role) {
+  const normalized = normalizeRole(role);
+  return NAV_GROUPS
+    .filter(g => g.roles.includes(normalized))
+    .map(g => ({ label: g.label, items: g.items }))
+    .filter(g => g.items.length > 0);
+}
+
+// ============================================================
+// ROUTE ACCESS ENFORCEMENT
+// Enforced on EVERY route via <RoleRoute>.
+// Routes not listed here are accessible to any authenticated user
+// (customer features). Plan-based feature gating is handled
+// separately by <FeatureGate> at the route level.
+// ============================================================
+
+export const ROUTE_ACCESS = {
+  "/enterprise": ENTERPRISE_ROLES,
+  "/hr-dashboard": ENTERPRISE_ROLES,
+  "/succession-planning": ENTERPRISE_ROLES,
+  "/promotion-readiness": ENTERPRISE_ROLES,
+  "/learning-assignments": ENTERPRISE_ROLES,
+  "/sso": ENTERPRISE_ADMIN_ROLES,
+  "/admin": ["enterprise_admin", "platform_admin", "super_admin", "support"],
+  "/developer": ["developer", "super_admin"],
+  "/feature-management": ["developer", "super_admin"],
+  "/pricing-admin": ["platform_admin", "super_admin"],
+  "/billing-admin": ["platform_admin", "super_admin", "finance"],
+  "/payment-settings": ["platform_admin", "super_admin", "finance"],
+  "/cpq": ["platform_admin", "super_admin", "sales"],
+  "/cpq-dashboard": ["platform_admin", "super_admin", "sales"],
+  "/company-admin": ["platform_admin", "super_admin", "content_manager"],
+  "/email-settings": ["platform_admin", "super_admin"],
+};
+
+export function canAccessRoute(role, path) {
+  const normalized = normalizeRole(role);
+  const allowed = ROUTE_ACCESS[path];
+  if (!allowed) return true; // customer route — any authenticated user
+  return allowed.includes(normalized);
+}
+
+// ============================================================
+// BACKWARD-COMPATIBLE HELPERS
+// ============================================================
+
 export const ROLE_LIST = Object.entries(ROLES)
-  .filter(([key]) => !["admin", "user"].includes(key))
+  .filter(([key, val]) => key !== "guest" && !val.legacy)
   .map(([key, val]) => ({ id: key, ...val }));
 
 export function getRoleInfo(role) {
-  return ROLES[role] || ROLES.free_user;
+  const normalized = normalizeRole(role);
+  return ROLES[normalized] || ROLES.customer;
 }
 
 export function getRoleTier(role) {
-  return ROLES[role]?.tier ?? 0;
+  return getRoleInfo(role).tier;
 }
 
 export function getRolePlan(role) {
-  return ROLES[role]?.plan ?? "free";
+  const r = normalizeRole(role);
+  if (["platform_admin", "super_admin", "enterprise_admin", "enterprise_user"].includes(r)) return "enterprise";
+  return "free";
 }
 
 export function isSuperAdmin(role) {
-  return role === "super_admin" || role === "admin";
+  return normalizeRole(role) === "super_admin";
 }
 
 export function isPlatformAdmin(role) {
-  return getRoleTier(role) >= 90;
+  const r = normalizeRole(role);
+  return r === "platform_admin" || r === "super_admin";
 }
 
 export function isEnterpriseAdmin(role) {
-  return getRoleTier(role) >= 80;
+  const r = normalizeRole(role);
+  return ["enterprise_admin", "platform_admin", "super_admin"].includes(r);
 }
 
 export function isAdminLevel(role) {
-  return getRoleTier(role) >= 80;
+  const r = normalizeRole(role);
+  return ["enterprise_admin", "platform_admin", "super_admin"].includes(r);
 }

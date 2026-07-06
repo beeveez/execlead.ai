@@ -114,7 +114,7 @@ Provide a comprehensive promotion readiness assessment. Be honest and specific.`
         <p className="text-white/40 text-sm mt-1">AI-powered promotion readiness assessment for your team.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Member List */}
         <div>
           <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Team Members</h2>

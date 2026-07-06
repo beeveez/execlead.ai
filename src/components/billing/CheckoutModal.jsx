@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { PAYMENT_PROVIDERS, COUNTRIES, calculateTax, calculateDiscount, formatCurrency, processPayment, startTrial, incrementCouponUsage, sendPaymentEmail, EMAIL_TYPES, getPaymentError, logBillingEvent } from "@/lib/payments";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import CouponInput from "@/components/billing/CouponInput";
 import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 
 export default function CheckoutModal({ plan, cycle: initialCycle, profile, onClose, onSuccess }) {
   const { getPrice, cycle, setCycle } = usePricingCatalog(initialCycle);
+  const { user } = useAuth();
   const [coupon, setCoupon] = useState(null);
   const [provider, setProvider] = useState("stripe");
   const [billingAddress, setBillingAddress] = useState({ name: profile?.full_name || "", email: "", country: "US", address: "" });
@@ -77,6 +79,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
           period_end: periodEnd.toISOString().split("T")[0],
           plan: plan.id, billing_cycle: cycle,
           invoice_number: `TRIAL-${Date.now()}`,
+          owner_user_id: user.id,
         });
         await base44.entities.Notification.create({
           type: "subscription", title: "Trial Started",
@@ -119,6 +122,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
       period_end: periodEnd.toISOString().split("T")[0],
       plan: selectedPlan.id, billing_cycle: billingCycle,
       invoice_number: `INV-${Date.now()}`,
+      owner_user_id: user.id,
     });
 
     await base44.entities.Notification.create({

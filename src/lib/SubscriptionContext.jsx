@@ -23,7 +23,7 @@ export const SubscriptionProvider = ({ children }) => {
       setProfile(p);
       if (p) {
         try {
-          const invs = await base44.entities.Invoice.list("-created_date", 1);
+          const invs = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 1);
           setRenewalDate(invs[0]?.period_end || null);
         } catch {
           setRenewalDate(null);

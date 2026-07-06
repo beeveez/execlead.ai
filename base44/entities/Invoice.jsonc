@@ -2,6 +2,18 @@
   "name": "Invoice",
   "type": "object",
   "properties": {
+    "invoice_number": {
+      "type": "string"
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "subscription_id": {
+      "type": "string"
+    },
     "amount": {
       "type": "number"
     },
@@ -36,14 +48,12 @@
         "monthly",
         "annual"
       ]
-    },
-    "invoice_number": {
-      "type": "string"
     }
   },
   "required": [
     "amount",
     "period_start",
-    "period_end"
+    "period_end",
+    "owner_user_id"
   ]
 }

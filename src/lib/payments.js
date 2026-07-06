@@ -294,7 +294,7 @@ export async function startTrial({ planId, trialDays = 14 }) {
 
 const PLAN_TIER_ORDER = { free: 0, professional: 1, executive: 2, enterprise: 3, developer_unlimited: 4 };
 
-export async function changeSubscription({ profile, newPlan, billingCycle, currentPlan }) {
+export async function changeSubscription({ profile, newPlan, billingCycle, currentPlan, ownerUserId }) {
   const currentTier = PLAN_TIER_ORDER[currentPlan?.id] ?? 0;
   const newTier = PLAN_TIER_ORDER[newPlan.id] ?? 0;
   const isUpgrade = newTier > currentTier;
@@ -332,6 +332,7 @@ export async function changeSubscription({ profile, newPlan, billingCycle, curre
         plan: newPlan.id,
         billing_cycle: billingCycle,
         invoice_number: invoiceNumber,
+        owner_user_id: ownerUserId || profile.created_by_id,
       });
 
       await logBillingEvent({

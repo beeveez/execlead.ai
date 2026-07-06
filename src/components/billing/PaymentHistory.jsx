@@ -19,7 +19,8 @@ export default function PaymentHistory({ invoices, profile }) {
       {invoices.length === 0 ? (
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center">
           <CreditCard size={24} className="mx-auto text-white/20 mb-2" />
-          <p className="text-white/30 text-sm">No invoices yet. Your payment history will appear here.</p>
+          <p className="text-white/30 text-sm">No invoices yet.</p>
+          <p className="text-white/20 text-xs mt-1">Upgrade to Professional or Executive to begin your subscription history.</p>
         </div>
       ) : (
         <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">

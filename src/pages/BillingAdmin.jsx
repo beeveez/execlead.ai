@@ -4,6 +4,8 @@ import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Shield, DollarSign, Users, TrendingDown, Percent, Loader2, Tag, Plus, Ban, RefreshCcw, Activity, Receipt } from "lucide-react";
+import { isSuperAdmin, isPlatformAdmin, normalizeRole } from "@/lib/roles";
+import { logInvoiceAccess } from "@/lib/invoiceSecurity";
 
 export default function BillingAdmin() {
   const { getPlanById } = usePricingCatalog();
@@ -21,7 +23,7 @@ export default function BillingAdmin() {
       try {
         const me = await base44.auth.me();
         setUser(me);
-        if (me.role === "admin") {
+        if (isSuperAdmin(me.role) || isPlatformAdmin(me.role) || normalizeRole(me.role) === "finance") {
           const [userProfiles, invs, cpns] = await Promise.all([
             base44.entities.UserProfile.list(),
             base44.entities.Invoice.list("-created_date", 500),
@@ -30,6 +32,7 @@ export default function BillingAdmin() {
           setProfiles(userProfiles);
           setInvoices(invs);
           setCoupons(cpns);
+          await logInvoiceAccess(me.id, "admin_console", "success", invs.length);
         }
       } catch (e) {}
       setLoading(false);
@@ -39,7 +42,7 @@ export default function BillingAdmin() {
 
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
-  if (!user || user.role !== "admin") {
+  if (!user || !(isSuperAdmin(user.role) || isPlatformAdmin(user.role) || normalizeRole(user.role) === "finance")) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">

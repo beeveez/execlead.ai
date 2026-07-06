@@ -19,7 +19,8 @@
         "checkout_completed",
         "cycle_changed",
         "plan_changed",
-        "enterprise_request"
+        "enterprise_request",
+        "invoice_access"
       ]
     },
     "status": {
@@ -27,7 +28,8 @@
       "enum": [
         "success",
         "failed",
-        "pending"
+        "pending",
+        "denied"
       ],
       "default": "success"
     },

@@ -3,6 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { processPayment, sendPaymentEmail, EMAIL_TYPES, formatCurrency, isDeveloperUnlimited, DEVELOPER_PLAN_ID, logBillingEvent } from "@/lib/payments";
+import { useAuth } from "@/lib/AuthContext";
+import { getAuthorizedInvoices } from "@/lib/invoiceSecurity";
 import { CreditCard, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CurrentPlanCard from "@/components/billing/CurrentPlanCard";
@@ -11,6 +13,7 @@ import PaymentHistory from "@/components/billing/PaymentHistory";
 import CheckoutModal from "@/components/billing/CheckoutModal";
 
 export default function Billing() {
+  const { user } = useAuth();
   const { profile, renewalDate, refreshProfile } = useSubscription();
   const { plans, cycle, setCycle, getPrice, getPlanById } = usePricingCatalog();
   const [invoices, setInvoices] = useState([]);
@@ -18,15 +21,16 @@ export default function Billing() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user?.id) { setLoading(false); return; }
     const load = async () => {
       try {
-        const invs = await base44.entities.Invoice.list("-created_date", 50);
-        setInvoices(invs);
+        const { invoices: authedInvoices } = await getAuthorizedInvoices(user, profile);
+        setInvoices(authedInvoices);
       } catch (e) {}
       setLoading(false);
     };
     load();
-  }, []);
+  }, [user?.id, profile?.organization_id]);
 
   useEffect(() => {
     if (profile?.subscription_cycle) setCycle(profile.subscription_cycle);
@@ -36,8 +40,8 @@ export default function Billing() {
 
   const handleCheckoutSuccess = async () => {
     setUpgradePlan(null);
-    const invs = await base44.entities.Invoice.list("-created_date", 50);
-    setInvoices(invs);
+    const { invoices: authedInvoices } = await getAuthorizedInvoices(user, profile);
+    setInvoices(authedInvoices);
     await refreshProfile();
   };
 
@@ -102,6 +106,7 @@ export default function Billing() {
           period_end: periodEnd.toISOString().split("T")[0],
           plan: currentPlan.id, billing_cycle: newCycle,
           invoice_number: `INV-${Date.now()}`,
+          owner_user_id: user.id,
         });
         await base44.entities.Notification.create({
           type: "subscription", title: "Billing Cycle Updated",
@@ -109,8 +114,8 @@ export default function Billing() {
           icon: "🔄",
         });
         setCycle(newCycle);
-        const invs = await base44.entities.Invoice.list("-created_date", 50);
-        setInvoices(invs);
+        const { invoices: refreshed } = await getAuthorizedInvoices(user, profile);
+        setInvoices(refreshed);
         await refreshProfile();
       }
     } catch (e) {}

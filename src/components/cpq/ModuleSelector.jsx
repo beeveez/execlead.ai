@@ -4,14 +4,6 @@ import { Check } from "lucide-react";
 export default function ModuleSelector({ modules, selectedIds, onToggle, type = "module" }) {
   const filtered = (modules || []).filter(m => m.type === type && m.is_active !== false);
 
-  const toggle = (id) => {
-    if (selectedIds.includes(id)) {
-      onToggle(selectedIds.filter(x => x !== id));
-    } else {
-      onToggle([...selectedIds, id]);
-    }
-  };
-
   const priceLabel = (m) => {
     const price = (m.annual_price || 0).toLocaleString();
     if (m.type === "service") return `$${price}`;
@@ -28,8 +20,9 @@ export default function ModuleSelector({ modules, selectedIds, onToggle, type = 
         return (
           <button
             key={m.module_id}
-            onClick={() => toggle(m.module_id)}
-            className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
+            type="button"
+            onClick={() => onToggle(m.module_id)}
+            className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all cursor-pointer ${
               selected ? "border-indigo-500/30 bg-indigo-500/5" : "border-white/5 bg-white/[0.02] hover:border-white/10"
             }`}
           >

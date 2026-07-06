@@ -1,73 +1,60 @@
 import * as React from "react";
 import { cva } from "class-variance-authority";
-import { X } from "lucide-react";
+import { X, CheckCircle2, Info, AlertTriangle, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ToastProvider = React.forwardRef(({ ...props }, ref) => (
-  <div
-    ref={ref}
-    className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
-    {...props}
-  />
-));
-ToastProvider.displayName = "ToastProvider";
+export const VARIANTS = {
+  default: { accent: "bg-white/25", Icon: Info, iconClass: "text-white/60" },
+  success: { accent: "bg-emerald-500", Icon: CheckCircle2, iconClass: "text-emerald-400" },
+  info: { accent: "bg-blue-500", Icon: Info, iconClass: "text-blue-400" },
+  information: { accent: "bg-blue-500", Icon: Info, iconClass: "text-blue-400" },
+  warning: { accent: "bg-orange-500", Icon: AlertTriangle, iconClass: "text-orange-400" },
+  error: { accent: "bg-red-500", Icon: XCircle, iconClass: "text-red-400" },
+  destructive: { accent: "bg-red-500", Icon: XCircle, iconClass: "text-red-400" },
+};
 
-const ToastViewport = React.forwardRef(({ ...props }, ref) => (
-  <div
-    ref={ref}
-    className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
-    {...props}
-  />
-));
+export function getVariantConfig(variant) {
+  return VARIANTS[variant] || VARIANTS.default;
+}
+
+export const ToastProvider = ({ children }) => <>{children}</>;
+
+export const ToastViewport = React.forwardRef((props, ref) => null);
 ToastViewport.displayName = "ToastViewport";
 
-const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
-  {
-    variants: {
-      variant: {
-        default: "border bg-background text-foreground",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
-
-const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
+export const Toast = React.forwardRef(({ className, variant = "default", open = true, onMouseEnter, onMouseLeave, children, ...props }, ref) => {
+  const isError = variant === "error" || variant === "destructive";
   return (
     <div
       ref={ref}
-      className={cn(toastVariants({ variant }), className)}
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className={cn(
+        "pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-xl border border-white/10 bg-[#16161f]/95 backdrop-blur-xl p-4 pl-5 shadow-2xl",
+        open ? "animate-toast-show" : "animate-toast-hide",
+        className
+      )}
       {...props}
-    />
+    >
+      <div className={cn("absolute left-0 top-0 h-full w-1", getVariantConfig(variant).accent)} />
+      {children}
+    </div>
   );
 });
 Toast.displayName = "Toast";
 
-const ToastAction = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
-      className
-    )}
-    {...props}
-  />
-));
-ToastAction.displayName = "ToastAction";
-
-const ToastClose = React.forwardRef(({ className, ...props }, ref) => (
+export const ToastClose = React.forwardRef(({ className, onClick, ...props }, ref) => (
   <button
     ref={ref}
+    type="button"
+    aria-label="Dismiss notification"
+    onClick={onClick}
     className={cn(
-      "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
+      "absolute right-1.5 top-1.5 z-10 flex h-7 w-7 items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-0",
       className
     )}
-    toast-close=""
     {...props}
   >
     <X className="h-4 w-4" />
@@ -75,30 +62,30 @@ const ToastClose = React.forwardRef(({ className, ...props }, ref) => (
 ));
 ToastClose.displayName = "ToastClose";
 
-const ToastTitle = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-sm font-semibold", className)}
-    {...props}
-  />
+export const ToastTitle = React.forwardRef(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("text-sm font-semibold text-white", className)} {...props} />
 ));
 ToastTitle.displayName = "ToastTitle";
 
-const ToastDescription = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-sm opacity-90", className)}
-    {...props}
-  />
+export const ToastDescription = React.forwardRef(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("text-sm text-white/60 leading-relaxed", className)} {...props} />
 ));
 ToastDescription.displayName = "ToastDescription";
 
-export {
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-  ToastAction,
-}; 
+export const ToastAction = React.forwardRef(({ className, ...props }, ref) => (
+  <button
+    ref={ref}
+    type="button"
+    className={cn(
+      "mt-2 inline-flex h-7 shrink-0 items-center justify-center rounded-md border border-white/10 bg-transparent px-2.5 text-xs font-medium text-white/70 hover:bg-white/10 transition-colors",
+      className
+    )}
+    {...props}
+  />
+));
+ToastAction.displayName = "ToastAction";
+
+export const toastVariants = cva("", {
+  variants: { variant: { default: "", success: "", info: "", warning: "", error: "", destructive: "" } },
+  defaultVariants: { variant: "default" },
+});

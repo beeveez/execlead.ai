@@ -83,11 +83,33 @@ module.exports = {
   				to: {
   					height: '0'
   				}
+  			},
+  			'toast-show': {
+  				from: {
+  					opacity: '0',
+  					transform: 'translateY(12px) scale(0.98)'
+  				},
+  				to: {
+  					opacity: '1',
+  					transform: 'translateY(0) scale(1)'
+  				}
+  			},
+  			'toast-hide': {
+  				from: {
+  					opacity: '1',
+  					transform: 'translateY(0) scale(1)'
+  				},
+  				to: {
+  					opacity: '0',
+  					transform: 'translateY(12px) scale(0.98)'
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'toast-show': 'toast-show 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+  			'toast-hide': 'toast-hide 0.2s ease-in forwards'
   		}
   	}
   },

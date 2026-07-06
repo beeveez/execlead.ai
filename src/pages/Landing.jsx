@@ -335,7 +335,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Link
-                  to={plan.customPricing ? "/pricing" : (authed ? "/billing" : "/register")}
+                  to={plan.customPricing ? "/cpq" : (authed ? "/billing" : "/register")}
                   className={`block text-center font-medium py-3 rounded-xl transition-colors ${
                     plan.recommended
                       ? "bg-indigo-500 hover:bg-indigo-600 text-white"

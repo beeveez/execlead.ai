@@ -1,0 +1,54 @@
+{
+  "name": "CPQDiscountRule",
+  "type": "object",
+  "properties": {
+    "rule_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "percentage",
+        "fixed",
+        "promotional",
+        "partner",
+        "educational",
+        "non_profit",
+        "manual"
+      ],
+      "default": "percentage"
+    },
+    "discount_value": {
+      "type": "number",
+      "default": 0
+    },
+    "max_discount_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "min_contract_value": {
+      "type": "number",
+      "default": 0
+    },
+    "approval_threshold": {
+      "type": "number",
+      "default": 0
+    },
+    "multi_year_bonus": {
+      "type": "number",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "rule_id",
+    "name",
+    "discount_type"
+  ]
+}

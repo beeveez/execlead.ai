@@ -62,12 +62,12 @@ export default function PricingCards({ plans, cycle, getPrice, authed }) {
 
             {isCustom ? (
               <div className="space-y-2">
-                <a href="#demo" className="block text-center font-medium py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">
-                  Book a Demo
-                </a>
-                <a href="#demo" className="block text-center font-medium py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 transition-colors">
-                  Contact Sales
-                </a>
+                <Link to="/cpq" className="block text-center font-medium py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">
+                  Configure Proposal
+                </Link>
+                <Link to="/cpq-dashboard" className="block text-center font-medium py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 transition-colors">
+                  View Pipeline
+                </Link>
               </div>
             ) : (
               <Link

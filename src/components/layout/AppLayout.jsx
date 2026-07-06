@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
   LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt, Lock,
-  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound, Code2, Award
+  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound, Code2, Award, Calculator
 } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import DebugPanel from "@/components/developer/DebugPanel";
@@ -77,6 +77,8 @@ const NAV_GROUPS = [
       { path: "/payment-settings", label: "Payment Settings", icon: Lock },
       { path: "/sso", label: "SSO & Identity", icon: KeyRound },
       { path: "/developer", label: "Developer", icon: Code2 },
+      { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
+      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: BarChart3 },
     ],
   },
 ];

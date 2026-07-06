@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import ExpandableFeatureList from "@/components/billing/ExpandableFeatureList";
 import { formatCurrency } from "@/lib/payments";
 
@@ -35,7 +36,7 @@ export default function PlanGrid({ plans, currentPlan, cycle, getPrice, onSelect
             {isCurrent ? (
               <div className="w-full py-2.5 rounded-lg text-center text-sm text-white/30 bg-white/5">Current Plan</div>
             ) : isEnterprise ? (
-              <a href="mailto:sales@execlead.ai" className="block w-full py-2.5 rounded-lg text-center text-sm font-medium bg-white/5 hover:bg-white/10 text-white/70 transition-colors">Contact Sales</a>
+              <Link to="/cpq" className="block w-full py-2.5 rounded-lg text-center text-sm font-medium bg-white/5 hover:bg-white/10 text-white/70 transition-colors">Configure Proposal</Link>
             ) : isUpgrade ? (
               <button onClick={() => onSelectPlan(plan)} className="w-full py-2.5 rounded-lg text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">Upgrade</button>
             ) : (

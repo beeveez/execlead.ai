@@ -1,0 +1,111 @@
+{
+  "name": "CPQQuote",
+  "type": "object",
+  "properties": {
+    "proposal_number": {
+      "type": "string"
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "expired",
+        "accepted"
+      ],
+      "default": "draft"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "headquarters": {
+      "type": "string"
+    },
+    "company_size": {
+      "type": "string"
+    },
+    "annual_revenue": {
+      "type": "string"
+    },
+    "num_employees": {
+      "type": "number"
+    },
+    "expected_active_users": {
+      "type": "number"
+    },
+    "expected_managers": {
+      "type": "number"
+    },
+    "expected_executives": {
+      "type": "number"
+    },
+    "implementation_timeline": {
+      "type": "string"
+    },
+    "current_lms": {
+      "type": "string"
+    },
+    "current_hr_platform": {
+      "type": "string"
+    },
+    "current_identity_provider": {
+      "type": "string"
+    },
+    "config_json": {
+      "type": "string"
+    },
+    "breakdown_json": {
+      "type": "string"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "contract_length_years": {
+      "type": "number",
+      "default": 1
+    },
+    "annual_value": {
+      "type": "number",
+      "default": 0
+    },
+    "total_contract_value": {
+      "type": "number",
+      "default": 0
+    },
+    "grand_total": {
+      "type": "number",
+      "default": 0
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "customer_email": {
+      "type": "string"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "proposal_number",
+    "organization_name"
+  ]
+}

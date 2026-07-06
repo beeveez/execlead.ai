@@ -4,7 +4,7 @@ import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { PAYMENT_PROVIDERS, COUNTRIES, calculateTax, calculateDiscount, formatCurrency, processPayment, startTrial, incrementCouponUsage, sendPaymentEmail, EMAIL_TYPES, getPaymentError, logBillingEvent } from "@/lib/payments";
 import { base44 } from "@/api/base44Client";
 import CouponInput from "@/components/billing/CouponInput";
-import EnterpriseContactForm from "@/components/billing/EnterpriseContactForm";
+import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 
 export default function CheckoutModal({ plan, cycle: initialCycle, profile, onClose, onSuccess }) {
@@ -138,7 +138,17 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
   };
 
   if (isEnterprise) {
-    return <EnterpriseContactForm plan={plan} onClose={onClose} onSuccess={onSuccess} />;
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#0d0d14] border border-white/10 rounded-2xl max-w-md w-full p-8 text-center" onClick={(e) => e.stopPropagation()}>
+          <span className="text-4xl block mb-3">{plan.icon || "🏢"}</span>
+          <h3 className="text-white font-bold text-lg mb-2">Enterprise CPQ</h3>
+          <p className="text-white/40 text-sm mb-6">Configure your custom enterprise proposal with our data-driven CPQ engine — seats, modules, AI packages, services, multi-year contracts, and multi-currency.</p>
+          <Link to="/cpq" onClick={onClose} className="block w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">Configure Proposal</Link>
+          <button onClick={onClose} className="mt-3 text-white/30 hover:text-white/60 text-sm">Cancel</button>
+        </motion.div>
+      </motion.div>
+    );
   }
 
   return (

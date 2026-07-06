@@ -1,0 +1,33 @@
+{
+  "name": "CPQSeatTier",
+  "type": "object",
+  "properties": {
+    "tier_name": {
+      "type": "string"
+    },
+    "min_seats": {
+      "type": "number"
+    },
+    "max_seats": {
+      "type": "number",
+      "default": 0
+    },
+    "monthly_price_per_user": {
+      "type": "number",
+      "default": 0
+    },
+    "annual_price_per_user": {
+      "type": "number",
+      "default": 0
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "tier_name",
+    "min_seats",
+    "monthly_price_per_user"
+  ]
+}

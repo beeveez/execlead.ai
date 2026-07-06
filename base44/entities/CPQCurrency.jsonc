@@ -1,0 +1,27 @@
+{
+  "name": "CPQCurrency",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "exchange_rate": {
+      "type": "number",
+      "default": 1
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "code",
+    "exchange_rate"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "CPQTaxRule",
+  "type": "object",
+  "properties": {
+    "country_code": {
+      "type": "string"
+    },
+    "country_name": {
+      "type": "string"
+    },
+    "tax_type": {
+      "type": "string",
+      "enum": [
+        "vat",
+        "gst",
+        "sales_tax",
+        "none"
+      ],
+      "default": "none"
+    },
+    "rate": {
+      "type": "number",
+      "default": 0
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "country_code",
+    "tax_type",
+    "rate"
+  ]
+}

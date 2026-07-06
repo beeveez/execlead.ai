@@ -1,0 +1,52 @@
+{
+  "name": "CPQApprovalWorkflow",
+  "type": "object",
+  "properties": {
+    "quote_id": {
+      "type": "string"
+    },
+    "proposal_number": {
+      "type": "string"
+    },
+    "approval_type": {
+      "type": "string",
+      "enum": [
+        "discount",
+        "custom_pricing",
+        "contract_terms"
+      ],
+      "default": "discount"
+    },
+    "requested_by": {
+      "type": "string"
+    },
+    "requested_value": {
+      "type": "number",
+      "default": 0
+    },
+    "threshold": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "review_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "quote_id",
+    "approval_type",
+    "requested_by"
+  ]
+}

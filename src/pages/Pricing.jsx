@@ -81,8 +81,8 @@ export default function Pricing() {
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Need training for 100+ employees?</h2>
             <p className="text-white/40 mb-8 max-w-xl mx-auto">Our Enterprise Success Team will create a customized leadership development program for your organization.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a href="#demo" className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">Book Demo</a>
-              <a href="#demo" className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">Schedule Consultation</a>
+              <Link to="/cpq" className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">Configure Proposal</Link>
+              <Link to="/cpq-dashboard" className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">View Pipeline</Link>
             </div>
           </motion.div>
         </div>

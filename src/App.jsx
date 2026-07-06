@@ -57,6 +57,9 @@ import LearningAssignments from '@/pages/LearningAssignments';
 import SSOIdentity from '@/pages/SSOIdentity';
 import ExecutiveLegacy from '@/pages/ExecutiveLegacy';
 import DeveloperConsole from '@/pages/DeveloperConsole';
+import CPQWizard from '@/pages/CPQWizard';
+import CPQDashboard from '@/pages/CPQDashboard';
+import CPQQuoteView from '@/pages/CPQQuoteView';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
 
@@ -129,6 +132,9 @@ const AuthenticatedApp = () => {
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
           <Route path="/developer" element={<DeveloperConsole />} />
+          <Route path="/cpq" element={<CPQWizard />} />
+          <Route path="/cpq-dashboard" element={<CPQDashboard />} />
+          <Route path="/cpq/quote/:id" element={<CPQQuoteView />} />
           <Route path="/hr-dashboard" element={<FeatureGate featureId="hr_dashboard"><HRDashboard /></FeatureGate>} />
           <Route path="/succession-planning" element={<FeatureGate featureId="succession_planning"><SuccessionPlanning /></FeatureGate>} />
           <Route path="/promotion-readiness" element={<FeatureGate featureId="promotion_readiness"><PromotionReadiness /></FeatureGate>} />

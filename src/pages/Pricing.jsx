@@ -3,22 +3,17 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import { ArrowRight, Building2, GraduationCap, Brain, TrendingUp, Users, BarChart3, Globe, Shield } from "lucide-react";
+import { ArrowRight, Sparkles, Building2, Calculator, TrendingUp, Award, Globe, Shield } from "lucide-react";
 import Logo from "@/components/layout/Logo";
-import PricingCards from "@/components/pricing/PricingCards";
+import PricingTiers from "@/components/pricing/PricingTiers";
+import EnterpriseValue from "@/components/pricing/EnterpriseValue";
+import FeatureShowcase from "@/components/pricing/FeatureShowcase";
 import ComparisonTable from "@/components/pricing/ComparisonTable";
+import RoiCalculator from "@/components/pricing/RoiCalculator";
+import EnterpriseCalculator from "@/components/pricing/EnterpriseCalculator";
+import SocialProof from "@/components/pricing/SocialProof";
+import Faq from "@/components/pricing/Faq";
 import BookDemoForm from "@/components/pricing/BookDemoForm";
-
-const ENTERPRISE_HIGHLIGHTS = [
-  { icon: GraduationCap, title: "Leadership Development", desc: "Structured executive development programs at scale" },
-  { icon: Brain, title: "Executive Coaching", desc: "AI-powered coaching from former C-suite leaders" },
-  { icon: Users, title: "AI Interview Simulator", desc: "Realistic executive interview practice for every leader" },
-  { icon: TrendingUp, title: "Promotion Readiness", desc: "Track and accelerate internal promotions" },
-  { icon: Shield, title: "Succession Planning", desc: "Identify and develop your future leaders" },
-  { icon: BarChart3, title: "HR Analytics", desc: "Workforce insights and learning analytics" },
-  { icon: Building2, title: "Executive Dashboards", desc: "Organization-wide leadership visibility" },
-  { icon: Globe, title: "Global Multi-Tenant", desc: "Multi-region, multi-department support" },
-];
 
 export default function Pricing() {
   const [authed, setAuthed] = useState(false);
@@ -47,18 +42,59 @@ export default function Pricing() {
         </div>
       </nav>
 
-      {/* Pricing */}
-      <section className="pt-32 pb-20 px-4">
+      {/* Hero */}
+      <section className="pt-36 pb-16 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
+        <div className="max-w-4xl mx-auto text-center relative">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full mb-6">
+            <Sparkles size={14} className="text-indigo-400" />
+            <span className="text-white/50 text-xs font-medium">The Executive Leadership Operating System</span>
+          </motion.div>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+            Invest in <span className="text-indigo-400">Leaders</span>,<br />Not Just Software
+          </motion.h1>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed mb-10">
+            You're not buying a tool. You're investing in the development of executive leaders and the future capability of your organization.
+          </motion.p>
+
+          {/* Billing toggle */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex items-center justify-center gap-3 mb-12">
+            <button onClick={() => setCycle("monthly")} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
+            <button onClick={() => setCycle("annual")} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs ml-1">2 months free</span></button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Pricing Tiers */}
+      <section className="pb-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <PricingTiers plans={plans} cycle={cycle} getPrice={getPrice} authed={authed} />
+        </div>
+      </section>
+
+      {/* Enterprise Value — Outcomes */}
+      <section className="py-20 px-4 bg-white/[0.01]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-5xl font-bold mb-4">Simple, Transparent Pricing</motion.h1>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-white/40 max-w-2xl mx-auto">Start free. Upgrade when you're ready. Enterprise solutions for organizations of any size.</motion.p>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
+              <Building2 size={14} className="text-emerald-400" />
+              <span className="text-emerald-400 text-xs font-medium">Enterprise Outcomes</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">What You Achieve</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">Not features. Business outcomes. This is what organizations gain when they invest in leadership transformation.</p>
           </div>
-          <div className="flex items-center justify-center gap-3 mb-12">
-            <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
-            <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
+          <EnterpriseValue />
+        </div>
+      </section>
+
+      {/* Feature Showcase */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Get</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">Organized by plan — see exactly what's included at each tier without scrolling through endless checklists.</p>
           </div>
-          <PricingCards plans={plans} cycle={cycle} getPrice={getPrice} authed={authed} />
+          <FeatureShowcase />
         </div>
       </section>
 
@@ -66,32 +102,62 @@ export default function Pricing() {
       <section className="py-20 px-4 bg-white/[0.01]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Compare Every Feature</h2>
-            <p className="text-white/40">See exactly what's included in each plan.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Compare Capabilities</h2>
+            <p className="text-white/40">Every capability, side by side.</p>
           </div>
           <ComparisonTable />
         </div>
       </section>
 
-      {/* Enterprise CTA */}
+      {/* ROI Calculator */}
       <section className="py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 rounded-3xl p-12">
-            <Building2 size={32} className="text-indigo-400 mx-auto mb-4" />
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Need training for 100+ employees?</h2>
-            <p className="text-white/40 mb-8 max-w-xl mx-auto">Our Enterprise Success Team will create a customized leadership development program for your organization.</p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/cpq" className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">Configure Proposal</Link>
-              <Link to="/cpq-dashboard" className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">View Pipeline</Link>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4">
+              <Calculator size={14} className="text-indigo-400" />
+              <span className="text-indigo-400 text-xs font-medium">ROI Calculator</span>
             </div>
-          </motion.div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Measure Your Return</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">See how leadership development translates to measurable business impact — reduced coaching costs, lower turnover, and stronger internal mobility.</p>
+          </div>
+          <RoiCalculator />
         </div>
       </section>
 
-      {/* Book Demo Form */}
+      {/* Enterprise Calculator */}
+      <section className="py-20 px-4 bg-white/[0.01]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
+              <Building2 size={14} className="text-emerald-400" />
+              <span className="text-emerald-400 text-xs font-medium">Enterprise Calculator</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Estimate Your Investment</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">Configure your ideal package and get an instant estimate. Adjust users, modules, AI, support, and contract length to see real-time pricing.</p>
+          </div>
+          <EnterpriseCalculator />
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Leadership Success Stories</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">Organizations across industries trust EXECLEAD.AI to develop their next generation of leaders.</p>
+          </div>
+          <SocialProof />
+        </div>
+      </section>
+
+      {/* Book Demo */}
       <section id="demo" className="py-20 px-4 bg-white/[0.01] scroll-mt-16">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
+              <Building2 size={14} className="text-emerald-400" />
+              <span className="text-emerald-400 text-xs font-medium">Enterprise Demo</span>
+            </div>
             <h2 className="text-3xl font-bold mb-4">Book a Demo</h2>
             <p className="text-white/40">Tell us about your organization and we'll be in touch within 24 hours.</p>
           </div>
@@ -99,36 +165,31 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Enterprise Highlights */}
+      {/* FAQ */}
       <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Built for Enterprise Success</h2>
-            <p className="text-white/40">Everything your organization needs to develop the next generation of technology leaders.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-white/40">Everything you need to know before getting started.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {ENTERPRISE_HIGHLIGHTS.map((h, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
-                  <h.icon size={20} className="text-indigo-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2 text-sm">{h.title}</h3>
-                <p className="text-white/40 text-xs">{h.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+          <Faq />
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 rounded-3xl p-12">
-            <h2 className="text-3xl font-bold mb-4">Ready to Begin?</h2>
-            <p className="text-white/40 mb-8 max-w-xl mx-auto">Start free today. Upgrade when you're ready to go all-in on your executive journey.</p>
-            <Link to={authed ? "/dashboard" : "/register"} className="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
-              {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />
-            </Link>
+      <section className="py-24 px-4">
+        <div className="max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-emerald-500/5 border border-white/10 rounded-3xl p-12 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Begin Your Leadership Journey</h2>
+            <p className="text-white/40 mb-8 max-w-xl mx-auto">Start free today. Upgrade when you're ready to go all-in on your executive development. Enterprise solutions for organizations of any size.</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link to={authed ? "/dashboard" : "/register"} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
+                {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />
+              </Link>
+              <Link to="/cpq" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">
+                Configure Proposal <ArrowRight size={18} />
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

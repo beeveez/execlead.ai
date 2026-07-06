@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { X, Star, Clock, Download, Check, Building2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { X, Star, Clock, Download, Check, Loader2 } from "lucide-react";
 
 const TYPE_LABELS = {
   learning_path: "Learning Path",
@@ -21,6 +22,18 @@ const DIFFICULTY_COLORS = {
 };
 
 export default function MarketplaceDetail({ item, onClose }) {
+  const [purchasing, setPurchasing] = useState(false);
+  const [purchased, setPurchased] = useState(false);
+
+  const handlePurchase = async () => {
+    setPurchasing(true);
+    try {
+      await base44.entities.MarketplaceItem.update(item.id, { downloads: (item.downloads || 0) + 1 });
+      setPurchased(true);
+    } catch (e) {}
+    setPurchasing(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -68,8 +81,26 @@ export default function MarketplaceDetail({ item, onClose }) {
 
           <div className="flex items-center justify-between pt-2">
             <span className="text-2xl font-bold text-white">{item.price === 0 ? "Free" : `$${item.price}`}</span>
-            <button className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-colors ${item.price === 0 ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-indigo-500 hover:bg-indigo-600 text-white"}`}>
-              {item.price === 0 ? <><Download size={16} /> Get Free</> : <><Check size={16} /> Purchase</>}
+            <button
+              onClick={handlePurchase}
+              disabled={purchasing || purchased}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+                purchased
+                  ? "bg-emerald-500 text-white"
+                  : item.price === 0
+                    ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                    : "bg-indigo-500 hover:bg-indigo-600 text-white"
+              } disabled:cursor-default`}
+            >
+              {purchasing ? (
+                <><Loader2 size={16} className="animate-spin" /> Processing...</>
+              ) : purchased ? (
+                <><Check size={16} /> Purchased</>
+              ) : item.price === 0 ? (
+                <><Download size={16} /> Get Free</>
+              ) : (
+                <><Check size={16} /> Purchase</>
+              )}
             </button>
           </div>
         </div>

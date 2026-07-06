@@ -24,6 +24,7 @@ const DIFFICULTY_COLORS = {
 export default function MarketplaceDetail({ item, onClose }) {
   const [purchasing, setPurchasing] = useState(false);
   const [purchased, setPurchased] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     const checkPurchased = async () => {
@@ -94,7 +95,22 @@ export default function MarketplaceDetail({ item, onClose }) {
             </div>
           )}
 
-          {item.content_preview && (
+          {showContent && purchased && item.content_preview && (
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Check size={14} className="text-emerald-400" />
+                <h4 className="text-emerald-400 text-xs uppercase tracking-wider font-semibold">Your Purchased Content</h4>
+              </div>
+              <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{item.content_preview}</p>
+              {item.tags?.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {item.tags.map((tag, i) => <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400/70">#{tag}</span>)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {(!purchased || !showContent) && item.content_preview && (
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
               <h4 className="text-white/40 text-xs uppercase tracking-wider mb-2">What's Included</h4>
               <p className="text-white/50 text-sm">{item.content_preview}</p>
@@ -104,11 +120,11 @@ export default function MarketplaceDetail({ item, onClose }) {
           <div className="flex items-center justify-between pt-2">
             <span className="text-2xl font-bold text-white">{item.price === 0 ? "Free" : `$${item.price}`}</span>
             <button
-              onClick={handlePurchase}
-              disabled={purchasing || purchased}
+              onClick={purchased ? () => setShowContent(true) : handlePurchase}
+              disabled={purchasing}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-colors ${
                 purchased
-                  ? "bg-emerald-500 text-white"
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
                   : item.price === 0
                     ? "bg-emerald-500 hover:bg-emerald-600 text-white"
                     : "bg-indigo-500 hover:bg-indigo-600 text-white"
@@ -117,7 +133,7 @@ export default function MarketplaceDetail({ item, onClose }) {
               {purchasing ? (
                 <><Loader2 size={16} className="animate-spin" /> Processing...</>
               ) : purchased ? (
-                <><Check size={16} /> Purchased</>
+                <><Download size={16} /> Access Content</>
               ) : item.price === 0 ? (
                 <><Download size={16} /> Get Free</>
               ) : (

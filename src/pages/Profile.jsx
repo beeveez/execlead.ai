@@ -19,6 +19,8 @@ import AccountSection from "@/components/profile/AccountSection";
 import ProfileCompleteness from "@/components/profile/ProfileCompleteness";
 import ResumeSyncModal from "@/components/profile/ResumeSyncModal";
 import { extractResumeIdentity, saveResumeVersion } from "@/lib/resumeSync";
+import DataManagementSection from "@/components/profile/DataManagementSection";
+import { createSnapshot, averageConfidence } from "@/lib/identityVersioning";
 import { Loader2, Save, UserCircle } from "lucide-react";
 
 export default function Profile() {
@@ -31,6 +33,7 @@ export default function Profile() {
   const [uploadingResume, setUploadingResume] = useState(false);
   const [syncData, setSyncData] = useState(null);
   const [syncFileName, setSyncFileName] = useState("");
+  const [syncFileUrl, setSyncFileUrl] = useState("");
 
   useEffect(() => {
     if (profile) {
@@ -103,6 +106,7 @@ export default function Profile() {
         await saveResumeVersion(file_url, file.name, extracted);
         setSyncData(extracted);
         setSyncFileName(file.name);
+        setSyncFileUrl(file_url);
       } else {
         toast({ title: "Extraction Failed", description: "Could not parse resume data.", variant: "destructive" });
       }
@@ -113,12 +117,25 @@ export default function Profile() {
   };
 
   const handleSyncApply = async (syncedForm) => {
-    setForm(syncedForm);
-    setSyncData(null);
     setSaving(true);
+    setSyncData(null);
     try {
+      const hasExisting = form?.experience?.length > 0 || form?.education?.length > 0 || form?.skills?.length > 0 || !!form?.professional_headline;
+      if (hasExisting) {
+        try {
+          await createSnapshot(form, {
+            source_resume_url: syncFileUrl,
+            source_resume_name: syncFileName,
+            confidence_score: averageConfidence(syncData?._confidence),
+            import_source: "resume_parser",
+            imported_by: "Resume Parser",
+            change_summary: "Snapshot before resume import",
+          });
+        } catch (snapErr) { /* non-blocking */ }
+      }
+      setForm(syncedForm);
       await persistForm(syncedForm);
-      toast({ title: "Identity Updated", description: "Your Executive Identity has been populated from your resume." });
+      toast({ title: "Identity Updated", description: "Your Executive Identity has been populated. A version snapshot was saved for recovery." });
     } catch (e) {
       toast({ title: "Save Failed", description: "Could not persist identity.", variant: "destructive" });
     }
@@ -182,6 +199,18 @@ export default function Profile() {
     setSaving(false);
   };
 
+  const applyFormChange = async (newForm, message) => {
+    setForm(newForm);
+    setSaving(true);
+    try {
+      await persistForm(newForm);
+      toast({ title: "Success", description: message });
+    } catch (e) {
+      toast({ title: "Action Failed", description: "Could not save changes.", variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
   if (!form || !profile) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
   }
@@ -200,6 +229,7 @@ export default function Profile() {
     experience: <ExperienceSection items={form.experience} onChange={arr => setField("experience", arr)} />,
     education: <EducationSection items={form.education} onChange={arr => setField("education", arr)} />,
     privacy: <PrivacySection form={form} setField={setField} />,
+    data: <DataManagementSection form={form} profile={profile} onApplyForm={applyFormChange} onResumeFile={(file) => handleResumeUpload({ target: { files: [file] } })} />,
     account: <AccountSection user={user} />,
   };
 

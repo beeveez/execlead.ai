@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, ArrowRight, Loader2, FileText, Sparkles, ChevronDown, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, Check, ArrowRight, Loader2, FileText, Sparkles, ChevronDown, AlertCircle, CheckCircle2, RefreshCw, Plus, Save } from "lucide-react";
 import {
   SYNC_SECTIONS,
   applySync,
@@ -135,8 +135,20 @@ function ArrayDiff({ current, incoming, mode, itemLabel }) {
   );
 }
 
-export default function ResumeSyncModal({ extractedForm, currentForm, onApply, onClose, fileName }) {
-  const [decisions, setDecisions] = useState(() => buildAutoDecisions(extractedForm, currentForm));
+export default function ResumeSyncModal({ extractedForm, currentForm, onApply, onClose, fileName, presetMode }) {
+  const [decisions, setDecisions] = useState(() => {
+    if (presetMode === "replace" || presetMode === "merge") {
+      const d = {};
+      for (const s of SYNC_SECTIONS) {
+        const hasNew = sectionHasData(extractedForm, s);
+        const score = extractedForm?._confidence?.[s.id] ?? 0;
+        if (!hasNew || score < 80) d[s.id] = "skip";
+        else d[s.id] = presetMode === "merge" ? "merge" : "accept";
+      }
+      return d;
+    }
+    return buildAutoDecisions(extractedForm, currentForm);
+  });
   const [filter, setFilter] = useState("all");
   const [expanded, setExpanded] = useState(() => {
     const set = new Set();
@@ -162,6 +174,19 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
     return { auto, review };
   }, [extractedForm]);
 
+  const hasExisting = SYNC_SECTIONS.some((s) => sectionHasData(currentForm, s));
+
+  const handleMergeAll = () => {
+    const d = {};
+    for (const s of SYNC_SECTIONS) {
+      const hasNew = sectionHasData(extractedForm, s);
+      const score = extractedForm?._confidence?.[s.id] ?? 0;
+      if (!hasNew || score < 80) d[s.id] = "skip";
+      else d[s.id] = "merge";
+    }
+    setDecisions(d);
+  };
+
   const visibleSections = useMemo(() => {
     if (filter === "review") {
       return SYNC_SECTIONS.filter((s) => {
@@ -185,7 +210,9 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
     for (const s of SYNC_SECTIONS) {
       const hasNew = sectionHasData(extractedForm, s);
       const hasCurrent = sectionHasData(currentForm, s);
-      d[s.id] = hasNew ? (s.type === "array" && hasCurrent ? "merge" : "accept") : "skip";
+      const score = extractedForm?._confidence?.[s.id] ?? 0;
+      if (!hasNew || score < 80) d[s.id] = "skip";
+      else d[s.id] = s.type === "array" && hasCurrent ? "merge" : "accept";
     }
     setDecisions(d);
   };
@@ -232,6 +259,24 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
               <X size={18} />
             </button>
           </div>
+
+          {/* Re-import Mode Selection */}
+          {hasExisting && (
+            <div className="px-5 py-2.5 bg-indigo-500/[0.03] border-b border-white/5">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-1.5">Import Mode</div>
+              <div className="flex items-center gap-2">
+                <button onClick={handleAcceptAll} className="flex-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/80 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5">
+                  <RefreshCw size={11} /> Replace Existing
+                </button>
+                <button onClick={handleMergeAll} className="flex-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/80 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5">
+                  <Plus size={11} /> Merge
+                </button>
+                <button onClick={handleAcceptAll} className="flex-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/80 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5">
+                  <Save size={11} /> Create New Version
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Confidence Summary */}
           <div className="px-5 py-3 bg-white/[0.02] border-b border-white/5 flex items-center gap-4">

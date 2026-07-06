@@ -1,0 +1,52 @@
+{
+  "name": "IdentityVersion",
+  "type": "object",
+  "properties": {
+    "version_number": {
+      "type": "number",
+      "default": 1
+    },
+    "label": {
+      "type": "string"
+    },
+    "snapshot_json": {
+      "type": "string"
+    },
+    "import_source": {
+      "type": "string",
+      "enum": [
+        "resume_parser",
+        "manual",
+        "restore",
+        "duplicate"
+      ],
+      "default": "manual"
+    },
+    "source_resume_url": {
+      "type": "string"
+    },
+    "source_resume_name": {
+      "type": "string"
+    },
+    "confidence_score": {
+      "type": "number",
+      "default": 0
+    },
+    "parser_version": {
+      "type": "string"
+    },
+    "imported_by": {
+      "type": "string"
+    },
+    "completeness_score": {
+      "type": "number",
+      "default": 0
+    },
+    "change_summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "version_number"
+  ]
+}

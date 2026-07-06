@@ -1,7 +1,7 @@
 import React from "react";
 import {
   UserCircle, Briefcase, Target, FileText, Building2,
-  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon
+  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database
 } from "lucide-react";
 
 const SECTIONS = [
@@ -21,6 +21,7 @@ const SECTIONS = [
     { id: "social", label: "Social Links", icon: Link2 },
     { id: "privacy", label: "Privacy", icon: Shield },
     { id: "account", label: "Account", icon: SettingsIcon },
+    { id: "data", label: "Data Management", icon: Database },
   ]},
 ];
 

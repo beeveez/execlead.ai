@@ -7,6 +7,8 @@ import { callAI } from "@/lib/ai";
 // Executive Identity Center with minimal manual review.
 // ============================================================
 
+export const PARSER_VERSION = "3.0.0";
+
 // ------------------------------------------------------------
 // SECTION REGISTRY (shared by engine + review UI)
 // ------------------------------------------------------------
@@ -215,6 +217,8 @@ export const buildIdentityExtractionPrompt = () =>
   `You are an expert resume parser powering an Executive Identity Smart Mapping Engine.
 
 Analyze the attached resume and extract ALL of the following with maximum accuracy. Never invent information — only extract what is explicitly stated.
+
+**TRUTH ENGINE (critical):** You must NEVER fabricate companies, roles, achievements, metrics, team size, responsibilities, or technologies. If information is missing or ambiguous, leave the field blank (empty string, empty array, or null). An empty field is always preferable to an invented executive achievement. Do not infer, extrapolate, or guess beyond what is explicitly written. Confidence below 80% must be flagged for human review.
 
 **Personal Information:** first_name, last_name (split the full name), email, phone, city, country (full country name), linkedin_url, github_url, portfolio_url, website_url (full URLs).
 

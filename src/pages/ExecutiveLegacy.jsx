@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { DEFAULT_DNA_SCORES } from "@/lib/legacyData";
+import { useSubscription } from "@/lib/SubscriptionContext";
+import { callAI, awardXP } from "@/lib/ai";
+import { LEGACY_SECTIONS, DEFAULT_DNA_SCORES } from "@/lib/legacyData";
 import LegacyTimeline from "@/components/legacy/LegacyTimeline";
 import ExecutiveDna from "@/components/legacy/ExecutiveDna";
 import CaseStudyCard from "@/components/legacy/CaseStudyCard";
@@ -8,6 +10,7 @@ import CaseStudyModal from "@/components/legacy/CaseStudyModal";
 import { Award, Plus, Loader2, Filter, BookOpen } from "lucide-react";
 
 export default function ExecutiveLegacy() {
+  const { profile } = useSubscription();
   const [legacy, setLegacy] = useState(null);
   const [caseStudies, setCaseStudies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +52,29 @@ export default function ExecutiveLegacy() {
     const updated = { ...legacy, competency_scores_json: JSON.stringify(scores) };
     setLegacy(updated);
     try { await base44.entities.ExecutiveLegacy.update(legacy.id, { competency_scores_json: JSON.stringify(scores) }); } catch (e) {}
+  };
+
+  const generateSection = async (sectionId) => {
+    const section = LEGACY_SECTIONS.find(s => s.id === sectionId);
+    const role = profile?.target_role || "executive leader";
+    const company = profile?.target_company || "a global organization";
+    const industry = profile?.industry || "technology";
+    const years = legacy?.years_experience || 35;
+
+    const prompt = `You are an AI executive legacy advisor. Write the "${section.label}" section for the executive legacy of a leader with ${years} years of experience, targeting ${role} roles at ${company} in the ${industry} industry.
+
+This section should be:
+- Written in first person, as if the executive is reflecting on their ${years}-year career
+- Authentic, specific, and insightful — referencing realistic scenarios, metrics, and outcomes
+- 200-300 words
+- Formatted in markdown with a brief header and bullet points where appropriate
+- Focused specifically on ${section.label.toLowerCase()}: ${section.desc}
+
+Write compelling, realistic executive content that demonstrates deep wisdom and experience.`;
+
+    const res = await callAI("legacy", { prompt });
+    await awardXP(profile, 15);
+    return res;
   };
 
   const saveCaseStudy = async (data) => {
@@ -100,7 +126,7 @@ export default function ExecutiveLegacy() {
       {/* Legacy Timeline */}
       <div>
         <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Legacy Timeline</h2>
-        <LegacyTimeline legacy={legacy} onUpdate={updateSection} />
+        <LegacyTimeline legacy={legacy} onGenerate={generateSection} onUpdate={updateSection} />
       </div>
 
       {/* Case Studies */}

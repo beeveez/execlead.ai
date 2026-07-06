@@ -2,7 +2,7 @@ import React from "react";
 import LegacySection from "@/components/legacy/LegacySection";
 import { LEGACY_SECTIONS, SECTION_COLORS } from "@/lib/legacyData";
 
-export default function LegacyTimeline({ legacy, onUpdate }) {
+export default function LegacyTimeline({ legacy, onGenerate, onUpdate }) {
   return (
     <div className="relative">
       <div className="absolute left-[18px] top-2 bottom-2 w-px bg-gradient-to-b from-indigo-500/30 via-white/5 to-transparent" />
@@ -13,6 +13,7 @@ export default function LegacyTimeline({ legacy, onUpdate }) {
             section={section}
             value={legacy?.[section.id]}
             colorClass={SECTION_COLORS[section.color]}
+            onGenerate={onGenerate}
             onUpdate={onUpdate}
           />
         ))}

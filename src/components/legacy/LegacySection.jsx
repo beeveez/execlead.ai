@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Pencil, Save, X } from "lucide-react";
+import { Sparkles, Pencil, Save, X, Loader2 } from "lucide-react";
 import { SECTION_COLORS } from "@/lib/legacyData";
 
-export default function LegacySection({ section, value, colorClass, onUpdate }) {
+export default function LegacySection({ section, value, colorClass, onGenerate, onUpdate }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value || "");
+  const [generating, setGenerating] = useState(false);
 
   const hasContent = Boolean(value && value.trim());
 
@@ -14,9 +15,13 @@ export default function LegacySection({ section, value, colorClass, onUpdate }) 
     setEditing(false);
   };
 
-  const startEditing = () => {
-    setDraft(value || "");
-    setEditing(true);
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      const content = await onGenerate(section.id);
+      onUpdate(section.id, content);
+    } catch (e) {}
+    setGenerating(false);
   };
 
   return (
@@ -32,7 +37,14 @@ export default function LegacySection({ section, value, colorClass, onUpdate }) 
           </div>
           <div className="flex items-center gap-1.5">
             {!editing && (
-              <button onClick={startEditing} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 text-xs transition-colors"><Pencil size={12} /> Edit</button>
+              <button onClick={handleGenerate} disabled={generating}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-colors disabled:opacity-50">
+                {generating ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                {generating ? "Generating..." : "AI"}
+              </button>
+            )}
+            {!editing && hasContent && (
+              <button onClick={() => { setDraft(value); setEditing(true); }} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 text-xs transition-colors"><Pencil size={12} /> Edit</button>
             )}
             {editing && (
               <>
@@ -49,9 +61,9 @@ export default function LegacySection({ section, value, colorClass, onUpdate }) 
         ) : hasContent ? (
           <div className="prose prose-sm prose-invert max-w-none text-white/60 text-sm"><ReactMarkdown>{value}</ReactMarkdown></div>
         ) : (
-          <button onClick={startEditing}
+          <button onClick={handleGenerate} disabled={generating}
             className="w-full text-left text-white/30 text-sm py-4 px-3 rounded-lg border border-dashed border-white/10 hover:border-indigo-500/20 hover:text-white/50 transition-colors">
-            No content yet. Click to write your {section.label.toLowerCase()}.
+            {generating ? "Generating with AI..." : `No content yet. Click "AI" to generate your ${section.label.toLowerCase()} or write your own.`}
           </button>
         )}
       </div>

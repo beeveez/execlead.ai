@@ -1,8 +1,20 @@
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, CheckCheck } from "lucide-react";
 
 export default function ModuleSelector({ modules, selectedIds, onToggle, type = "module" }) {
   const filtered = (modules || []).filter(m => m.type === type && m.is_active !== false);
+
+  const selectAll = () => {
+    const allIds = filtered.map(m => m.module_id);
+    onToggle(allIds);
+  };
+
+  const clearAll = () => {
+    onToggle([]);
+  };
+
+  const allSelected = filtered.length > 0 && filtered.every(m => selectedIds.includes(m.module_id));
+  const someSelected = selectedIds.filter(id => filtered.some(m => m.module_id === id)).length > 0;
 
   const priceLabel = (m) => {
     const price = (m.annual_price || 0).toLocaleString();
@@ -14,7 +26,22 @@ export default function ModuleSelector({ modules, selectedIds, onToggle, type = 
   if (filtered.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <div>
+      <div className="flex items-center justify-end mb-2">
+        <button
+          type="button"
+          onClick={allSelected ? clearAll : selectAll}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            allSelected
+              ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15"
+              : "bg-white/5 text-white/50 hover:text-white/80 hover:bg-white/10"
+          }`}
+        >
+          <CheckCheck size={12} />
+          {allSelected ? "Clear All" : someSelected ? "Select All" : "Select All"}
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
       {filtered.map(m => {
         const selected = selectedIds.includes(m.module_id);
         return (
@@ -40,6 +67,7 @@ export default function ModuleSelector({ modules, selectedIds, onToggle, type = 
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

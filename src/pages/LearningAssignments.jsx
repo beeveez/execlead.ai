@@ -145,7 +145,7 @@ export default function LearningAssignments() {
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                     {status !== "completed" && (
                       <select value={a.status} onChange={(e) => handleStatusChange(a.id, e.target.value)}
-                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/60 focus:outline-none">
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/60 focus:outline-none [&>option]:bg-[#0d0d14] [&>option]:text-white">
                         <option value="assigned">Assigned</option>
                         <option value="in_progress">In Progress</option>
                         <option value="completed">Completed</option>

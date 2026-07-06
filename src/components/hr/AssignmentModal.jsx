@@ -55,7 +55,7 @@ export default function AssignmentModal({ members, onSave, onClose }) {
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">Assign To</label>
               <select value={form.assignee_name} onChange={(e) => setForm((f) => ({ ...f, assignee_name: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 [&>option]:bg-[#0d0d14] [&>option]:text-white">
                 <option value="">Select team member...</option>
                 {members.map((m) => <option key={m.id} value={m.full_name || "Unknown"}>{m.full_name || "Unknown"}</option>)}
               </select>
@@ -64,7 +64,7 @@ export default function AssignmentModal({ members, onSave, onClose }) {
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">Learning Path</label>
               <select value={form.learning_path} onChange={(e) => setForm((f) => ({ ...f, learning_path: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 [&>option]:bg-[#0d0d14] [&>option]:text-white">
                 {LEARNING_PATHS.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>

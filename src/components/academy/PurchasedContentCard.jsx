@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
 const TYPE_LABELS = {
@@ -13,11 +12,11 @@ const TYPE_LABELS = {
   industry_framework: "Framework",
 };
 
-export default function PurchasedContentCard({ purchase }) {
+export default function PurchasedContentCard({ purchase, onClick }) {
   return (
-    <Link
-      to="/marketplace"
-      className="group block bg-gradient-to-br from-indigo-500/5 to-transparent border border-indigo-500/10 hover:border-indigo-500/20 rounded-xl p-5 transition-all"
+    <button
+      onClick={onClick}
+      className="text-left bg-gradient-to-br from-indigo-500/5 to-transparent border border-indigo-500/10 hover:border-indigo-500/20 rounded-xl p-5 transition-all group w-full"
     >
       <div className="flex items-start justify-between mb-3">
         <span className="text-3xl">{purchase.item_icon || "📦"}</span>
@@ -31,6 +30,6 @@ export default function PurchasedContentCard({ purchase }) {
           Open <ChevronRight size={12} />
         </span>
       </div>
-    </Link>
+    </button>
   );
 }

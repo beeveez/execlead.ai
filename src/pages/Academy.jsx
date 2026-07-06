@@ -4,14 +4,18 @@ import { COURSES, searchAcademy, getRecommendedCourses } from "@/lib/courseCatal
 import { useAcademy } from "@/hooks/useAcademy";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { GraduationCap, Search, Award, BookOpen, Sparkles, ShoppingBag } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import CourseCard from "@/components/academy/CourseCard";
 import PurchasedContentCard from "@/components/academy/PurchasedContentCard";
+import MarketplaceDetail from "@/components/marketplace/MarketplaceDetail";
 
 export default function Academy() {
   const { profile } = useSubscription();
   const { getCourseProgress, certificates, getCompletedCount, loading } = useAcademy();
   const [query, setQuery] = useState("");
   const [purchases, setPurchases] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [loadingItem, setLoadingItem] = useState(false);
 
   useEffect(() => {
     base44.entities.Purchase.list("-created_date", 100).then(setPurchases).catch(() => {});
@@ -20,6 +24,15 @@ export default function Academy() {
   const recommended = useMemo(() => getRecommendedCourses(profile?.target_role), [profile?.target_role]);
   const filtered = useMemo(() => query ? searchAcademy(query) : COURSES, [query]);
   const isSearching = query.length > 0;
+
+  const openPurchasedItem = async (purchase) => {
+    setLoadingItem(true);
+    try {
+      const items = await base44.entities.MarketplaceItem.filter({ id: purchase.item_id });
+      if (items.length > 0) setSelectedItem(items[0]);
+    } catch (e) {}
+    setLoadingItem(false);
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -44,9 +57,13 @@ export default function Academy() {
 
       {!isSearching && purchases.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3"><ShoppingBag size={14} className="text-indigo-400" /><h2 className="text-sm font-semibold text-white/70">My Purchased Content</h2></div>
+          <div className="flex items-center gap-2 mb-3">
+            <ShoppingBag size={14} className="text-indigo-400" />
+            <h2 className="text-sm font-semibold text-white/70">My Purchased Content</h2>
+            {loadingItem && <span className="text-xs text-white/30">Loading...</span>}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {purchases.map(p => <PurchasedContentCard key={p.id} purchase={p} />)}
+            {purchases.map(p => <PurchasedContentCard key={p.id} purchase={p} onClick={() => openPurchasedItem(p)} />)}
           </div>
         </div>
       )}
@@ -70,6 +87,10 @@ export default function Academy() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {selectedItem && <MarketplaceDetail item={selectedItem} onClose={() => setSelectedItem(null)} />}
+      </AnimatePresence>
     </div>
   );
 }

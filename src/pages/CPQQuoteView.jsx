@@ -163,8 +163,8 @@ export default function CPQQuoteView() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Link to="/cpq-dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/60 text-sm transition-colors">
-        <ArrowLeft size={14} /> Back to Dashboard
+      <Link to="/cpq/quotes" className="flex items-center gap-2 text-white/40 hover:text-white/60 text-sm transition-colors">
+        <ArrowLeft size={14} /> Back to My Quotes
       </Link>
 
       {/* Header */}

@@ -217,7 +217,7 @@ export default function CPQWizard() {
       emailWarning={emailWarning}
       pdfUrl={proposalPdfUrl}
       onNewQuote={() => { setGeneratedQuote(null); setStep(1); setConfig({ ...config, moduleIds: [], serviceIds: [] }); }}
-      onViewQuotes={() => navigate("/cpq-dashboard")}
+      onViewQuotes={() => navigate("/cpq/quotes")}
     />
   );
 

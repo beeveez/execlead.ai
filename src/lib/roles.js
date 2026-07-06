@@ -113,6 +113,7 @@ export const NAV_GROUPS = [
     items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/billing", label: "Billing", icon: CreditCard },
+      { path: "/cpq/quotes", label: "My Proposals", icon: FileText },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
     ],
   },

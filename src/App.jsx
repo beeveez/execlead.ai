@@ -70,6 +70,7 @@ import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
 import EnterprisePortal from '@/pages/EnterprisePortal';
+import MyQuotes from '@/pages/MyQuotes';
 import CompanyAdmin from '@/pages/CompanyAdmin';
 import EmailSettings from '@/pages/EmailSettings';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
@@ -157,6 +158,7 @@ const AuthenticatedApp = () => {
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />
           <Route path="/email-settings" element={<EmailSettings />} />
+          <Route path="/cpq/quotes" element={<MyQuotes />} />
           <Route path="/cpq/quote/:id" element={<CPQQuoteView />} />
           <Route path="/portal/:quoteId" element={<EnterprisePortal />} />
           <Route path="/hr-dashboard" element={<FeatureGate featureId="hr_dashboard"><HRDashboard /></FeatureGate>} />

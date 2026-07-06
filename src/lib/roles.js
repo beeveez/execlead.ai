@@ -289,7 +289,6 @@ export const ROUTE_ACCESS = {
   "/pricing-admin": ["platform_admin", "super_admin"],
   "/billing-admin": ["platform_admin", "super_admin", "finance"],
   "/payment-settings": ["platform_admin", "super_admin", "finance"],
-  "/cpq": ["platform_admin", "super_admin", "sales"],
   "/cpq-dashboard": ["platform_admin", "super_admin", "sales"],
   "/company-admin": ["platform_admin", "super_admin", "content_manager"],
   "/email-settings": ["platform_admin", "super_admin"],

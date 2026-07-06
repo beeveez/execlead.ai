@@ -114,7 +114,7 @@ const AuthenticatedApp = () => {
           <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />
           <Route path="/debate" element={<FeatureGate featureId="executive_debate"><Debate /></FeatureGate>} />
           <Route path="/council" element={<FeatureGate featureId="executive_council"><ExecutiveCouncil /></FeatureGate>} />
-          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace" element={<FeatureGate featureId="marketplace"><Marketplace /></FeatureGate>} />
           <Route path="/academy" element={<FeatureGate featureId="executive_academy"><Outlet /></FeatureGate>}>
             <Route index element={<Academy />} />
             <Route path=":courseSlug" element={<CourseHome />} />

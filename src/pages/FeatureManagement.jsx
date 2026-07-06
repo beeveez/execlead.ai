@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { DEFAULT_FEATURES } from "@/lib/featureCatalog";
+import { validateFeatureConsistency } from "@/lib/featureConsistency";
 import { Loader2, Plus, RefreshCw, Boxes, Sparkles } from "lucide-react";
 import FeatureEditor from "@/components/admin/FeatureEditor";
+import ConsistencyReport from "@/components/admin/ConsistencyReport";
 
 export default function FeatureManagement() {
   const [features, setFeatures] = useState([]);
@@ -10,10 +12,12 @@ export default function FeatureManagement() {
   const [saving, setSaving] = useState(null);
   const [user, setUser] = useState(null);
   const [showNew, setShowNew] = useState(false);
+  const [report, setReport] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
     loadFeatures();
+    setReport(validateFeatureConsistency());
   }, []);
 
   const loadFeatures = async () => {
@@ -38,7 +42,12 @@ export default function FeatureManagement() {
           minimum_plan: f.minimumPlan,
           is_enabled: f.isEnabled,
           sort_order: f.sortOrder,
-          limit_label: f.limitLabel || ""
+          limit_label: f.limitLabel || "",
+          status: "live",
+          visibility: "public",
+          coming_soon: false,
+          nav_enabled: false,
+          pricing_enabled: true,
         }))
       );
       await loadFeatures();
@@ -54,8 +63,18 @@ export default function FeatureManagement() {
           name: form.name,
           description: form.description,
           category: form.category,
+          module: form.module || "",
           icon: form.icon,
           minimum_plan: form.minimum_plan,
+          required_role: form.required_role || "",
+          status: form.status || "live",
+          visibility: form.visibility || "public",
+          coming_soon: form.coming_soon ?? false,
+          nav_enabled: form.nav_enabled ?? false,
+          pricing_enabled: form.pricing_enabled ?? true,
+          route_path: form.route_path || "",
+          nav_label: form.nav_label || "",
+          expected_release: form.expected_release || "",
           is_enabled: form.is_enabled,
           sort_order: Number(form.sort_order),
           limit_label: form.limit_label || ""
@@ -67,8 +86,18 @@ export default function FeatureManagement() {
           name: form.name,
           description: form.description || "",
           category: form.category || "Platform",
+          module: form.module || "",
           icon: form.icon || "Sparkles",
           minimum_plan: form.minimum_plan || "free",
+          required_role: form.required_role || "",
+          status: form.status || "live",
+          visibility: form.visibility || "public",
+          coming_soon: form.coming_soon ?? false,
+          nav_enabled: form.nav_enabled ?? false,
+          pricing_enabled: form.pricing_enabled ?? true,
+          route_path: form.route_path || "",
+          nav_label: form.nav_label || "",
+          expected_release: form.expected_release || "",
           is_enabled: form.is_enabled !== false,
           sort_order: Number(form.sort_order) || 0,
           limit_label: form.limit_label || ""
@@ -76,6 +105,7 @@ export default function FeatureManagement() {
         setFeatures(prev => [...prev, created]);
         setShowNew(false);
       }
+      setReport(validateFeatureConsistency());
     } catch (e) { console.error(e); }
     setSaving(null);
   };
@@ -86,6 +116,7 @@ export default function FeatureManagement() {
     try {
       await base44.entities.Feature.delete(form.id);
       setFeatures(prev => prev.filter(f => f.id !== form.id));
+      setReport(validateFeatureConsistency());
     } catch (e) { console.error(e); }
   };
 
@@ -101,7 +132,7 @@ export default function FeatureManagement() {
             <Boxes size={12} className="text-emerald-400" /> Configuration
           </div>
           <h1 className="text-2xl font-bold text-white">Feature Management</h1>
-          <p className="text-white/40 text-sm mt-1">Manage feature catalog, plan assignments, and visibility.</p>
+          <p className="text-white/40 text-sm mt-1">Manage feature catalog, plan assignments, status, and visibility.</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={loadFeatures} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60 transition-colors">
@@ -114,6 +145,8 @@ export default function FeatureManagement() {
           )}
         </div>
       </div>
+
+      {report && <ConsistencyReport report={report} />}
 
       {features.length === 0 ? (
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">
@@ -128,7 +161,7 @@ export default function FeatureManagement() {
         <>
           {showNew && (
             <FeatureEditor
-              feature={{ feature_id: "", name: "", description: "", category: "Platform", icon: "Sparkles", minimum_plan: "free", is_enabled: true, sort_order: 99 }}
+              feature={{ feature_id: "", name: "", description: "", category: "Platform", module: "", icon: "Sparkles", minimum_plan: "free", required_role: "", status: "live", visibility: "public", coming_soon: false, nav_enabled: false, pricing_enabled: true, route_path: "", nav_label: "", expected_release: "", is_enabled: true, sort_order: 99 }}
               onSave={saveFeature}
               onDelete={null}
               saving={saving === ""}

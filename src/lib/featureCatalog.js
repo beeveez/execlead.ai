@@ -27,6 +27,81 @@ export const FEATURE_ALIASES = {
   career_paths: "career_path"
 };
 
+// ============================================================
+// FEATURE REGISTRY — centralized metadata for every feature.
+// Status drives visibility across navigation, pricing, and permissions.
+// ============================================================
+
+export const FEATURE_STATUS = {
+  DEVELOPMENT: "development",
+  INTERNAL: "internal",
+  BETA: "beta",
+  PREVIEW: "preview",
+  LIVE: "live",
+  DEPRECATED: "deprecated",
+  ARCHIVED: "archived",
+};
+
+export const FEATURE_VISIBILITY = {
+  PUBLIC: "public",
+  INTERNAL: "internal",
+  HIDDEN: "hidden",
+};
+
+export const LIVE_STATUSES = ["live", "beta", "preview"];
+
+export const FEATURE_REGISTRY = {
+  marketplace: { routePath: "/marketplace", navLabel: "Marketplace", navEnabled: true, module: "Platform" },
+  executive_simulator: { routePath: "/simulator", navLabel: "Simulator", navEnabled: true, module: "Platform" },
+  executive_debate: { routePath: "/debate", navLabel: "Debate", navEnabled: true, module: "Platform" },
+  executive_academy: { routePath: "/academy", navLabel: "Academy", navEnabled: true, module: "Learning" },
+  career_advisor: { routePath: "/career", navLabel: "Career Advisor", navEnabled: false, module: "Career" },
+  company_intelligence: { routePath: "/companies", navLabel: "Companies", navEnabled: true, module: "Career" },
+  leadership_analytics: { routePath: "/analytics", navLabel: "Analytics", navEnabled: true, module: "Insights" },
+  daily_executive_challenge: { routePath: "/challenge", navLabel: "Challenge", navEnabled: false, module: "Platform" },
+  executive_journal: { routePath: "/journal", navLabel: "Journal", navEnabled: true, module: "Career" },
+  resume_intelligence: { routePath: "/resume", navLabel: "Resume AI", navEnabled: true, module: "Career" },
+  career_studio: { routePath: "/career-studio", navLabel: "Career Studio", navEnabled: true, module: "Career" },
+  executive_council: { routePath: "/council", navLabel: "Council", navEnabled: false, module: "Coaching" },
+  leadership_dna: { routePath: "/leadership-dna", navLabel: "Leadership DNA", navEnabled: false, module: "Analytics" },
+  executive_legacy: { routePath: "/executive-legacy", navLabel: "Legacy", navEnabled: false, module: "Analytics" },
+  team_dashboard: { routePath: "/enterprise", navLabel: "Organization", navEnabled: true, module: "Enterprise" },
+  hr_dashboard: { routePath: "/hr-dashboard", navLabel: "Department Analytics", navEnabled: true, module: "Enterprise" },
+  succession_planning: { routePath: "/succession-planning", navLabel: "Seat Usage", navEnabled: true, module: "Enterprise" },
+  promotion_readiness: { routePath: "/promotion-readiness", navLabel: "Organization Reports", navEnabled: true, module: "Enterprise" },
+  learning_assignments: { routePath: "/learning-assignments", navLabel: "Learning Assignments", navEnabled: true, module: "Enterprise" },
+  sso: { routePath: "/sso", navLabel: "SSO & Identity", navEnabled: false, module: "Enterprise" },
+  ai_usage_dashboard: { routePath: "/ai-usage", navLabel: "AI Usage", navEnabled: false, module: "Analytics" },
+  admin_console: { routePath: "/admin", navLabel: "Admin", navEnabled: true, module: "Enterprise" },
+};
+
+export function normalizeFeature(f) {
+  if (!f) return f;
+  const reg = FEATURE_REGISTRY[f.id] || {};
+  return {
+    ...f,
+    status: f.status || "live",
+    visibility: f.visibility || "public",
+    module: f.module || reg.module || f.category,
+    requiredRole: f.requiredRole || null,
+    releaseDate: f.releaseDate || null,
+    comingSoon: f.comingSoon ?? false,
+    navEnabled: f.navEnabled ?? reg.navEnabled ?? false,
+    pricingEnabled: f.pricingEnabled ?? true,
+    routePath: f.routePath || reg.routePath || null,
+    navLabel: f.navLabel || reg.navLabel || null,
+    expectedRelease: f.expectedRelease || null,
+  };
+}
+
+export function isFeatureLive(f) {
+  return LIVE_STATUSES.includes(f.status);
+}
+
+export function isComingSoon(f) {
+  return f.comingSoon === true || f.status === "development";
+}
+
 export const DEFAULT_FEATURES = [
   { id: "resume_builder", name: "Resume Builder", description: "Build and edit professional resumes", category: "Career", icon: "FileText", minimumPlan: "free", isEnabled: true, sortOrder: 0 },
   { id: "basic_dashboard", name: "Basic Dashboard", description: "Core dashboard with essential metrics", category: "Platform", icon: "LayoutDashboard", minimumPlan: "free", isEnabled: true, sortOrder: 1 },
@@ -101,13 +176,15 @@ export const DEFAULT_FEATURES = [
 export function getFeaturesForPlan(planId) {
   const tier = PLAN_TIERS[planId] ?? 0;
   return DEFAULT_FEATURES
-    .filter(f => f.isEnabled && (PLAN_TIERS[f.minimumPlan] ?? 0) <= tier)
+    .map(normalizeFeature)
+    .filter(f => f.isEnabled && isFeatureLive(f) && !isComingSoon(f) && (PLAN_TIERS[f.minimumPlan] ?? 0) <= tier)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export function hasFeatureAccess(planId, featureId) {
-  const f = DEFAULT_FEATURES.find(x => x.id === featureId);
-  if (!f || !f.isEnabled) return false;
+  const raw = DEFAULT_FEATURES.find(x => x.id === featureId);
+  const f = normalizeFeature(raw);
+  if (!f || !f.isEnabled || !isFeatureLive(f) || isComingSoon(f)) return false;
   return (PLAN_TIERS[planId] ?? 0) >= (PLAN_TIERS[f.minimumPlan] ?? 0);
 }
 
@@ -125,11 +202,12 @@ export function getFeatureCategories(features) {
 export async function getFeatureCatalog() {
   try {
     const overrides = await base44.entities.Feature.list("sort_order", 100);
-    if (!overrides || overrides.length === 0) return DEFAULT_FEATURES;
-    return DEFAULT_FEATURES.map(def => {
+    const base = DEFAULT_FEATURES.map(normalizeFeature);
+    if (!overrides || overrides.length === 0) return base;
+    return base.map(def => {
       const ov = overrides.find(o => o.feature_id === def.id);
       if (!ov) return def;
-      return {
+      return normalizeFeature({
         ...def,
         name: ov.name || def.name,
         description: ov.description || def.description,
@@ -138,10 +216,32 @@ export async function getFeatureCatalog() {
         minimumPlan: ov.minimum_plan || def.minimumPlan,
         isEnabled: ov.is_enabled ?? def.isEnabled,
         sortOrder: ov.sort_order ?? def.sortOrder,
-        limitLabel: ov.limit_label || def.limitLabel
-      };
+        limitLabel: ov.limit_label || def.limitLabel,
+        status: ov.status || def.status,
+        visibility: ov.visibility || def.visibility,
+        requiredRole: ov.required_role || def.requiredRole,
+        comingSoon: ov.coming_soon ?? def.comingSoon,
+        navEnabled: ov.nav_enabled ?? def.navEnabled,
+        pricingEnabled: ov.pricing_enabled ?? def.pricingEnabled,
+        releaseDate: ov.release_date || def.releaseDate,
+        expectedRelease: ov.expected_release || def.expectedRelease,
+      });
     });
   } catch (e) {
-    return DEFAULT_FEATURES;
+    return DEFAULT_FEATURES.map(normalizeFeature);
   }
+}
+
+export function getNavFeatures() {
+  return DEFAULT_FEATURES
+    .map(normalizeFeature)
+    .filter(f => f.isEnabled && f.navEnabled && isFeatureLive(f) && !isComingSoon(f))
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+export function getPricingFeatures() {
+  return DEFAULT_FEATURES
+    .map(normalizeFeature)
+    .filter(f => f.isEnabled && f.pricingEnabled && isFeatureLive(f) && !isComingSoon(f))
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 }

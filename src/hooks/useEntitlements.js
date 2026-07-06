@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
-import { DEFAULT_FEATURES, PLAN_TIERS, getFeatureCatalog, getUpgradePlan } from "@/lib/featureCatalog";
+import { DEFAULT_FEATURES, PLAN_TIERS, getFeatureCatalog, getUpgradePlan, normalizeFeature, isFeatureLive, isComingSoon } from "@/lib/featureCatalog";
 
 export function useEntitlements() {
   const { profile } = useSubscription();
   const { canAccessDeveloper, developerMode, simulatedPlan, featureOverrides, impersonation, getEffectivePlan } = useDeveloper();
-  const [features, setFeatures] = useState(DEFAULT_FEATURES);
+  const [features, setFeatures] = useState(DEFAULT_FEATURES.map(normalizeFeature));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,17 +36,22 @@ export function useEntitlements() {
     if (canAccessDeveloper && !isSimulating) return true;
     // Normal plan-based check
     const f = features.find(x => x.id === featureId);
-    if (!f || !f.isEnabled) return false;
+    if (!f || !f.isEnabled || !isFeatureLive(f) || isComingSoon(f)) return false;
     return userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0);
   }, [features, userTier, canAccessDeveloper, developerMode, isSimulating, featureOverrides]);
+
+  const checkComingSoon = useCallback((featureId) => {
+    const f = features.find(x => x.id === featureId);
+    return f ? isComingSoon(f) : false;
+  }, [features]);
 
   const getFeature = useCallback((featureId) => features.find(x => x.id === featureId), [features]);
 
   const getFeaturesForCurrentPlan = useCallback(() => {
     return features
-      .filter(f => f.isEnabled && userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0))
+      .filter(f => f.isEnabled && isFeatureLive(f) && !isComingSoon(f) && userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0))
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }, [features, userTier]);
 
-  return { hasAccess, getFeature, getFeaturesForCurrentPlan, getUpgradePlan, planId, loading };
+  return { hasAccess, getFeature, getFeaturesForCurrentPlan, getUpgradePlan, planId, loading, isComingSoon: checkComingSoon };
 }

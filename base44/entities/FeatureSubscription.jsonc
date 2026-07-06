@@ -1,0 +1,23 @@
+{
+  "name": "FeatureSubscription",
+  "type": "object",
+  "properties": {
+    "feature_id": {
+      "type": "string"
+    },
+    "feature_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "notified": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "feature_id",
+    "email"
+  ]
+}

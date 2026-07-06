@@ -3,7 +3,7 @@ import {
   Briefcase, FileText, Building2, BarChart3, PenLine,
   UserCircle, CreditCard, Settings as SettingsIcon,
   Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
-  Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes,
+  Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes, Store,
   Cpu, TrendingUp, GitBranch, Rocket
 } from "lucide-react";
 
@@ -87,6 +87,7 @@ export const NAV_GROUPS = [
       { path: "/coach", label: "Coach", icon: MessageSquare },
       { path: "/simulator", label: "Simulator", icon: Brain },
       { path: "/debate", label: "Debate", icon: Scale },
+      { path: "/marketplace", label: "Marketplace", icon: Store },
     ],
   },
   {

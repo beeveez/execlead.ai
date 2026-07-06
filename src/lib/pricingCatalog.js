@@ -1,5 +1,5 @@
 import { base44 } from "@/api/base44Client";
-import { DEFAULT_FEATURES, PLAN_LIMITS, getFeaturesForPlan, getFeatureCatalog } from "./featureCatalog";
+import { DEFAULT_FEATURES, PLAN_LIMITS, getFeaturesForPlan, getFeatureCatalog, normalizeFeature, isFeatureLive, isComingSoon } from "./featureCatalog";
 
 const basePlans = [
   { id: "free", name: "Free", description: "Designed for users exploring executive leadership", monthlyPrice: 0, annualPrice: 0, currency: "USD", badge: null, buttonText: "Get Started Free", recommended: false, enterpriseOnly: false, visible: true, color: "#94a3b8", icon: "🌱", sortOrder: 0 },
@@ -13,13 +13,22 @@ const tierOrder = (id) => ({ free: 0, professional: 1, executive: 2, enterprise:
 
 const deriveFeatures = (planId, catalog) =>
   catalog
-    .filter(f => f.isEnabled && tierOrder(f.minimumPlan) <= tierOrder(planId))
+    .map(normalizeFeature)
+    .filter(f => f.isEnabled && f.pricingEnabled && isFeatureLive(f) && !isComingSoon(f) && tierOrder(f.minimumPlan) <= tierOrder(planId))
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map(f => f.limitLabel ? `${f.name} (${f.limitLabel})` : f.name);
+
+const deriveComingSoon = (catalog) =>
+  catalog
+    .map(normalizeFeature)
+    .filter(f => f.pricingEnabled && isComingSoon(f))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(f => f.name);
 
 const withDerived = (p) => ({
   ...p,
   features: deriveFeatures(p.id, DEFAULT_FEATURES),
+  comingSoon: deriveComingSoon(DEFAULT_FEATURES),
   limits: PLAN_LIMITS[p.id] || {}
 });
 
@@ -50,7 +59,7 @@ export async function getPricingCatalog() {
         enterpriseOnly: ov.enterprise_only ?? def.enterpriseOnly,
         visible: ov.visible ?? def.visible
       } : def;
-      return { ...merged, features: deriveFeatures(merged.id, featureCatalog), limits: PLAN_LIMITS[merged.id] || {} };
+      return { ...merged, features: deriveFeatures(merged.id, featureCatalog), comingSoon: deriveComingSoon(featureCatalog), limits: PLAN_LIMITS[merged.id] || {} };
     };
 
     return basePlans.map(buildPlan);

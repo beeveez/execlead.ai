@@ -5,6 +5,7 @@ import { RESUME_TEMPLATES, defaultResumeContent } from "@/lib/careerStudio";
 import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown } from "lucide-react";
 import ResumeSectionEditor from "@/components/career-studio/ResumeSectionEditor";
 import ResumePreview from "@/components/career-studio/ResumePreview";
+import { toast } from "@/components/ui/use-toast";
 
 export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const [resumes, setResumes] = useState([]);
@@ -73,7 +74,12 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
 
   const handleUpload = async (e) => {
     const file = e.target.files[0];
+    e.target.value = "";
     if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Maximum file size is 10MB.", variant: "destructive" });
+      return;
+    }
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -89,7 +95,10 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
         imported.certifications = (d.certifications || []).map(c => ({ name: c, issuer: "", year: "", expiration: "" }));
       }
       await createResume(imported);
-    } catch (e) {}
+      toast({ title: "Resume uploaded", description: "Your resume has been imported successfully." });
+    } catch (err) {
+      toast({ title: "Upload failed", description: err?.message || "Could not process the file. Please try again.", variant: "destructive" });
+    }
     setUploading(false);
   };
 

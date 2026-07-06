@@ -5,6 +5,7 @@ import { Send, Loader2, Bot, User, RotateCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import { getFlatSkills } from "@/lib/resume";
+import { getCachedCompanyContext } from "@/lib/companyContext";
 
 export default function Coach() {
   const [profile, setProfile] = useState(null);
@@ -45,8 +46,9 @@ export default function Coach() {
     try {
       const history = messages.map(m => `${m.role === "user" ? "USER" : personality.name.toUpperCase()}: ${m.content}`).join("\n\n");
 
+      const companyCtx = getCachedCompanyContext();
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are "${personality.name}" - ${personality.description}
+        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}You are "${personality.name}" - ${personality.description}
 Communication style: ${personality.communication_style}
 Leadership style: ${personality.leadership_style}
 Question style: ${personality.question_style}

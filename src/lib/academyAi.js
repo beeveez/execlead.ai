@@ -1,4 +1,10 @@
 import { base44 } from "@/api/base44Client";
+import { getCachedCompanyContext } from "@/lib/companyContext";
+
+const withCompany = (p) => {
+  const c = getCachedCompanyContext();
+  return c ? c + "\n\n" + p : p;
+};
 
 const LESSON_SCHEMA = {
   type: "object",
@@ -49,7 +55,7 @@ ${isEssay
 Return as structured JSON.`;
 
   return await base44.integrations.Core.InvokeLLM({
-    prompt,
+    prompt: withCompany(prompt),
     response_json_schema: LESSON_SCHEMA
   });
 }
@@ -66,7 +72,7 @@ The user asks: "${question}"
 
 Respond as an executive coach — insightful, practical, with real-world examples. Keep your response under 200 words. Use markdown for formatting.`;
 
-  return await base44.integrations.Core.InvokeLLM({ prompt });
+  return await base44.integrations.Core.InvokeLLM({ prompt: withCompany(prompt) });
 }
 
 export async function evaluateEssay(question, response, guidance, profile) {
@@ -86,7 +92,7 @@ Provide constructive feedback:
 
 Keep under 200 words. Use markdown.`;
 
-  return await base44.integrations.Core.InvokeLLM({ prompt });
+  return await base44.integrations.Core.InvokeLLM({ prompt: withCompany(prompt) });
 }
 
 export async function evaluateChallenge(challenge, response, profile) {
@@ -106,5 +112,5 @@ Evaluate the response as an executive would:
 
 Keep under 250 words. Use markdown.`;
 
-  return await base44.integrations.Core.InvokeLLM({ prompt });
+  return await base44.integrations.Core.InvokeLLM({ prompt: withCompany(prompt) });
 }

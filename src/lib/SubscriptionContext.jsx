@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { getPlan } from '@/lib/plans';
+import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 
 const SubscriptionContext = createContext(null);
 
@@ -44,6 +45,17 @@ export const SubscriptionProvider = ({ children }) => {
     }
     loadProfile();
   }, [isAuthenticated, user?.id, loadProfile]);
+
+  // Company Context Engine: load the target company profile and cache its
+  // intelligence brief so every AI module auto-personalizes to it.
+  useEffect(() => {
+    if (!profile?.target_company) { setCachedCompanyContext(""); return; }
+    let active = true;
+    fetchTargetCompany(profile).then(c => {
+      if (active) setCachedCompanyContext(buildCompanyContext(c));
+    });
+    return () => { active = false; };
+  }, [profile?.target_company]);
 
   const refreshProfile = useCallback(async () => {
     await loadProfile();

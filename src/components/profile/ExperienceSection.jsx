@@ -3,7 +3,7 @@ import { TextField, TextAreaField, SectionCard } from "./FormFields";
 import { Plus, Trash2, Briefcase } from "lucide-react";
 
 export default function ExperienceSection({ items, onChange }) {
-  const addExp = () => onChange([...items, { company: "", role: "", start_date: "", end_date: "", responsibilities: "", achievements: "" }]);
+  const addExp = () => onChange([...items, { company: "", role: "", employment_type: "", start_date: "", end_date: "", responsibilities: "", achievements: "", technologies: "", leadership_scope: "", team_size: "" }]);
   const updateExp = (idx, field, value) => onChange(items.map((e, i) => i === idx ? { ...e, [field]: value } : e));
   const removeExp = (idx) => onChange(items.filter((_, i) => i !== idx));
 
@@ -29,8 +29,14 @@ export default function ExperienceSection({ items, onChange }) {
                 <TextField label="Start Date" value={exp.start_date} onChange={v => updateExp(idx, "start_date", v)} placeholder="2020-01" type="month" />
                 <TextField label="End Date" value={exp.end_date} onChange={v => updateExp(idx, "end_date", v)} placeholder="Present" type="month" />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <TextField label="Employment Type" value={exp.employment_type} onChange={v => updateExp(idx, "employment_type", v)} placeholder="Full-time" />
+                <TextField label="Team Size" value={exp.team_size} onChange={v => updateExp(idx, "team_size", v)} placeholder="15" type="number" />
+              </div>
               <TextAreaField label="Responsibilities" value={exp.responsibilities} onChange={v => updateExp(idx, "responsibilities", v)} placeholder="Key responsibilities and scope..." rows={2} />
               <TextAreaField label="Achievements" value={exp.achievements} onChange={v => updateExp(idx, "achievements", v)} placeholder="Notable achievements and impact..." rows={2} />
+              <TextField label="Technologies" value={exp.technologies} onChange={v => updateExp(idx, "technologies", v)} placeholder="AWS, ServiceNow, Azure..." />
+              <TextField label="Leadership Scope" value={exp.leadership_scope} onChange={v => updateExp(idx, "leadership_scope", v)} placeholder="Led team of 15 across 3 regions..." />
             </div>
           ))}
         </div>

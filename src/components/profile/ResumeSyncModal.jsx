@@ -263,9 +263,31 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
 
           {/* Footer */}
           <div className="p-4 border-t border-white/5 flex items-center justify-between">
-            <p className="text-xs text-white/30">
-              {Object.values(decisions).filter((d) => d !== "keep").length} section(s) will be updated
-            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const d = {};
+                  for (const s of SECTIONS) d[s.id] = "replace";
+                  setDecisions(d);
+                }}
+                className="px-3 py-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-colors"
+              >
+                Accept All
+              </button>
+              <button
+                onClick={() => {
+                  const d = {};
+                  for (const s of SECTIONS) d[s.id] = "keep";
+                  setDecisions(d);
+                }}
+                className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 text-xs font-medium transition-colors"
+              >
+                Reject All
+              </button>
+              <span className="text-xs text-white/30 ml-2">
+                {Object.values(decisions).filter((d) => d !== "keep").length} section(s) will be updated
+              </span>
+            </div>
             <div className="flex items-center gap-2">
               <button onClick={onClose} className="px-4 py-2 rounded-lg text-white/40 hover:text-white/70 text-sm font-medium transition-colors">
                 Cancel

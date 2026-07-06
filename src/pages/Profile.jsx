@@ -18,7 +18,7 @@ import PrivacySection from "@/components/profile/PrivacySection";
 import AccountSection from "@/components/profile/AccountSection";
 import ProfileCompleteness from "@/components/profile/ProfileCompleteness";
 import ResumeSyncModal from "@/components/profile/ResumeSyncModal";
-import { extractResumeIdentity } from "@/lib/resumeSync";
+import { extractResumeIdentity, saveResumeVersion } from "@/lib/resumeSync";
 import { Loader2, Save, UserCircle } from "lucide-react";
 
 export default function Profile() {
@@ -97,6 +97,7 @@ export default function Profile() {
 
       const extracted = await extractResumeIdentity(file_url);
       if (extracted) {
+        await saveResumeVersion(file_url, file.name, extracted);
         setSyncData(extracted);
         setSyncFileName(file.name);
       } else {

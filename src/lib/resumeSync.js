@@ -1,3 +1,4 @@
+import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 
 // ============================================================
@@ -51,7 +52,8 @@ export const IDENTITY_EXTRACTION_SCHEMA = {
           responsibilities: { type: "array", items: { type: "string" } },
           achievements: { type: "array", items: { type: "string" } },
           technologies: { type: "array", items: { type: "string" } },
-          leadership_experience: { type: "string" },
+          leadership_scope: { type: "string" },
+          team_size: { type: "number" },
         },
       },
     },
@@ -106,12 +108,13 @@ Analyze the attached resume and extract ALL of the following with maximum accura
 - leadership_summary (brief summary of leadership experience)
 
 **Work Experience:** One entry per position:
-- company, role, employment_type (Full-time, Contract, etc.)
+- company, role, employment_type (Full-time, Contract, Part-time, Internship)
 - start_date (YYYY-MM or "Jan 2020" format), end_date, current (true if ongoing)
 - responsibilities (array of bullet points)
 - achievements (array of bullet points with metrics if available)
 - technologies (array of tools/platforms mentioned)
-- leadership_experience (summary of leadership scope at this role)
+- leadership_scope (summary of leadership scope, e.g., "Led team of 15 across 3 regions")
+- team_size (number of direct/indirect reports, if mentioned)
 
 **Education:** One entry per degree:
 - school, degree (e.g., "MBA", "B.S."), major, graduation_year
@@ -121,8 +124,17 @@ Analyze the attached resume and extract ALL of the following with maximum accura
 - issuer (e.g., "Microsoft", "AWS", "Google", "Cisco", "ServiceNow", "ITIL", "CompTIA", "PMI", "Scrum Alliance")
 - type (one of: "Microsoft", "AWS", "Google", "Cisco", "ServiceNow", "ITIL", "CompTIA", "PMI", "Scrum", "Other")
 
-**Skills:** Extract ALL skills mentioned, especially:
-Leadership, Cloud, ITSM, AI, Automation, ServiceNow, Governance, Cybersecurity, Negotiation, Communication, Digital Transformation, Strategy, P&L, Change Management, Stakeholder Management, and any technical/functional skills.
+**Skills:** Extract ALL skills mentioned, ensuring coverage across these categories:
+- Leadership (team leadership, coaching, mentoring, executive reporting)
+- Cloud (AWS, Azure, GCP, cloud migration, cloud architecture)
+- ITSM (ITIL, ServiceNow, incident management, change management)
+- Cybersecurity (security operations, compliance, risk management)
+- AI (machine learning, AI strategy, intelligent platforms)
+- Automation (RPA, scripting, CI/CD, DevOps)
+- Governance (IT governance, audit, compliance, policy)
+- Project Management (PMP, Agile, Scrum, PRINCE2, portfolio management)
+- Communication (executive communication, presentation, negotiation, stakeholder management)
+Return as a flat array of skill strings.
 
 Return as structured JSON.`;
 
@@ -188,6 +200,7 @@ export function mapExtractedToForm(extracted) {
     experience: (extracted.work_experience || []).map((exp) => ({
       company: exp.company || "",
       role: exp.role || "",
+      employment_type: exp.employment_type || "",
       start_date: normalizeDate(exp.start_date),
       end_date: exp.current ? "Present" : normalizeDate(exp.end_date),
       responsibilities: Array.isArray(exp.responsibilities)
@@ -196,6 +209,11 @@ export function mapExtractedToForm(extracted) {
       achievements: Array.isArray(exp.achievements)
         ? exp.achievements.join("\n")
         : exp.achievements || "",
+      technologies: Array.isArray(exp.technologies)
+        ? exp.technologies.join(", ")
+        : exp.technologies || "",
+      leadership_scope: exp.leadership_scope || exp.leadership_experience || "",
+      team_size: exp.team_size || "",
     })),
     education: (extracted.education || []).map((edu) => ({
       school: edu.school || "",
@@ -306,6 +324,26 @@ export function calculateCompleteness(form) {
   );
 
   return { sections, overall };
+}
+
+// ============================================================
+// RESUME VERSION HISTORY
+// ============================================================
+
+export async function saveResumeVersion(fileUrl, fileName, extractedForm) {
+  try {
+    const existing = await base44.entities.ResumeVersion.list("-version_number", 1);
+    const nextVersion = (existing[0]?.version_number || 0) + 1;
+    await base44.entities.ResumeVersion.create({
+      file_url: fileUrl,
+      file_name: fileName,
+      version_number: nextVersion,
+      extracted_data: JSON.stringify(extractedForm),
+    });
+    return nextVersion;
+  } catch (e) {
+    return null;
+  }
 }
 
 // ============================================================

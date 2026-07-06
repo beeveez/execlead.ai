@@ -1,139 +1,97 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { COMPANIES } from "@/lib/constants";
-import { Building2, Search, Loader2, X } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import { motion, AnimatePresence } from "framer-motion";
+import { Building2, Search, Loader2, GitCompare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import CompanyCard from "@/components/companies/CompanyCard";
+import CompanyFilters from "@/components/companies/CompanyFilters";
+
+const EMPTY_FILTERS = { industry: "", country: "", company_size: "", leadership_style: "", executive_level_focus: "", work_model: "" };
 
 export default function Companies() {
+  const navigate = useNavigate();
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState(null);
-  const [detail, setDetail] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [compareIds, setCompareIds] = useState([]);
 
-  const filtered = COMPANIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const list = await base44.entities.Company.filter({ is_archived: false }, "name", 500);
+        setCompanies(list);
+      } catch (e) {}
+      setLoading(false);
+    };
+    load();
+  }, []);
 
-  const loadCompany = async (company) => {
-    setSelected(company);
-    setLoading(true);
-    try {
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Provide a comprehensive executive knowledge briefing on "${company}" for someone preparing for a leadership interview there.
-
-Structure:
-
-## Mission & Vision
-The company's core mission and strategic vision.
-
-## Culture & Values
-Key cultural traits and leadership values that matter in interviews.
-
-## Leadership Principles
-How leaders are expected to think and act at ${company}.
-
-## Business Model
-How the company makes money, key revenue streams, and service delivery approach.
-
-## Market Position
-Where they sit competitively, key differentiators.
-
-## Key Competitors
-Top 3-5 competitors and how ${company} differentiates.
-
-## Interview Expectations
-What ${company} looks for in executive candidates. Common interview styles and questions.
-
-## Technology Trends
-Current technology focus areas and transformation initiatives.
-
-## Customer Types
-Typical client profiles and industry verticals.
-
-## Global Presence
-Geographic footprint and key markets.
-
-Be specific, current, and practical. This should help someone walk into an interview sounding like an insider.`,
-        add_context_from_internet: true,
-        model: "gemini_3_flash"
-      });
-      setDetail(res);
-    } catch (e) {
-      console.error(e);
-    }
-    setLoading(false);
+  const handleFilterChange = (field, value) => {
+    if (field === "reset") { setFilters(EMPTY_FILTERS); return; }
+    setFilters(prev => ({ ...prev, [field]: value }));
   };
 
+  const filtered = companies.filter(c => {
+    const q = search.toLowerCase();
+    if (q && !c.name.toLowerCase().includes(q) && !(c.industry || "").toLowerCase().includes(q) && !(c.country || "").toLowerCase().includes(q)) return false;
+    if (filters.industry && c.industry !== filters.industry) return false;
+    if (filters.country && c.country !== filters.country) return false;
+    if (filters.company_size && c.company_size !== filters.company_size) return false;
+    if (filters.leadership_style && c.leadership_style !== filters.leadership_style) return false;
+    if (filters.executive_level_focus && c.executive_level_focus !== filters.executive_level_focus) return false;
+    if (filters.work_model === "remote" && !c.remote_work_friendly) return false;
+    if (filters.work_model === "hybrid" && !c.hybrid_work_friendly) return false;
+    return true;
+  });
+
+  const toggleCompare = (company) => {
+    setCompareIds(prev => prev.includes(company.id) ? prev.filter(id => id !== company.id) : prev.length >= 4 ? prev : [...prev, company.id]);
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-violet-400" /></div>;
+  }
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-          <Building2 size={12} className="text-violet-400" />
-          Company Knowledge Base
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
+            <Building2 size={12} className="text-violet-400" /> Company Intelligence Library
+          </div>
+          <h1 className="text-2xl font-bold text-white">{companies.length} Organizations</h1>
+          <p className="text-white/40 text-sm mt-1">Executive intelligence across Fortune 500, Global 2000, consulting, and emerging enterprises.</p>
         </div>
-        <h1 className="text-2xl font-bold text-white">{COMPANIES.length} Organizations</h1>
+        {compareIds.length >= 2 && (
+          <button onClick={() => navigate(`/companies/compare?ids=${compareIds.join(",")}`)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-sm font-medium transition-colors">
+            <GitCompare size={16} /> Compare ({compareIds.length})
+          </button>
+        )}
       </div>
 
-      <AnimatePresence mode="wait">
-        {!selected ? (
-          <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search companies..."
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
-              />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {filtered.map(c => (
-                <button
-                  key={c}
-                  onClick={() => loadCompany(c)}
-                  className="group px-4 py-4 bg-white/[0.03] hover:bg-violet-500/5 border border-white/5 hover:border-violet-500/15 rounded-xl text-left transition-all"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-400 font-bold text-xs mb-3">
-                    {c.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="text-sm font-medium text-white/60 group-hover:text-white transition-colors">{c}</div>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div key="detail" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <button
-              onClick={() => { setSelected(null); setDetail(null); }}
-              className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm mb-4 transition-colors"
-            >
-              <X size={14} /> Back to all companies
-            </button>
+      <div className="relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by company, industry, or country..." className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-violet-500/50" />
+      </div>
 
-            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-400 font-bold text-lg">
-                  {selected.slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">{selected}</h2>
-                  <p className="text-white/40 text-sm">Executive Knowledge Briefing</p>
-                </div>
-              </div>
+      <CompanyFilters companies={companies} filters={filters} onChange={handleFilterChange} />
 
-              {loading ? (
-                <div className="flex items-center justify-center py-12 gap-3 text-white/40">
-                  <Loader2 size={20} className="animate-spin" />
-                  Researching {selected}...
-                </div>
-              ) : detail ? (
-                <div className="text-white/70 text-sm leading-relaxed prose prose-invert prose-sm max-w-none">
-                  <ReactMarkdown>{detail}</ReactMarkdown>
-                </div>
-              ) : null}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {compareIds.length > 0 && compareIds.length < 2 && (
+        <p className="text-xs text-white/40">Select at least 2 companies to compare (max 4).</p>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">
+          <Building2 size={24} className="mx-auto text-white/20 mb-2" />
+          <p className="text-white/30 text-sm">No companies match your filters.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {filtered.map(c => (
+            <CompanyCard key={c.id} company={c} selected={compareIds.includes(c.id)} onToggleCompare={toggleCompare} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

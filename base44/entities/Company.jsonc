@@ -1,0 +1,187 @@
+{
+  "name": "Company",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "headquarters": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "fortune_ranking": {
+      "type": "string"
+    },
+    "global_ranking": {
+      "type": "string"
+    },
+    "company_size": {
+      "type": "string"
+    },
+    "revenue": {
+      "type": "string"
+    },
+    "employee_count": {
+      "type": "number",
+      "default": 0
+    },
+    "ceo": {
+      "type": "string"
+    },
+    "mission": {
+      "type": "string"
+    },
+    "vision": {
+      "type": "string"
+    },
+    "core_values": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "leadership_principles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "corporate_culture": {
+      "type": "string"
+    },
+    "business_model": {
+      "type": "string"
+    },
+    "technology_stack": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "major_products": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "competitors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "global_presence": {
+      "type": "string"
+    },
+    "organizational_structure": {
+      "type": "string"
+    },
+    "interview_style": {
+      "type": "string"
+    },
+    "executive_expectations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "leadership_competencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "digital_transformation_strategy": {
+      "type": "string"
+    },
+    "ai_strategy": {
+      "type": "string"
+    },
+    "cloud_strategy": {
+      "type": "string"
+    },
+    "sustainability_initiatives": {
+      "type": "string"
+    },
+    "diversity_inclusion": {
+      "type": "string"
+    },
+    "learning_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "career_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "common_interview_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "executive_case_studies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "leadership_style": {
+      "type": "string"
+    },
+    "remote_work_friendly": {
+      "type": "boolean",
+      "default": false
+    },
+    "hybrid_work_friendly": {
+      "type": "boolean",
+      "default": false
+    },
+    "executive_level_focus": {
+      "type": "string"
+    },
+    "salary_benchmarks": {
+      "type": "string"
+    },
+    "benefits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "growth_potential": {
+      "type": "string"
+    },
+    "career_opportunities": {
+      "type": "string"
+    },
+    "learning_paths_json": {
+      "type": "string"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

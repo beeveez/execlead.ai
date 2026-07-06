@@ -26,6 +26,8 @@ import Debate from '@/pages/Debate';
 import Academy from '@/pages/Academy';
 import Metrics from '@/pages/Metrics';
 import Companies from '@/pages/Companies';
+import CompanyDetail from '@/pages/CompanyDetail';
+import CompanyCompare from '@/pages/CompanyCompare';
 import Career from '@/pages/Career';
 import Analytics from '@/pages/Analytics';
 import Journal from '@/pages/Journal';
@@ -111,6 +113,8 @@ const AuthenticatedApp = () => {
           </Route>
           <Route path="/metrics" element={<Metrics />} />
           <Route path="/companies" element={<FeatureGate featureId="company_intelligence"><Companies /></FeatureGate>} />
+          <Route path="/companies/compare" element={<FeatureGate featureId="company_intelligence"><CompanyCompare /></FeatureGate>} />
+          <Route path="/companies/:id" element={<FeatureGate featureId="company_intelligence"><CompanyDetail /></FeatureGate>} />
           <Route path="/career" element={<FeatureGate featureId="career_advisor"><Career /></FeatureGate>} />
           <Route path="/analytics" element={<FeatureGate featureId="leadership_analytics"><Analytics /></FeatureGate>} />
           <Route path="/leadership-dna" element={<FeatureGate featureId="leadership_dna"><LeadershipDNA /></FeatureGate>} />

@@ -1,22 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { TextField, SelectField, SectionCard } from "./FormFields";
 import CountrySelect from "@/components/common/CountrySelect";
-import { getCountryByName, timezoneLabel } from "@/lib/locations";
+import TimezoneSelect from "@/components/common/TimezoneSelect";
+import { getCountryByName } from "@/lib/locations";
+import { detectBrowserTimezone } from "@/lib/timezones";
 import { Camera, Loader2, Mail, Lock } from "lucide-react";
 
 const LANGUAGES = ["English", "Spanish", "French", "German", "Portuguese", "Mandarin", "Japanese", "Hindi", "Arabic", "Russian", "Korean", "Italian", "Dutch", "Swedish", "Vietnamese", "Indonesian", "Tagalog"];
 
-const DEFAULT_TIMEZONES = [
-  "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
-  "Europe/London", "Europe/Paris", "Europe/Berlin", "Asia/Dubai", "Asia/Kolkata",
-  "Asia/Shanghai", "Asia/Singapore", "Asia/Manila", "Asia/Tokyo", "Australia/Sydney", "UTC",
-];
-
 export default function PersonalInfoSection({ form, setField, user, onPhotoUpload, uploadingPhoto }) {
   const country = getCountryByName(form.country);
-  const timezones = country?.timezones || [];
   const dialCode = country?.dialCode;
-  const tzOptions = timezones.length > 0 ? timezones : DEFAULT_TIMEZONES;
+
+  // Auto-detect browser timezone on first load if none is set.
+  useEffect(() => {
+    if (!form.timezone) {
+      const detected = detectBrowserTimezone();
+      if (detected) setField("timezone", detected);
+    }
+  }, []);
 
   const handleCountryChange = (c) => {
     if (c.timezones?.length === 1) {
@@ -89,11 +91,7 @@ export default function PersonalInfoSection({ form, setField, user, onPhotoUploa
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Time Zone</label>
-          <select value={form.timezone || ""} onChange={e => setField("timezone", e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white/90 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
-            <option value="" className="bg-[#0d0d14]">Select...</option>
-            {tzOptions.map(tz => <option key={tz} value={tz} className="bg-[#0d0d14]">{timezoneLabel(tz)}</option>)}
-          </select>
-          {timezones.length > 1 && <p className="text-white/20 text-xs mt-1">{timezones.length} time zones available</p>}
+          <TimezoneSelect value={form.timezone} onChange={v => setField("timezone", v)} country={form.country} />
         </div>
         <SelectField label="Language" value={form.language} onChange={v => setField("language", v)} options={LANGUAGES} />
       </div>

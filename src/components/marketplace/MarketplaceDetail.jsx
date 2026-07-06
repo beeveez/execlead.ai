@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import { base44 } from "@/api/base44Client";
-import { X, Star, Clock, Download, Check, Loader2 } from "lucide-react";
+import { X, Star, Clock, Download, Check, Loader2, BookOpen } from "lucide-react";
+
+const CATEGORY_TO_COURSE = {
+  "Digital Transformation": "digital-transformation",
+  "Communication": "executive-communication",
+  "Leadership": "leadership",
+  "Cloud": "cloud",
+  "Digital Strategy": "digital-transformation",
+  "Digital Maturity": "digital-transformation",
+  "Crisis Management": "executive-communication",
+  "Organization": "people-leadership",
+  "Operating Model": "governance",
+  "CIO": "ai-leadership",
+};
 
 const TYPE_LABELS = {
   learning_path: "Learning Path",
@@ -22,9 +37,44 @@ const DIFFICULTY_COLORS = {
 };
 
 export default function MarketplaceDetail({ item, onClose }) {
+  const navigate = useNavigate();
   const [purchasing, setPurchasing] = useState(false);
   const [purchased, setPurchased] = useState(false);
-  const [showContent, setShowContent] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState(null);
+  const [loadingContent, setLoadingContent] = useState(false);
+
+  const hasCourseMapping = (item.type === "learning_path" || item.type === "certification_track") && CATEGORY_TO_COURSE[item.category];
+
+  const accessContent = async () => {
+    if (hasCourseMapping) {
+      onClose();
+      navigate(`/academy/${CATEGORY_TO_COURSE[item.category]}`);
+      return;
+    }
+    setLoadingContent(true);
+    try {
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an executive education content generator. Generate comprehensive, structured learning content for an executive development item.
+
+Title: ${item.title}
+Type: ${TYPE_LABELS[item.type]}
+Category: ${item.category}
+Overview: ${item.content_preview}
+
+Generate detailed, practical content formatted in Markdown with:
+- A clear introduction
+- 3-5 key sections with headings (##)
+- Actionable frameworks, bullet points, and examples
+- A summary with key takeaways
+
+Keep it professional, concise, and immediately useful for an executive learner. Maximum 800 words.`,
+      });
+      setGeneratedContent(typeof res === "string" ? res : JSON.stringify(res));
+    } catch (e) {
+      setGeneratedContent("Unable to load content at this time. Please try again later.");
+    }
+    setLoadingContent(false);
+  };
 
   useEffect(() => {
     const checkPurchased = async () => {
@@ -95,22 +145,24 @@ export default function MarketplaceDetail({ item, onClose }) {
             </div>
           )}
 
-          {showContent && purchased && item.content_preview && (
+          {loadingContent && (
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-6 flex items-center justify-center gap-3">
+              <Loader2 size={18} className="animate-spin text-emerald-400" />
+              <p className="text-white/50 text-sm">Generating your content...</p>
+            </div>
+          )}
+
+          {generatedContent && (
             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Check size={14} className="text-emerald-400" />
                 <h4 className="text-emerald-400 text-xs uppercase tracking-wider font-semibold">Your Purchased Content</h4>
               </div>
-              <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{item.content_preview}</p>
-              {item.tags?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {item.tags.map((tag, i) => <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400/70">#{tag}</span>)}
-                </div>
-              )}
+              <ReactMarkdown className="text-white/70 text-sm leading-relaxed prose prose-sm prose-invert max-w-none">{generatedContent}</ReactMarkdown>
             </div>
           )}
 
-          {(!purchased || !showContent) && item.content_preview && (
+          {!generatedContent && !loadingContent && item.content_preview && (
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
               <h4 className="text-white/40 text-xs uppercase tracking-wider mb-2">What's Included</h4>
               <p className="text-white/50 text-sm">{item.content_preview}</p>
@@ -120,8 +172,8 @@ export default function MarketplaceDetail({ item, onClose }) {
           <div className="flex items-center justify-between pt-2">
             <span className="text-2xl font-bold text-white">{item.price === 0 ? "Free" : `$${item.price}`}</span>
             <button
-              onClick={purchased ? () => setShowContent(true) : handlePurchase}
-              disabled={purchasing}
+              onClick={purchased ? accessContent : handlePurchase}
+              disabled={purchasing || loadingContent}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-colors ${
                 purchased
                   ? "bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -132,8 +184,10 @@ export default function MarketplaceDetail({ item, onClose }) {
             >
               {purchasing ? (
                 <><Loader2 size={16} className="animate-spin" /> Processing...</>
+              ) : loadingContent ? (
+                <><Loader2 size={16} className="animate-spin" /> Loading...</>
               ) : purchased ? (
-                <><Download size={16} /> Access Content</>
+                hasCourseMapping ? <><BookOpen size={16} /> Start Learning</> : <><Download size={16} /> Access Content</>
               ) : item.price === 0 ? (
                 <><Download size={16} /> Get Free</>
               ) : (

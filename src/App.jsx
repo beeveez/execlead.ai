@@ -49,6 +49,11 @@ import Pricing from '@/pages/Pricing';
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
 import Marketplace from '@/pages/Marketplace';
+import HRDashboard from '@/pages/HRDashboard';
+import SuccessionPlanning from '@/pages/SuccessionPlanning';
+import PromotionReadiness from '@/pages/PromotionReadiness';
+import LearningAssignments from '@/pages/LearningAssignments';
+import SSOIdentity from '@/pages/SSOIdentity';
 import FeatureGate from '@/components/FeatureGate';
 
 const AuthenticatedApp = () => {
@@ -117,6 +122,11 @@ const AuthenticatedApp = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
+          <Route path="/hr-dashboard" element={<FeatureGate featureId="hr_dashboard"><HRDashboard /></FeatureGate>} />
+          <Route path="/succession-planning" element={<FeatureGate featureId="succession_planning"><SuccessionPlanning /></FeatureGate>} />
+          <Route path="/promotion-readiness" element={<FeatureGate featureId="promotion_readiness"><PromotionReadiness /></FeatureGate>} />
+          <Route path="/learning-assignments" element={<FeatureGate featureId="learning_assignments"><LearningAssignments /></FeatureGate>} />
+          <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
         </Route>
       </Route>
 

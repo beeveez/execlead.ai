@@ -1,0 +1,72 @@
+{
+  "name": "SSOConfig",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": [
+        "azure_ad",
+        "okta",
+        "google_workspace",
+        "generic_saml",
+        "none"
+      ],
+      "default": "none"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_secret": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "scim_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "scim_endpoint": {
+      "type": "string"
+    },
+    "scim_token": {
+      "type": "string"
+    },
+    "auto_provision": {
+      "type": "boolean",
+      "default": true
+    },
+    "jit_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "disconnected",
+        "pending",
+        "connected",
+        "error"
+      ],
+      "default": "disconnected"
+    },
+    "last_sync": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provisioned_users": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "provider"
+  ]
+}

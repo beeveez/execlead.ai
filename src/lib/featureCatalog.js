@@ -87,6 +87,7 @@ export const DEFAULT_FEATURES = [
   { id: "promotion_readiness", name: "Promotion Readiness", description: "Track and assess employee promotion readiness", category: "Enterprise", icon: "TrendingUp", minimumPlan: "enterprise", isEnabled: true, sortOrder: 65 },
   { id: "succession_planning", name: "Succession Planning", description: "Identify and develop future leaders", category: "Enterprise", icon: "Users", minimumPlan: "enterprise", isEnabled: true, sortOrder: 66 },
   { id: "learning_analytics", name: "Learning Analytics", description: "Track learning outcomes and ROI across the organization", category: "Analytics", icon: "BarChart3", minimumPlan: "enterprise", isEnabled: true, sortOrder: 67 },
+  { id: "learning_assignments", name: "Learning Assignments", description: "Assign and track learning paths across your team", category: "Enterprise", icon: "ClipboardCheck", minimumPlan: "enterprise", isEnabled: true, sortOrder: 74 },
   { id: "scim_ready", name: "SCIM Ready", description: "Automated user provisioning via SCIM protocol", category: "Enterprise", icon: "UserPlus", minimumPlan: "enterprise", isEnabled: true, sortOrder: 68 },
   { id: "azure_ad", name: "Azure AD", description: "Azure Active Directory integration", category: "Enterprise", icon: "KeyRound", minimumPlan: "enterprise", isEnabled: true, sortOrder: 69 },
   { id: "google_workspace", name: "Google Workspace", description: "Google Workspace SSO integration", category: "Enterprise", icon: "KeyRound", minimumPlan: "enterprise", isEnabled: true, sortOrder: 70 },

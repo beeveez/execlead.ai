@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Swords, Brain, MessageSquare, GraduationCap,
   BarChart3, Building2, BookOpen, Settings as SettingsIcon, Scale, PenLine,
   LogOut, Menu, X, ChevronRight, UserCircle, Cpu, Shield, CreditCard, FileText, Briefcase, DollarSign, Layers, Boxes, Link2, Receipt,
-  Users, Fingerprint, Store
+  Users, Fingerprint, Store, Network, TrendingUp, ClipboardCheck, KeyRound
 } from "lucide-react";
 
 const NAV_GROUPS = [
@@ -43,6 +43,15 @@ const NAV_GROUPS = [
     ],
   },
   {
+    label: "HR & Talent",
+    items: [
+      { path: "/hr-dashboard", label: "HR Dashboard", icon: Users },
+      { path: "/succession-planning", label: "Succession", icon: Network },
+      { path: "/promotion-readiness", label: "Promotion", icon: TrendingUp },
+      { path: "/learning-assignments", label: "Assignments", icon: ClipboardCheck },
+    ],
+  },
+  {
     label: "Account",
     items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
@@ -60,6 +69,7 @@ const NAV_GROUPS = [
       { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
       { path: "/feature-management", label: "Features", icon: Boxes },
       { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
+      { path: "/sso", label: "SSO & Identity", icon: KeyRound },
     ],
   },
 ];

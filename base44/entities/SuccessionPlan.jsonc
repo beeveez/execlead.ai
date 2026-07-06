@@ -1,0 +1,44 @@
+{
+  "name": "SuccessionPlan",
+  "type": "object",
+  "properties": {
+    "role_title": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "incumbent_name": {
+      "type": "string"
+    },
+    "successors_json": {
+      "type": "string"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "identified",
+        "developing",
+        "ready",
+        "vacant"
+      ],
+      "default": "identified"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "role_title"
+  ]
+}

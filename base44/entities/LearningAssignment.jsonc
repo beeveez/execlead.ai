@@ -1,0 +1,50 @@
+{
+  "name": "LearningAssignment",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "assignee_name": {
+      "type": "string"
+    },
+    "learning_path": {
+      "type": "string"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "assigned",
+        "in_progress",
+        "completed",
+        "overdue"
+      ],
+      "default": "assigned"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0
+    },
+    "assigned_by_name": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    }
+  },
+  "required": [
+    "title",
+    "assignee_name",
+    "learning_path"
+  ]
+}

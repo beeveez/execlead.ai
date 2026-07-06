@@ -16,8 +16,10 @@ import {
   acceptProposal, signContract, processQuotePayment,
   activateEnterprise, requestChanges, shareProposal,
 } from "@/lib/enterpriseOrder";
+import { generateContractPDF } from "@/lib/contractPdf";
+import { generateProposalPDF } from "@/lib/proposalPdf";
 import { toast } from "@/components/ui/use-toast";
-import { Loader2, ArrowLeft, FileText, Sparkles, Rocket } from "lucide-react";
+import { Loader2, ArrowLeft, FileText, Sparkles, Rocket, RefreshCw } from "lucide-react";
 
 export default function CPQQuoteView() {
   const { id } = useParams();
@@ -32,6 +34,7 @@ export default function CPQQuoteView() {
   const [signing, setSigning] = useState(false);
   const [paying, setPaying] = useState(false);
   const [activating, setActivating] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [activationData, setActivationData] = useState(null);
 
   useEffect(() => {
@@ -143,6 +146,28 @@ export default function CPQQuoteView() {
     }
   };
 
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    try {
+      const updates = {};
+      if (breakdown) {
+        const pdfUrl = await generateProposalPDF(quote, breakdown, catalog);
+        updates.pdf_url = pdfUrl;
+        const contractStages = ["accepted", "contract_signed", "invoice_issued", "payment_pending", "paid", "provisioned", "active"];
+        if (contractStages.includes(status)) {
+          const contractUrl = await generateContractPDF(quote, breakdown, catalog);
+          updates.contract_url = contractUrl;
+        }
+        const updated = await base44.entities.CPQQuote.update(quote.id, updates);
+        setQuote(updated);
+        toast({ title: "Documents Regenerated", description: "Your PDFs have been regenerated with the fixed engine." });
+      }
+    } catch (e) {
+      toast({ title: "Regeneration Failed", description: e.message || "Could not regenerate PDFs.", variant: "destructive" });
+    }
+    setRegenerating(false);
+  };
+
   const statusColor = {
     active: "bg-emerald-500/10 text-emerald-400",
     provisioned: "bg-emerald-500/10 text-emerald-400",
@@ -177,7 +202,13 @@ export default function CPQQuoteView() {
             <h1 className="text-xl font-bold text-white">{quote.proposal_number}</h1>
             <p className="text-white/30 text-sm mt-1">Version {quote.version_number} · Valid until {quote.valid_until}</p>
           </div>
+          <div className="flex flex-col items-end gap-2">
           <span className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize ${statusColor}`}>{status.replace(/_/g, " ")}</span>
+          <button onClick={handleRegenerate} disabled={regenerating || !breakdown} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-40 text-white/60 text-xs font-medium transition-colors">
+            {regenerating ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+            Regenerate PDFs
+          </button>
+        </div>
         </div>
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
           <div className="text-white/40 text-sm">{quote.organization_name}</div>

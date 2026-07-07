@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Network, Plus, Trash2, Loader2, AlertTriangle } from "lucide-react";
+import { Network, Plus, Trash2, Loader2, AlertTriangle, UserPlus, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SuccessionPlanModal from "@/components/hr/SuccessionPlanModal";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
@@ -20,7 +20,7 @@ const STATUS_STYLES = {
 };
 
 export default function SuccessionPlanning() {
-  const { members, loading: loadingMembers } = useOrganizationMembers();
+  const { members, loading: loadingMembers, organizationId, isPlatformWide } = useOrganizationMembers();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -28,30 +28,29 @@ export default function SuccessionPlanning() {
 
   useEffect(() => {
     load();
-  }, [loadingMembers, members]);
+  }, [loadingMembers, organizationId]);
 
   const load = async () => {
     if (loadingMembers) return;
     try {
-      const memberNames = new Set(members.map((m) => m.full_name));
-      const p = await base44.entities.SuccessionPlan.list("-created_date", 100);
-      const orgPlans = p.filter((plan) => {
-        try {
-          const succ = JSON.parse(plan.successors_json || "[]");
-          return succ.some((s) => memberNames.has(s.name)) || memberNames.has(plan.incumbent_name);
-        } catch (e) { return false; }
-      });
-      setPlans(orgPlans.length > 0 ? orgPlans : p);
+      const allPlans = await base44.entities.SuccessionPlan.list("-created_date", 100);
+      // Strict tenant isolation: only show plans belonging to this organization.
+      // Platform admins/super admins see all plans.
+      const orgPlans = isPlatformWide
+        ? allPlans
+        : allPlans.filter((p) => p.organization_id === organizationId);
+      setPlans(orgPlans);
     } catch (e) {}
     setLoading(false);
   };
 
   const handleSave = async (data) => {
     try {
+      const payload = { ...data, organization_id: organizationId };
       if (editPlan) {
-        await base44.entities.SuccessionPlan.update(editPlan.id, data);
+        await base44.entities.SuccessionPlan.update(editPlan.id, payload);
       } else {
-        await base44.entities.SuccessionPlan.create(data);
+        await base44.entities.SuccessionPlan.create(payload);
       }
       setShowModal(false);
       setEditPlan(null);
@@ -90,8 +89,23 @@ export default function SuccessionPlanning() {
       ) : plans.length === 0 ? (
         <div className="text-center py-20">
           <Network size={32} className="mx-auto text-white/10 mb-4" />
-          <p className="text-white/30 text-sm mb-4">No succession plans yet. Start by identifying your critical roles.</p>
-          <button onClick={() => setShowModal(true)} className="text-indigo-400 text-sm hover:text-indigo-300">Create your first plan</button>
+          <h3 className="text-white font-medium mb-2">No succession plans have been created yet.</h3>
+          <p className="text-white/30 text-sm mb-6 max-w-md mx-auto">Create your organization structure to begin succession planning.</p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button onClick={() => { setEditPlan(null); setShowModal(true); }}
+              className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors text-sm">
+              <Plus size={16} /> Create Position
+            </button>
+            <button onClick={() => window.location.href = "/organization/users"}
+              className="bg-white/5 hover:bg-white/10 text-white/70 font-medium px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors text-sm border border-white/10">
+              <UserPlus size={16} /> Invite Employees
+            </button>
+            <button disabled
+              className="bg-white/5 text-white/30 font-medium px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm border border-white/5 cursor-not-allowed"
+              title="Import from CSV, Excel, Workday, SAP SuccessFactors, Entra ID, Google Workspace, SCIM — coming soon">
+              <Upload size={16} /> Import Employees
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">

@@ -76,9 +76,9 @@ export default function TestTenantManager() {
       await base44.entities.UserProfile.bulkCreate(employees);
 
       const successionPlans = [
-        { role_title: "Chief Technology Officer", department: "IT", incumbent_name: "Michael Rodriguez", successors_json: JSON.stringify([{ name: "Jennifer Park", readiness: 75, notes: "Strong technical leader" }, { name: "David Kumar", readiness: 60, notes: "Needs strategic development" }]), risk_level: "high", status: "developing", notes: "Test succession plan for CTO role." },
-        { role_title: "VP of Sales", department: "Sales", incumbent_name: "Sarah Chen", successors_json: JSON.stringify([{ name: "Robert Taylor", readiness: 82, notes: "Ready for promotion" }]), risk_level: "medium", status: "ready", notes: "Test succession plan for VP Sales." },
-        { role_title: "HR Director", department: "HR", incumbent_name: "Patricia Williams", successors_json: JSON.stringify([{ name: "Linda Martinez", readiness: 68, notes: "Developing leadership depth" }]), risk_level: "low", status: "identified", notes: "Test succession plan for HR Director." },
+        { role_title: "Chief Technology Officer", department: "IT", organization_id: org.id, incumbent_name: "Michael Rodriguez", successors_json: JSON.stringify([{ name: "Jennifer Park", readiness: 75, notes: "Strong technical leader" }, { name: "David Kumar", readiness: 60, notes: "Needs strategic development" }]), risk_level: "high", status: "developing", notes: "Test succession plan for CTO role." },
+        { role_title: "VP of Sales", department: "Sales", organization_id: org.id, incumbent_name: "Sarah Chen", successors_json: JSON.stringify([{ name: "Robert Taylor", readiness: 82, notes: "Ready for promotion" }]), risk_level: "medium", status: "ready", notes: "Test succession plan for VP Sales." },
+        { role_title: "HR Director", department: "HR", organization_id: org.id, incumbent_name: "Patricia Williams", successors_json: JSON.stringify([{ name: "Linda Martinez", readiness: 68, notes: "Developing leadership depth" }]), risk_level: "low", status: "identified", notes: "Test succession plan for HR Director." },
       ];
       await base44.entities.SuccessionPlan.bulkCreate(successionPlans);
 

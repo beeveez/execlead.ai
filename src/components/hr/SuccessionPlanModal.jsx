@@ -58,6 +58,8 @@ export default function SuccessionPlanModal({ plan, members, onSave, onClose }) 
     await onSave({
       ...form,
       successors_json: JSON.stringify(successors.filter((s) => s.name.trim())),
+      // Successor names should only come from org members — the parent page
+      // attaches organization_id on create/update for tenant isolation.
     });
     setSaving(false);
   };

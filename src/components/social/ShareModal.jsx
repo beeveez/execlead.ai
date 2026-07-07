@@ -97,8 +97,17 @@ export default function ShareModal({
   };
 
   const handleShareNow = () => {
-    if (canNativeShare()) handleShare("native");
-    else handleShare("linkedin");
+    const text = message || buildShareMessage({ shareType, achievementType: achievement, title: resolvedTitle, userName, score: resolvedScore, level: leadershipLevel });
+    if (canNativeShare()) {
+      navigator.share({ title: resolvedTitle, text, url: shareUrl }).catch(() => {});
+      trackShareEvent({ shareType, achievementType: achievement, title: resolvedTitle, platform: "native", privacy, settings, score: resolvedScore, level: leadershipLevel, referralCode, userId });
+      return;
+    }
+    // Synchronous window.open preserves the user gesture so the popup isn't blocked
+    const platform = SHARE_PLATFORMS.linkedin;
+    const win = window.open(platform.shareUrl(shareUrl, text), "_blank", "noopener,noreferrer");
+    trackShareEvent({ shareType, achievementType: achievement, title: resolvedTitle, platform: "linkedin", privacy, settings, score: resolvedScore, level: leadershipLevel, referralCode, userId });
+    if (!win) setActiveTab("social"); // popup blocked — guide user to pick a platform
   };
 
   const handleDownload = async () => {

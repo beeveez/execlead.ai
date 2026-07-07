@@ -25,6 +25,7 @@ const Landing = lazy(() => import('@/pages/Landing'));
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import Onboarding from '@/pages/Onboarding';
+import WorkspaceHome from '@/pages/WorkspaceHome';
 import Challenge from '@/pages/Challenge';
 import Coach from '@/pages/Coach';
 import Simulator from '@/pages/Simulator';
@@ -130,6 +131,7 @@ const AuthenticatedApp = () => {
       {/* Protected */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/home" element={<WorkspaceHome />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/challenge" element={<FeatureGate featureId="daily_executive_challenge"><Challenge /></FeatureGate>} />

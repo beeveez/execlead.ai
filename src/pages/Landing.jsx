@@ -110,7 +110,7 @@ export default function Landing() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              to={authed ? "/dashboard" : "/register"}
+              to={authed ? "/home" : "/register"}
               className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
               {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />

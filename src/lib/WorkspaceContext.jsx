@@ -16,6 +16,10 @@ export function WorkspaceProvider({ children }) {
   const { getEffectiveRole, getEffectivePlan, isSimulating } = useDeveloper();
 
   const [activeWorkspace, setActiveWorkspaceState] = useState(null);
+  const [workspaceChosen, setWorkspaceChosen] = useState(() => {
+    if (typeof localStorage === "undefined") return false;
+    return !!localStorage.getItem(STORAGE_KEY);
+  });
 
   const role = useMemo(() => {
     if (!user) return null;
@@ -34,23 +38,29 @@ export function WorkspaceProvider({ children }) {
     return getAvailableWorkspaces(role, plan, profile, isSimulating);
   }, [role, plan, profile?.organization_id, isSimulating]);
 
-  // Auto-detect or restore active workspace on login / when availability changes
+  // Restore saved workspace or default in-memory (without persisting the default).
+  // workspaceChosen tracks whether the user has explicitly picked a workspace,
+  // so the /home route knows whether to auto-redirect or show a chooser.
   useEffect(() => {
     if (availableWorkspaces.length === 0) return;
     const saved = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (saved && availableWorkspaces.includes(saved)) {
       setActiveWorkspaceState(saved);
+      setWorkspaceChosen(true);
     } else {
       const def = getDefaultWorkspace(availableWorkspaces, role);
       setActiveWorkspaceState(def);
-      try { localStorage.setItem(STORAGE_KEY, def); } catch {}
+      setWorkspaceChosen(false);
     }
   }, [availableWorkspaces.join(","), role]);
 
-  const setActiveWorkspace = useCallback((wsId) => {
+  const setActiveWorkspace = useCallback((wsId, { persist = true } = {}) => {
     if (!availableWorkspaces.includes(wsId)) return;
     setActiveWorkspaceState(wsId);
-    try { localStorage.setItem(STORAGE_KEY, wsId); } catch {}
+    if (persist) {
+      try { localStorage.setItem(STORAGE_KEY, wsId); } catch {}
+      setWorkspaceChosen(true);
+    }
   }, [availableWorkspaces]);
 
   const navGroups = useMemo(() => {
@@ -62,6 +72,7 @@ export function WorkspaceProvider({ children }) {
     activeWorkspace,
     availableWorkspaces,
     setActiveWorkspace,
+    workspaceChosen,
     navGroups,
     role,
     plan,

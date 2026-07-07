@@ -26,6 +26,7 @@ const APP_ROUTES = [
   { path: "/legal", component: "Legal", public: true },
   { path: "/u/:username", component: "PublicProfile", public: true },
   { path: "/onboarding", component: "Onboarding" },
+  { path: "/home", component: "WorkspaceHome" },
   { path: "/dashboard", component: "Dashboard" },
   { path: "/challenge", component: "Challenge", feature: "daily_executive_challenge" },
   { path: "/coach", component: "Coach" },

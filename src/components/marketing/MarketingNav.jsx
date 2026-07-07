@@ -54,7 +54,7 @@ export default function MarketingNav() {
         <div className="flex items-center gap-3">
           <ShareButton variant="icon" shareType="landing" iconSize={15} />
           {authed ? (
-            <Link to="/dashboard" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Dashboard</Link>
+            <Link to="/home" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Dashboard</Link>
           ) : (
             <>
               <Link to="/login" className="hidden sm:inline text-sm text-white/50 hover:text-white transition-colors">Sign In</Link>

@@ -18,7 +18,7 @@ import PrivacySection from "@/components/profile/PrivacySection";
 import AccountSection from "@/components/profile/AccountSection";
 import ProfileCompleteness from "@/components/profile/ProfileCompleteness";
 import ResumeSyncModal from "@/components/profile/ResumeSyncModal";
-import { extractResumeIdentity, saveResumeVersion } from "@/lib/resumeSync";
+import { extractResumeIdentity, saveResumeVersion, PARSER_VERSION } from "@/lib/resumeSync";
 import DataManagementSection from "@/components/profile/DataManagementSection";
 import { createSnapshot, averageConfidence } from "@/lib/identityVersioning";
 import { Loader2, Save, UserCircle } from "lucide-react";
@@ -138,6 +138,30 @@ export default function Profile() {
       toast({ title: "Identity Updated", description: "Your Executive Identity has been populated. A version snapshot was saved for recovery." });
     } catch (e) {
       toast({ title: "Save Failed", description: "Could not persist identity.", variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
+  const handleCreateVersion = async (versionForm) => {
+    const fileName = syncFileName;
+    const fileUrl = syncFileUrl;
+    const confidence = averageConfidence(syncData?._confidence);
+    setSyncData(null);
+    setSaving(true);
+    try {
+      await createSnapshot(versionForm, {
+        label: `Resume Import — ${fileName}`,
+        source_resume_url: fileUrl,
+        source_resume_name: fileName,
+        confidence_score: confidence,
+        import_source: "resume_parser",
+        parser_version: PARSER_VERSION,
+        imported_by: "Resume Parser",
+        change_summary: `New version created from resume import: ${fileName}`,
+      });
+      toast({ title: "Version Created", description: "A new Executive Identity version has been saved. Your current profile is unchanged — restore it anytime from Version History." });
+    } catch (e) {
+      toast({ title: "Version Failed", description: "Could not create the version.", variant: "destructive" });
     }
     setSaving(false);
   };
@@ -273,6 +297,7 @@ export default function Profile() {
           currentForm={form}
           fileName={syncFileName}
           onApply={handleSyncApply}
+          onCreateVersion={handleCreateVersion}
           onClose={() => setSyncData(null)}
         />
       )}

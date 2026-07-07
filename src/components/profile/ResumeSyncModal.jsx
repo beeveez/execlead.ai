@@ -135,7 +135,7 @@ function ArrayDiff({ current, incoming, mode, itemLabel }) {
   );
 }
 
-export default function ResumeSyncModal({ extractedForm, currentForm, onApply, onClose, fileName, presetMode }) {
+export default function ResumeSyncModal({ extractedForm, currentForm, onApply, onCreateVersion, onClose, fileName, presetMode }) {
   const [decisions, setDecisions] = useState(() => {
     if (presetMode === "replace" || presetMode === "merge") {
       const d = {};
@@ -159,6 +159,7 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
     return set;
   });
   const [applying, setApplying] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   const previewForm = useMemo(() => applySync(currentForm, extractedForm, decisions), [currentForm, extractedForm, decisions]);
   const beforeCompleteness = useMemo(() => calculateCompleteness(currentForm), [currentForm]);
@@ -226,6 +227,15 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
     }
   };
 
+  const handleCreateVersion = async () => {
+    setCreating(true);
+    try {
+      await onCreateVersion(previewForm);
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -271,8 +281,8 @@ export default function ResumeSyncModal({ extractedForm, currentForm, onApply, o
                 <button onClick={handleMergeAll} className="flex-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/80 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5">
                   <Plus size={11} /> Merge
                 </button>
-                <button onClick={handleAcceptAll} className="flex-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/80 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5">
-                  <Save size={11} /> Create New Version
+                <button onClick={handleCreateVersion} disabled={creating} className="flex-1 px-2 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-[11px] font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40">
+                  {creating ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />} Create New Version
                 </button>
               </div>
             </div>

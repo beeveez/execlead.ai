@@ -1,51 +1,66 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Download, Copy, Check, Briefcase, MessageSquare, ThumbsUp, AtSign, Phone, Send, Mail } from "lucide-react";
-import { base44 } from "@/api/base44Client";
-import { ACHIEVEMENT_TYPES, SHARE_PLATFORMS, PRIVACY_OPTIONS, buildLinkedInPost, getShareUrl } from "@/lib/socialShare";
+import { X, Download, Copy, Check, QrCode, Briefcase, MessageSquare, ThumbsUp, AtSign, Phone, Send, Mail, Cloud, MessageCircle, Newspaper, Share2 } from "lucide-react";
+import {
+  SHARE_PLATFORMS, PLATFORM_ORDER, PRIVACY_OPTIONS, HIDE_OPTIONS,
+  buildShareMessage, getShareUrl, getQrUrl, resolveShareConfig, trackShareEvent,
+  canNativeShare, nativeShare, SHARE_CTA,
+} from "@/lib/socialShare";
 import ShareCard from "./ShareCard";
 
-const ICONS = { Briefcase, MessageSquare, ThumbsUp, AtSign, Phone, Send, Mail, Copy };
+const ICONS = { Briefcase, MessageSquare, ThumbsUp, AtSign, Phone, Send, Mail, Copy, Cloud, MessageCircle, Newspaper, Share2, QrCode };
 
-export default function ShareModal({ open, onClose, achievement: achievementType, achievementTitle, userName, executiveScore, leadershipLevel, referralCode }) {
+/**
+ * Unified share modal. Supports both legacy `achievement` prop and new `shareType` prop.
+ * Backward compatible with CertificateView / PromotionCelebration / AchievementShareButton.
+ */
+export default function ShareModal({
+  open, onClose,
+  achievement, shareType,
+  achievementTitle, title,
+  userName, executiveScore, score, leadershipLevel,
+  referralCode, userId,
+}) {
   const [message, setMessage] = useState("");
   const [privacy, setPrivacy] = useState("public");
-  const [hideName, setHideName] = useState(false);
-  const [hideScore, setHideScore] = useState(false);
-  const [hideCompany, setHideCompany] = useState(false);
+  const [settings, setSettings] = useState({ hide_name: false, hide_score: false, hide_company: false, hide_resume: false, hide_personal_info: false });
   const [copied, setCopied] = useState(false);
+  const [showQr, setShowQr] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const cardRef = useRef(null);
 
-  const achievement = ACHIEVEMENT_TYPES[achievementType] || ACHIEVEMENT_TYPES.career_milestone;
-  const title = achievementTitle || achievement.label;
+  const config = resolveShareConfig(shareType, achievement);
+  const resolvedTitle = title || achievementTitle || config.label;
+  const resolvedScore = score ?? executiveScore;
   const shareUrl = getShareUrl(referralCode);
 
   useEffect(() => {
     if (open) {
-      setMessage(buildLinkedInPost({ achievementType, achievementTitle: title, userName, executiveScore, leadershipLevel }));
+      setMessage(buildShareMessage({ shareType, achievementType: achievement, title: resolvedTitle, userName, score: resolvedScore, level: leadershipLevel }));
+      setShowQr(false);
     }
   }, [open]);
 
   if (!open) return null;
 
+  const toggleHide = (key) => setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+
   const handleShare = async (platformKey) => {
     const platform = SHARE_PLATFORMS[platformKey];
-    const text = message || buildLinkedInPost({ achievementType, achievementTitle: title, userName, executiveScore, leadershipLevel });
+    const text = message || buildShareMessage({ shareType, achievementType: achievement, title: resolvedTitle, userName, score: resolvedScore, level: leadershipLevel });
+
     if (platformKey === "copy") {
       try { await navigator.clipboard.writeText(`${text}\n\n${shareUrl}`); } catch (e) {}
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } else if (platformKey === "native") {
+      const ok = await nativeShare({ title: resolvedTitle, text, url: shareUrl });
+      if (!ok) { setShowQr(true); return; }
     } else if (platform.shareUrl) {
       window.open(platform.shareUrl(shareUrl, text), "_blank", "noopener,noreferrer");
     }
-    try {
-      await base44.entities.ShareEvent.create({
-        achievement_type: achievementType, achievement_title: title, platform: platformKey,
-        privacy_level: privacy, hide_name: hideName, hide_score: hideScore, hide_company: hideCompany,
-        executive_score: executiveScore, leadership_level: leadershipLevel, referral_code: referralCode,
-      });
-    } catch (e) {}
+
+    trackShareEvent({ shareType, achievementType: achievement, title: resolvedTitle, platform: platformKey, privacy, settings, score: resolvedScore, level: leadershipLevel, referralCode, userId });
   };
 
   const handleDownload = async () => {
@@ -55,7 +70,7 @@ export default function ShareModal({ open, onClose, achievement: achievementType
       const html2canvas = (await import("html2canvas")).default;
       const canvas = await html2canvas(cardRef.current, { backgroundColor: "#0d0d14", useCORS: true, scale: 2 });
       const link = document.createElement("a");
-      link.download = `execlead-${achievementType}.png`;
+      link.download = `execlead-${shareType || achievement || "share"}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (e) {}
@@ -66,7 +81,10 @@ export default function ShareModal({ open, onClose, achievement: achievementType
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={e => e.stopPropagation()} className="bg-[#0d0d14] border border-white/10 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-white/5 sticky top-0 bg-[#0d0d14] z-10">
-          <h2 className="text-lg font-bold text-white">Share Your Achievement</h2>
+          <div>
+            <h2 className="text-lg font-bold text-white">Share</h2>
+            <p className="text-white/30 text-xs">{config.label}</p>
+          </div>
           <button onClick={onClose} className="text-white/30 hover:text-white/60 p-1"><X size={20} /></button>
         </div>
 
@@ -74,16 +92,14 @@ export default function ShareModal({ open, onClose, achievement: achievementType
           {/* Card Preview */}
           <div className="flex flex-col items-center">
             <div className="relative">
-              <div style={{ transform: "scale(0.82)", transformOrigin: "top center", marginBottom: -80 }}>
+              <div style={{ transform: "scale(0.78)", transformOrigin: "top center", marginBottom: -100 }}>
                 <ShareCard
                   ref={cardRef}
-                  achievement={achievement}
-                  title={title}
-                  userName={userName}
-                  executiveScore={executiveScore}
-                  leadershipLevel={leadershipLevel}
-                  hideName={hideName}
-                  hideScore={hideScore}
+                  type={config}
+                  title={resolvedTitle}
+                  userName={settings.hide_name ? null : userName}
+                  executiveScore={settings.hide_score ? null : resolvedScore}
+                  leadershipLevel={settings.hide_score ? null : leadershipLevel}
                   referralCode={referralCode}
                 />
               </div>
@@ -96,11 +112,15 @@ export default function ShareModal({ open, onClose, achievement: achievementType
 
           {/* Controls */}
           <div className="space-y-5">
+            {/* Platforms */}
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">Share to</label>
               <div className="grid grid-cols-4 gap-2">
-                {Object.entries(SHARE_PLATFORMS).map(([key, platform]) => {
+                {PLATFORM_ORDER.map(key => {
+                  const platform = SHARE_PLATFORMS[key];
                   const Icon = ICONS[platform.icon];
+                  const isNative = key === "native";
+                  if (isNative && !canNativeShare()) return null;
                   return (
                     <button key={key} onClick={() => handleShare(key)} className="flex flex-col items-center gap-1.5 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${platform.color}20` }}>
@@ -110,15 +130,34 @@ export default function ShareModal({ open, onClose, achievement: achievementType
                     </button>
                   );
                 })}
+                <button onClick={() => setShowQr(!showQr)} className="flex flex-col items-center gap-1.5 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-violet-500/20">
+                    <QrCode size={16} className="text-violet-400" />
+                  </div>
+                  <span className="text-[10px] text-white/40 group-hover:text-white/60">QR Code</span>
+                </button>
               </div>
             </div>
 
+            {/* QR Code Panel */}
+            {showQr && (
+              <div className="flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <img src={getQrUrl(shareUrl)} alt="QR Code" className="w-24 h-24 rounded-lg" />
+                <div>
+                  <div className="text-sm text-white/70 font-medium">Scan to open</div>
+                  <div className="text-xs text-white/40 mt-1 break-all">{shareUrl}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Message */}
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">Your Message</label>
               <textarea value={message} onChange={e => setMessage(e.target.value)} rows={5} className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 resize-none" />
-              <p className="text-white/20 text-[10px] mt-1">Edit before sharing. Hashtags included for LinkedIn.</p>
+              <p className="text-white/20 text-[10px] mt-1">Includes CTA: "{SHARE_CTA}"</p>
             </div>
 
+            {/* Privacy */}
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">Privacy</label>
               <div className="space-y-1.5">
@@ -134,12 +173,13 @@ export default function ShareModal({ open, onClose, achievement: achievementType
               </div>
             </div>
 
+            {/* Hide Details */}
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">Hide Details</label>
               <div className="flex flex-wrap gap-2">
-                {[{ label: "Name", val: hideName, set: setHideName }, { label: "Score", val: hideScore, set: setHideScore }, { label: "Company", val: hideCompany, set: setHideCompany }].map(item => (
-                  <button key={item.label} onClick={() => item.set(!item.val)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${item.val ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-white/5 text-white/40 border border-white/5"}`}>
-                    {item.val ? "Hidden" : "Show"} {item.label}
+                {HIDE_OPTIONS.map(item => (
+                  <button key={item.key} onClick={() => toggleHide(item.key)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${settings[item.key] ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-white/5 text-white/40 border border-white/5"}`}>
+                    {settings[item.key] ? "Hidden" : "Show"} {item.label}
                   </button>
                 ))}
               </div>

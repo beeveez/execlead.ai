@@ -13,6 +13,7 @@ import { useDeveloper } from "@/lib/DeveloperContext";
 import DebugPanel from "@/components/developer/DebugPanel";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
+import ShareButton from "@/components/social/ShareButton";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -97,6 +98,7 @@ export default function AppLayout() {
                 </>
               )}
             </Link>
+            <ShareButton variant="icon" shareType="landing" iconSize={16} />
             <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 p-1">
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>

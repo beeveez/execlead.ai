@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { COMPANIES, LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
+import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 
 const FEATURES = [
@@ -55,8 +56,10 @@ export default function Landing() {
             <a href="#journey" className="hover:text-white transition-colors">Journey</a>
             <a href="#paths" className="hover:text-white transition-colors">Learning</a>
             <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+            {authed && <Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link>}
           </div>
           <div className="flex items-center gap-3">
+            <ShareButton variant="icon" shareType="landing" iconSize={15} />
             {authed ? (
               <Link to="/dashboard" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Dashboard</Link>
             ) : (

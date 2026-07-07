@@ -15,8 +15,9 @@
       "type": "string",
       "enum": [
         "public",
-        "connections",
-        "private"
+        "private",
+        "recruiter_visible",
+        "organization_only"
       ],
       "default": "public"
     },
@@ -32,6 +33,14 @@
       "type": "boolean",
       "default": false
     },
+    "hide_resume": {
+      "type": "boolean",
+      "default": false
+    },
+    "hide_personal_info": {
+      "type": "boolean",
+      "default": false
+    },
     "executive_score": {
       "type": "number"
     },
@@ -43,6 +52,13 @@
     },
     "referral_code": {
       "type": "string"
+    },
+    "share_url": {
+      "type": "string"
+    },
+    "is_enterprise": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

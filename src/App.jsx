@@ -76,6 +76,7 @@ import EmailSettings from '@/pages/EmailSettings';
 import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
 import Legal from '@/pages/Legal';
+import Leaderboard from '@/pages/Leaderboard';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
 
@@ -172,6 +173,7 @@ const AuthenticatedApp = () => {
           <Route path="/promotion-readiness" element={<FeatureGate featureId="promotion_readiness"><PromotionReadiness /></FeatureGate>} />
           <Route path="/learning-assignments" element={<FeatureGate featureId="learning_assignments"><LearningAssignments /></FeatureGate>} />
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Route>
       </Route>
 

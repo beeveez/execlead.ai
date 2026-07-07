@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import Logo from "@/components/layout/Logo";
 import ShareButton from "@/components/social/ShareButton";
+import { prefetchRoute } from "@/lib/routePrefetch";
 import { Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -29,15 +30,26 @@ export default function MarketingNav() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
         <Link to="/"><Logo aiTagClass="ml-1" /></Link>
         <div className="hidden md:flex items-center gap-8 text-sm">
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className={`transition-colors ${isActive(item) ? "text-white font-medium" : "text-white/50 hover:text-white"}`}
-            >
-              {item.label}
-            </a>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item.route ? (
+              <Link
+                key={item.label}
+                to={item.route}
+                onMouseEnter={() => prefetchRoute(item.route)}
+                className={`transition-colors ${isActive(item) ? "text-white font-medium" : "text-white/50 hover:text-white"}`}
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a
+                key={item.label}
+                href={item.href}
+                className={`transition-colors ${isActive(item) ? "text-white font-medium" : "text-white/50 hover:text-white"}`}
+              >
+                {item.label}
+              </a>
+            )
+          )}
         </div>
         <div className="flex items-center gap-3">
           <ShareButton variant="icon" shareType="landing" iconSize={15} />
@@ -57,16 +69,28 @@ export default function MarketingNav() {
       {mobileOpen && (
         <div className="md:hidden border-t border-white/5 bg-[#08080d]/95 backdrop-blur-xl">
           <div className="px-4 py-3 space-y-1">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`block py-2 text-sm transition-colors ${isActive(item) ? "text-white font-medium" : "text-white/50 hover:text-white"}`}
-              >
-                {item.label}
-              </a>
-            ))}
+            {NAV_ITEMS.map((item) =>
+              item.route ? (
+                <Link
+                  key={item.label}
+                  to={item.route}
+                  onClick={() => setMobileOpen(false)}
+                  onMouseEnter={() => prefetchRoute(item.route)}
+                  className={`block py-2 text-sm transition-colors ${isActive(item) ? "text-white font-medium" : "text-white/50 hover:text-white"}`}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block py-2 text-sm transition-colors ${isActive(item) ? "text-white font-medium" : "text-white/50 hover:text-white"}`}
+                >
+                  {item.label}
+                </a>
+              )
+            )}
             {!authed && (
               <Link to="/login" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-white/50 hover:text-white">Sign In</Link>
             )}

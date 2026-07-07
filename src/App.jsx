@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -17,7 +18,10 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 
-import Landing from '@/pages/Landing';
+import MarketingLayout from '@/components/marketing/MarketingLayout';
+import { LandingSkeleton, PricingSkeleton, LeaderboardSkeleton } from '@/components/marketing/Shimmer';
+
+const Landing = lazy(() => import('@/pages/Landing'));
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import Onboarding from '@/pages/Onboarding';
@@ -52,7 +56,7 @@ import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import BillingAdmin from '@/pages/BillingAdmin';
 import PaymentSettings from '@/pages/PaymentSettings';
-import Pricing from '@/pages/Pricing';
+const Pricing = lazy(() => import('@/pages/Pricing'));
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
 import Marketplace from '@/pages/Marketplace';
@@ -80,7 +84,7 @@ import EmailSettings from '@/pages/EmailSettings';
 import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
 import Legal from '@/pages/Legal';
-import Leaderboard from '@/pages/Leaderboard';
+const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import Feedback from '@/pages/Feedback';
 import PublicProfile from '@/pages/PublicProfile';
@@ -109,9 +113,11 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/pricing" element={<Pricing />} />
+      {/* Public — marketing pages share a persistent layout (nav + footer always visible) */}
+      <Route element={<MarketingLayout />}>
+        <Route path="/" element={<Suspense fallback={<LandingSkeleton />}><Landing /></Suspense>} />
+        <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><Pricing /></Suspense>} />
+      </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -183,7 +189,7 @@ const AuthenticatedApp = () => {
           <Route path="/promotion-readiness" element={<FeatureGate featureId="promotion_readiness"><PromotionReadiness /></FeatureGate>} />
           <Route path="/learning-assignments" element={<FeatureGate featureId="learning_assignments"><LearningAssignments /></FeatureGate>} />
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
           <Route path="/feedback" element={<Feedback />} />
         </Route>

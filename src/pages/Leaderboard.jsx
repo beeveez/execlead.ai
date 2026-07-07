@@ -4,30 +4,21 @@ import { Link } from "react-router-dom";
 import { Trophy, Users, BookOpen, Share2, TrendingUp, Gift, ArrowRight, Crown } from "lucide-react";
 import { SHARE_PLATFORMS, getUserReferralCode, getShareUrl } from "@/lib/socialShare";
 import ShareButton from "@/components/social/ShareButton";
+import { useLeaderboardData } from "@/hooks/useLeaderboardData";
+import { LeaderboardListSkeleton, AnalyticsBarSkeleton } from "@/components/marketing/Shimmer";
 
 const PLATFORM_ICONS = {
   linkedin: "💼", twitter: "𝕏", facebook: "👍", threads: "@", bluesky: "☁",
   whatsapp: "📱", telegram: "✈", messenger: "💬", reddit: "🟠", email: "✉", copy: "🔗", native: "📲",
 };
 
-const MiniSpinner = () => (
-  <div className="flex items-center justify-center py-8">
-    <div className="w-5 h-5 border-2 border-white/10 border-t-indigo-400 rounded-full animate-spin" />
-  </div>
-);
-
 export default function Leaderboard() {
-  // Each data source loads independently so the page shell renders immediately
-  // instead of blocking on all four queries (each fetching up to 500 records).
-  const [shareEvents, setShareEvents] = useState(null);
-  const [referrals, setReferrals] = useState(null);
-  const [topLearners, setTopLearners] = useState(null);
+  // Cached via React Query — each source loads independently and is cached
+  // across page visits, so returning to the Leaderboard is instant.
+  const { shareEvents, referrals, topLearners } = useLeaderboardData();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    base44.entities.ShareEvent.list("-created_date", 500).catch(() => []).then(setShareEvents);
-    base44.entities.Referral.list("-created_date", 500).catch(() => []).then(setReferrals);
-    base44.entities.UserProfile.filter({ status: "active" }, "-xp_points", 100).catch(() => []).then(setTopLearners);
     base44.auth.isAuthenticated()
       .then(ok => ok ? base44.auth.me().catch(() => null) : null)
       .then(setUser).catch(() => {});
@@ -115,7 +106,7 @@ export default function Leaderboard() {
         {/* Top Referrers */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><Users size={14} className="text-cyan-400" /> Top Referrers</h3>
-          {referrals === null ? <MiniSpinner /> : topReferrers.length === 0 ? (
+          {referrals === null ? <LeaderboardListSkeleton /> : topReferrers.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No referrals yet. Be the first!</p>
           ) : (
             <div className="space-y-2">
@@ -136,7 +127,7 @@ export default function Leaderboard() {
         {/* Top Learners */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><BookOpen size={14} className="text-violet-400" /> Top Executive Learners</h3>
-          {topLearners === null ? <MiniSpinner /> : topLearners.length === 0 ? (
+          {topLearners === null ? <LeaderboardListSkeleton /> : topLearners.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No learners yet.</p>
           ) : (
             <div className="space-y-2">
@@ -163,7 +154,7 @@ export default function Leaderboard() {
         {/* Top Platforms */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><Share2 size={14} className="text-indigo-400" /> Top Sharing Channels</h3>
-          {shareEvents === null ? <MiniSpinner /> : topPlatforms.length === 0 ? (
+          {shareEvents === null ? <AnalyticsBarSkeleton /> : topPlatforms.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No shares tracked yet.</p>
           ) : (
             <div className="space-y-3">
@@ -191,7 +182,7 @@ export default function Leaderboard() {
         {/* Most Shared */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><TrendingUp size={14} className="text-emerald-400" /> Most Shared Content</h3>
-          {shareEvents === null ? <MiniSpinner /> : topTypes.length === 0 ? (
+          {shareEvents === null ? <AnalyticsBarSkeleton /> : topTypes.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No data yet.</p>
           ) : (
             <div className="space-y-2">

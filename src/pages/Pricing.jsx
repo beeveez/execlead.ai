@@ -6,7 +6,6 @@ import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck } from "lucide-react";
 import PricingTiers from "@/components/pricing/PricingTiers";
 import { captureReferralCode } from "@/lib/socialShare";
-import MarketingLayout from "@/components/marketing/MarketingLayout";
 
 // Below-the-fold sections are lazy-loaded so the hero + pricing tiers
 // render immediately without waiting for their code or API calls.
@@ -38,7 +37,7 @@ export default function Pricing() {
   }, []);
 
   return (
-    <MarketingLayout>
+    <>
 
       {/* Hero */}
       <section className="pt-40 pb-12 px-4 relative">
@@ -228,6 +227,6 @@ export default function Pricing() {
         </div>
       </section>
 
-    </MarketingLayout>
+    </>
   );
 }

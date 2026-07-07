@@ -9,7 +9,6 @@ import {
 import { LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
 import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
-import MarketingLayout from "@/components/marketing/MarketingLayout";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 
@@ -48,7 +47,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <MarketingLayout>
+    <>
 
       {/* Hero */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4">
@@ -360,6 +359,6 @@ export default function Landing() {
         </div>
       </section>
 
-    </MarketingLayout>
+    </>
   );
 }

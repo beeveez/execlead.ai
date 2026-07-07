@@ -1,21 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { DEFAULT_CATALOG, getPricingCatalog } from "@/lib/pricingCatalog";
 
+/**
+ * Pricing catalog backed by React Query.
+ * Data is cached for 5 minutes — returning to Pricing (or hovering its
+ * nav link) is instant because the catalog is already in the cache.
+ */
 export function usePricingCatalog(initialCycle) {
-  const [plans, setPlans] = useState(DEFAULT_CATALOG);
-  const [loading, setLoading] = useState(true);
   const [cycle, setCycle] = useState(initialCycle || "monthly");
 
-  useEffect(() => {
-    let active = true;
-    getPricingCatalog().then(catalog => {
-      if (active) {
-        setPlans(catalog.filter(p => p.visible));
-        setLoading(false);
-      }
-    });
-    return () => { active = false; };
-  }, []);
+  const { data: plans = DEFAULT_CATALOG, isLoading: loading } = useQuery({
+    queryKey: ["pricingCatalog"],
+    queryFn: async () => (await getPricingCatalog()).filter((p) => p.visible),
+    staleTime: 5 * 60 * 1000,
+  });
 
   const getPrice = useCallback((plan) => {
     if (!plan) return 0;
@@ -23,7 +22,7 @@ export function usePricingCatalog(initialCycle) {
   }, [cycle]);
 
   const getPlanById = useCallback((id) => {
-    return plans.find(p => p.id === id) || DEFAULT_CATALOG.find(p => p.id === id);
+    return plans.find((p) => p.id === id) || DEFAULT_CATALOG.find((p) => p.id === id);
   }, [plans]);
 
   return { plans, loading, cycle, setCycle, getPrice, getPlanById };

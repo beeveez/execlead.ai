@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import {
   ShieldCheck, Layers, Lock, Database, Activity, Eye, Building2, Cpu,
-  Server, FileText, Copy, AlertTriangle, GitBranch,
+  Server, FileText, Copy, AlertTriangle, GitBranch, Key,
 } from "lucide-react";
 import { SECURITY_META, SECURITY_PRINCIPLES } from "@/lib/securityArchitecture";
 import { SectionCard, IconGrid, ChipList, StatusBadge, getIcon } from "@/components/security/SecuritySection";
 import RoleMatrix from "@/components/security/RoleMatrix";
 import OrchestrationPipeline from "@/components/security/OrchestrationPipeline";
+import AuthenticationMethods from "@/components/security/AuthenticationMethods";
 import {
   MULTI_TENANT_ISOLATION, AUTH_METHODS, API_SECURITY, AI_PROTECTED_ASSETS,
   DATA_ENCRYPTION, ENCRYPTION_LAYERS, DOCUMENT_PROTECTION, PROTECTED_IP,
@@ -17,6 +18,7 @@ import {
 
 const TABS = [
   { id: "overview", label: "Overview", icon: Eye },
+  { id: "auth", label: "Authentication", icon: Key },
   { id: "access", label: "Access Control", icon: Lock },
   { id: "data", label: "Data & IP", icon: Database },
   { id: "monitoring", label: "Monitoring", icon: Activity },
@@ -75,6 +77,9 @@ export default function SecurityCenter() {
           <OrchestrationPipeline />
         </div>
       )}
+
+      {/* AUTHENTICATION METHODS */}
+      {tab === "auth" && <AuthenticationMethods />}
 
       {/* ACCESS CONTROL */}
       {tab === "access" && (

@@ -1,215 +1,156 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import React from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Users, BookOpen, Share2, TrendingUp, Gift, ArrowRight, Crown } from "lucide-react";
-import { SHARE_PLATFORMS, getUserReferralCode, getShareUrl } from "@/lib/socialShare";
+import {
+  Trophy, Users, Building2, Briefcase, Zap, Star,
+  Award, TrendingUp, ArrowRight, Sparkles,
+} from "lucide-react";
+import { usePublicLeaderboardData } from "@/hooks/usePublicLeaderboardData";
+import LeaderboardSection from "@/components/leaderboard/LeaderboardSection";
+import RankList from "@/components/leaderboard/RankList";
 import ShareButton from "@/components/social/ShareButton";
-import { useLeaderboardData } from "@/hooks/useLeaderboardData";
-import { LeaderboardListSkeleton, AnalyticsBarSkeleton } from "@/components/marketing/Shimmer";
-
-const PLATFORM_ICONS = {
-  linkedin: "💼", twitter: "𝕏", facebook: "👍", threads: "@", bluesky: "☁",
-  whatsapp: "📱", telegram: "✈", messenger: "💬", reddit: "🟠", email: "✉", copy: "🔗", native: "📲",
-};
 
 export default function Leaderboard() {
-  // Cached via React Query — each source loads independently and is cached
-  // across page visits, so returning to the Leaderboard is instant.
-  const { shareEvents, referrals, topLearners } = useLeaderboardData();
-  const [user, setUser] = useState(null);
+  const { learners, organizations, companies, featuredExecutives, shareEvents } = usePublicLeaderboardData();
 
-  useEffect(() => {
-    base44.auth.isAuthenticated()
-      .then(ok => ok ? base44.auth.me().catch(() => null) : null)
-      .then(setUser).catch(() => {});
-  }, []);
+  const topLearners = (learners || []).slice(0, 10);
+  const topOrgs = (organizations || []).slice(0, 10);
+  const topCompanies = (companies || []).slice(0, 10);
+  const featured = (featuredExecutives || []).slice(0, 6);
 
-  // Compute top referrers
-  const referrerMap = {};
-  (referrals || []).forEach(r => {
-    if (!r.referrer_user_id) return;
-    if (!referrerMap[r.referrer_user_id]) {
-      referrerMap[r.referrer_user_id] = { name: r.referrer_name || "Anonymous", id: r.referrer_user_id, invites: 0, conversions: 0 };
-    }
-    referrerMap[r.referrer_user_id].invites++;
-    if (r.status === "converted") referrerMap[r.referrer_user_id].conversions++;
-  });
-  const topReferrers = Object.values(referrerMap).sort((a, b) => b.conversions - a.conversions || b.invites - a.invites).slice(0, 10);
+  // Success stories — recent shared achievements that have a title
+  const successStories = (shareEvents || []).filter((e) => e.achievement_title).slice(0, 6);
 
-  // Compute share analytics
-  const platformCounts = {};
-  const totalShares = (shareEvents || []).length;
-  (shareEvents || []).forEach(e => {
-    platformCounts[e.platform] = (platformCounts[e.platform] || 0) + 1;
-  });
-  const topPlatforms = Object.entries(platformCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
-
+  // Achievement highlights — most frequent achievement types shared
   const typeCounts = {};
-  (shareEvents || []).forEach(e => {
-    typeCounts[e.achievement_type] = (typeCounts[e.achievement_type] || 0) + 1;
+  (shareEvents || []).forEach((e) => {
+    if (e.achievement_type) typeCounts[e.achievement_type] = (typeCounts[e.achievement_type] || 0) + 1;
   });
-  const topTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-
-  const referralCode = user ? getUserReferralCode(user.id) : null;
-  const referralLink = referralCode ? getShareUrl(referralCode) : "";
-
-  const podiumCls = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`;
+  const achievementHighlights = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto px-4 md:px-8 pt-28 pb-20 space-y-10">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-          <Trophy size={12} className="text-amber-400" /> Viral Growth Engine
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 text-amber-400 text-xs uppercase tracking-widest mb-3">
+          <Trophy size={14} /> Community Leaderboard
         </div>
-        <h1 className="text-2xl font-bold text-white">Leaderboard & Share Analytics</h1>
-        <p className="text-white/40 text-sm mt-1">Top referrers, executive learners, and marketplace contributors across the EXECLEAD.AI community.</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-white">Top Executives. Top Organizations.</h1>
+        <p className="text-white/40 text-base mt-3 max-w-2xl mx-auto">
+          Celebrating the leaders, learners, and companies driving executive excellence on EXECLEAD.AI.
+        </p>
       </div>
 
-      {/* Share CTA */}
+      {/* CTA */}
       <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h3 className="text-white font-semibold text-sm flex items-center gap-2"><Share2 size={16} className="text-indigo-400" /> Share EXECLEAD.AI</h3>
-          <p className="text-white/40 text-xs mt-1">Advance your executive career with EXECLEAD.AI — share with your network.</p>
+          <h3 className="text-white font-semibold text-sm">Climb the rankings</h3>
+          <p className="text-white/40 text-xs mt-1">Complete challenges, earn XP, and build your executive brand.</p>
         </div>
         <div className="flex items-center gap-3">
-          {referralLink && (
-            <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2 max-w-xs">
-              <input readOnly value={referralLink} className="flex-1 bg-transparent text-xs text-white/40 focus:outline-none truncate" />
-            </div>
-          )}
-          <ShareButton shareType="referral" label="Share Referral Link" className="bg-indigo-500 hover:bg-indigo-600 text-white" />
+          <ShareButton shareType="landing" label="Share" className="bg-white/5 hover:bg-white/10 text-white/80" />
+          <Link to="/register" className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            Join Free <ArrowRight size={14} />
+          </Link>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-           { label: "Total Shares", value: shareEvents ? totalShares : null, icon: Share2, color: "text-indigo-400" },
-           { label: "Referrals Sent", value: referrals ? referrals.length : null, icon: Users, color: "text-cyan-400" },
-           { label: "Conversions", value: referrals ? referrals.filter(r => r.status === "converted").length : null, icon: TrendingUp, color: "text-emerald-400" },
-           { label: "Active Learners", value: topLearners ? topLearners.length : null, icon: BookOpen, color: "text-violet-400" },
-         ].map((s, i) => (
-           <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-             <s.icon size={16} className={s.color} />
-             {s.value === null ? (
-               <div className="h-7 mt-2 w-12 bg-white/5 rounded animate-pulse" />
-             ) : (
-               <div className="text-2xl font-bold text-white mt-2">{s.value}</div>
-             )}
-             <div className="text-white/30 text-xs">{s.label}</div>
-           </div>
-         ))}
-      </div>
-
+      {/* Top Executive Learners + Weekly XP Rankings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Referrers */}
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><Users size={14} className="text-cyan-400" /> Top Referrers</h3>
-          {referrals === null ? <LeaderboardListSkeleton /> : topReferrers.length === 0 ? (
-            <p className="text-white/30 text-sm text-center py-8">No referrals yet. Be the first!</p>
-          ) : (
-            <div className="space-y-2">
-              {topReferrers.map((r, i) => (
-                <div key={r.id} className={`flex items-center gap-3 p-3 rounded-lg ${i < 3 ? "bg-amber-500/5 border border-amber-500/10" : "bg-white/[0.02]"}`}>
-                  <span className="text-lg w-8 text-center">{podiumCls(i)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-white/80 font-medium truncate">{r.name}</div>
-                    <div className="text-xs text-white/30">{r.invites} invites · {r.conversions} conversions</div>
-                  </div>
-                  {i < 3 && <Crown size={14} className="text-amber-400" />}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Top Learners */}
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><BookOpen size={14} className="text-violet-400" /> Top Executive Learners</h3>
-          {topLearners === null ? <LeaderboardListSkeleton /> : topLearners.length === 0 ? (
-            <p className="text-white/30 text-sm text-center py-8">No learners yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {topLearners.slice(0, 10).map((l, i) => (
-                <div key={l.id} className={`flex items-center gap-3 p-3 rounded-lg ${i < 3 ? "bg-violet-500/5 border border-violet-500/10" : "bg-white/[0.02]"}`}>
-                  <span className="text-lg w-8 text-center">{podiumCls(i)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-white/80 font-medium truncate">{l.full_name || l.preferred_name || l.first_name || "Executive Learner"}</div>
-                    <div className="text-xs text-white/30">{l.sessions_completed || 0} sessions · {l.challenges_completed || 0} challenges</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-violet-400">{l.xp_points || 0}</div>
-                    <div className="text-[10px] text-white/30">XP</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <LeaderboardSection icon={Users} iconColor="text-violet-400" title="Top Executive Learners" loading={learners === null} empty="No public learners yet.">
+          <RankList
+            items={topLearners}
+            accent="violet"
+            renderName={(l) => l.full_name || l.preferred_name || l.first_name || "Executive Learner"}
+            renderMeta={(l) => `${l.sessions_completed || 0} sessions · ${l.challenges_completed || 0} challenges`}
+            renderRight={(l) => <Metric value={l.xp_points || 0} label="XP" color="text-violet-400" />}
+          />
+        </LeaderboardSection>
+        <LeaderboardSection icon={Zap} iconColor="text-amber-400" title="Weekly XP Rankings" loading={learners === null} empty="No XP data yet.">
+          <RankList
+            items={topLearners}
+            accent="amber"
+            renderName={(l) => l.full_name || l.preferred_name || l.first_name || "Executive Learner"}
+            renderMeta={(l) => l.professional_headline || l.current_role || "Executive"}
+            renderRight={(l) => <Metric value={l.xp_points || 0} label="XP" color="text-amber-400" />}
+          />
+        </LeaderboardSection>
       </div>
 
-      {/* Share Analytics */}
+      {/* Top Organizations + Top Companies */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Platforms */}
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><Share2 size={14} className="text-indigo-400" /> Top Sharing Channels</h3>
-          {shareEvents === null ? <AnalyticsBarSkeleton /> : topPlatforms.length === 0 ? (
-            <p className="text-white/30 text-sm text-center py-8">No shares tracked yet.</p>
-          ) : (
-            <div className="space-y-3">
-              {topPlatforms.map(([platform, count]) => {
-                const pct = totalShares > 0 ? Math.round((count / totalShares) * 100) : 0;
-                return (
-                  <div key={platform}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-white/60 flex items-center gap-1.5">
-                        <span>{PLATFORM_ICONS[platform] || "📤"}</span>
-                        {SHARE_PLATFORMS[platform]?.label || platform}
-                      </span>
-                      <span className="text-white/40">{count} · {pct}%</span>
-                    </div>
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500/50 rounded-full" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Most Shared */}
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><TrendingUp size={14} className="text-emerald-400" /> Most Shared Content</h3>
-          {shareEvents === null ? <AnalyticsBarSkeleton /> : topTypes.length === 0 ? (
-            <p className="text-white/30 text-sm text-center py-8">No data yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {topTypes.map(([type, count]) => (
-                <div key={type} className="flex items-center justify-between p-2.5 rounded-lg bg-white/[0.02]">
-                  <span className="text-sm text-white/60 capitalize">{type?.replace(/_/g, " ")}</span>
-                  <span className="text-xs text-white/40">{count} shares</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <LeaderboardSection icon={Building2} iconColor="text-cyan-400" title="Top Organizations" loading={organizations === null} empty="No organizations yet.">
+          <RankList
+            items={topOrgs}
+            accent="cyan"
+            renderMeta={(o) => `${o.industry || "Enterprise"}${o.plan ? ` · ${o.plan} plan` : ""}`}
+            renderRight={(o) => <Metric value={o.seats_used || 0} label="seats" color="text-cyan-400" />}
+          />
+        </LeaderboardSection>
+        <LeaderboardSection icon={Briefcase} iconColor="text-indigo-400" title="Top Companies" loading={companies === null} empty="No companies yet.">
+          <RankList
+            items={topCompanies}
+            accent="indigo"
+            renderMeta={(c) => `${c.industry || "Corporate"}${c.headquarters || c.country ? ` · ${c.headquarters || c.country}` : ""}`}
+            renderRight={(c) => <Metric value={c.employee_count || 0} label="employees" color="text-indigo-400" />}
+          />
+        </LeaderboardSection>
       </div>
 
-      {/* Rewards Link */}
-      <div className="bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 rounded-xl p-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Gift size={20} className="text-amber-400" />
-          <div>
-            <h3 className="text-white font-semibold text-sm">Referral Rewards</h3>
-            <p className="text-white/40 text-xs">Earn free months, plan upgrades, and exclusive rewards.</p>
+      {/* Featured Executives */}
+      <LeaderboardSection icon={Star} iconColor="text-amber-400" title="Featured Executives" loading={featuredExecutives === null} empty="No featured executives yet.">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {featured.map((ex) => (
+            <div key={ex.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-bold text-sm shrink-0">
+                {(ex.full_name || ex.first_name || "E").charAt(0)}
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm text-white/80 font-medium truncate flex items-center gap-1">
+                  {ex.full_name || ex.preferred_name || "Executive"}
+                  {ex.verified_executive && <Sparkles size={11} className="text-amber-400 shrink-0" />}
+                </div>
+                <div className="text-xs text-white/30 truncate">{ex.professional_headline || ex.current_role || "Executive Leader"}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </LeaderboardSection>
+
+      {/* Success Stories + Achievement Highlights */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LeaderboardSection icon={TrendingUp} iconColor="text-emerald-400" title="Success Stories" loading={shareEvents === null} empty="No stories shared yet.">
+          <div className="space-y-2">
+            {successStories.map((s, i) => (
+              <div key={s.id || i} className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.02]">
+                <Award size={14} className="text-emerald-400 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-sm text-white/80 font-medium truncate">{s.achievement_title}</div>
+                  <div className="text-xs text-white/30">{s.platform ? `Shared via ${s.platform}` : "Shared achievement"}</div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-        <Link to="/pricing" className="flex items-center gap-1.5 text-amber-400 text-sm hover:text-amber-300">
-          View Rewards <ArrowRight size={14} />
-        </Link>
+        </LeaderboardSection>
+        <LeaderboardSection icon={Award} iconColor="text-indigo-400" title="Achievement Highlights" loading={shareEvents === null} empty="No achievements yet.">
+          <div className="flex flex-wrap gap-2">
+            {achievementHighlights.map(([type, count]) => (
+              <div key={type} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <span className="text-sm text-white/70 capitalize">{type?.replace(/_/g, " ")}</span>
+                <span className="text-xs text-white/30">{count}</span>
+              </div>
+            ))}
+          </div>
+        </LeaderboardSection>
       </div>
+    </div>
+  );
+}
+
+function Metric({ value, label, color }) {
+  return (
+    <div className="text-right">
+      <div className={`text-sm font-bold ${color}`}>{value.toLocaleString()}</div>
+      <div className="text-[10px] text-white/30">{label}</div>
     </div>
   );
 }

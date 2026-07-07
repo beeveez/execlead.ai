@@ -32,18 +32,28 @@ export function prefetchRoute(path) {
   } else if (path === "/leaderboard") {
     const staleTime = 2 * 60 * 1000;
     queryClientInstance.prefetchQuery({
-      queryKey: ["leaderboard", "shareEvents"],
-      queryFn: () => base44.entities.ShareEvent.list("-created_date", 500).catch(() => []),
+      queryKey: ["publicLeaderboard", "learners"],
+      queryFn: () => base44.entities.UserProfile.filter({ public_visibility: "public", status: "active" }, "-xp_points", 50).catch(() => []),
       staleTime,
     });
     queryClientInstance.prefetchQuery({
-      queryKey: ["leaderboard", "referrals"],
-      queryFn: () => base44.entities.Referral.list("-created_date", 500).catch(() => []),
+      queryKey: ["publicLeaderboard", "organizations"],
+      queryFn: () => base44.entities.Organization.list("-seats_used", 20).catch(() => []),
       staleTime,
     });
     queryClientInstance.prefetchQuery({
-      queryKey: ["leaderboard", "topLearners"],
-      queryFn: () => base44.entities.UserProfile.filter({ status: "active" }, "-xp_points", 100).catch(() => []),
+      queryKey: ["publicLeaderboard", "companies"],
+      queryFn: () => base44.entities.Company.filter({ is_archived: false, status: "approved" }, "-employee_count", 20).catch(() => []),
+      staleTime,
+    });
+    queryClientInstance.prefetchQuery({
+      queryKey: ["publicLeaderboard", "featuredExecutives"],
+      queryFn: () => base44.entities.UserProfile.filter({ verified_executive: true }, "-xp_points", 12).catch(() => []),
+      staleTime,
+    });
+    queryClientInstance.prefetchQuery({
+      queryKey: ["publicLeaderboard", "shareEvents"],
+      queryFn: () => base44.entities.ShareEvent.list("-created_date", 100).catch(() => []),
       staleTime,
     });
   }

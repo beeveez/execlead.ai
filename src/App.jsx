@@ -85,6 +85,7 @@ import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
 import Legal from '@/pages/Legal';
 const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
+import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import Feedback from '@/pages/Feedback';
 import PublicProfile from '@/pages/PublicProfile';
@@ -117,6 +118,7 @@ const AuthenticatedApp = () => {
       <Route element={<MarketingLayout />}>
         <Route path="/" element={<Suspense fallback={<LandingSkeleton />}><Landing /></Suspense>} />
         <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><Pricing /></Suspense>} />
+        <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -189,7 +191,7 @@ const AuthenticatedApp = () => {
           <Route path="/promotion-readiness" element={<FeatureGate featureId="promotion_readiness"><PromotionReadiness /></FeatureGate>} />
           <Route path="/learning-assignments" element={<FeatureGate featureId="learning_assignments"><LearningAssignments /></FeatureGate>} />
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
-          <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
+          <Route path="/executive/rankings" element={<ExecutiveRankings />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
           <Route path="/feedback" element={<Feedback />} />
         </Route>

@@ -69,6 +69,11 @@ export default function Marketplace() {
   const continueLearning = useMemo(() => items.filter((i) => purchasedIds.has(i.id)).slice(0, 8), [items, purchasedIds]);
   const collections = useMemo(() => [...new Set(items.map((i) => i.collection).filter(Boolean))], [items]);
   const bundles = useMemo(() => items.filter((i) => i.is_bundle), [items]);
+  const purchasedCollections = useMemo(() => {
+    const set = new Set();
+    items.forEach((i) => { if (purchasedIds.has(i.id) && i.collection) set.add(i.collection); });
+    return set;
+  }, [items, purchasedIds]);
 
   const filtered = useMemo(() => {
     let result = items;
@@ -170,7 +175,11 @@ export default function Marketplace() {
           )}
 
           {/* Company Collections */}
-          <CompanyCollections availableCollections={collections} onSelect={(c) => { setActiveCollection(c); window.scrollTo({ top: 300, behavior: "smooth" }); }} />
+          <CompanyCollections
+            isEnterprise={isEnterprise}
+            ownedCollectionNames={purchasedCollections}
+            onFilterMarketplace={(name) => { setActiveCollection(name); setSelected(null); window.scrollTo({ top: 300, behavior: "smooth" }); }}
+          />
 
           {/* Executive Bundles */}
           <ExecutiveBundles bundles={bundles} onSelect={selectBundle} />

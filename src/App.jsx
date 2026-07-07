@@ -77,6 +77,8 @@ import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
 import Legal from '@/pages/Legal';
 import Leaderboard from '@/pages/Leaderboard';
+import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
+import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
 
@@ -110,6 +112,7 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/legal" element={<Legal />} />
+      <Route path="/u/:username" element={<PublicProfile />} />
 
       {/* Protected */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
@@ -174,6 +177,7 @@ const AuthenticatedApp = () => {
           <Route path="/learning-assignments" element={<FeatureGate featureId="learning_assignments"><LearningAssignments /></FeatureGate>} />
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
         </Route>
       </Route>
 

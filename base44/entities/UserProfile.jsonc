@@ -253,6 +253,17 @@
     "subscription_cycle": {
       "type": "string",
       "default": "monthly"
+    },
+    "public_username": {
+      "type": "string"
+    },
+    "public_profile_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "verified_executive": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

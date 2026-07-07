@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { getNavGroups, normalizeRole, getEffectiveRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
 import DeveloperSwitch from "@/components/developer/DeveloperSwitch";
 import RoleRoute from "@/components/RoleRoute";
-import { LogOut, Menu, X, ChevronRight } from "lucide-react";
+import { LogOut, Menu, X, ChevronRight, Crown } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import DebugPanel from "@/components/developer/DebugPanel";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
@@ -97,6 +97,9 @@ export default function AppLayout() {
                   <span className="text-xs font-medium" style={{ color: subscription.color }}>{subscription.planName}</span>
                 </>
               )}
+            </Link>
+            <Link to="/brand-center" className="text-white/60 p-1.5">
+              <Crown size={18} className="text-amber-400" />
             </Link>
             <ShareButton variant="icon" shareType="landing" iconSize={16} />
             <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 p-1">

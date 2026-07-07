@@ -31,6 +31,15 @@ export const ACHIEVEMENT_TYPES = {
   promotion_achieved: { label: "Promotion Achieved", icon: "Rocket", badge: "🚀", color: "#ef4444" },
   new_subscription: { label: "New Subscription", icon: "Sparkles", badge: "✨", color: "#6366f1" },
   founding_member: { label: "Founding Member", icon: "Crown", badge: "👑", color: "#f59e0b" },
+  top_performer: { label: "Top Performer", icon: "Trophy", badge: "🏆", color: "#f59e0b" },
+  top_mentor: { label: "Top Mentor", icon: "Heart", badge: "🤝", color: "#14b8a6" },
+  ai_leader: { label: "AI Leader", icon: "Brain", badge: "🤖", color: "#6366f1" },
+  digital_transformation_leader: { label: "Digital Transformation Leader", icon: "Zap", badge: "⚡", color: "#3b82f6" },
+  future_cio: { label: "Future CIO", icon: "Monitor", badge: "💻", color: "#6366f1" },
+  future_coo: { label: "Future COO", icon: "Settings", badge: "⚙️", color: "#f97316" },
+  future_ceo: { label: "Future CEO", icon: "Crown", badge: "👑", color: "#ef4444" },
+  learning_streak: { label: "Learning Streak", icon: "Flame", badge: "🔥", color: "#f97316" },
+  marketplace_purchase: { label: "Marketplace Purchase", icon: "ShoppingBag", badge: "🛍️", color: "#6366f1" },
 };
 
 /* ------------------------------------------------------------------ */
@@ -201,6 +210,85 @@ export function captureReferralCode() {
 export function getStoredReferralCode() {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("execlead_referral_code");
+}
+
+/* ------------------------------------------------------------------ */
+/* EXECUTIVE ACHIEVEMENT GALLERY                                      */
+/* ------------------------------------------------------------------ */
+export const EXECUTIVE_ACHIEVEMENT_GALLERY = [
+  { id: "promotion_readiness", label: "Promotion Ready", badge: "📈", color: "#06b6d4", desc: "Achieved promotion readiness" },
+  { id: "leadership_dna_milestone", label: "Leadership DNA", badge: "🧬", color: "#a855f7", desc: "Completed Leadership DNA assessment" },
+  { id: "resume_score_improved", label: "Resume Health Score", badge: "📄", color: "#3b82f6", desc: "Optimized executive resume" },
+  { id: "learning_path_completed", label: "Executive Academy", badge: "🎯", color: "#10b981", desc: "Completed a learning path" },
+  { id: "certificate_earned", label: "Executive Certificate", badge: "🏆", color: "#f59e0b", desc: "Earned an executive certificate" },
+  { id: "interview_score", label: "Interview Success", badge: "💬", color: "#ec4899", desc: "Aced an executive interview" },
+  { id: "council_completed", label: "Council Decision", badge: "👥", color: "#a855f7", desc: "Completed a council session" },
+  { id: "learning_streak", label: "Learning Streak", badge: "🔥", color: "#f97316", desc: "Maintained a learning streak" },
+  { id: "marketplace_purchase", label: "Marketplace Purchase", badge: "🛍️", color: "#6366f1", desc: "Acquired executive intelligence" },
+  { id: "promotion_achieved", label: "New Promotion", badge: "🚀", color: "#ef4444", desc: "Achieved a promotion" },
+  { id: "top_performer", label: "Top Performer", badge: "🏆", color: "#f59e0b", desc: "Top executive performer" },
+  { id: "future_cio", label: "Future CIO", badge: "💻", color: "#6366f1", desc: "On the path to CIO" },
+  { id: "future_coo", label: "Future COO", badge: "⚙️", color: "#f97316", desc: "On the path to COO" },
+  { id: "future_ceo", label: "Future CEO", badge: "👑", color: "#ef4444", desc: "On the path to CEO" },
+];
+
+export const EXECUTIVE_TIMELINE_TYPES = [
+  { id: "learning_path", label: "Completed Learning Path", badge: "🎯", color: "#10b981" },
+  { id: "promotion", label: "Promotion", badge: "🚀", color: "#ef4444" },
+  { id: "education", label: "Education Milestone", badge: "🎓", color: "#10b981" },
+  { id: "certification", label: "Certification", badge: "🏆", color: "#f59e0b" },
+  { id: "publication", label: "Published Article", badge: "📝", color: "#6366f1" },
+  { id: "career_move", label: "Joined Company", badge: "🏢", color: "#64748b" },
+  { id: "council_session", label: "Council Session", badge: "👥", color: "#a855f7" },
+  { id: "challenge", label: "Challenge Completed", badge: "⚔️", color: "#6366f1" },
+];
+
+export function getExecutiveSlug(profile) {
+  if (!profile) return null;
+  if (profile.public_username) return profile.public_username;
+  const name = profile.full_name || profile.display_name || profile.first_name || "";
+  if (!name) return null;
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+export function getPublicProfileUrl(username) {
+  const base = typeof window !== "undefined" ? window.location.origin : SHARE_WEBSITE;
+  return username ? `${base}/u/${username}` : base;
+}
+
+export function getLeadershipLevel(score) {
+  if (score >= 86) return "C-Suite Ready";
+  if (score >= 71) return "Executive Leader";
+  if (score >= 51) return "Strategic Leader";
+  if (score >= 31) return "Developing Leader";
+  return "Emerging Leader";
+}
+
+export function computeExecutiveScore(profile) {
+  if (!profile) return 0;
+  const metrics = [
+    profile.promotion_readiness || 0,
+    profile.leadership_maturity || 0,
+    profile.commercial_maturity || 0,
+    profile.communication_growth || 0,
+    profile.executive_presence || 0,
+    profile.confidence || 0,
+  ];
+  return Math.round(metrics.reduce((a, b) => a + b, 0) / metrics.length);
+}
+
+export function buildLinkedInOptimizedPost({ userName, achievements, score, level, customMessage }) {
+  if (customMessage) return customMessage;
+  const lines = [
+    "I've been investing in my executive development through EXECLEAD.AI.",
+    "",
+    "Today I achieved:",
+  ];
+  (achievements || []).forEach(a => lines.push(`✓ ${a}`));
+  if (score) lines.push(`✓ ${score}% Promotion Readiness`);
+  if (level) lines.push(`✓ ${level}`);
+  lines.push("", "Always learning. Always growing.", "", "#Leadership", "#ExecutiveDevelopment", "#FutureCIO", "#DigitalTransformation", "#EXECLEADAI");
+  return lines.join("\n");
 }
 
 /* ------------------------------------------------------------------ */

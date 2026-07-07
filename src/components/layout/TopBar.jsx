@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import AccountMenu from "@/components/layout/AccountMenu";
 import ShareButton from "@/components/social/ShareButton";
-import { Bell, CreditCard } from "lucide-react";
+import { Bell, CreditCard, Crown } from "lucide-react";
 
 export default function TopBar() {
   const { subscription, loading } = useSubscription();
@@ -34,6 +34,9 @@ export default function TopBar() {
 
   return (
     <div className="hidden lg:flex items-center justify-end gap-3 px-8 py-2.5 border-b border-white/5">
+      <Link to="/brand-center" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60 hover:text-white/80">
+        <Crown size={14} className="text-amber-400" /> Brand Center
+      </Link>
       <ShareButton variant="icon" shareType="landing" iconSize={15} />
       <AccountMenu />
       <Link to="/billing" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">

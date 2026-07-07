@@ -5,7 +5,7 @@ import TopBar from "@/components/layout/TopBar";
 import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
-import { getNavGroups, normalizeRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
+import { getNavGroups, normalizeRole, getEffectiveRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
 import DeveloperSwitch from "@/components/developer/DeveloperSwitch";
 import RoleRoute from "@/components/RoleRoute";
 import { LogOut, Menu, X, ChevronRight } from "lucide-react";
@@ -35,14 +35,14 @@ function NavItem({ item, active, onClick }) {
 export default function AppLayout() {
   const location = useLocation();
   const { user } = useAuth();
-  const { subscription, loading: loadingSub } = useSubscription();
+  const { subscription, loading: loadingSub, profile } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const { developerMode, canAccessDeveloper } = useDeveloper();
   const showWorkspace = canAccessDeveloper && developerMode;
   const navGroups = showWorkspace
     ? [...getNavGroups("customer"), ...DEVELOPER_WORKSPACE_NAV]
-    : getNavGroups(normalizeRole(user?.role));
+    : getNavGroups(getEffectiveRole(user?.role, profile));
 
   const handleLogout = () => {
     base44.auth.logout("/login");

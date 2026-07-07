@@ -19,7 +19,9 @@ export const ROLES = {
   guest: { label: "Guest", tier: 0, description: "Unauthenticated visitor" },
   customer: { label: "Customer", tier: 10, description: "Standard platform user" },
   enterprise_user: { label: "Enterprise User", tier: 20, description: "Enterprise organization member" },
+  enterprise_manager: { label: "Enterprise Manager", tier: 25, description: "Enterprise team manager" },
   enterprise_admin: { label: "Enterprise Admin", tier: 30, description: "Enterprise organization administrator" },
+  organization_owner: { label: "Organization Owner", tier: 35, description: "Organization owner with full admin access" },
   support: { label: "Support", tier: 40, description: "Customer support agent" },
   sales: { label: "Sales", tier: 45, description: "Sales representative" },
   finance: { label: "Finance", tier: 50, description: "Finance and billing manager" },
@@ -56,6 +58,35 @@ export function normalizeRole(role) {
   return "customer";
 }
 
+// Maps UserProfile.custom_role display strings to role keys
+const CUSTOM_ROLE_MAP = {
+  "organization owner": "organization_owner",
+  "enterprise admin": "enterprise_admin",
+  "enterprise manager": "enterprise_manager",
+  "enterprise user": "enterprise_user",
+};
+
+// Computes the effective role from User.role + UserProfile (org membership + custom_role).
+// Necessary because User.role cannot be changed by the app — enterprise activation
+// writes custom_role + organization_id to the profile instead.
+export function getEffectiveRole(userRole, profile) {
+  const baseRole = normalizeRole(userRole);
+
+  // Platform-level administrative roles take precedence
+  if (["super_admin", "platform_admin", "developer", "support", "sales", "finance", "content_manager"].includes(baseRole)) {
+    return baseRole;
+  }
+
+  // Enterprise membership via profile
+  if (profile?.organization_id) {
+    const customRole = CUSTOM_ROLE_MAP[(profile.custom_role || "").toLowerCase()];
+    if (customRole) return customRole;
+    return "enterprise_user";
+  }
+
+  return baseRole;
+}
+
 export function canAccessDeveloperWorkspace(role) {
   const r = normalizeRole(role);
   return r === "developer" || r === "super_admin";
@@ -66,11 +97,14 @@ export function canAccessDeveloperWorkspace(role) {
 // ============================================================
 
 const ALL_AUTHED = [
-  "customer", "enterprise_user", "enterprise_admin", "support", "sales",
-  "finance", "content_manager", "platform_admin", "developer", "super_admin",
+  "customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner",
+  "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin",
 ];
-const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_admin", "platform_admin", "super_admin"];
-const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "platform_admin", "super_admin"];
+// Customer sidebar roles — excludes enterprise roles so enterprise users
+// get the Enterprise sidebar instead of the individual customer sidebar.
+const CUSTOMER_NAV_ROLES = ["customer", "support", "sales", "finance", "content_manager", "platform_admin", "super_admin"];
+const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "platform_admin", "super_admin"];
+const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "organization_owner", "platform_admin", "super_admin"];
 
 // ============================================================
 // NAVIGATION GROUPS — single source of truth for the sidebar.
@@ -80,7 +114,7 @@ const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "platform_admin", "super_adm
 export const NAV_GROUPS = [
   {
     label: "Platform",
-    roles: ALL_AUTHED,
+    roles: CUSTOMER_NAV_ROLES,
     items: [
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { path: "/academy", label: "Academy", icon: GraduationCap },
@@ -92,7 +126,7 @@ export const NAV_GROUPS = [
   },
   {
     label: "Career",
-    roles: ALL_AUTHED,
+    roles: CUSTOMER_NAV_ROLES,
     items: [
       { path: "/career-studio", label: "Career Studio", icon: Briefcase },
       { path: "/resume", label: "Resume AI", icon: FileText },
@@ -102,14 +136,14 @@ export const NAV_GROUPS = [
   },
   {
     label: "Insights",
-    roles: ALL_AUTHED,
+    roles: CUSTOMER_NAV_ROLES,
     items: [
       { path: "/analytics", label: "Analytics", icon: BarChart3 },
     ],
   },
   {
     label: "Account",
-    roles: ALL_AUTHED,
+    roles: CUSTOMER_NAV_ROLES,
     items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/billing", label: "Billing", icon: CreditCard },
@@ -118,28 +152,49 @@ export const NAV_GROUPS = [
     ],
   },
 
-  // Enterprise (Customer sidebar + org tools)
+  // Enterprise Sidebar — organizational workspace (replaces customer sidebar)
   {
-    label: "Enterprise",
+    label: "Enterprise Workspace",
     roles: ENTERPRISE_ROLES,
     items: [
-      { path: "/enterprise", label: "Organization", icon: Network },
-      { path: "/learning-assignments", label: "Learning Assignments", icon: ClipboardCheck },
-      { path: "/hr-dashboard", label: "Department Analytics", icon: BarChart3 },
-      { path: "/succession-planning", label: "Seat Usage", icon: Users },
-      { path: "/promotion-readiness", label: "Organization Reports", icon: FileText },
+      { path: "/enterprise", label: "Enterprise Dashboard", icon: LayoutDashboard },
+      { path: "/academy", label: "Executive Academy", icon: GraduationCap },
+      { path: "/coach", label: "Executive Coach", icon: MessageSquare },
+      { path: "/simulator", label: "Executive Simulator", icon: Brain },
+      { path: "/council", label: "Executive Council", icon: Network },
+      { path: "/leadership-dna", label: "Leadership DNA", icon: Scale },
+      { path: "/marketplace", label: "Marketplace", icon: Store },
     ],
   },
-
-  // Enterprise Admin (Enterprise + admin tools)
+  {
+    label: "Organization",
+    roles: ENTERPRISE_ROLES,
+    items: [
+      { path: "/companies", label: "Organization Intelligence", icon: Building2 },
+      { path: "/analytics", label: "Leadership Analytics", icon: BarChart3 },
+      { path: "/hr-dashboard", label: "Department Analytics", icon: Users },
+      { path: "/learning-assignments", label: "Learning Assignments", icon: ClipboardCheck },
+      { path: "/promotion-readiness", label: "Promotion Readiness", icon: TrendingUp },
+    ],
+  },
   {
     label: "Administration",
     roles: ENTERPRISE_ADMIN_ROLES,
     items: [
       { path: "/admin", label: "User Management", icon: Shield },
-      { path: "/enterprise", label: "Organization Settings", icon: SettingsIcon },
-      { path: "/analytics", label: "Reports", icon: BarChart3 },
-      { path: "/hr-dashboard", label: "Team Dashboard", icon: Users },
+      { path: "/succession-planning", label: "Seat Management", icon: Users },
+      { path: "/sso", label: "SSO & Identity", icon: KeyRound },
+      { path: "/settings", label: "Organization Settings", icon: SettingsIcon },
+    ],
+  },
+  {
+    label: "Account & Billing",
+    roles: ENTERPRISE_ROLES,
+    items: [
+      { path: "/billing", label: "Billing & Invoices", icon: CreditCard },
+      { path: "/ai-usage", label: "Usage", icon: Cpu },
+      { path: "/connected-accounts", label: "API Integrations", icon: KeyRound },
+      { path: "/profile", label: "Profile", icon: UserCircle },
     ],
   },
 
@@ -295,20 +350,11 @@ export const ROUTE_ACCESS = {
   "/email-settings": ["platform_admin", "super_admin"],
 };
 
-// Enterprise member routes unlockable by org membership (not admin-only routes)
-const ENTERPRISE_MEMBER_ROUTES = [
-  "/enterprise", "/hr-dashboard", "/succession-planning",
-  "/promotion-readiness", "/learning-assignments",
-];
-
-export function canAccessRoute(role, path, opts = {}) {
+export function canAccessRoute(role, path) {
   const normalized = normalizeRole(role);
   const allowed = ROUTE_ACCESS[path];
   if (!allowed) return true; // customer route — any authenticated user
-  if (allowed.includes(normalized)) return true;
-  // Enterprise member routes: allow if user has an active org on their profile
-  if (opts.hasEnterpriseOrg && ENTERPRISE_MEMBER_ROUTES.includes(path)) return true;
-  return false;
+  return allowed.includes(normalized);
 }
 
 // ============================================================
@@ -330,7 +376,7 @@ export function getRoleTier(role) {
 
 export function getRolePlan(role) {
   const r = normalizeRole(role);
-  if (["platform_admin", "super_admin", "enterprise_admin", "enterprise_user"].includes(r)) return "enterprise";
+  if (["platform_admin", "super_admin", "enterprise_admin", "enterprise_manager", "organization_owner", "enterprise_user"].includes(r)) return "enterprise";
   return "free";
 }
 
@@ -345,10 +391,10 @@ export function isPlatformAdmin(role) {
 
 export function isEnterpriseAdmin(role) {
   const r = normalizeRole(role);
-  return ["enterprise_admin", "platform_admin", "super_admin"].includes(r);
+  return ["enterprise_admin", "organization_owner", "platform_admin", "super_admin"].includes(r);
 }
 
 export function isAdminLevel(role) {
   const r = normalizeRole(role);
-  return ["enterprise_admin", "platform_admin", "super_admin"].includes(r);
+  return ["enterprise_admin", "organization_owner", "platform_admin", "super_admin"].includes(r);
 }

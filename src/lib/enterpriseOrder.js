@@ -1,6 +1,7 @@
 import { base44 } from "@/api/base44Client";
 import { generateContractPDF } from "@/lib/contractPdf";
 import { processEnterprisePayment } from "@/lib/enterprisePayments";
+import { provisionEnterpriseWorkspace } from "@/lib/enterpriseProvisioning";
 import { buildWelcomeEmail, buildContractReadyEmail, buildPaymentConfirmationEmail } from "@/lib/enterpriseEmail";
 import { sendTransactionalEmail } from "@/lib/emailProvider";
 import { logBillingEvent } from "@/lib/payments";
@@ -293,20 +294,8 @@ export async function activateEnterprise(quote, breakdown) {
     activated_at: now.toISOString(),
   });
 
-  // Upgrade the user's profile to enterprise
-  if (me) {
-    try {
-      const profiles = await base44.entities.UserProfile.filter({ created_by_id: me.id });
-      if (profiles[0]) {
-        await base44.entities.UserProfile.update(profiles[0].id, {
-          subscription_plan: "enterprise",
-          subscription_status: "active",
-          subscription_cycle: "annual",
-          organization_id: org.id,
-        });
-      }
-    } catch (e) {}
-  }
+  // Provision enterprise workspace: assign owner role, create departments, enable modules
+  const provisioning = await provisionEnterpriseWorkspace(quote, breakdown, org, me);
 
   // Final status: active
   const updated = await base44.entities.CPQQuote.update(quote.id, { status: "active" });
@@ -348,7 +337,7 @@ export async function activateEnterprise(quote, breakdown) {
     }),
   ]);
 
-  return { organization: org, quote: updated };
+  return { organization: org, quote: updated, provisioning };
 }
 
 // ============================================================

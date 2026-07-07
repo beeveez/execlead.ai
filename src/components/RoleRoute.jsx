@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { canAccessRoute, normalizeRole } from "@/lib/roles";
+import { canAccessRoute, normalizeRole, getEffectiveRole } from "@/lib/roles";
 
 /**
  * RoleRoute — enforces role-based access on every route rendered
@@ -18,17 +18,16 @@ export default function RoleRoute({ children }) {
   const { user } = useAuth();
   const { profile, loading } = useSubscription();
   const location = useLocation();
-  const role = normalizeRole(user?.role);
+  const baseRole = normalizeRole(user?.role);
 
-  // Role alone grants access — render immediately
-  if (canAccessRoute(role, location.pathname)) return children;
+  // Base role grants access — render immediately
+  if (canAccessRoute(baseRole, location.pathname)) return children;
 
-  // Role doesn't grant access — wait for profile to check org membership
+  // Base role doesn't grant — wait for profile to compute effective role
   if (loading) return null;
 
-  if (canAccessRoute(role, location.pathname, { hasEnterpriseOrg: !!profile?.organization_id })) {
-    return children;
-  }
+  const effectiveRole = getEffectiveRole(user?.role, profile);
+  if (canAccessRoute(effectiveRole, location.pathname)) return children;
 
   return <Navigate to="/dashboard" replace />;
 }

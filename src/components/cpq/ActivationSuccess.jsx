@@ -28,10 +28,10 @@ export default function ActivationSuccess({ quote, organization, breakdown }) {
           <CheckCircle2 size={40} className="text-emerald-400" />
         </motion.div>
 
-        <h2 className="text-2xl font-bold text-white mb-2">Enterprise Successfully Activated 🎉</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Welcome to EXECLEAD Enterprise</h2>
         <p className="text-white/50 text-sm mb-6">
-          Your enterprise subscription for <span className="text-white/70 font-medium">{quote.organization_name}</span> is now live.
-          Your organization has been provisioned and your admin portal is ready.
+          Your organization <span className="text-white/70 font-medium">{quote.organization_name}</span> has been created.
+          Your enterprise workspace is provisioned and ready.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 text-left">
@@ -54,7 +54,37 @@ export default function ActivationSuccess({ quote, organization, breakdown }) {
           ))}
         </div>
 
+        {/* Next Steps */}
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 mb-6 text-left">
+          <h3 className="text-sm font-semibold text-white mb-1">Next Steps</h3>
+          <p className="text-white/40 text-xs mb-4">Complete these steps to set up your organization:</p>
+          <div className="space-y-1.5">
+            {[
+              { label: "Invite Team Members", path: `/portal/${quote.id}` },
+              { label: "Configure SSO", path: "/sso" },
+              { label: "Assign Seats", path: "/succession-planning" },
+              { label: "Create Departments", path: "/hr-dashboard" },
+              { label: "Launch Leadership Academy", path: "/academy" },
+            ].map((step, i) => (
+              <Link key={i} to={step.path} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 size={12} className="text-emerald-400" />
+                </div>
+                <span className="text-sm text-white/60 group-hover:text-white/80">{step.label}</span>
+                <ArrowRight size={12} className="ml-auto text-white/20 group-hover:text-white/40" />
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            to="/enterprise"
+            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors"
+          >
+            <Building2 size={16} /> Enter Enterprise Dashboard
+            <ArrowRight size={14} />
+          </Link>
           <Link
             to={`/portal/${quote.id}`}
             className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"

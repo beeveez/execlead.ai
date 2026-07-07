@@ -1,38 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Crown, Briefcase, Award, Mail, Globe, Code, ExternalLink, BadgeCheck, TrendingUp, Brain, Target } from "lucide-react";
-import { computeExecutiveScore, getLeadershipLevel } from "@/lib/socialShare";
+import { safeParse } from "@/components/profile/FormFields";
+import { computeExecutiveScore, getLeadershipLevel, getPublicProfileUrl, getQrUrl } from "@/lib/socialShare";
+import {
+  Crown, Briefcase, Award, Globe, Code, ExternalLink, BadgeCheck,
+  TrendingUp, Brain, Target, Lock, UserX, Download, QrCode,
+} from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
-function parseJson(json, fallback) {
-  try { return JSON.parse(json) || fallback; } catch { return fallback; }
+function updateMetaTag(name, content) {
+  if (!content) return;
+  let tag = document.querySelector(`meta[property="${name}"], meta[name="${name}"]`);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute(name.startsWith("og:") ? "property" : "name", name);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", content);
 }
 
 export default function PublicProfile() {
   const { username } = useParams();
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [state, setState] = useState("loading");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const results = await base44.entities.UserProfile.filter({ public_username: username, public_profile_enabled: true });
+        const results = await base44.entities.UserProfile.filter({ public_username: username });
         if (results && results.length > 0) {
-          setProfile(results[0]);
+          const p = results[0];
+          const isPublic = p.public_profile_enabled && (p.public_visibility || "public") === "public";
+          if (isPublic) {
+            setProfile(p);
+            setState("published");
+            document.title = `${p.full_name} — Executive Profile | EXECLEAD.AI`;
+            updateMetaTag("og:title", `${p.full_name} — Executive Profile`);
+            updateMetaTag("og:description", p.professional_headline || p.bio || "");
+            updateMetaTag("og:type", "profile");
+            if (p.profile_photo) updateMetaTag("og:image", p.profile_photo);
+            if (!p.allow_search_indexing) updateMetaTag("robots", "noindex, nofollow");
+          } else {
+            setState("private");
+          }
         } else {
-          setNotFound(true);
+          setState("not_found");
         }
       } catch (e) {
-        setNotFound(true);
+        setState("not_found");
       }
-      setLoading(false);
     };
     load();
   }, [username]);
 
-  if (loading) {
+  if (state === "loading") {
     return (
       <div className="min-h-screen bg-[#08080d] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-indigo-900 border-t-indigo-400 rounded-full animate-spin" />
@@ -40,13 +62,15 @@ export default function PublicProfile() {
     );
   }
 
-  if (notFound || !profile) {
+  if (state === "not_found") {
     return (
       <div className="min-h-screen bg-[#08080d] text-white flex items-center justify-center p-4">
-        <div className="text-center">
-          <Crown size={32} className="mx-auto text-white/20 mb-3" />
+        <div className="text-center max-w-sm">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+            <UserX size={28} className="text-white/30" />
+          </div>
           <h1 className="text-xl font-bold text-white mb-2">Profile Not Found</h1>
-          <p className="text-white/40 text-sm mb-6">This executive profile is not available or has not been made public.</p>
+          <p className="text-white/40 text-sm mb-6">This executive profile could not be found. The username may be incorrect or the profile may have been removed.</p>
           <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
             Visit EXECLEAD.AI <ExternalLink size={14} />
           </Link>
@@ -55,18 +79,41 @@ export default function PublicProfile() {
     );
   }
 
-  const execScore = computeExecutiveScore(profile);
+  if (state === "private") {
+    return (
+      <div className="min-h-screen bg-[#08080d] text-white flex items-center justify-center p-4">
+        <div className="text-center max-w-sm">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+            <Lock size={28} className="text-white/30" />
+          </div>
+          <h1 className="text-xl font-bold text-white mb-2">This Profile is Private</h1>
+          <p className="text-white/40 text-sm mb-6">This executive profile is private. The owner has not made it publicly visible.</p>
+          <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
+            Visit EXECLEAD.AI <ExternalLink size={14} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const p = profile;
+  const execScore = computeExecutiveScore(p);
   const level = getLeadershipLevel(execScore);
-  const skills = profile.skills || [];
-  const experience = parseJson(profile.experience_json, []);
-  const education = parseJson(profile.education_json, []);
-  const certifications = parseJson(profile.certifications_json, []);
+  const skills = p.skills || [];
+  const experience = safeParse(p.experience_json, []);
+  const education = safeParse(p.education_json, []);
+  const certifications = safeParse(p.certifications_json, []);
+  const content = safeParse(p.public_content_json, {});
+  const show = (key) => content[key] !== false;
+  const publicUrl = getPublicProfileUrl(p.public_username);
+  const qrUrl = getQrUrl(publicUrl);
+
   const metrics = [
-    { label: "Promotion Readiness", value: profile.promotion_readiness || 0, suffix: "%", icon: TrendingUp, color: "#06b6d4" },
-    { label: "Leadership DNA", value: profile.leadership_maturity || 0, suffix: "%", icon: Brain, color: "#a855f7" },
-    { label: "Executive Score", value: execScore, suffix: "/100", icon: Crown, color: "#6366f1" },
-    { label: "Leadership Level", value: level, icon: Award, color: "#f59e0b" },
-  ];
+    { key: "promotion_readiness", label: "Promotion Readiness", value: p.promotion_readiness || 0, suffix: "%", icon: TrendingUp, color: "#06b6d4" },
+    { key: "leadership_dna", label: "Leadership DNA", value: p.leadership_maturity || 0, suffix: "%", icon: Brain, color: "#a855f7" },
+    { key: "executive_score", label: "Executive Score", value: execScore, suffix: "/100", icon: Crown, color: "#6366f1" },
+    { key: "level", label: "Leadership Level", value: level, icon: Award, color: "#f59e0b" },
+  ].filter(m => show(m.key));
 
   return (
     <div className="min-h-screen bg-[#08080d] text-white">
@@ -80,63 +127,76 @@ export default function PublicProfile() {
       </nav>
 
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
+        {/* Header */}
         <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/10 rounded-2xl p-6">
           <div className="flex items-start gap-5 flex-wrap">
             <div className="relative">
-              {profile.profile_photo ? (
-                <img src={profile.profile_photo} alt={profile.full_name} className="w-24 h-24 rounded-full object-cover border-2 border-indigo-500/30" />
+              {p.profile_photo ? (
+                <img src={p.profile_photo} alt={p.full_name} className="w-24 h-24 rounded-full object-cover border-2 border-indigo-500/30" />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500/20 to-violet-500/10 flex items-center justify-center text-3xl font-bold border-2 border-indigo-500/30">
-                  {(profile.full_name || "?").charAt(0)}
+                  {(p.full_name || "?").charAt(0)}
                 </div>
               )}
-              {profile.verified_executive && (
+              {p.verified_executive && (
                 <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#08080d] flex items-center justify-center border-2 border-emerald-500/30">
                   <BadgeCheck size={14} className="text-emerald-400" />
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-white">{profile.full_name}</h1>
-              <p className="text-white/50 text-sm mt-0.5">{profile.professional_headline || profile.current_role}</p>
-              {profile.current_company && <p className="text-white/30 text-sm">{profile.current_company}</p>}
+              <h1 className="text-2xl font-bold text-white">{p.full_name}</h1>
+              {show("executive_summary") && (p.professional_headline || p.current_role) && (
+                <p className="text-white/50 text-sm mt-0.5">{p.professional_headline || p.current_role}</p>
+              )}
+              {p.current_company && <p className="text-white/30 text-sm">{p.current_company}</p>}
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">{level}</span>
-                {profile.target_role && (
+                {p.target_role && (
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-white/40 border border-white/10">
-                    <Target size={9} /> {profile.target_role}
+                    <Target size={9} /> {p.target_role}
                   </span>
                 )}
               </div>
             </div>
+            {/* QR Code */}
+            <div className="flex flex-col items-center gap-1">
+              <img src={qrUrl} alt="QR Code" className="w-20 h-20 rounded-lg bg-white p-1.5" />
+              <span className="text-[9px] text-white/30 flex items-center gap-0.5"><QrCode size={8} /> Scan to view</span>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {metrics.map((m, i) => (
-            <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-              <m.icon size={16} style={{ color: m.color }} />
-              {typeof m.value === "number" ? (
-                <div className="flex items-baseline gap-0.5 mt-2">
-                  <span className="text-2xl font-bold" style={{ color: m.color }}>{m.value}</span>
-                  <span className="text-xs text-white/30">{m.suffix}</span>
-                </div>
-              ) : (
-                <div className="text-sm font-semibold mt-2" style={{ color: m.color }}>{m.value}</div>
-              )}
-              <div className="text-white/30 text-xs mt-0.5">{m.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {profile.bio && (
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-            <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-2">Biography</h2>
-            <p className="text-sm text-white/70 leading-relaxed">{profile.bio}</p>
+        {/* Metrics */}
+        {metrics.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {metrics.map((m, i) => (
+              <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <m.icon size={16} style={{ color: m.color }} />
+                {typeof m.value === "number" ? (
+                  <div className="flex items-baseline gap-0.5 mt-2">
+                    <span className="text-2xl font-bold" style={{ color: m.color }}>{m.value}</span>
+                    <span className="text-xs text-white/30">{m.suffix}</span>
+                  </div>
+                ) : (
+                  <div className="text-sm font-semibold mt-2" style={{ color: m.color }}>{m.value}</div>
+                )}
+                <div className="text-white/30 text-xs mt-0.5">{m.label}</div>
+              </div>
+            ))}
           </div>
         )}
 
-        {skills.length > 0 && (
+        {/* Executive Summary */}
+        {show("executive_summary") && p.bio && (
+          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+            <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-2">Executive Biography</h2>
+            <p className="text-sm text-white/70 leading-relaxed">{p.bio}</p>
+          </div>
+        )}
+
+        {/* Skills */}
+        {show("skills") && skills.length > 0 && (
           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
             <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Skills</h2>
             <div className="flex flex-wrap gap-2">
@@ -145,7 +205,8 @@ export default function PublicProfile() {
           </div>
         )}
 
-        {experience.length > 0 && (
+        {/* Experience / Career Timeline */}
+        {show("experience") && experience.length > 0 && (
           <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
             <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Career Timeline</h2>
             <div className="space-y-4">
@@ -163,8 +224,9 @@ export default function PublicProfile() {
           </div>
         )}
 
+        {/* Education & Certifications */}
         <div className="grid md:grid-cols-2 gap-4">
-          {education.length > 0 && (
+          {show("education") && education.length > 0 && (
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
               <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Education</h2>
               <div className="space-y-3">
@@ -177,7 +239,7 @@ export default function PublicProfile() {
               </div>
             </div>
           )}
-          {certifications.length > 0 && (
+          {show("certifications") && certifications.length > 0 && (
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
               <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Certifications</h2>
               <div className="space-y-2">
@@ -192,16 +254,28 @@ export default function PublicProfile() {
           )}
         </div>
 
+        {/* Resume Download */}
+        {show("resume") && p.resume_url && !p.public_hide_resume && (
+          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+            <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Resume</h2>
+            <a href={p.resume_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors">
+              <Download size={14} /> Download Resume
+            </a>
+          </div>
+        )}
+
+        {/* Connect / Social Links */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Connect</h2>
           <div className="flex flex-wrap gap-3">
-            {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><Briefcase size={14} /> LinkedIn</a>}
-            {profile.github_url && <a href={profile.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><Code size={14} /> GitHub</a>}
-            {profile.website_url && <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><Globe size={14} /> Website</a>}
-            {profile.portfolio_url && <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><ExternalLink size={14} /> Portfolio</a>}
+            {p.linkedin_url && <a href={p.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><Briefcase size={14} /> LinkedIn</a>}
+            {p.github_url && <a href={p.github_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><Code size={14} /> GitHub</a>}
+            {p.website_url && <a href={p.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><Globe size={14} /> Website</a>}
+            {p.portfolio_url && <a href={p.portfolio_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors"><ExternalLink size={14} /> Portfolio</a>}
           </div>
         </div>
 
+        {/* EXECLEAD CTA */}
         <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-xl p-6 text-center">
           <h3 className="text-white font-semibold">Advance your executive career with EXECLEAD.AI</h3>
           <p className="text-white/40 text-sm mt-1">Join thousands of leaders transforming into the executives their organizations need.</p>

@@ -20,8 +20,9 @@ import ProfileCompleteness from "@/components/profile/ProfileCompleteness";
 import ResumeSyncModal from "@/components/profile/ResumeSyncModal";
 import { extractResumeIdentity, saveResumeVersion, PARSER_VERSION } from "@/lib/resumeSync";
 import DataManagementSection from "@/components/profile/DataManagementSection";
+import PublicProfileSection from "@/components/profile/PublicProfileSection";
 import { createSnapshot, averageConfidence } from "@/lib/identityVersioning";
-import { Loader2, Save, UserCircle } from "lucide-react";
+import { Loader2, Save, UserCircle, Globe, Lock } from "lucide-react";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -59,6 +60,16 @@ export default function Profile() {
         hide_salary: profile.hide_salary || false,
         hide_resume: profile.hide_resume || false,
         hide_email: profile.hide_email || false,
+        public_username: profile.public_username || "",
+        public_profile_enabled: profile.public_profile_enabled || false,
+        public_visibility: profile.public_visibility || "private",
+        public_content_json: profile.public_content_json || "",
+        public_hide_email: profile.public_hide_email ?? true,
+        public_hide_phone: profile.public_hide_phone ?? true,
+        public_hide_address: profile.public_hide_address ?? true,
+        public_hide_salary: profile.public_hide_salary ?? true,
+        public_hide_notes: profile.public_hide_notes ?? true,
+        allow_search_indexing: profile.allow_search_indexing || false,
         experience: safeParse(profile.experience_json, []),
         education: safeParse(profile.education_json, []),
         certifications: safeParse(profile.certifications_json, []),
@@ -200,6 +211,16 @@ export default function Profile() {
       hide_salary: formData.hide_salary,
       hide_resume: formData.hide_resume,
       hide_email: formData.hide_email,
+      public_username: formData.public_username,
+      public_profile_enabled: formData.public_profile_enabled,
+      public_visibility: formData.public_visibility,
+      public_content_json: formData.public_content_json,
+      public_hide_email: formData.public_hide_email,
+      public_hide_phone: formData.public_hide_phone,
+      public_hide_address: formData.public_hide_address,
+      public_hide_salary: formData.public_hide_salary,
+      public_hide_notes: formData.public_hide_notes,
+      allow_search_indexing: formData.allow_search_indexing,
       skills: formData.skills,
       experience_json: JSON.stringify(formData.experience),
       education_json: JSON.stringify(formData.education),
@@ -235,6 +256,20 @@ export default function Profile() {
     setSaving(false);
   };
 
+  const handlePublish = async (published) => {
+    if (!profile) return;
+    setSaving(true);
+    try {
+      await base44.entities.UserProfile.update(profile.id, { public_profile_enabled: published });
+      setField("public_profile_enabled", published);
+      await refreshProfile();
+      toast({ title: published ? "Profile Published" : "Profile Unpublished", description: published ? "Your executive profile is now live." : "Your profile is now private." });
+    } catch (e) {
+      toast({ title: "Action Failed", description: "Could not update profile status.", variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
   if (!form || !profile) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
   }
@@ -253,6 +288,7 @@ export default function Profile() {
     experience: <ExperienceSection items={form.experience} onChange={arr => setField("experience", arr)} />,
     education: <EducationSection items={form.education} onChange={arr => setField("education", arr)} />,
     privacy: <PrivacySection form={form} setField={setField} />,
+    public: <PublicProfileSection form={form} setField={setField} profile={profile} onPublish={handlePublish} />,
     data: <DataManagementSection form={form} profile={profile} onApplyForm={applyFormChange} onResumeFile={(file) => handleResumeUpload({ target: { files: [file] } })} />,
     account: <AccountSection user={user} />,
   };
@@ -268,7 +304,18 @@ export default function Profile() {
             <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-0.5">
               <UserCircle size={12} className="text-indigo-400" /> Executive Identity Center
             </div>
-            <h1 className="text-xl font-bold text-white">{displayName}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-white">{displayName}</h1>
+              {form.public_profile_enabled ? (
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <Globe size={9} /> Public
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-white/40 border border-white/10">
+                  <Lock size={9} /> Private
+                </span>
+              )}
+            </div>
             {headline && <p className="text-white/40 text-sm">{headline}</p>}
           </div>
         </div>

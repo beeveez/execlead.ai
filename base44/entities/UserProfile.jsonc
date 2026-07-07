@@ -261,6 +261,43 @@
       "type": "boolean",
       "default": false
     },
+    "public_visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "connections",
+        "organization",
+        "private"
+      ],
+      "default": "private"
+    },
+    "public_content_json": {
+      "type": "string"
+    },
+    "public_hide_email": {
+      "type": "boolean",
+      "default": true
+    },
+    "public_hide_phone": {
+      "type": "boolean",
+      "default": true
+    },
+    "public_hide_address": {
+      "type": "boolean",
+      "default": true
+    },
+    "public_hide_salary": {
+      "type": "boolean",
+      "default": true
+    },
+    "public_hide_notes": {
+      "type": "boolean",
+      "default": true
+    },
+    "allow_search_indexing": {
+      "type": "boolean",
+      "default": false
+    },
     "verified_executive": {
       "type": "boolean",
       "default": false

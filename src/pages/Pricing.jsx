@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck } from "lucide-react";
-import Logo from "@/components/layout/Logo";
 import PricingTiers from "@/components/pricing/PricingTiers";
-import EnterpriseValue from "@/components/pricing/EnterpriseValue";
-import FeatureShowcase from "@/components/pricing/FeatureShowcase";
-import ComparisonTable from "@/components/pricing/ComparisonTable";
-import RoiCalculator from "@/components/pricing/RoiCalculator";
-import EnterpriseCalculator from "@/components/pricing/EnterpriseCalculator";
-import SocialProof from "@/components/pricing/SocialProof";
-import Faq from "@/components/pricing/Faq";
-import FoundingMember from "@/components/pricing/FoundingMember";
-import TrustBadges from "@/components/pricing/TrustBadges";
-import BookDemoForm from "@/components/pricing/BookDemoForm";
-import ShareYourJourney from "@/components/pricing/ShareYourJourney";
-import ReferralProgram from "@/components/referral/ReferralProgram";
 import { captureReferralCode } from "@/lib/socialShare";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
+
+// Below-the-fold sections are lazy-loaded so the hero + pricing tiers
+// render immediately without waiting for their code or API calls.
+const SectionFallback = () => (
+  <div className="flex items-center justify-center h-40">
+    <div className="w-6 h-6 border-2 border-white/10 border-t-indigo-400 rounded-full animate-spin" />
+  </div>
+);
+const EnterpriseValue = lazy(() => import("@/components/pricing/EnterpriseValue"));
+const FeatureShowcase = lazy(() => import("@/components/pricing/FeatureShowcase"));
+const ComparisonTable = lazy(() => import("@/components/pricing/ComparisonTable"));
+const RoiCalculator = lazy(() => import("@/components/pricing/RoiCalculator"));
+const EnterpriseCalculator = lazy(() => import("@/components/pricing/EnterpriseCalculator"));
+const SocialProof = lazy(() => import("@/components/pricing/SocialProof"));
+const Faq = lazy(() => import("@/components/pricing/Faq"));
+const FoundingMember = lazy(() => import("@/components/pricing/FoundingMember"));
+const TrustBadges = lazy(() => import("@/components/pricing/TrustBadges"));
+const BookDemoForm = lazy(() => import("@/components/pricing/BookDemoForm"));
+const ShareYourJourney = lazy(() => import("@/components/pricing/ShareYourJourney"));
+const ReferralProgram = lazy(() => import("@/components/referral/ReferralProgram"));
 
 export default function Pricing() {
   const [authed, setAuthed] = useState(false);
@@ -66,14 +73,14 @@ export default function Pricing() {
       {/* Founding Member Program */}
       <section className="pb-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <FoundingMember />
+          <Suspense fallback={<SectionFallback />}><FoundingMember /></Suspense>
         </div>
       </section>
 
       {/* Share Your Journey */}
       <section className="py-20 px-4 bg-white/[0.01]">
         <div className="max-w-6xl mx-auto">
-          <ShareYourJourney authed={authed} />
+          <Suspense fallback={<SectionFallback />}><ShareYourJourney authed={authed} /></Suspense>
         </div>
       </section>
 
@@ -88,7 +95,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">What You Achieve</h2>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Not features. Business outcomes. This is what organizations gain when they invest in leadership transformation.</p>
           </div>
-          <EnterpriseValue />
+          <Suspense fallback={<SectionFallback />}><EnterpriseValue /></Suspense>
         </div>
       </section>
 
@@ -99,7 +106,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Everything You Get</h2>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Organized by plan — see exactly what's included at each tier without scrolling through endless checklists.</p>
           </div>
-          <FeatureShowcase />
+          <Suspense fallback={<SectionFallback />}><FeatureShowcase /></Suspense>
         </div>
       </section>
 
@@ -110,7 +117,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Compare Capabilities</h2>
             <p className="text-white/40 text-lg">Every capability, side by side.</p>
           </div>
-          <ComparisonTable />
+          <Suspense fallback={<SectionFallback />}><ComparisonTable /></Suspense>
         </div>
       </section>
 
@@ -125,7 +132,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Measure Your Return</h2>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">See how leadership development translates to measurable business impact — reduced coaching costs, lower turnover, stronger internal mobility, and productivity gains.</p>
           </div>
-          <RoiCalculator />
+          <Suspense fallback={<SectionFallback />}><RoiCalculator /></Suspense>
         </div>
       </section>
 
@@ -140,7 +147,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Estimate Your Investment</h2>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Configure your ideal package and get an instant estimate. Adjust users, modules, AI, support, and contract length to see real-time pricing.</p>
           </div>
-          <EnterpriseCalculator />
+          <Suspense fallback={<SectionFallback />}><EnterpriseCalculator /></Suspense>
         </div>
       </section>
 
@@ -151,14 +158,14 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Leadership Success Stories</h2>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Organizations across industries trust EXECLEAD.AI to develop their next generation of leaders.</p>
           </div>
-          <SocialProof />
+          <Suspense fallback={<SectionFallback />}><SocialProof /></Suspense>
         </div>
       </section>
 
       {/* Refer & Earn */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <ReferralProgram authed={authed} />
+          <Suspense fallback={<SectionFallback />}><ReferralProgram authed={authed} /></Suspense>
         </div>
       </section>
 
@@ -173,7 +180,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Book a Demo</h2>
             <p className="text-white/40 text-lg">Tell us about your organization and we'll be in touch within 24 hours.</p>
           </div>
-          <BookDemoForm />
+          <Suspense fallback={<SectionFallback />}><BookDemoForm /></Suspense>
         </div>
       </section>
 
@@ -188,7 +195,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Enterprise-Grade Trust</h2>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Your data is protected with the same standards trusted by the world's largest organizations.</p>
           </div>
-          <TrustBadges />
+          <Suspense fallback={<SectionFallback />}><TrustBadges /></Suspense>
         </div>
       </section>
 
@@ -199,7 +206,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h2>
             <p className="text-white/40 text-lg">Everything you need to know before getting started.</p>
           </div>
-          <Faq />
+          <Suspense fallback={<SectionFallback />}><Faq /></Suspense>
         </div>
       </section>
 

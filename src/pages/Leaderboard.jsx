@@ -10,35 +10,32 @@ const PLATFORM_ICONS = {
   whatsapp: "📱", telegram: "✈", messenger: "💬", reddit: "🟠", email: "✉", copy: "🔗", native: "📲",
 };
 
+const MiniSpinner = () => (
+  <div className="flex items-center justify-center py-8">
+    <div className="w-5 h-5 border-2 border-white/10 border-t-indigo-400 rounded-full animate-spin" />
+  </div>
+);
+
 export default function Leaderboard() {
-  const [loading, setLoading] = useState(true);
-  const [shareEvents, setShareEvents] = useState([]);
-  const [referrals, setReferrals] = useState([]);
-  const [topLearners, setTopLearners] = useState([]);
+  // Each data source loads independently so the page shell renders immediately
+  // instead of blocking on all four queries (each fetching up to 500 records).
+  const [shareEvents, setShareEvents] = useState(null);
+  const [referrals, setReferrals] = useState(null);
+  const [topLearners, setTopLearners] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [events, refs, learners, authed] = await Promise.all([
-          base44.entities.ShareEvent.list("-created_date", 500).catch(() => []),
-          base44.entities.Referral.list("-created_date", 500).catch(() => []),
-          base44.entities.UserProfile.filter({ status: "active" }, "-xp_points", 100).catch(() => []),
-          base44.auth.isAuthenticated().then(ok => ok ? base44.auth.me() : null).catch(() => null),
-        ]);
-        setShareEvents(events);
-        setReferrals(refs);
-        setTopLearners(learners);
-        setUser(authed);
-      } catch (e) {}
-      setLoading(false);
-    };
-    load();
+    base44.entities.ShareEvent.list("-created_date", 500).catch(() => []).then(setShareEvents);
+    base44.entities.Referral.list("-created_date", 500).catch(() => []).then(setReferrals);
+    base44.entities.UserProfile.filter({ status: "active" }, "-xp_points", 100).catch(() => []).then(setTopLearners);
+    base44.auth.isAuthenticated()
+      .then(ok => ok ? base44.auth.me().catch(() => null) : null)
+      .then(setUser).catch(() => {});
   }, []);
 
   // Compute top referrers
   const referrerMap = {};
-  referrals.forEach(r => {
+  (referrals || []).forEach(r => {
     if (!r.referrer_user_id) return;
     if (!referrerMap[r.referrer_user_id]) {
       referrerMap[r.referrer_user_id] = { name: r.referrer_name || "Anonymous", id: r.referrer_user_id, invites: 0, conversions: 0 };
@@ -50,24 +47,20 @@ export default function Leaderboard() {
 
   // Compute share analytics
   const platformCounts = {};
-  let totalShares = shareEvents.length;
-  shareEvents.forEach(e => {
+  const totalShares = (shareEvents || []).length;
+  (shareEvents || []).forEach(e => {
     platformCounts[e.platform] = (platformCounts[e.platform] || 0) + 1;
   });
   const topPlatforms = Object.entries(platformCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
   const typeCounts = {};
-  shareEvents.forEach(e => {
+  (shareEvents || []).forEach(e => {
     typeCounts[e.achievement_type] = (typeCounts[e.achievement_type] || 0) + 1;
   });
   const topTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
   const referralCode = user ? getUserReferralCode(user.id) : null;
   const referralLink = referralCode ? getShareUrl(referralCode) : "";
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-indigo-900 border-t-indigo-400 rounded-full animate-spin" /></div>;
-  }
 
   const podiumCls = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`;
 
@@ -101,24 +94,28 @@ export default function Leaderboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Total Shares", value: totalShares, icon: Share2, color: "text-indigo-400" },
-          { label: "Referrals Sent", value: referrals.length, icon: Users, color: "text-cyan-400" },
-          { label: "Conversions", value: referrals.filter(r => r.status === "converted").length, icon: TrendingUp, color: "text-emerald-400" },
-          { label: "Active Learners", value: topLearners.length, icon: BookOpen, color: "text-violet-400" },
-        ].map((s, i) => (
-          <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-            <s.icon size={16} className={s.color} />
-            <div className="text-2xl font-bold text-white mt-2">{s.value}</div>
-            <div className="text-white/30 text-xs">{s.label}</div>
-          </div>
-        ))}
+           { label: "Total Shares", value: shareEvents ? totalShares : null, icon: Share2, color: "text-indigo-400" },
+           { label: "Referrals Sent", value: referrals ? referrals.length : null, icon: Users, color: "text-cyan-400" },
+           { label: "Conversions", value: referrals ? referrals.filter(r => r.status === "converted").length : null, icon: TrendingUp, color: "text-emerald-400" },
+           { label: "Active Learners", value: topLearners ? topLearners.length : null, icon: BookOpen, color: "text-violet-400" },
+         ].map((s, i) => (
+           <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+             <s.icon size={16} className={s.color} />
+             {s.value === null ? (
+               <div className="h-7 mt-2 w-12 bg-white/5 rounded animate-pulse" />
+             ) : (
+               <div className="text-2xl font-bold text-white mt-2">{s.value}</div>
+             )}
+             <div className="text-white/30 text-xs">{s.label}</div>
+           </div>
+         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Referrers */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><Users size={14} className="text-cyan-400" /> Top Referrers</h3>
-          {topReferrers.length === 0 ? (
+          {referrals === null ? <MiniSpinner /> : topReferrers.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No referrals yet. Be the first!</p>
           ) : (
             <div className="space-y-2">
@@ -139,7 +136,7 @@ export default function Leaderboard() {
         {/* Top Learners */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><BookOpen size={14} className="text-violet-400" /> Top Executive Learners</h3>
-          {topLearners.length === 0 ? (
+          {topLearners === null ? <MiniSpinner /> : topLearners.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No learners yet.</p>
           ) : (
             <div className="space-y-2">
@@ -166,7 +163,7 @@ export default function Leaderboard() {
         {/* Top Platforms */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><Share2 size={14} className="text-indigo-400" /> Top Sharing Channels</h3>
-          {topPlatforms.length === 0 ? (
+          {shareEvents === null ? <MiniSpinner /> : topPlatforms.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No shares tracked yet.</p>
           ) : (
             <div className="space-y-3">
@@ -194,7 +191,7 @@ export default function Leaderboard() {
         {/* Most Shared */}
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-4 flex items-center gap-2"><TrendingUp size={14} className="text-emerald-400" /> Most Shared Content</h3>
-          {topTypes.length === 0 ? (
+          {shareEvents === null ? <MiniSpinner /> : topTypes.length === 0 ? (
             <p className="text-white/30 text-sm text-center py-8">No data yet.</p>
           ) : (
             <div className="space-y-2">

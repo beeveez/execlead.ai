@@ -3,7 +3,6 @@ import { base44 } from "@/api/base44Client";
 import { BadgeCheck, Download, FileText, Copy, Check, ExternalLink, Crown, Target } from "lucide-react";
 import { getQrUrl, getPublicProfileUrl, getExecutiveSlug, computeExecutiveScore, getLeadershipLevel } from "@/lib/socialShare";
 import { toast } from "@/components/ui/use-toast";
-import PublicProfileStatusBar from "./PublicProfileStatusBar";
 
 function generateUsername(profile) {
   const name = profile?.full_name || profile?.display_name || profile?.first_name || "executive";
@@ -80,8 +79,6 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
 
   return (
     <div className="space-y-4">
-      <PublicProfileStatusBar profile={profile} onRefresh={onRefresh} />
-
       <div ref={cardRef} className="relative bg-gradient-to-br from-[#11111a] to-[#0d0d14] border border-white/10 rounded-2xl p-6 overflow-hidden" style={{ minHeight: 520 }}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl" />

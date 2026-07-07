@@ -5,7 +5,7 @@ import { safeParse } from "@/components/profile/FormFields";
 import { computeExecutiveScore, getLeadershipLevel, getPublicProfileUrl, getQrUrl } from "@/lib/socialShare";
 import {
   Crown, Briefcase, Award, Globe, Code, ExternalLink, BadgeCheck,
-  TrendingUp, Brain, Target, Lock, UserX, Download, QrCode,
+  TrendingUp, Brain, Target, Lock, UserX, Download, QrCode, Eye,
 } from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
@@ -126,8 +126,22 @@ export default function PublicProfile() {
     { key: "level", label: "Leadership Level", value: level, icon: Award, color: "#f59e0b" },
   ].filter(m => show(m.key));
 
+  const isDraftPreview = state === "draft_preview";
+
   return (
     <div className="min-h-screen bg-[#08080d] text-white">
+      {isDraftPreview && (
+        <div className="sticky top-0 z-50 bg-amber-500/10 border-b border-amber-500/20 backdrop-blur-xl">
+          <div className="max-w-4xl mx-auto px-4 md:px-8 h-12 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-400 text-xs font-medium">
+              <Eye size={13} /> Draft Preview — This is how your profile will look once published.
+            </div>
+            <Link to="/brand-center" className="text-amber-400 hover:text-amber-300 text-xs font-medium underline">
+              Edit & Publish
+            </Link>
+          </div>
+        </div>
+      )}
       <nav className="border-b border-white/5 sticky top-0 z-40 bg-[#08080d]/90 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link to="/"><Logo aiTagClass="ml-1" /></Link>

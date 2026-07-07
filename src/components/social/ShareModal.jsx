@@ -90,7 +90,7 @@ export default function ShareModal({
       const ok = await nativeShare({ title: resolvedTitle, text, url: shareUrl });
       if (!ok) { setActiveTab("qr"); return; }
     } else if (platform.shareUrl) {
-      window.open(platform.shareUrl(shareUrl, text), "_blank", "noopener,noreferrer");
+      window.open(platform.shareUrl(shareUrl, text), "_blank");
     }
 
     trackShareEvent({ shareType, achievementType: achievement, title: resolvedTitle, platform: platformKey, privacy, settings, score: resolvedScore, level: leadershipLevel, referralCode, userId });
@@ -105,9 +105,8 @@ export default function ShareModal({
     }
     // Synchronous window.open preserves the user gesture so the popup isn't blocked
     const platform = SHARE_PLATFORMS.linkedin;
-    const win = window.open(platform.shareUrl(shareUrl, text), "_blank", "noopener,noreferrer");
+    window.open(platform.shareUrl(shareUrl, text), "_blank");
     trackShareEvent({ shareType, achievementType: achievement, title: resolvedTitle, platform: "linkedin", privacy, settings, score: resolvedScore, level: leadershipLevel, referralCode, userId });
-    if (!win) setActiveTab("social"); // popup blocked — guide user to pick a platform
   };
 
   const handleDownload = async () => {

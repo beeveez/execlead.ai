@@ -19,6 +19,7 @@ import BookDemoForm from "@/components/pricing/BookDemoForm";
 import ShareYourJourney from "@/components/pricing/ShareYourJourney";
 import ReferralProgram from "@/components/referral/ReferralProgram";
 import { captureReferralCode } from "@/lib/socialShare";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
 
 export default function Pricing() {
   const [authed, setAuthed] = useState(false);
@@ -30,23 +31,7 @@ export default function Pricing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#08080d] text-white overflow-x-hidden">
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#08080d]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link to="/"><Logo aiTagClass="ml-1" /></Link>
-          <div className="flex items-center gap-3">
-            {authed ? (
-              <Link to="/dashboard" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Dashboard</Link>
-            ) : (
-              <>
-                <Link to="/login" className="text-sm text-white/50 hover:text-white transition-colors">Sign In</Link>
-                <Link to="/register" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Start Free</Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+    <MarketingLayout>
 
       {/* Hero */}
       <section className="pt-40 pb-12 px-4 relative">
@@ -236,14 +221,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-12 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <Link to="/"><Logo aiTagClass="ml-1" /></Link>
-          <p className="text-white/30 text-xs mt-1">Develop Executive Leaders. Not Interview Candidates.</p>
-          <div className="mt-8 pt-8 border-t border-white/5 text-center text-white/20 text-xs">© 2026 EXECLEAD.AI. All rights reserved.</div>
-        </div>
-      </footer>
-    </div>
+    </MarketingLayout>
   );
 }

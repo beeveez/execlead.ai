@@ -1,0 +1,113 @@
+{
+  "name": "GuardianActivity",
+  "type": "object",
+  "properties": {
+    "scan_id": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "startup",
+        "interval",
+        "deployment",
+        "feature_update",
+        "navigation_change",
+        "manual"
+      ],
+      "default": "startup"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "route",
+        "navigation",
+        "permission",
+        "feature",
+        "plan",
+        "api",
+        "role",
+        "organization"
+      ],
+      "default": "feature"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "warning",
+        "information"
+      ],
+      "default": "warning"
+    },
+    "issue": {
+      "type": "string"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "action_taken": {
+      "type": "string"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "queued",
+        "alert",
+        "manual",
+        "rollback"
+      ],
+      "default": "auto"
+    },
+    "confidence_score": {
+      "type": "number",
+      "default": 0
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "applied",
+        "queued",
+        "alerted",
+        "failed",
+        "rolled_back",
+        "skipped"
+      ],
+      "default": "applied"
+    },
+    "rollback_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "available",
+        "rolled_back",
+        "not_reversible"
+      ],
+      "default": "none"
+    },
+    "snapshot_json": {
+      "type": "string"
+    },
+    "action_json": {
+      "type": "string"
+    },
+    "feature_id": {
+      "type": "string"
+    },
+    "route": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "scan_id",
+    "issue",
+    "action_taken"
+  ]
+}

@@ -4,6 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { GuardianProvider } from '@/lib/GuardianContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
@@ -43,6 +44,7 @@ import CareerStudio from '@/pages/CareerStudio';
 import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
+import Guardian from '@/pages/Guardian';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
@@ -151,6 +153,7 @@ const AuthenticatedApp = () => {
           <Route path="/admin" element={<FeatureGate featureId="admin_console"><AdminConsole /></FeatureGate>} />
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
+          <Route path="/guardian" element={<Guardian />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/security" element={<SecurityCenter />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
@@ -191,6 +194,7 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <AuthProvider>
+      <GuardianProvider>
       <DeveloperProvider>
       <SubscriptionProvider>
       <QueryClientProvider client={queryClientInstance}>
@@ -204,6 +208,7 @@ function App() {
       </QueryClientProvider>
       </SubscriptionProvider>
       </DeveloperProvider>
+      </GuardianProvider>
     </AuthProvider>
   )
 }

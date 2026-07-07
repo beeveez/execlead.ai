@@ -85,6 +85,7 @@ const APP_ROUTES = [
   { path: "/leaderboard", component: "Leaderboard" },
   { path: "/brand-center", component: "ExecutiveBrandCenter" },
   { path: "/feedback", component: "Feedback" },
+  { path: "/guardian", component: "Guardian" },
 ];
 
 const ALL_NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })));

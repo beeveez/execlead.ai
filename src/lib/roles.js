@@ -241,6 +241,7 @@ export const NAV_GROUPS = [
     items: [
       { path: "/developer", label: "Developer Console", icon: Code2 },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+      { path: "/guardian", label: "Guardian", icon: ShieldCheck },
     ],
   },
 
@@ -268,6 +269,7 @@ export const NAV_GROUPS = [
       { path: "/admin", label: "Admin", icon: Shield },
       { path: "/developer", label: "Developer", icon: Code2 },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+      { path: "/guardian", label: "Guardian", icon: ShieldCheck },
       { path: "/admin", label: "Audit Logs", icon: FileText },
       { path: "/developer", label: "System Health", icon: Cpu },
     ],
@@ -280,6 +282,7 @@ export const DEVELOPER_WORKSPACE_NAV = [
     items: [
       { path: "/developer", label: "Dashboard", icon: LayoutDashboard },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+      { path: "/guardian", label: "Guardian", icon: ShieldCheck },
     ],
   },
   {
@@ -355,6 +358,7 @@ export const ROUTE_ACCESS = {
   "/developer/deployments": ["developer", "super_admin"],
   "/developer/organizations": ["developer", "super_admin"],
   "/feature-management": ["developer", "super_admin"],
+  "/guardian": ["developer", "super_admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],
   "/billing-admin": ["platform_admin", "super_admin", "finance"],
   "/payment-settings": ["platform_admin", "super_admin", "finance"],

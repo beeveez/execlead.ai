@@ -6,6 +6,7 @@ import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
 import { getNavGroups, normalizeRole, getEffectiveRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
+import { useGuardian } from "@/lib/GuardianContext";
 import RoleRoute from "@/components/RoleRoute";
 import { LogOut, Menu, X, ChevronRight, Crown } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
@@ -40,9 +41,14 @@ export default function AppLayout() {
 
   const { developerMode, canAccessDeveloper } = useDeveloper();
   const showWorkspace = canAccessDeveloper && developerMode;
-  const navGroups = showWorkspace
+  const { brokenNavPaths } = useGuardian() || {};
+  const rawNavGroups = showWorkspace
     ? [...getNavGroups("customer"), ...DEVELOPER_WORKSPACE_NAV]
     : getNavGroups(getEffectiveRole(user?.role, profile));
+  // Guardian auto-resolve: hide navigation items whose route doesn't exist
+  const navGroups = rawNavGroups
+    .map((g) => ({ ...g, items: g.items.filter((i) => !brokenNavPaths?.has(i.path)) }))
+    .filter((g) => g.items.length > 0);
 
   const handleLogout = () => {
     base44.auth.logout("/login");

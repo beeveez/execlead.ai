@@ -329,6 +329,43 @@
     "last_updated": {
       "type": "string",
       "format": "date"
+    },
+    "official_website": {
+      "type": "string"
+    },
+    "profile_status": {
+      "type": "string",
+      "enum": [
+        "independent",
+        "verified",
+        "official_partner",
+        "strategic_partner"
+      ],
+      "default": "independent"
+    },
+    "is_claimed": {
+      "type": "boolean",
+      "default": false
+    },
+    "claimed_by": {
+      "type": "string"
+    },
+    "claimed_email": {
+      "type": "string"
+    },
+    "claimed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verification_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "verification_notes": {
+      "type": "string"
+    },
+    "source_attributions_json": {
+      "type": "string"
     }
   },
   "required": [

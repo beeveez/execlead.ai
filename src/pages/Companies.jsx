@@ -6,6 +6,7 @@ import CompanyCard from "@/components/companies/CompanyCard";
 import CompanyFilters from "@/components/companies/CompanyFilters";
 import CompanyCategoryBar from "@/components/companies/CompanyCategoryBar";
 import NaturalLanguageSearch from "@/components/companies/NaturalLanguageSearch";
+import ComplianceDisclaimer from "@/components/companies/ComplianceDisclaimer";
 import { localSearch } from "@/lib/companyEnrichment";
 
 const EMPTY_FILTERS = { industry: "", country: "", company_size: "", leadership_style: "", executive_level_focus: "", work_model: "" };
@@ -93,6 +94,8 @@ export default function Companies() {
           </button>
         )}
       </div>
+
+      <ComplianceDisclaimer variant="compact" />
 
       {/* Natural Language AI Search */}
       <NaturalLanguageSearch

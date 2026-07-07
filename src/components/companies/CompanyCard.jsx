@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Users, TrendingUp, Cloud, Sparkles } from "lucide-react";
 import { isEnriched } from "@/lib/companyEnrichment";
+import CompanyAvatar from "@/components/companies/CompanyAvatar";
+import ProfileStatusBadge from "@/components/companies/ProfileStatusBadge";
 
 const CATEGORY_ICONS = {
   magnificent_seven: "💎",
@@ -25,18 +27,13 @@ const CATEGORY_ICONS = {
 
 export default function CompanyCard({ company, selected, onToggleCompare }) {
   const navigate = useNavigate();
-  const initials = company.name.slice(0, 2).toUpperCase();
   const enriched = isEnriched(company);
   const categoryIcon = CATEGORY_ICONS[company.category] || "🏢";
 
   return (
     <div className={`group relative bg-white/[0.03] border rounded-xl p-4 transition-all hover:bg-violet-500/5 ${selected ? "border-violet-500/40 bg-violet-500/5" : "border-white/5 hover:border-violet-500/15"}`}>
       <button onClick={() => navigate(`/companies/${company.id}`)} className="flex items-center gap-3 text-left w-full pr-6">
-        {company.logo_url ? (
-          <img src={company.logo_url} alt={company.name} className="w-11 h-11 rounded-lg object-contain bg-white/5 p-1.5" />
-        ) : (
-          <div className="w-11 h-11 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-400 font-bold text-sm shrink-0">{initials}</div>
-        )}
+        <CompanyAvatar company={company} size="md" />
         <div className="min-w-0">
           <div className="text-sm font-semibold text-white truncate group-hover:text-violet-300 transition-colors">{company.name}</div>
           <div className="text-xs text-white/40 truncate">{company.industry}</div>
@@ -65,6 +62,7 @@ export default function CompanyCard({ company, selected, onToggleCompare }) {
             <Sparkles size={8} /> Core Profile
           </span>
         )}
+        <ProfileStatusBadge status={company.profile_status} />
       </div>
 
       {onToggleCompare && (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, GitCompare } from "lucide-react";
+import ComplianceDisclaimer from "@/components/companies/ComplianceDisclaimer";
 
 const DIMENSIONS = [
   { key: "industry", label: "Industry" },
@@ -107,8 +108,10 @@ export default function CompanyCompare() {
           <GitCompare size={12} className="text-violet-400" /> Company Intelligence Comparison
         </div>
         <h1 className="text-2xl font-bold text-white">Comparing {companies.length} Companies</h1>
-        <p className="text-white/40 text-sm mt-1">Side-by-side executive intelligence across {DIMENSIONS.length + LIST_DIMENSIONS.length} dimensions.</p>
+        <p className="text-white/40 text-sm mt-1">Side-by-side EXECLEAD executive intelligence across {DIMENSIONS.length + LIST_DIMENSIONS.length} dimensions.</p>
       </div>
+
+      <ComplianceDisclaimer variant="compact" />
 
       <div className="overflow-x-auto border border-white/5 rounded-xl">
         <table className="w-full border-collapse min-w-[600px]">

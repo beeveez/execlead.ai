@@ -1,0 +1,65 @@
+{
+  "name": "CompanyReport",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "factual_correction",
+        "outdated_info",
+        "logo_removal",
+        "verification_request",
+        "copyright_concern",
+        "other"
+      ],
+      "default": "other"
+    },
+    "reporter_name": {
+      "type": "string"
+    },
+    "reporter_email": {
+      "type": "string"
+    },
+    "reporter_role": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "fields_affected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "under_review",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "submitted"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "company_id",
+    "company_name",
+    "report_type",
+    "description"
+  ]
+}

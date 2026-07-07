@@ -1,0 +1,36 @@
+{
+  "name": "EXECLEAD.AI — AI Executive Leadership Operating System",
+  "short_name": "EXECLEAD.AI",
+  "description": "Become the executive every company wants to hire. AI-powered coaching, simulations, company intelligence, and leadership development.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#102A56",
+  "theme_color": "#102A56",
+  "icons": [
+    {
+      "src": "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/3b7c7d488_generated_image.png?v=1.0",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/d96c04740_generated_image.png?v=1.0",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/3b7c7d488_generated_image.png?v=1.0",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/d96c04740_generated_image.png?v=1.0",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

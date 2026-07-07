@@ -35,6 +35,7 @@ import Analytics from '@/pages/Analytics';
 import Journal from '@/pages/Journal';
 import Settings from '@/pages/Settings';
 import Billing from '@/pages/Billing';
+import OrganizationBilling from '@/pages/OrganizationBilling';
 import Notifications from '@/pages/Notifications';
 import AIUsage from '@/pages/AIUsage';
 import EnterpriseDashboard from '@/pages/EnterpriseDashboard';
@@ -148,6 +149,7 @@ const AuthenticatedApp = () => {
           <Route path="/compare-plans" element={<ComparePlans />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/billing" element={<Billing />} />
+          <Route path="/organization/billing" element={<OrganizationBilling />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/ai-usage" element={<FeatureGate featureId="ai_usage_dashboard"><AIUsage /></FeatureGate>} />
           <Route path="/enterprise" element={<FeatureGate featureId="team_dashboard"><EnterpriseDashboard /></FeatureGate>} />

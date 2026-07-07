@@ -4,7 +4,6 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { processPayment, sendPaymentEmail, EMAIL_TYPES, formatCurrency, isDeveloperUnlimited, DEVELOPER_PLAN_ID, logBillingEvent } from "@/lib/payments";
 import { useAuth } from "@/lib/AuthContext";
-import { getAuthorizedInvoices } from "@/lib/invoiceSecurity";
 import { CreditCard, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CurrentPlanCard from "@/components/billing/CurrentPlanCard";
@@ -24,8 +23,8 @@ export default function Billing() {
     if (!user?.id) { setLoading(false); return; }
     const load = async () => {
       try {
-        const { invoices: authedInvoices } = await getAuthorizedInvoices(user, profile);
-        setInvoices(authedInvoices);
+        const personalInvoices = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 50);
+        setInvoices(personalInvoices);
       } catch (e) {}
       setLoading(false);
     };
@@ -40,8 +39,8 @@ export default function Billing() {
 
   const handleCheckoutSuccess = async () => {
     setUpgradePlan(null);
-    const { invoices: authedInvoices } = await getAuthorizedInvoices(user, profile);
-    setInvoices(authedInvoices);
+    const personalInvoices = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 50);
+    setInvoices(personalInvoices);
     await refreshProfile();
   };
 
@@ -114,7 +113,7 @@ export default function Billing() {
           icon: "🔄",
         });
         setCycle(newCycle);
-        const { invoices: refreshed } = await getAuthorizedInvoices(user, profile);
+        const refreshed = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 50);
         setInvoices(refreshed);
         await refreshProfile();
       }
@@ -127,7 +126,7 @@ export default function Billing() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-          <CreditCard size={12} className="text-emerald-400" /> Billing & Subscription
+          <CreditCard size={12} className="text-emerald-400" /> Personal Billing
         </div>
         <h1 className="text-2xl font-bold text-white">Manage Your Plan</h1>
       </div>
@@ -175,7 +174,7 @@ export default function Billing() {
         <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
       </div>
 
-      <PlanGrid plans={plans} currentPlan={currentPlan} cycle={cycle} getPrice={getPrice} onSelectPlan={setUpgradePlan} />
+      <PlanGrid plans={plans.filter(p => !p.enterpriseOnly)} currentPlan={currentPlan} cycle={cycle} getPrice={getPrice} onSelectPlan={setUpgradePlan} />
 
       <PaymentHistory invoices={invoices} profile={profile} />
 

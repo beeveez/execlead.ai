@@ -77,7 +77,7 @@ export const WORKSPACE_NAV = {
       { path: "/ai-usage", label: "Reports", icon: Cpu, feature: "ai_usage_dashboard" },
     ]},
     { label: "Administration", items: [
-      { path: "/billing", label: "Billing", icon: CreditCard },
+      { path: "/organization/billing", label: "Organization Billing", icon: CreditCard },
       { path: "/settings", label: "Organization Settings", icon: SettingsIcon },
     ]},
   ],
@@ -138,7 +138,8 @@ const ROUTE_WORKSPACE = {
   "/marketplace": ["executive", "platform"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],
   "/analytics": ["executive", "enterprise"], "/journal": ["executive"],
-  "/profile": ["executive"], "/billing": ["executive", "enterprise"],
+  "/profile": ["executive"], "/billing": ["executive"],
+  "/organization/billing": ["enterprise"],
   "/settings": ["executive", "enterprise"], "/security": ["executive", "enterprise"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
   "/leadership-dna": ["executive"], "/executive-legacy": ["executive"],

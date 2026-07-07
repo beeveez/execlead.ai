@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 import AccountMenu from "@/components/layout/AccountMenu";
 import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
@@ -9,6 +10,8 @@ import { Bell, CreditCard, Crown } from "lucide-react";
 
 export default function TopBar() {
   const { subscription, loading } = useSubscription();
+  const { activeWorkspace } = useWorkspace();
+  const billingPath = activeWorkspace === "enterprise" ? "/organization/billing" : "/billing";
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -41,10 +44,12 @@ export default function TopBar() {
       </Link>
       <ShareButton variant="icon" shareType="landing" iconSize={15} />
       <AccountMenu />
-      <Link to="/billing" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+      <Link to={billingPath} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
         <CreditCard size={14} className="text-white/40" />
         {loading ? (
           <span className="text-xs text-white/20">···</span>
+        ) : activeWorkspace === "enterprise" ? (
+          <span className="text-xs font-medium text-cyan-400">Enterprise</span>
         ) : (
           <span className="text-xs font-medium flex items-center gap-1">
             <span>{subscription.icon}</span>

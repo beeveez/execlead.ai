@@ -89,9 +89,11 @@ export default function AppLayout() {
           <Logo size="sm" aiTagClass="ml-1" />
           <div className="flex items-center gap-2">
             <WorkspaceSwitcher compact />
-            <Link to="/billing" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5">
+            <Link to={activeWorkspace === "enterprise" ? "/organization/billing" : "/billing"} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5">
               {loadingSub ? (
                 <span className="text-xs text-white/20">···</span>
+              ) : activeWorkspace === "enterprise" ? (
+                <span className="text-xs font-medium text-cyan-400">Enterprise</span>
               ) : (
                 <>
                   <span className="text-xs">{subscription.icon}</span>

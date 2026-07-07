@@ -23,10 +23,14 @@ export default function TestTenantManager() {
   const [result, setResult] = useState(null);
 
   const createTestTenant = async () => {
+    if (!sandbox) {
+      setResult({ success: false, error: "Test tenants can only be created in Sandbox mode. Enable Developer Sandbox first." });
+      return;
+    }
     setCreating(true);
     setResult(null);
     try {
-      const orgName = sandbox ? "[SANDBOX] EXECLEAD Internal" : "EXECLEAD Internal";
+      const orgName = "[SANDBOX] EXECLEAD Internal";
 
       const org = await base44.entities.Organization.create({
         name: orgName,

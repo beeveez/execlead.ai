@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Network, Plus, Trash2, Loader2, AlertTriangle, UserPlus, Upload } from "lucide-react";
+import { Network, Plus, Trash2, Loader2, AlertTriangle, UserPlus, Upload, Building2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SuccessionPlanModal from "@/components/hr/SuccessionPlanModal";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
@@ -20,7 +20,7 @@ const STATUS_STYLES = {
 };
 
 export default function SuccessionPlanning() {
-  const { members, loading: loadingMembers, organizationId, isPlatformWide } = useOrganizationMembers();
+  const { members, loading: loadingMembers, organizationId } = useOrganizationMembers();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -32,13 +32,10 @@ export default function SuccessionPlanning() {
 
   const load = async () => {
     if (loadingMembers) return;
+    if (!organizationId) { setLoading(false); return; }
     try {
-      const allPlans = await base44.entities.SuccessionPlan.list("-created_date", 100);
-      // Strict tenant isolation: only show plans belonging to this organization.
-      // Platform admins/super admins see all plans.
-      const orgPlans = isPlatformWide
-        ? allPlans
-        : allPlans.filter((p) => p.organization_id === organizationId);
+      // Strict tenant isolation: ONLY this organization's plans. Never platform-wide.
+      const orgPlans = await base44.entities.SuccessionPlan.filter({ organization_id: organizationId }, "-created_date", 100);
       setPlans(orgPlans);
     } catch (e) {}
     setLoading(false);
@@ -87,25 +84,30 @@ export default function SuccessionPlanning() {
       {loading ? (
         <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-indigo-400" /></div>
       ) : plans.length === 0 ? (
-        <div className="text-center py-20">
-          <Network size={32} className="mx-auto text-white/10 mb-4" />
-          <h3 className="text-white font-medium mb-2">No succession plans have been created yet.</h3>
-          <p className="text-white/30 text-sm mb-6 max-w-md mx-auto">Create your organization structure to begin succession planning.</p>
+        <div className="text-center py-20 max-w-lg mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center mx-auto mb-5">
+            <Network size={28} className="text-white/15" />
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-2">No Succession Plans Yet</h3>
+          <p className="text-white/40 text-sm mb-6 max-w-md mx-auto leading-relaxed">
+            Build your organization's leadership pipeline by creating departments, positions, and inviting employees.
+          </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <button onClick={() => { setEditPlan(null); setShowModal(true); }}
               className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors text-sm">
-              <Plus size={16} /> Create Position
+              <Plus size={16} /> Create First Succession Plan
             </button>
             <button onClick={() => window.location.href = "/organization/users"}
               className="bg-white/5 hover:bg-white/10 text-white/70 font-medium px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors text-sm border border-white/10">
-              <UserPlus size={16} /> Invite Employees
-            </button>
-            <button disabled
-              className="bg-white/5 text-white/30 font-medium px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm border border-white/5 cursor-not-allowed"
-              title="Import from CSV, Excel, Workday, SAP SuccessFactors, Entra ID, Google Workspace, SCIM — coming soon">
-              <Upload size={16} /> Import Employees
+              <Upload size={16} /> Import Organization Structure
             </button>
           </div>
+          {members.length === 0 && (
+            <div className="mt-6 flex items-center gap-2 justify-center text-amber-400/70 text-xs">
+              <AlertTriangle size={12} />
+              No employees in this organization yet — invite team members first.
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

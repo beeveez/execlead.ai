@@ -7,7 +7,7 @@ import { getEffectiveRole } from "@/lib/roles";
 // ============================================================
 // ORGANIZATION MEMBERS HOOK — Tenant Isolation
 // Returns ONLY members of the current user's organization.
-// Platform Admin / Super Admin bypass isolation (see all).
+// NEVER platform-wide — strict org-scoped data boundary.
 // ============================================================
 
 export function useOrganizationMembers() {
@@ -15,23 +15,17 @@ export function useOrganizationMembers() {
   const { profile, loading: loadingProfile } = useSubscription();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isPlatformWide, setIsPlatformWide] = useState(false);
   const [organizationId, setOrganizationId] = useState(null);
 
   useEffect(() => {
     const load = async () => {
       if (loadingProfile) return;
 
-      const role = getEffectiveRole(user?.role, profile);
-      const platformWide = role === "platform_admin" || role === "super_admin";
-      setIsPlatformWide(platformWide);
-
       const orgId = profile?.organization_id;
       setOrganizationId(orgId);
 
       try {
-        // ALWAYS tenant-scoped — Enterprise Users never shows platform-wide data.
-        // Platform user management lives in AdminConsole (Platform workspace).
+        // ALWAYS tenant-scoped — no platform-wide bypass.
         if (orgId) {
           const orgMembers = await base44.entities.UserProfile.filter({ organization_id: orgId });
           setMembers(orgMembers);
@@ -46,5 +40,5 @@ export function useOrganizationMembers() {
     load();
   }, [profile?.organization_id, loadingProfile]);
 
-  return { members, loading, isPlatformWide, organizationId };
+  return { members, loading, organizationId };
 }

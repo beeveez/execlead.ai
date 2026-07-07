@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, GitCompare } from "lucide-react";
 import ComplianceDisclaimer from "@/components/companies/ComplianceDisclaimer";
+import CompanyLogo from "@/components/companies/CompanyLogo";
 
 const DIMENSIONS = [
   { key: "industry", label: "Industry" },
@@ -121,7 +122,7 @@ export default function CompanyCompare() {
               {companies.map(c => (
                 <th key={c.id} className="text-left p-3 align-top min-w-[200px]">
                   <div className="flex items-center gap-2">
-                    {c.logo_url ? <img src={c.logo_url} alt={c.name} className="w-8 h-8 rounded-lg object-contain bg-white/5 p-1" /> : <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-400 font-bold text-xs">{c.name.slice(0, 2).toUpperCase()}</div>}
+                    <CompanyLogo company={c} size="sm" />
                     <span className="text-white font-semibold text-sm">{c.name}</span>
                   </div>
                 </th>

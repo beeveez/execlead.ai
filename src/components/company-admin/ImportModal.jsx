@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { normalizeImportedCompany, logAudit } from "@/lib/companyAdmin";
+import { batchValidateLogos } from "@/lib/companyLogo";
 import { X, Upload, FileSpreadsheet, Loader2, CheckCircle, AlertTriangle, Download } from "lucide-react";
 
 const IMPORT_SCHEMA = {
@@ -84,9 +85,20 @@ export default function ImportModal({ existingCompanies, userName, onComplete, o
       } else toCreate.push(item.data);
     }
     try {
-      if (toCreate.length > 0) { await base44.entities.Company.bulkCreate(toCreate); created = toCreate.length; }
+      let createdRecords = [];
+      if (toCreate.length > 0) { createdRecords = await base44.entities.Company.bulkCreate(toCreate); created = toCreate.length; }
       for (const u of toUpdate) { await base44.entities.Company.update(u.id, u.data); updated++; }
       await logAudit("import", { name: file?.name || "import" }, null, { count: created + updated }, userName, `Imported ${created} new, updated ${updated}`);
+      // Post-import: async logo validation for imported companies with logos
+      const imported = [
+        ...createdRecords,
+        ...toUpdate.map(u => ({ id: u.id, logo_url: u.data.logo_url })),
+      ].filter(c => c.logo_url);
+      if (imported.length > 0) {
+        const results = await batchValidateLogos(imported, null, 3);
+        const logoUpdates = results.map(r => ({ id: r.id, logo_status: r.logo_status, logo_error: r.logo_error, logo_validated_at: r.logo_validated_at }));
+        if (logoUpdates.length > 0) await base44.entities.Company.bulkUpdate(logoUpdates);
+      }
     } catch (e) { errors++; }
     setResults({ created, updated, errors, skipped, total: preview.length });
     setImporting(false);

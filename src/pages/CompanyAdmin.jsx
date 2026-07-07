@@ -6,6 +6,10 @@ import CompanyForm from "@/components/company-admin/CompanyForm";
 import ImportModal from "@/components/company-admin/ImportModal";
 import VersionHistory from "@/components/company-admin/VersionHistory";
 import { Building2, Plus, Upload, Download, Search, Edit2, Copy, Archive, RotateCcw, Trash2, History, Loader2, Database, X, CheckCircle, Clock, Globe, Briefcase, FileText, AlertTriangle, ChevronDown } from "lucide-react";
+import CompanyLogo from "@/components/companies/CompanyLogo";
+import LogoReliabilityDashboard from "@/components/company-admin/LogoReliabilityDashboard";
+import LogoRepairPanel from "@/components/company-admin/LogoRepairPanel";
+import { assessLogoStatusSync } from "@/lib/companyLogo";
 
 const StatusBadge = ({ status }) => {
   const s = status || "approved";
@@ -36,6 +40,7 @@ export default function CompanyAdmin() {
   const [auditLogs, setAuditLogs] = useState([]);
   const [exportMenu, setExportMenu] = useState(false);
   const [userName, setUserName] = useState("Admin");
+  const [repairCompany, setRepairCompany] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(u => setUserName(u?.full_name || u?.email || "Admin")).catch(() => {});
@@ -77,7 +82,8 @@ export default function CompanyAdmin() {
 
   const handleSave = async (data) => {
     const isArchived = data.status === "archived";
-    const payload = { ...data, is_archived: isArchived, quality_score: calculateQualityScore(data) };
+    const logoAssessment = assessLogoStatusSync(data.logo_url);
+    const payload = { ...data, is_archived: isArchived, quality_score: calculateQualityScore(data), logo_status: logoAssessment.status, logo_error: logoAssessment.error };
     if (editing) {
       await saveVersionSnapshot(editing, userName, `Version ${editing.version_number || 1} before edit`);
       const { id, created_date, updated_date, created_by_id, ...updateData } = payload;
@@ -183,6 +189,8 @@ export default function CompanyAdmin() {
         ))}
       </div>
 
+      <LogoReliabilityDashboard companies={companies} onUpdated={loadCompanies} onRepair={setRepairCompany} />
+
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
@@ -217,7 +225,7 @@ export default function CompanyAdmin() {
                   <tr key={c.id} className="border-t border-white/5 hover:bg-white/[0.02]">
                     <td className="px-4 py-3">
                       <Link to={`/companies/${c.id}`} className="flex items-center gap-2">
-                        {c.logo_url ? <img src={c.logo_url} alt="" className="w-6 h-6 rounded object-cover" /> : <div className="w-6 h-6 rounded bg-indigo-500/10 flex items-center justify-center text-xs font-bold text-indigo-400">{(c.name || "?")[0]}</div>}
+                        <CompanyLogo company={c} size="xs" showSkeleton={false} />
                         <span className="text-white/80 font-medium hover:text-indigo-400">{c.name}</span>
                       </Link>
                     </td>
@@ -250,6 +258,7 @@ export default function CompanyAdmin() {
       {showForm && <CompanyForm company={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />}
       {showImport && <ImportModal existingCompanies={companies} userName={userName} onComplete={loadCompanies} onClose={() => setShowImport(false)} />}
       {historyCo && <VersionHistory company={historyCo} onRestore={(v) => handleRestoreVersion(v, historyCo)} onClose={() => setHistoryCo(null)} />}
+      {repairCompany && <LogoRepairPanel company={repairCompany} onUpdated={(updated) => { setCompanies(prev => prev.map(c => c.id === updated.id ? updated : c)); }} onClose={() => setRepairCompany(null)} />}
 
       {showAudit && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowAudit(false)}>

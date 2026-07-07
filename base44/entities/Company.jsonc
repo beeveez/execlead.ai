@@ -8,6 +8,23 @@
     "logo_url": {
       "type": "string"
     },
+    "logo_status": {
+      "type": "string",
+      "enum": [
+        "valid",
+        "invalid",
+        "missing",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "logo_validated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "logo_error": {
+      "type": "string"
+    },
     "headquarters": {
       "type": "string"
     },

@@ -1,4 +1,5 @@
 import { base44 } from "@/api/base44Client";
+import { assessLogoStatusSync, normalizeCountry, normalizeIndustry, normalizeCompanySize } from "@/lib/companyLogo";
 
 export const COMPANY_CATEGORIES = [
   "Technology", "Consulting", "Finance", "Healthcare", "Government",
@@ -178,6 +179,14 @@ export const normalizeImportedCompany = (raw) => {
   }
   if (typeof normalized.employee_count === "string") normalized.employee_count = parseInt(normalized.employee_count) || 0;
   if (!COMPANY_STATUSES.includes(normalized.status)) normalized.status = "approved";
+  // Standardize country names, industry taxonomy, company size
+  normalized.country = normalizeCountry(normalized.country);
+  normalized.industry = normalizeIndustry(normalized.industry);
+  normalized.company_size = normalizeCompanySize(normalized.company_size, normalized.employee_count);
+  // Assess logo status (sync format check — full async validation runs post-import)
+  const logoAssessment = assessLogoStatusSync(normalized.logo_url);
+  normalized.logo_status = logoAssessment.status;
+  normalized.logo_error = logoAssessment.error;
   normalized.quality_score = calculateQualityScore(normalized);
   return normalized;
 };

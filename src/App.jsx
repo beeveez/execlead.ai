@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { GuardianProvider } from '@/lib/GuardianContext';
+import { WorkspaceProvider } from '@/lib/WorkspaceContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
@@ -197,6 +198,7 @@ function App() {
       <GuardianProvider>
       <DeveloperProvider>
       <SubscriptionProvider>
+      <WorkspaceProvider>
       <QueryClientProvider client={queryClientInstance}>
         <ErrorBoundary>
           <Router>
@@ -206,6 +208,7 @@ function App() {
           <Toaster />
         </ErrorBoundary>
       </QueryClientProvider>
+      </WorkspaceProvider>
       </SubscriptionProvider>
       </DeveloperProvider>
       </GuardianProvider>

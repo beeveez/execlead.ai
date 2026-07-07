@@ -5,11 +5,12 @@ import TopBar from "@/components/layout/TopBar";
 import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
-import { getNavGroups, normalizeRole, getEffectiveRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
 import { useGuardian } from "@/lib/GuardianContext";
+import { useWorkspace } from "@/lib/WorkspaceContext";
+import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
+import WorkspaceGuard from "@/components/WorkspaceGuard";
 import RoleRoute from "@/components/RoleRoute";
 import { LogOut, Menu, X, ChevronRight, Crown } from "lucide-react";
-import { useDeveloper } from "@/lib/DeveloperContext";
 import DebugPanel from "@/components/developer/DebugPanel";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
@@ -39,14 +40,9 @@ export default function AppLayout() {
   const { subscription, loading: loadingSub, profile } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { developerMode, canAccessDeveloper } = useDeveloper();
-  const showWorkspace = canAccessDeveloper && developerMode;
+  const { navGroups: workspaceNavGroups, activeWorkspace } = useWorkspace();
   const { brokenNavPaths } = useGuardian() || {};
-  const rawNavGroups = showWorkspace
-    ? [...getNavGroups("customer"), ...DEVELOPER_WORKSPACE_NAV]
-    : getNavGroups(getEffectiveRole(user?.role, profile));
-  // Guardian auto-resolve: hide navigation items whose route doesn't exist
-  const navGroups = rawNavGroups
+  const navGroups = workspaceNavGroups
     .map((g) => ({ ...g, items: g.items.filter((i) => !brokenNavPaths?.has(i.path)) }))
     .filter((g) => g.items.length > 0);
 
@@ -92,6 +88,7 @@ export default function AppLayout() {
         <div className="flex items-center justify-between px-4 py-3">
           <Logo size="sm" aiTagClass="ml-1" />
           <div className="flex items-center gap-2">
+            <WorkspaceSwitcher compact />
             <Link to="/billing" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5">
               {loadingSub ? (
                 <span className="text-xs text-white/20">···</span>
@@ -149,7 +146,9 @@ export default function AppLayout() {
         <TopBar />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <RoleRoute>
-            <Outlet />
+            <WorkspaceGuard>
+              <Outlet />
+            </WorkspaceGuard>
           </RoleRoute>
         </div>
       </main>

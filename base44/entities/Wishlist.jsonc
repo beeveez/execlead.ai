@@ -1,0 +1,15 @@
+{
+  "name": "Wishlist",
+  "type": "object",
+  "properties": {
+    "item_id": {
+      "type": "string"
+    },
+    "item_title": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "item_id"
+  ]
+}

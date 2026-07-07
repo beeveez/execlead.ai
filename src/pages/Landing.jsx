@@ -6,8 +6,9 @@ import {
   ArrowRight, Brain, Swords, MessageSquare, GraduationCap, BarChart3,
   Building2, BookOpen, Shield, Zap, Target, TrendingUp, Crown, Check
 } from "lucide-react";
-import { COMPANIES, LEARNING_PATHS } from "@/lib/constants";
+import { LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
+import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 
@@ -18,7 +19,7 @@ const FEATURES = [
   { icon: Swords, title: "Debate Mode", desc: "AI pushes back for 5+ rounds, testing conviction and strategic depth." },
   { icon: Shield, title: "Truth Engine", desc: "Detects exaggeration, inflated metrics, and false ownership instantly." },
   { icon: BookOpen, title: "Career Advisor", desc: "Personalized roadmap with certs, books, and promotion readiness." },
-  { icon: Building2, title: "Company Intelligence", desc: "Deep profiles on 20+ global tech organizations." },
+  { icon: Building2, title: "Company Intelligence", desc: "126+ global organizations with executive-grade intelligence." },
   { icon: BarChart3, title: "Leadership Analytics", desc: "Radar charts, trends, and heat maps tracking your executive growth." },
 ];
 
@@ -27,7 +28,7 @@ const FEATURES = [
 const FAQS = [
   { q: "Is this just an interview prep tool?", a: "No. EXECLEAD.AI is a complete leadership development platform. Interviews become easy when you genuinely think, communicate, and lead like an executive." },
   { q: "How does the Truth Engine work?", a: "Every answer you give is analyzed for exaggeration, inflated metrics, false ownership, and unsupported claims. The AI then rewrites your answer in truthful executive language." },
-  { q: "Which companies are supported?", a: "20+ global technology organizations including Fujitsu, IBM, Accenture, DXC, Kyndryl, Microsoft, AWS, Google Cloud, Cisco, ServiceNow, and more." },
+  { q: "Which companies are supported?", a: "126+ global organizations across Fortune 500, Big Four, FAANG, consulting firms, and leading enterprises — growing weekly. Can't find yours? Request it directly in the Company Intelligence hub." },
   { q: "Can I use this on mobile?", a: "Yes. The entire platform is fully responsive and works seamlessly on desktop, tablet, and mobile." },
   { q: "Do I need prior leadership experience?", a: "No. Whether you're a service desk lead or a seasoned director, the platform adapts to your level and target role." },
 ];
@@ -162,7 +163,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
             { value: "11", label: "AI Personas" },
-            { value: "20+", label: "Companies" },
+            { value: "126+", label: "Companies" },
             { value: "15+", label: "Simulations" },
             { value: "18", label: "Learning Paths" },
           ].map((s, i) => (
@@ -271,20 +272,8 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Companies */}
-      <section className="py-20 px-4 bg-white/[0.01]">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Company Intelligence Built In</h2>
-          <p className="text-white/40 mb-12 max-w-2xl mx-auto">Deep profiles on 20+ global technology organizations.</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {COMPANIES.map(c => (
-              <div key={c} className="px-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-lg text-sm text-white/40">
-                {c}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Global Executive Company Intelligence */}
+      <CompanyIntelligenceShowcase />
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-32 px-4">

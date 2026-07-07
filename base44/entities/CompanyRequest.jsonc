@@ -1,0 +1,42 @@
+{
+  "name": "CompanyRequest",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "requester_name": {
+      "type": "string"
+    },
+    "requester_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "under_review",
+        "approved",
+        "fulfilled",
+        "dismissed"
+      ],
+      "default": "submitted"
+    },
+    "resolution_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "company_name",
+    "reason"
+  ]
+}

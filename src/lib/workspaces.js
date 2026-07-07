@@ -150,11 +150,14 @@ const ROUTE_WORKSPACE = {
   "/enterprise": ["enterprise"], "/hr-dashboard": ["enterprise"],
   "/succession-planning": ["enterprise"], "/promotion-readiness": ["enterprise"],
   "/learning-assignments": ["enterprise"], "/organization/users": ["enterprise"],
-  "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer"],
+  "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer", "platform"],
   "/pricing-admin": ["platform", "developer"], "/billing-admin": ["platform", "developer"],
   "/payment-settings": ["platform", "developer"], "/email-settings": ["platform", "developer"],
   "/company-admin": ["platform", "developer"], "/cpq": ["platform", "developer"],
   "/cpq-dashboard": ["platform", "developer"], "/admin": ["platform"],
+  "/developer/organizations": ["platform", "developer"],
+  "/developer/audit-logs": ["platform", "developer"],
+  "/developer/system-health": ["platform", "developer"],
   "/developer": ["developer"], "/feature-management": ["developer"], "/guardian": ["developer"],
 };
 

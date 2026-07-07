@@ -74,6 +74,7 @@ import MyQuotes from '@/pages/MyQuotes';
 import CompanyAdmin from '@/pages/CompanyAdmin';
 import EmailSettings from '@/pages/EmailSettings';
 import OrganizationUsers from '@/pages/OrganizationUsers';
+import SecurityCenter from '@/pages/SecurityCenter';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
 
@@ -144,6 +145,7 @@ const AuthenticatedApp = () => {
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/security" element={<SecurityCenter />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />

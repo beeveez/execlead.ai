@@ -9,7 +9,7 @@ import EditUserModal from "@/components/organization/EditUserModal";
 import AssignmentModal from "@/components/hr/AssignmentModal";
 
 export default function OrganizationUsers() {
-  const { members, loading, isPlatformWide, organizationId } = useOrganizationMembers();
+  const { members, loading, organizationId } = useOrganizationMembers();
   const { profile } = useSubscription();
   const [departments, setDepartments] = useState([]);
   const [org, setOrg] = useState(null);
@@ -124,8 +124,9 @@ export default function OrganizationUsers() {
 
   const managers = members.filter((m) => ["Enterprise Manager", "Enterprise Admin", "Organization Owner"].includes(m.custom_role));
   const seatsTotal = org?.seats_total || 0;
-  const seatsUsed = org?.seats_used || members.length;
-  const seatPct = seatsTotal > 0 ? Math.round((seatsUsed / seatsTotal) * 100) : 0;
+  const seatsUsed = org?.seats_used ?? members.length;
+  const isUnlimited = seatsTotal === 0;
+  const seatPct = isUnlimited ? 0 : Math.min(100, Math.round((seatsUsed / seatsTotal) * 100));
 
   if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
@@ -138,15 +139,17 @@ export default function OrganizationUsers() {
           </div>
           <h1 className="text-2xl font-bold text-white">Organization Members</h1>
           <p className="text-white/40 text-sm mt-1">
-            {isPlatformWide ? "Platform-wide view (all organizations)" : `Tenant-scoped: ${org?.name || "Your Organization"}`}
+            Members of {org?.name || "Your Organization"} · {members.length} {members.length === 1 ? "member" : "members"}
           </p>
         </div>
         <div className="text-right">
-          <div className="text-white/30 text-xs uppercase tracking-wider">Seats</div>
-          <div className="text-white font-bold">{seatsUsed} / {seatsTotal}</div>
-          <div className="w-24 h-1.5 bg-white/5 rounded-full mt-1 overflow-hidden">
-            <div className={`h-full rounded-full ${seatPct >= 90 ? "bg-red-500" : seatPct >= 70 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${seatPct}%` }} />
-          </div>
+          <div className="text-white/30 text-xs uppercase tracking-wider">Seats Used</div>
+          <div className="text-white font-bold">{seatsUsed} / {isUnlimited ? "Unlimited" : seatsTotal}</div>
+          {!isUnlimited && (
+            <div className="w-24 h-1.5 bg-white/5 rounded-full mt-1 overflow-hidden">
+              <div className={`h-full rounded-full ${seatPct >= 90 ? "bg-red-500" : seatPct >= 70 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${seatPct}%` }} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -187,6 +190,9 @@ export default function OrganizationUsers() {
                   <th className="px-4 py-3">Role</th>
                   <th className="px-4 py-3">Department</th>
                   <th className="px-4 py-3">Manager</th>
+                  <th className="px-4 py-3">Learning</th>
+                  <th className="px-4 py-3">Exec Score</th>
+                  <th className="px-4 py-3">Promotion</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 w-10"></th>
                 </tr>
@@ -210,6 +216,9 @@ export default function OrganizationUsers() {
                     </td>
                     <td className="px-4 py-3 text-white/50">{m.department || "—"}</td>
                     <td className="px-4 py-3 text-white/50">{m.manager_name || "—"}</td>
+                    <td className="px-4 py-3 text-white/40 text-xs whitespace-nowrap">{m.sessions_completed || 0} sess · {m.challenges_completed || 0} chal</td>
+                    <td className="px-4 py-3"><ScoreBar value={m.interview_readiness || 0} barColor="bg-indigo-500" textColor="text-indigo-400" /></td>
+                    <td className="px-4 py-3"><ScoreBar value={m.promotion_readiness || 0} barColor="bg-emerald-500" textColor="text-emerald-400" /></td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         m.status === "active" ? "bg-emerald-500/10 text-emerald-400" :
@@ -268,6 +277,17 @@ export default function OrganizationUsers() {
             onSave={handleSaveAssignment} onClose={() => { setShowAssignModal(false); setAssignTarget(null); }} />
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function ScoreBar({ value, barColor, textColor }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-12 h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(100, value)}%` }} />
+      </div>
+      <span className={`text-xs font-medium ${textColor}`}>{Math.round(value)}</span>
     </div>
   );
 }

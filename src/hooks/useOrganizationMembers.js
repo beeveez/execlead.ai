@@ -30,10 +30,9 @@ export function useOrganizationMembers() {
       setOrganizationId(orgId);
 
       try {
-        if (platformWide) {
-          const all = await base44.entities.UserProfile.list();
-          setMembers(all);
-        } else if (orgId) {
+        // ALWAYS tenant-scoped — Enterprise Users never shows platform-wide data.
+        // Platform user management lives in AdminConsole (Platform workspace).
+        if (orgId) {
           const orgMembers = await base44.entities.UserProfile.filter({ organization_id: orgId });
           setMembers(orgMembers);
         } else {

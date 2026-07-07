@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { BadgeCheck, Download, FileText, Copy, Check, ExternalLink, Crown, Target } from "lucide-react";
 import { getQrUrl, getPublicProfileUrl, getExecutiveSlug, computeExecutiveScore, getLeadershipLevel } from "@/lib/socialShare";
 import { toast } from "@/components/ui/use-toast";
+import ExecutivePrintPreview from "@/components/brand/ExecutivePrintPreview";
 
 function generateUsername(profile) {
   const name = profile?.full_name || profile?.display_name || profile?.first_name || "executive";
@@ -16,6 +17,7 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [ensuring, setEnsuring] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Auto-create draft: persist public_username if not yet set
   useEffect(() => {
@@ -60,20 +62,7 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
     setDownloading(false);
   };
 
-  const downloadPdf = async () => {
-    if (!cardRef.current) return;
-    setDownloading(true);
-    try {
-      const html2canvas = (await import("html2canvas")).default;
-      const { jsPDF } = await import("jspdf");
-      const canvas = await html2canvas(cardRef.current, { backgroundColor: "#0d0d14", useCORS: true, scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width, canvas.height] });
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save(`execlead-identity-${slug || "profile"}.pdf`);
-    } catch (e) {}
-    setDownloading(false);
-  };
+  const openPrintPreview = () => setShowPreview(true);
 
   if (!profile) return null;
 
@@ -162,7 +151,7 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
           {downloading ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Download size={13} />}
           PNG
         </button>
-        <button onClick={downloadPdf} disabled={downloading} className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors disabled:opacity-40">
+        <button onClick={openPrintPreview} className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
           <FileText size={13} /> PDF
         </button>
         <button onClick={copyLink} className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
@@ -173,6 +162,10 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
           <ExternalLink size={13} /> Open
         </a>
       </div>
+
+      {showPreview && (
+        <ExecutivePrintPreview profile={profile} onClose={() => setShowPreview(false)} />
+      )}
     </div>
   );
 }

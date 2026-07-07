@@ -1,63 +1,67 @@
 import React, { useState, useEffect } from "react";
+import { Building2 } from "lucide-react";
 import { canShowLogo } from "@/lib/legalCompliance";
-import { getBrandColors, getCompanyInitials } from "@/lib/companyLogo";
+import { getCachedAvatar } from "@/lib/companyLogo";
 
 const SIZES = {
-  xs: { box: "w-6 h-6 rounded-md", text: "text-[10px]", img: "p-0.5" },
-  sm: { box: "w-8 h-8 rounded-lg", text: "text-xs", img: "p-1" },
-  md: { box: "w-11 h-11 rounded-lg", text: "text-sm", img: "p-1.5" },
-  lg: { box: "w-16 h-16 rounded-xl", text: "text-xl", img: "p-2" },
-  xl: { box: "w-24 h-24 rounded-2xl", text: "text-3xl", img: "p-3" },
+  xs: { box: "w-6 h-6", rounded: "rounded-md", text: "text-[10px]", img: "p-0.5", icon: 12 },
+  sm: { box: "w-8 h-8", rounded: "rounded-lg", text: "text-xs", img: "p-1", icon: 14 },
+  md: { box: "w-12 h-12", rounded: "rounded-xl", text: "text-base", img: "p-1.5", icon: 18 },
+  lg: { box: "w-16 h-16", rounded: "rounded-2xl", text: "text-xl", img: "p-2", icon: 24 },
+  xl: { box: "w-32 h-32", rounded: "rounded-3xl", text: "text-4xl", img: "p-4", icon: 40 },
 };
 
+const SHADOW = "0 2px 8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)";
+
 /**
- * Resilient company logo with skeleton loading and branded fallback avatar.
- * Workflow: skeleton → attempt load → logo (success) | fallback avatar (fail).
+ * Intelligent Company Avatar v2.0
+ * Display priority: 1) Official logo  2) Generated avatar  3) Default org icon
+ * Broken images are never visible — the avatar renders instantly as the base layer.
  */
-export default function CompanyLogo({ company, size = "md", className = "", showSkeleton = true }) {
+export default function CompanyLogo({ company, size = "md", className = "", showSkeleton }) {
   const s = SIZES[size] || SIZES.md;
   const logoUrl = company?.logo_url;
   const logoAllowed = canShowLogo(company);
-  const [status, setStatus] = useState("loading");
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  const name = company?.name || "";
+  const avatar = getCachedAvatar(name);
 
   useEffect(() => {
-    if (!logoUrl || !logoAllowed) {
-      setStatus("error");
-      return;
-    }
-    setStatus("loading");
+    if (!logoUrl || !logoAllowed) { setImgLoaded(false); return; }
+    setImgLoaded(false);
     const img = new Image();
-    img.onload = () => setStatus("loaded");
-    img.onerror = () => setStatus("error");
+    img.onload = () => setImgLoaded(true);
+    img.onerror = () => setImgLoaded(false);
     img.src = logoUrl;
     return () => { img.onload = null; img.onerror = null; };
   }, [logoUrl, logoAllowed]);
 
-  const colors = getBrandColors(company?.name || "");
-  const initials = getCompanyInitials(company?.name || "");
-
-  if (status === "loading" && showSkeleton) {
-    return <div className={`${s.box} bg-white/5 animate-pulse shrink-0 ${className}`} />;
-  }
-
-  if (status === "loaded" && logoAllowed) {
+  // Priority 3: Default organization icon (no company name at all)
+  if (!name.trim()) {
     return (
-      <img
-        src={logoUrl}
-        alt={company?.name || "Company logo"}
-        className={`${s.box} object-contain bg-white/5 ${s.img} shrink-0 ${className}`}
-        onError={() => setStatus("error")}
-      />
+      <div className={`${s.box} ${s.rounded} flex items-center justify-center bg-white/5 ring-1 ring-white/10 shrink-0 ${className}`} style={{ boxShadow: SHADOW }}>
+        <Building2 size={s.icon} className="text-white/25" />
+      </div>
     );
   }
 
-  // Branded fallback avatar: initials + brand gradient + rounded square
+  // Priority 1: Official uploaded logo (only shown after successful load)
+  if (imgLoaded && logoUrl && logoAllowed) {
+    return (
+      <div className={`${s.box} ${s.rounded} relative shrink-0 overflow-hidden ring-1 ring-white/10 ${className}`} style={{ boxShadow: SHADOW }}>
+        <img src={logoUrl} alt={name} className={`w-full h-full object-contain bg-white/[0.03] ${s.img}`} onError={() => setImgLoaded(false)} />
+      </div>
+    );
+  }
+
+  // Priority 2: Generated avatar (instant, cached, never breaks)
   return (
     <div
-      className={`${s.box} flex items-center justify-center font-bold text-white ${s.text} shrink-0 ${className}`}
-      style={{ background: colors.gradient }}
+      className={`${s.box} ${s.rounded} flex items-center justify-center font-semibold text-white ring-1 ring-white/10 shrink-0 ${className}`}
+      style={{ background: avatar.colors.gradient, boxShadow: SHADOW }}
     >
-      {initials}
+      {avatar.initials}
     </div>
   );
 }

@@ -24,6 +24,54 @@ const BRAND_PALETTE = [
   { from: "#84cc16", to: "#65a30d" },
 ];
 
+/* Official brand colors for well-known companies — deterministic, never change */
+const BRAND_COLORS = {
+  "microsoft": { from: "#00A4EF", to: "#0078D4" },
+  "amazon": { from: "#FF9900", to: "#146EB4" },
+  "nvidia": { from: "#76B900", to: "#4A8C00" },
+  "tesla": { from: "#E82127", to: "#C00E15" },
+  "apple": { from: "#555555", to: "#333333" },
+  "walmart": { from: "#0071CE", to: "#004C91" },
+  "google": { from: "#4285F4", to: "#1A73E8" },
+  "alphabet": { from: "#4285F4", to: "#1A73E8" },
+  "meta": { from: "#0866FF", to: "#0648B5" },
+  "facebook": { from: "#0866FF", to: "#0648B5" },
+  "ibm": { from: "#0F62FE", to: "#0043CE" },
+  "aws": { from: "#FF9900", to: "#E88B00" },
+  "samsung": { from: "#1428A0", to: "#0B1A6B" },
+  "intel": { from: "#0071C5", to: "#005A9E" },
+  "oracle": { from: "#C74634", to: "#A33B2C" },
+  "salesforce": { from: "#00A1E0", to: "#0080B0" },
+  "goldman sachs": { from: "#7399C6", to: "#5A7BA8" },
+  "mckinsey": { from: "#051C2C", to: "#03121E" },
+  "mckinsey & company": { from: "#051C2C", to: "#03121E" },
+  "mckinsey company": { from: "#051C2C", to: "#03121E" },
+  "jpmorgan chase": { from: "#0B2C5A", to: "#081E3F" },
+  "jpmorgan": { from: "#0B2C5A", to: "#081E3F" },
+  "morgan stanley": { from: "#003D7A", to: "#002952" },
+  "deloitte": { from: "#86BC25", to: "#6BA01C" },
+  "pwc": { from: "#D04A02", to: "#B03E02" },
+  "ey": { from: "#FFE600", to: "#E6CF00" },
+  "kpmg": { from: "#00338D", to: "#002261" },
+  "accenture": { from: "#A100FF", to: "#7A00CC" },
+  "netflix": { from: "#E50914", to: "#C00710" },
+  "spotify": { from: "#1DB954", to: "#1A9E48" },
+  "uber": { from: "#1a1a1a", to: "#333333" },
+  "airbnb": { from: "#FF5A5F", to: "#E04A4F" },
+  "adobe": { from: "#ED2224", to: "#C01B1D" },
+  "cisco": { from: "#1BA0D7", to: "#1480AE" },
+  "vmware": { from: "#607078", to: "#4A5961" },
+  "sap": { from: "#0FAAFF", to: "#0D8ACC" },
+  "johnson & johnson": { from: "#FF0000", to: "#CC0000" },
+  "johnson and johnson": { from: "#FF0000", to: "#CC0000" },
+  "bank of america": { from: "#012169", to: "#001049" },
+  "unitedhealth group": { from: "#002677", to: "#001A4F" },
+  "united healthcare group": { from: "#002677", to: "#001A4F" },
+  "wells fargo": { from: "#D71E28", to: "#B01922" },
+  "citi": { from: "#003B70", to: "#002550" },
+  "citigroup": { from: "#003B70", to: "#002550" },
+};
+
 function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -34,16 +82,61 @@ function hashString(str) {
 }
 
 export function getBrandColors(name) {
+  const key = (name || "").toLowerCase().trim();
+  if (BRAND_COLORS[key]) {
+    const c = BRAND_COLORS[key];
+    return { from: c.from, to: c.to, gradient: `linear-gradient(135deg, ${c.from}, ${c.to})` };
+  }
   const idx = hashString(name || "?") % BRAND_PALETTE.length;
   const c = BRAND_PALETTE[idx];
   return { from: c.from, to: c.to, gradient: `linear-gradient(135deg, ${c.from}, ${c.to})` };
 }
 
+const CONNECTOR_WORDS = new Set(["of", "the", "and", "for", "inc", "corp", "llc", "ltd", "co", "company", "group", "holdings"]);
+
 export function getCompanyInitials(name) {
   if (!name || !name.trim()) return "?";
-  const words = name.trim().split(/\s+/).filter(w => w.length > 0);
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
+  const trimmed = name.trim();
+
+  // Existing acronyms (IBM, AWS, SAP, HCL, TCS, NTT) — keep as-is
+  if (/^[A-Z0-9]{2,5}$/.test(trimmed)) return trimmed;
+
+  // "Word & Word" pattern → J&J
+  if (trimmed.includes("&")) {
+    const parts = trimmed.split(/\s*&\s*/).filter(Boolean);
+    if (parts.length >= 2) {
+      return parts.slice(0, 2).map(p => p[0].toUpperCase()).join("&");
+    }
+  }
+
+  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+  const significant = words.filter(w => {
+    const clean = w.toLowerCase().replace(/[^a-z]/g, "");
+    return clean.length > 0 && !CONNECTOR_WORDS.has(clean);
+  });
+
+  if (significant.length === 0) return "?";
+
+  // Single word → first letter (Tesla → T, Microsoft → M)
+  if (significant.length === 1) return significant[0][0].toUpperCase();
+
+  // Multiple words → first letter of each significant word (max 3)
+  return significant.slice(0, 3).map(w => w[0].toUpperCase()).join("");
+}
+
+/* ===================== AVATAR CACHE ===================== */
+
+const avatarCache = new Map();
+
+export function getCachedAvatar(name) {
+  const key = (name || "").toLowerCase().trim();
+  if (avatarCache.has(key)) return avatarCache.get(key);
+  const avatar = {
+    initials: getCompanyInitials(name),
+    colors: getBrandColors(name),
+  };
+  avatarCache.set(key, avatar);
+  return avatar;
 }
 
 /* ===================== LOGO VALIDATION ===================== */

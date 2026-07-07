@@ -11,12 +11,49 @@
     "perspectives_json": {
       "type": "string"
     },
+    "debate_json": {
+      "type": "string"
+    },
+    "decision_brief_json": {
+      "type": "string"
+    },
     "consolidated_recommendation": {
       "type": "string"
     },
     "overall_confidence": {
       "type": "number",
       "default": 0
+    },
+    "consensus_level": {
+      "type": "string",
+      "enum": [
+        "unanimous",
+        "strong",
+        "moderate",
+        "divided"
+      ],
+      "default": "moderate"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "reopened",
+        "archived"
+      ],
+      "default": "completed"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "context_summary": {
+      "type": "string"
+    },
+    "action_items_json": {
+      "type": "string"
     }
   },
   "required": [

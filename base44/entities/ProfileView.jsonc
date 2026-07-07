@@ -1,0 +1,33 @@
+{
+  "name": "ProfileView",
+  "type": "object",
+  "properties": {
+    "owner_username": {
+      "type": "string"
+    },
+    "owner_user_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "qr",
+        "linkedin",
+        "share",
+        "search",
+        "other"
+      ],
+      "default": "direct"
+    },
+    "viewer_referrer": {
+      "type": "string"
+    },
+    "viewer_timezone": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "owner_username"
+  ]
+}

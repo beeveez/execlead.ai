@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { safeParse } from "@/components/profile/FormFields";
@@ -64,6 +64,32 @@ export default function PublicProfile() {
     };
     load();
   }, [username]);
+
+  // Track public profile views (non-blocking)
+  const trackedRef = useRef(false);
+  useEffect(() => {
+    if (state !== "published" || !username || trackedRef.current) return;
+    trackedRef.current = true;
+    const detectSource = () => {
+      const params = new URLSearchParams(window.location.search);
+      const ref = document.referrer || "";
+      if (params.get("source") === "qr") return "qr";
+      if (ref.includes("linkedin")) return "linkedin";
+      if (params.get("ref") || ref.includes("share")) return "share";
+      if (ref.includes("google") || ref.includes("bing")) return "search";
+      if (ref) return "other";
+      return "direct";
+    };
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      base44.entities.ProfileView.create({
+        owner_username: username,
+        source: detectSource(),
+        viewer_referrer: document.referrer || "",
+        viewer_timezone: tz || "",
+      }).catch(() => {});
+    } catch (e) {}
+  }, [state, username]);
 
   if (state === "loading") {
     return (

@@ -144,7 +144,7 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
         </div>
 
         <div className="relative flex items-center gap-4 pt-4 border-t border-white/5">
-          <img src={getQrUrl(publicUrl)} alt="QR" crossOrigin="anonymous" className="w-16 h-16 rounded-lg" />
+          <img src={getQrUrl(`${publicUrl}?source=qr`)} alt="QR" crossOrigin="anonymous" className="w-16 h-16 rounded-lg" />
           <div>
             <div className="text-xs font-semibold text-white/70">EXECLEAD.AI</div>
             <div className="text-[10px] text-white/30">The Executive Leadership Operating System</div>

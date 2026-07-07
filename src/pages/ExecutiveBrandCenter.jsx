@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { Crown, Sparkles, CreditCard, Gift, Clock } from "lucide-react";
+import { Crown, Activity, BarChart3, Sparkles, CreditCard, Gift, Clock } from "lucide-react";
 import ExecutiveIdentityCard from "@/components/brand/ExecutiveIdentityCard";
 import ProfileStatusCenter from "@/components/brand/ProfileStatusCenter";
-import ProfileCompletionDashboard from "@/components/brand/ProfileCompletionDashboard";
+import ExecutiveReputationIndex from "@/components/brand/ExecutiveReputationIndex";
+import AIExecutiveAdvisor from "@/components/brand/AIExecutiveAdvisor";
+import ProfileHealthDashboard from "@/components/brand/ProfileHealthDashboard";
+import ExecutiveAnalytics from "@/components/brand/ExecutiveAnalytics";
+import ExecutiveTrust from "@/components/brand/ExecutiveTrust";
 import AchievementGallery from "@/components/brand/AchievementGallery";
 import DigitalBusinessCard from "@/components/brand/DigitalBusinessCard";
 import ReferralDashboard from "@/components/brand/ReferralDashboard";
@@ -12,6 +16,8 @@ import ExecutiveTimeline from "@/components/brand/ExecutiveTimeline";
 
 const TABS = [
   { id: "identity", label: "Identity", icon: Crown },
+  { id: "reputation", label: "Reputation", icon: Activity },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "achievements", label: "Achievements", icon: Sparkles },
   { id: "card", label: "Business Card", icon: CreditCard },
   { id: "referrals", label: "Referrals", icon: Gift },
@@ -44,13 +50,13 @@ export default function ExecutiveBrandCenter() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-          <Crown size={12} className="text-amber-400" /> Executive Brand Center™ 3.0
+          <Crown size={12} className="text-amber-400" /> Executive Identity Command Center
         </div>
         <h1 className="text-2xl font-bold text-white">Your Executive Identity</h1>
-        <p className="text-white/40 text-sm mt-1">Build your professional brand, share achievements, and grow your network.</p>
+        <p className="text-white/40 text-sm mt-1">Build, measure, and publish your verified executive profile.</p>
       </div>
 
       <div className="flex items-center gap-1 overflow-x-auto pb-1">
@@ -67,14 +73,24 @@ export default function ExecutiveBrandCenter() {
 
       <div>
         {tab === "identity" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
               <ProfileStatusCenter profile={profile} onRefresh={refreshProfile} />
               <ExecutiveIdentityCard profile={profile} onRefresh={refreshProfile} />
             </div>
-            <ProfileCompletionDashboard profile={profile} />
+            <ExecutiveTrust profile={profile} />
           </div>
         )}
+        {tab === "reputation" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <ExecutiveReputationIndex profile={profile} />
+              <ProfileHealthDashboard profile={profile} />
+            </div>
+            <AIExecutiveAdvisor profile={profile} onRefresh={refreshProfile} />
+          </div>
+        )}
+        {tab === "analytics" && <ExecutiveAnalytics profile={profile} />}
         {tab === "achievements" && <AchievementGallery profile={profile} user={user} />}
         {tab === "card" && <DigitalBusinessCard profile={profile} user={user} />}
         {tab === "referrals" && <ReferralDashboard user={user} />}

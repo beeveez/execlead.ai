@@ -1,10 +1,33 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Users, TrendingUp } from "lucide-react";
+import { MapPin, Users, TrendingUp, Cloud, Sparkles } from "lucide-react";
+import { isEnriched } from "@/lib/companyEnrichment";
+
+const CATEGORY_ICONS = {
+  magnificent_seven: "💎",
+  faang: "📱",
+  fortune_500: "🏆",
+  global_500: "🌐",
+  big_four: "📋",
+  government: "🏛️",
+  technology: "💻",
+  healthcare: "🏥",
+  banking: "🏦",
+  manufacturing: "🏭",
+  energy: "⚡",
+  retail: "🛒",
+  telecommunications: "📡",
+  airlines: "✈️",
+  logistics: "📦",
+  consulting: "💼",
+  unicorns: "🦄",
+};
 
 export default function CompanyCard({ company, selected, onToggleCompare }) {
   const navigate = useNavigate();
   const initials = company.name.slice(0, 2).toUpperCase();
+  const enriched = isEnriched(company);
+  const categoryIcon = CATEGORY_ICONS[company.category] || "🏢";
 
   return (
     <div className={`group relative bg-white/[0.03] border rounded-xl p-4 transition-all hover:bg-violet-500/5 ${selected ? "border-violet-500/40 bg-violet-500/5" : "border-white/5 hover:border-violet-500/15"}`}>
@@ -24,6 +47,24 @@ export default function CompanyCard({ company, selected, onToggleCompare }) {
         {company.headquarters && <div className="flex items-center gap-1.5"><MapPin size={12} className="text-white/20" /> {company.headquarters}</div>}
         {company.company_size && <div className="flex items-center gap-1.5"><Users size={12} className="text-white/20" /> {company.company_size}</div>}
         {company.fortune_ranking && <div className="flex items-center gap-1.5"><TrendingUp size={12} className="text-white/20" /> {company.fortune_ranking}</div>}
+        {company.cloud_provider && <div className="flex items-center gap-1.5"><Cloud size={12} className="text-white/20" /> {company.cloud_provider}</div>}
+      </div>
+
+      <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+        {company.category && (
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-white/40">
+            {categoryIcon} {company.category.replace(/_/g, " ")}
+          </span>
+        )}
+        {enriched ? (
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400">
+            <Sparkles size={8} /> AI Enriched
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-violet-500/10 text-violet-400">
+            <Sparkles size={8} /> Core Profile
+          </span>
+        )}
       </div>
 
       {onToggleCompare && (

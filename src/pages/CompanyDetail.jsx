@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useParams, useNavigate } from "react-router-dom";
@@ -7,11 +7,18 @@ import {
   ArrowLeft, MapPin, Users, Crown, Target, Loader2, Check,
   Compass, Eye, Heart, Layers, Cpu, Package, Swords, Trophy, Globe, Network,
   Brain, Cloud, Leaf, Users2, GraduationCap, Briefcase, HelpCircle, BookOpen,
-  DollarSign, Sparkles, MessageSquare, Award, TrendingUp
+  DollarSign, Sparkles, MessageSquare, Award, TrendingUp,
+  CalendarClock, Landmark, GitBranch, Crosshair, AlertTriangle, UserPlus,
+  FileText, Server, Shield,
 } from "lucide-react";
 import CompanySection, { ListBlock } from "@/components/companies/CompanySection";
+import CompanyEnrichButton from "@/components/companies/CompanyEnrichButton";
 
 function parseLearningPaths(json) {
+  try { return JSON.parse(json); } catch { return null; }
+}
+
+function parseLeadershipTeam(json) {
   try { return JSON.parse(json); } catch { return null; }
 }
 
@@ -31,13 +38,12 @@ export default function CompanyDetail() {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const load = async () => {
-      try { setCompany(await base44.entities.Company.get(id)); } catch (e) {}
-      setLoading(false);
-    };
-    load();
+  const loadCompany = useCallback(async () => {
+    try { setCompany(await base44.entities.Company.get(id)); } catch (e) {}
+    setLoading(false);
   }, [id]);
+
+  useEffect(() => { loadCompany(); }, [loadCompany]);
 
   const setTargetCompany = async () => {
     if (!profile?.id || !company) return;
@@ -54,12 +60,15 @@ export default function CompanyDetail() {
   if (!company) return <div className="text-center py-20 text-white/40">Company not found.</div>;
 
   const lp = parseLearningPaths(company.learning_paths_json);
+  const leadershipTeam = parseLeadershipTeam(company.leadership_team_json);
   const isTarget = profile?.target_company === company.name;
   const stats = [
-    { label: "Size", value: company.company_size, icon: Users },
+    { label: "Founded", value: company.founded, icon: CalendarClock },
     { label: "Revenue", value: company.revenue, icon: DollarSign },
+    { label: "Market Cap", value: company.market_cap, icon: TrendingUp },
     { label: "Employees", value: company.employee_count ? company.employee_count.toLocaleString() : null, icon: Briefcase },
-    { label: "Global Rank", value: company.global_ranking, icon: Globe },
+    { label: "Countries", value: company.countries_count ? company.countries_count.toLocaleString() : null, icon: Globe },
+    { label: "Global Rank", value: company.global_ranking, icon: Trophy },
   ].filter(s => s.value);
 
   return (
@@ -82,15 +91,19 @@ export default function CompanyDetail() {
               {company.headquarters && <span className="flex items-center gap-1"><MapPin size={12} /> {company.headquarters}</span>}
               {company.ceo && <span className="flex items-center gap-1"><Crown size={12} /> {company.ceo}</span>}
               {company.fortune_ranking && <span className="flex items-center gap-1"><Trophy size={12} /> {company.fortune_ranking}</span>}
+              {company.stock_symbol && <span className="flex items-center gap-1"><DollarSign size={12} /> {company.stock_symbol}</span>}
             </div>
           </div>
-          <button onClick={setTargetCompany} disabled={isTarget} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isTarget ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : "bg-violet-500 hover:bg-violet-600 text-white"}`}>
-            {isTarget ? <><Check size={14} /> Target Company</> : <><Target size={14} /> Set as Target</>}
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <CompanyEnrichButton company={company} onEnriched={loadCompany} />
+            <button onClick={setTargetCompany} disabled={isTarget} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isTarget ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : "bg-violet-500 hover:bg-violet-600 text-white"}`}>
+              {isTarget ? <><Check size={14} /> Target Company</> : <><Target size={14} /> Set as Target</>}
+            </button>
+          </div>
         </div>
 
         {stats.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-5">
             {stats.map(s => (
               <div key={s.label} className="bg-white/[0.03] rounded-lg p-3">
                 <div className="flex items-center gap-1.5 text-white/30 text-[10px] uppercase tracking-wider mb-1"><s.icon size={11} /> {s.label}</div>
@@ -99,7 +112,15 @@ export default function CompanyDetail() {
             ))}
           </div>
         )}
+
+        {company.last_updated && (
+          <div className="flex items-center gap-1.5 mt-3 text-[10px] text-white/30">
+            <CalendarClock size={10} /> Last updated: {company.last_updated} · v{company.version_number || 1}
+          </div>
+        )}
       </div>
+
+      {company.description && <TextSection icon={Compass} title="Company Overview" text={company.description} />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextSection icon={Compass} title="Mission" text={company.mission} />
@@ -115,8 +136,25 @@ export default function CompanyDetail() {
       )}
 
       {company.leadership_principles?.length > 0 && (
-        <CompanySection icon={Crown} title="Leadership Principles">
-          <ListBlock items={company.leadership_principles} />
+        <CompanySection icon={Crown} title="Leadership Principles"><ListBlock items={company.leadership_principles} /></CompanySection>
+      )}
+
+      {/* Leadership Team */}
+      {leadershipTeam?.length > 0 && (
+        <CompanySection icon={Users} title="Leadership Team">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {leadershipTeam.map((exec, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center text-violet-400 font-bold text-xs shrink-0">
+                  {exec.name?.charAt(0) || "?"}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm text-white/80 font-medium truncate">{exec.name}</div>
+                  <div className="text-xs text-white/40 truncate">{exec.title}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </CompanySection>
       )}
 
@@ -126,31 +164,28 @@ export default function CompanyDetail() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {company.major_products?.length > 0 && (
-          <CompanySection icon={Package} title="Major Products"><ListBlock items={company.major_products} /></CompanySection>
-        )}
-        {company.services?.length > 0 && (
-          <CompanySection icon={Briefcase} title="Services"><ListBlock items={company.services} /></CompanySection>
-        )}
+        {company.major_products?.length > 0 && <CompanySection icon={Package} title="Major Products"><ListBlock items={company.major_products} /></CompanySection>}
+        {company.services?.length > 0 && <CompanySection icon={Briefcase} title="Services"><ListBlock items={company.services} /></CompanySection>}
         {company.technology_stack?.length > 0 && (
           <CompanySection icon={Cpu} title="Technology Stack">
-            <div className="flex flex-wrap gap-2">
-              {company.technology_stack.map((t, i) => <span key={i} className="px-2 py-0.5 rounded text-xs bg-white/5 text-white/60 border border-white/10">{t}</span>)}
-            </div>
+            <div className="flex flex-wrap gap-2">{company.technology_stack.map((t, i) => <span key={i} className="px-2 py-0.5 rounded text-xs bg-white/5 text-white/60 border border-white/10">{t}</span>)}</div>
           </CompanySection>
         )}
         {company.competitors?.length > 0 && (
           <CompanySection icon={Swords} title="Competitors">
-            <div className="flex flex-wrap gap-2">
-              {company.competitors.map((c, i) => <span key={i} className="px-2 py-0.5 rounded text-xs bg-white/5 text-white/60 border border-white/10">{c}</span>)}
-            </div>
+            <div className="flex flex-wrap gap-2">{company.competitors.map((c, i) => <span key={i} className="px-2 py-0.5 rounded text-xs bg-white/5 text-white/60 border border-white/10">{c}</span>)}</div>
           </CompanySection>
         )}
       </div>
 
+      {/* Executive Intelligence */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextSection icon={Globe} title="Global Presence" text={company.global_presence} />
         <TextSection icon={Network} title="Organizational Structure" text={company.organizational_structure} />
+        <TextSection icon={Server} title="Technology Landscape" text={company.technology_landscape} />
+        <TextSection icon={Crosshair} title="Competitive Position" text={company.competitive_position} />
+        <TextSection icon={AlertTriangle} title="Risk Profile" text={company.risk_profile} />
+        <TextSection icon={Shield} title="Board Expectations" text={company.board_expectations} />
       </div>
 
       {company.interview_style && (
@@ -160,11 +195,16 @@ export default function CompanyDetail() {
         </CompanySection>
       )}
 
-      {company.leadership_competencies?.length > 0 && (
-        <CompanySection icon={Crown} title="Leadership Competencies">
-          <ListBlock items={company.leadership_competencies} />
-        </CompanySection>
-      )}
+      {company.hiring_practices && <TextSection icon={UserPlus} title="Hiring Practices" text={company.hiring_practices} />}
+      {company.executive_resume_insights && <TextSection icon={FileText} title="Executive Resume Insights" text={company.executive_resume_insights} />}
+
+      {company.leadership_competencies?.length > 0 && <CompanySection icon={Crown} title="Leadership Competencies"><ListBlock items={company.leadership_competencies} /></CompanySection>}
+
+      {/* Transformation & Acquisitions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {company.transformation_initiatives?.length > 0 && <CompanySection icon={GitBranch} title="Transformation Initiatives"><ListBlock items={company.transformation_initiatives} /></CompanySection>}
+        {company.major_acquisitions?.length > 0 && <CompanySection icon={Landmark} title="Major Acquisitions"><ListBlock items={company.major_acquisitions} /></CompanySection>}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <TextSection icon={Brain} title="Digital Transformation" text={company.digital_transformation_strategy} />
@@ -177,30 +217,23 @@ export default function CompanyDetail() {
         <TextSection icon={Users2} title="Diversity & Inclusion" text={company.diversity_inclusion} />
       </div>
 
+      {company.strategic_priorities && <TextSection icon={Target} title="Strategic Priorities" text={company.strategic_priorities} />}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {company.career_paths?.length > 0 && (
-          <CompanySection icon={Briefcase} title="Career Paths"><ListBlock items={company.career_paths} /></CompanySection>
-        )}
-        {company.learning_recommendations?.length > 0 && (
-          <CompanySection icon={GraduationCap} title="Learning Recommendations"><ListBlock items={company.learning_recommendations} /></CompanySection>
-        )}
+        {company.career_paths?.length > 0 && <CompanySection icon={Briefcase} title="Career Paths"><ListBlock items={company.career_paths} /></CompanySection>}
+        {company.learning_recommendations?.length > 0 && <CompanySection icon={GraduationCap} title="Learning Recommendations"><ListBlock items={company.learning_recommendations} /></CompanySection>}
       </div>
 
-      {company.common_interview_questions?.length > 0 && (
-        <CompanySection icon={HelpCircle} title="Common Interview Questions"><ListBlock items={company.common_interview_questions} /></CompanySection>
-      )}
-
-      {company.executive_case_studies?.length > 0 && (
-        <CompanySection icon={BookOpen} title="Executive Case Studies"><ListBlock items={company.executive_case_studies} /></CompanySection>
-      )}
+      {company.common_interview_questions?.length > 0 && <CompanySection icon={HelpCircle} title="Common Interview Questions"><ListBlock items={company.common_interview_questions} /></CompanySection>}
+      {company.executive_case_studies?.length > 0 && <CompanySection icon={BookOpen} title="Executive Case Studies"><ListBlock items={company.executive_case_studies} /></CompanySection>}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <TextSection icon={DollarSign} title="Salary Benchmarks" text={company.salary_benchmarks} />
-        {company.benefits?.length > 0 && (
-          <CompanySection icon={Heart} title="Benefits"><ListBlock items={company.benefits} /></CompanySection>
-        )}
+        {company.benefits?.length > 0 && <CompanySection icon={Heart} title="Benefits"><ListBlock items={company.benefits} /></CompanySection>}
         <TextSection icon={TrendingUp} title="Growth Potential" text={company.growth_potential} />
       </div>
+
+      {company.promotion_expectations && <TextSection icon={Crown} title="Promotion Philosophy" text={company.promotion_expectations} />}
 
       {lp && (
         <div className="space-y-4">
@@ -209,18 +242,10 @@ export default function CompanyDetail() {
             <TextSection icon={Target} title="Executive Interview Preparation" text={lp.executive_interview_preparation} />
             <TextSection icon={MessageSquare} title="Communication Style" text={lp.communication_style} />
             <TextSection icon={Sparkles} title="Presentation Style" text={lp.presentation_style} />
-            {lp.executive_behaviors?.length > 0 && (
-              <CompanySection icon={Crown} title="Executive Behaviors"><ListBlock items={lp.executive_behaviors} /></CompanySection>
-            )}
-            {lp.recommended_certifications?.length > 0 && (
-              <CompanySection icon={Award} title="Recommended Certifications"><ListBlock items={lp.recommended_certifications} /></CompanySection>
-            )}
-            {lp.recommended_books?.length > 0 && (
-              <CompanySection icon={BookOpen} title="Recommended Books"><ListBlock items={lp.recommended_books} /></CompanySection>
-            )}
-            {lp.recommended_courses?.length > 0 && (
-              <CompanySection icon={GraduationCap} title="Recommended Courses"><ListBlock items={lp.recommended_courses} /></CompanySection>
-            )}
+            {lp.executive_behaviors?.length > 0 && <CompanySection icon={Crown} title="Executive Behaviors"><ListBlock items={lp.executive_behaviors} /></CompanySection>}
+            {lp.recommended_certifications?.length > 0 && <CompanySection icon={Award} title="Recommended Certifications"><ListBlock items={lp.recommended_certifications} /></CompanySection>}
+            {lp.recommended_books?.length > 0 && <CompanySection icon={BookOpen} title="Recommended Books"><ListBlock items={lp.recommended_books} /></CompanySection>}
+            {lp.recommended_courses?.length > 0 && <CompanySection icon={GraduationCap} title="Recommended Courses"><ListBlock items={lp.recommended_courses} /></CompanySection>}
           </div>
         </div>
       )}

@@ -41,12 +41,23 @@ export const buildCompanyContext = (company) => {
   if (company.common_interview_questions?.length) parts.push(`Common Interview Questions: ${company.common_interview_questions.join(" | ")}`);
 
   if (company.technology_stack?.length) parts.push(`Technology Stack: ${company.technology_stack.join(", ")}`);
+  line("Cloud Provider", company.cloud_provider);
   line("AI Strategy", company.ai_strategy);
   line("Digital Transformation", company.digital_transformation_strategy);
   line("Cloud Strategy", company.cloud_strategy);
+  line("Technology Landscape", company.technology_landscape);
+  line("Competitive Position", company.competitive_position);
+  line("Risk Profile", company.risk_profile);
   if (company.competitors?.length) parts.push(`Competitors: ${company.competitors.join(", ")}`);
+  if (company.transformation_initiatives?.length) parts.push(`Transformation Initiatives: ${company.transformation_initiatives.join("; ")}`);
+  if (company.major_acquisitions?.length) parts.push(`Major Acquisitions: ${company.major_acquisitions.join("; ")}`);
+  line("Board Expectations", company.board_expectations);
+  line("Executive Resume Insights", company.executive_resume_insights);
+  line("Hiring Practices", company.hiring_practices);
+  line("Promotion Philosophy", company.promotion_expectations);
   line("Sustainability", company.sustainability_initiatives);
   line("Diversity & Inclusion", company.diversity_inclusion);
+  line("Strategic Priorities", company.strategic_priorities);
 
   if (company.learning_paths_json) {
     try {

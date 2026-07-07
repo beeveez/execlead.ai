@@ -17,10 +17,16 @@
     "industry": {
       "type": "string"
     },
+    "founded": {
+      "type": "number"
+    },
     "fortune_ranking": {
       "type": "string"
     },
     "global_ranking": {
+      "type": "string"
+    },
+    "forbes_ranking": {
       "type": "string"
     },
     "company_size": {
@@ -29,11 +35,21 @@
     "revenue": {
       "type": "string"
     },
+    "market_cap": {
+      "type": "string"
+    },
     "employee_count": {
       "type": "number",
       "default": 0
     },
+    "countries_count": {
+      "type": "number",
+      "default": 0
+    },
     "ceo": {
+      "type": "string"
+    },
+    "leadership_team_json": {
       "type": "string"
     },
     "mission": {
@@ -65,6 +81,9 @@
       "items": {
         "type": "string"
       }
+    },
+    "cloud_provider": {
+      "type": "string"
     },
     "major_products": {
       "type": "array",
@@ -100,6 +119,12 @@
       }
     },
     "leadership_competencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "executive_behaviors": {
       "type": "array",
       "items": {
         "type": "string"
@@ -144,8 +169,48 @@
         "type": "string"
       }
     },
+    "executive_resume_insights": {
+      "type": "string"
+    },
+    "board_expectations": {
+      "type": "string"
+    },
+    "transformation_initiatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "major_acquisitions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "technology_landscape": {
+      "type": "string"
+    },
+    "competitive_position": {
+      "type": "string"
+    },
+    "risk_profile": {
+      "type": "string"
+    },
+    "hiring_practices": {
+      "type": "string"
+    },
     "leadership_style": {
       "type": "string"
+    },
+    "work_model": {
+      "type": "string",
+      "enum": [
+        "remote",
+        "hybrid",
+        "onsite",
+        "flexible"
+      ],
+      "default": "hybrid"
     },
     "remote_work_friendly": {
       "type": "boolean",
@@ -173,7 +238,46 @@
     "career_opportunities": {
       "type": "string"
     },
+    "promotion_expectations": {
+      "type": "string"
+    },
+    "recommended_certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_books": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_courses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "learning_paths_json": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strategic_priorities": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "notes": {
       "type": "string"
     },
     "is_archived": {
@@ -204,48 +308,6 @@
     "stock_symbol": {
       "type": "string"
     },
-    "description": {
-      "type": "string"
-    },
-    "executive_behaviors": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "promotion_expectations": {
-      "type": "string"
-    },
-    "recommended_certifications": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "recommended_books": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "recommended_courses": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "strategic_priorities": {
-      "type": "string"
-    },
-    "notes": {
-      "type": "string"
-    },
-    "tags": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "quality_score": {
       "type": "number",
       "default": 0
@@ -263,6 +325,10 @@
     "version_number": {
       "type": "number",
       "default": 1
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [

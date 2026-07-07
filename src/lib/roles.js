@@ -295,11 +295,20 @@ export const ROUTE_ACCESS = {
   "/email-settings": ["platform_admin", "super_admin"],
 };
 
-export function canAccessRoute(role, path) {
+// Enterprise member routes unlockable by org membership (not admin-only routes)
+const ENTERPRISE_MEMBER_ROUTES = [
+  "/enterprise", "/hr-dashboard", "/succession-planning",
+  "/promotion-readiness", "/learning-assignments",
+];
+
+export function canAccessRoute(role, path, opts = {}) {
   const normalized = normalizeRole(role);
   const allowed = ROUTE_ACCESS[path];
   if (!allowed) return true; // customer route — any authenticated user
-  return allowed.includes(normalized);
+  if (allowed.includes(normalized)) return true;
+  // Enterprise member routes: allow if user has an active org on their profile
+  if (opts.hasEnterpriseOrg && ENTERPRISE_MEMBER_ROUTES.includes(path)) return true;
+  return false;
 }
 
 // ============================================================

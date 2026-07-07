@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import { canAccessRoute, normalizeRole } from "@/lib/roles";
 
 /**
@@ -15,12 +16,19 @@ import { canAccessRoute, normalizeRole } from "@/lib/roles";
  */
 export default function RoleRoute({ children }) {
   const { user } = useAuth();
+  const { profile, loading } = useSubscription();
   const location = useLocation();
   const role = normalizeRole(user?.role);
 
-  if (!canAccessRoute(role, location.pathname)) {
-    return <Navigate to="/dashboard" replace />;
+  // Role alone grants access — render immediately
+  if (canAccessRoute(role, location.pathname)) return children;
+
+  // Role doesn't grant access — wait for profile to check org membership
+  if (loading) return null;
+
+  if (canAccessRoute(role, location.pathname, { hasEnterpriseOrg: !!profile?.organization_id })) {
+    return children;
   }
 
-  return children;
+  return <Navigate to="/dashboard" replace />;
 }

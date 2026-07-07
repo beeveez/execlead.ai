@@ -4,7 +4,7 @@ import {
   UserCircle, CreditCard, Settings as SettingsIcon,
   Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
   Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes, Store,
-  Cpu, TrendingUp, GitBranch, Rocket, ShieldCheck
+  Cpu, TrendingUp, GitBranch, Rocket, ShieldCheck, Lightbulb
 } from "lucide-react";
 
 // ============================================================
@@ -150,6 +150,7 @@ export const NAV_GROUPS = [
       { path: "/cpq/quotes", label: "My Proposals", icon: FileText },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
       { path: "/security", label: "Security Center", icon: ShieldCheck },
+      { path: "/feedback", label: "Feedback", icon: Lightbulb },
     ],
   },
 
@@ -197,6 +198,7 @@ export const NAV_GROUPS = [
       { path: "/connected-accounts", label: "API Integrations", icon: KeyRound },
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/security", label: "Security Center", icon: ShieldCheck },
+      { path: "/feedback", label: "Feedback", icon: Lightbulb },
     ],
   },
 

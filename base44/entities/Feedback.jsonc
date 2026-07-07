@@ -1,0 +1,140 @@
+{
+  "name": "Feedback",
+  "type": "object",
+  "properties": {
+    "feedback_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "bug",
+        "feature",
+        "idea",
+        "general",
+        "question",
+        "security",
+        "compliment",
+        "improvement"
+      ],
+      "default": "general"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "category": {
+      "type": "string",
+      "default": "other"
+    },
+    "expected_behavior": {
+      "type": "string"
+    },
+    "actual_behavior": {
+      "type": "string"
+    },
+    "steps_to_reproduce": {
+      "type": "string"
+    },
+    "browser": {
+      "type": "string"
+    },
+    "operating_system": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "attachments_json": {
+      "type": "string"
+    },
+    "diagnostics_json": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "acknowledged",
+        "investigating",
+        "in_progress",
+        "testing",
+        "resolved",
+        "closed",
+        "rejected"
+      ],
+      "default": "new"
+    },
+    "assigned_developer": {
+      "type": "string"
+    },
+    "votes": {
+      "type": "number",
+      "default": 0
+    },
+    "voters_json": {
+      "type": "string"
+    },
+    "watchers_json": {
+      "type": "string"
+    },
+    "comments_json": {
+      "type": "string"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "estimated_resolution": {
+      "type": "string"
+    },
+    "is_enterprise_priority": {
+      "type": "boolean",
+      "default": false
+    },
+    "enterprise_priority_level": {
+      "type": "string",
+      "enum": [
+        "production_down",
+        "business_critical",
+        "priority_1"
+      ],
+      "default": "priority_1"
+    },
+    "ai_category": {
+      "type": "string"
+    },
+    "ai_priority": {
+      "type": "string"
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "ai_duplicate_of": {
+      "type": "string"
+    },
+    "ai_responsible_module": {
+      "type": "string"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "type",
+    "title",
+    "description"
+  ]
+}

@@ -78,6 +78,7 @@ import SecurityCenter from '@/pages/SecurityCenter';
 import Legal from '@/pages/Legal';
 import Leaderboard from '@/pages/Leaderboard';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
+import Feedback from '@/pages/Feedback';
 import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
@@ -178,6 +179,7 @@ const AuthenticatedApp = () => {
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
+          <Route path="/feedback" element={<Feedback />} />
         </Route>
       </Route>
 

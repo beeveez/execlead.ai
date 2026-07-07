@@ -4,9 +4,10 @@ import { callAI } from "@/lib/ai";
 import { TrendingUp, Loader2, Sparkles, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PromotionAssessment from "@/components/hr/PromotionAssessment";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 
 export default function PromotionReadiness() {
-  const [members, setMembers] = useState([]);
+  const { members, loading: loadingMembers } = useOrganizationMembers();
   const [results, setResults] = useState([]);
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,20 +17,20 @@ export default function PromotionReadiness() {
 
   useEffect(() => {
     const load = async () => {
+      if (loadingMembers) return;
       try {
-        const [m, r, l] = await Promise.all([
-          base44.entities.UserProfile.list(),
+        const memberIds = new Set(members.map((m) => m.created_by_id));
+        const [r, l] = await Promise.all([
           base44.entities.ChallengeResult.list("-created_date", 200),
           base44.entities.LessonProgress.list("-created_date", 100),
         ]);
-        setMembers(m);
-        setResults(r);
-        setLessons(l);
+        setResults(r.filter((res) => memberIds.has(res.created_by_id)));
+        setLessons(l.filter((les) => memberIds.has(les.created_by_id)));
       } catch (e) {}
       setLoading(false);
     };
     load();
-  }, []);
+  }, [loadingMembers, members]);
 
   const memberStats = members.map((m) => {
     const memberResults = results.filter((r) => r.created_by_id === m.created_by_id);
@@ -101,7 +102,7 @@ Provide a comprehensive promotion readiness assessment. Be honest and specific.`
     setAssessing(false);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  if (loading || loadingMembers) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

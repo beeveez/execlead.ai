@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Network, Plus, Trash2, Loader2, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SuccessionPlanModal from "@/components/hr/SuccessionPlanModal";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 
 const RISK_STYLES = {
   critical: { badge: "bg-red-500/10 text-red-400", label: "Critical" },
@@ -19,24 +20,28 @@ const STATUS_STYLES = {
 };
 
 export default function SuccessionPlanning() {
+  const { members, loading: loadingMembers } = useOrganizationMembers();
   const [plans, setPlans] = useState([]);
-  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editPlan, setEditPlan] = useState(null);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [loadingMembers, members]);
 
   const load = async () => {
+    if (loadingMembers) return;
     try {
-      const [p, m] = await Promise.all([
-        base44.entities.SuccessionPlan.list("-created_date", 100),
-        base44.entities.UserProfile.list(),
-      ]);
-      setPlans(p);
-      setMembers(m);
+      const memberNames = new Set(members.map((m) => m.full_name));
+      const p = await base44.entities.SuccessionPlan.list("-created_date", 100);
+      const orgPlans = p.filter((plan) => {
+        try {
+          const succ = JSON.parse(plan.successors_json || "[]");
+          return succ.some((s) => memberNames.has(s.name)) || memberNames.has(plan.incumbent_name);
+        } catch (e) { return false; }
+      });
+      setPlans(orgPlans.length > 0 ? orgPlans : p);
     } catch (e) {}
     setLoading(false);
   };

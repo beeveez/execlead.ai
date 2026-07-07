@@ -221,6 +221,27 @@
     "custom_role": {
       "type": "string"
     },
+    "department": {
+      "type": "string"
+    },
+    "department_id": {
+      "type": "string"
+    },
+    "manager_id": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "suspended"
+      ],
+      "default": "active"
+    },
     "subscription_plan": {
       "type": "string",
       "default": "free"

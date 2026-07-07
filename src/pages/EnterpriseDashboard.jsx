@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Building, Users, TrendingUp, Loader2, Plus, Crown } from "lucide-react";
 import { motion } from "framer-motion";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
+import { useSubscription } from "@/lib/SubscriptionContext";
 
 export default function EnterpriseDashboard() {
-  const [profile, setProfile] = useState(null);
+  const { profile, refreshProfile } = useSubscription();
+  const { members, loading: loadingMembers, organizationId } = useOrganizationMembers();
   const [org, setOrg] = useState(null);
-  const [members, setMembers] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -14,23 +16,20 @@ export default function EnterpriseDashboard() {
 
   useEffect(() => {
     const load = async () => {
+      if (loadingMembers) return;
       try {
-        const profiles = await base44.entities.UserProfile.list();
-        if (profiles.length > 0) setProfile(profiles[0]);
-
-        if (profiles[0]?.organization_id) {
-          const orgs = await base44.entities.Organization.filter({ id: profiles[0].organization_id });
+        if (organizationId) {
+          const orgs = await base44.entities.Organization.filter({ id: organizationId });
           if (orgs.length > 0) setOrg(orgs[0]);
-          const allProfiles = await base44.entities.UserProfile.list();
-          setMembers(allProfiles);
+          const memberIds = new Set(members.map((m) => m.created_by_id));
           const r = await base44.entities.ChallengeResult.list("-created_date", 200);
-          setResults(r);
+          setResults(r.filter((res) => memberIds.has(res.created_by_id)));
         }
       } catch (e) {}
       setLoading(false);
     };
     load();
-  }, []);
+  }, [organizationId, loadingMembers, members]);
 
   const createOrg = async () => {
     if (!orgName.trim() || !profile) return;
@@ -43,13 +42,13 @@ export default function EnterpriseDashboard() {
         organization_id: newOrg.id, custom_role: "Enterprise Admin",
       });
       setOrg(newOrg);
-      setProfile({ ...profile, organization_id: newOrg.id, custom_role: "Enterprise Admin" });
+      await refreshProfile();
       setOrgName("");
     } catch (e) {}
     setCreating(false);
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  if (loading || loadingMembers) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   const memberResults = members.map(m => {
     const r = results.filter(res => res.created_by_id === m.created_by_id);

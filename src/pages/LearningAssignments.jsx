@@ -4,6 +4,7 @@ import { ClipboardCheck, Plus, Trash2, Loader2, CheckCircle2, Clock, AlertCircle
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment";
 import AssignmentModal from "@/components/hr/AssignmentModal";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 
 const STATUS_STYLES = {
   assigned: { badge: "bg-white/5 text-white/40", icon: Clock },
@@ -19,23 +20,21 @@ const PRIORITY_STYLES = {
 };
 
 export default function LearningAssignments() {
+  const { members, loading: loadingMembers } = useOrganizationMembers();
   const [assignments, setAssignments] = useState([]);
-  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [loadingMembers, members]);
 
   const load = async () => {
+    if (loadingMembers) return;
     try {
-      const [a, m] = await Promise.all([
-        base44.entities.LearningAssignment.list("-created_date", 200),
-        base44.entities.UserProfile.list(),
-      ]);
-      setAssignments(a);
-      setMembers(m);
+      const memberNames = new Set(members.map((m) => m.full_name));
+      const a = await base44.entities.LearningAssignment.list("-created_date", 200);
+      setAssignments(a.filter((asgn) => memberNames.has(asgn.assignee_name)));
     } catch (e) {}
     setLoading(false);
   };
@@ -101,7 +100,7 @@ export default function LearningAssignments() {
         ))}
       </div>
 
-      {loading ? (
+      {(loading || loadingMembers) ? (
         <div className="flex items-center justify-center py-20"><Loader2 size={24} className="animate-spin text-indigo-400" /></div>
       ) : assignments.length === 0 ? (
         <div className="text-center py-20">

@@ -181,7 +181,7 @@ export const NAV_GROUPS = [
     label: "Administration",
     roles: ENTERPRISE_ADMIN_ROLES,
     items: [
-      { path: "/admin", label: "User Management", icon: Shield },
+      { path: "/organization/users", label: "User Management", icon: Shield },
       { path: "/succession-planning", label: "Seat Management", icon: Users },
       { path: "/sso", label: "SSO & Identity", icon: KeyRound },
       { path: "/settings", label: "Organization Settings", icon: SettingsIcon },
@@ -331,6 +331,7 @@ export const ROUTE_ACCESS = {
   "/succession-planning": ENTERPRISE_ROLES,
   "/promotion-readiness": ENTERPRISE_ROLES,
   "/learning-assignments": ENTERPRISE_ROLES,
+  "/organization/users": ENTERPRISE_ADMIN_ROLES,
   "/sso": ENTERPRISE_ADMIN_ROLES,
   "/admin": ["enterprise_admin", "platform_admin", "super_admin", "support"],
   "/developer": ["developer", "super_admin"],

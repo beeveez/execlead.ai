@@ -3,20 +3,28 @@ import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { Users, Network, TrendingUp, ClipboardCheck, ArrowRight, Loader2, AlertTriangle, CheckCircle2, Clock, Shield } from "lucide-react";
 import { motion } from "framer-motion";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 
 export default function HRDashboard() {
+  const { members, loading: loadingMembers } = useOrganizationMembers();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
 
   useEffect(() => {
     const load = async () => {
+      if (loadingMembers) return;
       try {
-        const [members, plans, assignments, results] = await Promise.all([
-          base44.entities.UserProfile.list(),
+        const memberIds = new Set(members.map((m) => m.created_by_id));
+        const memberNames = new Set(members.map((m) => m.full_name));
+
+        const [plans, assignments, results] = await Promise.all([
           base44.entities.SuccessionPlan.list(),
           base44.entities.LearningAssignment.list(),
           base44.entities.ChallengeResult.list("-created_date", 200),
         ]);
+
+        const orgAssignments = assignments.filter((a) => memberNames.has(a.assignee_name));
+        const orgResults = results.filter((r) => memberIds.has(r.created_by_id));
 
         const today = new Date().toISOString().split("T")[0];
         const activeToday = members.filter((m) => m.last_active_date === today).length;
@@ -34,24 +42,24 @@ export default function HRDashboard() {
         const successionCoverage = plans.length > 0 ? Math.round((rolesCovered / plans.length) * 100) : 0;
         const criticalRoles = plans.filter((p) => p.risk_level === "critical" || p.risk_level === "high").length;
 
-        const completed = assignments.filter((a) => a.status === "completed").length;
-        const inProgress = assignments.filter((a) => a.status === "in_progress").length;
-        const overdue = assignments.filter((a) => a.status === "overdue" || (a.due_date && a.due_date < today && a.status !== "completed")).length;
-        const completionRate = assignments.length > 0 ? Math.round((completed / assignments.length) * 100) : 0;
+        const completed = orgAssignments.filter((a) => a.status === "completed").length;
+        const inProgress = orgAssignments.filter((a) => a.status === "in_progress").length;
+        const overdue = orgAssignments.filter((a) => a.status === "overdue" || (a.due_date && a.due_date < today && a.status !== "completed")).length;
+        const completionRate = orgAssignments.length > 0 ? Math.round((completed / orgAssignments.length) * 100) : 0;
 
         setStats({
           members: members.length, activeToday, avgReadiness,
           totalPlans: plans.length, successionCoverage, criticalRoles, rolesCovered,
-          totalAssignments: assignments.length, completed, inProgress, overdue, completionRate,
-          totalChallenges: results.length,
+          totalAssignments: orgAssignments.length, completed, inProgress, overdue, completionRate,
+          totalChallenges: orgResults.length,
         });
       } catch (e) {}
       setLoading(false);
     };
     load();
-  }, []);
+  }, [loadingMembers, members]);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+  if (loading || loadingMembers) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
 
   const QUICK_LINKS = [
     { path: "/succession-planning", label: "Succession Planning", desc: "Manage key role successors", icon: Network, color: "from-indigo-600 to-violet-600" },

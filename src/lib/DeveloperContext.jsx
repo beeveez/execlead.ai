@@ -29,8 +29,11 @@ export const DeveloperProvider = ({ children }) => {
   useEffect(() => {
     if (user && canAccessDeveloperWorkspace(user.role)) {
       const loaded = loadState();
-      // Developer role is always in developer mode — cannot be toggled off
-      if (normalizeRole(user.role) === "developer") {
+      // Developer AND Super Admin roles are always in developer mode.
+      // This ensures developer tools NEVER disappear due to subscription
+      // changes, localStorage resets, or toggle accidents.
+      // Subscription plans MUST NEVER override administrative roles.
+      if (normalizeRole(user.role) === "developer" || normalizeRole(user.role) === "super_admin") {
         setState({ ...loaded, developerMode: true });
       } else {
         setState(loaded);
@@ -54,8 +57,9 @@ export const DeveloperProvider = ({ children }) => {
 
   const toggleDeveloperMode = useCallback(() => {
     setState((prev) => {
-      // Developer role cannot toggle off — always in developer mode
-      if (normalizeRole(userRole) === "developer") return prev;
+      // Developer and Super Admin roles cannot toggle off — always in developer mode
+      const r = normalizeRole(userRole);
+      if (r === "developer" || r === "super_admin") return prev;
       return { ...prev, developerMode: !prev.developerMode };
     });
   }, [userRole]);

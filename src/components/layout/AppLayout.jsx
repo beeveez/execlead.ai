@@ -6,7 +6,6 @@ import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
 import { getNavGroups, normalizeRole, getEffectiveRole, DEVELOPER_WORKSPACE_NAV } from "@/lib/roles";
-import DeveloperSwitch from "@/components/developer/DeveloperSwitch";
 import RoleRoute from "@/components/RoleRoute";
 import { LogOut, Menu, X, ChevronRight, Crown } from "lucide-react";
 import { useDeveloper } from "@/lib/DeveloperContext";
@@ -71,7 +70,6 @@ export default function AppLayout() {
         <div className="p-3 border-t border-white/5">
           <div className="mb-2 space-y-2">
             <DeveloperBadge />
-            <DeveloperSwitch />
           </div>
           <button
             onClick={handleLogout}

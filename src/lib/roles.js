@@ -281,6 +281,14 @@ export const DEVELOPER_WORKSPACE_NAV = [
     ],
   },
   {
+    label: "Administration",
+    items: [
+      { path: "/admin", label: "Admin Console", icon: Shield },
+      { path: "/enterprise", label: "Enterprise Admin", icon: Building2 },
+      { path: "/organization/users", label: "User Management", icon: Users },
+    ],
+  },
+  {
     label: "Configuration",
     items: [
       { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },

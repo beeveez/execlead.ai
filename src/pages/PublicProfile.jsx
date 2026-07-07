@@ -42,7 +42,18 @@ export default function PublicProfile() {
             if (p.profile_photo) updateMetaTag("og:image", p.profile_photo);
             if (!p.allow_search_indexing) updateMetaTag("robots", "noindex, nofollow");
           } else {
-            setState("private");
+            // Owner can preview their own unpublished profile
+            try {
+              const me = await base44.auth.me();
+              if (me && me.id === p.created_by_id) {
+                setProfile(p);
+                setState("draft_preview");
+              } else {
+                setState("private");
+              }
+            } catch {
+              setState("private");
+            }
           }
         } else {
           setState("not_found");
@@ -69,8 +80,8 @@ export default function PublicProfile() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 flex items-center justify-center mb-4">
             <UserX size={28} className="text-white/30" />
           </div>
-          <h1 className="text-xl font-bold text-white mb-2">Profile Not Found</h1>
-          <p className="text-white/40 text-sm mb-6">This executive profile could not be found. The username may be incorrect or the profile may have been removed.</p>
+          <h1 className="text-xl font-bold text-white mb-2">This Profile Does Not Exist</h1>
+          <p className="text-white/40 text-sm mb-6">No executive profile was found for this username. Check the link and try again.</p>
           <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
             Visit EXECLEAD.AI <ExternalLink size={14} />
           </Link>
@@ -86,8 +97,8 @@ export default function PublicProfile() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-white/5 flex items-center justify-center mb-4">
             <Lock size={28} className="text-white/30" />
           </div>
-          <h1 className="text-xl font-bold text-white mb-2">This Profile is Private</h1>
-          <p className="text-white/40 text-sm mb-6">This executive profile is private. The owner has not made it publicly visible.</p>
+          <h1 className="text-xl font-bold text-white mb-2">This Executive Profile is Currently Private</h1>
+          <p className="text-white/40 text-sm mb-6">The owner has not published this profile yet. Please check back later.</p>
           <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
             Visit EXECLEAD.AI <ExternalLink size={14} />
           </Link>

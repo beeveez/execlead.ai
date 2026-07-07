@@ -274,6 +274,14 @@
     "public_content_json": {
       "type": "string"
     },
+    "public_published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "public_profile_archived": {
+      "type": "boolean",
+      "default": false
+    },
     "public_hide_email": {
       "type": "boolean",
       "default": true

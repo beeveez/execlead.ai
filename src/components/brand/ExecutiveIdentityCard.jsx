@@ -1,13 +1,35 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { BadgeCheck, Download, FileText, Copy, Check, ExternalLink, Crown, Target } from "lucide-react";
 import { getQrUrl, getPublicProfileUrl, getExecutiveSlug, computeExecutiveScore, getLeadershipLevel } from "@/lib/socialShare";
+import { toast } from "@/components/ui/use-toast";
+import PublicProfileStatusBar from "./PublicProfileStatusBar";
 
-export default function ExecutiveIdentityCard({ profile }) {
+function generateUsername(profile) {
+  const name = profile?.full_name || profile?.display_name || profile?.first_name || "executive";
+  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "executive";
+  const suffix = Math.random().toString(36).substring(2, 5);
+  return `${base}-${suffix}`.slice(0, 30);
+}
+
+export default function ExecutiveIdentityCard({ profile, onRefresh }) {
   const cardRef = useRef(null);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [ensuring, setEnsuring] = useState(false);
 
-  const slug = getExecutiveSlug(profile);
+  // Auto-create draft: persist public_username if not yet set
+  useEffect(() => {
+    if (!profile?.id || profile.public_username) return;
+    setEnsuring(true);
+    const slug = generateUsername(profile);
+    base44.entities.UserProfile.update(profile.id, { public_username: slug })
+      .then(() => onRefresh?.())
+      .catch(() => {})
+      .finally(() => setEnsuring(false));
+  }, [profile?.id, profile?.public_username]);
+
+  const slug = profile?.public_username || getExecutiveSlug(profile);
   const publicUrl = getPublicProfileUrl(slug);
   const execScore = computeExecutiveScore(profile);
   const level = getLeadershipLevel(execScore);
@@ -54,8 +76,12 @@ export default function ExecutiveIdentityCard({ profile }) {
     setDownloading(false);
   };
 
+  if (!profile) return null;
+
   return (
     <div className="space-y-4">
+      <PublicProfileStatusBar profile={profile} onRefresh={onRefresh} />
+
       <div ref={cardRef} className="relative bg-gradient-to-br from-[#11111a] to-[#0d0d14] border border-white/10 rounded-2xl p-6 overflow-hidden" style={{ minHeight: 520 }}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl" />
@@ -147,7 +173,7 @@ export default function ExecutiveIdentityCard({ profile }) {
           {copied ? "Copied" : "Copy Link"}
         </button>
         <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
-          <ExternalLink size={13} /> Preview
+          <ExternalLink size={13} /> Open
         </a>
       </div>
     </div>

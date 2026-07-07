@@ -17,7 +17,7 @@ const TABS = [
 ];
 
 export default function ExecutiveBrandCenter() {
-  const { profile, loading } = useSubscription();
+  const { profile, loading, refreshProfile } = useSubscription();
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState("identity");
   const [milestones, setMilestones] = useState([]);
@@ -64,7 +64,7 @@ export default function ExecutiveBrandCenter() {
       </div>
 
       <div>
-        {tab === "identity" && <ExecutiveIdentityCard profile={profile} />}
+        {tab === "identity" && <ExecutiveIdentityCard profile={profile} onRefresh={refreshProfile} />}
         {tab === "achievements" && <AchievementGallery profile={profile} user={user} />}
         {tab === "card" && <DigitalBusinessCard profile={profile} user={user} />}
         {tab === "referrals" && <ReferralDashboard user={user} />}

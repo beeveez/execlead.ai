@@ -65,7 +65,7 @@ export default function NetworkCareers() {
   const lastSyncTime = useMemo(() => {
     const times = sources.map((s) => s.last_sync_at).filter(Boolean);
     if (times.length === 0) return null;
-    return times.sort((a, b) => new Date(b) - new(a))[0];
+    return times.sort((a, b) => new Date(b) - new Date(a))[0];
   }, [sources]);
 
   const filtered = useMemo(() => {

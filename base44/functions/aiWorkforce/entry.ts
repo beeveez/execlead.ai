@@ -256,6 +256,7 @@ Deno.serve(async (req) => {
         const context = await gatherContext(base44, user);
         const result = await base44.integrations.Core.InvokeLLM({
           prompt: `${AGENT_PROMPTS[agent_id]}\n\n=== EXECUTIVE CONTEXT ===\n${context}\n\n=== TASK ===\nThe executive has assigned you this task:\n"${description}"\n\nComplete this task thoroughly. Provide a detailed, actionable, well-structured response in markdown format.`,
+          model: 'gpt_5_mini',
         });
 
         await base44.asServiceRole.entities.AITask.update(task.id, {
@@ -285,7 +286,7 @@ Deno.serve(async (req) => {
     if (action === 'get_recommendations') {
       const context = await gatherContext(base44, user);
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are the AI Executive Operating System coordinator for EXECLEAD.AI. Based on this executive's profile and context, generate 5 high-impact recommendations across different AI agent domains (career, coaching, learning, networking, marketplace, leadership DNA, wallet, security). Each recommendation should reference which agent domain it relates to.\n\n=== EXECUTIVE CONTEXT ===\n${context}\n\nProvide 5 specific, actionable recommendations prioritized by impact.`,
+        prompt: `You are the AI Executive Operating System coordinator for EXECLEAD.AI. Based on this executive's profile and context, generate 5 high-impact recommendations across different AI agent domains. Each recommendation must reference exactly one of these agent_id values: ${ALL_AGENT_IDS.join(', ')}.\n\n=== EXECUTIVE CONTEXT ===\n${context}\n\nProvide 5 specific, actionable recommendations prioritized by impact. Use ONLY the agent_id values listed above — no other values are valid.`,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -294,7 +295,7 @@ Deno.serve(async (req) => {
               items: {
                 type: 'object',
                 properties: {
-                  agent_id: { type: 'string' },
+                  agent_id: { type: 'string', enum: ALL_AGENT_IDS },
                   title: { type: 'string' },
                   description: { type: 'string' },
                   priority: { type: 'string', enum: ['high', 'medium', 'low'] },

@@ -6,6 +6,7 @@ import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
 import { syncFounderEntitlements } from '@/lib/entitlementSync';
+import { getUserEntitlements } from '@/lib/entitlementService';
 import { useDeveloper } from '@/lib/DeveloperContext';
 
 const SubscriptionContext = createContext(null);
@@ -16,7 +17,7 @@ export const SubscriptionProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [renewalDate, setRenewalDate] = useState(null);
   const [memberships, setMemberships] = useState([]);
-  const [foundingRecord, setFoundingRecord] = useState(null);
+  const [entitlements, setEntitlements] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
@@ -46,32 +47,37 @@ export const SubscriptionProvider = ({ children }) => {
           setMemberships([]);
         }
       }
-      // Self-healing: verify and rebuild missing Founder entitlements.
-      // Runs after login, after refreshProfile (subscription updates), and
-      // after payment — catches partial provisioning, lost profile flags,
-      // missing referral codes, and missing certificates automatically.
+      // ============================================================
+      // CENTRALIZED ENTITLEMENT SERVICE — single source of truth.
+      // Founder status is determined SOLELY by getUserEntitlements(),
+      // which reads the FoundingMember entity directly. No profile
+      // flag fallback, no synthetic membership, no cached/stale state.
+      // Account switch (user.id change) triggers a full refetch.
+      // ============================================================
       if (user?.id && p) {
+        // Self-heal existing founder records / clear stale flags
+        try { await syncFounderEntitlements(user, p); } catch {}
+        // Read the single source of truth
         try {
-          const syncResult = await syncFounderEntitlements(user, p);
-          setFoundingRecord(syncResult.member);
-          if (syncResult.synced) {
-            // Reload memberships if entitlements were rebuilt
+          const ents = await getUserEntitlements(user.id, p);
+          setEntitlements(ents);
+          if (ents.isFoundingMember) {
             try {
               const active = await getUserActiveMemberships(user.id);
               setMemberships(active);
             } catch {}
           }
         } catch {
-          setFoundingRecord(null);
+          setEntitlements(null);
         }
       } else {
-        setFoundingRecord(null);
+        setEntitlements(null);
       }
     } catch (e) {
       setProfile(null);
       setRenewalDate(null);
       setMemberships([]);
-      setFoundingRecord(null);
+      setEntitlements(null);
     } finally {
       setLoading(false);
     }
@@ -104,7 +110,16 @@ export const SubscriptionProvider = ({ children }) => {
   const realPlanId = isDevUser ? "developer_unlimited" : (profile?.subscription_plan || "free");
   const effectivePlanId = getEffectivePlan(realPlanId);
   const plan = PLANS[effectivePlanId] || PLANS.free;
-  const isFoundingMember = simulation.founder !== null ? simulation.founder : Boolean(profile?.founding_member);
+  // ============================================================
+  // FOUNDER STATUS — from the centralized Entitlement Service ONLY.
+  // No profile.founding_member flag, no synthetic membership, no
+  // cached/stale state. Developer simulation applies ONLY when
+  // explicitly active in the developer console (never for real users).
+  // ============================================================
+  const serviceFounder = entitlements?.isFoundingMember ?? false;
+  const isFoundingMember = (simulation?.active && simulation?.founder !== null)
+    ? simulation.founder
+    : serviceFounder;
 
   // Membership programs are independent of the subscription plan.
   // A user may be on the Free plan AND be a Founding Member — both
@@ -114,11 +129,10 @@ export const SubscriptionProvider = ({ children }) => {
   const bestDiscount = getBestMembershipDiscount(memberships);
   const hasProtection = hasLifetimePricingProtection(memberships);
 
-  // Prefer a UserMembership record; fall back to the legacy FoundingMember
-  // record when the profile is flagged but no UserMembership exists. This
-  // keeps the membership badge visible for founding members enrolled before
-  // the membership-program architecture was introduced.
   const fmMeta = PROGRAM_TYPES.founding_member;
+  // Build the membership object from DB-backed sources ONLY.
+  // The founder fallback uses the entitlement service result —
+  // NEVER the profile.founding_member flag.
   const membership = primaryMembership ? {
     name: primaryMembership.program_name || membershipMeta?.label || "Member",
     type: primaryMembership.program_type,
@@ -127,22 +141,22 @@ export const SubscriptionProvider = ({ children }) => {
     number: primaryMembership.membership_number,
     discount: bestDiscount,
     hasPriceProtection: hasProtection,
-    since: primaryMembership.joined_date || (isFoundingMember ? profile?.founding_member_since : null),
+    since: primaryMembership.joined_date || (isFoundingMember ? entitlements?.founderSince : null),
     isLifetime: primaryMembership.is_lifetime,
   } : (isFoundingMember ? {
     name: "Founding Member",
     type: "founding_member",
     icon: fmMeta.icon,
     color: fmMeta.color,
-    number: foundingRecord?.founding_member_number || null,
-    discount: foundingRecord?.lifetime_discount_percentage ?? 25,
-    hasPriceProtection: foundingRecord?.protected_pricing ?? true,
-    since: foundingRecord?.joined_date || profile?.founding_member_since || null,
+    number: entitlements?.founderNumber || null,
+    discount: entitlements?.lifetimeDiscount ?? 25,
+    hasPriceProtection: entitlements?.priceProtection ?? true,
+    since: entitlements?.founderSince || null,
     isLifetime: true,
   } : null);
 
-  // Hide membership badge when simulating non-founder
-  const effectiveMembership = simulation.founder === false ? null : membership;
+  // Hide membership badge ONLY when explicitly simulating non-founder
+  const effectiveMembership = (simulation?.active && simulation?.founder === false) ? null : membership;
 
   const subscription = {
     planName: plan.name,
@@ -161,7 +175,7 @@ export const SubscriptionProvider = ({ children }) => {
   };
 
   return (
-    <SubscriptionContext.Provider value={{ profile, subscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile }}>
+    <SubscriptionContext.Provider value={{ profile, subscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements }}>
       {children}
     </SubscriptionContext.Provider>
   );

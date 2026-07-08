@@ -81,8 +81,17 @@ export function isProgramActive() {
   return Date.now() < FOUNDING_MEMBER_CONFIG.endDate;
 }
 
-export function isFoundingMember(profile) {
-  return profile?.founding_member === true;
+/**
+ * @deprecated Use the centralized Entitlement Service instead:
+ *   const { isFoundingMember } = await getUserEntitlements(userId, profile)
+ *   — or read from useSubscription().membership in components.
+ *
+ * This function NO LONGER reads profile.founding_member, which can be
+ * stale and cause false positives (non-founders seeing the badge).
+ * It always returns false. Migrate all callers to the Entitlement Service.
+ */
+export function isFoundingMember() {
+  return false;
 }
 
 export function getFoundingMemberPrice(amount) {

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { BadgeCheck, Download, FileText, Copy, Check, ExternalLink, Crown, Target } from "lucide-react";
 import { getQrUrl, getPublicProfileUrl, getExecutiveSlug, computeExecutiveScore, getLeadershipLevel } from "@/lib/socialShare";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import { toast } from "@/components/ui/use-toast";
 import ExecutivePrintPreview from "@/components/brand/ExecutivePrintPreview";
 
@@ -18,6 +19,9 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
   const [downloading, setDownloading] = useState(false);
   const [ensuring, setEnsuring] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  // Founder status from the centralized Entitlement Service only.
+  const { membership } = useSubscription();
+  const isFoundingMember = membership?.type === "founding_member";
 
   // Auto-create draft: persist public_username if not yet set
   useEffect(() => {
@@ -94,9 +98,11 @@ export default function ExecutiveIdentityCard({ profile, onRefresh }) {
                 {(profile?.full_name || "?").charAt(0)}
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#0d0d14] flex items-center justify-center border-2 border-indigo-500/30">
-              <Crown size={12} className="text-amber-400" />
-            </div>
+            {isFoundingMember && (
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#0d0d14] flex items-center justify-center border-2 border-amber-500/40" title="Founding Member">
+                <Crown size={12} className="text-amber-400" />
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-xl font-bold text-white truncate">{profile?.full_name || "Executive Leader"}</h2>

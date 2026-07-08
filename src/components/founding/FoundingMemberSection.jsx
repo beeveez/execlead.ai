@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Crown, Clock, ArrowRight, Check, Sparkles, Users } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 import {
   useFoundingMemberCountdown,
-  isFoundingMember,
   FOUNDING_MEMBER_TERMS,
 } from "@/lib/foundingMember";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import FoundingMemberCountdown from "./FoundingMemberCountdown";
 import FoundingMemberBenefits from "./FoundingMemberBenefits";
 import FoundingMemberValueCalc from "./FoundingMemberValueCalc";
@@ -15,43 +14,20 @@ import FoundingMemberCelebration from "./FoundingMemberCelebration";
 export default function FoundingMemberSection() {
   const { expired } = useFoundingMemberCountdown();
   const [showCelebration, setShowCelebration] = useState(false);
-  const [profile, setProfile] = useState(null);
-
-  useEffect(() => {
-    let mounted = true;
-    base44.auth
-      .isAuthenticated()
-      .then((ok) => {
-        if (!ok || !mounted) return;
-        base44.auth
-          .me()
-          .then((user) => {
-            if (!mounted || !user?.id) return;
-            base44.entities.UserProfile
-              .filter({ created_by_id: user.id })
-              .then((p) => mounted && setProfile(p[0]))
-              .catch(() => {});
-          })
-          .catch(() => {});
-      })
-      .catch(() => {});
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const { membership } = useSubscription();
 
   // Hide the entire section when the program has concluded
   if (expired) return null;
 
-  const alreadyMember = isFoundingMember(profile);
+  // Founder status comes ONLY from the centralized Entitlement Service
+  // (via SubscriptionContext). Never reads profile.founding_member.
+  const alreadyMember = membership?.type === "founding_member";
 
   const handleJoin = () => {
     if (alreadyMember) {
       setShowCelebration(true);
-    } else if (profile) {
-      window.location.href = "/billing?founding=1";
     } else {
-      window.location.href = "/register?founding=1";
+      window.location.href = "/billing?founding=1";
     }
   };
 

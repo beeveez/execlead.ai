@@ -51,19 +51,23 @@ export async function syncFounderEntitlements(user, profile) {
     member = existing.length > 0 ? existing[0] : null;
   } catch (e) {}
 
-  // Not a founding member and no record → nothing to sync
-  if (!member && !profile?.founding_member) {
-    return { synced: false, rebuilt: [], member: null };
-  }
-
-  // CHECK 1: Founder Profile missing but profile flag set → rebuild
-  if (!member && profile?.founding_member) {
-    await grantFoundingMembership(user, profile);
-    rebuilt.push("founder_profile");
-    try {
-      const reloaded = await base44.entities.FoundingMember.filter({ user_id: user.id });
-      member = reloaded.length > 0 ? reloaded[0] : null;
-    } catch (e) {}
+  // ============================================================
+  // CRITICAL: No FoundingMember record → user is NOT a founder.
+  // If the profile.founding_member flag is incorrectly set (stale
+  // data, legacy migration, test artifact), CLEAR it rather than
+  // perpetuating the false positive by creating a record.
+  // ============================================================
+  if (!member) {
+    if (profile?.founding_member && profile?.id) {
+      try {
+        await base44.entities.UserProfile.update(profile.id, {
+          founding_member: false,
+          founding_member_since: null,
+        });
+        rebuilt.push("cleared_stale_founder_flag");
+      } catch (e) {}
+    }
+    return { synced: rebuilt.length > 0, rebuilt, member: null };
   }
 
   if (!member) return { synced: rebuilt.length > 0, rebuilt, member: null };

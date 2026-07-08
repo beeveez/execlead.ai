@@ -114,6 +114,7 @@ import SecurityCenter from '@/pages/SecurityCenter';
 import IdentityVerification from '@/pages/IdentityVerification';
 import IdentityVerificationAdmin from '@/pages/IdentityVerificationAdmin';
 import Legal from '@/pages/Legal';
+import TrustCenter from '@/pages/TrustCenter';
 const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
 import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
@@ -157,6 +158,7 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/legal" element={<Legal />} />
+      <Route path="/trust-center" element={<TrustCenter />} />
       <Route path="/u/:username" element={<PublicProfile />} />
 
       {/* Protected */}

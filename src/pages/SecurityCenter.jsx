@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   ShieldCheck, Eye, Lock, Activity, Key, AlertTriangle,
   FileText, Code, Brain, Shield, Monitor, AlertCircle, Smartphone,
+  Users, Settings,
 } from "lucide-react";
 import { SECURITY_META } from "@/lib/securityArchitecture";
 import SecurityOverview from "@/components/security/SecurityOverview";
@@ -16,12 +17,15 @@ import APISecurity from "@/components/security/APISecurity";
 import SecretsVault from "@/components/security/SecretsVault";
 import RiskIntelligence from "@/components/security/RiskIntelligence";
 import DeviceManagement from "@/components/security/DeviceManagement";
+import RBACManager from "@/components/security/RBACManager";
+import SecurityPolicies from "@/components/security/SecurityPolicies";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: Eye },
   { id: "identity", label: "Identity Protection", icon: ShieldCheck },
   { id: "threats", label: "Threat Detection", icon: AlertTriangle },
   { id: "access", label: "Access Control", icon: Lock },
+  { id: "rbac", label: "RBAC Manager", icon: Users },
   { id: "sessions", label: "Sessions", icon: Monitor },
   { id: "devices", label: "Devices", icon: Smartphone },
   { id: "audit", label: "Audit Logs", icon: Activity },
@@ -29,6 +33,7 @@ const TABS = [
   { id: "incidents", label: "Incident Response", icon: AlertCircle },
   { id: "api", label: "API Security", icon: Code },
   { id: "secrets", label: "Secrets Vault", icon: Key },
+  { id: "policies", label: "Security Policies", icon: Settings },
   { id: "risk", label: "Risk Intelligence", icon: Brain },
 ];
 
@@ -76,6 +81,7 @@ export default function SecurityCenter() {
       {tab === "identity" && <IdentityProtection />}
       {tab === "threats" && <ThreatDetection />}
       {tab === "access" && <AccessControl />}
+      {tab === "rbac" && <RBACManager />}
       {tab === "sessions" && <SessionManager />}
       {tab === "devices" && <DeviceManagement />}
       {tab === "audit" && <SecurityAuditLog />}
@@ -83,6 +89,7 @@ export default function SecurityCenter() {
       {tab === "incidents" && <IncidentResponse />}
       {tab === "api" && <APISecurity />}
       {tab === "secrets" && <SecretsVault />}
+      {tab === "policies" && <SecurityPolicies />}
       {tab === "risk" && <RiskIntelligence />}
     </div>
   );

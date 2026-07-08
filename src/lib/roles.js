@@ -27,7 +27,9 @@ export const ROLES = {
   sales: { label: "Sales", tier: 45, description: "Sales representative" },
   finance: { label: "Finance", tier: 50, description: "Finance and billing manager" },
   content_manager: { label: "Content Manager", tier: 55, description: "Learning content and company data manager" },
+  reviewer: { label: "Reviewer", tier: 60, description: "Identity and content review specialist" },
   platform_admin: { label: "Platform Admin", tier: 90, description: "Platform-wide administration" },
+  security_admin: { label: "Security Admin", tier: 93, description: "Security operations and compliance administration" },
   developer: { label: "Developer", tier: 95, description: "Developer tools and diagnostics" },
   super_admin: { label: "Super Admin", tier: 100, description: "Unrestricted platform access" },
 
@@ -99,7 +101,7 @@ export function canAccessDeveloperWorkspace(role) {
 
 const ALL_AUTHED = [
   "customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner",
-  "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin",
+  "support", "sales", "finance", "content_manager", "reviewer", "platform_admin", "security_admin", "developer", "super_admin",
 ];
 // Customer sidebar roles — excludes enterprise roles so enterprise users
 // get the Enterprise sidebar instead of the individual customer sidebar.

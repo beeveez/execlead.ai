@@ -189,7 +189,7 @@ export function getRouteWorkspace(path) {
 
 const EXECUTIVE_ROLES = ["customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin"];
 const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "super_admin"];
-const PLATFORM_ROLES = ["platform_admin", "support", "sales", "finance", "content_manager", "super_admin"];
+const PLATFORM_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin"];
 const DEVELOPER_ROLES = ["developer", "super_admin"];
 
 export function getAvailableWorkspaces(role, plan, profile, isImpersonating = false) {
@@ -205,6 +205,7 @@ export function getAvailableWorkspaces(role, plan, profile, isImpersonating = fa
 export function getDefaultWorkspace(available, role) {
   const r = normalizeRole(role);
   if (r === "developer" && available.includes("developer")) return "developer";
+  if (r === "security_admin" && available.includes("platform")) return "platform";
   if (r === "super_admin") return available[0] || "executive";
   if (PLATFORM_ROLES.includes(r) && available.includes("platform")) return "platform";
   if (ENTERPRISE_ROLES.includes(r) && available.includes("enterprise")) return "enterprise";
@@ -233,6 +234,8 @@ export const ROLE_PERMISSIONS = {
   sales: [],
   finance: ["can_manage_billing"],
   content_manager: ["can_publish_content", "can_manage_companies", "can_manage_marketplace"],
+  reviewer: ["can_view_audit_logs"],
+  security_admin: ["can_manage_security", "can_manage_users", "can_view_audit_logs", "can_access_platform"],
   platform_admin: [
     "can_manage_users", "can_manage_features", "can_manage_billing", "can_manage_marketplace",
     "can_manage_companies", "can_manage_security", "can_manage_pricing", "can_access_platform",

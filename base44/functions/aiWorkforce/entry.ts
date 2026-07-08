@@ -337,6 +337,67 @@ Deno.serve(async (req) => {
       return Response.json({ task: tasks[0] || null });
     }
 
+    // ── GET PLATFORM STATE (Admin/Developer only — no personal user data) ──
+    if (action === 'get_platform_state') {
+      if (!ADMIN_ROLES.includes(user.role)) {
+        return Response.json({ error: 'Forbidden — platform access required' }, { status: 403 });
+      }
+
+      // Aggregate agent states across ALL users (platform-wide health)
+      const allAgentStates = await base44.asServiceRole.entities.AIAgentState.filter({}, '-created_date', 500);
+      const agentHealth = ALL_AGENT_IDS.map(agentId => {
+        const states = allAgentStates.filter(s => s.agent_id === agentId);
+        return {
+          agent_id: agentId,
+          total_users: states.length,
+          enabled_count: states.filter(s => s.is_enabled).length,
+          unlocked_count: states.filter(s => s.is_unlocked).length,
+          total_tasks_completed: states.reduce((sum, s) => sum + (s.tasks_completed || 0), 0),
+          avg_performance: states.length > 0
+            ? Math.round(states.reduce((sum, s) => sum + (s.performance_rating || 0), 0) / states.length)
+            : 0,
+        };
+      });
+
+      // Aggregate task stats across ALL users (queue status — last 200 tasks)
+      const recentTasks = await base44.asServiceRole.entities.AITask.filter({}, '-created_date', 200);
+      const taskStats = {
+        running: recentTasks.filter(t => t.status === 'running').length,
+        pending: recentTasks.filter(t => t.status === 'pending').length,
+        completed: recentTasks.filter(t => t.status === 'completed').length,
+        failed: recentTasks.filter(t => t.status === 'failed').length,
+        total: recentTasks.length,
+      };
+
+      // Model distribution across recent tasks
+      const modelCounts = {};
+      recentTasks.forEach(t => {
+        const m = t.model || 'automatic';
+        modelCounts[m] = (modelCounts[m] || 0) + 1;
+      });
+
+      // Sanitize recent tasks — strip ALL personal user data
+      const sanitizedTasks = recentTasks.slice(0, 25).map(t => ({
+        id: t.id,
+        agent_id: t.agent_id,
+        task_type: t.task_type,
+        status: t.status,
+        model: t.model || 'automatic',
+        created_date: t.created_date,
+        completed_at: t.completed_at,
+        description_preview: (t.description || '').substring(0, 80),
+        has_error: !!t.error,
+      }));
+
+      return Response.json({
+        agents: agentHealth,
+        task_stats: taskStats,
+        recent_tasks: sanitizedTasks,
+        model_distribution: modelCounts,
+        total_agent_types: ALL_AGENT_IDS.length,
+      });
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -365,6 +365,7 @@ export function getNavGroups(role) {
 // ============================================================
 
 export const ROUTE_ACCESS = {
+  "/developer/ai-command-center": ["developer", "super_admin"],
   "/enterprise": ENTERPRISE_ROLES,
   "/hr-dashboard": ENTERPRISE_ROLES,
   "/succession-planning": ENTERPRISE_ROLES,

@@ -116,7 +116,7 @@ export const WORKSPACE_NAV = {
   developer: [
     { label: "Workspace", items: [
       { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
-      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
+      { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
     ]},
@@ -173,7 +173,8 @@ const ROUTE_WORKSPACE = {
   "/developer/organizations": ["platform", "developer"],
   "/developer/audit-logs": ["platform", "developer"],
   "/developer/system-health": ["platform", "developer"],
-  "/ai-command-center": ["executive", "developer"],
+  "/ai-command-center": ["executive"],
+  "/developer/ai-command-center": ["developer"],
   "/developer": ["developer"], "/feature-management": ["developer"], "/guardian": ["developer"],
 };
 

@@ -1,109 +1,181 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Link2, MapPin, Building2, Search, ArrowUpRight } from "lucide-react";
+import { Loader2, Link2, Plus, Building2, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
+import PartnershipCard from "@/components/partnerships/PartnershipCard";
+import PartnershipFilters from "@/components/partnerships/PartnershipFilters";
+import PartnershipDetailDrawer from "@/components/partnerships/PartnershipDetailDrawer";
 
-const PARTNERSHIP_LABELS = {
-  advisor: "Advisor", consultant: "Consultant", mentor: "Mentor", speaker: "Speaker",
-  board_member: "Board Member", fractional_cio: "Fractional CIO", fractional_cto: "Fractional CTO",
-  strategic_partner: "Strategic Partner",
-};
+const EMPTY_FILTERS = { search: "", category: "", work_model: "", executive_level: "", listing_tier: "", country: "", industry: "" };
 
 export default function NetworkPartnerships() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [fType, setFType] = useState("");
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [selected, setSelected] = useState(null);
+  const [userInterests, setUserInterests] = useState(new Set());
+  const [matchScores, setMatchScores] = useState({});
+  const [bookmarks, setBookmarks] = useState(new Set());
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setListings(await base44.entities.PartnershipListing.list("-created_date", 100));
-      } catch (e) {}
-      setLoading(false);
-    };
-    load();
+    const stored = JSON.parse(localStorage.getItem("partnership_bookmarks") || "[]");
+    setBookmarks(new Set(stored));
+    loadListings();
+    loadInterests();
   }, []);
 
-  const filtered = listings.filter((l) => {
-    if (fType && l.partnership_type !== fType) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return (
-        l.title?.toLowerCase().includes(q) ||
-        l.description?.toLowerCase().includes(q) ||
-        l.industry?.toLowerCase().includes(q)
-      );
+  const loadListings = async () => {
+    try {
+      const data = await base44.entities.PartnershipListing.list("-created_date", 100);
+      const open = data.filter(l => l.status === "open");
+      setListings(open);
+      if (open.length > 0) {
+        try {
+          const res = await base44.functions.invoke("partnershipOps", {
+            action: "bulk_match",
+            listing_ids: open.map(l => l.id),
+          });
+          const scores = {};
+          for (const [id, match] of Object.entries(res.data.matches || {})) {
+            scores[id] = match.score;
+          }
+          setMatchScores(scores);
+        } catch (e) {
+          // user may not be authed — match scores optional
+        }
+      }
+    } catch (e) {
+      toast({ title: "Failed to load listings", variant: "error" });
     }
+    setLoading(false);
+  };
+
+  const loadInterests = async () => {
+    try {
+      const res = await base44.functions.invoke("partnershipOps", { action: "get_user_interests" });
+      const ids = new Set((res.data.interests || []).map(i => i.listing_id));
+      setUserInterests(ids);
+    } catch (e) {
+      // user may not be authed
+    }
+  };
+
+  const handleInterestChanged = useCallback((listingId, interested) => {
+    setUserInterests(prev => {
+      const next = new Set(prev);
+      if (interested) next.add(listingId);
+      else next.delete(listingId);
+      return next;
+    });
+    setListings(prev => prev.map(l =>
+      l.id === listingId
+        ? { ...l, interest_count: Math.max(0, (l.interest_count || 0) + (interested ? 1 : -1)) }
+        : l
+    ));
+  }, []);
+
+  const toggleBookmark = (listing) => {
+    const next = new Set(bookmarks);
+    if (next.has(listing.id)) next.delete(listing.id);
+    else next.add(listing.id);
+    setBookmarks(next);
+    localStorage.setItem("partnership_bookmarks", JSON.stringify([...next]));
+  };
+
+  const handleShare = async (listing) => {
+    const url = `${window.location.origin}/network/partnerships`;
+    if (navigator.share) {
+      try { await navigator.share({ title: listing.title, text: listing.description, url }); } catch (e) {}
+    } else {
+      try { await navigator.clipboard.writeText(url); toast({ title: "Link copied", variant: "success" }); } catch (e) {}
+    }
+  };
+
+  const filtered = listings.filter((l) => {
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      if (!l.title?.toLowerCase().includes(q) &&
+          !l.description?.toLowerCase().includes(q) &&
+          !l.partner_organization_name?.toLowerCase().includes(q) &&
+          !l.industry?.toLowerCase().includes(q)) return false;
+    }
+    if (filters.category && l.category !== filters.category) return false;
+    if (filters.work_model && l.work_model !== filters.work_model) return false;
+    if (filters.executive_level && l.executive_level !== filters.executive_level) return false;
+    if (filters.listing_tier && l.listing_tier !== filters.listing_tier) return false;
+    if (filters.country && !l.country?.toLowerCase().includes(filters.country.toLowerCase())) return false;
+    if (filters.industry && !l.industry?.toLowerCase().includes(filters.industry.toLowerCase())) return false;
     return true;
   });
 
-  const handleContact = (listing) => {
-    toast({
-      title: "Interest expressed",
-      description: `Your interest in "${listing.title}" has been noted.`,
-    });
-  };
+  const sorted = [...filtered].sort((a, b) => {
+    const aBoost = (a.is_sponsored ? 4 : 0) + (a.is_featured ? 3 : 0) + (a.is_urgent ? 2 : 0) + (a.is_executive_pick ? 1 : 0);
+    const bBoost = (b.is_sponsored ? 4 : 0) + (b.is_featured ? 3 : 0) + (b.is_urgent ? 2 : 0) + (b.is_executive_pick ? 1 : 0);
+    return bBoost - aBoost;
+  });
 
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
-      <div>
-        <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
-          <Link2 size={12} className="text-indigo-400" /> Partnerships
+    <div className="max-w-6xl mx-auto space-y-5">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
+            <Link2 size={12} className="text-indigo-400" /> Partnerships
+          </div>
+          <h1 className="text-xl font-bold text-white">Executive Partnership Marketplace</h1>
+          <p className="text-white/40 text-sm mt-1 max-w-2xl">
+            Connect with verified organizations, investors, universities, and strategic partners. Board seats, advisory roles, fractional positions, joint ventures, and investment opportunities.
+          </p>
         </div>
-        <h1 className="text-xl font-bold text-white">Collaboration Marketplace</h1>
-        <p className="text-white/40 text-sm mt-1">
-          Find advisors, consultants, speakers, board members, and strategic partners.
-        </p>
+        <Link to="/partner-portal"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
+          <Plus size={14} /> Post Opportunity
+        </Link>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search partnerships..."
-            className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
-          />
-        </div>
-        <select value={fType} onChange={(e) => setFType(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
-          <option value="">All Types</option>
-          {Object.entries(PARTNERSHIP_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-        </select>
-      </div>
+      <PartnershipFilters
+        filters={filters}
+        onChange={setFilters}
+        onClear={() => setFilters(EMPTY_FILTERS)}
+        resultCount={sorted.length}
+      />
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 size={20} className="animate-spin text-indigo-400" /></div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-white/30 text-sm">No partnership listings found.</div>
+        <div className="flex justify-center py-20"><Loader2 size={24} className="animate-spin text-indigo-400" /></div>
+      ) : sorted.length === 0 ? (
+        <div className="text-center py-20">
+          <Building2 size={32} className="mx-auto text-white/10 mb-3" />
+          <p className="text-white/40 text-sm font-medium">No partnership opportunities found</p>
+          <p className="text-white/20 text-xs mt-1">Try adjusting your filters or check back later for new opportunities.</p>
+          <Link to="/partner-portal"
+            className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm transition-colors">
+            <Sparkles size={14} /> Be the first to post
+          </Link>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filtered.map((l) => (
-            <div key={l.id} className="bg-white/[0.03] border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="text-white font-semibold text-sm">{l.title}</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-500/10 text-indigo-300 shrink-0">
-                  {PARTNERSHIP_LABELS[l.partnership_type] || l.partnership_type}
-                </span>
-              </div>
-              {l.description && <p className="text-white/40 text-xs leading-relaxed mb-3 line-clamp-3">{l.description}</p>}
-              <div className="flex items-center gap-3 text-xs text-white/30 mb-3 flex-wrap">
-                {l.country && <span className="flex items-center gap-1"><MapPin size={10} /> {l.country}</span>}
-                {l.industry && <span className="flex items-center gap-1"><Building2 size={10} /> {l.industry}</span>}
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                <span className="text-white/30 text-xs">{l.posted_by_name || "Anonymous"}</span>
-                <button
-                  onClick={() => handleContact(l)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium transition-colors"
-                >
-                  <ArrowUpRight size={12} /> Express Interest
-                </button>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {sorted.map((l) => (
+            <PartnershipCard
+              key={l.id}
+              listing={l}
+              isInterested={userInterests.has(l.id)}
+              matchScore={matchScores[l.id]}
+              bookmarked={bookmarks.has(l.id)}
+              onClick={() => setSelected(l)}
+              onBookmark={toggleBookmark}
+              onShare={handleShare}
+            />
           ))}
         </div>
+      )}
+
+      {selected && (
+        <PartnershipDetailDrawer
+          listing={selected}
+          isInterested={userInterests.has(selected.id)}
+          onClose={() => setSelected(null)}
+          onInterestChanged={handleInterestChanged}
+        />
       )}
     </div>
   );

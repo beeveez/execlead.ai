@@ -76,6 +76,7 @@ import NetworkEvents from '@/pages/network/NetworkEvents';
 import NetworkMentorship from '@/pages/network/NetworkMentorship';
 import NetworkCareers from '@/pages/network/NetworkCareers';
 import NetworkPartnerships from '@/pages/network/NetworkPartnerships';
+import PartnerPortal from '@/pages/partnerships/PartnerPortal';
 import NetworkFoundingLounge from '@/pages/network/NetworkFoundingLounge';
 import CommunityWorkspace from '@/components/community/CommunityWorkspace';
 import CommunityHome from '@/pages/community/CommunityHome';
@@ -239,6 +240,7 @@ const AuthenticatedApp = () => {
             <Route path="/network/careers" element={<NetworkCareers />} />
             <Route path="/network/partnerships" element={<NetworkPartnerships />} />
           </Route>
+          <Route path="/partner-portal" element={<PartnerPortal />} />
           <Route path="/network/c/:communityId" element={<CommunityWorkspace />}>
             <Route index element={<CommunityHome />} />
             <Route path="discussions" element={<CommunityDiscussions />} />

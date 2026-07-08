@@ -1,0 +1,65 @@
+{
+  "name": "ExecutiveInterest",
+  "type": "object",
+  "properties": {
+    "listing_id": {
+      "type": "string",
+      "description": "PartnershipListing ID"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Executive who expressed interest"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_photo": {
+      "type": "string"
+    },
+    "user_headline": {
+      "type": "string",
+      "description": "Professional headline at time of interest"
+    },
+    "match_score": {
+      "type": "number",
+      "default": 0
+    },
+    "match_reasons_json": {
+      "type": "string",
+      "description": "JSON of { reasons, missing } from match calculation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "withdrawn",
+        "meeting_scheduled",
+        "closed"
+      ],
+      "default": "pending"
+    },
+    "message": {
+      "type": "string",
+      "description": "Optional message from executive to partner"
+    },
+    "partner_organization_name": {
+      "type": "string"
+    },
+    "partner_user_id": {
+      "type": "string",
+      "description": "User ID of the partner who posted the listing"
+    }
+  },
+  "required": [
+    "listing_id",
+    "user_id"
+  ]
+}

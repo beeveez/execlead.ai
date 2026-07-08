@@ -2,48 +2,233 @@
   "name": "PartnershipListing",
   "type": "object",
   "properties": {
+    "opportunity_id": {
+      "type": "string",
+      "description": "Auto-generated ID e.g. PTN-ABC123-X9K2"
+    },
     "title": {
       "type": "string"
     },
-    "partnership_type": {
+    "partner_organization_name": {
+      "type": "string",
+      "description": "Organization posting the opportunity"
+    },
+    "partner_type": {
       "type": "string",
       "enum": [
-        "advisor",
-        "consultant",
-        "mentor",
-        "speaker",
-        "board_member",
-        "fractional_cio",
-        "fractional_cto",
-        "strategic_partner"
+        "enterprise",
+        "startup",
+        "venture_capital",
+        "private_equity",
+        "executive_search",
+        "university",
+        "government",
+        "technology",
+        "consulting",
+        "event_organizer",
+        "verified_executive"
       ],
-      "default": "advisor"
+      "default": "enterprise"
+    },
+    "is_verified_partner": {
+      "type": "boolean",
+      "default": false
+    },
+    "organization_logo": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "fractional_executive",
+        "board_opportunities",
+        "advisory_roles",
+        "strategic_partnerships",
+        "joint_ventures",
+        "startup_cofounder",
+        "executive_mentorship",
+        "executive_coaching",
+        "speaking_engagements",
+        "consulting_projects",
+        "investment_opportunities",
+        "technology_partnerships",
+        "enterprise_collaboration",
+        "university_collaboration",
+        "research_partnerships",
+        "ai_product_partnerships",
+        "channel_partnerships",
+        "government_partnerships",
+        "venture_capital"
+      ],
+      "default": "advisory_roles"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "work_model": {
+      "type": "string",
+      "enum": [
+        "remote",
+        "hybrid",
+        "onsite"
+      ],
+      "default": "remote"
+    },
+    "compensation": {
+      "type": "string",
+      "description": "Free-form compensation description"
+    },
+    "equity_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "retainer": {
+      "type": "string"
+    },
+    "hourly_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "revenue_share_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "duration": {
+      "type": "string"
+    },
+    "required_experience_years": {
+      "type": "number",
+      "default": 0
+    },
+    "executive_level": {
+      "type": "string",
+      "enum": [
+        "c_level",
+        "svp",
+        "vp",
+        "director",
+        "head",
+        "board",
+        "global"
+      ],
+      "default": "director"
+    },
+    "required_skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "leadership_competencies": {
+      "type": "string"
     },
     "description": {
       "type": "string"
+    },
+    "benefits": {
+      "type": "string"
+    },
+    "application_deadline": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contact_person": {
+      "type": "string"
+    },
+    "apply_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "closed",
+        "filled",
+        "draft",
+        "archived"
+      ],
+      "default": "open"
+    },
+    "listing_tier": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "featured",
+        "premium",
+        "urgent",
+        "sponsored"
+      ],
+      "default": "basic"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_sponsored": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_urgent": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_executive_pick": {
+      "type": "boolean",
+      "default": false
+    },
+    "views_count": {
+      "type": "number",
+      "default": 0
+    },
+    "interest_count": {
+      "type": "number",
+      "default": 0
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "enterprise",
+        "executive",
+        "vc",
+        "university",
+        "event",
+        "government",
+        "tech_vendor"
+      ],
+      "default": "direct"
+    },
+    "investment_size": {
+      "type": "string"
+    },
+    "startup_stage": {
+      "type": "string",
+      "enum": [
+        "pre_seed",
+        "seed",
+        "series_a",
+        "series_b",
+        "series_c",
+        "growth",
+        "public"
+      ],
+      "default": "seed"
     },
     "posted_by_name": {
       "type": "string"
     },
     "posted_by_id": {
       "type": "string"
-    },
-    "country": {
-      "type": "string"
-    },
-    "industry": {
-      "type": "string"
-    },
-    "requirements": {
-      "type": "string"
-    },
-    "is_seeking": {
-      "type": "boolean",
-      "default": true
     }
   },
   "required": [
     "title",
-    "partnership_type"
+    "category"
   ]
 }

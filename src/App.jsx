@@ -100,6 +100,7 @@ const Pricing = lazy(() => import('@/pages/Pricing'));
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
 import Marketplace from '@/pages/Marketplace';
+import AICommandCenter from '@/pages/AICommandCenter';
 import HRDashboard from '@/pages/HRDashboard';
 import SuccessionPlanning from '@/pages/SuccessionPlanning';
 import PromotionReadiness from '@/pages/PromotionReadiness';
@@ -182,6 +183,7 @@ const AuthenticatedApp = () => {
         <Route path="/home" element={<WorkspaceHome />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/ai-command-center" element={<AICommandCenter />} />
           <Route path="/challenge" element={<FeatureGate featureId="daily_executive_challenge"><Challenge /></FeatureGate>} />
           <Route path="/coach" element={<Coach />} />
           <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />

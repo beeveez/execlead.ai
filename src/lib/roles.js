@@ -122,6 +122,7 @@ export const NAV_GROUPS = [
     items: [
       { path: "/home", label: "Home", icon: Home },
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/onboarding", label: "Onboarding", icon: Rocket },
       { path: "/challenge", label: "Daily Challenge", icon: Target },
       { path: "/academy", label: "Academy", icon: GraduationCap },

@@ -1,0 +1,49 @@
+{
+  "name": "ExecutiveMemory",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "executive_summary": {
+      "type": "string",
+      "description": "LLM-generated profile summary, updated periodically"
+    },
+    "goals_json": {
+      "type": "string",
+      "description": "JSON array of career/leadership goal strings"
+    },
+    "aspirations_json": {
+      "type": "string",
+      "description": "JSON array of leadership aspiration strings"
+    },
+    "preferences_json": {
+      "type": "string",
+      "description": "JSON object of preferences (industries, topics, communication style)"
+    },
+    "achievements_json": {
+      "type": "string",
+      "description": "JSON array of tracked achievement strings"
+    },
+    "notes_json": {
+      "type": "string",
+      "description": "JSON array of {category, content, created_at} explicit memory notes"
+    },
+    "last_briefing_json": {
+      "type": "string",
+      "description": "Cached daily briefing JSON"
+    },
+    "last_briefing_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_context_gathered_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

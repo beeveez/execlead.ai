@@ -1,0 +1,48 @@
+{
+  "name": "AIAgentState",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "Agent identifier from the catalog"
+    },
+    "is_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_unlocked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user's subscription unlocks this agent"
+    },
+    "tasks_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "tasks_running": {
+      "type": "number",
+      "default": 0
+    },
+    "last_task_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_active": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "performance_rating": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 average task quality"
+    }
+  },
+  "required": [
+    "user_id",
+    "agent_id"
+  ]
+}

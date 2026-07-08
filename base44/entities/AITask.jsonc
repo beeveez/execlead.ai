@@ -1,0 +1,73 @@
+{
+  "name": "AITask",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "Which agent executed this task"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "autonomous",
+        "briefing",
+        "recommendation",
+        "chat",
+        "collaboration"
+      ],
+      "default": "autonomous"
+    },
+    "description": {
+      "type": "string",
+      "description": "What was asked of the agent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "running",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "result": {
+      "type": "string",
+      "description": "Agent output (markdown)"
+    },
+    "result_json": {
+      "type": "string",
+      "description": "Structured result if applicable"
+    },
+    "delegated_to_json": {
+      "type": "string",
+      "description": "JSON array of agent_ids this task delegated to (collaboration)"
+    },
+    "context_summary": {
+      "type": "string",
+      "description": "Trimmed executive context used"
+    },
+    "model": {
+      "type": "string"
+    },
+    "error": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "agent_id",
+    "description"
+  ]
+}

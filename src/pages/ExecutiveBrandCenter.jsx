@@ -26,7 +26,8 @@ const TABS = [
 ];
 
 export default function ExecutiveBrandCenter() {
-  const { profile, loading, refreshProfile } = useSubscription();
+  const { profile, loading, refreshProfile, entitlements } = useSubscription();
+  const isFoundingMember = entitlements?.founderPortalEnabled ?? false;
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState("identity");
   const [milestones, setMilestones] = useState([]);
@@ -58,9 +59,15 @@ export default function ExecutiveBrandCenter() {
         </div>
         <h1 className="text-2xl font-bold text-white">Your Executive Identity</h1>
         <p className="text-white/40 text-sm mt-1">Build, measure, and publish your verified executive profile.</p>
-        <Link to="/founder" className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500/15 to-amber-600/10 border border-amber-500/25 text-amber-400 hover:from-amber-500/20 hover:to-amber-600/15 text-sm font-medium transition-all">
-          <Crown size={16} /> ⭐ Founding Member
-        </Link>
+        {isFoundingMember ? (
+          <Link to="/founder" className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500/15 to-amber-600/10 border border-amber-500/25 text-amber-400 hover:from-amber-500/20 hover:to-amber-600/15 text-sm font-medium transition-all">
+            <Crown size={16} /> ⭐ Founding Member
+          </Link>
+        ) : (
+          <Link to="/billing?founding=1" className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/70 text-sm font-medium transition-all">
+            <Crown size={16} /> Become a Founding Member
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center gap-1 overflow-x-auto pb-1">

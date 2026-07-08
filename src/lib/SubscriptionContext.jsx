@@ -6,11 +6,13 @@ import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
 import { syncFounderEntitlements } from '@/lib/entitlementSync';
+import { useDeveloper } from '@/lib/DeveloperContext';
 
 const SubscriptionContext = createContext(null);
 
 export const SubscriptionProvider = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
+  const { getEffectivePlan, simulation } = useDeveloper();
   const [profile, setProfile] = useState(null);
   const [renewalDate, setRenewalDate] = useState(null);
   const [memberships, setMemberships] = useState([]);
@@ -99,8 +101,10 @@ export const SubscriptionProvider = ({ children }) => {
   }, [loadProfile]);
 
   const isDevUser = canAccessDeveloperWorkspace(user?.role);
-  const plan = isDevUser ? PLANS.developer_unlimited : getPlan(profile);
-  const isFoundingMember = Boolean(profile?.founding_member);
+  const realPlanId = isDevUser ? "developer_unlimited" : (profile?.subscription_plan || "free");
+  const effectivePlanId = getEffectivePlan(realPlanId);
+  const plan = PLANS[effectivePlanId] || PLANS.free;
+  const isFoundingMember = simulation.founder !== null ? simulation.founder : Boolean(profile?.founding_member);
 
   // Membership programs are independent of the subscription plan.
   // A user may be on the Free plan AND be a Founding Member — both
@@ -137,10 +141,13 @@ export const SubscriptionProvider = ({ children }) => {
     isLifetime: true,
   } : null);
 
+  // Hide membership badge when simulating non-founder
+  const effectiveMembership = simulation.founder === false ? null : membership;
+
   const subscription = {
     planName: plan.name,
     planTier: plan.id,
-    status: profile?.subscription_status || "active",
+    status: simulation.subscriptionStatus || profile?.subscription_status || "active",
     billingCycle: profile?.subscription_cycle || "monthly",
     renewalDate,
     features: plan.features,
@@ -149,11 +156,12 @@ export const SubscriptionProvider = ({ children }) => {
     icon: plan.icon,
     price: plan.price,
     isFoundingMember,
-    membership,
+    membership: effectiveMembership,
+    isSimulated: simulation.active,
   };
 
   return (
-    <SubscriptionContext.Provider value={{ profile, subscription, membership, memberships, renewalDate, loading, refreshProfile }}>
+    <SubscriptionContext.Provider value={{ profile, subscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile }}>
       {children}
     </SubscriptionContext.Provider>
   );

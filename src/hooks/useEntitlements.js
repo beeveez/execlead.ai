@@ -30,10 +30,14 @@ export function useEntitlements() {
     if (featureOverrides[featureId] !== undefined) {
       return featureOverrides[featureId];
     }
-    // Developer mode → unlock all
-    if (developerMode) return true;
-    // Super admin not simulating → unlock all
-    if (canAccessDeveloper && !isSimulating) return true;
+    // When simulating a plan, use plan-based checks to reflect the simulated tier
+    if (isSimulating) {
+      const f = features.find(x => x.id === featureId);
+      if (!f || !f.isEnabled || !isFeatureLive(f) || isComingSoon(f)) return false;
+      return userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0);
+    }
+    // Developer mode / super admin → unlock all
+    if (developerMode || canAccessDeveloper) return true;
     // Normal plan-based check
     const f = features.find(x => x.id === featureId);
     if (!f || !f.isEnabled || !isFeatureLive(f) || isComingSoon(f)) return false;

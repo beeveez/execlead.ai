@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import { getAvailableWorkspaces, getDefaultWorkspace, resolveWorkspaceNav } from "@/lib/workspaces";
+import { hasFeatureAccess } from "@/lib/featureCatalog";
 import { normalizeRole, getEffectiveRole as computeEffectiveRole } from "@/lib/roles";
 
 const WorkspaceContext = createContext(null);
@@ -65,8 +66,16 @@ export function WorkspaceProvider({ children }) {
 
   const navGroups = useMemo(() => {
     if (!activeWorkspace || !role) return [];
-    return resolveWorkspaceNav(activeWorkspace, role, plan, profile);
-  }, [activeWorkspace, role, plan, profile]);
+    const groups = resolveWorkspaceNav(activeWorkspace, role, plan, profile);
+    if (!isSimulating) return groups;
+    // When simulating, filter nav by the simulated plan's feature access
+    return groups
+      .map(g => ({
+        ...g,
+        items: g.items.filter(item => !item.feature || hasFeatureAccess(plan, item.feature)),
+      }))
+      .filter(g => g.items.length > 0);
+  }, [activeWorkspace, role, plan, profile, isSimulating]);
 
   const value = {
     activeWorkspace,

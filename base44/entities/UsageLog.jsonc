@@ -23,12 +23,72 @@
       "type": "number",
       "default": 0
     },
+    "input_tokens": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated prompt/input tokens"
+    },
+    "output_tokens": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated completion/output tokens"
+    },
     "cost_estimated": {
       "type": "number",
       "default": 0
     },
     "model": {
       "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "openai",
+        "anthropic",
+        "google",
+        "deepseek",
+        "meta",
+        "platform",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "AI provider derived from the model name"
+    },
+    "response_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "End-to-end response latency in milliseconds"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "timeout",
+        "rate_limited",
+        "network_error",
+        "validation_error"
+      ],
+      "default": "success"
+    },
+    "error_type": {
+      "type": "string",
+      "description": "Short error classification when status != success"
+    },
+    "prompt_id": {
+      "type": "string",
+      "description": "Optional correlation ID for a specific prompt/request"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization scope for enterprise analytics"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Denormalized user display name for top-users reporting"
     }
   },
   "required": [

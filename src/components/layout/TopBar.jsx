@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
+import { getScopedNotifications, markNotificationRead } from "@/lib/notifications";
 import AccountMenu from "@/components/layout/AccountMenu";
 import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
@@ -19,9 +20,10 @@ export default function TopBar() {
   useEffect(() => {
     const load = async () => {
       try {
-        const notifs = await base44.entities.Notification.list("-created_date", 10);
-        setNotifications(notifs);
-        setUnread(notifs.filter(n => !n.read).length);
+        const notifs = await getScopedNotifications();
+        const recent = notifs.slice(0, 10);
+        setNotifications(recent);
+        setUnread(recent.filter(n => !n.read).length);
       } catch (e) {}
     };
     load();
@@ -30,7 +32,7 @@ export default function TopBar() {
   const markAllRead = async () => {
     const unreadNotifs = notifications.filter(n => !n.read);
     for (const n of unreadNotifs) {
-      await base44.entities.Notification.update(n.id, { read: true });
+      await markNotificationRead(n.id);
     }
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnread(0);

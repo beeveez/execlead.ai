@@ -4,7 +4,7 @@ import { useDeveloper } from "@/lib/DeveloperContext";
 import { DEFAULT_FEATURES, PLAN_TIERS, getFeatureCatalog, getUpgradePlan, normalizeFeature, isFeatureLive, isComingSoon } from "@/lib/featureCatalog";
 
 export function useEntitlements() {
-  const { profile } = useSubscription();
+  const { profile, membership } = useSubscription();
   const { canAccessDeveloper, developerMode, simulatedPlan, featureOverrides, impersonation, getEffectivePlan } = useDeveloper();
   const [features, setFeatures] = useState(DEFAULT_FEATURES.map(normalizeFeature));
   const [loading, setLoading] = useState(true);
@@ -24,6 +24,45 @@ export function useEntitlements() {
   const planId = getEffectivePlan(realPlan);
   const userTier = PLAN_TIERS[planId] ?? 0;
   const isSimulating = Boolean(simulatedPlan || impersonation);
+
+  // ============================================================
+  // EFFECTIVE ENTITLEMENTS — computed from independent sources.
+  //
+  //   Effective Entitlements =
+  //     Subscription Features
+  //     + Founder Benefits          (permanent, NOT plan-gated)
+  //     + Organization Entitlements
+  //     + Purchased Add-ons
+  //     + Developer Overrides
+  //
+  // Subscription Plan and Founder Status are SEPARATE concerns.
+  // A Founding Member on the Free plan does NOT automatically
+  // unlock Professional or Executive features. Founder Benefits
+  // are permanent account entitlements (badge, portal, lifetime
+  // 25% discount, price protection, early/beta access, community,
+  // referral program, founder rewards) that sit alongside — not
+  // inside — the subscription plan.
+  // ============================================================
+  const founderStatus = {
+    isFounder: Boolean(membership),
+    name: membership?.name || null,
+    discount: membership?.discount || 0,
+    hasPriceProtection: membership?.hasPriceProtection ?? false,
+    isLifetime: membership?.isLifetime ?? false,
+    since: membership?.since || null,
+  };
+
+  const organizationEntitlements = {
+    hasOrg: Boolean(profile?.organization_id),
+    orgId: profile?.organization_id || null,
+  };
+
+  const entitlementSources = {
+    subscription: { planId, tier: userTier },
+    founder: founderStatus,
+    organization: organizationEntitlements,
+    developer: { canAccessDeveloper, developerMode, isSimulating },
+  };
 
   const hasAccess = useCallback((featureId) => {
     // Feature simulator explicit override takes precedence
@@ -57,5 +96,5 @@ export function useEntitlements() {
       .sort((a, b) => a.sortOrder - b.sortOrder);
   }, [features, userTier]);
 
-  return { hasAccess, getFeature, getFeaturesForCurrentPlan, getUpgradePlan, planId, loading, isComingSoon: checkComingSoon };
+  return { hasAccess, getFeature, getFeaturesForCurrentPlan, getUpgradePlan, planId, loading, isComingSoon: checkComingSoon, founderStatus, entitlementSources };
 }

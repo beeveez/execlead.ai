@@ -383,7 +383,6 @@ export const ROUTE_ACCESS = {
   "/developer/organizations": ["developer", "super_admin"],
   "/feature-management": ["developer", "super_admin"],
   "/guardian": ["developer", "super_admin"],
-  "/ai-platform-admin": ["developer", "super_admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],
   "/billing-admin": ["platform_admin", "super_admin", "finance"],
   "/payment-settings": ["platform_admin", "super_admin", "finance"],

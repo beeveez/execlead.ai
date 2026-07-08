@@ -101,7 +101,6 @@ import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
 import Marketplace from '@/pages/Marketplace';
 import AICommandCenter from '@/pages/AICommandCenter';
-import AIPlatformAdmin from '@/pages/AIPlatformAdmin';
 import HRDashboard from '@/pages/HRDashboard';
 import SuccessionPlanning from '@/pages/SuccessionPlanning';
 import PromotionReadiness from '@/pages/PromotionReadiness';
@@ -185,7 +184,6 @@ const AuthenticatedApp = () => {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ai-command-center" element={<AICommandCenter />} />
-          <Route path="/ai-platform-admin" element={<AIPlatformAdmin />} />
           <Route path="/challenge" element={<FeatureGate featureId="daily_executive_challenge"><Challenge /></FeatureGate>} />
           <Route path="/coach" element={<Coach />} />
           <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />

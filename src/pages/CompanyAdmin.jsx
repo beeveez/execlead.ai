@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { calculateQualityScore, COMPANY_CATEGORIES, COMPANY_STATUSES, exportCompanies, logAudit, saveVersionSnapshot } from "@/lib/companyAdmin";
 import CompanyForm from "@/components/company-admin/CompanyForm";
 import ImportModal from "@/components/company-admin/ImportModal";
 import VersionHistory from "@/components/company-admin/VersionHistory";
+import IndustriesManagement from "@/components/company-admin/IndustriesManagement";
+import CountriesManagement from "@/components/company-admin/CountriesManagement";
+import NeedsImprovementTable from "@/components/company-admin/NeedsImprovementTable";
+import KpiCard from "@/components/admin/KpiCard";
+import DrillBreadcrumb from "@/components/admin/DrillBreadcrumb";
 import { Building2, Plus, Upload, Download, Search, Edit2, Copy, Archive, RotateCcw, Trash2, History, Loader2, Database, X, CheckCircle, Clock, Globe, Briefcase, FileText, AlertTriangle, ChevronDown } from "lucide-react";
 import CompanyLogo from "@/components/companies/CompanyLogo";
 import LogoReliabilityDashboard from "@/components/company-admin/LogoReliabilityDashboard";
@@ -30,8 +35,6 @@ export default function CompanyAdmin() {
   const [search, setSearch] = useState("");
   const [fIndustry, setFIndustry] = useState("");
   const [fCountry, setFCountry] = useState("");
-  const [fStatus, setFStatus] = useState("");
-  const [fQuality, setFQuality] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [showImport, setShowImport] = useState(false);
@@ -41,6 +44,17 @@ export default function CompanyAdmin() {
   const [exportMenu, setExportMenu] = useState(false);
   const [userName, setUserName] = useState("Admin");
   const [repairCompany, setRepairCompany] = useState(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view = searchParams.get("view") || "companies";
+  const statusParam = searchParams.get("status") || "";
+  const qualityParam = searchParams.get("quality") || "";
+
+  const updateParam = useCallback((key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value); else next.delete(key);
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     base44.auth.me().then(u => setUserName(u?.full_name || u?.email || "Admin")).catch(() => {});
@@ -73,12 +87,40 @@ export default function CompanyAdmin() {
     }
     if (fIndustry && c.industry !== fIndustry) return false;
     if (fCountry && c.country !== fCountry) return false;
-    if (fStatus && (c.status || "approved") !== fStatus) return false;
-    if (fQuality === "needs" && (c.quality_score || 0) >= 80) return false;
-    if (fQuality === "good" && ((c.quality_score || 0) < 80 || (c.quality_score || 0) >= 90)) return false;
-    if (fQuality === "excellent" && (c.quality_score || 0) < 90) return false;
+    if (statusParam && (c.status || "approved") !== statusParam) return false;
+    if (qualityParam === "needs" && (c.quality_score || 0) >= 80) return false;
+    if (qualityParam === "good" && ((c.quality_score || 0) < 80 || (c.quality_score || 0) >= 90)) return false;
+    if (qualityParam === "excellent" && (c.quality_score || 0) < 90) return false;
     return true;
-  }), [companies, search, fIndustry, fCountry, fStatus, fQuality]);
+  }), [companies, search, fIndustry, fCountry, statusParam, qualityParam]);
+
+  const STAT_CARDS = [
+    { label: "Total Companies", value: stats.total, icon: Building2, color: "text-indigo-400", to: "/company-admin" },
+    { label: "Industries", value: stats.industries, icon: Briefcase, color: "text-cyan-400", to: "/company-admin?view=industries" },
+    { label: "Countries", value: stats.countries, icon: Globe, color: "text-emerald-400", to: "/company-admin?view=countries" },
+    { label: "Active", value: stats.active, icon: CheckCircle, color: "text-green-400", to: "/company-admin?status=approved" },
+    { label: "Archived", value: stats.archived, icon: Archive, color: "text-slate-400", to: "/company-admin?status=archived" },
+    { label: "Pending Review", value: stats.pending, icon: Clock, color: "text-amber-400", to: "/company-admin?status=review" },
+    { label: "Drafts", value: stats.drafts, icon: FileText, color: "text-blue-400", to: "/company-admin?status=draft" },
+    { label: "Needs Improvement", value: stats.needsImprovement, icon: AlertTriangle, color: "text-red-400", to: "/company-admin?quality=needs" },
+  ];
+
+  const breadcrumbItems = useMemo(() => {
+    const base = { label: "Company Management", to: "/company-admin" };
+    if (view === "industries") return [base, { label: "Industries Management" }];
+    if (view === "countries") return [base, { label: "Countries Management" }];
+    if (qualityParam === "needs") return [base, { label: "Needs Improvement" }];
+    if (statusParam === "approved") return [base, { label: "Active Companies" }];
+    if (statusParam === "archived") return [base, { label: "Archived" }];
+    if (statusParam === "review") return [base, { label: "Pending Review" }];
+    if (statusParam === "draft") return [base, { label: "Drafts" }];
+    return [base, { label: "All Companies" }];
+  }, [view, statusParam, qualityParam]);
+
+  const handleSelectCountry = (country) => {
+    setFCountry(country);
+    setSearchParams({}, { replace: true });
+  };
 
   const handleSave = async (data) => {
     const isArchived = data.status === "archived";
@@ -139,17 +181,6 @@ export default function CompanyAdmin() {
     setShowAudit(true);
   };
 
-  const STAT_CARDS = [
-    { label: "Total Companies", value: stats.total, icon: Building2, color: "text-indigo-400" },
-    { label: "Industries", value: stats.industries, icon: Briefcase, color: "text-cyan-400" },
-    { label: "Countries", value: stats.countries, icon: Globe, color: "text-emerald-400" },
-    { label: "Active", value: stats.active, icon: CheckCircle, color: "text-green-400" },
-    { label: "Archived", value: stats.archived, icon: Archive, color: "text-slate-400" },
-    { label: "Pending Review", value: stats.pending, icon: Clock, color: "text-amber-400" },
-    { label: "Drafts", value: stats.drafts, icon: FileText, color: "text-blue-400" },
-    { label: "Needs Improvement", value: stats.needsImprovement, icon: AlertTriangle, color: "text-red-400" },
-  ];
-
   const selectClass = "bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50";
 
   return (
@@ -181,78 +212,85 @@ export default function CompanyAdmin() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-        {STAT_CARDS.map(s => (
-          <div key={s.label} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2"><s.icon size={16} className={s.color} /><span className="text-xl font-bold text-white">{s.value}</span></div>
-            <div className="text-white/30 text-xs">{s.label}</div>
-          </div>
-        ))}
+        {STAT_CARDS.map(s => <KpiCard key={s.label} {...s} />)}
       </div>
 
-      <LogoReliabilityDashboard companies={companies} onUpdated={loadCompanies} onRepair={setRepairCompany} />
+      <DrillBreadcrumb items={breadcrumbItems} />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, industry, country, CEO, tags..." className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" />
-        </div>
-        <select value={fIndustry} onChange={e => setFIndustry(e.target.value)} className={selectClass}><option value="">All Industries</option>{COMPANY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select value={fCountry} onChange={e => setFCountry(e.target.value)} className={selectClass}><option value="">All Countries</option>{countries.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select value={fStatus} onChange={e => setFStatus(e.target.value)} className={selectClass}><option value="">All Statuses</option>{COMPANY_STATUSES.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}</select>
-        <select value={fQuality} onChange={e => setFQuality(e.target.value)} className={selectClass}><option value="">All Quality</option><option value="needs">Needs Improvement</option><option value="good">Good (80-89%)</option><option value="excellent">Excellent (90%+)</option></select>
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>
-      ) : filtered.length === 0 ? (
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center"><Building2 size={24} className="mx-auto text-white/20 mb-2" /><p className="text-white/30 text-sm">No companies match your filters.</p></div>
+      {view === "industries" ? (
+        <IndustriesManagement companies={companies} onUpdated={loadCompanies} userName={userName} />
+      ) : view === "countries" ? (
+        <CountriesManagement companies={companies} onSelectCountry={handleSelectCountry} />
       ) : (
-        <div className="overflow-x-auto bg-white/[0.02] border border-white/5 rounded-xl">
-          <table className="w-full text-sm">
-            <thead className="bg-white/[0.02]"><tr>
-              <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Company</th>
-              <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Industry</th>
-              <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Country</th>
-              <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Status</th>
-              <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Quality</th>
-              <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Updated</th>
-              <th className="text-right px-4 py-3 text-xs text-white/40 uppercase">Actions</th>
-            </tr></thead>
-            <tbody>
-              {filtered.map(c => {
-                const isArchived = c.status === "archived";
-                return (
-                  <tr key={c.id} className="border-t border-white/5 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3">
-                      <Link to={`/companies/${c.id}`} className="flex items-center gap-2">
-                        <CompanyLogo company={c} size="xs" showSkeleton={false} />
-                        <span className="text-white/80 font-medium hover:text-indigo-400">{c.name}</span>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-white/50">{c.industry || "—"}</td>
-                    <td className="px-4 py-3 text-white/50">{c.country || "—"}</td>
-                    <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
-                    <td className="px-4 py-3"><QualityBar score={c.quality_score || 0} /></td>
-                    <td className="px-4 py-3 text-white/30 text-xs">{new Date(c.updated_date).toLocaleDateString()}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => { setEditing(c); setShowForm(true); }} className="p-1.5 text-white/30 hover:text-indigo-400" title="Edit"><Edit2 size={14} /></button>
-                        <button onClick={() => handleDuplicate(c)} className="p-1.5 text-white/30 hover:text-cyan-400" title="Duplicate"><Copy size={14} /></button>
-                        <button onClick={() => setHistoryCo(c)} className="p-1.5 text-white/30 hover:text-amber-400" title="Version History"><History size={14} /></button>
-                        {isArchived ? (
-                          <button onClick={() => handleRestore(c)} className="p-1.5 text-white/30 hover:text-emerald-400" title="Restore"><RotateCcw size={14} /></button>
-                        ) : (
-                          <button onClick={() => handleArchive(c)} className="p-1.5 text-white/30 hover:text-amber-400" title="Archive"><Archive size={14} /></button>
-                        )}
-                        <button onClick={() => handleDelete(c)} className="p-1.5 text-white/30 hover:text-red-400" title="Delete"><Trash2 size={14} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {view === "companies" && <LogoReliabilityDashboard companies={companies} onUpdated={loadCompanies} onRepair={setRepairCompany} />}
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, industry, country, CEO, tags..." className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" />
+            </div>
+            <select value={fIndustry} onChange={e => setFIndustry(e.target.value)} className={selectClass}><option value="">All Industries</option>{COMPANY_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select>
+            <select value={fCountry} onChange={e => setFCountry(e.target.value)} className={selectClass}><option value="">All Countries</option>{countries.map(c => <option key={c} value={c}>{c}</option>)}</select>
+            <select value={statusParam} onChange={e => updateParam("status", e.target.value)} className={selectClass}><option value="">All Statuses</option>{COMPANY_STATUSES.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}</select>
+            <select value={qualityParam} onChange={e => updateParam("quality", e.target.value)} className={selectClass}><option value="">All Quality</option><option value="needs">Needs Improvement</option><option value="good">Good (80-89%)</option><option value="excellent">Excellent (90%+)</option></select>
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>
+          ) : qualityParam === "needs" ? (
+            <NeedsImprovementTable items={filtered} allCompanies={companies} onEdit={(c) => { setEditing(c); setShowForm(true); }} onArchive={handleArchive} onUpdated={loadCompanies} userName={userName} />
+          ) : filtered.length === 0 ? (
+            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center"><Building2 size={24} className="mx-auto text-white/20 mb-2" /><p className="text-white/30 text-sm">No companies match your filters.</p></div>
+          ) : (
+            <div className="overflow-x-auto bg-white/[0.02] border border-white/5 rounded-xl">
+              <table className="w-full text-sm">
+                <thead className="bg-white/[0.02]"><tr>
+                  <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Company</th>
+                  <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Industry</th>
+                  <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Country</th>
+                  <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Status</th>
+                  <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Quality</th>
+                  <th className="text-left px-4 py-3 text-xs text-white/40 uppercase">Updated</th>
+                  <th className="text-right px-4 py-3 text-xs text-white/40 uppercase">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {filtered.map(c => {
+                    const isArchived = c.status === "archived";
+                    return (
+                      <tr key={c.id} className="border-t border-white/5 hover:bg-white/[0.02]">
+                        <td className="px-4 py-3">
+                          <Link to={`/companies/${c.id}`} className="flex items-center gap-2">
+                            <CompanyLogo company={c} size="xs" showSkeleton={false} />
+                            <span className="text-white/80 font-medium hover:text-indigo-400">{c.name}</span>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 text-white/50">{c.industry || "—"}</td>
+                        <td className="px-4 py-3 text-white/50">{c.country || "—"}</td>
+                        <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
+                        <td className="px-4 py-3"><QualityBar score={c.quality_score || 0} /></td>
+                        <td className="px-4 py-3 text-white/30 text-xs">{new Date(c.updated_date).toLocaleDateString()}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <button onClick={() => { setEditing(c); setShowForm(true); }} className="p-1.5 text-white/30 hover:text-indigo-400" title="Edit"><Edit2 size={14} /></button>
+                            <button onClick={() => handleDuplicate(c)} className="p-1.5 text-white/30 hover:text-cyan-400" title="Duplicate"><Copy size={14} /></button>
+                            <button onClick={() => setHistoryCo(c)} className="p-1.5 text-white/30 hover:text-amber-400" title="Version History"><History size={14} /></button>
+                            {isArchived ? (
+                              <button onClick={() => handleRestore(c)} className="p-1.5 text-white/30 hover:text-emerald-400" title="Restore"><RotateCcw size={14} /></button>
+                            ) : (
+                              <button onClick={() => handleArchive(c)} className="p-1.5 text-white/30 hover:text-amber-400" title="Archive"><Archive size={14} /></button>
+                            )}
+                            <button onClick={() => handleDelete(c)} className="p-1.5 text-white/30 hover:text-red-400" title="Delete"><Trash2 size={14} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
       {showForm && <CompanyForm company={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />}

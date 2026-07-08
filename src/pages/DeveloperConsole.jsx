@@ -24,7 +24,7 @@ export default function DeveloperConsole() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
           <Code2 size={12} className="text-indigo-400" />

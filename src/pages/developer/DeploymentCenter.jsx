@@ -10,14 +10,14 @@ export default function DeploymentCenter() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
+    <div className="max-w-7xl mx-auto space-y-4">
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
           <Rocket size={12} className="text-indigo-400" /> System
         </div>
         <h1 className="text-2xl font-bold text-white">Deployment Center</h1>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {info.map(i => (
           <div key={i.label} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">

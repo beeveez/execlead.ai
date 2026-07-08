@@ -78,7 +78,7 @@ export default function PricingAdmin() {
   if (user?.role !== "admin") return <div className="text-center text-white/40 py-20">Access denied. Admin role required.</div>;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">

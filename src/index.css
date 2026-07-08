@@ -116,3 +116,27 @@
 .animate-fade-in {
   animation: fade-in 0.25s ease-out;
 }
+
+/* ============================================================
+   Founding Member Program — Premium gold effects
+   ============================================================ */
+@keyframes gold-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.gold-shimmer {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a, #fbbf24, #f59e0b);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-shimmer 3s linear infinite;
+}
+
+@keyframes gold-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), 0 0 40px rgba(245, 158, 11, 0.05); }
+  50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.3), 0 0 60px rgba(245, 158, 11, 0.1); }
+}
+.gold-glow {
+  animation: gold-glow 3s ease-in-out infinite;
+}

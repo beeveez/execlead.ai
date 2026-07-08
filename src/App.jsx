@@ -51,6 +51,7 @@ import CareerStudio from '@/pages/CareerStudio';
 import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
+import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
 import Guardian from '@/pages/Guardian';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
@@ -168,6 +169,7 @@ const AuthenticatedApp = () => {
           <Route path="/admin" element={<FeatureGate featureId="admin_console"><AdminConsole /></FeatureGate>} />
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
+          <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
           <Route path="/guardian" element={<Guardian />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/security" element={<SecurityCenter />} />

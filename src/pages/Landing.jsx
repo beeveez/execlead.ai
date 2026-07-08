@@ -11,6 +11,7 @@ import Logo from "@/components/layout/Logo";
 import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
+import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
 
 const FEATURES = [
   { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation." },
@@ -320,6 +321,13 @@ export default function Landing() {
           <div className="text-center mt-10">
             <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Compare all features <ArrowRight size={14} /></Link>
           </div>
+        </div>
+      </section>
+
+      {/* Founding Member Program */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <FoundingMemberSection />
         </div>
       </section>
 

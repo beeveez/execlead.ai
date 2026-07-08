@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
+import FoundingMemberBadge from "@/components/founding/FoundingMemberBadge";
 
 const QUICK_ACTIONS = [
   { path: "/challenge", label: "Challenge", desc: "Test your readiness", icon: Swords, color: "from-indigo-600 to-violet-600" },
@@ -76,9 +77,12 @@ export default function Dashboard() {
           <Crown size={12} className="text-indigo-400" />
           Executive Dashboard
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
-          {profile.full_name ? `Welcome back, ${profile.full_name.split(" ")[0]}` : "Welcome back"}
-        </h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+            {profile.full_name ? `Welcome back, ${profile.full_name.split(" ")[0]}` : "Welcome back"}
+          </h1>
+          {profile.founding_member && <FoundingMemberBadge />}
+        </div>
         <p className="text-white/40 text-sm">
           Targeting <span className="text-indigo-400 font-medium">{profile.target_role}</span> at{" "}
           <span className="text-white/70 font-medium">{profile.target_company}</span>

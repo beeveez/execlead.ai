@@ -309,6 +309,14 @@
     "verified_executive": {
       "type": "boolean",
       "default": false
+    },
+    "founding_member": {
+      "type": "boolean",
+      "default": false
+    },
+    "founding_member_since": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [

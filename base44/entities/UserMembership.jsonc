@@ -1,0 +1,81 @@
+{
+  "name": "UserMembership",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "program_id": {
+      "type": "string"
+    },
+    "program_name": {
+      "type": "string"
+    },
+    "program_type": {
+      "type": "string"
+    },
+    "membership_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "expired",
+        "revoked",
+        "pending"
+      ],
+      "default": "active"
+    },
+    "joined_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_lifetime": {
+      "type": "boolean",
+      "default": true
+    },
+    "discount_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "lifetime_pricing_protection": {
+      "type": "boolean",
+      "default": false
+    },
+    "benefits_json": {
+      "type": "string"
+    },
+    "badge": {
+      "type": "string"
+    },
+    "badge_color": {
+      "type": "string"
+    },
+    "assigned_by_id": {
+      "type": "string"
+    },
+    "assigned_by_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "program_id",
+    "membership_number"
+  ]
+}

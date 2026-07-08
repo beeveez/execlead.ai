@@ -9,7 +9,7 @@ import PaymentTrust from "@/components/billing/PaymentTrust";
 import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 
-export default function CheckoutModal({ plan, cycle: initialCycle, profile, onClose, onSuccess }) {
+export default function CheckoutModal({ plan, cycle: initialCycle, profile, membershipDiscount = 0, onClose, onSuccess }) {
   const { getPrice, cycle, setCycle } = usePricingCatalog(initialCycle);
   const { user } = useAuth();
   const [coupon, setCoupon] = useState(null);
@@ -22,8 +22,10 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
   const hasTrial = plan.buttonText?.toLowerCase().includes("trial");
   const isEnterprise = plan.enterpriseOnly || plan.customPricing;
   const subtotal = getPrice(plan);
-  const discount = calculateDiscount(coupon, subtotal);
-  const taxableAmount = subtotal - discount;
+  const membershipSavings = membershipDiscount > 0 ? Math.round(subtotal * membershipDiscount / 100 * 100) / 100 : 0;
+  const afterMembership = subtotal - membershipSavings;
+  const discount = calculateDiscount(coupon, afterMembership);
+  const taxableAmount = afterMembership - discount;
   const tax = calculateTax(billingAddress.country, taxableAmount);
   const total = taxableAmount + tax;
   const country = COUNTRIES.find((c) => c.code === billingAddress.country);
@@ -184,7 +186,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
                     <p className="text-white/40 text-xs">{plan.description}</p>
                   </div>
                 </div>
-                <span className="text-white font-bold">{formatCurrency(subtotal, plan.currency)}</span>
+                <span className="text-white font-bold">{membershipSavings > 0 ? (<><span className="text-white/40 line-through text-sm mr-1">{formatCurrency(subtotal, plan.currency)}</span>{formatCurrency(afterMembership, plan.currency)}</>) : formatCurrency(subtotal, plan.currency)}</span>
               </div>
               <div className="flex gap-2 mt-3">
                 <button onClick={() => setCycle("monthly")} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "bg-white/5 text-white/40"}`}>Monthly</button>
@@ -236,7 +238,8 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
             {mode === "pay" && (
               <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-2">
                 <div className="flex justify-between text-sm"><span className="text-white/40">Subtotal</span><span className="text-white/70">{formatCurrency(subtotal, plan.currency)}</span></div>
-                {discount > 0 && <div className="flex justify-between text-sm"><span className="text-emerald-400">Discount</span><span className="text-emerald-400">−{formatCurrency(discount, plan.currency)}</span></div>}
+                {membershipSavings > 0 && <div className="flex justify-between text-sm"><span className="text-indigo-400">Membership Discount</span><span className="text-indigo-400">−{formatCurrency(membershipSavings, plan.currency)}</span></div>}
+                {discount > 0 && <div className="flex justify-between text-sm"><span className="text-emerald-400">Coupon</span><span className="text-emerald-400">−{formatCurrency(discount, plan.currency)}</span></div>}
                 {tax > 0 && <div className="flex justify-between text-sm"><span className="text-white/40">Tax ({(country.taxRate * 100).toFixed(0)}%)</span><span className="text-white/70">{formatCurrency(tax, plan.currency)}</span></div>}
                 <div className="border-t border-white/5 pt-2 flex justify-between"><span className="text-white font-medium">Total</span><span className="text-white font-bold">{formatCurrency(total, plan.currency)}</span></div>
               </div>

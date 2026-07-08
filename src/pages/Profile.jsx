@@ -20,6 +20,7 @@ import ProfileCompleteness from "@/components/profile/ProfileCompleteness";
 import ResumeSyncModal from "@/components/profile/ResumeSyncModal";
 import { extractResumeIdentity, saveResumeVersion, PARSER_VERSION } from "@/lib/resumeSync";
 import DataManagementSection from "@/components/profile/DataManagementSection";
+import MembershipSection from "@/components/profile/MembershipSection";
 import PublicProfileSection from "@/components/profile/PublicProfileSection";
 import { createSnapshot, averageConfidence } from "@/lib/identityVersioning";
 import { Loader2, Save, UserCircle, Globe, Lock } from "lucide-react";
@@ -291,6 +292,7 @@ export default function Profile() {
     public: <PublicProfileSection form={form} setField={setField} profile={profile} onPublish={handlePublish} />,
     data: <DataManagementSection form={form} profile={profile} onApplyForm={applyFormChange} onResumeFile={(file) => handleResumeUpload({ target: { files: [file] } })} />,
     account: <AccountSection user={user} />,
+    memberships: <MembershipSection userId={user?.id} />,
   };
 
   return (

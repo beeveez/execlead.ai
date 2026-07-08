@@ -12,7 +12,7 @@ import {
   Users, Shield, DollarSign, Receipt, Lock, KeyRound, Code2,
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
-  Lightbulb, ClipboardCheck, Trophy, Crown,
+  Lightbulb, ClipboardCheck, Trophy, Crown, Award,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -92,6 +92,7 @@ export const WORKSPACE_NAV = {
       { path: "/company-admin", label: "Companies", icon: Database },
       { path: "/marketplace", label: "Marketplace Management", icon: Store },
       { path: "/pricing-admin", label: "Subscription Management", icon: DollarSign },
+      { path: "/membership-admin", label: "Membership Programs", icon: Award },
     ]},
     { label: "Revenue", items: [
       { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },
@@ -156,7 +157,7 @@ const ROUTE_WORKSPACE = {
   "/succession-planning": ["enterprise"], "/promotion-readiness": ["enterprise"],
   "/learning-assignments": ["enterprise"], "/organization/users": ["enterprise"],
   "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer", "platform"],
-  "/pricing-admin": ["platform", "developer"], "/billing-admin": ["platform", "developer"],
+  "/pricing-admin": ["platform", "developer"], "/membership-admin": ["platform", "developer"], "/billing-admin": ["platform", "developer"],
   "/payment-settings": ["platform", "developer"], "/email-settings": ["platform", "developer"],
   "/company-admin": ["platform", "developer"], "/cpq": ["platform", "developer"],
   "/cpq-dashboard": ["platform", "developer"], "/admin": ["platform"],

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
   UserCircle, Briefcase, Target, FileText, Building2,
-  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database, Globe, Crown
+  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database, Globe, Crown, Trophy
 } from "lucide-react";
 
 const SECTIONS = [
@@ -17,6 +17,9 @@ const SECTIONS = [
     { id: "education", label: "Education", icon: GraduationCap },
     { id: "certifications", label: "Certifications", icon: Award },
     { id: "skills", label: "Skills", icon: Sparkles },
+  ]},
+  { group: "Membership", items: [
+    { id: "memberships", label: "Memberships", icon: Trophy },
   ]},
   { group: "Settings", items: [
     { id: "social", label: "Social Links", icon: Link2 },

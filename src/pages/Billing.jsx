@@ -10,6 +10,7 @@ import CurrentPlanCard from "@/components/billing/CurrentPlanCard";
 import PlanGrid from "@/components/billing/PlanGrid";
 import PaymentHistory from "@/components/billing/PaymentHistory";
 import CheckoutModal from "@/components/billing/CheckoutModal";
+import { useUserMemberships } from "@/hooks/useUserMemberships";
 
 export default function Billing() {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ export default function Billing() {
   const [invoices, setInvoices] = useState([]);
   const [upgradePlan, setUpgradePlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { memberships, bestDiscount, hasProtection } = useUserMemberships(user?.id);
 
   useEffect(() => {
     if (!user?.id) { setLoading(false); return; }
@@ -142,6 +144,17 @@ export default function Billing() {
         onSwitchCycle={handleSwitchCycle}
       />
 
+      {bestDiscount > 0 && (
+        <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 rounded-xl p-4 flex items-center gap-3">
+          <span className="text-2xl">{memberships[0]?.badge?.charAt(0) || "🏆"}</span>
+          <div className="flex-1">
+            <div className="text-white font-medium text-sm">Membership Discount Active</div>
+            <div className="text-white/40 text-xs">{memberships.map(m => m.program_name).join(", ")} — {bestDiscount}% off all plans{hasProtection ? " · Lifetime price protection" : ""}</div>
+          </div>
+          <span className="text-emerald-400 text-sm font-bold">−{bestDiscount}%</span>
+        </div>
+      )}
+
       {isDeveloperUnlimited(profile) && (
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
           <span className="text-2xl">⚡</span>
@@ -184,6 +197,7 @@ export default function Billing() {
             plan={upgradePlan}
             cycle={cycle}
             profile={profile}
+            membershipDiscount={bestDiscount}
             onClose={() => setUpgradePlan(null)}
             onSuccess={handleCheckoutSuccess}
           />

@@ -52,6 +52,7 @@ import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
+import MembershipAdmin from '@/pages/MembershipAdmin';
 import FounderPortalLayout from '@/components/founding/FounderPortalLayout';
 import FounderOverview from '@/pages/founder/FounderOverview';
 import FounderBenefits from '@/pages/founder/FounderBenefits';
@@ -193,6 +194,7 @@ const AuthenticatedApp = () => {
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
+          <Route path="/membership-admin" element={<MembershipAdmin />} />
           <Route element={<FounderPortalLayout />}>
             <Route path="/founder" element={<FounderOverview />} />
             <Route path="/founder/benefits" element={<FounderBenefits />} />

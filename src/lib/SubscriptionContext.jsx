@@ -13,6 +13,7 @@ export const SubscriptionProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [renewalDate, setRenewalDate] = useState(null);
   const [memberships, setMemberships] = useState([]);
+  const [foundingRecord, setFoundingRecord] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
@@ -42,10 +43,24 @@ export const SubscriptionProvider = ({ children }) => {
           setMemberships([]);
         }
       }
+      // Load the FoundingMember record when the profile is flagged — this
+      // backs the membership badge for users enrolled before UserMembership
+      // records existed (legacy founding members).
+      if (user?.id && p?.founding_member) {
+        try {
+          const fm = await base44.entities.FoundingMember.filter({ user_id: user.id });
+          setFoundingRecord(fm.length > 0 ? fm[0] : null);
+        } catch {
+          setFoundingRecord(null);
+        }
+      } else {
+        setFoundingRecord(null);
+      }
     } catch (e) {
       setProfile(null);
       setRenewalDate(null);
       setMemberships([]);
+      setFoundingRecord(null);
     } finally {
       setLoading(false);
     }
@@ -86,6 +101,11 @@ export const SubscriptionProvider = ({ children }) => {
   const bestDiscount = getBestMembershipDiscount(memberships);
   const hasProtection = hasLifetimePricingProtection(memberships);
 
+  // Prefer a UserMembership record; fall back to the legacy FoundingMember
+  // record when the profile is flagged but no UserMembership exists. This
+  // keeps the membership badge visible for founding members enrolled before
+  // the membership-program architecture was introduced.
+  const fmMeta = PROGRAM_TYPES.founding_member;
   const membership = primaryMembership ? {
     name: primaryMembership.program_name || membershipMeta?.label || "Member",
     type: primaryMembership.program_type,
@@ -96,7 +116,17 @@ export const SubscriptionProvider = ({ children }) => {
     hasPriceProtection: hasProtection,
     since: primaryMembership.joined_date || (isFoundingMember ? profile?.founding_member_since : null),
     isLifetime: primaryMembership.is_lifetime,
-  } : null;
+  } : (isFoundingMember ? {
+    name: "Founding Member",
+    type: "founding_member",
+    icon: fmMeta.icon,
+    color: fmMeta.color,
+    number: foundingRecord?.founding_member_number || null,
+    discount: foundingRecord?.lifetime_discount_percentage ?? 25,
+    hasPriceProtection: foundingRecord?.protected_pricing ?? true,
+    since: foundingRecord?.joined_date || profile?.founding_member_since || null,
+    isLifetime: true,
+  } : null);
 
   const subscription = {
     planName: plan.name,

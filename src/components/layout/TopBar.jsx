@@ -19,15 +19,16 @@ export default function TopBar() {
 
   useEffect(() => {
     const load = async () => {
+      if (!activeWorkspace) return;
       try {
-        const notifs = await getScopedNotifications();
+        const { notifications: notifs, unreadCounts } = await getScopedNotifications(activeWorkspace);
         const recent = notifs.slice(0, 10);
         setNotifications(recent);
-        setUnread(recent.filter(n => !n.read).length);
+        setUnread(unreadCounts[activeWorkspace] || 0);
       } catch (e) {}
     };
     load();
-  }, []);
+  }, [activeWorkspace]);
 
   const markAllRead = async () => {
     const unreadNotifs = notifications.filter(n => !n.read);

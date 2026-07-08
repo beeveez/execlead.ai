@@ -1,18 +1,19 @@
 import { base44 } from "@/api/base44Client";
 
 // ============================================================
-// NOTIFICATION SCOPING ENGINE
-// Enforces strict multi-tenant isolation. Every notification
-// carries metadata that determines who can see it:
-//   - user_id:      personal notification (only that user)
-//   - visibility:   private | organization | workspace | public
-//   - organization_id: target org (for visibility="organization")
-//   - workspace:    executive | enterprise | platform | developer
-//   - role_scope:   comma-separated role keys (e.g. "platform_admin,super_admin")
+// WORKSPACE-AWARE NOTIFICATION ENGINE
+// Notifications are strictly isolated by workspace. The backend
+// function enforces this: when a workspace is specified, only
+// notifications tagged with that workspace (or "all") are returned.
 //
-// Server-side enforcement lives in the getScopedNotifications
-// backend function. This helper ensures every creation site
-// includes the required scoping metadata.
+// Every notification carries:
+//   - workspace:    executive | enterprise | platform | developer | all
+//   - category:     workspace-specific category (e.g. wallet, deployments)
+//   - severity:     info | low | medium | high | critical
+//   - user_id:      personal notification (only that user)
+//   - organization_id: target org (for visibility="organization")
+//   - visibility:   private | organization | workspace | public
+//   - role_scope:   comma-separated role keys
 // ============================================================
 
 export const NOTIFICATION_VISIBILITY = {
@@ -45,6 +46,8 @@ export async function createNotification({
   workspace = "executive",
   visibility = "private",
   roleScope = "",
+  severity = "info",
+  category = "",
 }) {
   return await base44.entities.Notification.create({
     type,
@@ -57,18 +60,29 @@ export async function createNotification({
     workspace,
     visibility,
     role_scope: roleScope,
+    severity,
+    category,
     read: false,
   });
 }
 
 /**
  * Fetch notifications scoped to the current user via the server-side
- * backend function. This performs authorization checks server-side —
- * the client never receives notifications it shouldn't see.
+ * backend function. When a workspace is specified, only notifications
+ * for that workspace are returned (strict isolation).
+ *
+ * Returns: { notifications, unreadCounts, totalUnread }
+ *   - notifications:  array filtered by the requested workspace
+ *   - unreadCounts:   { executive: N, enterprise: N, ... }
+ *   - totalUnread:    total across all workspaces
  */
-export async function getScopedNotifications() {
-  const response = await base44.functions.invoke("getScopedNotifications", {});
-  return response.data?.notifications || [];
+export async function getScopedNotifications(workspace = null) {
+  const response = await base44.functions.invoke("getScopedNotifications", { workspace });
+  return {
+    notifications: response.data?.notifications || [],
+    unreadCounts: response.data?.unreadCounts || {},
+    totalUnread: response.data?.totalUnread || 0,
+  };
 }
 
 /**

@@ -18,6 +18,21 @@
         "developer"
       ]
     },
+    "category": {
+      "type": "string",
+      "description": "Workspace-specific category (e.g. wallet, deployments, team_invitations)"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "info"
+    },
     "title": {
       "type": "string"
     },

@@ -4,7 +4,8 @@ import {
   UserCircle, CreditCard, Settings as SettingsIcon,
   Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
   Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes, Store,
-  Cpu, TrendingUp, GitBranch, Rocket, ShieldCheck, Lightbulb
+  Cpu, TrendingUp, GitBranch, Rocket, ShieldCheck, Lightbulb,
+  Home, Target, Gauge, GitCompare
 } from "lucide-react";
 
 // ============================================================
@@ -116,7 +117,10 @@ export const NAV_GROUPS = [
     label: "Platform",
     roles: CUSTOMER_NAV_ROLES,
     items: [
+      { path: "/home", label: "Home", icon: Home },
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/onboarding", label: "Onboarding", icon: Rocket },
+      { path: "/challenge", label: "Daily Challenge", icon: Target },
       { path: "/academy", label: "Academy", icon: GraduationCap },
       { path: "/coach", label: "Coach", icon: MessageSquare },
       { path: "/simulator", label: "Simulator", icon: Brain },
@@ -131,6 +135,7 @@ export const NAV_GROUPS = [
       { path: "/career-studio", label: "Career Studio", icon: Briefcase },
       { path: "/resume", label: "Resume AI", icon: FileText },
       { path: "/companies", label: "Companies", icon: Building2 },
+      { path: "/companies/compare", label: "Compare Companies", icon: GitCompare },
       { path: "/journal", label: "Journal", icon: PenLine },
     ],
   },
@@ -138,6 +143,7 @@ export const NAV_GROUPS = [
     label: "Insights",
     roles: CUSTOMER_NAV_ROLES,
     items: [
+      { path: "/metrics", label: "Metrics", icon: Gauge },
       { path: "/analytics", label: "Analytics", icon: BarChart3 },
     ],
   },

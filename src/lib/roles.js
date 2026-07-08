@@ -176,6 +176,7 @@ export const NAV_GROUPS = [
     roles: ENTERPRISE_ROLES,
     items: [
       { path: "/enterprise", label: "Enterprise Dashboard", icon: LayoutDashboard },
+      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/academy", label: "Executive Academy", icon: GraduationCap },
       { path: "/coach", label: "Executive Coach", icon: MessageSquare },
       { path: "/simulator", label: "Executive Simulator", icon: Brain },

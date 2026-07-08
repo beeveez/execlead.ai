@@ -5,6 +5,7 @@ import { getPlan, PLANS } from '@/lib/plans';
 import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
+import { syncFounderEntitlements } from '@/lib/entitlementSync';
 
 const SubscriptionContext = createContext(null);
 
@@ -43,13 +44,21 @@ export const SubscriptionProvider = ({ children }) => {
           setMemberships([]);
         }
       }
-      // Load the FoundingMember record when the profile is flagged — this
-      // backs the membership badge for users enrolled before UserMembership
-      // records existed (legacy founding members).
-      if (user?.id && p?.founding_member) {
+      // Self-healing: verify and rebuild missing Founder entitlements.
+      // Runs after login, after refreshProfile (subscription updates), and
+      // after payment — catches partial provisioning, lost profile flags,
+      // missing referral codes, and missing certificates automatically.
+      if (user?.id && p) {
         try {
-          const fm = await base44.entities.FoundingMember.filter({ user_id: user.id });
-          setFoundingRecord(fm.length > 0 ? fm[0] : null);
+          const syncResult = await syncFounderEntitlements(user, p);
+          setFoundingRecord(syncResult.member);
+          if (syncResult.synced) {
+            // Reload memberships if entitlements were rebuilt
+            try {
+              const active = await getUserActiveMemberships(user.id);
+              setMemberships(active);
+            } catch {}
+          }
         } catch {
           setFoundingRecord(null);
         }

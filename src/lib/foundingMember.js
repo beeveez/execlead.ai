@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { enrollUserInProgram } from "@/lib/membershipEngine";
+import { generateReferralCode, ensureReferralCode } from "@/lib/referralEngine";
 
 // ============================================================
 // FOUNDING MEMBER PROGRAM — Configuration & Helpers
@@ -136,7 +137,7 @@ export async function grantFoundingMembership(user, profile) {
   const memberNumber = `FM-${String(Date.now()).slice(-6)}`;
   const today = new Date().toISOString().split("T")[0];
 
-  // 1. Create FoundingMember record
+  // 1. Create FoundingMember record with all entitlements enabled
   await base44.entities.FoundingMember.create({
     founding_member_number: memberNumber,
     user_id: user.id,
@@ -157,6 +158,8 @@ export async function grantFoundingMembership(user, profile) {
     beta_access: true,
     roadmap_voting: true,
     feedback_sessions: true,
+    certificate_issued: true,
+    certificate_issued_date: today,
   });
 
   // 2. Enroll in the Founding Member membership program (if it exists)
@@ -179,7 +182,27 @@ export async function grantFoundingMembership(user, profile) {
     });
   }
 
-  // 4. Create a scoped notification for the user
+  // 4. Generate and register referral code (idempotent)
+  try {
+    const referralCode = generateReferralCode(user.id);
+    if (referralCode) {
+      await ensureReferralCode(user.id, referralCode);
+    }
+  } catch (e) {}
+
+  // 5. Generate founder certificate
+  try {
+    await base44.entities.Certificate.create({
+      certificate_id: `FM-CERT-${String(Date.now()).slice(-8)}`,
+      course_id: "founding_member",
+      course_name: "Founding Member Certificate",
+      user_name: user.full_name || user.email || "",
+      completion_date: today,
+      verification_url: `${window.location.origin}/founder/certificates`,
+    });
+  } catch (e) {}
+
+  // 6. Create a scoped notification for the user
   try {
     await base44.entities.Notification.create({
       type: "subscription",

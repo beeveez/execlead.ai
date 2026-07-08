@@ -1,39 +1,41 @@
 /**
- * EXECLEAD.AI — Centralized Entitlement Service
- * ===============================================
- * The SINGLE source of truth for user entitlements.
+ * EXECLEAD.AI — Centralized Entitlement Service (SINGLE SOURCE OF TRUTH)
+ * =======================================================================
  *
  *   const entitlements = await getUserEntitlements(userId, profile)
  *
  * Returns:
  *   {
  *     subscription,         // { plan, status, cycle }
- *     isFoundingMember,     // boolean — from FoundingMember entity ONLY
- *     founderTier,          // founding_tier from the record
+ *     isFoundingMember,     // true if an active FoundingMember record exists
+ *     purchaseVerified,     // true if purchase_verified && payment_status === "paid"
+ *     founderPortalEnabled, // true ONLY when ALL business rules pass
  *     founderNumber,        // founding_member_number
- *     founderBenefits,      // array of benefit keys
+ *     founderTier,          // founding_tier
+ *     founderSince,         // joined_date
  *     lifetimeDiscount,     // 25 (or record override)
- *     betaAccess,           // boolean
- *     earlyAccess,          // boolean
- *     ...
+ *     founderBenefits,      // array of benefit keys
+ *     founderRecord,        // raw record (for diagnostics / portal pages)
+ *     entitlementSource,    // "entitlement_service"
  *   }
  *
- * Rules:
- *   - Founder status is determined SOLELY by a FoundingMember
- *     database record with an active status.
- *   - NEVER reads profile.founding_member (can be stale).
- *   - NEVER uses mock data, hardcoded flags, cached state, or
- *     developer simulation values.
- *   - Account switch (userId change) triggers a full refetch.
+ * BUSINESS RULES — a user is a Founding Member ONLY when ALL are true:
+ *   1. An active FoundingMember record exists (status: active/verified/lifetime)
+ *   2. purchase_verified === true AND payment_status === "paid"
+ *   3. Subscription plan is Professional or Executive (eligible)
  *
- * All pages MUST read founder status from this service (directly
- * or via SubscriptionContext). Do not independently query
- * profile.founding_member or use local component state.
+ * If ANY condition fails:
+ *   - isFoundingMember may be true (record exists) but
+ *   - founderPortalEnabled is false → badge hidden, portal hidden, benefits removed
+ *
+ * This service NEVER reads profile.founding_member (can be stale).
+ * It NEVER uses mock data, cached state, or developer simulation.
  */
 import { base44 } from "@/api/base44Client";
 
 const FOUNDER_DISCOUNT_PERCENTAGE = 25;
 const ACTIVE_STATUSES = ["active", "verified", "lifetime"];
+const ELIGIBLE_PLANS = ["professional", "executive"];
 
 export const FOUNDER_BENEFIT_KEYS = [
   "founder_badge",
@@ -50,6 +52,8 @@ export const FOUNDER_BENEFIT_KEYS = [
 export const NULL_ENTITLEMENTS = Object.freeze({
   subscription: { plan: "free", status: "active", cycle: "monthly" },
   isFoundingMember: false,
+  purchaseVerified: false,
+  founderPortalEnabled: false,
   founderTier: null,
   founderNumber: null,
   founderSince: null,
@@ -64,6 +68,7 @@ export const NULL_ENTITLEMENTS = Object.freeze({
   feedbackSessions: false,
   founderBenefits: [],
   founderRecord: null,
+  entitlementSource: "entitlement_service",
 });
 
 /**
@@ -75,7 +80,7 @@ export const NULL_ENTITLEMENTS = Object.freeze({
  * @returns {Promise<object>} Entitlement snapshot
  */
 export async function getUserEntitlements(userId, profile) {
-  if (!userId) return NULL_ENTITLEMENTS;
+  if (!userId) return { ...NULL_ENTITLEMENTS, entitlementSource: "no_user" };
 
   const subscription = {
     plan: profile?.subscription_plan || "free",
@@ -83,8 +88,7 @@ export async function getUserEntitlements(userId, profile) {
     cycle: profile?.subscription_cycle || "monthly",
   };
 
-  // Founder status comes ONLY from the FoundingMember entity.
-  // This is the single source of truth — never the profile flag.
+  // ── Read the FoundingMember record (the only DB source) ──
   let founderRecord = null;
   try {
     const records = await base44.entities.FoundingMember.filter({ user_id: userId });
@@ -93,21 +97,43 @@ export async function getUserEntitlements(userId, profile) {
     founderRecord = null;
   }
 
-  const isFoundingMember = Boolean(
+  // ── CONDITION 1: Active record exists ──
+  const hasActiveRecord = Boolean(
     founderRecord && ACTIVE_STATUSES.includes(founderRecord.status)
   );
 
-  if (!isFoundingMember) {
+  // ── CONDITION 2: Purchase verified (server-side payment confirmation) ──
+  const purchaseVerified = Boolean(
+    founderRecord &&
+    founderRecord.purchase_verified === true &&
+    founderRecord.payment_status === "paid"
+  );
+
+  // ── CONDITION 3: Subscription eligible (Professional or Executive) ──
+  const subscriptionEligible = ELIGIBLE_PLANS.includes(subscription.plan);
+
+  // ── founderPortalEnabled: ALL conditions must pass ──
+  const founderPortalEnabled = hasActiveRecord && purchaseVerified && subscriptionEligible;
+
+  // If not fully entitled, return null entitlements but keep diagnostic fields
+  if (!founderPortalEnabled) {
     return {
       ...NULL_ENTITLEMENTS,
       subscription,
+      isFoundingMember: hasActiveRecord,
+      purchaseVerified,
+      founderPortalEnabled: false,
       founderRecord,
+      entitlementSource: "entitlement_service",
     };
   }
 
+  // ── Fully entitled — return complete snapshot ──
   return {
     subscription,
     isFoundingMember: true,
+    purchaseVerified: true,
+    founderPortalEnabled: true,
     founderTier: founderRecord.founding_tier || "founding_member",
     founderNumber: founderRecord.founding_member_number || null,
     founderSince: founderRecord.joined_date || null,
@@ -122,5 +148,6 @@ export async function getUserEntitlements(userId, profile) {
     feedbackSessions: founderRecord.feedback_sessions ?? true,
     founderBenefits: FOUNDER_BENEFIT_KEYS,
     founderRecord,
+    entitlementSource: "entitlement_service",
   };
 }

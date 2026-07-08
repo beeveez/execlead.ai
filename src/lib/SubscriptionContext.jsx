@@ -18,6 +18,7 @@ export const SubscriptionProvider = ({ children }) => {
   const [renewalDate, setRenewalDate] = useState(null);
   const [memberships, setMemberships] = useState([]);
   const [entitlements, setEntitlements] = useState(null);
+  const [lastEntitlementRefresh, setLastEntitlementRefresh] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async () => {
@@ -61,6 +62,7 @@ export const SubscriptionProvider = ({ children }) => {
         try {
           const ents = await getUserEntitlements(user.id, p);
           setEntitlements(ents);
+          setLastEntitlementRefresh(Date.now());
           if (ents.isFoundingMember) {
             try {
               const active = await getUserActiveMemberships(user.id);
@@ -116,7 +118,11 @@ export const SubscriptionProvider = ({ children }) => {
   // cached/stale state. Developer simulation applies ONLY when
   // explicitly active in the developer console (never for real users).
   // ============================================================
-  const serviceFounder = entitlements?.isFoundingMember ?? false;
+  // Use founderPortalEnabled (ALL conditions: active record + purchase
+  // verified + eligible subscription) — NOT just isFoundingMember (which
+  // only means a record exists). This prevents Free users with stale
+  // records from seeing the badge.
+  const serviceFounder = entitlements?.founderPortalEnabled ?? false;
   // Developer simulation applies ONLY to developer-role users and ONLY
   // when explicitly active. It never leaks to real user accounts and
   // never persists to the database — the backend validation is the
@@ -127,7 +133,11 @@ export const SubscriptionProvider = ({ children }) => {
   // Membership programs are independent of the subscription plan.
   // A user may be on the Free plan AND be a Founding Member — both
   // statuses are displayed side by side, never one replacing the other.
-  const primaryMembership = memberships.length > 0 ? memberships[0] : null;
+  // Filter out founding_member program memberships when the user is not
+  // entitled — prevents UserMembership records from showing the badge
+  // when the Entitlement Service says founderPortalEnabled is false.
+  const visibleMemberships = memberships.filter(m => m.program_type !== "founding_member" || isFoundingMember);
+  const primaryMembership = visibleMemberships.length > 0 ? visibleMemberships[0] : null;
   const membershipMeta = primaryMembership?.program_type ? PROGRAM_TYPES[primaryMembership.program_type] : null;
   const bestDiscount = getBestMembershipDiscount(memberships);
   const hasProtection = hasLifetimePricingProtection(memberships);
@@ -173,12 +183,14 @@ export const SubscriptionProvider = ({ children }) => {
     icon: plan.icon,
     price: plan.price,
     isFoundingMember,
+    purchaseVerified: simulationApplies ? simulation.founder : (entitlements?.purchaseVerified ?? false),
+    founderPortalEnabled: isFoundingMember,
     membership: effectiveMembership,
     isSimulated: simulation.active,
   };
 
   return (
-    <SubscriptionContext.Provider value={{ profile, subscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements }}>
+    <SubscriptionContext.Provider value={{ profile, subscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements, lastEntitlementRefresh }}>
       {children}
     </SubscriptionContext.Provider>
   );

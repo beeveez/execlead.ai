@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
-import { useFoundingMember } from "@/hooks/useFoundingMember";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Shield, Users, Calendar, Vote, UserPlus,
   Gift, Award, Activity, Settings as SettingsIcon, Crown, Loader2,
@@ -20,7 +20,8 @@ const SECTIONS = [
 ];
 
 export default function FounderPortalLayout() {
-  const { member, loading } = useFoundingMember();
+  const { entitlements, loading } = useSubscription();
+  const portalEnabled = entitlements?.founderPortalEnabled ?? false;
 
   if (loading) {
     return (
@@ -30,7 +31,10 @@ export default function FounderPortalLayout() {
     );
   }
 
-  if (!member) {
+  // Portal is gated by the Entitlement Service. All three conditions
+  // (active record + purchase verified + eligible subscription) must
+  // pass. If any fails, show the "Become a Founding Member" CTA.
+  if (!portalEnabled) {
     return (
       <div className="max-w-lg mx-auto text-center py-16">
         <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-5">
@@ -38,9 +42,11 @@ export default function FounderPortalLayout() {
         </div>
         <h2 className="text-white font-semibold text-lg mb-2">Founder Portal</h2>
         <p className="text-white/40 text-sm leading-relaxed mb-6">
-          The Founder Portal is a permanent entitlement for Founding Members. Become a Founding Member to unlock lifetime benefits, exclusive discounts, and permanent entitlements.
+          The Founder Portal is an exclusive entitlement for verified Founding Members.
+          Upgrade to a Professional or Executive plan and purchase the Founding Membership
+          to unlock lifetime benefits, exclusive discounts, and permanent entitlements.
         </p>
-        <Link to="/" className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold px-6 py-3 rounded-xl transition-all">
+        <Link to="/billing?founding=1" className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold px-6 py-3 rounded-xl transition-all">
           <Crown size={16} /> Become a Founding Member
         </Link>
       </div>

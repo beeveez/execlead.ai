@@ -1,22 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
+import { useSubscription } from "@/lib/SubscriptionContext";
 
+/**
+ * Founder hook — derives member data EXCLUSIVELY from the centralized
+ * Entitlement Service (via SubscriptionContext).
+ *
+ * `member` is non-null ONLY when founderPortalEnabled is true, meaning:
+ *   1. Active FoundingMember record exists
+ *   2. purchase_verified === true && payment_status === "paid"
+ *   3. Subscription is Professional or Executive
+ *
+ * This hook NEVER queries the FoundingMember entity directly.
+ */
 export function useFoundingMember() {
-  const { user } = useAuth();
-  const [member, setMember] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    if (!user?.id) { setLoading(false); return; }
-    try {
-      const members = await base44.entities.FoundingMember.filter({ user_id: user.id });
-      setMember(members.length > 0 ? members[0] : null);
-    } catch (e) {}
-    setLoading(false);
-  }, [user?.id]);
-
-  useEffect(() => { load(); }, [load]);
-
-  return { member, loading, reload: load };
+  const { entitlements, loading, refreshProfile } = useSubscription();
+  const member = entitlements?.founderPortalEnabled ? entitlements.founderRecord : null;
+  return { member, loading, reload: refreshProfile };
 }

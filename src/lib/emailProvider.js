@@ -2,17 +2,27 @@ import { base44 } from "@/api/base44Client";
 
 // ============================================================
 // EMAIL PROVIDER ABSTRACTION LAYER
-// Supports: Resend (preferred), SendGrid, Amazon SES
+// Supports: Resend (preferred), SendGrid, Postmark, Amazon SES, Mailgun
+// Only one provider should be active at a time.
 // All providers route through the platform's Core.SendEmail
-// transport. When Builder+ backend functions are added, each
-// provider would dispatch to its own API endpoint.
+// transport. Provider-specific API dispatch can be added via
+// backend functions when direct API integration is needed.
 // ============================================================
 
 export const EMAIL_PROVIDERS = {
   resend: { id: "resend", name: "Resend", description: "Preferred — modern transactional email API", status: "available" },
   sendgrid: { id: "sendgrid", name: "SendGrid", description: "Twilio SendGrid", status: "available" },
+  postmark: { id: "postmark", name: "Postmark", description: "ActivePostmark — high deliverability", status: "available" },
   ses: { id: "ses", name: "Amazon SES", description: "AWS Simple Email Service", status: "available" },
+  mailgun: { id: "mailgun", name: "Mailgun", description: "Sinch Mailgun — scalable delivery", status: "available" },
 };
+
+// Masks API key for display — never exposes the full key in the UI
+export function maskApiKey(key) {
+  if (!key) return "";
+  if (key.length <= 8) return "••••";
+  return "••••••••" + key.slice(-4);
+}
 
 let _cachedSettings = null;
 
@@ -51,6 +61,9 @@ export async function sendTransactionalEmail({ to, subject, html, emailType, ent
       entity_id: entityId,
       entity_name: entityName,
       provider: "none",
+      template: emailType,
+      provider_response: "Provider not configured",
+      retry_count: 0,
     });
     return { sent: false, configured: false, error: "Email provider not configured" };
   }
@@ -68,12 +81,15 @@ export async function sendTransactionalEmail({ to, subject, html, emailType, ent
     await logEmailEvent({
       recipient: to,
       subject,
-      delivery_status: "sent",
+      delivery_status: "delivered",
       error_message: "",
       email_type: emailType,
       entity_id: entityId,
       entity_name: entityName,
       provider,
+      template: emailType,
+      provider_response: "OK",
+      retry_count: 0,
     });
 
     return { sent: true, configured: true, provider };
@@ -89,10 +105,24 @@ export async function sendTransactionalEmail({ to, subject, html, emailType, ent
       entity_id: entityId,
       entity_name: entityName,
       provider,
+      template: emailType,
+      provider_response: errorMsg,
+      retry_count: 0,
     });
 
     return { sent: false, configured: true, error: errorMsg };
   }
+}
+
+// ============================================================
+// TEST CONNECTION
+// Invokes the backend function that sends a test email and
+// returns the full result (success/failure with error message).
+// ============================================================
+
+export async function testEmailConnection(testEmail) {
+  const response = await base44.functions.invoke('testEmailConnection', { testEmail });
+  return response.data;
 }
 
 async function logEmailEvent(data) {
@@ -106,6 +136,9 @@ async function logEmailEvent(data) {
       entity_id: data.entity_id || "",
       entity_name: data.entity_name || "",
       provider: data.provider || "",
+      template: data.template || "",
+      provider_response: data.provider_response || "",
+      retry_count: data.retry_count || 0,
     });
   } catch (e) {}
 }

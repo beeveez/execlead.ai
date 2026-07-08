@@ -7,14 +7,68 @@
       "enum": [
         "resend",
         "sendgrid",
-        "ses"
+        "postmark",
+        "ses",
+        "mailgun"
       ],
       "default": "resend"
+    },
+    "api_key": {
+      "type": "string"
     },
     "from_email": {
       "type": "string"
     },
     "from_name": {
+      "type": "string"
+    },
+    "reply_to_email": {
+      "type": "string"
+    },
+    "support_email": {
+      "type": "string"
+    },
+    "sales_email": {
+      "type": "string"
+    },
+    "security_email": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "webhook_secret": {
+      "type": "string"
+    },
+    "domain_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "domain_verification_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "verified",
+        "failed"
+      ],
+      "default": "not_started"
+    },
+    "connection_status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "disconnected",
+        "error",
+        "untested"
+      ],
+      "default": "untested"
+    },
+    "last_tested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_test_result": {
       "type": "string"
     },
     "is_active": {

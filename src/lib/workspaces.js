@@ -38,6 +38,7 @@ export const WORKSPACE_NAV = {
   executive: [
     { label: "Platform", items: [
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/academy", label: "Academy", icon: GraduationCap, feature: "executive_academy" },
       { path: "/coach", label: "Executive Coach", icon: MessageSquare },
       { path: "/simulator", label: "Executive Simulator", icon: Brain, feature: "executive_simulator" },
@@ -115,6 +116,7 @@ export const WORKSPACE_NAV = {
   developer: [
     { label: "Workspace", items: [
       { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
+      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
     ]},
@@ -171,6 +173,7 @@ const ROUTE_WORKSPACE = {
   "/developer/organizations": ["platform", "developer"],
   "/developer/audit-logs": ["platform", "developer"],
   "/developer/system-health": ["platform", "developer"],
+  "/ai-command-center": ["executive", "developer"],
   "/developer": ["developer"], "/feature-management": ["developer"], "/guardian": ["developer"],
 };
 

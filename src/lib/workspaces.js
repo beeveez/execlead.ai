@@ -12,7 +12,7 @@ import {
   Users, Shield, DollarSign, Receipt, Lock, KeyRound, Code2,
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
-  Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift,
+  Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -62,6 +62,7 @@ export const WORKSPACE_NAV = {
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/founder", label: "Founder Portal", icon: Crown },
       { path: "/referrals", label: "Referrals", icon: Gift },
+      { path: "/wallet", label: "Executive Wallet", icon: Wallet },
       { path: "/billing", label: "Billing", icon: CreditCard },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
       { path: "/security", label: "Security Center", icon: ShieldCheck },
@@ -148,7 +149,7 @@ const ROUTE_WORKSPACE = {
   "/marketplace": ["executive", "platform"], "/network": ["executive"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],
   "/analytics": ["executive", "enterprise"], "/journal": ["executive"],
-  "/profile": ["executive"], "/founder": ["executive"], "/billing": ["executive"],
+  "/profile": ["executive"], "/founder": ["executive"], "/billing": ["executive"], "/wallet": ["executive"],
   "/organization/billing": ["enterprise"],
   "/settings": ["executive", "enterprise"], "/security": ["executive", "enterprise"],
   "/identity-verification": ["executive", "enterprise"],

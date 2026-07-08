@@ -1,0 +1,70 @@
+{
+  "name": "WalletTransaction",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "transaction_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "referral_commission",
+        "founder_bonus",
+        "subscription_purchase",
+        "subscription_renewal",
+        "marketplace_purchase",
+        "ai_credits",
+        "refund",
+        "withdrawal",
+        "bonus_credit",
+        "manual_adjustment",
+        "wallet_credit"
+      ],
+      "default": "manual_adjustment"
+    },
+    "description": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "balance_after": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "processing",
+        "completed",
+        "rejected",
+        "cancelled",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "reference_id": {
+      "type": "string"
+    },
+    "reference_type": {
+      "type": "string"
+    },
+    "metadata_json": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "amount"
+  ]
+}

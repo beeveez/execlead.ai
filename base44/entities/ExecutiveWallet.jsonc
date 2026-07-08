@@ -1,0 +1,108 @@
+{
+  "name": "ExecutiveWallet",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "available_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "pending_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "withdrawable_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "lifetime_earnings": {
+      "type": "number",
+      "default": 0
+    },
+    "referral_earnings": {
+      "type": "number",
+      "default": 0
+    },
+    "founder_bonuses": {
+      "type": "number",
+      "default": 0
+    },
+    "wallet_credits": {
+      "type": "number",
+      "default": 0
+    },
+    "bonus_credits": {
+      "type": "number",
+      "default": 0
+    },
+    "subscription_savings": {
+      "type": "number",
+      "default": 0
+    },
+    "marketplace_spend": {
+      "type": "number",
+      "default": 0
+    },
+    "total_transactions": {
+      "type": "number",
+      "default": 0
+    },
+    "lifetime_referrals": {
+      "type": "number",
+      "default": 0
+    },
+    "ambassador_level": {
+      "type": "string",
+      "enum": [
+        "none",
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "diamond"
+      ],
+      "default": "none"
+    },
+    "reward_tier": {
+      "type": "string",
+      "enum": [
+        "none",
+        "supporter",
+        "influencer",
+        "ambassador",
+        "champion",
+        "partner",
+        "legend"
+      ],
+      "default": "none"
+    },
+    "withdrawal_eligible": {
+      "type": "boolean",
+      "default": false
+    },
+    "tax_info_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "frozen",
+        "suspended"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

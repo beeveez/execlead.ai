@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { clearEmailSettingsCache } from "@/lib/emailProvider";
 import { Mail, Settings, Send, Inbox, FileText, Loader2, ShieldCheck } from "lucide-react";
@@ -23,6 +23,7 @@ export default function EmailSettings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [tab, setTab] = useState("settings");
+  const configRef = useRef(null);
 
   useEffect(() => {
     const load = async () => {
@@ -79,9 +80,16 @@ export default function EmailSettings() {
         <p className="text-white/40 text-sm mt-1">Production-grade email delivery — provider configuration, diagnostics, delivery logs, retries, and monitoring.</p>
       </div>
 
-      {notConfigured && <NotConfiguredBanner onConfigure={() => setTab("settings")} />}
+      {notConfigured && (
+        <NotConfiguredBanner
+          onConfigure={() => {
+            setTab("settings");
+            setTimeout(() => configRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+          }}
+        />
+      )}
 
-      <div className="flex items-center gap-1 border-b border-white/5 overflow-x-auto">
+      <div ref={configRef} className="flex items-center gap-1 border-b border-white/5 overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.id}

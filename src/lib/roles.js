@@ -379,7 +379,6 @@ export const ROUTE_ACCESS = {
   "/developer/migrations": ["developer", "super_admin"],
   "/developer/deployments": ["developer", "super_admin"],
   "/developer/organizations": ["developer", "super_admin"],
-  "/developer/product": ["developer", "super_admin", "platform_admin", "product_manager"],
   "/feature-management": ["developer", "super_admin"],
   "/guardian": ["developer", "super_admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWorkspace } from "@/lib/WorkspaceContext";
+import { useDeveloper } from "@/lib/DeveloperContext";
 import { WORKSPACES, WORKSPACE_HOME } from "@/lib/workspaces";
 import { ChevronDown, Check } from "lucide-react";
+import PlanSimulatorSection from "@/components/developer/PlanSimulatorSection";
 
 export default function WorkspaceSwitcher({ compact = false }) {
   const { activeWorkspace, availableWorkspaces, setActiveWorkspace } = useWorkspace();
@@ -55,8 +57,9 @@ export default function WorkspaceSwitcher({ compact = false }) {
 }
 
 function Dropdown({ available, active, onSelect }) {
+  const { developerMode } = useDeveloper();
   return (
-    <div className="absolute left-0 top-full mt-2 w-64 bg-[#0d0d14] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+    <div className="absolute left-0 top-full mt-2 w-72 bg-[#0d0d14] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden max-h-[85vh] overflow-y-auto">
       <div className="px-4 py-2 border-b border-white/5">
         <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Switch Workspace</span>
       </div>
@@ -80,6 +83,7 @@ function Dropdown({ available, active, onSelect }) {
           );
         })}
       </div>
+      {developerMode && <PlanSimulatorSection />}
     </div>
   );
 }

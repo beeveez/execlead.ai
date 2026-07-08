@@ -14,6 +14,7 @@ import { LogOut, Menu, X, ChevronRight, Crown } from "lucide-react";
 import DebugPanel from "@/components/developer/DebugPanel";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
+import SimulationBanner from "@/components/developer/SimulationBanner";
 import ShareButton from "@/components/social/ShareButton";
 
 function NavItem({ item, active, onClick }) {
@@ -145,6 +146,7 @@ export default function AppLayout() {
       {/* Main Content — every page is role-enforced via RoleRoute */}
       <main className="flex-1 lg:ml-64 pt-14 lg:pt-0 min-h-screen">
         <ImpersonationBanner />
+        <SimulationBanner />
         <TopBar />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <RoleRoute>

@@ -11,6 +11,11 @@ const defaultState = {
   featureOverrides: {},
   impersonation: null,
   sandbox: false,
+  simulatedFounder: null,
+  simulatedSubscriptionStatus: null,
+  simulatedReferralLevel: null,
+  simulatedBetaAccess: null,
+  simulatedRegion: null,
 };
 
 function loadState() {
@@ -99,11 +104,64 @@ export const DeveloperProvider = ({ children }) => {
     setState((prev) => ({ ...prev, sandbox: !prev.sandbox }));
   }, []);
 
+  const setSimulatedFounder = useCallback((value) => {
+    setState((prev) => ({ ...prev, simulatedFounder: value }));
+  }, []);
+
+  const setSimulatedSubscriptionStatus = useCallback((value) => {
+    setState((prev) => ({ ...prev, simulatedSubscriptionStatus: value }));
+  }, []);
+
+  const setSimulatedReferralLevel = useCallback((value) => {
+    setState((prev) => ({ ...prev, simulatedReferralLevel: value }));
+  }, []);
+
+  const setSimulatedBetaAccess = useCallback((value) => {
+    setState((prev) => ({ ...prev, simulatedBetaAccess: value }));
+  }, []);
+
+  const setSimulatedRegion = useCallback((value) => {
+    setState((prev) => ({ ...prev, simulatedRegion: value }));
+  }, []);
+
+  const clearSimulation = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      simulatedPlan: null,
+      impersonation: null,
+      featureOverrides: {},
+      simulatedFounder: null,
+      simulatedSubscriptionStatus: null,
+      simulatedReferralLevel: null,
+      simulatedBetaAccess: null,
+      simulatedRegion: null,
+    }));
+  }, []);
+
   const resetAll = useCallback(() => {
     setState(defaultState);
   }, []);
 
-  const isSimulating = Boolean(state.simulatedPlan || state.impersonation);
+  const isSimulating = Boolean(
+    state.simulatedPlan ||
+    state.impersonation ||
+    state.simulatedFounder !== null ||
+    state.simulatedSubscriptionStatus !== null ||
+    state.simulatedReferralLevel !== null ||
+    state.simulatedBetaAccess !== null ||
+    state.simulatedRegion !== null
+  );
+
+  const simulation = {
+    plan: state.simulatedPlan || state.impersonation?.plan || null,
+    role: state.impersonation?.role || null,
+    founder: state.simulatedFounder,
+    subscriptionStatus: state.simulatedSubscriptionStatus,
+    referralLevel: state.simulatedReferralLevel,
+    betaAccess: state.simulatedBetaAccess,
+    region: state.simulatedRegion,
+    active: isSimulating,
+  };
 
   const getEffectivePlan = useCallback((realPlan) => {
     if (state.impersonation?.plan) return state.impersonation.plan;
@@ -123,6 +181,7 @@ export const DeveloperProvider = ({ children }) => {
       isSuperAdmin: isSuperAdminUser,
       canAccessDeveloper: canAccessDev,
       isSimulating,
+      simulation,
       getEffectivePlan,
       getEffectiveRole,
       toggleDeveloperMode,
@@ -133,6 +192,12 @@ export const DeveloperProvider = ({ children }) => {
       setImpersonation,
       stopImpersonation,
       toggleSandbox,
+      setSimulatedFounder,
+      setSimulatedSubscriptionStatus,
+      setSimulatedReferralLevel,
+      setSimulatedBetaAccess,
+      setSimulatedRegion,
+      clearSimulation,
       resetAll,
     }}>
       {children}

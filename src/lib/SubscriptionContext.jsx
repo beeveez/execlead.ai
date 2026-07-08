@@ -64,18 +64,20 @@ export const SubscriptionProvider = ({ children }) => {
 
   const isDevUser = canAccessDeveloperWorkspace(user?.role);
   const plan = isDevUser ? PLANS.developer_unlimited : getPlan(profile);
+  const isFoundingMember = profile?.founding_member === true;
 
   const subscription = {
-    planName: plan.name,
+    planName: isFoundingMember ? "Founding Member" : plan.name,
     planTier: plan.id,
     status: profile?.subscription_status || "active",
     billingCycle: profile?.subscription_cycle || "monthly",
     renewalDate,
     features: plan.features,
     limits: plan.limits,
-    color: plan.color,
-    icon: plan.icon,
+    color: isFoundingMember ? "#f59e0b" : plan.color,
+    icon: isFoundingMember ? "🏆" : plan.icon,
     price: plan.price,
+    isFoundingMember,
   };
 
   return (

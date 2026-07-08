@@ -2,11 +2,14 @@ import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { batchValidateLogos } from "@/lib/companyLogo";
 import CompanyLogo from "@/components/companies/CompanyLogo";
+import { useToast } from "@/components/ui/use-toast";
 import { ImageOff, CheckCircle, AlertTriangle, Loader2, Wrench, ShieldCheck, BarChart3 } from "lucide-react";
 
 export default function LogoReliabilityDashboard({ companies, onUpdated, onRepair }) {
   const [validating, setValidating] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const [validationSummary, setValidationSummary] = useState(null);
+  const { toast } = useToast();
 
   const stats = useMemo(() => {
     const total = companies.length;
@@ -28,22 +31,50 @@ export default function LogoReliabilityDashboard({ companies, onUpdated, onRepai
   ).slice(0, 20), [companies]);
 
   const handleValidateAll = async () => {
+    if (validating || companies.length === 0) return;
     setValidating(true);
-    setProgress({ done: 0, total: 0 });
+    setProgress({ done: 0, total: companies.length });
+    setValidationSummary(null);
     try {
       const results = await batchValidateLogos(companies, (done, total) => setProgress({ done, total }));
+
       const updates = results.map(r => ({
         id: r.id,
         logo_status: r.logo_status,
         logo_error: r.logo_error,
         logo_validated_at: r.logo_validated_at,
       }));
-      if (updates.length > 0) {
-        await base44.entities.Company.bulkUpdate(updates);
+
+      // Chunk into batches of 50 for large company libraries
+      const CHUNK_SIZE = 50;
+      for (let i = 0; i < updates.length; i += CHUNK_SIZE) {
+        await base44.entities.Company.bulkUpdate(updates.slice(i, i + CHUNK_SIZE));
       }
-      onUpdated?.();
-    } catch (e) {}
-    setValidating(false);
+
+      const summary = {
+        scanned: results.length,
+        valid: results.filter(r => r.logo_status === "valid").length,
+        invalid: results.filter(r => r.logo_status === "invalid").length,
+        missing: results.filter(r => r.logo_status === "missing").length,
+        fallbackGenerated: results.filter(r => r.logo_status === "missing" || r.logo_status === "invalid").length,
+      };
+      setValidationSummary(summary);
+
+      toast({
+        title: "Logo Validation Complete",
+        description: `${summary.scanned} scanned · ${summary.valid} valid · ${summary.invalid} broken · ${summary.missing} missing · ${summary.fallbackGenerated} fallback logos generated`,
+      });
+
+      await onUpdated?.();
+    } catch (e) {
+      toast({
+        title: "Logo Validation Failed",
+        description: e?.message || "An unexpected error occurred during validation.",
+        variant: "destructive",
+      });
+    } finally {
+      setValidating(false);
+    }
   };
 
   const CARDS = [
@@ -74,6 +105,52 @@ export default function LogoReliabilityDashboard({ companies, onUpdated, onRepai
             : `Validate All Logos${stats.pending > 0 ? ` (${stats.pending} pending)` : ""}`}
         </button>
       </div>
+
+      {validating && (
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-white/60 flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin text-indigo-400" />
+              Scanning company logos...
+            </span>
+            <span className="text-xs text-white/40">{progress.done} / {progress.total}</span>
+          </div>
+          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%` }} />
+          </div>
+        </div>
+      )}
+
+      {validationSummary && !validating && (
+        <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <CheckCircle size={18} className="text-emerald-400" />
+            <h3 className="text-white font-bold">Logo Validation Complete</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div>
+              <div className="text-2xl font-bold text-white">{validationSummary.scanned}</div>
+              <div className="text-xs text-white/40">Companies Scanned</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-emerald-400">{validationSummary.valid}</div>
+              <div className="text-xs text-white/40">Valid</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-red-400">{validationSummary.invalid}</div>
+              <div className="text-xs text-white/40">Broken</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-amber-400">{validationSummary.missing}</div>
+              <div className="text-xs text-white/40">Missing</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-indigo-400">{validationSummary.fallbackGenerated}</div>
+              <div className="text-xs text-white/40">Fallback Generated</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {CARDS.map(c => (

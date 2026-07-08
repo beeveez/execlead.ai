@@ -246,14 +246,17 @@ export async function batchValidateLogos(companies, onProgress, concurrency = 5)
   const results = [];
   const withUrls = companies.filter(c => c.logo_url && c.logo_url.trim());
   const missing = companies.filter(c => !c.logo_url || !c.logo_url.trim());
+  const total = companies.length;
   const now = new Date().toISOString();
+  let processed = 0;
 
   for (const c of missing) {
     results.push({ id: c.id, logo_status: "missing", logo_error: "No logo URL", logo_validated_at: now });
+    processed++;
+    onProgress?.(processed, total);
   }
 
   const queue = [...withUrls];
-  let processed = 0;
   const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
     while (queue.length > 0) {
       const company = queue.shift();
@@ -266,7 +269,7 @@ export async function batchValidateLogos(companies, onProgress, concurrency = 5)
         logo_validated_at: new Date().toISOString(),
       });
       processed++;
-      onProgress?.(processed, withUrls.length);
+      onProgress?.(processed, total);
     }
   });
   await Promise.all(workers);

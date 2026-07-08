@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   ShieldCheck, Eye, Lock, Activity, Key, AlertTriangle,
-  FileText, Code, Brain, Shield, Monitor, AlertCircle,
+  FileText, Code, Brain, Shield, Monitor, AlertCircle, Smartphone,
 } from "lucide-react";
 import { SECURITY_META } from "@/lib/securityArchitecture";
 import SecurityOverview from "@/components/security/SecurityOverview";
@@ -15,6 +15,7 @@ import IncidentResponse from "@/components/security/IncidentResponse";
 import APISecurity from "@/components/security/APISecurity";
 import SecretsVault from "@/components/security/SecretsVault";
 import RiskIntelligence from "@/components/security/RiskIntelligence";
+import DeviceManagement from "@/components/security/DeviceManagement";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: Eye },
@@ -22,6 +23,7 @@ const TABS = [
   { id: "threats", label: "Threat Detection", icon: AlertTriangle },
   { id: "access", label: "Access Control", icon: Lock },
   { id: "sessions", label: "Sessions", icon: Monitor },
+  { id: "devices", label: "Devices", icon: Smartphone },
   { id: "audit", label: "Audit Logs", icon: Activity },
   { id: "compliance", label: "Compliance", icon: FileText },
   { id: "incidents", label: "Incident Response", icon: AlertCircle },
@@ -75,6 +77,7 @@ export default function SecurityCenter() {
       {tab === "threats" && <ThreatDetection />}
       {tab === "access" && <AccessControl />}
       {tab === "sessions" && <SessionManager />}
+      {tab === "devices" && <DeviceManagement />}
       {tab === "audit" && <SecurityAuditLog />}
       {tab === "compliance" && <ComplianceCenter />}
       {tab === "incidents" && <IncidentResponse />}

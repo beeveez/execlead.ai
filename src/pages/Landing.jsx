@@ -52,7 +52,7 @@ export default function Landing() {
     <>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4">
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-6 lg:px-8">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
@@ -72,7 +72,7 @@ export default function Landing() {
           />
         </div>
 
-        <div className="relative max-w-4xl mx-auto text-center">
+        <div className="relative max-w-7xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -137,8 +137,8 @@ export default function Landing() {
       </section>
 
       {/* Stats bar */}
-      <section className="border-y border-white/5 py-12 px-4">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <section className="border-y border-white/5 py-12 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
             { value: "11", label: "AI Personas" },
             { value: "126+", label: "Companies" },
@@ -160,8 +160,8 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-20 md:py-32 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section id="features" className="py-20 md:py-32 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">One Platform. Complete Executive Development.</h2>
             <p className="text-white/40 max-w-2xl mx-auto">Everything you need to transform from a technical professional into an authentic executive leader.</p>
@@ -188,8 +188,8 @@ export default function Landing() {
       </section>
 
       {/* Executive Journey */}
-      <section id="journey" className="py-20 md:py-32 px-4 bg-white/[0.01]">
-        <div className="max-w-5xl mx-auto">
+      <section id="journey" className="py-20 md:py-32 px-6 lg:px-8 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Your Executive Journey</h2>
             <p className="text-white/40 max-w-2xl mx-auto">A structured path from where you are today to the executive you want to become.</p>
@@ -227,8 +227,8 @@ export default function Landing() {
       </section>
 
       {/* Learning Paths */}
-      <section id="paths" className="py-20 md:py-32 px-4">
-        <div className="max-w-5xl mx-auto">
+      <section id="paths" className="py-20 md:py-32 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">18 Learning Paths</h2>
             <p className="text-white/40 max-w-2xl mx-auto">Master every dimension of executive leadership.</p>
@@ -254,8 +254,8 @@ export default function Landing() {
       <CompanyIntelligenceShowcase />
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 md:py-32 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section id="pricing" className="py-20 md:py-32 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
             <p className="text-white/40 max-w-2xl mx-auto">Start free. Upgrade when you're ready to go all-in on your executive journey.</p>
@@ -326,24 +326,24 @@ export default function Landing() {
       </section>
 
       {/* Founding Member Program */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-20 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <FoundingMemberSection />
         </div>
       </section>
 
       {/* Domain FAQ */}
-      <section className="py-12 px-4 bg-white/[0.01]">
-        <div className="max-w-3xl mx-auto">
+      <section className="py-12 px-6 lg:px-8 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
           <DomainFAQ />
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-20 px-4 bg-white/[0.01]">
-        <div className="max-w-3xl mx-auto">
+      <section className="py-20 px-6 lg:px-8 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {FAQS.map((faq, i) => (
               <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
                 <h3 className="font-semibold text-white mb-2">{faq.q}</h3>
@@ -355,8 +355,8 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 md:py-32 px-4">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-20 md:py-32 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}

@@ -54,8 +54,8 @@ export default function CompanyIntelligenceShowcase() {
   };
 
   return (
-    <section className="py-20 md:py-28 px-4 bg-white/[0.01]">
-      <div className="max-w-6xl mx-auto">
+    <section className="py-20 md:py-28 px-6 lg:px-8 bg-white/[0.01]">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-300 mb-5">

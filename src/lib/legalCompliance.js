@@ -14,11 +14,29 @@ export const LEGAL_META = {
     "Ensure the Company Intelligence Library complies with intellectual property, trademark, copyright, and fair-use principles while delivering valuable executive intelligence. EXECLEAD.AI is an independent executive leadership platform and does not represent or imply endorsement by any organization listed.",
 };
 
+// ============================================================
+// PLATFORM LEGAL STATUS
+// EXECLEAD.AI is currently independently developed and not yet
+// incorporated under a parent entity. Update this block when the
+// business is formally incorporated (set ownershipLine, parent, etc).
+// ============================================================
+export const LEGAL_STATUS = {
+  copyright: "© 2026 EXECLEAD.AI. All rights reserved.",
+  description:
+    "EXECLEAD.AI is an independently developed AI platform focused on executive leadership intelligence.",
+  trademark:
+    "Company names, logos, and trademarks are the property of their respective owners.",
+  // When formally incorporated, set this to e.g.
+  // "EXECLEAD.AI is a product of [Entity Name] ([Jurisdiction])."
+  ownershipLine: null,
+};
+
 export const COMPANY_ENTITY = {
   product: "EXECLEAD.AI",
-  parent: "Meridian Wellspring Holdings Pte. Ltd.",
-  parentCountry: "Singapore",
-  registeredAs: "Private Limited (Pte. Ltd.)",
+  // Parent company not yet incorporated. Update when formally established.
+  parent: null,
+  parentCountry: null,
+  registeredAs: null,
 };
 
 export const GLOBAL_DISCLAIMER = {
@@ -229,7 +247,7 @@ export const LEGAL_SECTIONS = {
   "legal-notice": {
     title: "Legal Notice",
     icon: "FileText",
-    content: `EXECLEAD.AI is an independent executive leadership development platform operated by Meridian Wellspring Holdings Pte. Ltd., a company registered in Singapore. The platform provides independent executive research, leadership analysis, interview preparation, and educational content.
+    content: `EXECLEAD.AI is an independently developed AI platform focused on executive leadership intelligence. The platform provides independent executive research, leadership analysis, interview preparation, and educational content.
 
 EXECLEAD.AI does not represent or imply endorsement by any organization listed in the Company Intelligence Library. All company names, trademarks, logos, and brands referenced on this platform are the property of their respective owners.
 

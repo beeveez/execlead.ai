@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "@/components/layout/Logo";
+import { LEGAL_STATUS } from "@/lib/legalCompliance";
 
 export default function MarketingFooter() {
   return (
@@ -31,8 +32,9 @@ export default function MarketingFooter() {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/5 text-center text-white/20 text-xs space-y-1">
-          <p>© 2026 EXECLEAD.AI. All rights reserved. Company names and trademarks are the property of their respective owners.</p>
-          <p className="text-white/15">EXECLEAD.AI is a product of Meridian Wellspring Holdings Pte. Ltd. (Singapore).</p>
+          <p>{LEGAL_STATUS.copyright}</p>
+          <p className="text-white/20">{LEGAL_STATUS.description}</p>
+          <p className="text-white/15">{LEGAL_STATUS.trademark}</p>
         </div>
       </div>
     </footer>

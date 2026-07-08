@@ -1,0 +1,77 @@
+{
+  "name": "JobSource",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name for this job source"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "greenhouse",
+        "lever",
+        "workday",
+        "ashby",
+        "smartrecruiters",
+        "bamboohr",
+        "icims",
+        "adzuna",
+        "jsearch",
+        "themuse",
+        "remoteok",
+        "wellfound"
+      ],
+      "default": "direct"
+    },
+    "config_json": {
+      "type": "string",
+      "description": "JSON config: board_token, company, org, keywords, query, categories, country, etc."
+    },
+    "credential_env": {
+      "type": "string",
+      "description": "Comma-separated env var names for API keys (e.g. ADZUNA_APP_ID,ADZUNA_APP_KEY)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_sync_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_sync_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "last_sync_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_error": {
+      "type": "string"
+    },
+    "sync_frequency_minutes": {
+      "type": "number",
+      "default": 360
+    },
+    "search_keywords": {
+      "type": "string",
+      "description": "Keywords for API-based sources (e.g. CTO, CFO, VP, Director)"
+    },
+    "max_results": {
+      "type": "number",
+      "default": 50
+    }
+  },
+  "required": [
+    "name",
+    "source_type"
+  ]
+}

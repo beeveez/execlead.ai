@@ -8,10 +8,59 @@
     "company": {
       "type": "string"
     },
-    "country": {
+    "company_logo": {
       "type": "string"
     },
-    "industry": {
+    "executive_level": {
+      "type": "string",
+      "enum": [
+        "c_level",
+        "svp",
+        "vp",
+        "director",
+        "head",
+        "board",
+        "global"
+      ],
+      "default": "director"
+    },
+    "opportunity_type": {
+      "type": "string",
+      "enum": [
+        "c_level",
+        "vp",
+        "director",
+        "board",
+        "global"
+      ],
+      "default": "director"
+    },
+    "salary_min": {
+      "type": "number",
+      "default": 0
+    },
+    "salary_max": {
+      "type": "number",
+      "default": 0
+    },
+    "salary_currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "salary_display": {
+      "type": "string"
+    },
+    "salary_range": {
+      "type": "string",
+      "description": "Legacy display field"
+    },
+    "location": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country": {
       "type": "string"
     },
     "work_model": {
@@ -23,11 +72,33 @@
       ],
       "default": "remote"
     },
-    "executive_level": {
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "full_time",
+        "contract",
+        "interim",
+        "advisory",
+        "board_seat",
+        "part_time"
+      ],
+      "default": "full_time"
+    },
+    "department": {
       "type": "string"
     },
-    "salary_range": {
+    "industry": {
       "type": "string"
+    },
+    "required_skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "executive_experience_years": {
+      "type": "number",
+      "default": 0
     },
     "description": {
       "type": "string"
@@ -38,26 +109,66 @@
         "type": "string"
       }
     },
-    "posted_by_name": {
-      "type": "string"
+    "posted_date": {
+      "type": "string",
+      "format": "date-time"
     },
-    "posted_by_id": {
-      "type": "string"
+    "expiration_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "direct",
+        "greenhouse",
+        "lever",
+        "workday",
+        "ashby",
+        "smartrecruiters",
+        "bamboohr",
+        "icims",
+        "adzuna",
+        "jsearch",
+        "themuse",
+        "remoteok",
+        "wellfound"
+      ],
+      "default": "direct"
+    },
+    "source_name": {
+      "type": "string",
+      "description": "Display name for the data source"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "JobSource entity ID if synced from a configured source"
+    },
+    "external_id": {
+      "type": "string",
+      "description": "Original job ID from the source platform"
+    },
+    "apply_url": {
+      "type": "string",
+      "description": "Original application URL on the source platform"
+    },
+    "last_synced": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
     },
     "application_count": {
       "type": "number",
       "default": 0
     },
-    "opportunity_type": {
-      "type": "string",
-      "enum": [
-        "c_level",
-        "vp",
-        "director",
-        "board",
-        "global"
-      ],
-      "default": "c_level"
+    "posted_by_name": {
+      "type": "string"
+    },
+    "posted_by_id": {
+      "type": "string"
     }
   },
   "required": [

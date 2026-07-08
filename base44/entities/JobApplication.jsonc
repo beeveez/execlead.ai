@@ -1,0 +1,81 @@
+{
+  "name": "JobApplication",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "CareerOpportunity ID"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "company_logo": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "saved",
+        "applied",
+        "phone_screen",
+        "interview",
+        "final_round",
+        "offer",
+        "rejected",
+        "withdrawn",
+        "hired"
+      ],
+      "default": "draft"
+    },
+    "application_method": {
+      "type": "string",
+      "enum": [
+        "easy_apply",
+        "external",
+        "manual"
+      ],
+      "default": "manual"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "match_score": {
+      "type": "number",
+      "default": 0
+    },
+    "cover_letter": {
+      "type": "string",
+      "description": "AI-generated cover letter"
+    },
+    "resume_optimization": {
+      "type": "string",
+      "description": "AI-generated resume optimization suggestions"
+    },
+    "interview_prep": {
+      "type": "string",
+      "description": "AI-generated interview preparation guide"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "next_step": {
+      "type": "string"
+    },
+    "next_step_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "job_id"
+  ]
+}

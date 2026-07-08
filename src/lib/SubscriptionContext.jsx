@@ -117,9 +117,12 @@ export const SubscriptionProvider = ({ children }) => {
   // explicitly active in the developer console (never for real users).
   // ============================================================
   const serviceFounder = entitlements?.isFoundingMember ?? false;
-  const isFoundingMember = (simulation?.active && simulation?.founder !== null)
-    ? simulation.founder
-    : serviceFounder;
+  // Developer simulation applies ONLY to developer-role users and ONLY
+  // when explicitly active. It never leaks to real user accounts and
+  // never persists to the database — the backend validation is the
+  // authoritative source of truth for real users.
+  const simulationApplies = isDevUser && simulation?.active && simulation?.founder !== null;
+  const isFoundingMember = simulationApplies ? simulation.founder : serviceFounder;
 
   // Membership programs are independent of the subscription plan.
   // A user may be on the Free plan AND be a Founding Member — both
@@ -155,8 +158,8 @@ export const SubscriptionProvider = ({ children }) => {
     isLifetime: true,
   } : null);
 
-  // Hide membership badge ONLY when explicitly simulating non-founder
-  const effectiveMembership = (simulation?.active && simulation?.founder === false) ? null : membership;
+  // Hide membership badge ONLY when a developer is explicitly simulating non-founder
+  const effectiveMembership = (simulationApplies && simulation?.founder === false) ? null : membership;
 
   const subscription = {
     planName: plan.name,

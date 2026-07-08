@@ -16,6 +16,7 @@ const defaultState = {
   simulatedReferralLevel: null,
   simulatedBetaAccess: null,
   simulatedRegion: null,
+  lastUserId: null,
 };
 
 function loadState() {
@@ -34,14 +35,24 @@ export const DeveloperProvider = ({ children }) => {
   useEffect(() => {
     if (user && canAccessDeveloperWorkspace(user.role)) {
       const loaded = loadState();
+      // CRITICAL: Simulation state is scoped to the user. If the stored
+      // state belongs to a different user (account switch on the same
+      // browser), wipe ALL simulation fields — simulatedFounder, plan,
+      // impersonation, etc. must never leak across accounts.
+      const isSameUser = loaded.lastUserId === user.id;
+      const safeState = isSameUser ? loaded : {
+        ...defaultState,
+        developerMode: true,
+        lastUserId: user.id,
+      };
       // Developer AND Super Admin roles are always in developer mode.
       // This ensures developer tools NEVER disappear due to subscription
       // changes, localStorage resets, or toggle accidents.
       // Subscription plans MUST NEVER override administrative roles.
       if (normalizeRole(user.role) === "developer" || normalizeRole(user.role) === "super_admin") {
-        setState({ ...loaded, developerMode: true });
+        setState({ ...safeState, developerMode: true, lastUserId: user.id });
       } else {
-        setState(loaded);
+        setState({ ...safeState, lastUserId: user.id });
       }
     } else {
       setState(defaultState);

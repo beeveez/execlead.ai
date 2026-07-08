@@ -5,6 +5,7 @@ import { PAYMENT_PROVIDERS, COUNTRIES, calculateTax, calculateDiscount, formatCu
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import CouponInput from "@/components/billing/CouponInput";
+import PaymentTrust from "@/components/billing/PaymentTrust";
 import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 
@@ -242,6 +243,8 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, onCl
             )}
 
             {error && <p className="text-sm text-red-400 text-center">{error}</p>}
+
+            {mode === "pay" && <PaymentTrust />}
 
             {/* Actions */}
             <div className="space-y-2">

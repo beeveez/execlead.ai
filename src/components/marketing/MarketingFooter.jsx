@@ -32,7 +32,10 @@ export default function MarketingFooter() {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/5 text-center text-white/20 text-xs space-y-1">
-          <p>{LEGAL_STATUS.copyright}</p>
+          <p className="text-white/30 font-medium">EXECLEAD.AI Early Access</p>
+          <p className="text-white/20">Powered by Base44 during our beta phase.</p>
+          <p className="text-white/25">Official custom domain coming soon.</p>
+          <p className="pt-2 mt-2 border-t border-white/5">{LEGAL_STATUS.copyright}</p>
           <p className="text-white/20">{LEGAL_STATUS.description}</p>
           <p className="text-white/15">{LEGAL_STATUS.trademark}</p>
         </div>

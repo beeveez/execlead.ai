@@ -12,6 +12,7 @@ import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenc
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
+import DomainFAQ from "@/components/marketing/DomainFAQ";
 
 const FEATURES = [
   { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation." },
@@ -328,6 +329,13 @@ export default function Landing() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <FoundingMemberSection />
+        </div>
+      </section>
+
+      {/* Domain FAQ */}
+      <section className="py-12 px-4 bg-white/[0.01]">
+        <div className="max-w-3xl mx-auto">
+          <DomainFAQ />
         </div>
       </section>
 

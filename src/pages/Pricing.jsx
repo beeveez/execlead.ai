@@ -5,6 +5,8 @@ import { base44 } from "@/api/base44Client";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck } from "lucide-react";
 import PricingTiers from "@/components/pricing/PricingTiers";
+import PaymentTrust from "@/components/billing/PaymentTrust";
+import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
 
 // Below-the-fold sections are lazy-loaded so the hero + pricing tiers
@@ -66,6 +68,9 @@ export default function Pricing() {
             </div>
           </div>
           <PricingTiers plans={plans} cycle={cycle} getPrice={getPrice} authed={authed} />
+          <div className="max-w-2xl mx-auto mt-8">
+            <PaymentTrust />
+          </div>
         </div>
       </section>
 
@@ -206,6 +211,9 @@ export default function Pricing() {
             <p className="text-white/40 text-lg">Everything you need to know before getting started.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><Faq /></Suspense>
+          <div className="max-w-3xl mx-auto mt-8">
+            <DomainFAQ />
+          </div>
         </div>
       </section>
 

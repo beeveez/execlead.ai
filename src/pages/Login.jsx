@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Mail, Lock, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Mail, Lock, Loader2, AlertCircle, ArrowRight, Rocket } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { MicrosoftIcon, AppleIcon } from "@/components/auth/ProviderIcons";
@@ -142,6 +142,16 @@ export default function Login() {
           )}
         </button>
       </form>
+
+      <div className="mt-6 text-center">
+        <div className="inline-flex items-center gap-1.5 text-xs text-white/30 mb-1">
+          <Rocket size={11} className="text-indigo-400" />
+          <span className="font-medium text-white/40">Currently in Early Access</span>
+        </div>
+        <p className="text-xs text-white/30 leading-relaxed max-w-xs mx-auto">
+          Thank you for helping us build the future of executive leadership powered by AI.
+        </p>
+      </div>
     </AuthLayout>
   );
 }

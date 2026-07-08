@@ -53,6 +53,8 @@ import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
 import MembershipAdmin from '@/pages/MembershipAdmin';
+import ReferralDashboard from '@/pages/ReferralDashboard';
+import ReferralAdmin from '@/pages/ReferralAdmin';
 import FounderPortalLayout from '@/components/founding/FounderPortalLayout';
 import FounderOverview from '@/pages/founder/FounderOverview';
 import FounderBenefits from '@/pages/founder/FounderBenefits';
@@ -195,6 +197,8 @@ const AuthenticatedApp = () => {
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
           <Route path="/membership-admin" element={<MembershipAdmin />} />
+          <Route path="/referrals" element={<ReferralDashboard />} />
+          <Route path="/referral-admin" element={<ReferralAdmin />} />
           <Route element={<FounderPortalLayout />}>
             <Route path="/founder" element={<FounderOverview />} />
             <Route path="/founder/benefits" element={<FounderBenefits />} />

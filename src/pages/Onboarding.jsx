@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { COMPANIES, CAREER_PATHS, COUNTRIES } from "@/lib/constants";
 import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildTruthEnginePrompt, buildRoadmapPrompt, getResumeHealthScore } from "@/lib/resume";
 import { motion, AnimatePresence } from "framer-motion";
+import { getStoredAttribution } from "@/lib/referralEngine";
 import { Target, ArrowRight, Check, Search, FileUp, Loader2, Sparkles, SkipForward, ShieldAlert, Zap } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -24,6 +25,14 @@ export default function Onboarding() {
   const fileInputRef = useRef(null);
 
   const filteredCompanies = COMPANIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
+
+  // Referral Engine: link stored attribution to this newly registered user
+  useEffect(() => {
+    const attr = getStoredAttribution();
+    if (attr) {
+      base44.functions.invoke("processReferral", { action: "register", attribution: attr }).catch(() => {});
+    }
+  }, []);
 
   const handleFile = async (file) => {
     if (!file) return;

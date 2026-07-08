@@ -1,0 +1,87 @@
+{
+  "name": "ReferralTransaction",
+  "type": "object",
+  "properties": {
+    "referral_id": {
+      "type": "string"
+    },
+    "referrer_user_id": {
+      "type": "string"
+    },
+    "referrer_name": {
+      "type": "string"
+    },
+    "invitee_user_id": {
+      "type": "string"
+    },
+    "invitee_name": {
+      "type": "string"
+    },
+    "invitee_email": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string"
+    },
+    "subscription_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "commission_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "commission_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "founding_bonus_applied": {
+      "type": "boolean",
+      "default": false
+    },
+    "founding_bonus_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "reward_type": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "paid",
+        "cancelled",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "payout_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "queued",
+        "paid"
+      ],
+      "default": "pending"
+    },
+    "payout_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "stripe_charge_id": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "referral_id",
+    "referrer_user_id"
+  ]
+}

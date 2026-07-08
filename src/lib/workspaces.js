@@ -12,7 +12,7 @@ import {
   Users, Shield, DollarSign, Receipt, Lock, KeyRound, Code2,
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
-  Lightbulb, ClipboardCheck, Trophy, Crown, Award,
+  Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -61,6 +61,7 @@ export const WORKSPACE_NAV = {
     { label: "Account", items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/founder", label: "Founder Portal", icon: Crown },
+      { path: "/referrals", label: "Referrals", icon: Gift },
       { path: "/billing", label: "Billing", icon: CreditCard },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
       { path: "/security", label: "Security Center", icon: ShieldCheck },
@@ -93,6 +94,7 @@ export const WORKSPACE_NAV = {
       { path: "/marketplace", label: "Marketplace Management", icon: Store },
       { path: "/pricing-admin", label: "Subscription Management", icon: DollarSign },
       { path: "/membership-admin", label: "Membership Programs", icon: Award },
+      { path: "/referral-admin", label: "Referral Engine", icon: Gift },
     ]},
     { label: "Revenue", items: [
       { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },

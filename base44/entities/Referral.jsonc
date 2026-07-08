@@ -11,39 +11,122 @@
     "referrer_name": {
       "type": "string"
     },
+    "referrer_email": {
+      "type": "string"
+    },
     "invitee_email": {
       "type": "string"
     },
     "invitee_user_id": {
       "type": "string"
     },
+    "invitee_name": {
+      "type": "string"
+    },
     "status": {
       "type": "string",
       "enum": [
+        "code_registered",
         "invited",
         "clicked",
         "registered",
-        "converted"
+        "verified",
+        "converted",
+        "cancelled"
       ],
       "default": "invited"
+    },
+    "commission_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "paid",
+        "cancelled",
+        "refunded"
+      ],
+      "default": "pending"
     },
     "converted_plan": {
       "type": "string"
     },
-    "reward_status": {
-      "type": "string",
-      "enum": [
-        "pending",
-        "earned",
-        "redeemed"
-      ],
-      "default": "pending"
+    "subscription_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "commission_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "commission_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "founding_bonus_applied": {
+      "type": "boolean",
+      "default": false
     },
     "reward_type": {
       "type": "string"
     },
     "source": {
       "type": "string"
+    },
+    "landing_page": {
+      "type": "string"
+    },
+    "click_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "registration_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "browser": {
+      "type": "string"
+    },
+    "utm_source": {
+      "type": "string"
+    },
+    "utm_medium": {
+      "type": "string"
+    },
+    "utm_campaign": {
+      "type": "string"
+    },
+    "fraud_flag": {
+      "type": "boolean",
+      "default": false
+    },
+    "fraud_reason": {
+      "type": "string"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "payout_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "queued",
+        "paid"
+      ],
+      "default": "pending"
+    },
+    "payout_date": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [

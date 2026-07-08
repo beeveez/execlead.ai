@@ -11,6 +11,7 @@ import Logo from "@/components/layout/Logo";
 import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
+import { captureReferralAttribution } from "@/lib/referralEngine";
 import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 
@@ -46,6 +47,10 @@ export default function Landing() {
       } catch (e) {}
     };
     check();
+  }, []);
+
+  useEffect(() => {
+    captureReferralAttribution();
   }, []);
 
   return (

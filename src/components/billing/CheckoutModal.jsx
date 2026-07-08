@@ -146,6 +146,16 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
       plan: selectedPlan.name, cycle: billingCycle, transactionId,
     });
 
+    // Referral Engine: calculate commission for the referrer (fire-and-forget)
+    try {
+      await base44.functions.invoke("processReferral", {
+        action: "purchase",
+        plan: selectedPlan.id,
+        amount,
+        stripe_charge_id: transactionId,
+      });
+    } catch (e) {}
+
     onSuccess();
   };
 

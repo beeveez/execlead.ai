@@ -1,0 +1,95 @@
+{
+  "name": "ReferralSettings",
+  "type": "object",
+  "properties": {
+    "commission_percentage": {
+      "type": "number",
+      "default": 10
+    },
+    "founding_member_bonus_percentage": {
+      "type": "number",
+      "default": 5
+    },
+    "founding_member_reward_mode": {
+      "type": "string",
+      "enum": [
+        "percentage_bonus",
+        "double_points"
+      ],
+      "default": "percentage_bonus"
+    },
+    "cookie_duration_days": {
+      "type": "number",
+      "default": 90
+    },
+    "attribution_model": {
+      "type": "string",
+      "enum": [
+        "last_click",
+        "first_click"
+      ],
+      "default": "last_click"
+    },
+    "recurring_commission_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurring_commission_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "minimum_payout_threshold": {
+      "type": "number",
+      "default": 50
+    },
+    "payout_schedule": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "biweekly",
+        "manual"
+      ],
+      "default": "monthly"
+    },
+    "self_referral_blocked": {
+      "type": "boolean",
+      "default": true
+    },
+    "duplicate_email_blocked": {
+      "type": "boolean",
+      "default": true
+    },
+    "duplicate_ip_blocked": {
+      "type": "boolean",
+      "default": false
+    },
+    "same_payment_method_blocked": {
+      "type": "boolean",
+      "default": true
+    },
+    "vpn_check_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "referral_expiration_days": {
+      "type": "number",
+      "default": 0
+    },
+    "reward_types_enabled": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_updated_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "commission_percentage"
+  ]
+}

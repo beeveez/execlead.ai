@@ -12,7 +12,10 @@
         "renewal",
         "system",
         "social",
-        "feedback"
+        "feedback",
+        "enterprise",
+        "platform",
+        "developer"
       ]
     },
     "title": {
@@ -30,6 +33,39 @@
     },
     "icon": {
       "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Target user for personal notifications. Empty for broadcast/workspace/org scoped."
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Target organization for org-scoped notifications."
+    },
+    "workspace": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "enterprise",
+        "platform",
+        "developer",
+        "all"
+      ],
+      "default": "executive"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "private",
+        "organization",
+        "workspace",
+        "public"
+      ],
+      "default": "private"
+    },
+    "role_scope": {
+      "type": "string",
+      "description": "Comma-separated role keys that can see this notification. Empty means all roles in scope."
     }
   },
   "required": [

@@ -8,8 +8,9 @@ import CouponInput from "@/components/billing/CouponInput";
 import PaymentTrust from "@/components/billing/PaymentTrust";
 import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
+import { createNotification } from "@/lib/notifications";
 
-export default function CheckoutModal({ plan, cycle: initialCycle, profile, membershipDiscount = 0, onClose, onSuccess }) {
+export default function CheckoutModal({ plan, cycle: initialCycle, profile, membershipDiscount = 0, isFoundingPurchase = false, onClose, onSuccess }) {
   const { getPrice, cycle, setCycle } = usePricingCatalog(initialCycle);
   const { user } = useAuth();
   const [coupon, setCoupon] = useState(null);
@@ -84,10 +85,11 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
           invoice_number: `TRIAL-${Date.now()}`,
           owner_user_id: user.id,
         });
-        await base44.entities.Notification.create({
+        await createNotification({
           type: "subscription", title: "Trial Started",
           message: `Your ${trialDays}-day trial of ${plan.name} has started! Enjoy premium features.`,
           icon: "🎉", action_url: "/dashboard",
+          userId: user.id,
         });
         await sendPaymentEmail(EMAIL_TYPES.TRIAL_STARTED, billingAddress.email || profile?.email, {
           name: billingAddress.name, plan: plan.name, trialDays, trialEnd: trialEnd.toLocaleDateString(),
@@ -128,10 +130,11 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
       owner_user_id: user.id,
     });
 
-    await base44.entities.Notification.create({
+    await createNotification({
       type: "subscription", title: "Subscription Activated",
       message: `You're now on the ${selectedPlan.name} plan! Enjoy premium features.`,
       icon: "🎉", action_url: "/dashboard",
+      userId: user.id,
     });
 
     if (coupon) await incrementCouponUsage(coupon.id);
@@ -171,7 +174,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-5 border-b border-white/5 sticky top-0 bg-[#0d0d14] z-10">
-            <h3 className="text-lg font-bold text-white">Checkout</h3>
+            <h3 className="text-lg font-bold text-white">{isFoundingPurchase ? "Founding Member Checkout" : "Checkout"}</h3>
             <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors"><X size={18} /></button>
           </div>
 
@@ -258,7 +261,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
                 </div>
               )}
               <button onClick={handleCheckout} disabled={processing} className="w-full h-11 flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-white text-sm font-medium rounded-xl transition-colors">
-                {processing ? <><Loader2 size={16} className="animate-spin" /> Processing...</> : mode === "trial" ? <><Sparkles size={16} /> Start 14-Day Free Trial</> : <><CreditCard size={16} /> Pay {formatCurrency(total, plan.currency)}</>}
+                {processing ? <><Loader2 size={16} className="animate-spin" /> Processing...</> : mode === "trial" ? <><Sparkles size={16} /> Start 14-Day Free Trial</> : <><CreditCard size={16} /> {isFoundingPurchase ? "Become a Founding Member — " : ""}Pay {formatCurrency(total, plan.currency)}</>}
               </button>
               {mode === "trial" && <p className="text-center text-xs text-white/30">No charge for 14 days. Cancel anytime.</p>}
             </div>

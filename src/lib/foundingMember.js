@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { enrollUserInProgram } from "@/lib/membershipEngine";
 
 // ============================================================
 // FOUNDING MEMBER PROGRAM — Configuration & Helpers
@@ -113,3 +115,86 @@ export const FOUNDING_MEMBER_STATUSES = {
   legacy: "Legacy",
   lifetime: "Lifetime",
 };
+
+// ============================================================
+// GRANT FOUNDING MEMBERSHIP
+// Called after a successful founding member checkout. Creates
+// the FoundingMember record, enrolls the user in the Founding
+// Member membership program, updates the profile flags, and
+// sends a confirmation notification. Idempotent — safe to call
+// multiple times (returns early if already a founding member).
+// ============================================================
+export async function grantFoundingMembership(user, profile) {
+  if (!user?.id) return null;
+
+  // Idempotency check — don't create duplicates
+  try {
+    const existing = await base44.entities.FoundingMember.filter({ user_id: user.id });
+    if (existing.length > 0) return existing[0];
+  } catch (e) {}
+
+  const memberNumber = `FM-${String(Date.now()).slice(-6)}`;
+  const today = new Date().toISOString().split("T")[0];
+
+  // 1. Create FoundingMember record
+  await base44.entities.FoundingMember.create({
+    founding_member_number: memberNumber,
+    user_id: user.id,
+    full_name: user.full_name || user.email || "",
+    email: user.email || "",
+    joined_date: today,
+    founding_batch: "Batch #1",
+    founding_tier: "founding_member",
+    status: "active",
+    subscription_plan: profile?.subscription_plan || "free",
+    lifetime_discount_percentage: FOUNDING_MEMBER_CONFIG.discountPercent,
+    lifetime_discount_enabled: true,
+    protected_pricing: true,
+    badge_status: "granted",
+    badge_issued_date: today,
+    early_access_enabled: true,
+    community_access: true,
+    beta_access: true,
+    roadmap_voting: true,
+    feedback_sessions: true,
+  });
+
+  // 2. Enroll in the Founding Member membership program (if it exists)
+  try {
+    const programs = await base44.entities.MembershipProgram.filter({ program_type: "founding_member" });
+    if (programs.length > 0) {
+      await enrollUserInProgram({
+        program: programs[0],
+        user,
+        assignedBy: { id: user.id, name: user.full_name || user.email || "" },
+      });
+    }
+  } catch (e) {}
+
+  // 3. Update user profile with founding member flags
+  if (profile?.id) {
+    await base44.entities.UserProfile.update(profile.id, {
+      founding_member: true,
+      founding_member_since: new Date().toISOString(),
+    });
+  }
+
+  // 4. Create a scoped notification for the user
+  try {
+    await base44.entities.Notification.create({
+      type: "subscription",
+      title: "Founding Member Status Activated",
+      message: "Welcome to the Founding Member Program! Your lifetime benefits and 25% discount are now active.",
+      icon: "🏆",
+      action_url: "/founder",
+      user_id: user.id,
+      organization_id: "",
+      workspace: "executive",
+      visibility: "private",
+      role_scope: "",
+      read: false,
+    });
+  } catch (e) {}
+
+  return { granted: true, memberNumber };
+}

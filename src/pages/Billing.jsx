@@ -11,6 +11,9 @@ import PlanGrid from "@/components/billing/PlanGrid";
 import PaymentHistory from "@/components/billing/PaymentHistory";
 import CheckoutModal from "@/components/billing/CheckoutModal";
 import { useUserMemberships } from "@/hooks/useUserMemberships";
+import { useFoundingMember } from "@/hooks/useFoundingMember";
+import { grantFoundingMembership } from "@/lib/foundingMember";
+import { createNotification } from "@/lib/notifications";
 
 export default function Billing() {
   const { user } = useAuth();
@@ -19,7 +22,9 @@ export default function Billing() {
   const [invoices, setInvoices] = useState([]);
   const [upgradePlan, setUpgradePlan] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { memberships, bestDiscount, hasProtection } = useUserMemberships(user?.id);
+  const { memberships, bestDiscount, hasProtection, refresh: refreshMemberships } = useUserMemberships(user?.id);
+  const { reload: reloadFoundingMember } = useFoundingMember();
+  const [isFoundingPurchase, setIsFoundingPurchase] = useState(false);
 
   useEffect(() => {
     if (!user?.id) { setLoading(false); return; }
@@ -37,13 +42,29 @@ export default function Billing() {
     if (profile?.subscription_cycle) setCycle(profile.subscription_cycle);
   }, [profile?.subscription_cycle]);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("founding") === "1") {
+      setIsFoundingPurchase(true);
+      window.history.replaceState({}, "", "/billing");
+    }
+  }, []);
+
   const currentPlan = profile ? (getPlanById(profile.subscription_plan) || getPlanById("free")) : null;
 
   const handleCheckoutSuccess = async () => {
     setUpgradePlan(null);
+    if (isFoundingPurchase && user && profile) {
+      await grantFoundingMembership(user, profile);
+    }
     const personalInvoices = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 50);
     setInvoices(personalInvoices);
     await refreshProfile();
+    if (isFoundingPurchase) {
+      setIsFoundingPurchase(false);
+      await reloadFoundingMember();
+      await refreshMemberships();
+    }
   };
 
   const handleCancel = async () => {
@@ -57,10 +78,11 @@ export default function Billing() {
         plan_id: currentPlan?.id,
         metadata: { from: currentPlan?.id, to: "free" },
       });
-      await base44.entities.Notification.create({
+      await createNotification({
         type: "subscription", title: "Subscription Canceled",
         message: "Your subscription has been canceled. You're now on the Free plan.",
         icon: "⚠️",
+        userId: user.id,
       });
       if (latestInvoice) {
         await sendPaymentEmail(EMAIL_TYPES.SUBSCRIPTION_CANCELED, profile.email || "", {
@@ -80,10 +102,11 @@ export default function Billing() {
         status: "success",
         plan_id: currentPlan?.id,
       });
-      await base44.entities.Notification.create({
+      await createNotification({
         type: "subscription", title: "Subscription Resumed",
         message: "Your subscription has been resumed. Welcome back!",
         icon: "✅",
+        userId: user.id,
       });
       await refreshProfile();
     } catch (e) {}
@@ -109,10 +132,11 @@ export default function Billing() {
           invoice_number: `INV-${Date.now()}`,
           owner_user_id: user.id,
         });
-        await base44.entities.Notification.create({
+        await createNotification({
           type: "subscription", title: "Billing Cycle Updated",
           message: `You've switched to ${newCycle} billing.`,
           icon: "🔄",
+          userId: user.id,
         });
         setCycle(newCycle);
         const refreshed = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 50);
@@ -198,6 +222,7 @@ export default function Billing() {
             cycle={cycle}
             profile={profile}
             membershipDiscount={bestDiscount}
+            isFoundingPurchase={isFoundingPurchase}
             onClose={() => setUpgradePlan(null)}
             onSuccess={handleCheckoutSuccess}
           />

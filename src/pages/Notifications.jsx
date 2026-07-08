@@ -1,43 +1,47 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { getScopedNotifications, createNotification, markNotificationRead } from "@/lib/notifications";
 import { Bell, Check, Loader2, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
-const TYPE_FILTERS = ["all", "system", "daily_challenge", "achievement", "subscription", "learning_reminder"];
+const TYPE_FILTERS = ["all", "system", "daily_challenge", "achievement", "subscription", "learning_reminder", "enterprise", "platform", "developer"];
 
 export default function Notifications() {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
+      if (!user?.id) { setLoading(false); return; }
       try {
-        let notifs = await base44.entities.Notification.list("-created_date", 50);
+        let notifs = await getScopedNotifications();
         if (notifs.length === 0) {
           await base44.entities.Notification.bulkCreate([
-            { type: "system", title: "Welcome to EXECLEAD.AI", message: "Your executive leadership journey starts here. Complete your first challenge to earn XP!", icon: "🎉", read: false, action_url: "/challenge" },
-            { type: "daily_challenge", title: "Today's Challenge is Ready", message: "A new executive challenge awaits. Test your readiness!", icon: "⚔️", read: false, action_url: "/challenge" },
-            { type: "learning_reminder", title: "Daily Lesson Available", message: "Continue your executive learning journey with today's lesson.", icon: "📚", read: false, action_url: "/academy" },
+            { type: "system", title: "Welcome to EXECLEAD.AI", message: "Your executive leadership journey starts here. Complete your first challenge to earn XP!", icon: "🎉", read: false, action_url: "/challenge", user_id: user.id, organization_id: "", workspace: "executive", visibility: "private", role_scope: "" },
+            { type: "daily_challenge", title: "Today's Challenge is Ready", message: "A new executive challenge awaits. Test your readiness!", icon: "⚔️", read: false, action_url: "/challenge", user_id: user.id, organization_id: "", workspace: "executive", visibility: "private", role_scope: "" },
+            { type: "learning_reminder", title: "Daily Lesson Available", message: "Continue your executive learning journey with today's lesson.", icon: "📚", read: false, action_url: "/academy", user_id: user.id, organization_id: "", workspace: "executive", visibility: "private", role_scope: "" },
           ]);
-          notifs = await base44.entities.Notification.list("-created_date", 50);
+          notifs = await getScopedNotifications();
         }
         setNotifications(notifs);
       } catch (e) {}
       setLoading(false);
     };
     load();
-  }, []);
+  }, [user?.id]);
 
   const markRead = async (id) => {
-    await base44.entities.Notification.update(id, { read: true });
+    await markNotificationRead(id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
   const markAllRead = async () => {
     const unread = notifications.filter(n => !n.read);
-    for (const n of unread) await base44.entities.Notification.update(n.id, { read: true });
+    for (const n of unread) await markNotificationRead(n.id);
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
 

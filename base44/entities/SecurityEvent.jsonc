@@ -1,0 +1,75 @@
+{
+  "name": "SecurityEvent",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "login",
+        "logout",
+        "password_change",
+        "mfa_enabled",
+        "mfa_disabled",
+        "role_change",
+        "permission_change",
+        "document_upload",
+        "identity_verification",
+        "payment_event",
+        "subscription_change",
+        "admin_action",
+        "failed_login",
+        "blocked_login",
+        "api_access",
+        "session_terminated",
+        "device_registered",
+        "device_blocked",
+        "incident_created",
+        "secret_rotated"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "info"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "action_taken": {
+      "type": "string",
+      "enum": [
+        "none",
+        "blocked",
+        "challenged",
+        "alerted",
+        "logged"
+      ],
+      "default": "logged"
+    },
+    "metadata_json": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_type",
+    "description"
+  ]
+}

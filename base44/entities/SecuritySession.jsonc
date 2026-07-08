@@ -1,0 +1,88 @@
+{
+  "name": "SecuritySession",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "device_fingerprint": {
+      "type": "string"
+    },
+    "device_name": {
+      "type": "string"
+    },
+    "browser": {
+      "type": "string"
+    },
+    "operating_system": {
+      "type": "string"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "login_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_activity": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low"
+    },
+    "risk_score": {
+      "type": "number",
+      "default": 0
+    },
+    "risk_factors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "terminated",
+        "expired",
+        "blocked"
+      ],
+      "default": "active"
+    },
+    "auth_method": {
+      "type": "string"
+    },
+    "mfa_used": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

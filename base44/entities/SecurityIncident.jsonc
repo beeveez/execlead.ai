@@ -1,0 +1,79 @@
+{
+  "name": "SecurityIncident",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "investigating",
+        "contained",
+        "resolved",
+        "postmortem"
+      ],
+      "default": "open"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "unauthorized_access",
+        "data_breach",
+        "malware",
+        "phishing",
+        "credential_stuffing",
+        "privilege_escalation",
+        "api_abuse",
+        "identity_fraud",
+        "payment_fraud",
+        "other"
+      ],
+      "default": "other"
+    },
+    "assigned_to_id": {
+      "type": "string"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "evidence_json": {
+      "type": "string"
+    },
+    "timeline_json": {
+      "type": "string"
+    },
+    "resolution": {
+      "type": "string"
+    },
+    "postmortem": {
+      "type": "string"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "affected_users": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "severity"
+  ]
+}

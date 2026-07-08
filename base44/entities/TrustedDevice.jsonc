@@ -1,0 +1,54 @@
+{
+  "name": "TrustedDevice",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "device_name": {
+      "type": "string"
+    },
+    "device_fingerprint": {
+      "type": "string"
+    },
+    "first_seen": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_used": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "operating_system": {
+      "type": "string"
+    },
+    "browser": {
+      "type": "string"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "trusted",
+        "blocked",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "approved_by_id": {
+      "type": "string"
+    },
+    "approved_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "device_fingerprint"
+  ]
+}

@@ -94,3 +94,22 @@ export function formatFoundingMemberDate(date) {
   if (!date) return "";
   return new Date(date).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
+
+export const FOUNDING_MEMBER_TIERS = {
+  founding_member: "Founding Member",
+  investor_member: "Investor Member",
+  enterprise_founder: "Enterprise Founder",
+  advisory_council: "Advisory Council",
+  ambassador: "Ambassador",
+  partner_founder: "Partner Founder",
+};
+
+export const FOUNDING_MEMBER_STATUSES = {
+  pending: "Pending",
+  verified: "Verified",
+  active: "Active",
+  suspended: "Suspended",
+  expired: "Expired",
+  legacy: "Legacy",
+  lifetime: "Lifetime",
+};

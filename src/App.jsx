@@ -52,7 +52,17 @@ import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
-import FoundingMemberDashboard from '@/pages/FoundingMemberDashboard';
+import FounderPortalLayout from '@/components/founding/FounderPortalLayout';
+import FounderOverview from '@/pages/founder/FounderOverview';
+import FounderBenefits from '@/pages/founder/FounderBenefits';
+import FounderCommunity from '@/pages/founder/FounderCommunity';
+import FounderEvents from '@/pages/founder/FounderEvents';
+import FounderRoadmap from '@/pages/founder/FounderRoadmap';
+import FounderReferrals from '@/pages/founder/FounderReferrals';
+import FounderRewards from '@/pages/founder/FounderRewards';
+import FounderCertificates from '@/pages/founder/FounderCertificates';
+import FounderTimeline from '@/pages/founder/FounderTimeline';
+import FounderSettings from '@/pages/founder/FounderSettings';
 import NetworkLayout from '@/components/network/NetworkLayout';
 import NetworkFeed from '@/pages/network/NetworkFeed';
 import NetworkDirectory from '@/pages/network/NetworkDirectory';
@@ -183,7 +193,18 @@ const AuthenticatedApp = () => {
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
-          <Route path="/dashboard/founding-member" element={<FoundingMemberDashboard />} />
+          <Route element={<FounderPortalLayout />}>
+            <Route path="/founder" element={<FounderOverview />} />
+            <Route path="/founder/benefits" element={<FounderBenefits />} />
+            <Route path="/founder/community" element={<FounderCommunity />} />
+            <Route path="/founder/events" element={<FounderEvents />} />
+            <Route path="/founder/roadmap" element={<FounderRoadmap />} />
+            <Route path="/founder/referrals" element={<FounderReferrals />} />
+            <Route path="/founder/rewards" element={<FounderRewards />} />
+            <Route path="/founder/certificates" element={<FounderCertificates />} />
+            <Route path="/founder/timeline" element={<FounderTimeline />} />
+            <Route path="/founder/settings" element={<FounderSettings />} />
+          </Route>
           <Route element={<NetworkLayout />}>
             <Route path="/network" element={<NetworkFeed />} />
             <Route path="/network/directory" element={<NetworkDirectory />} />

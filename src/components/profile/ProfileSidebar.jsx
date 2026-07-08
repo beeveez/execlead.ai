@@ -1,7 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   UserCircle, Briefcase, Target, FileText, Building2,
-  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database, Globe
+  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database, Globe, Crown
 } from "lucide-react";
 
 const SECTIONS = [
@@ -45,6 +46,9 @@ export default function ProfileSidebar({ active, onSelect }) {
             </div>
           ))}
         </nav>
+        <Link to="/founder" className="mt-4 flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium bg-amber-500/10 text-amber-400 hover:bg-amber-500/15 transition-all border border-amber-500/15">
+          <Crown size={16} /> ⭐ Founding Member
+        </Link>
       </aside>
       <div className="lg:hidden mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">

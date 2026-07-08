@@ -6,6 +6,7 @@ import PlanSimulator from "@/components/developer/PlanSimulator";
 import FeatureSimulator from "@/components/developer/FeatureSimulator";
 import ImpersonationPanel from "@/components/developer/ImpersonationPanel";
 import TestTenantManager from "@/components/developer/TestTenantManager";
+import FoundingMemberTesting from "@/components/developer/FoundingMemberTesting";
 
 export default function DeveloperConsole() {
   const { canAccessDeveloper } = useDeveloper();
@@ -41,6 +42,7 @@ export default function DeveloperConsole() {
           <PlanSimulator />
           <FeatureSimulator />
           <ImpersonationPanel />
+          <FoundingMemberTesting />
           <TestTenantManager />
         </div>
       </div>

@@ -1,0 +1,70 @@
+{
+  "name": "NetworkPost",
+  "type": "object",
+  "properties": {
+    "author_name": {
+      "type": "string"
+    },
+    "author_id": {
+      "type": "string"
+    },
+    "author_role": {
+      "type": "string"
+    },
+    "author_company": {
+      "type": "string"
+    },
+    "author_photo": {
+      "type": "string"
+    },
+    "author_founding_member": {
+      "type": "boolean",
+      "default": false
+    },
+    "content": {
+      "type": "string"
+    },
+    "post_type": {
+      "type": "string",
+      "enum": [
+        "insight",
+        "milestone",
+        "promotion",
+        "certification",
+        "article",
+        "announcement",
+        "marketplace_release"
+      ],
+      "default": "insight"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "likes_count": {
+      "type": "number",
+      "default": 0
+    },
+    "liked_by_json": {
+      "type": "string"
+    },
+    "comments_json": {
+      "type": "string"
+    },
+    "saved_by_json": {
+      "type": "string"
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "shares_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "content"
+  ]
+}

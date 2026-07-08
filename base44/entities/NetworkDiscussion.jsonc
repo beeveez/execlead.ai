@@ -1,0 +1,57 @@
+{
+  "name": "NetworkDiscussion",
+  "type": "object",
+  "properties": {
+    "author_name": {
+      "type": "string"
+    },
+    "author_id": {
+      "type": "string"
+    },
+    "author_role": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category": {
+      "type": "string"
+    },
+    "replies_json": {
+      "type": "string"
+    },
+    "upvotes_count": {
+      "type": "number",
+      "default": 0
+    },
+    "upvoted_by_json": {
+      "type": "string"
+    },
+    "accepted_answer_id": {
+      "type": "string"
+    },
+    "bookmarks_json": {
+      "type": "string"
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "views_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "body"
+  ]
+}

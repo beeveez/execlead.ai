@@ -1,0 +1,32 @@
+{
+  "name": "NetworkConnection",
+  "type": "object",
+  "properties": {
+    "requester_id": {
+      "type": "string"
+    },
+    "requester_name": {
+      "type": "string"
+    },
+    "recipient_id": {
+      "type": "string"
+    },
+    "recipient_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "blocked"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "requester_id",
+    "recipient_id"
+  ]
+}

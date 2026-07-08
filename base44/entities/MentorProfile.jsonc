@@ -1,0 +1,72 @@
+{
+  "name": "MentorProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "profile_photo": {
+      "type": "string"
+    },
+    "current_role": {
+      "type": "string"
+    },
+    "current_company": {
+      "type": "string"
+    },
+    "years_experience": {
+      "type": "number"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "executive_level": {
+      "type": "string"
+    },
+    "availability": {
+      "type": "string",
+      "enum": [
+        "available",
+        "limited",
+        "unavailable"
+      ],
+      "default": "available"
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mentoring_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bio": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "number",
+      "default": 0
+    },
+    "sessions_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "founding_member": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "full_name"
+  ]
+}

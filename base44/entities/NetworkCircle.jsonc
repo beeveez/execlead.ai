@@ -1,0 +1,50 @@
+{
+  "name": "NetworkCircle",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "members_json": {
+      "type": "string"
+    },
+    "member_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_private": {
+      "type": "boolean",
+      "default": false
+    },
+    "join_type": {
+      "type": "string",
+      "enum": [
+        "open",
+        "invite",
+        "application"
+      ],
+      "default": "open"
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "created_by_id": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -44,6 +44,9 @@ export const WORKSPACE_NAV = {
       { path: "/council", label: "Executive Council", icon: Network, feature: "executive_council" },
       { path: "/marketplace", label: "Marketplace", icon: Store, feature: "marketplace" },
     ]},
+    { label: "Network", items: [
+      { path: "/network", label: "Executive Network", icon: Users },
+    ]},
     { label: "Career", items: [
       { path: "/career-studio", label: "Career Studio", icon: Briefcase, feature: "career_studio" },
       { path: "/resume", label: "Resume AI", icon: FileText, feature: "resume_intelligence" },
@@ -136,7 +139,7 @@ export const WORKSPACE_NAV = {
 const ROUTE_WORKSPACE = {
   "/dashboard": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
   "/simulator": ["executive"], "/debate": ["executive"], "/council": ["executive"],
-  "/marketplace": ["executive", "platform"], "/career-studio": ["executive"],
+  "/marketplace": ["executive", "platform"], "/network": ["executive"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],
   "/analytics": ["executive", "enterprise"], "/journal": ["executive"],
   "/profile": ["executive"], "/billing": ["executive"],
@@ -167,6 +170,7 @@ export function getRouteWorkspace(path) {
   if (path.startsWith("/developer/")) return ["developer"];
   if (path.startsWith("/academy/")) return ["executive"];
   if (path.startsWith("/companies/")) return ["executive", "enterprise"];
+  if (path.startsWith("/network/")) return ["executive"];
   if (path.startsWith("/cpq/")) return ["platform", "developer"];
   if (path.startsWith("/portal/")) return ["enterprise"];
   return null;

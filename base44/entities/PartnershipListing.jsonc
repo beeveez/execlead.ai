@@ -1,0 +1,49 @@
+{
+  "name": "PartnershipListing",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "partnership_type": {
+      "type": "string",
+      "enum": [
+        "advisor",
+        "consultant",
+        "mentor",
+        "speaker",
+        "board_member",
+        "fractional_cio",
+        "fractional_cto",
+        "strategic_partner"
+      ],
+      "default": "advisor"
+    },
+    "description": {
+      "type": "string"
+    },
+    "posted_by_name": {
+      "type": "string"
+    },
+    "posted_by_id": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "string"
+    },
+    "is_seeking": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "partnership_type"
+  ]
+}

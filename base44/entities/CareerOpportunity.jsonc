@@ -1,0 +1,67 @@
+{
+  "name": "CareerOpportunity",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "work_model": {
+      "type": "string",
+      "enum": [
+        "remote",
+        "hybrid",
+        "onsite"
+      ],
+      "default": "remote"
+    },
+    "executive_level": {
+      "type": "string"
+    },
+    "salary_range": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "posted_by_name": {
+      "type": "string"
+    },
+    "posted_by_id": {
+      "type": "string"
+    },
+    "application_count": {
+      "type": "number",
+      "default": 0
+    },
+    "opportunity_type": {
+      "type": "string",
+      "enum": [
+        "c_level",
+        "vp",
+        "director",
+        "board",
+        "global"
+      ],
+      "default": "c_level"
+    }
+  },
+  "required": [
+    "title",
+    "company"
+  ]
+}

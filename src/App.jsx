@@ -52,6 +52,16 @@ import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
+import NetworkLayout from '@/components/network/NetworkLayout';
+import NetworkFeed from '@/pages/network/NetworkFeed';
+import NetworkDirectory from '@/pages/network/NetworkDirectory';
+import NetworkDiscussions from '@/pages/network/NetworkDiscussions';
+import NetworkCircles from '@/pages/network/NetworkCircles';
+import NetworkEvents from '@/pages/network/NetworkEvents';
+import NetworkMentorship from '@/pages/network/NetworkMentorship';
+import NetworkCareers from '@/pages/network/NetworkCareers';
+import NetworkPartnerships from '@/pages/network/NetworkPartnerships';
+import NetworkFoundingLounge from '@/pages/network/NetworkFoundingLounge';
 import Guardian from '@/pages/Guardian';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
@@ -172,6 +182,17 @@ const AuthenticatedApp = () => {
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
+          <Route element={<NetworkLayout />}>
+            <Route path="/network" element={<NetworkFeed />} />
+            <Route path="/network/directory" element={<NetworkDirectory />} />
+            <Route path="/network/discussions" element={<NetworkDiscussions />} />
+            <Route path="/network/circles" element={<NetworkCircles />} />
+            <Route path="/network/mentorship" element={<NetworkMentorship />} />
+            <Route path="/network/events" element={<NetworkEvents />} />
+            <Route path="/network/founding-lounge" element={<NetworkFoundingLounge />} />
+            <Route path="/network/careers" element={<NetworkCareers />} />
+            <Route path="/network/partnerships" element={<NetworkPartnerships />} />
+          </Route>
           <Route path="/guardian" element={<Guardian />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/security" element={<SecurityCenter />} />

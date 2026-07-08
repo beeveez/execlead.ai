@@ -1,0 +1,63 @@
+{
+  "name": "NetworkEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "roundtable",
+        "summit",
+        "workshop",
+        "fireside_chat",
+        "ai_strategy",
+        "career_accelerator"
+      ],
+      "default": "roundtable"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_virtual": {
+      "type": "boolean",
+      "default": true
+    },
+    "meeting_url": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "capacity": {
+      "type": "number",
+      "default": 0
+    },
+    "rsvp_json": {
+      "type": "string"
+    },
+    "rsvp_count": {
+      "type": "number",
+      "default": 0
+    },
+    "organizer_name": {
+      "type": "string"
+    },
+    "organizer_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "event_type"
+  ]
+}

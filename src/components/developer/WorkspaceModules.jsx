@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import {
   LayoutDashboard, Boxes, DollarSign, Receipt, Mail, Lock,
   Calculator, TrendingUp, Database, Network, FileText,
-  Cpu, KeyRound, GitBranch, Rocket
+  Cpu, KeyRound, GitBranch, Rocket, ClipboardList
 } from "lucide-react";
 
 const MODULES = [
+  { path: "/developer/product", label: "Product Mgmt", desc: "Feedback, bugs & roadmap", icon: ClipboardList },
   { path: "/developer", label: "Dashboard", desc: "Workspace overview", icon: LayoutDashboard },
   { path: "/feature-management", label: "Feature Flags", desc: "Toggle platform features", icon: Boxes },
   { path: "/pricing-admin", label: "Pricing Admin", desc: "Manage pricing plans", icon: DollarSign },

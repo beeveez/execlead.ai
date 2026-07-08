@@ -130,6 +130,152 @@
     "is_public": {
       "type": "boolean",
       "default": true
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Denormalized submitter name for PM inbox"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "Denormalized submitter email"
+    },
+    "organization_name": {
+      "type": "string",
+      "description": "Denormalized organization for filtering"
+    },
+    "tags_json": {
+      "type": "string",
+      "description": "JSON array of tag strings"
+    },
+    "roadmap_stage": {
+      "type": "string",
+      "enum": [
+        "backlog",
+        "research",
+        "planned",
+        "in_development",
+        "testing",
+        "ready_for_release",
+        "released",
+        "archived"
+      ],
+      "default": "backlog",
+      "description": "Kanban stage on the product roadmap"
+    },
+    "affected_module": {
+      "type": "string",
+      "description": "Module impacted by a bug"
+    },
+    "environment": {
+      "type": "string",
+      "description": "Production, Staging, Development, etc."
+    },
+    "version": {
+      "type": "string",
+      "description": "Affected product version"
+    },
+    "root_cause": {
+      "type": "string"
+    },
+    "fix_version": {
+      "type": "string"
+    },
+    "release_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "business_value": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "effort_estimate": {
+      "type": "string",
+      "enum": [
+        "xs",
+        "s",
+        "m",
+        "l",
+        "xl"
+      ],
+      "default": "m"
+    },
+    "target_release": {
+      "type": "string",
+      "description": "Version string of the target release"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Product owner responsible for a feature"
+    },
+    "engineering_notes": {
+      "type": "string"
+    },
+    "investigation_results": {
+      "type": "string"
+    },
+    "linked_issues_json": {
+      "type": "string",
+      "description": "JSON array of linked issue references"
+    },
+    "related_feedback_json": {
+      "type": "string",
+      "description": "JSON array of related feedback IDs"
+    },
+    "customer_communications_json": {
+      "type": "string",
+      "description": "JSON array of customer update messages"
+    },
+    "customer_notified_status": {
+      "type": "string",
+      "description": "Last status the customer was notified about"
+    },
+    "ai_sentiment": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "neutral",
+        "negative",
+        "mixed"
+      ],
+      "default": "neutral"
+    },
+    "ai_business_impact": {
+      "type": "string"
+    },
+    "ai_estimated_customer_impact": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "ai_suggested_next_action": {
+      "type": "string"
+    },
+    "ai_confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 AI confidence score"
+    },
+    "ai_suggested_labels_json": {
+      "type": "string",
+      "description": "JSON array of suggested labels"
+    },
+    "analyzed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lifecycle_history_json": {
+      "type": "string",
+      "description": "JSON array of stage transitions with timestamps"
     }
   },
   "required": [

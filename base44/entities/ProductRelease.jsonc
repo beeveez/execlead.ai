@@ -1,0 +1,60 @@
+{
+  "name": "ProductRelease",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semantic version string (e.g. 4.2.0)"
+    },
+    "release_name": {
+      "type": "string"
+    },
+    "release_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "in_progress",
+        "testing",
+        "released",
+        "delayed"
+      ],
+      "default": "planned"
+    },
+    "completed_features_json": {
+      "type": "string",
+      "description": "JSON array of {id, title} for shipped features"
+    },
+    "bug_fixes_json": {
+      "type": "string",
+      "description": "JSON array of {id, title} for bug fixes"
+    },
+    "breaking_changes": {
+      "type": "string"
+    },
+    "release_notes": {
+      "type": "string"
+    },
+    "notify_customers": {
+      "type": "boolean",
+      "default": false
+    },
+    "customer_notified": {
+      "type": "boolean",
+      "default": false
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "created_by_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "version",
+    "release_name"
+  ]
+}

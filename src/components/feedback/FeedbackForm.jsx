@@ -102,6 +102,9 @@ export default function FeedbackForm({ onSubmitted }) {
         ai_summary: ai?.summary || null,
         ai_duplicate_of: ai?.duplicate_of || null,
         ai_responsible_module: ai?.responsible_module || null,
+        customer_name: user?.full_name || "",
+        customer_email: user?.email || "",
+        organization_name: profile?.organization_name || "",
         is_public: !isSecurity,
       });
 

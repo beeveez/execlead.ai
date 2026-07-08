@@ -104,6 +104,7 @@ import LearningAssignments from '@/pages/LearningAssignments';
 import SSOIdentity from '@/pages/SSOIdentity';
 import ExecutiveLegacy from '@/pages/ExecutiveLegacy';
 import DeveloperConsole from '@/pages/DeveloperConsole';
+import ProductManagement from '@/pages/product/ProductManagement';
 import AuditLogs from '@/pages/developer/AuditLogs';
 import SystemHealth from '@/pages/developer/SystemHealth';
 import ApiKeys from '@/pages/developer/ApiKeys';
@@ -258,6 +259,7 @@ const AuthenticatedApp = () => {
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
           <Route path="/developer" element={<DeveloperConsole />} />
+          <Route path="/developer/product" element={<ProductManagement />} />
           <Route path="/developer/audit-logs" element={<AuditLogs />} />
           <Route path="/developer/system-health" element={<SystemHealth />} />
           <Route path="/developer/api-keys" element={<ApiKeys />} />

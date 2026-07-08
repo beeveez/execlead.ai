@@ -5,7 +5,7 @@ import {
   Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
   Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes, Store,
   Cpu, TrendingUp, GitBranch, Rocket, ShieldCheck, Lightbulb,
-  Home, Target, Gauge, GitCompare, Compass, Award, Layers, Bell
+  Home, Target, Gauge, GitCompare, Compass, Award, Layers, Bell, Trophy, BadgeCheck
 } from "lucide-react";
 
 // ============================================================
@@ -147,6 +147,8 @@ export const NAV_GROUPS = [
     items: [
       { path: "/metrics", label: "Metrics", icon: Gauge },
       { path: "/analytics", label: "Analytics", icon: BarChart3 },
+      { path: "/executive/rankings", label: "Executive Rankings", icon: Trophy },
+      { path: "/brand-center", label: "Brand Center", icon: BadgeCheck },
     ],
   },
   {
@@ -256,6 +258,9 @@ export const NAV_GROUPS = [
       { path: "/developer/system-health", label: "System Health", icon: Cpu },
       { path: "/developer/api-keys", label: "API Keys", icon: KeyRound },
       { path: "/developer/database", label: "Database Tools", icon: Database },
+      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
+      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
+      { path: "/developer/organizations", label: "Organization Admin", icon: Network },
     ],
   },
 

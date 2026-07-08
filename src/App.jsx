@@ -77,6 +77,16 @@ import NetworkMentorship from '@/pages/network/NetworkMentorship';
 import NetworkCareers from '@/pages/network/NetworkCareers';
 import NetworkPartnerships from '@/pages/network/NetworkPartnerships';
 import NetworkFoundingLounge from '@/pages/network/NetworkFoundingLounge';
+import CommunityWorkspace from '@/components/community/CommunityWorkspace';
+import CommunityHome from '@/pages/community/CommunityHome';
+import CommunityDiscussions from '@/pages/community/CommunityDiscussions';
+import CommunityAnnouncements from '@/pages/community/CommunityAnnouncements';
+import CommunityMembers from '@/pages/community/CommunityMembers';
+import CommunityEvents from '@/pages/community/CommunityEvents';
+import CommunityResources from '@/pages/community/CommunityResources';
+import CommunityPolls from '@/pages/community/CommunityPolls';
+import CommunityLeaderboard from '@/pages/community/CommunityLeaderboard';
+import CommunityModeration from '@/pages/community/CommunityModeration';
 import Guardian from '@/pages/Guardian';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
@@ -227,6 +237,17 @@ const AuthenticatedApp = () => {
             <Route path="/network/founding-lounge" element={<NetworkFoundingLounge />} />
             <Route path="/network/careers" element={<NetworkCareers />} />
             <Route path="/network/partnerships" element={<NetworkPartnerships />} />
+          </Route>
+          <Route path="/network/c/:communityId" element={<CommunityWorkspace />}>
+            <Route index element={<CommunityHome />} />
+            <Route path="discussions" element={<CommunityDiscussions />} />
+            <Route path="announcements" element={<CommunityAnnouncements />} />
+            <Route path="members" element={<CommunityMembers />} />
+            <Route path="events" element={<CommunityEvents />} />
+            <Route path="resources" element={<CommunityResources />} />
+            <Route path="polls" element={<CommunityPolls />} />
+            <Route path="leaderboard" element={<CommunityLeaderboard />} />
+            <Route path="moderation" element={<CommunityModeration />} />
           </Route>
           <Route path="/guardian" element={<Guardian />} />
           <Route path="/settings" element={<Settings />} />

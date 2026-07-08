@@ -1,0 +1,81 @@
+{
+  "name": "CommunityMembership",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The user who joined this community"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_photo": {
+      "type": "string"
+    },
+    "user_role": {
+      "type": "string",
+      "description": "The user's professional role/title for display"
+    },
+    "user_company": {
+      "type": "string"
+    },
+    "community_id": {
+      "type": "string",
+      "description": "The NetworkCircle ID this membership belongs to"
+    },
+    "community_name": {
+      "type": "string"
+    },
+    "joined_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "member_role": {
+      "type": "string",
+      "enum": [
+        "member",
+        "moderator",
+        "community_admin",
+        "founder",
+        "platform_admin"
+      ],
+      "default": "member"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "left"
+      ],
+      "default": "active"
+    },
+    "reputation": {
+      "type": "number",
+      "default": 0
+    },
+    "unread_count": {
+      "type": "number",
+      "default": 0
+    },
+    "posts_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_active": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "referral_source": {
+      "type": "string",
+      "description": "How the user discovered this community (referral code, direct, etc.)"
+    }
+  },
+  "required": [
+    "user_id",
+    "community_id"
+  ]
+}

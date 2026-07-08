@@ -9,15 +9,24 @@
       "type": "string"
     },
     "category": {
-      "type": "string"
+      "type": "string",
+      "description": "Primary category (e.g. cto, cfo, marketing, founders)"
     },
     "icon": {
       "type": "string"
     },
-    "members_json": {
+    "color": {
       "type": "string"
     },
+    "members_json": {
+      "type": "string",
+      "description": "Legacy field \u2014 superseded by CommunityMembership records"
+    },
     "member_count": {
+      "type": "number",
+      "default": 0
+    },
+    "online_count": {
       "type": "number",
       "default": 0
     },
@@ -34,13 +43,41 @@
       ],
       "default": "open"
     },
+    "max_capacity": {
+      "type": "number",
+      "default": 0,
+      "description": "Maximum members allowed. 0 = unlimited."
+    },
+    "required_plan": {
+      "type": "string",
+      "enum": [
+        "",
+        "free",
+        "professional",
+        "executive"
+      ],
+      "default": "",
+      "description": "Minimum subscription plan required to join. Empty = any plan."
+    },
+    "requires_founding_member": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, only verified Founding Members can join."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rules": {
+      "type": "string",
+      "description": "Community guidelines displayed to members"
+    },
     "created_by_name": {
       "type": "string"
     },
     "created_by_id": {
-      "type": "string"
-    },
-    "color": {
       "type": "string"
     }
   },

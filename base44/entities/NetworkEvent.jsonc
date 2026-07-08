@@ -54,6 +54,13 @@
     },
     "organizer_id": {
       "type": "string"
+    },
+    "community_id": {
+      "type": "string",
+      "description": "NetworkCircle ID if this event belongs to a specific community. Empty = global."
+    },
+    "community_name": {
+      "type": "string"
     }
   },
   "required": [

@@ -33,9 +33,18 @@
         "certification",
         "article",
         "announcement",
-        "marketplace_release"
+        "marketplace_release",
+        "poll",
+        "resource"
       ],
       "default": "insight"
+    },
+    "community_id": {
+      "type": "string",
+      "description": "NetworkCircle ID if this post belongs to a specific community. Empty = global feed."
+    },
+    "community_name": {
+      "type": "string"
     },
     "tags": {
       "type": "array",
@@ -62,6 +71,10 @@
     "shares_count": {
       "type": "number",
       "default": 0
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

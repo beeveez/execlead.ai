@@ -9,8 +9,9 @@ import PaymentTrust from "@/components/billing/PaymentTrust";
 import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 import { createNotification } from "@/lib/notifications";
+import { calculatePlanPrice } from "@/lib/founderPricingEngine";
 
-export default function CheckoutModal({ plan, cycle: initialCycle, profile, membershipDiscount = 0, isFoundingPurchase = false, onClose, onSuccess }) {
+export default function CheckoutModal({ plan, cycle: initialCycle, profile, membership = null, isFoundingPurchase = false, onClose, onSuccess }) {
   const { getPrice, cycle, setCycle } = usePricingCatalog(initialCycle);
   const { user } = useAuth();
   const [coupon, setCoupon] = useState(null);
@@ -23,8 +24,9 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
   const hasTrial = plan.buttonText?.toLowerCase().includes("trial");
   const isEnterprise = plan.enterpriseOnly || plan.customPricing;
   const subtotal = getPrice(plan);
-  const membershipSavings = membershipDiscount > 0 ? Math.round(subtotal * membershipDiscount / 100 * 100) / 100 : 0;
-  const afterMembership = subtotal - membershipSavings;
+  const founderPricing = calculatePlanPrice(plan, membership, cycle);
+  const membershipSavings = founderPricing.savings;
+  const afterMembership = founderPricing.finalPrice;
   const discount = calculateDiscount(coupon, afterMembership);
   const taxableAmount = afterMembership - discount;
   const tax = calculateTax(billingAddress.country, taxableAmount);
@@ -197,6 +199,17 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
               </div>
             </div>
 
+            {/* Founder Badge */}
+            {founderPricing.applied && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-center gap-2">
+                <span className="text-lg">🏆</span>
+                <div className="flex-1">
+                  <div className="text-amber-400 text-sm font-medium">Founding Member</div>
+                  <div className="text-white/40 text-xs">Lifetime Discount Applied — {founderPricing.discount}% off forever{founderPricing.protected ? " · Protected Pricing" : ""}</div>
+                </div>
+              </div>
+            )}
+
             {/* Coupon */}
             <div>
               <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 block">Coupon Code</label>
@@ -241,7 +254,7 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
             {mode === "pay" && (
               <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-2">
                 <div className="flex justify-between text-sm"><span className="text-white/40">Subtotal</span><span className="text-white/70">{formatCurrency(subtotal, plan.currency)}</span></div>
-                {membershipSavings > 0 && <div className="flex justify-between text-sm"><span className="text-indigo-400">Membership Discount</span><span className="text-indigo-400">−{formatCurrency(membershipSavings, plan.currency)}</span></div>}
+                {membershipSavings > 0 && <div className="flex justify-between text-sm"><span className="text-amber-400 flex items-center gap-1"><span>🏆</span> Founding Member Discount</span><span className="text-amber-400">−{formatCurrency(membershipSavings, plan.currency)}</span></div>}
                 {discount > 0 && <div className="flex justify-between text-sm"><span className="text-emerald-400">Coupon</span><span className="text-emerald-400">−{formatCurrency(discount, plan.currency)}</span></div>}
                 {tax > 0 && <div className="flex justify-between text-sm"><span className="text-white/40">Tax ({(country.taxRate * 100).toFixed(0)}%)</span><span className="text-white/70">{formatCurrency(tax, plan.currency)}</span></div>}
                 <div className="border-t border-white/5 pt-2 flex justify-between"><span className="text-white font-medium">Total</span><span className="text-white font-bold">{formatCurrency(total, plan.currency)}</span></div>

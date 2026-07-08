@@ -2,8 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import ExpandableFeatureList from "@/components/billing/ExpandableFeatureList";
 import { formatCurrency } from "@/lib/payments";
+import { calculatePlanPrice } from "@/lib/founderPricingEngine";
 
-export default function PlanGrid({ plans, currentPlan, cycle, getPrice, onSelectPlan }) {
+export default function PlanGrid({ plans, currentPlan, cycle, getPrice, membership, onSelectPlan }) {
   const currentPlanIndex = plans.findIndex((p) => p.id === currentPlan?.id);
 
   return (
@@ -13,7 +14,8 @@ export default function PlanGrid({ plans, currentPlan, cycle, getPrice, onSelect
         const planIndex = plans.findIndex((p) => p.id === plan.id);
         const isUpgrade = planIndex > currentPlanIndex;
         const isDowngrade = planIndex < currentPlanIndex;
-        const price = getPrice(plan);
+        const founderPricing = calculatePlanPrice(plan, membership, cycle);
+        const price = founderPricing.finalPrice;
         const isEnterprise = plan.enterpriseOnly;
 
         return (
@@ -27,7 +29,11 @@ export default function PlanGrid({ plans, currentPlan, cycle, getPrice, onSelect
               {isEnterprise ? (
                 <span className="text-lg font-bold text-white">Contact Sales</span>
               ) : (
-                <><span className="text-2xl font-bold text-white">{price === 0 ? "Free" : formatCurrency(price, plan.currency)}</span><span className="text-white/40 text-sm">/{cycle === "monthly" ? "mo" : "yr"}</span></>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-bold text-white">{price === 0 ? "Free" : formatCurrency(price, plan.currency)}</span>
+                  {price !== 0 && <span className="text-white/40 text-sm">/{cycle === "monthly" ? "mo" : "yr"}</span>}
+                  {founderPricing.applied && <span className="text-sm text-white/30 line-through">{formatCurrency(founderPricing.originalPrice, plan.currency)}</span>}
+                </div>
               )}
             </div>
             <div className="mb-5">

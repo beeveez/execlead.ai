@@ -13,11 +13,12 @@ import CheckoutModal from "@/components/billing/CheckoutModal";
 import { useUserMemberships } from "@/hooks/useUserMemberships";
 import { useFoundingMember } from "@/hooks/useFoundingMember";
 import { grantFoundingMembership } from "@/lib/foundingMember";
+import { calculatePlanPrice } from "@/lib/founderPricingEngine";
 import { createNotification } from "@/lib/notifications";
 
 export default function Billing() {
   const { user } = useAuth();
-  const { profile, renewalDate, refreshProfile } = useSubscription();
+  const { profile, renewalDate, refreshProfile, membership } = useSubscription();
   const { plans, cycle, setCycle, getPrice, getPlanById } = usePricingCatalog();
   const [invoices, setInvoices] = useState([]);
   const [upgradePlan, setUpgradePlan] = useState(null);
@@ -115,7 +116,8 @@ export default function Billing() {
   const handleSwitchCycle = async () => {
     if (!profile || !currentPlan || currentPlan.id === "free") return;
     const newCycle = cycle === "monthly" ? "annual" : "monthly";
-    const newPrice = newCycle === "annual" ? currentPlan.annualPrice : currentPlan.monthlyPrice;
+    const founderPricing = calculatePlanPrice(currentPlan, membership, newCycle);
+    const newPrice = founderPricing.finalPrice;
     try {
       const result = await processPayment({ provider: "stripe", amount: newPrice, currency: currentPlan.currency, planId: currentPlan.id, billingCycle: newCycle });
       if (result.success) {
@@ -163,6 +165,7 @@ export default function Billing() {
         cycle={cycle}
         getPrice={getPrice}
         renewalDate={renewalDate}
+        membership={membership}
         onCancel={handleCancel}
         onResume={handleResume}
         onSwitchCycle={handleSwitchCycle}
@@ -211,7 +214,7 @@ export default function Billing() {
         <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
       </div>
 
-      <PlanGrid plans={plans.filter(p => !p.enterpriseOnly)} currentPlan={currentPlan} cycle={cycle} getPrice={getPrice} onSelectPlan={setUpgradePlan} />
+      <PlanGrid plans={plans.filter(p => !p.enterpriseOnly)} currentPlan={currentPlan} cycle={cycle} getPrice={getPrice} membership={membership} onSelectPlan={setUpgradePlan} />
 
       <PaymentHistory invoices={invoices} profile={profile} />
 
@@ -221,7 +224,7 @@ export default function Billing() {
             plan={upgradePlan}
             cycle={cycle}
             profile={profile}
-            membershipDiscount={bestDiscount}
+            membership={membership}
             isFoundingPurchase={isFoundingPurchase}
             onClose={() => setUpgradePlan(null)}
             onSuccess={handleCheckoutSuccess}

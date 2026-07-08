@@ -1,11 +1,14 @@
 import React from "react";
 import { formatCurrency } from "@/lib/payments";
 import { Calendar, CreditCard, RefreshCw, TrendingUp, X, Play, ArrowRightLeft } from "lucide-react";
+import { calculatePlanPrice } from "@/lib/founderPricingEngine";
 
-export default function CurrentPlanCard({ profile, currentPlan, cycle, getPrice, renewalDate, onCancel, onResume, onSwitchCycle }) {
+export default function CurrentPlanCard({ profile, currentPlan, cycle, getPrice, renewalDate, membership, onCancel, onResume, onSwitchCycle }) {
   const isCanceled = profile?.subscription_status === "canceled";
   const isTrialing = profile?.subscription_status === "trialing";
-  const price = getPrice(currentPlan);
+  const founderPricing = calculatePlanPrice(currentPlan, membership, cycle);
+  const price = founderPricing.finalPrice;
+  const originalPrice = founderPricing.originalPrice;
 
   return (
     <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 rounded-xl p-6">
@@ -19,7 +22,19 @@ export default function CurrentPlanCard({ profile, currentPlan, cycle, getPrice,
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3 mt-3">
-            <span className="text-2xl font-bold text-white">{price === 0 ? "Free" : formatCurrency(price, currentPlan.currency)}<span className="text-sm text-white/40 font-normal">/{cycle === "monthly" ? "mo" : "yr"}</span></span>
+            <div className="flex items-baseline gap-2">
+              {price === 0 ? (
+                <span className="text-2xl font-bold text-white">Free</span>
+              ) : founderPricing.applied ? (
+                <>
+                  <span className="text-2xl font-bold text-white">{formatCurrency(price, currentPlan.currency)}</span>
+                  <span className="text-sm text-white/40 font-normal">/{cycle === "monthly" ? "mo" : "yr"}</span>
+                  <span className="text-sm text-white/30 line-through">{formatCurrency(originalPrice, currentPlan.currency)}</span>
+                </>
+              ) : (
+                <span className="text-2xl font-bold text-white">{formatCurrency(price, currentPlan.currency)}<span className="text-sm text-white/40 font-normal">/{cycle === "monthly" ? "mo" : "yr"}</span></span>
+              )}
+            </div>
             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isTrialing ? "bg-amber-500/10 text-amber-400" : isCanceled ? "bg-red-500/10 text-red-400" : "bg-emerald-500/10 text-emerald-400"}`}>
               {profile?.subscription_status || "active"}
             </span>

@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { PLAN_CONTENT } from "@/lib/pricingContent";
+import { useFounderPricing } from "@/hooks/useFounderPricing";
 
 export default function PricingTiers({ plans, cycle, getPrice, authed }) {
+  const { calculatePrice } = useFounderPricing();
   const visiblePlans = plans.filter(p => p.visible !== false && p.id !== "developer_unlimited");
 
   return (
@@ -13,6 +15,7 @@ export default function PricingTiers({ plans, cycle, getPrice, authed }) {
         const content = PLAN_CONTENT[plan.id];
         if (!content) return null;
         const price = getPrice(plan);
+        const founderPricing = calculatePrice(plan, cycle);
         const isCustom = plan.customPricing;
         const isExecutive = plan.id === "executive";
         const annualSavings = plan.monthlyPrice * 12 - plan.annualPrice;
@@ -43,6 +46,17 @@ export default function PricingTiers({ plans, cycle, getPrice, authed }) {
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-bold text-white">Custom</span>
                   </div>
+                ) : founderPricing.applied ? (
+                  <div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-4xl font-bold text-amber-400 tracking-tight">${founderPricing.finalPrice}</span>
+                      <span className="text-white/30 text-sm">/{cycle === "monthly" ? "mo" : "yr"}</span>
+                      <span className="text-lg text-white/30 line-through">${price}</span>
+                    </div>
+                    <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/10 rounded-md text-amber-400 text-xs font-medium">
+                      🏆 Founding Member — Lifetime Price
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold text-white tracking-tight">{price === 0 ? "Free" : `$${price}`}</span>
@@ -51,7 +65,11 @@ export default function PricingTiers({ plans, cycle, getPrice, authed }) {
                 )}
               </div>
               <div className="min-h-[1.5rem]">
-                {showSavings ? (
+                {isCustom && founderPricing.isFounder ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/10 rounded-md text-amber-400 text-xs font-medium">
+                    🏆 {founderPricing.discount}% Lifetime Discount Applies
+                  </span>
+                ) : showSavings ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 rounded-md text-emerald-400 text-xs font-medium">
                     Save ${annualSavings}/year
                   </span>

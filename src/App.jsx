@@ -120,6 +120,8 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Suspense fallback={<LandingSkeleton />}><Landing /></Suspense>} />
         <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><Pricing /></Suspense>} />
         <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
+        <Route path="/company-library" element={<div className="pt-20"><Companies /></div>} />
+        <Route path="/company-library/:id" element={<div className="pt-20"><CompanyDetail /></div>} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

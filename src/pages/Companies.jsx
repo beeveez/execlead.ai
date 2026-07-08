@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Building2, Search, Loader2, GitCompare, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CompanyCard from "@/components/companies/CompanyCard";
 import CompanyFilters from "@/components/companies/CompanyFilters";
 import CompanyCategoryBar from "@/components/companies/CompanyCategoryBar";
@@ -20,6 +20,12 @@ export default function Companies() {
   const [compareIds, setCompareIds] = useState([]);
   const [activeCategory, setActiveCategory] = useState("all");
   const [aiResults, setAiResults] = useState(null);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) setSearch(q);
+  }, [searchParams]);
 
   useEffect(() => {
     const load = async () => {

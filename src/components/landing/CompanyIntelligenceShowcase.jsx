@@ -50,7 +50,7 @@ export default function CompanyIntelligenceShowcase() {
 
   const goSearch = () => {
     const params = search ? `?q=${encodeURIComponent(search)}` : "";
-    window.location.href = `/companies${params}`;
+    window.location.href = `/company-library${params}`;
   };
 
   return (
@@ -158,12 +158,12 @@ export default function CompanyIntelligenceShowcase() {
 
                 {/* Actions */}
                 <div className="space-y-1.5">
-                  <Link to={`/companies/${c.id}`} className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium transition-colors">
+                  <Link to={`/company-library/${c.id}`} className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium transition-colors">
                     View Intelligence <ArrowRight size={12} />
                   </Link>
                   <div className="grid grid-cols-3 gap-1">
-                    <Link to="/companies" className="flex items-center justify-center py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors" title="Set as Target"><Target size={12} /></Link>
-                    <Link to="/companies" className="flex items-center justify-center py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors" title="Compare"><GitCompare size={12} /></Link>
+                    <Link to="/company-library" className="flex items-center justify-center py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors" title="Set as Target"><Target size={12} /></Link>
+                    <Link to="/company-library" className="flex items-center justify-center py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors" title="Compare"><GitCompare size={12} /></Link>
                     <button className="flex items-center justify-center py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors" title="Save"><Bookmark size={12} /></button>
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export default function CompanyIntelligenceShowcase() {
 
         {/* Bottom CTA row */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link to="/companies" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
+          <Link to="/company-library" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
             Explore All {total || ""} Organizations <ArrowRight size={16} />
           </Link>
           <button onClick={() => setShowRequest(true)} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm font-medium transition-colors">

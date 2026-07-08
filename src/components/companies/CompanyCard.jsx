@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { MapPin, Users, TrendingUp, Cloud, Sparkles } from "lucide-react";
 import { isEnriched } from "@/lib/companyEnrichment";
 import CompanyAvatar from "@/components/companies/CompanyAvatar";
@@ -27,12 +27,13 @@ const CATEGORY_ICONS = {
 
 export default function CompanyCard({ company, selected, onToggleCompare }) {
   const navigate = useNavigate();
+  const isPublic = useLocation().pathname.startsWith("/company-library");
   const enriched = isEnriched(company);
   const categoryIcon = CATEGORY_ICONS[company.category] || "🏢";
 
   return (
     <div className={`group relative bg-white/[0.03] border rounded-xl p-4 transition-all hover:bg-violet-500/5 ${selected ? "border-violet-500/40 bg-violet-500/5" : "border-white/5 hover:border-violet-500/15"}`}>
-      <button onClick={() => navigate(`/companies/${company.id}`)} className="flex items-center gap-3 text-left w-full pr-6">
+      <button onClick={() => navigate(isPublic ? `/company-library/${company.id}` : `/companies/${company.id}`)} className="flex items-center gap-3 text-left w-full pr-6">
         <CompanyAvatar company={company} size="md" />
         <div className="min-w-0">
           <div className="text-sm font-semibold text-white truncate group-hover:text-violet-300 transition-colors">{company.name}</div>

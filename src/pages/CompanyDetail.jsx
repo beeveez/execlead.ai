@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import {
   ArrowLeft, MapPin, Crown, Target, Loader2, Check,
@@ -42,6 +42,7 @@ function SectionLabel({ type }) {
 export default function CompanyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isPublic = useLocation().pathname.startsWith("/company-library");
   const { profile, refreshProfile } = useSubscription();
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,7 +87,7 @@ export default function CompanyDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <button onClick={() => navigate("/companies")} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm transition-colors">
+      <button onClick={() => navigate(isPublic ? "/company-library" : "/companies")} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm transition-colors">
         <ArrowLeft size={14} /> Back to Library
       </button>
 

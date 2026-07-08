@@ -33,28 +33,18 @@ export default function FindingCard({ finding, selected, ignored, reviewed, onTo
   const [expanded, setExpanded] = useState(finding.severity === "critical");
   const sev = SEVERITY[finding.severity];
   const Icon = sev.icon;
-  const isDisabled = finding.severity === "information";
-
-  const handleCheckboxChange = (e) => {
-    e.stopPropagation();
-    if (!isDisabled) onToggleSelect(finding.id);
-  };
 
   return (
     <div className={`rounded-xl border ${sev.border} ${sev.bg} overflow-hidden transition-opacity ${ignored ? "opacity-40" : ""} ${reviewed ? "ring-1 ring-emerald-500/30" : ""}`}>
       <div className="flex items-start gap-3 p-4">
-        <div className="mt-0.5 shrink-0 flex items-center" onClick={(e) => e.stopPropagation()}>
+        <label className="mt-0.5 shrink-0 flex items-center justify-center w-6 h-6 cursor-pointer relative z-10" aria-label={`Select finding: ${finding.title}`}>
           <input
             type="checkbox"
-            data-finding-checkbox
             checked={!!selected}
-            onChange={handleCheckboxChange}
-            onClick={(e) => e.stopPropagation()}
-            disabled={isDisabled}
-            aria-label={`Select finding: ${finding.title}`}
-            className={`w-4 h-4 rounded border-white/20 accent-indigo-500 cursor-pointer ${isDisabled ? "opacity-30 cursor-not-allowed" : ""}`}
+            onChange={() => onToggleSelect(finding.id)}
+            className="w-5 h-5 cursor-pointer accent-indigo-500"
           />
-        </div>
+        </label>
         <Icon size={16} style={{ color: sev.color }} className="mt-0.5 shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -67,7 +57,7 @@ export default function FindingCard({ finding, selected, ignored, reviewed, onTo
           <p className="text-xs text-white/50 mt-1">{finding.description}</p>
         </div>
         {finding.actions.length > 0 && (
-          <button type="button" onClick={() => setExpanded(!expanded)} className="shrink-0 text-white/40 hover:text-white/70" aria-label={expanded ? "Collapse finding details" : "Expand finding details"}>
+          <button type="button" onClick={() => setExpanded(!expanded)} className="shrink-0 text-white/40 hover:text-white/70 relative z-10" aria-label={expanded ? "Collapse finding details" : "Expand finding details"}>
             {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
         )}

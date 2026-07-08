@@ -20,8 +20,8 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
     return report.findings.filter((f) => f.severity === filter);
   }, [report.findings, filter]);
 
-  const allFixable = filtered.filter((f) => f.severity !== "information");
-  const allSelected = allFixable.length > 0 && allFixable.every((f) => selectedIds.includes(f.id));
+  const allSelectable = filtered;
+  const allSelected = allSelectable.length > 0 && allSelectable.every((f) => selectedIds.includes(f.id));
   const someSelected = selectedIds.length > 0 && !allSelected;
 
   /* --- Select All checkbox with indeterminate state --- */
@@ -34,9 +34,9 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
 
   const toggleAll = () => {
     if (allSelected) {
-      allFixable.forEach((f) => { if (selectedIds.includes(f.id)) onToggleSelect(f.id); });
+      allSelectable.forEach((f) => { if (selectedIds.includes(f.id)) onToggleSelect(f.id); });
     } else {
-      allFixable.forEach((f) => { if (!selectedIds.includes(f.id)) onToggleSelect(f.id); });
+      allSelectable.forEach((f) => { if (!selectedIds.includes(f.id)) onToggleSelect(f.id); });
     }
   };
 
@@ -111,7 +111,7 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
           ))}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {allFixable.length > 0 && (
+          {allSelectable.length > 0 && (
             <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-xs cursor-pointer transition-colors">
               <input
                 ref={selectAllRef}
@@ -136,7 +136,7 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
           <button type="button" onClick={exportSelected} disabled={applying || !hasSelection} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white/60 text-xs font-medium transition-colors">
             <Download size={12} /> Export Selected {hasSelection && `(${selectedIds.length})`}
           </button>
-          <button type="button" onClick={onFixAll} disabled={applying || allFixable.length === 0} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 disabled:opacity-30 text-emerald-300 text-xs font-medium transition-colors">
+          <button type="button" onClick={onFixAll} disabled={applying || allSelectable.length === 0} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 disabled:opacity-30 text-emerald-300 text-xs font-medium transition-colors">
             <Wrench size={12} /> Fix All
           </button>
           {canRollback && (

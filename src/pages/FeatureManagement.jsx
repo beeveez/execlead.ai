@@ -4,6 +4,7 @@ import { DEFAULT_FEATURES } from "@/lib/featureCatalog";
 import { runConsistencyCheck } from "@/lib/consistencyEngine";
 import { Loader2, Plus, RefreshCw, Boxes, Activity, AlertTriangle, Route as RouteIcon, X, Code2, Copy, Check } from "lucide-react";
 import FeatureEditor from "@/components/admin/FeatureEditor";
+import FeatureCreationWizard from "@/components/admin/FeatureCreationWizard";
 import HealthScoreDashboard from "@/components/admin/HealthScoreDashboard";
 import FindingsPanel from "@/components/admin/FindingsPanel";
 import RouteRegistryTable from "@/components/admin/RouteRegistryTable";
@@ -21,7 +22,7 @@ export default function FeatureManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(null);
   const [user, setUser] = useState(null);
-  const [showNew, setShowNew] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [tab, setTab] = useState("overview");
   const [report, setReport] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -94,7 +95,7 @@ export default function FeatureManagement() {
           limit_label: form.limit_label || "",
         });
         setFeatures((prev) => [...prev, created]);
-        setShowNew(false);
+        setShowWizard(false);
       }
       await runEngine(features);
     } catch (e) { console.error(e); }
@@ -228,11 +229,9 @@ export default function FeatureManagement() {
           <button onClick={loadFeatures} disabled={applying} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60 transition-colors disabled:opacity-40">
             <RefreshCw size={14} className={applying ? "animate-spin" : ""} /> Re-run Scan
           </button>
-          {features.length > 0 && (
-            <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-sm text-white transition-colors">
-              <Plus size={14} /> Add Feature
-            </button>
-          )}
+          <button onClick={() => setShowWizard(true)} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-sm text-white transition-colors">
+            <Plus size={14} /> Add Feature
+          </button>
         </div>
       </div>
 
@@ -301,14 +300,6 @@ export default function FeatureManagement() {
             </div>
           ) : (
             <>
-              {showNew && (
-                <FeatureEditor
-                  feature={{ feature_id: "", name: "", description: "", category: "Platform", module: "", icon: "Sparkles", minimum_plan: "free", required_role: "", status: "live", visibility: "public", coming_soon: false, nav_enabled: false, pricing_enabled: true, route_path: "", nav_label: "", expected_release: "", is_enabled: true, sort_order: 99 }}
-                  onSave={saveFeature}
-                  onDelete={null}
-                  saving={saving === ""}
-                />
-              )}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {features.map((feature) => (
                   <FeatureEditor key={feature.id} feature={feature} onSave={saveFeature} onDelete={deleteFeature} saving={saving === feature.feature_id} />
@@ -344,6 +335,17 @@ export default function FeatureManagement() {
             </div>
           </div>
         </div>
+      )}
+
+      {showWizard && (
+        <FeatureCreationWizard
+          features={features}
+          onClose={() => setShowWizard(false)}
+          onCreated={() => {
+            setShowWizard(false);
+            loadFeatures();
+          }}
+        />
       )}
     </div>
   );

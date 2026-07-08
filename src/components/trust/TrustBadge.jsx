@@ -1,5 +1,6 @@
 import React from "react";
 import { ShieldCheck, Crown } from "lucide-react";
+import FoundingMemberBadge from "@/components/founding/FoundingMemberBadge";
 import { calculateTrustLevel, TRUST_LEVELS } from "@/lib/trustEngine";
 
 /**
@@ -53,8 +54,8 @@ export default function TrustBadge({ verification, showTooltip = true }) {
       )}
 
       {isFounder && (
-        <div className="ml-1.5 inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-medium bg-amber-500/10 border-amber-500/25 text-amber-400">
-          <Crown size={12} /> Founding Member
+        <div className="ml-1.5">
+          <FoundingMemberBadge />
         </div>
       )}
     </div>

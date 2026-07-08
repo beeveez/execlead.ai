@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import {
   ArrowLeft, MapPin, Crown, Target, Loader2, Check,
@@ -16,6 +16,8 @@ import CompanyEnrichButton from "@/components/companies/CompanyEnrichButton";
 import CompanyAvatar from "@/components/companies/CompanyAvatar";
 import ProfileStatusBadge from "@/components/companies/ProfileStatusBadge";
 import ComplianceDisclaimer from "@/components/companies/ComplianceDisclaimer";
+import DataQualityBadge from "@/components/companies/DataQualityBadge";
+import TransparencyPanel from "@/components/companies/TransparencyPanel";
 import ClaimCompanyModal from "@/components/companies/ClaimCompanyModal";
 import ReportCompanyModal from "@/components/companies/ReportCompanyModal";
 
@@ -132,6 +134,8 @@ export default function CompanyDetail() {
           </div>
         )}
 
+        <DataQualityBadge company={company} className="mt-5" />
+
         {company.last_updated && (
           <div className="flex items-center gap-1.5 mt-3 text-[10px] text-white/30">
             <CalendarClock size={10} /> Last updated: {company.last_updated} · v{company.version_number || 1}
@@ -141,6 +145,8 @@ export default function CompanyDetail() {
 
       {/* Compliance Disclaimer */}
       <ComplianceDisclaimer variant="full" />
+
+      <TransparencyPanel />
 
       {/* PUBLIC INFORMATION */}
       <div className="space-y-3">
@@ -316,6 +322,12 @@ export default function CompanyDetail() {
           <Flag size={16} />
           Report / Request Update
         </button>
+      </div>
+
+      <div className="text-center">
+        <Link to="/request-tracking" className="text-xs text-white/30 hover:text-white/50 transition-colors">
+          Track your correction requests →
+        </Link>
       </div>
 
       {showClaim && <ClaimCompanyModal company={company} onClose={() => setShowClaim(false)} />}

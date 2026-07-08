@@ -7,6 +7,7 @@ import CompanyFilters from "@/components/companies/CompanyFilters";
 import CompanyCategoryBar from "@/components/companies/CompanyCategoryBar";
 import NaturalLanguageSearch from "@/components/companies/NaturalLanguageSearch";
 import ComplianceDisclaimer from "@/components/companies/ComplianceDisclaimer";
+import LegalFooter from "@/components/layout/LegalFooter";
 import { localSearch } from "@/lib/companyEnrichment";
 
 const EMPTY_FILTERS = { industry: "", country: "", company_size: "", leadership_style: "", executive_level_focus: "", work_model: "" };
@@ -148,6 +149,8 @@ export default function Companies() {
           ))}
         </div>
       )}
+
+      <LegalFooter className="mt-8 pt-6 border-t border-white/5" />
     </div>
   );
 }

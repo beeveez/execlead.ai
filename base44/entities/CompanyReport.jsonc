@@ -16,6 +16,8 @@
         "logo_removal",
         "verification_request",
         "copyright_concern",
+        "trademark_concern",
+        "contact_compliance",
         "other"
       ],
       "default": "other"
@@ -54,6 +56,13 @@
     "resolved_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "response_time_hours": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

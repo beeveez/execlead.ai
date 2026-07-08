@@ -38,6 +38,90 @@ export const EXPORT_DISCLAIMER = [
   "EXECLEAD.AI is an independent leadership development platform and does not claim affiliation with organizations referenced in this report unless explicitly stated.",
 ];
 
+// ============================================================
+// DATA TRANSPARENCY FRAMEWORK — Version 1.0
+// Comprehensive notices for the Company Intelligence Library
+// ============================================================
+
+export const PUBLIC_DATA_SOURCES = [
+  "Official company websites",
+  "Annual reports",
+  "Investor presentations",
+  "Regulatory filings",
+  "Sustainability reports",
+  "Public press releases",
+  "Executive interviews",
+  "Public job postings",
+  "Industry publications",
+  "Technology documentation",
+  "Publicly available research",
+];
+
+export const INTENDED_USES = [
+  "Executive learning",
+  "Leadership development",
+  "Career preparation",
+  "Interview preparation",
+  "Professional research",
+  "Educational purposes",
+];
+
+export const NO_AFFILIATION_ITEMS = [
+  "Partnership",
+  "Sponsorship",
+  "Endorsement",
+  "Certification",
+  "Official representation",
+  "Business relationship",
+];
+
+export const COMPANY_TRADEMARK_NOTICE =
+  "All company names, product names, trademarks, service marks, and logos remain the property of their respective owners. Their appearance on EXECLEAD.AI is for identification, educational, commentary, research, and informational purposes only.";
+
+export const AI_GENERATED_CONTENT_NOTICE =
+  "Some executive insights, summaries, recommendations, leadership analyses, and interview guidance are generated or enhanced using artificial intelligence based on publicly available information. Users should independently verify critical information before making business, legal, investment, or employment decisions.";
+
+export const PRIVACY_RESTRICTIONS = [
+  "Confidential information",
+  "Trade secrets",
+  "Private employee information",
+  "Personally identifiable information",
+  "Internal-only documents",
+  "Leaked information",
+  "Restricted corporate materials",
+];
+
+export const DATA_TRANSPARENCY_SECTIONS = [
+  {
+    id: "data-sources",
+    title: "Where Information Comes From",
+    icon: "Database",
+    content:
+      "EXECLEAD.AI compiles company intelligence from publicly available information and AI-assisted analysis. Sources include official company websites, annual reports, investor presentations, regulatory filings, sustainability reports, public press releases, executive interviews, public job postings, industry publications, technology documentation, and publicly available research. EXECLEAD.AI does not claim access to confidential, proprietary, or non-public business information unless explicitly stated.",
+  },
+  {
+    id: "ai-insights",
+    title: "How AI Generates Insights",
+    icon: "Sparkles",
+    content:
+      "Some executive insights, summaries, recommendations, leadership analyses, and interview guidance are generated or enhanced using artificial intelligence based on publicly available information. AI models analyze public data to produce proprietary executive intelligence — including leadership culture assessments, interview style analysis, and career path recommendations. Users should independently verify critical information before making business, legal, investment, or employment decisions.",
+  },
+  {
+    id: "request-corrections",
+    title: "How to Request Corrections",
+    icon: "Flag",
+    content:
+      "Organizations and individuals may request factual corrections, report outdated information, request logo removal, report trademark concerns, submit verification, or contact our compliance team. Every request generates an audit record and is reviewed by the EXECLEAD.AI compliance team. Use the 'Report / Request Update' button on any company profile, or track existing requests from the Request Tracking page.",
+  },
+  {
+    id: "data-maintenance",
+    title: "How Data Is Maintained",
+    icon: "RefreshCw",
+    content:
+      "Company profiles are regularly reviewed and updated using publicly available sources. Each profile displays a data quality badge showing its confidence score, last updated date, and source verification status. Profiles can be enriched with additional public data and are versioned to maintain an audit trail of changes. Only legally and publicly available information is published — confidential, proprietary, or non-public information is never included.",
+  },
+];
+
 export const PROFILE_STATUSES = [
   { id: "independent", label: "Independent Profile", desc: "Compiled from public sources with EXECLEAD.AI proprietary analysis", color: "slate", icon: "FileText" },
   { id: "verified", label: "Verified Organization", desc: "Organization has claimed and verified this profile", color: "emerald", icon: "BadgeCheck" },
@@ -78,14 +162,36 @@ export const ANALYSIS_DIMENSIONS = [
 ];
 
 export const SOURCE_TYPES = [
-  "Company Annual Report", "SEC Filing", "Corporate Website", "Investor Relations",
-  "Public Press Release", "Government Registry", "LinkedIn Company Page",
+  "Official company websites",
+  "Annual reports",
+  "Investor presentations",
+  "Regulatory filings",
+  "Sustainability reports",
+  "Public press releases",
+  "Executive interviews",
+  "Public job postings",
+  "Industry publications",
+  "Technology documentation",
+  "Publicly available research",
+  "Government Registry",
+  "LinkedIn Company Page",
 ];
 
 export const CONTENT_RESTRICTIONS = [
-  "Internal documents", "Confidential presentations", "Leaked interview questions",
-  "Private employee information", "Trade secrets", "Copyrighted training manuals",
-  "Internal strategy documents", "Private salary databases", "Confidential customer information",
+  "Confidential information",
+  "Trade secrets",
+  "Private employee information",
+  "Personally identifiable information (PII)",
+  "Internal-only documents",
+  "Leaked information",
+  "Restricted corporate materials",
+  "Internal documents",
+  "Confidential presentations",
+  "Leaked interview questions",
+  "Copyrighted training manuals",
+  "Internal strategy documents",
+  "Private salary databases",
+  "Confidential customer information",
 ];
 
 export const REPORT_TYPES = [
@@ -94,6 +200,8 @@ export const REPORT_TYPES = [
   { id: "logo_removal", label: "Request Logo Removal", desc: "Request removal of a logo or brand asset" },
   { id: "verification_request", label: "Submit Verification", desc: "Verify organizational identity to claim this profile" },
   { id: "copyright_concern", label: "Report Copyright Concern", desc: "Report potential copyright or IP infringement" },
+  { id: "trademark_concern", label: "Report Trademark Concern", desc: "Report improper use of a trademark or brand asset" },
+  { id: "contact_compliance", label: "Contact Compliance", desc: "Reach the compliance team regarding this profile" },
   { id: "other", label: "Other", desc: "Other inquiry or request" },
 ];
 

@@ -82,6 +82,8 @@ import CPQQuoteView from '@/pages/CPQQuoteView';
 import EnterprisePortal from '@/pages/EnterprisePortal';
 import MyQuotes from '@/pages/MyQuotes';
 import CompanyAdmin from '@/pages/CompanyAdmin';
+import RequestTracking from '@/pages/RequestTracking';
+import CompanyReportsAdmin from '@/pages/CompanyReportsAdmin';
 import EmailSettings from '@/pages/EmailSettings';
 import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
@@ -187,6 +189,8 @@ const AuthenticatedApp = () => {
           <Route path="/cpq" element={<CPQWizard />} />
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />
+          <Route path="/request-tracking" element={<RequestTracking />} />
+          <Route path="/company-reports-admin" element={<CompanyReportsAdmin />} />
           <Route path="/email-settings" element={<EmailSettings />} />
           <Route path="/organization/users" element={<OrganizationUsers />} />
           <Route path="/cpq/quotes" element={<MyQuotes />} />

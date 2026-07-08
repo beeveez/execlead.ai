@@ -1,146 +1,136 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
-import {
-  Loader2, Calendar, Clock, MapPin, Video, Users, Check, Globe,
-} from "lucide-react";
+import { Calendar, Sparkles, Loader2, Star, TrendingUp } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import EventCard from "@/components/events/EventCard";
+import EventFilters from "@/components/events/EventFilters";
+import { getEventType, getColor } from "@/lib/eventPlatform";
 
-const safeParse = (json, fallback) => {
-  try { return JSON.parse(json) || fallback; } catch { return fallback; }
-};
-
-const EVENT_TYPE_LABELS = {
-  roundtable: "Roundtable", summit: "Summit", workshop: "Workshop",
-  fireside_chat: "Fireside Chat", ai_strategy: "AI Strategy", career_accelerator: "Career Accelerator",
-};
+const EMPTY_FILTERS = { search: '', type: '', format: '', price: '' };
 
 export default function NetworkEvents() {
-  const { user } = useAuth();
   const [events, setEvents] = useState([]);
+  const [myRegs, setMyRegs] = useState(new Set());
+  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
 
-  const load = async () => {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
     try {
-      setEvents(await base44.entities.NetworkEvent.list("start_date", 50));
-    } catch (e) {}
+      const [eventData, myEventsRes] = await Promise.all([
+        base44.entities.NetworkEvent.list('start_date', 100),
+        base44.functions.invoke('executiveEvents', { action: 'get_my_events' }).catch(() => ({ data: { registrations: [] } })),
+      ]);
+      setEvents(eventData);
+      setMyRegs(new Set((myEventsRes.data.registrations || []).map(r => r.event_id)));
+
+      base44.functions.invoke('executiveEvents', { action: 'ai_recommend' })
+        .then(res => setRecommendations(res.data.recommendations || []))
+        .catch(() => {});
+    } catch (e) {
+      toast({ title: 'Failed to load events', variant: 'error' });
+    }
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  const filtered = events.filter(e => {
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      if (!e.title?.toLowerCase().includes(q) && !e.description?.toLowerCase().includes(q)) return false;
+    }
+    if (filters.type && e.event_type !== filters.type) return false;
+    if (filters.format === 'virtual' && !e.is_virtual) return false;
+    if (filters.format === 'inperson' && e.is_virtual) return false;
+    if (filters.price === 'free' && (e.price || 0) > 0) return false;
+    if (filters.price === 'paid' && (e.price || 0) === 0) return false;
+    return true;
+  });
 
-  const isRSVPd = (event) => {
-    const rsvp = safeParse(event.rsvp_json, []);
-    return rsvp.some((r) => r.id === user?.id);
-  };
-
-  const handleRSVP = async (event) => {
-    const rsvp = safeParse(event.rsvp_json, []);
-    const isGoing = rsvp.some((r) => r.id === user?.id);
-    const newRsvp = isGoing
-      ? rsvp.filter((r) => r.id !== user?.id)
-      : [...rsvp, { id: user?.id, rsvp_at: new Date().toISOString() }];
-    try {
-      await base44.entities.NetworkEvent.update(event.id, {
-        rsvp_json: JSON.stringify(newRsvp),
-        rsvp_count: newRsvp.length,
-      });
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === event.id
-            ? { ...e, rsvp_json: JSON.stringify(newRsvp), rsvp_count: newRsvp.length }
-            : e
-        )
-      );
-      toast({
-        title: isGoing ? "Removed RSVP" : "RSVP Confirmed",
-        description: isGoing ? `You're no longer attending ${event.title}.` : `You're attending ${event.title}.`,
-      });
-    } catch (e) {}
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "TBD";
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short", day: "numeric", year: "numeric",
-    });
-  };
-
-  const formatTime = (dateStr) => {
-    if (!dateStr) return "";
-    return new Date(dateStr).toLocaleTimeString("en-US", {
-      hour: "numeric", minute: "2-digit",
-    });
-  };
+  const now = new Date();
+  const upcoming = filtered.filter(e => !e.start_date || new Date(e.start_date) >= now);
+  const featured = upcoming.filter(e => e.is_featured);
+  const recommendedEvents = recommendations
+    .map(r => events.find(e => e.id === r.event_id))
+    .filter(Boolean)
+    .slice(0, 3);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
+    <div className="max-w-5xl mx-auto space-y-5">
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
           <Calendar size={12} className="text-indigo-400" /> Events
         </div>
-        <h1 className="text-xl font-bold text-white">Executive Calendar</h1>
+        <h1 className="text-xl font-bold text-white">Executive Events</h1>
         <p className="text-white/40 text-sm mt-1">
-          Roundtables, summits, workshops, and fireside chats for executives.
+          Roundtables, summits, masterclasses, and networking events for executives.
         </p>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 size={20} className="animate-spin text-indigo-400" />
-        </div>
-      ) : events.length === 0 ? (
-        <div className="text-center py-12 text-white/30 text-sm">No upcoming events.</div>
+        <div className="flex justify-center py-20"><Loader2 size={24} className="animate-spin text-indigo-400" /></div>
       ) : (
-        <div className="space-y-3">
-          {events.map((event) => {
-            const rsvpd = isRSVPd(event);
-            return (
-              <div key={event.id} className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-                <div className="flex items-start gap-4">
-                  <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-indigo-500/10 border border-indigo-500/15 shrink-0">
-                    <span className="text-indigo-400 text-lg font-bold">
-                      {event.start_date ? new Date(event.start_date).getDate() : "—"}
-                    </span>
-                    <span className="text-indigo-400/60 text-[10px] uppercase">
-                      {event.start_date ? new Date(event.start_date).toLocaleDateString("en-US", { month: "short" }) : "TBD"}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-white font-semibold text-sm">{event.title}</h3>
-                      <span className="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/10 text-indigo-300">
-                        {EVENT_TYPE_LABELS[event.event_type] || event.event_type}
-                      </span>
-                    </div>
-                    {event.description && (
-                      <p className="text-white/40 text-xs leading-relaxed mb-2 line-clamp-2">{event.description}</p>
-                    )}
-                    <div className="flex items-center gap-3 text-xs text-white/30 flex-wrap">
-                      <span className="flex items-center gap-1"><Clock size={11} /> {formatDate(event.start_date)} · {formatTime(event.start_date)}</span>
-                      {event.is_virtual ? (
-                        <span className="flex items-center gap-1"><Video size={11} /> Virtual</span>
-                      ) : (
-                        <span className="flex items-center gap-1"><MapPin size={11} /> {event.location || "TBD"}</span>
-                      )}
-                      <span className="flex items-center gap-1"><Users size={11} /> {event.rsvp_count || 0} attending</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleRSVP(event)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
-                      rsvpd ? "bg-emerald-500/10 text-emerald-400" : "bg-indigo-500 hover:bg-indigo-600 text-white"
-                    }`}
-                  >
-                    {rsvpd ? <><Check size={12} /> Going</> : <><Calendar size={12} /> RSVP</>}
-                  </button>
-                </div>
+        <>
+          {/* AI Recommendations */}
+          {recommendedEvents.length > 0 && (
+            <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles size={16} className="text-indigo-400" />
+                <h2 className="text-white font-semibold text-sm">Recommended for You</h2>
+                <span className="text-xs text-white/30">Based on your profile</span>
               </div>
-            );
-          })}
-        </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                {recommendedEvents.map((event) => {
+                  const rec = recommendations.find(r => r.event_id === event.id);
+                  return (
+                    <div key={event.id} className="relative">
+                      <EventCard event={event} registered={myRegs.has(event.id)} />
+                      {rec?.reason && (
+                        <div className="mt-1.5 px-2 text-[10px] text-indigo-300/70 line-clamp-2">{rec.reason}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Featured */}
+          {featured.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Star size={14} className="text-amber-400" />
+                <h2 className="text-white/70 text-sm font-medium">Featured Events</h2>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {featured.slice(0, 4).map(e => <EventCard key={e.id} event={e} registered={myRegs.has(e.id)} />)}
+              </div>
+            </div>
+          )}
+
+          {/* Filters + All Events */}
+          <EventFilters
+            filters={filters}
+            onChange={setFilters}
+            onClear={() => setFilters(EMPTY_FILTERS)}
+            resultCount={upcoming.length}
+          />
+
+          {upcoming.length === 0 ? (
+            <div className="text-center py-16">
+              <Calendar size={32} className="mx-auto text-white/10 mb-3" />
+              <p className="text-white/40 text-sm font-medium">No upcoming events match your filters</p>
+              <p className="text-white/20 text-xs mt-1">Try adjusting your search criteria.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {upcoming.map(e => <EventCard key={e.id} event={e} registered={myRegs.has(e.id)} />)}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

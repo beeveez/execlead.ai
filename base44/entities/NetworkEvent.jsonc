@@ -13,12 +13,26 @@
       "enum": [
         "roundtable",
         "summit",
-        "workshop",
+        "masterclass",
+        "webinar",
         "fireside_chat",
+        "networking",
+        "workshop",
+        "ama",
+        "ai_briefing",
+        "boardroom",
+        "product_demo",
+        "founder_meetup",
+        "investor_pitch",
+        "community_meetup",
+        "retreat",
         "ai_strategy",
         "career_accelerator"
       ],
       "default": "roundtable"
+    },
+    "cover_image_url": {
+      "type": "string"
     },
     "start_date": {
       "type": "string",
@@ -28,6 +42,14 @@
       "type": "string",
       "format": "date-time"
     },
+    "duration_minutes": {
+      "type": "number",
+      "default": 60
+    },
+    "timezone": {
+      "type": "string",
+      "default": "UTC"
+    },
     "is_virtual": {
       "type": "boolean",
       "default": true
@@ -35,12 +57,140 @@
     "meeting_url": {
       "type": "string"
     },
+    "meeting_platform": {
+      "type": "string",
+      "enum": [
+        "zoom",
+        "teams",
+        "meet",
+        "webrtc",
+        "other"
+      ],
+      "default": "zoom"
+    },
     "location": {
+      "type": "string"
+    },
+    "venue_name": {
+      "type": "string"
+    },
+    "venue_address": {
+      "type": "string"
+    },
+    "venue_maps_url": {
       "type": "string"
     },
     "capacity": {
       "type": "number",
       "default": 0
+    },
+    "max_capacity": {
+      "type": "number",
+      "default": 0
+    },
+    "registered_count": {
+      "type": "number",
+      "default": 0
+    },
+    "waitlist_count": {
+      "type": "number",
+      "default": 0
+    },
+    "attended_count": {
+      "type": "number",
+      "default": 0
+    },
+    "views_count": {
+      "type": "number",
+      "default": 0
+    },
+    "price": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "is_free": {
+      "type": "boolean",
+      "default": true
+    },
+    "agenda_json": {
+      "type": "string",
+      "description": "JSON array of {time, title, speaker, description}"
+    },
+    "speakers_json": {
+      "type": "string",
+      "description": "JSON array of {name, title, company, bio, photo, linkedin, executive_score, verified, topics}"
+    },
+    "sponsors_json": {
+      "type": "string",
+      "description": "JSON array of {name, tier, logo, website}"
+    },
+    "faq_json": {
+      "type": "string",
+      "description": "JSON array of {question, answer}"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "industry": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "upcoming",
+        "live",
+        "completed",
+        "cancelled",
+        "draft"
+      ],
+      "default": "upcoming"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "recording_url": {
+      "type": "string"
+    },
+    "certificate_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "networking_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "discussions_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "organizer_name": {
+      "type": "string"
+    },
+    "organizer_id": {
+      "type": "string"
+    },
+    "host_name": {
+      "type": "string"
+    },
+    "host_company": {
+      "type": "string"
+    },
+    "host_photo": {
+      "type": "string"
+    },
+    "community_id": {
+      "type": "string"
+    },
+    "community_name": {
+      "type": "string"
     },
     "rsvp_json": {
       "type": "string"
@@ -49,17 +199,10 @@
       "type": "number",
       "default": 0
     },
-    "organizer_name": {
+    "created_by_name": {
       "type": "string"
     },
-    "organizer_id": {
-      "type": "string"
-    },
-    "community_id": {
-      "type": "string",
-      "description": "NetworkCircle ID if this event belongs to a specific community. Empty = global."
-    },
-    "community_name": {
+    "created_by_id": {
       "type": "string"
     }
   },

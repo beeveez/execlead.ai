@@ -74,6 +74,7 @@ import NetworkDirectory from '@/pages/network/NetworkDirectory';
 import NetworkDiscussions from '@/pages/network/NetworkDiscussions';
 import NetworkCircles from '@/pages/network/NetworkCircles';
 import NetworkEvents from '@/pages/network/NetworkEvents';
+import EventDetail from '@/pages/network/EventDetail';
 import NetworkMentorship from '@/pages/network/NetworkMentorship';
 import NetworkCareers from '@/pages/network/NetworkCareers';
 import NetworkPartnerships from '@/pages/network/NetworkPartnerships';
@@ -237,6 +238,7 @@ const AuthenticatedApp = () => {
             <Route path="/network/circles" element={<NetworkCircles />} />
             <Route path="/network/mentorship" element={<NetworkMentorship />} />
             <Route path="/network/events" element={<NetworkEvents />} />
+            <Route path="/network/events/:id" element={<EventDetail />} />
             <Route path="/network/founding-lounge" element={<NetworkFoundingLounge />} />
             <Route path="/network/careers" element={<NetworkCareers />} />
             <Route path="/network/partnerships" element={<NetworkPartnerships />} />

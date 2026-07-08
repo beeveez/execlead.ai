@@ -1,0 +1,117 @@
+{
+  "name": "EventRegistration",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "NetworkEvent ID"
+    },
+    "event_title": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Executive who registered"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_photo": {
+      "type": "string"
+    },
+    "user_headline": {
+      "type": "string",
+      "description": "Professional headline at time of registration"
+    },
+    "registration_type": {
+      "type": "string",
+      "enum": [
+        "waitlist",
+        "reserve",
+        "purchased"
+      ],
+      "default": "reserve"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "waitlisted",
+        "registered",
+        "confirmed",
+        "attended",
+        "no_show",
+        "cancelled",
+        "refunded"
+      ],
+      "default": "registered"
+    },
+    "ticket_type": {
+      "type": "string",
+      "enum": [
+        "general",
+        "vip",
+        "member"
+      ],
+      "default": "general"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "free",
+        "wallet",
+        "card",
+        "invoice"
+      ],
+      "default": "free"
+    },
+    "attended": {
+      "type": "boolean",
+      "default": false
+    },
+    "check_in_method": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "qr",
+        "gps",
+        "virtual"
+      ]
+    },
+    "check_in_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "certificate_issued": {
+      "type": "boolean",
+      "default": false
+    },
+    "certificate_id": {
+      "type": "string"
+    },
+    "referral_code": {
+      "type": "string"
+    },
+    "referred_by": {
+      "type": "string"
+    },
+    "registered_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "event_id",
+    "user_id"
+  ]
+}

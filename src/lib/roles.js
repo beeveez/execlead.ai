@@ -5,7 +5,7 @@ import {
   Network, ClipboardCheck, Users, Shield, DollarSign, Receipt,
   Lock, KeyRound, Code2, Calculator, Database, Mail, Boxes, Store,
   Cpu, TrendingUp, GitBranch, Rocket, ShieldCheck, Lightbulb,
-  Home, Target, Gauge, GitCompare
+  Home, Target, Gauge, GitCompare, Compass, Award, Layers, Bell
 } from "lucide-react";
 
 // ============================================================
@@ -132,10 +132,12 @@ export const NAV_GROUPS = [
     label: "Career",
     roles: CUSTOMER_NAV_ROLES,
     items: [
+      { path: "/career", label: "Career Advisor", icon: Compass },
       { path: "/career-studio", label: "Career Studio", icon: Briefcase },
       { path: "/resume", label: "Resume AI", icon: FileText },
       { path: "/companies", label: "Companies", icon: Building2 },
       { path: "/companies/compare", label: "Compare Companies", icon: GitCompare },
+      { path: "/executive-legacy", label: "Executive Legacy", icon: Award },
       { path: "/journal", label: "Journal", icon: PenLine },
     ],
   },
@@ -153,7 +155,9 @@ export const NAV_GROUPS = [
     items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/billing", label: "Billing", icon: CreditCard },
+      { path: "/compare-plans", label: "Compare Plans", icon: Layers },
       { path: "/cpq/quotes", label: "My Proposals", icon: FileText },
+      { path: "/notifications", label: "Notifications", icon: Bell },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
       { path: "/security", label: "Security Center", icon: ShieldCheck },
       { path: "/feedback", label: "Feedback", icon: Lightbulb },
@@ -248,6 +252,10 @@ export const NAV_GROUPS = [
       { path: "/developer", label: "Developer Console", icon: Code2 },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
       { path: "/guardian", label: "Guardian", icon: ShieldCheck },
+      { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
+      { path: "/developer/system-health", label: "System Health", icon: Cpu },
+      { path: "/developer/api-keys", label: "API Keys", icon: KeyRound },
+      { path: "/developer/database", label: "Database Tools", icon: Database },
     ],
   },
 

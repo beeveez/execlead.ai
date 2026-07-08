@@ -31,11 +31,17 @@ export function useProductManagement() {
 
   const loadAll = useCallback(async () => {
     try {
-      const [insightsRes, feedbackRes, releasesRes] = await Promise.all([
+      // Use allSettled so a failed analytics call doesn't block the feedback list
+      const [insightsResult, feedbackResult, releasesResult] = await Promise.allSettled([
         base44.functions.invoke("getProductInsights", {}),
         base44.entities.Feedback.list("-created_date", 500),
         base44.entities.ProductRelease.list("-release_date", 100),
       ]);
+
+      const feedbackRes = feedbackResult.status === "fulfilled" ? feedbackResult.value : [];
+      const releasesRes = releasesResult.status === "fulfilled" ? releasesResult.value : [];
+      const insightsRes = insightsResult.status === "fulfilled" ? (insightsResult.value?.data || insightsResult.value) : null;
+      const insightsError = insightsResult.status === "rejected" ? insightsResult.reason?.message : null;
 
       // Real-time alerts: detect new critical bugs / high-priority features since last refresh
       if (prevIdsRef.current !== null) {
@@ -57,10 +63,15 @@ export function useProductManagement() {
       }
       prevIdsRef.current = new Set((feedbackRes || []).map(f => f.id));
 
-      setInsights(insightsRes.data || insightsRes);
+      setInsights(insightsRes);
       setFeedback(feedbackRes || []);
       setReleases(releasesRes || []);
-      setError(null);
+      // Only set a hard error if the feedback list itself failed to load
+      setError(feedbackResult.status === "rejected" ? (feedbackResult.reason?.message || "Failed to load feedback") : null);
+      if (insightsError && feedbackResult.status === "fulfilled") {
+        // Insights failed but feedback loaded — non-fatal, KPIs will be limited
+        console.warn("Product insights unavailable:", insightsError);
+      }
     } catch (e) {
       setError(e.message || "Failed to load product data");
     } finally {

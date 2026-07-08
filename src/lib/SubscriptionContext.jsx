@@ -91,7 +91,7 @@ export const SubscriptionProvider = ({ children }) => {
 
   const isDevUser = canAccessDeveloperWorkspace(user?.role);
   const plan = isDevUser ? PLANS.developer_unlimited : getPlan(profile);
-  const isFoundingMember = profile?.founding_member === true;
+  const isFoundingMember = Boolean(profile?.founding_member);
 
   // Membership programs are independent of the subscription plan.
   // A user may be on the Free plan AND be a Founding Member — both

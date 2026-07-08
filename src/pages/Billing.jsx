@@ -14,6 +14,7 @@ import { useUserMemberships } from "@/hooks/useUserMemberships";
 import { useFoundingMember } from "@/hooks/useFoundingMember";
 import { grantFoundingMembership } from "@/lib/foundingMember";
 import { calculatePlanPrice } from "@/lib/founderPricingEngine";
+import FoundingMemberBenefitsCard from "@/components/billing/FoundingMemberBenefitsCard";
 import { createNotification } from "@/lib/notifications";
 
 export default function Billing() {
@@ -171,7 +172,9 @@ export default function Billing() {
         onSwitchCycle={handleSwitchCycle}
       />
 
-      {bestDiscount > 0 && (
+      {membership?.type === "founding_member" ? (
+        <FoundingMemberBenefitsCard currentPlan={currentPlan} membership={membership} cycle={cycle} />
+      ) : bestDiscount > 0 && (
         <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 rounded-xl p-4 flex items-center gap-3">
           <span className="text-2xl">{memberships[0]?.badge?.charAt(0) || "🏆"}</span>
           <div className="flex-1">

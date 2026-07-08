@@ -52,6 +52,7 @@ import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
+import FoundingMemberDashboard from '@/pages/FoundingMemberDashboard';
 import NetworkLayout from '@/components/network/NetworkLayout';
 import NetworkFeed from '@/pages/network/NetworkFeed';
 import NetworkDirectory from '@/pages/network/NetworkDirectory';
@@ -182,6 +183,7 @@ const AuthenticatedApp = () => {
           <Route path="/pricing-admin" element={<PricingAdmin />} />
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
+          <Route path="/dashboard/founding-member" element={<FoundingMemberDashboard />} />
           <Route element={<NetworkLayout />}>
             <Route path="/network" element={<NetworkFeed />} />
             <Route path="/network/directory" element={<NetworkDirectory />} />

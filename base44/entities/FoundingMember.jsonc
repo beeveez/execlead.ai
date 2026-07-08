@@ -1,0 +1,170 @@
+{
+  "name": "FoundingMember",
+  "type": "object",
+  "properties": {
+    "founding_member_number": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "joined_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "founding_batch": {
+      "type": "string",
+      "default": "Batch #1"
+    },
+    "founding_tier": {
+      "type": "string",
+      "enum": [
+        "founding_member",
+        "investor_member",
+        "enterprise_founder",
+        "advisory_council",
+        "ambassador",
+        "partner_founder"
+      ],
+      "default": "founding_member"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "active",
+        "suspended",
+        "expired",
+        "legacy",
+        "lifetime"
+      ],
+      "default": "active"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "default": "free"
+    },
+    "lifetime_discount_percentage": {
+      "type": "number",
+      "default": 25
+    },
+    "lifetime_discount_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "discount_expiration": {
+      "type": "string"
+    },
+    "protected_pricing": {
+      "type": "boolean",
+      "default": true
+    },
+    "badge_status": {
+      "type": "string",
+      "enum": [
+        "granted",
+        "issued",
+        "visible",
+        "enabled"
+      ],
+      "default": "granted"
+    },
+    "badge_issued_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "early_access_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "early_access_modules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "community_access": {
+      "type": "boolean",
+      "default": true
+    },
+    "beta_access": {
+      "type": "boolean",
+      "default": true
+    },
+    "roadmap_voting": {
+      "type": "boolean",
+      "default": true
+    },
+    "feedback_sessions": {
+      "type": "boolean",
+      "default": true
+    },
+    "certificate_issued": {
+      "type": "boolean",
+      "default": false
+    },
+    "certificate_issued_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "founding_wallet": {
+      "type": "number",
+      "default": 0
+    },
+    "referrals_count": {
+      "type": "number",
+      "default": 0
+    },
+    "total_rewards": {
+      "type": "number",
+      "default": 0
+    },
+    "lifetime_savings": {
+      "type": "number",
+      "default": 0
+    },
+    "votes_cast": {
+      "type": "number",
+      "default": 0
+    },
+    "accepted_suggestions": {
+      "type": "number",
+      "default": 0
+    },
+    "implemented_ideas": {
+      "type": "number",
+      "default": 0
+    },
+    "community_posts": {
+      "type": "number",
+      "default": 0
+    },
+    "community_comments": {
+      "type": "number",
+      "default": 0
+    },
+    "community_connections": {
+      "type": "number",
+      "default": 0
+    },
+    "feedback_sessions_attended": {
+      "type": "number",
+      "default": 0
+    },
+    "feedback_submitted": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "founding_member_number",
+    "user_id"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "FoundingMemberAuditLog",
+  "type": "object",
+  "properties": {
+    "founding_member_id": {
+      "type": "string"
+    },
+    "founding_member_number": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "member_name": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "benefit_granted",
+        "benefit_removed",
+        "discount_applied",
+        "community_joined",
+        "certificate_issued",
+        "badge_updated",
+        "vote_submitted",
+        "referral_reward",
+        "member_suspended",
+        "member_restored",
+        "member_revoked",
+        "member_upgraded",
+        "founder_number_issued",
+        "status_changed"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "performed_by": {
+      "type": "string"
+    },
+    "performed_by_name": {
+      "type": "string"
+    },
+    "metadata_json": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "founding_member_id",
+    "action",
+    "description"
+  ]
+}

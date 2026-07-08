@@ -89,3 +89,8 @@ export function getFoundingMemberPrice(amount) {
 export function getFoundingMemberSavings(amount) {
   return Math.round((amount - getFoundingMemberPrice(amount)) * 100) / 100;
 }
+
+export function formatFoundingMemberDate(date) {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}

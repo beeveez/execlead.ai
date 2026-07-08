@@ -6,6 +6,7 @@ import {
 import { Settings as SettingsIcon, Save, Loader2, User, Sliders } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSubscription } from "@/lib/SubscriptionContext";
+import AppearanceSection from "@/components/settings/AppearanceSection";
 
 export default function Settings() {
   const { profile, refreshProfile } = useSubscription();
@@ -67,6 +68,8 @@ export default function Settings() {
         </div>
         <h1 className="text-2xl font-bold text-white">Account & Preferences</h1>
       </div>
+
+      <AppearanceSection />
 
       {/* Personal Info */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/[0.03] border border-white/5 rounded-xl p-6 space-y-5">

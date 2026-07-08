@@ -8,6 +8,7 @@ import AccountMenu from "@/components/layout/AccountMenu";
 import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
 import { Bell, CreditCard, Crown } from "lucide-react";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 
 export default function TopBar() {
   const { subscription, membership, loading } = useSubscription();
@@ -66,6 +67,7 @@ export default function TopBar() {
           </span>
         )}
       </Link>
+      <ThemeToggle />
       <div className="relative">
         <button onClick={() => setShowNotifs(!showNotifs)} className="relative p-2 rounded-lg hover:bg-white/5 transition-colors">
           <Bell size={16} className="text-white/40" />

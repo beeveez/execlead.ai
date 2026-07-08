@@ -25,6 +25,16 @@
         "admin",
         "user"
       ]
+    },
+    "appearance_theme": {
+      "type": "string",
+      "description": "User's appearance theme preference: dark, light, or system. Persisted across devices and loaded automatically on login.",
+      "enum": [
+        "dark",
+        "light",
+        "system"
+      ],
+      "default": "dark"
     }
   },
   "required": [

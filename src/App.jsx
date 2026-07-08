@@ -5,6 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { ThemeProvider } from '@/lib/ThemeContext';
 import { GuardianProvider } from '@/lib/GuardianContext';
 import { WorkspaceProvider } from '@/lib/WorkspaceContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
@@ -298,6 +299,7 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <AuthProvider>
+      <ThemeProvider>
       <GuardianProvider>
       <DeveloperProvider>
       <SubscriptionProvider>
@@ -315,6 +317,7 @@ function App() {
       </SubscriptionProvider>
       </DeveloperProvider>
       </GuardianProvider>
+      </ThemeProvider>
     </AuthProvider>
   )
 }

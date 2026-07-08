@@ -2,6 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('execlead_theme') || 'dark';
+          var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- EXECLEAD.AI — Global Brand Icon Implementation v1.0           -->
     <!-- ═══════════════════════════════════════════════════════════ -->

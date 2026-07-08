@@ -1,0 +1,68 @@
+{
+  "name": "VerificationLog",
+  "type": "object",
+  "properties": {
+    "verification_id": {
+      "type": "string",
+      "description": "Linked IdentityVerification record ID"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "identity_submitted",
+        "identity_approved",
+        "identity_rejected",
+        "identity_updated",
+        "email_verified",
+        "phone_verified",
+        "professional_verified",
+        "profile_published",
+        "verified_executive_granted",
+        "documents_requested"
+      ],
+      "default": "identity_updated"
+    },
+    "document_type": {
+      "type": "string"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer_id": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "verification_id",
+    "action"
+  ]
+}

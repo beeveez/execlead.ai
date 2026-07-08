@@ -111,6 +111,8 @@ import CompanyReportsAdmin from '@/pages/CompanyReportsAdmin';
 import EmailSettings from '@/pages/EmailSettings';
 import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
+import IdentityVerification from '@/pages/IdentityVerification';
+import IdentityVerificationAdmin from '@/pages/IdentityVerificationAdmin';
 import Legal from '@/pages/Legal';
 const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
 import ExecutiveRankings from '@/pages/ExecutiveRankings';
@@ -225,6 +227,8 @@ const AuthenticatedApp = () => {
           <Route path="/guardian" element={<Guardian />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/security" element={<SecurityCenter />} />
+          <Route path="/identity-verification" element={<IdentityVerification />} />
+          <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />

@@ -1,0 +1,196 @@
+{
+  "name": "IdentityVerification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "trust_level": {
+      "type": "number",
+      "default": 0,
+      "description": "0-5 calculated trust level"
+    },
+    "trust_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 calculated trust score"
+    },
+    "email_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "email_verified_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phone_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "phone_verified_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phone_number": {
+      "type": "string"
+    },
+    "identity_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "identity_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "identity_verified_method": {
+      "type": "string",
+      "enum": [
+        "manual_review",
+        "ai_assisted",
+        "third_party"
+      ],
+      "default": "manual_review"
+    },
+    "identity_verified_by": {
+      "type": "string",
+      "description": "Reviewer name or provider name"
+    },
+    "identity_document_type": {
+      "type": "string",
+      "enum": [
+        "passport",
+        "drivers_license",
+        "national_id",
+        "government_id",
+        "employee_id"
+      ]
+    },
+    "identity_document_uri": {
+      "type": "string",
+      "description": "Private file URI \u2014 never exposed publicly"
+    },
+    "identity_status": {
+      "type": "string",
+      "enum": [
+        "pending_upload",
+        "submitted",
+        "under_review",
+        "approved",
+        "verified",
+        "rejected"
+      ],
+      "default": "pending_upload"
+    },
+    "identity_rejection_reason": {
+      "type": "string"
+    },
+    "identity_submitted_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "identity_reviewed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "professional_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "professional_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "professional_verified_method": {
+      "type": "string",
+      "enum": [
+        "corporate_email",
+        "company_invitation",
+        "enterprise_admin",
+        "linkedin"
+      ],
+      "default": "corporate_email"
+    },
+    "professional_verified_by": {
+      "type": "string",
+      "description": "Organization name or verifier"
+    },
+    "resume_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "resume_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "leadership_dna_complete": {
+      "type": "boolean",
+      "default": false
+    },
+    "leadership_dna_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "profile_published": {
+      "type": "boolean",
+      "default": false
+    },
+    "profile_published_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_executive": {
+      "type": "boolean",
+      "default": false
+    },
+    "verified_executive_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "founding_member": {
+      "type": "boolean",
+      "default": false
+    },
+    "founding_member_number": {
+      "type": "string"
+    },
+    "founding_member_since": {
+      "type": "string",
+      "format": "date"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "verification_provider": {
+      "type": "string",
+      "enum": [
+        "none",
+        "stripe_identity",
+        "persona",
+        "onfido",
+        "veriff",
+        "sumsub",
+        "linkedin",
+        "microsoft_entra",
+        "google_workspace",
+        "okta"
+      ],
+      "default": "none"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

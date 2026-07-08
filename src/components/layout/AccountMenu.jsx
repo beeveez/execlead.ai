@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
+import { useSubscription } from "@/lib/SubscriptionContext";
 import { User, ChevronDown, LogOut, LayoutDashboard, UserCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 export default function AccountMenu() {
   const { user } = useAuth();
+  const { subscription, membership } = useSubscription();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -49,6 +51,44 @@ export default function AccountMenu() {
                 {user?.email && <p className="text-xs text-white/40 truncate">{user.email}</p>}
               </div>
             </div>
+          </div>
+          <div className="px-4 py-3 border-b border-white/5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/40">Subscription</span>
+              <span className="flex items-center gap-1 text-xs font-medium" style={{ color: subscription.color }}>
+                <span>{subscription.icon}</span>
+                {subscription.planName}
+              </span>
+            </div>
+            {membership && (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-white/40">Membership</span>
+                  <span className="flex items-center gap-1 text-xs font-medium" style={{ color: membership.color }}>
+                    <span>{membership.icon}</span>
+                    {membership.name}
+                  </span>
+                </div>
+                {membership.discount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/40">Lifetime Discount</span>
+                    <span className="text-xs font-medium text-emerald-400">{membership.discount}% off</span>
+                  </div>
+                )}
+                {membership.number && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/40">Member #</span>
+                    <span className="text-xs font-mono text-white/60">{membership.number}</span>
+                  </div>
+                )}
+                {membership.since && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/40">Member Since</span>
+                    <span className="text-xs text-white/60">{new Date(membership.since).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </>
+            )}
           </div>
           <div className="py-1">
             <button onClick={() => { navigate("/dashboard"); setOpen(false); }} className="flex items-center gap-2.5 px-4 py-2 w-full text-left text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors">

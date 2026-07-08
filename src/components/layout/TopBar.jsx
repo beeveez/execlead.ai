@@ -10,7 +10,7 @@ import ShareButton from "@/components/social/ShareButton";
 import { Bell, CreditCard, Crown } from "lucide-react";
 
 export default function TopBar() {
-  const { subscription, loading } = useSubscription();
+  const { subscription, membership, loading } = useSubscription();
   const { activeWorkspace } = useWorkspace();
   const billingPath = activeWorkspace === "enterprise" ? "/organization/billing" : "/billing";
   const [notifications, setNotifications] = useState([]);
@@ -46,6 +46,12 @@ export default function TopBar() {
       </Link>
       <ShareButton variant="icon" shareType="landing" iconSize={15} />
       <AccountMenu />
+      {membership && (
+        <Link to={membership.type === "founding_member" ? "/founder" : "/billing"} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors" style={{ background: `${membership.color}1a` }}>
+          <span className="text-xs">{membership.icon}</span>
+          <span className="text-xs font-medium" style={{ color: membership.color }}>{membership.name}</span>
+        </Link>
+      )}
       <Link to={billingPath} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
         <CreditCard size={14} className="text-white/40" />
         {loading ? (

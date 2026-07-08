@@ -7,6 +7,8 @@ import FeatureEditor from "@/components/admin/FeatureEditor";
 import FeatureCreationWizard from "@/components/admin/FeatureCreationWizard";
 import HealthScoreDashboard from "@/components/admin/HealthScoreDashboard";
 import FindingsPanel from "@/components/admin/FindingsPanel";
+import RepairReport from "@/components/admin/RepairReport";
+import { classifyFinding, generatePatch, computeRiskLevel } from "@/lib/repairEngine";
 import RouteRegistryTable from "@/components/admin/RouteRegistryTable";
 import DeploymentGate from "@/components/admin/DeploymentGate";
 
@@ -31,6 +33,8 @@ export default function FeatureManagement() {
   const [applying, setApplying] = useState(false);
   const [preview, setPreview] = useState(null);
   const [undoLog, setUndoLog] = useState([]);
+  const [repairHistory, setRepairHistory] = useState([]);
+  const [showRepairReport, setShowRepairReport] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -122,6 +126,7 @@ export default function FeatureManagement() {
   const executeEntityAction = async (finding, action) => {
     const actionKey = `${finding.id}:${action.id}`;
     setRunningActionId(actionKey);
+    let undoEntry = null;
     try {
       const def = DEFAULT_FEATURES.find((f) => f.id === action.featureId);
       if (action.op === "create" && def) {
@@ -132,17 +137,18 @@ export default function FeatureManagement() {
           nav_enabled: false, pricing_enabled: true,
         });
         setFeatures((prev) => [...prev, created]);
-        setUndoLog((prev) => [...prev, { type: "create", recordId: created.id }]);
+        undoEntry = { type: "create", recordId: created.id };
+        setUndoLog((prev) => [...prev, undoEntry]);
       } else if (action.op === "delete" && action.recordId) {
         const prev = snapshotFeature(action.featureId);
         await base44.entities.Feature.delete(action.recordId);
         setFeatures((prev) => prev.filter((f) => f.id !== action.recordId));
-        if (prev) setUndoLog((prev) => [...prev, { type: "delete", record: prev }]);
+        if (prev) { undoEntry = { type: "delete", record: prev }; setUndoLog((prev) => [...prev, undoEntry]); }
       } else if (action.op === "repair_route" && action.recordId) {
         const prev = snapshotFeature(action.featureId);
         await base44.entities.Feature.update(action.recordId, { route_path: action.expectedRoute });
         setFeatures((prev) => prev.map((f) => (f.id === action.recordId ? { ...f, route_path: action.expectedRoute } : f)));
-        if (prev) setUndoLog((prev) => [...prev, { type: "update", recordId: action.recordId, prev: { route_path: prev.route_path } }]);
+        if (prev) { undoEntry = { type: "update", recordId: action.recordId, prev: { route_path: prev.route_path } }; setUndoLog((prev) => [...prev, undoEntry]); }
       } else if (action.op === "set_route" && def) {
         // No live record to update — create one with the correct route
         const created = await base44.entities.Feature.create({
@@ -152,7 +158,8 @@ export default function FeatureManagement() {
           nav_enabled: false, pricing_enabled: true,
         });
         setFeatures((prev) => [...prev, created]);
-        setUndoLog((prev) => [...prev, { type: "create", recordId: created.id }]);
+        undoEntry = { type: "create", recordId: created.id };
+        setUndoLog((prev) => [...prev, undoEntry]);
       }
       setDoneActionIds((prev) => [...prev, actionKey]);
       await runEngine(features);
@@ -160,50 +167,96 @@ export default function FeatureManagement() {
       console.error(e);
     }
     setRunningActionId(null);
+    return undoEntry;
   };
 
-  const fixSelected = async () => {
-    const targets = report.findings.filter((f) => selectedIds.includes(f.id));
-    const entityActions = targets.flatMap((f) => f.actions.filter((a) => a.type === "entity").map((a) => ({ finding: f, action: a })));
-    if (entityActions.length === 0) { setPreview({ title: "No auto-fixable actions", code: "// Selected findings only have code-level fixes. Apply them manually in src/App.jsx or src/lib/roles.js." }); return; }
-    setApplying(true);
-    for (const { finding, action } of entityActions) {
-      await executeEntityAction(finding, action);
+  const refreshAfterRepair = async () => {
+    try {
+      const records = await base44.entities.Feature.list("sort_order", 200);
+      setFeatures(records);
+      await runEngine(records);
+    } catch (e) {
+      await runEngine([]);
     }
-    setApplying(false);
+  };
+
+  const runRepair = async (targetFindings) => {
+    const startTime = Date.now();
+    setApplying(true);
+    const changes = [];
+    let fixed = 0;
+
+    for (const finding of targetFindings) {
+      if (classifyFinding(finding) !== "auto") continue;
+      const entityActions = finding.actions.filter((a) => a.type === "entity" && !doneActionIds.includes(`${finding.id}:${a.id}`));
+      for (const action of entityActions) {
+        const undoEntry = await executeEntityAction(finding, action);
+        if (undoEntry) {
+          changes.push({ ...undoEntry, findingTitle: finding.title, actionLabel: action.label, result: "applied" });
+          fixed++;
+        } else {
+          changes.push({ findingId: finding.id, findingTitle: finding.title, actionLabel: action.label, result: "failed" });
+        }
+      }
+    }
+
+    const executionTimeMs = Date.now() - startTime;
+    const autoCount = targetFindings.filter((f) => classifyFinding(f) === "auto").length;
+    const guidedCount = targetFindings.filter((f) => classifyFinding(f) === "guided").length;
+    const manualCount = targetFindings.filter((f) => classifyFinding(f) === "manual").length;
+
+    const repairReportData = {
+      id: `repair-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      executionTimeMs,
+      riskLevel: computeRiskLevel(changes),
+      stats: {
+        scanned: targetFindings.length,
+        fixed,
+        remaining: targetFindings.length - fixed,
+        filesUpdated: fixed,
+      },
+      changes,
+      snapshot: changes.filter((c) => c.result === "applied"),
+      levelBreakdown: { auto: autoCount, guided: guidedCount, manual: manualCount },
+    };
+
+    setRepairHistory((prev) => [repairReportData, ...prev]);
+    setShowRepairReport(repairReportData);
     setSelectedIds([]);
-  };
-
-  const fixAll = async () => {
-    const entityActions = report.findings
-      .filter((f) => f.severity !== "information")
-      .flatMap((f) => f.actions.filter((a) => a.type === "entity" && !doneActionIds.includes(`${f.id}:${a.id}`)).map((a) => ({ finding: f, action: a })));
-    if (entityActions.length === 0) { setPreview({ title: "No auto-fixable actions", code: "// All remaining issues require code-level changes. Review the code-preview actions on each finding." }); return; }
-    setApplying(true);
-    for (const { finding, action } of entityActions) {
-      await executeEntityAction(finding, action);
-    }
+    await refreshAfterRepair();
     setApplying(false);
   };
 
-  const rollback = async () => {
+  const fixSelected = () => runRepair(report.findings.filter((f) => selectedIds.includes(f.id)));
+  const fixAll = () => runRepair(report.findings);
+
+  const rollbackRepair = async (repairId) => {
+    const repair = repairHistory.find((r) => r.id === repairId);
+    if (!repair) return;
     setApplying(true);
-    const log = [...undoLog].reverse();
-    for (const entry of log) {
+    for (const entry of [...repair.snapshot].reverse()) {
       try {
-        if (entry.type === "create") {
+        if (entry.type === "create" && entry.recordId) {
           await base44.entities.Feature.delete(entry.recordId);
         } else if (entry.type === "delete" && entry.record) {
           await base44.entities.Feature.create(entry.record);
-        } else if (entry.type === "update") {
+        } else if (entry.type === "update" && entry.recordId) {
           await base44.entities.Feature.update(entry.recordId, entry.prev);
         }
       } catch (e) { console.error(e); }
     }
+    setRepairHistory((prev) => prev.filter((r) => r.id !== repairId));
     setUndoLog([]);
     setDoneActionIds([]);
     await loadFeatures();
     setApplying(false);
+    setShowRepairReport(null);
+  };
+
+  const handleGeneratePatch = (finding) => {
+    const patch = generatePatch(finding);
+    setPreview({ title: `Patch: ${finding.title}`, code: patch });
   };
 
   const toggleSelect = (id) => {
@@ -275,13 +328,14 @@ export default function FeatureManagement() {
           onToggleSelect={toggleSelect}
           onRunAction={executeEntityAction}
           onPreviewAction={(finding, action) => setPreview({ title: `${finding.title} → ${action.label}`, code: action.preview })}
+          onGeneratePatch={handleGeneratePatch}
           onFixSelected={fixSelected}
           onFixAll={fixAll}
-          onRollback={rollback}
+          onRollbackRepair={rollbackRepair}
           runningActionId={runningActionId}
           doneActionIds={doneActionIds}
           applying={applying}
-          canRollback={undoLog.length > 0}
+          repairHistory={repairHistory}
         />
       )}
 
@@ -335,6 +389,14 @@ export default function FeatureManagement() {
             </div>
           </div>
         </div>
+      )}
+
+      {showRepairReport && (
+        <RepairReport
+          report={showRepairReport}
+          onClose={() => setShowRepairReport(null)}
+          onRollback={rollbackRepair}
+        />
       )}
 
       {showWizard && (

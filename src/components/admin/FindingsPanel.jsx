@@ -1,30 +1,36 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { Wrench, Eye, RotateCcw, CheckCircle2, Filter, EyeOff, CheckCheck, Download, AlertCircle } from "lucide-react";
+import { Wrench, Eye, RotateCcw, Filter, EyeOff, CheckCheck, Download, ChevronDown, ChevronRight, History, Zap } from "lucide-react";
 import FindingCard from "./FindingCard";
+import { classifyFinding } from "@/lib/repairEngine";
 
 const FILTERS = [
   { id: "all", label: "All" },
-  { id: "critical", label: "Critical" },
-  { id: "warning", label: "Warnings" },
-  { id: "information", label: "Info" },
+  { id: "auto", label: "🟢 Auto" },
+  { id: "guided", label: "🟡 Guided" },
+  { id: "manual", label: "🔴 Manual" },
 ];
 
-export default function FindingsPanel({ report, selectedIds, onToggleSelect, onRunAction, onPreviewAction, onFixSelected, onFixAll, onRollback, runningActionId, doneActionIds, applying, canRollback }) {
+export default function FindingsPanel({ report, selectedIds, onToggleSelect, onRunAction, onPreviewAction, onGeneratePatch, onFixSelected, onFixAll, onRollbackRepair, runningActionId, doneActionIds, applying, repairHistory }) {
   const [filter, setFilter] = useState("all");
   const [ignored, setIgnored] = useState(new Set());
   const [reviewed, setReviewed] = useState(new Set());
-  const [uiWarning, setUiWarning] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   const filtered = useMemo(() => {
     if (filter === "all") return report.findings;
-    return report.findings.filter((f) => f.severity === filter);
+    return report.findings.filter((f) => classifyFinding(f) === filter);
   }, [report.findings, filter]);
+
+  const levelCounts = useMemo(() => {
+    const c = { auto: 0, guided: 0, manual: 0 };
+    report.findings.forEach((f) => { c[classifyFinding(f)]++; });
+    return c;
+  }, [report.findings]);
 
   const allSelectable = filtered;
   const allSelected = allSelectable.length > 0 && allSelectable.every((f) => selectedIds.includes(f.id));
   const someSelected = selectedIds.length > 0 && !allSelected;
 
-  /* --- Select All checkbox with indeterminate state --- */
   const selectAllRef = useRef(null);
   useEffect(() => {
     if (selectAllRef.current) {
@@ -44,7 +50,6 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
     [...selectedIds].forEach((id) => onToggleSelect(id));
   };
 
-  /* --- Bulk: Ignore / Reviewed / Export --- */
   const ignoreSelected = () => {
     setIgnored((prev) => new Set([...prev, ...selectedIds]));
     clearSelection();
@@ -55,15 +60,16 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
     clearSelection();
   };
 
+  const markFindingReviewed = (finding) => {
+    setReviewed((prev) => new Set([...prev, finding.id]));
+  };
+
   const exportSelected = () => {
     const selectedFindings = report.findings.filter((f) => selectedIds.includes(f.id));
     const data = selectedFindings.map((f) => ({
-      id: f.id,
-      title: f.title,
-      severity: f.severity,
-      category: f.category,
-      description: f.description,
-      actions: f.actions.map((a) => a.label),
+      id: f.id, title: f.title, severity: f.severity, category: f.category,
+      repairLevel: classifyFinding(f),
+      description: f.description, actions: f.actions.map((a) => a.label),
     }));
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -76,26 +82,13 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
     URL.revokeObjectURL(url);
   };
 
-  /* --- Runtime UI validation (#8): verify checkboxes are interactive --- */
-  useEffect(() => {
-    if (filtered.length === 0) { setUiWarning(null); return; }
-    const timer = setTimeout(() => {
-      const checkboxes = document.querySelectorAll("[data-finding-checkbox]");
-      if (checkboxes.length === 0) { setUiWarning("No interactive checkboxes detected in findings panel."); return; }
-      const blocked = [];
-      checkboxes.forEach((cb) => {
-        const el = cb;
-        let node = el;
-        while (node && node !== document.body) {
-          const style = window.getComputedStyle(node);
-          if (style.pointerEvents === "none") { blocked.push(el.getAttribute("aria-label") || "checkbox"); break; }
-          node = node.parentElement;
-        }
-      });
-      setUiWarning(blocked.length > 0 ? `${blocked.length} checkbox(es) blocked by pointer-events:none — UI interactivity issue.` : null);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [filtered.length, filter]);
+  const selectionSummary = useMemo(() => {
+    if (selectedIds.length === 0) return null;
+    const targets = report.findings.filter((f) => selectedIds.includes(f.id));
+    const levels = { auto: 0, guided: 0, manual: 0 };
+    targets.forEach((f) => { levels[classifyFinding(f)]++; });
+    return levels;
+  }, [selectedIds, report.findings]);
 
   const hasSelection = selectedIds.length > 0;
 
@@ -113,43 +106,75 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
         <div className="flex items-center gap-2 flex-wrap">
           {allSelectable.length > 0 && (
             <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-xs cursor-pointer transition-colors">
-              <input
-                ref={selectAllRef}
-                type="checkbox"
-                checked={allSelected}
-                onChange={toggleAll}
-                aria-label="Select all findings"
-                className="w-4 h-4 accent-indigo-500 cursor-pointer"
-              />
+              <input ref={selectAllRef} type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all findings" className="w-4 h-4 accent-indigo-500 cursor-pointer" />
               {allSelected ? "Deselect All" : "Select All"}
             </label>
           )}
           <button type="button" onClick={onFixSelected} disabled={applying || !hasSelection} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-30 text-white text-xs font-medium transition-colors">
-            <Wrench size={12} /> Fix Selected {hasSelection && `(${selectedIds.length})`}
+            {applying ? <Zap size={12} className="animate-pulse" /> : <Wrench size={12} />} Fix Selected {hasSelection && `(${selectedIds.length})`}
           </button>
           <button type="button" onClick={ignoreSelected} disabled={applying || !hasSelection} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white/60 text-xs font-medium transition-colors">
-            <EyeOff size={12} /> Ignore Selected {hasSelection && `(${selectedIds.length})`}
+            <EyeOff size={12} /> Ignore
           </button>
           <button type="button" onClick={markReviewed} disabled={applying || !hasSelection} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white/60 text-xs font-medium transition-colors">
-            <CheckCheck size={12} /> Mark as Reviewed {hasSelection && `(${selectedIds.length})`}
+            <CheckCheck size={12} /> Reviewed
           </button>
           <button type="button" onClick={exportSelected} disabled={applying || !hasSelection} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white/60 text-xs font-medium transition-colors">
-            <Download size={12} /> Export Selected {hasSelection && `(${selectedIds.length})`}
+            <Download size={12} /> Export
           </button>
-          <button type="button" onClick={onFixAll} disabled={applying || allSelectable.length === 0} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 disabled:opacity-30 text-emerald-300 text-xs font-medium transition-colors">
-            <Wrench size={12} /> Fix All
+          <button type="button" onClick={onFixAll} disabled={applying} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 disabled:opacity-30 text-emerald-300 text-xs font-medium transition-colors">
+            <Wrench size={12} /> Fix All Auto
           </button>
-          {canRollback && (
-            <button type="button" onClick={onRollback} disabled={applying} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 disabled:opacity-30 text-amber-300 text-xs font-medium transition-colors">
-              <RotateCcw size={12} /> Rollback
-            </button>
-          )}
         </div>
       </div>
 
-      {uiWarning && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-          <AlertCircle size={14} className="shrink-0" /> {uiWarning}
+      {!selectionSummary && (levelCounts.auto + levelCounts.guided + levelCounts.manual) > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/15 p-3 text-center">
+            <div className="text-emerald-400 text-xl font-bold">{levelCounts.auto}</div>
+            <div className="text-white/40 text-[10px] uppercase tracking-wider">Auto Fixable</div>
+          </div>
+          <div className="rounded-lg bg-amber-500/5 border border-amber-500/15 p-3 text-center">
+            <div className="text-amber-400 text-xl font-bold">{levelCounts.guided}</div>
+            <div className="text-white/40 text-[10px] uppercase tracking-wider">Guided Fixes</div>
+          </div>
+          <div className="rounded-lg bg-red-500/5 border border-red-500/15 p-3 text-center">
+            <div className="text-red-400 text-xl font-bold">{levelCounts.manual}</div>
+            <div className="text-white/40 text-[10px] uppercase tracking-wider">Manual Fixes</div>
+          </div>
+        </div>
+      )}
+
+      {selectionSummary && (
+        <div className="rounded-lg bg-indigo-500/5 border border-indigo-500/15 p-3 space-y-1">
+          {selectionSummary.auto > 0 && <p className="text-xs text-white/60">🟢 <span className="text-emerald-400 font-medium">{selectionSummary.auto}</span> issue(s) will be auto-repaired</p>}
+          {selectionSummary.guided > 0 && <p className="text-xs text-white/60">🟡 <span className="text-amber-400 font-medium">{selectionSummary.guided}</span> guided fix(es) — patches ready for review</p>}
+          {selectionSummary.manual > 0 && <p className="text-xs text-white/60">🔴 <span className="text-red-400 font-medium">{selectionSummary.manual}</span> manual fix(es) require developer attention</p>}
+          {selectionSummary.auto === 0 && <p className="text-xs text-white/40 italic">No auto-fixable issues in this selection. Use the guided patches or review manual fixes below.</p>}
+        </div>
+      )}
+
+      {repairHistory && repairHistory.length > 0 && (
+        <div className="rounded-lg bg-white/[0.02] border border-white/5 overflow-hidden">
+          <button type="button" onClick={() => setShowHistory(!showHistory)} className="w-full flex items-center justify-between p-3 text-xs text-white/60 hover:text-white/80 transition-colors">
+            <span className="flex items-center gap-2"><History size={12} /> Repair History ({repairHistory.length})</span>
+            {showHistory ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          </button>
+          {showHistory && (
+            <div className="px-3 pb-3 space-y-2">
+              {repairHistory.map((r) => (
+                <div key={r.id} className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-white/[0.02] border border-white/5">
+                  <div className="text-xs text-white/50">
+                    <span className="text-white/70">{r.stats.fixed}</span> fixed · <span className="text-white/70">{r.stats.remaining}</span> remaining · <span className="capitalize">{r.riskLevel}</span> risk
+                    <span className="text-white/30 ml-2">{new Date(r.timestamp).toLocaleTimeString()}</span>
+                  </div>
+                  <button type="button" onClick={() => onRollbackRepair(r.id)} disabled={applying} className="flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 disabled:opacity-30 text-amber-400 text-[10px] font-medium transition-colors">
+                    <RotateCcw size={10} /> Rollback
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -171,6 +196,8 @@ export default function FindingsPanel({ report, selectedIds, onToggleSelect, onR
               onToggleSelect={onToggleSelect}
               onRunAction={onRunAction}
               onPreviewAction={onPreviewAction}
+              onGeneratePatch={onGeneratePatch}
+              onMarkReviewed={markFindingReviewed}
               runningActionId={runningActionId}
               doneActionIds={doneActionIds}
             />

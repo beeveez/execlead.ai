@@ -83,11 +83,13 @@ export function calculateQuote(config, catalog) {
   const recurringContractValue = (discountedAnnual * contractLength) - multiYearDiscount;
   const contractValue = recurringContractValue + servicesCost;
 
-  // 9. Tax
+  // 9. Tax — Modular Tax Engine (VAT, GST, Sales Tax, zero-rated, exempt)
   const country = config.country || "US";
   const taxRule = taxRules.find(t => t.country_code === country);
   const taxExempt = config.taxExempt || false;
-  const taxRate = taxExempt ? 0 : (taxRule?.rate || 0);
+  const taxType = taxRule?.tax_type || "none";
+  const isZeroTax = taxExempt || ["zero_rated", "exempt", "none"].includes(taxType);
+  const taxRate = isZeroTax ? 0 : (taxRule?.rate || 0);
   const taxAmount = contractValue * taxRate;
 
   // 10. Grand Total

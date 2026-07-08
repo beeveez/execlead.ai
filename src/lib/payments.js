@@ -1,23 +1,50 @@
 import { base44 } from "@/api/base44Client";
 
 // ============================================================
+// COMPANY ENTITY
+// EXECLEAD.AI is a product of Meridian Wellspring Holdings Pte. Ltd.,
+// a Singapore-registered company. The platform is country-neutral and
+// globally deployable — no dependency on any single country's banking,
+// tax, or business registration infrastructure.
+// ============================================================
+
+export const COMPANY_ENTITY = {
+  product: "EXECLEAD.AI",
+  parent: "Meridian Wellspring Holdings Pte. Ltd.",
+  parentCountry: "Singapore",
+  registeredAs: "Private Limited (Pte. Ltd.)",
+};
+
+// ============================================================
 // PROVIDER ABSTRACTION LAYER
-// Initially supports Stripe. Architecture designed for future
-// providers: PayPal, GCash, Maya, Apple Pay, Google Pay,
-// PayNow, Bank Transfer, Enterprise Invoice.
+// Primary provider: Stripe (Visa, Mastercard, Amex, Apple Pay, Google Pay).
+// Architecture is provider-agnostic — future providers (PayPal, Wise,
+// Bank Transfer, Enterprise Invoicing, regional providers) can be added
+// as optional modules without changes to the core billing engine.
+// EXECLEAD.AI never stores payment card information — all card data is
+// tokenized and handled securely by the payment provider.
 // ============================================================
 
 export const PAYMENT_PROVIDERS = {
-  stripe: { id: "stripe", name: "Stripe", icon: "💳", description: "Visa, Mastercard, Amex", status: "active", supportsRecurring: true, supportsRefunds: true, supportsTax: true },
+  stripe: { id: "stripe", name: "Stripe", icon: "💳", description: "Visa, Mastercard, Amex, Apple Pay, Google Pay", status: "active", supportsRecurring: true, supportsRefunds: true, supportsTax: true, primary: true },
+  apple: { id: "apple", name: "Apple Pay", icon: "", description: "Pay with Apple Pay (via Stripe)", status: "active", supportsRecurring: false, supportsRefunds: true, supportsTax: true, via: "stripe" },
+  google: { id: "google", name: "Google Pay", icon: "G", description: "Pay with Google Pay (via Stripe)", status: "active", supportsRecurring: false, supportsRefunds: true, supportsTax: true, via: "stripe" },
   paypal: { id: "paypal", name: "PayPal", icon: "🅿️", description: "Pay with PayPal balance", status: "coming_soon", supportsRecurring: true, supportsRefunds: true, supportsTax: true },
-  apple: { id: "apple", name: "Apple Pay", icon: "", description: "Pay with Apple Pay", status: "active", supportsRecurring: false, supportsRefunds: true, supportsTax: true },
-  google: { id: "google", name: "Google Pay", icon: "G", description: "Pay with Google Pay", status: "active", supportsRecurring: false, supportsRefunds: true, supportsTax: true },
-  gcash: { id: "gcash", name: "GCash", icon: "📱", description: "Philippines mobile wallet", status: "coming_soon", supportsRecurring: false, supportsRefunds: false, supportsTax: false },
-  maya: { id: "maya", name: "Maya", icon: "💳", description: "Philippines digital wallet", status: "coming_soon", supportsRecurring: false, supportsRefunds: false, supportsTax: false },
+  wise: { id: "wise", name: "Wise", icon: "🌍", description: "International bank transfer", status: "coming_soon", supportsRecurring: false, supportsRefunds: false, supportsTax: false },
   paynow: { id: "paynow", name: "PayNow", icon: "🏦", description: "Singapore instant transfer", status: "coming_soon", supportsRecurring: false, supportsRefunds: false, supportsTax: false },
   bank_transfer: { id: "bank_transfer", name: "Bank Transfer", icon: "🏦", description: "Direct bank transfer", status: "coming_soon", supportsRecurring: false, supportsRefunds: false, supportsTax: false },
   enterprise_invoice: { id: "enterprise_invoice", name: "Enterprise Invoice", icon: "📄", description: "Annual contracts & POs", status: "active", supportsRecurring: true, supportsRefunds: true, supportsTax: true },
 };
+
+// Launch payment methods — all processed securely through Stripe.
+// EXECLEAD.AI never stores payment card information.
+export const SUPPORTED_CARD_METHODS = [
+  { id: "visa", name: "Visa" },
+  { id: "mastercard", name: "Mastercard" },
+  { id: "amex", name: "American Express" },
+  { id: "apple_pay", name: "Apple Pay" },
+  { id: "google_pay", name: "Google Pay" },
+];
 
 export const ACTIVE_PROVIDERS = Object.values(PAYMENT_PROVIDERS).filter((p) => p.status === "active");
 
@@ -82,35 +109,55 @@ export function isDeveloperUnlimited(profile) {
 }
 
 // ============================================================
-// CURRENCIES & COUNTRIES
+// GLOBAL CURRENCIES
+// USD is the default. Additional currencies are configurable
+// through the Admin Portal. Architecture supports expansion to
+// any currency without code changes.
 // ============================================================
 
 export const CURRENCIES = {
   USD: { symbol: "$", label: "US Dollar" },
+  SGD: { symbol: "S$", label: "Singapore Dollar" },
   EUR: { symbol: "€", label: "Euro" },
   GBP: { symbol: "£", label: "British Pound" },
-  CAD: { symbol: "C$", label: "Canadian Dollar" },
   AUD: { symbol: "A$", label: "Australian Dollar" },
-  INR: { symbol: "₹", label: "Indian Rupee" },
+  CAD: { symbol: "C$", label: "Canadian Dollar" },
+  JPY: { symbol: "¥", label: "Japanese Yen" },
 };
 
 export const COUNTRIES = [
-  { code: "US", name: "United States", currency: "USD", taxRate: 0 },
-  { code: "GB", name: "United Kingdom", currency: "GBP", taxRate: 0.2 },
-  { code: "DE", name: "Germany", currency: "EUR", taxRate: 0.19 },
-  { code: "FR", name: "France", currency: "EUR", taxRate: 0.2 },
-  { code: "ES", name: "Spain", currency: "EUR", taxRate: 0.21 },
-  { code: "IT", name: "Italy", currency: "EUR", taxRate: 0.22 },
-  { code: "NL", name: "Netherlands", currency: "EUR", taxRate: 0.21 },
-  { code: "CA", name: "Canada", currency: "CAD", taxRate: 0.05 },
-  { code: "AU", name: "Australia", currency: "AUD", taxRate: 0.1 },
-  { code: "IN", name: "India", currency: "INR", taxRate: 0.18 },
-  { code: "JP", name: "Japan", currency: "USD", taxRate: 0.1 },
-  { code: "SG", name: "Singapore", currency: "USD", taxRate: 0.08 },
-  { code: "AE", name: "United Arab Emirates", currency: "USD", taxRate: 0.05 },
-  { code: "BR", name: "Brazil", currency: "USD", taxRate: 0.17 },
-  { code: "MX", name: "Mexico", currency: "USD", taxRate: 0.16 },
+  { code: "US", name: "United States", currency: "USD", taxType: "sales_tax", taxRate: 0 },
+  { code: "GB", name: "United Kingdom", currency: "GBP", taxType: "vat", taxRate: 0.2 },
+  { code: "DE", name: "Germany", currency: "EUR", taxType: "vat", taxRate: 0.19 },
+  { code: "FR", name: "France", currency: "EUR", taxType: "vat", taxRate: 0.2 },
+  { code: "ES", name: "Spain", currency: "EUR", taxType: "vat", taxRate: 0.21 },
+  { code: "IT", name: "Italy", currency: "EUR", taxType: "vat", taxRate: 0.22 },
+  { code: "NL", name: "Netherlands", currency: "EUR", taxType: "vat", taxRate: 0.21 },
+  { code: "CA", name: "Canada", currency: "CAD", taxType: "gst", taxRate: 0.05 },
+  { code: "AU", name: "Australia", currency: "AUD", taxType: "gst", taxRate: 0.1 },
+  { code: "JP", name: "Japan", currency: "JPY", taxType: "sales_tax", taxRate: 0.1 },
+  { code: "SG", name: "Singapore", currency: "SGD", taxType: "gst", taxRate: 0.08 },
+  { code: "AE", name: "United Arab Emirates", currency: "USD", taxType: "vat", taxRate: 0.05 },
+  { code: "BR", name: "Brazil", currency: "USD", taxType: "sales_tax", taxRate: 0.17 },
+  { code: "MX", name: "Mexico", currency: "USD", taxType: "vat", taxRate: 0.16 },
 ];
+
+// ============================================================
+// MODULAR TAX ENGINE
+// Supports VAT, GST, Sales Tax, zero-rated, and tax-exempt
+// transactions. No country's tax rules are hardcoded into core
+// logic — all rates are admin-configurable via PaymentSettings
+// and the CPQTaxRule entity.
+// ============================================================
+
+export const TAX_TYPES = {
+  vat: { id: "vat", label: "VAT", description: "Value Added Tax (EU, UK, etc.)" },
+  gst: { id: "gst", label: "GST", description: "Goods and Services Tax (AU, SG, CA, etc.)" },
+  sales_tax: { id: "sales_tax", label: "Sales Tax", description: "Regional sales tax (US, etc.)" },
+  zero_rated: { id: "zero_rated", label: "Zero-Rated", description: "0% tax — exports and specific categories" },
+  exempt: { id: "exempt", label: "Tax-Exempt", description: "Organization is tax-exempt (non-profit, government)" },
+  none: { id: "none", label: "No Tax", description: "No tax applies" },
+};
 
 export const TRIAL_DURATIONS = [
   { days: 7, label: "7-Day Trial" },
@@ -122,9 +169,19 @@ export function getCountry(code) {
   return COUNTRIES.find((c) => c.code === code) || COUNTRIES[0];
 }
 
-export function calculateTax(countryCode, amount) {
+export function calculateTax(countryCode, amount, options = {}) {
   if (amount <= 0) return 0;
+  // Tax-exempt organizations pay no tax
+  if (options.taxExempt) return 0;
+  // Zero-rated transactions
+  if (options.zeroRated) return 0;
+  // Admin-configured custom rate takes precedence
+  if (options.customRate !== undefined && options.customRate !== null) {
+    return Math.round(amount * options.customRate * 100) / 100;
+  }
+  // Fall back to country default rate (admin-configurable via CPQTaxRule)
   const country = getCountry(countryCode);
+  if (["zero_rated", "exempt", "none"].includes(country.taxType)) return 0;
   return Math.round(amount * country.taxRate * 100) / 100;
 }
 
@@ -547,6 +604,7 @@ export async function downloadReceiptPDF(invoice, profile) {
   doc.setTextColor(150, 150, 160);
   doc.text("Thank you for your business!", 20, 200);
   doc.text("EXECLEAD.AI - Develop Executive Leaders. Not Interview Candidates.", 20, 207);
+  doc.text("A product of Meridian Wellspring Holdings Pte. Ltd. (Singapore)", 20, 214);
 
   doc.save(`receipt-${invoice.invoice_number || invoice.id}.pdf`);
 }

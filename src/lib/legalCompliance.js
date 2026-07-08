@@ -14,6 +14,13 @@ export const LEGAL_META = {
     "Ensure the Company Intelligence Library complies with intellectual property, trademark, copyright, and fair-use principles while delivering valuable executive intelligence. EXECLEAD.AI is an independent executive leadership platform and does not represent or imply endorsement by any organization listed.",
 };
 
+export const COMPANY_ENTITY = {
+  product: "EXECLEAD.AI",
+  parent: "Meridian Wellspring Holdings Pte. Ltd.",
+  parentCountry: "Singapore",
+  registeredAs: "Private Limited (Pte. Ltd.)",
+};
+
 export const GLOBAL_DISCLAIMER = {
   compact:
     "EXECLEAD.AI provides independent executive research and analysis. Company names, trademarks, logos, and brands are the property of their respective owners. EXECLEAD.AI is not affiliated with, sponsored by, or endorsed by any company listed unless explicitly stated.",
@@ -114,7 +121,7 @@ export const LEGAL_SECTIONS = {
   "legal-notice": {
     title: "Legal Notice",
     icon: "FileText",
-    content: `EXECLEAD.AI is an independent executive leadership development platform. The platform provides independent executive research, leadership analysis, interview preparation, and educational content.
+    content: `EXECLEAD.AI is an independent executive leadership development platform operated by Meridian Wellspring Holdings Pte. Ltd., a company registered in Singapore. The platform provides independent executive research, leadership analysis, interview preparation, and educational content.
 
 EXECLEAD.AI does not represent or imply endorsement by any organization listed in the Company Intelligence Library. All company names, trademarks, logos, and brands referenced on this platform are the property of their respective owners.
 

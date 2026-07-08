@@ -30,8 +30,9 @@ export default function MarketingFooter() {
             <Link to="/legal#claim" className="hover:text-white/50 transition-colors">Claim Company Profile</Link>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-white/5 text-center text-white/20 text-xs">
-          © 2026 EXECLEAD.AI. All rights reserved. Company names and trademarks are the property of their respective owners.
+        <div className="mt-4 pt-4 border-t border-white/5 text-center text-white/20 text-xs space-y-1">
+          <p>© 2026 EXECLEAD.AI. All rights reserved. Company names and trademarks are the property of their respective owners.</p>
+          <p className="text-white/15">EXECLEAD.AI is a product of Meridian Wellspring Holdings Pte. Ltd. (Singapore).</p>
         </div>
       </div>
     </footer>

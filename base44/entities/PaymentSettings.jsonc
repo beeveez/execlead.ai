@@ -7,8 +7,7 @@
       "enum": [
         "stripe",
         "paypal",
-        "gcash",
-        "maya",
+        "wise",
         "apple_pay",
         "google_pay",
         "paynow",
@@ -56,6 +55,15 @@
       "type": "boolean",
       "default": true
     },
+    "tax_engine_mode": {
+      "type": "string",
+      "enum": [
+        "automatic",
+        "manual",
+        "disabled"
+      ],
+      "default": "automatic"
+    },
     "default_tax_rate": {
       "type": "number",
       "default": 0
@@ -79,6 +87,14 @@
     "refund_window_days": {
       "type": "number",
       "default": 30
+    },
+    "parent_company": {
+      "type": "string",
+      "default": "Meridian Wellspring Holdings Pte. Ltd."
+    },
+    "parent_company_country": {
+      "type": "string",
+      "default": "Singapore"
     },
     "is_active": {
       "type": "boolean",

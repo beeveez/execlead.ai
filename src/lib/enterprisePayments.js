@@ -2,8 +2,10 @@ import { logBillingEvent } from "@/lib/payments";
 
 // ============================================================
 // ENTERPRISE PAYMENT PROVIDER ABSTRACTION LAYER
-// Active: Stripe, PayPal
-// Future: Adyen, Braintree, Authorize.Net
+// Primary: Stripe (Visa, Mastercard, Amex, Apple Pay, Google Pay)
+// Future: PayPal, Wise, additional regional providers
+// Enterprise billing also supports Bank Transfer, Wire Transfer,
+// and Purchase Orders as offline methods.
 // ============================================================
 
 export const ENTERPRISE_PROVIDERS = {
@@ -11,41 +13,26 @@ export const ENTERPRISE_PROVIDERS = {
     id: "stripe",
     name: "Stripe",
     icon: "💳",
-    description: "Visa, Mastercard, Amex",
+    description: "Visa, Mastercard, Amex, Apple Pay, Google Pay",
     status: "active",
     supports_methods: ["credit_card"],
+    primary: true,
   },
   paypal: {
     id: "paypal",
     name: "PayPal",
     icon: "🅿️",
     description: "PayPal balance & cards",
-    status: "active",
-    supports_methods: ["credit_card"],
-  },
-  adyen: {
-    id: "adyen",
-    name: "Adyen",
-    icon: "🌐",
-    description: "Global omnichannel payments",
-    status: "coming_soon",
-    supports_methods: ["credit_card", "bank_transfer"],
-  },
-  braintree: {
-    id: "braintree",
-    name: "Braintree",
-    icon: "💠",
-    description: "PayPal-owned payment platform",
     status: "coming_soon",
     supports_methods: ["credit_card"],
   },
-  authorize_net: {
-    id: "authorize_net",
-    name: "Authorize.Net",
-    icon: "🔐",
-    description: "Visa-owned payment gateway",
+  wise: {
+    id: "wise",
+    name: "Wise",
+    icon: "🌍",
+    description: "International bank transfer",
     status: "coming_soon",
-    supports_methods: ["credit_card"],
+    supports_methods: ["bank_transfer"],
   },
 };
 

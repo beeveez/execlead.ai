@@ -201,6 +201,7 @@ export function calculateProfileCompletion(rawProfile) {
 /** Validate whether a profile is ready to publish. */
 export function validateForPublish(rawProfile) {
   const profile = normalizeProfile(rawProfile);
+  if (!profile) return { valid: false, checks: [], passed: 0, total: PUBLISH_REQUIREMENTS.length, missing: [], completion: 0, minRequired: MIN_PUBLISH_COMPLETION };
   const { overall, requiredMissing } = calculateProfileCompletion(profile);
   const checks = PUBLISH_REQUIREMENTS.map((r) => ({ ...r, passed: r.check(profile) }));
   const passed = checks.filter((c) => c.passed).length;

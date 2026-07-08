@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-const ALLOWED_ROLES = ["developer", "super_admin", "platform_admin", "enterprise_admin", "organization_owner", "support"];
+const ALLOWED_ROLES = ["developer", "super_admin", "platform_admin", "product_manager", "enterprise_admin", "organization_owner", "support"];
 const OPEN_STATUSES = ["new", "acknowledged", "investigating", "in_progress", "testing"];
 const DONE_STATUSES = ["resolved", "closed"];
 

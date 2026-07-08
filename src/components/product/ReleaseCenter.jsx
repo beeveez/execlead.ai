@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Rocket, Plus, X, Send, CheckCircle2, Link2 } from "lucide-react";
 import SectionHeader from "@/components/product/SectionHeader";
-import { RELEASE_STATUSES, getReleaseStatus, generateReleaseVersion, canManageReleases } from "@/lib/productManagement";
+import { RELEASE_STATUSES, getReleaseStatus, generateReleaseVersion } from "@/lib/productManagement";
 import { safeParse } from "@/lib/feedbackConfig";
 import { formatRelative } from "@/lib/productManagement";
 
 export default function ReleaseCenter({ pm, onSelect }) {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ version: "", release_name: "", release_date: "", status: "planned", release_notes: "", breaking_changes: "" });
-  const canManage = canManageReleases(pm.user?.role);
+  const canManage = pm.canManage;
 
   const handleCreate = async () => {
     if (!form.version.trim() || !form.release_name.trim()) return;

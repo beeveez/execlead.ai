@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { useDeveloper } from "@/lib/DeveloperContext";
 import { toast } from "@/components/ui/use-toast";
 import { safeParse } from "@/lib/feedbackConfig";
-import { canAccessPM, generateBugId, generateFeatureId } from "@/lib/productManagement";
+import { generateBugId, generateFeatureId } from "@/lib/productManagement";
+import { canAccessProductManagement } from "@/lib/workspacePermissions";
 
 const REFRESH_INTERVAL = 30000;
 
@@ -14,6 +16,7 @@ const DEFAULT_FILTERS = {
 
 export function useProductManagement() {
   const { user } = useAuth();
+  const { developerMode } = useDeveloper();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [insights, setInsights] = useState(null);
@@ -27,7 +30,11 @@ export function useProductManagement() {
   const timerRef = useRef(null);
   const prevIdsRef = useRef(null);
 
-  const canManage = canAccessPM(user?.role);
+  // Centralized permission check — uses role normalization, Developer
+  // Mode, and the Super Admin Founder Override. Never checks subscription.
+  const accessCheck = canAccessProductManagement(user?.role, developerMode);
+  const canManage = accessCheck.granted;
+  const accessDeniedReason = accessCheck.reason;
 
   const loadAll = useCallback(async () => {
     try {
@@ -81,10 +88,14 @@ export function useProductManagement() {
   }, []);
 
   useEffect(() => {
+    if (!canManage) {
+      setLoading(false);
+      return;
+    }
     loadAll();
     timerRef.current = setInterval(loadAll, REFRESH_INTERVAL);
     return () => clearInterval(timerRef.current);
-  }, [loadAll]);
+  }, [loadAll, canManage]);
 
   const refresh = useCallback(() => loadAll(), [loadAll]);
 
@@ -260,7 +271,7 @@ export function useProductManagement() {
   }, [releases, updateRelease, updateFeedback]);
 
   return {
-    user, canManage,
+    user, canManage, accessDeniedReason,
     loading, error, lastRefresh, refresh,
     insights, feedback, releases,
     aiInsights, loadingAI, generateInsights,

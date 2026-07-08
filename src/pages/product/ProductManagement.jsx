@@ -52,8 +52,9 @@ export default function ProductManagement() {
           ) : !pm.canManage ? (
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">
               <Shield size={32} className="mx-auto text-white/20 mb-3" />
-              <h2 className="text-white font-medium mb-1">Product Management Access Required</h2>
-              <p className="text-white/30 text-sm">This center is restricted to developers, product managers, and administrators.</p>
+              <h2 className="text-white font-medium mb-1">Access Denied</h2>
+              <p className="text-white/30 text-sm mb-3">{pm.accessDeniedReason}</p>
+              <p className="text-white/20 text-xs">Required roles: Developer, Product Manager, Platform Admin, or Super Admin. Super Admin always bypasses all checks.</p>
             </div>
           ) : pm.error ? (
             <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6 text-center">

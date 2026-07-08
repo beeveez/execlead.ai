@@ -6,7 +6,7 @@ import {
   ROADMAP_STAGES, PRODUCT_MODULES, ENVIRONMENTS, BUSINESS_VALUES, EFFORT_ESTIMATES,
   getRoadmapStage, getSentiment, getBusinessValue, getEffort, getCustomerImpact,
   resolveCustomer, getTags, getAiLabels, getLifecycleHistory, getCustomerCommunications,
-  formatRelative, canManageProduct,
+  formatRelative,
 } from "@/lib/productManagement";
 import {
   X, Sparkles, Bug, Lightbulb, Send, Clock, User, Building2, Mail,
@@ -41,7 +41,7 @@ export default function FeedbackDetailDrawer({ feedback, pm, onClose }) {
   const comms = getCustomerCommunications(feedback);
   const attachments = safeParse(feedback.attachments_json, []);
   const diag = safeParse(feedback.diagnostics_json, {});
-  const canManage = canManageProduct(pm.user?.role);
+  const canManage = pm.canManage;
   const isBug = feedback.type === "bug";
   const isFeature = feedback.type === "feature";
 

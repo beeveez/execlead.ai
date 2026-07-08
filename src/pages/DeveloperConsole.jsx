@@ -8,6 +8,7 @@ import ImpersonationPanel from "@/components/developer/ImpersonationPanel";
 import TestTenantManager from "@/components/developer/TestTenantManager";
 import FoundingMemberTesting from "@/components/developer/FoundingMemberTesting";
 import EntitlementDiagnostic from "@/components/developer/EntitlementDiagnostic";
+import AuthorizationPanel from "@/components/developer/AuthorizationPanel";
 
 export default function DeveloperConsole() {
   const { canAccessDeveloper } = useDeveloper();
@@ -36,6 +37,8 @@ export default function DeveloperConsole() {
       </div>
 
       <WorkspaceModules />
+
+      <AuthorizationPanel />
 
       <EntitlementDiagnostic />
 

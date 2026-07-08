@@ -1,4 +1,5 @@
 import { safeParse } from "@/lib/feedbackConfig";
+import { canAccessProductManagement, checkPermission } from "@/lib/workspacePermissions";
 
 // ============================================================
 // Product Management Center — Constants & Helpers
@@ -96,20 +97,20 @@ export function getCustomerImpact(id) {
   return CUSTOMER_IMPACT.find(c => c.id === id) || CUSTOMER_IMPACT[1];
 }
 
-const ADMIN_ROLES = ["developer", "super_admin", "platform_admin", "enterprise_admin", "organization_owner", "support"];
-const PLAN_ROLES = ["developer", "super_admin", "platform_admin", "product_manager"];
-
-export function canAccessPM(userRole) {
-  return ADMIN_ROLES.includes(userRole);
+// Permission checks are centralized in workspacePermissions.js
+// which normalizes roles, includes product_manager, and applies
+// the Super Admin Founder Override. These wrappers delegate to it.
+export function canAccessPM(userRole, developerMode = false) {
+  return canAccessProductManagement(userRole, developerMode).granted;
 }
-export function canManageProduct(userRole) {
-  return ADMIN_ROLES.includes(userRole);
+export function canManageProduct(userRole, developerMode = false) {
+  return canAccessProductManagement(userRole, developerMode).granted;
 }
-export function canPlanRoadmap(userRole) {
-  return PLAN_ROLES.includes(userRole);
+export function canPlanRoadmap(userRole, developerMode = false) {
+  return checkPermission("product_management", userRole, developerMode).granted;
 }
-export function canManageReleases(userRole) {
-  return PLAN_ROLES.includes(userRole);
+export function canManageReleases(userRole, developerMode = false) {
+  return checkPermission("product_management", userRole, developerMode).granted;
 }
 
 export function resolveCustomer(feedback) {

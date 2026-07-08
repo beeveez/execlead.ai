@@ -27,7 +27,7 @@ const BRAND_PALETTE = [
 /* Official brand colors for well-known companies — deterministic, never change */
 const BRAND_COLORS = {
   "microsoft": { from: "#00A4EF", to: "#0078D4" },
-  "amazon": { from: "#FF9900", to: "#146EB4" },
+  "amazon": { from: "#FF9900", to: "#E88B00" },
   "nvidia": { from: "#76B900", to: "#4A8C00" },
   "tesla": { from: "#E82127", to: "#C00E15" },
   "apple": { from: "#555555", to: "#333333" },
@@ -60,6 +60,7 @@ const BRAND_COLORS = {
   "airbnb": { from: "#FF5A5F", to: "#E04A4F" },
   "adobe": { from: "#ED2224", to: "#C01B1D" },
   "cisco": { from: "#1BA0D7", to: "#1480AE" },
+  "servicenow": { from: "#62D84E", to: "#3CB342" },
   "vmware": { from: "#607078", to: "#4A5961" },
   "sap": { from: "#0FAAFF", to: "#0D8ACC" },
   "johnson & johnson": { from: "#FF0000", to: "#CC0000" },
@@ -94,18 +95,47 @@ export function getBrandColors(name) {
 
 const CONNECTOR_WORDS = new Set(["of", "the", "and", "for", "inc", "corp", "llc", "ltd", "co", "company", "group", "holdings"]);
 
+/* Premium 2-letter initials for well-known companies — deterministic brand abbreviations */
+const INITIALS_OVERRIDES = {
+  "microsoft": "MS",
+  "amazon": "AM",
+  "alphabet": "AL",
+  "google": "GO",
+  "apple": "AP",
+  "tesla": "TS",
+  "nvidia": "NV",
+  "adobe": "AD",
+  "accenture": "AC",
+  "mckinsey": "MK",
+  "mckinsey & company": "MK",
+  "mckinsey company": "MK",
+  "goldman sachs": "GS",
+  "jpmorgan chase": "JP",
+  "jpmorgan": "JP",
+  "johnson & johnson": "JJ",
+  "johnson and johnson": "JJ",
+  "oracle": "OR",
+  "cisco": "CS",
+  "salesforce": "SF",
+  "servicenow": "SN",
+};
+
 export function getCompanyInitials(name) {
   if (!name || !name.trim()) return "?";
   const trimmed = name.trim();
+  const key = trimmed.toLowerCase();
 
-  // Existing acronyms (IBM, AWS, SAP, HCL, TCS, NTT) — keep as-is
+  // Explicit overrides for well-known companies
+  if (INITIALS_OVERRIDES[key]) return INITIALS_OVERRIDES[key];
+
+  // Acronyms (IBM, SAP, AWS, HCL, TCS, NTT) — keep as-is
   if (/^[A-Z0-9]{2,5}$/.test(trimmed)) return trimmed;
 
-  // "Word & Word" pattern → J&J
+  // "Word & Word" pattern → JJ (Johnson & Johnson → JJ)
   if (trimmed.includes("&")) {
     const parts = trimmed.split(/\s*&\s*/).filter(Boolean);
     if (parts.length >= 2) {
-      return parts.slice(0, 2).map(p => p[0].toUpperCase()).join("&");
+      return parts.slice(0, 2).map(p => p[0].toUpperCase()).join("");
     }
   }
 
@@ -117,11 +147,13 @@ export function getCompanyInitials(name) {
 
   if (significant.length === 0) return "?";
 
-  // Single word → first letter (Tesla → T, Microsoft → M)
-  if (significant.length === 1) return significant[0][0].toUpperCase();
+  // Multiple words → first letter of first 2 significant words (Goldman Sachs → GS)
+  if (significant.length >= 2) {
+    return significant.slice(0, 2).map(w => w[0].toUpperCase()).join("");
+  }
 
-  // Multiple words → first letter of each significant word (max 3)
-  return significant.slice(0, 3).map(w => w[0].toUpperCase()).join("");
+  // Single word → first 2 letters (Tesla → TS, Walmart → WA)
+  return significant[0].slice(0, 2).toUpperCase();
 }
 
 /* ===================== AVATAR CACHE ===================== */

@@ -46,22 +46,27 @@ export default function CompanyLogo({ company, size = "md", className = "", show
     );
   }
 
-  // Priority 1: Official uploaded logo (only shown after successful load)
-  if (imgLoaded && logoUrl && logoAllowed) {
-    return (
-      <div className={`${s.box} ${s.rounded} relative shrink-0 overflow-hidden ring-1 ring-white/10 ${className}`} style={{ boxShadow: SHADOW }}>
-        <img src={logoUrl} alt={name} className={`w-full h-full object-contain bg-white/[0.03] ${s.img}`} onError={() => setImgLoaded(false)} />
-      </div>
-    );
-  }
-
-  // Priority 2: Generated avatar (instant, cached, never breaks)
+  // Premium initials badge as base layer (always rendered, never broken).
+  // Official logo overlaid on top only after successful load — badge shows through on failure.
   return (
     <div
-      className={`${s.box} ${s.rounded} flex items-center justify-center font-semibold text-white ring-1 ring-white/10 shrink-0 ${className}`}
-      style={{ background: avatar.colors.gradient, boxShadow: SHADOW }}
+      className={`${s.box} ${s.rounded} relative shrink-0 overflow-hidden ring-1 ring-white/10 ${className}`}
+      style={{ boxShadow: SHADOW }}
     >
-      {avatar.initials}
+      <div
+        className={`absolute inset-0 flex items-center justify-center font-bold tracking-tight text-white ${s.text}`}
+        style={{ background: avatar.colors.gradient }}
+      >
+        <span className="drop-shadow-sm">{avatar.initials}</span>
+      </div>
+      {imgLoaded && logoUrl && logoAllowed && (
+        <img
+          src={logoUrl}
+          alt={name}
+          className={`absolute inset-0 w-full h-full object-contain bg-white ${s.img}`}
+          onError={() => setImgLoaded(false)}
+        />
+      )}
     </div>
   );
 }

@@ -62,11 +62,15 @@ export default function CompanyCollectionDetail({ collection, onClose, onFilterM
       <div className="space-y-6">
         {/* Company Header */}
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden shrink-0" style={{ background: color + "20" }}>
-            {c.logo_url ? (
-              <img src={c.logo_url} alt={c.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-2xl font-bold" style={{ color }}>{(c.name || "?").charAt(0)}</span>
+          <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden shrink-0" style={{ background: color + "20" }}>
+            <span className="text-2xl font-bold" style={{ color }}>{(c.name || "?").charAt(0)}</span>
+            {c.logo_url && (
+              <img
+                src={c.logo_url}
+                alt={c.name}
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
             )}
           </div>
           <div className="min-w-0 flex-1">

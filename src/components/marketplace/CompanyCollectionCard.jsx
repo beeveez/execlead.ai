@@ -24,14 +24,18 @@ export default function CompanyCollectionCard({ collection, onClick }) {
         )}
       </div>
 
-      {/* Logo / Branded Initial */}
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 overflow-hidden" style={{ background: color + "20" }}>
-        {c.logo_url ? (
-          <img src={c.logo_url} alt={c.name} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-xl font-bold" style={{ color }}>
-            {(c.name || "?").charAt(0)}
-          </span>
+      {/* Logo / Branded Initial — badge as base layer, logo overlays on load */}
+      <div className="relative w-12 h-12 rounded-xl flex items-center justify-center mb-3 overflow-hidden" style={{ background: color + "20" }}>
+        <span className="text-xl font-bold" style={{ color }}>
+          {(c.name || "?").charAt(0)}
+        </span>
+        {c.logo_url && (
+          <img
+            src={c.logo_url}
+            alt={c.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
         )}
       </div>
 

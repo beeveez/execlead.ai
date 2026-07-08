@@ -7,6 +7,7 @@ import {
   ArrowRight, Target, GitCompare, Bookmark, BadgeCheck, Plus, MapPin, TrendingUp,
 } from "lucide-react";
 import CompanyRequestModal from "@/components/companies/CompanyRequestModal";
+import CompanyAvatar from "@/components/companies/CompanyAvatar";
 
 const CATEGORIES = [
   "Technology", "Cloud Providers", "Consulting", "Financial Services", "Healthcare",
@@ -128,11 +129,7 @@ export default function CompanyIntelligenceShowcase() {
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
-                  {c.logo_url ? (
-                    <img src={c.logo_url} alt={c.name} className="w-12 h-12 rounded-xl object-contain bg-white/5 p-1.5" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-bold text-sm">{c.name?.slice(0, 2).toUpperCase()}</div>
-                  )}
+                  <CompanyAvatar company={c} size="md" />
                   {(c.profile_status === "verified" || c.profile_status === "official_partner") && (
                     <BadgeCheck size={16} className="text-emerald-400" />
                   )}

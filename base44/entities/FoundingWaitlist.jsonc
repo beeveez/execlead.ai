@@ -23,6 +23,27 @@
       "type": "string",
       "description": "Professional title/role for founder directory display"
     },
+    "company": {
+      "type": "string",
+      "description": "Organization name for public founder profile"
+    },
+    "industry": {
+      "type": "string",
+      "description": "Industry sector for directory filtering"
+    },
+    "photo": {
+      "type": "string",
+      "description": "Profile photo URL for public founder display"
+    },
+    "linkedin": {
+      "type": "string",
+      "description": "LinkedIn profile URL (optional, public display)"
+    },
+    "executive_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Executive leadership score (optional public display)"
+    },
     "preferred_plan": {
       "type": "string",
       "enum": [
@@ -40,6 +61,11 @@
     "comments": {
       "type": "string",
       "maxLength": 2000
+    },
+    "founder_story": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "Why I joined EXECLEAD.AI \u2014 career journey, leadership story, goals, advice"
     },
     "reservation_date": {
       "type": "string",
@@ -80,10 +106,47 @@
       "format": "date-time",
       "description": "When the reserved founding pricing expires (30 days from reservation)"
     },
+    "display_preference": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private",
+        "anonymous"
+      ],
+      "default": "private",
+      "description": "Founder's visibility choice on the Founders Wall"
+    },
     "public_profile": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this founder appears in the public Founder Directory"
+      "description": "Legacy field \u2014 superseded by display_preference"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Admin-featured founder for highlight display"
+    },
+    "hidden": {
+      "type": "boolean",
+      "default": false,
+      "description": "Admin-hidden from public Founders Wall"
+    },
+    "founder_achievements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "first_10",
+          "first_50",
+          "first_100",
+          "first_500",
+          "original_beta_tester",
+          "product_advisor",
+          "community_champion",
+          "top_referrer"
+        ]
+      },
+      "description": "Achievement badges earned by this founder"
     },
     "invitation_sent": {
       "type": "boolean",

@@ -13,6 +13,7 @@ import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { captureReferralAttribution } from "@/lib/referralEngine";
 import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
+import FoundersWallCTA from "@/components/founding/FoundersWallCTA";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 
 const FEATURES = [
@@ -163,6 +164,9 @@ export default function Landing() {
           ))}
         </div>
       </section>
+
+      {/* Founders Wall CTA */}
+      <FoundersWallCTA />
 
       {/* Features */}
       <section id="features" className="py-20 md:py-32 px-6 lg:px-8">

@@ -131,7 +131,7 @@ import SecurityCenter from '@/pages/SecurityCenter';
 import IdentityVerification from '@/pages/IdentityVerification';
 import IdentityVerificationAdmin from '@/pages/IdentityVerificationAdmin';
 import BetaLaunchDashboard from '@/pages/BetaLaunchDashboard';
-import FounderDirectory from '@/pages/FounderDirectory';
+import FoundersWall from '@/pages/FoundersWall';
 import CertificateVerify from '@/pages/CertificateVerify';
 import Legal from '@/pages/Legal';
 import TrustCenter from '@/pages/TrustCenter';
@@ -184,7 +184,8 @@ const AuthenticatedApp = () => {
       <Route path="/trust-center" element={<TrustCenter />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/founders" element={<FounderDirectory />} />
+      <Route path="/founders" element={<FoundersWall />} />
+      <Route path="/founders-wall" element={<FoundersWall />} />
       <Route path="/verify/:verificationId" element={<CertificateVerify />} />
       <Route path="/u/:username" element={<PublicProfile />} />
 

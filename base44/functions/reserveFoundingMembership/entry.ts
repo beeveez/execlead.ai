@@ -51,11 +51,17 @@ Deno.serve(async (req) => {
         email: normalizedEmail,
         country: country || "",
         profession: body.profession || "",
+        company: body.company || "",
+        industry: body.industry || "",
+        photo: body.photo || "",
+        linkedin: body.linkedin || "",
         preferred_plan,
         expected_start_date: expected_start_date || "",
         comments: comments || "",
         referral_source: referral_source || "",
         public_profile: body.public_profile || false,
+        display_preference: body.public_profile ? (body.display_preference || "public") : (body.display_preference || "private"),
+        founder_achievements: priority_number <= 10 ? ["first_10"] : priority_number <= 50 ? ["first_50"] : priority_number <= 100 ? ["first_100"] : priority_number <= 500 ? ["first_500"] : [],
         reservation_date: new Date().toISOString(),
         status: "reserved",
         priority_number,
@@ -109,23 +115,94 @@ Deno.serve(async (req) => {
     }
 
     // ============================================================
-    // PUBLIC — Founder Directory (opt-in members only)
+    // PUBLIC — Founders Wall (opt-in members, display-preference aware)
+    // Returns members + aggregate stats in one call.
     // ============================================================
-    if (action === "directory") {
-      const all = await base44.asServiceRole.entities.FoundingWaitlist.filter({ public_profile: true });
-      const members = all
-        .filter((w) => ["reserved", "approved", "invited", "activated"].includes(w.status))
-        .map((w) => ({
+    if (action === "directory" || action === "wall") {
+      const all = await base44.asServiceRole.entities.FoundingWaitlist.list("-created_date", 100000);
+      const validStatuses = ["reserved", "approved", "invited", "activated"];
+      const visible = all.filter((w) =>
+        (w.public_profile === true || ["public", "private", "anonymous"].includes(w.display_preference)) &&
+        w.hidden !== true &&
+        validStatuses.includes(w.status) &&
+        w.founding_member_number
+      );
+
+      const members = visible.map((w) => {
+        const pref = w.display_preference || (w.public_profile ? "public" : "private");
+        const base = {
           founding_member_number: w.founding_member_number,
-          full_name: w.full_name,
-          country: w.country,
-          profession: w.profession,
+          display_preference: pref,
+          country: w.country || "",
           reservation_date: w.reservation_date,
           status: w.status,
           preferred_plan: w.preferred_plan,
-        }))
-        .sort((a, b) => (a.founding_member_number || "").localeCompare(b.founding_member_number || ""));
-      return Response.json({ members });
+          activated: w.activated,
+          activation_date: w.activation_date,
+          featured: w.featured || false,
+          founder_achievements: w.founder_achievements || [],
+        };
+        if (pref === "anonymous") {
+          return { ...base, full_name: "Anonymous Founder", profession: "", company: "", photo: "", linkedin: "", industry: "", executive_score: 0, founder_story: "" };
+        }
+        if (pref === "private") {
+          return { ...base, full_name: w.full_name || "", profession: "", company: "", photo: "", linkedin: "", industry: "", executive_score: 0, founder_story: "" };
+        }
+        // public
+        return {
+          ...base,
+          full_name: w.full_name || "",
+          profession: w.profession || "",
+          company: w.company || "",
+          photo: w.photo || "",
+          linkedin: w.linkedin || "",
+          industry: w.industry || "",
+          executive_score: w.executive_score || 0,
+          founder_story: w.founder_story || "",
+        };
+      }).sort((a, b) => (a.founding_member_number || "").localeCompare(b.founding_member_number || ""));
+
+      // Aggregate stats for the wall
+      const allVisible = visible;
+      const countrySet = new Set(allVisible.map((w) => w.country).filter(Boolean));
+      const industryMap = {};
+      allVisible.forEach((w) => { const ind = w.industry || (w.profession ? "Executive" : "Unspecified"); industryMap[ind] = (industryMap[ind] || 0) + 1; });
+      const planMap = {};
+      allVisible.forEach((w) => { planMap[w.preferred_plan] = (planMap[w.preferred_plan] || 0) + 1; });
+      const prefMap = { public: 0, private: 0, anonymous: 0 };
+      allVisible.forEach((w) => { const p = w.display_preference || (w.public_profile ? "public" : "private"); prefMap[p] = (prefMap[p] || 0) + 1; });
+
+      // Milestones — derive from data
+      const milestones = [];
+      if (allVisible.length > 0) {
+        const first = allVisible[allVisible.length - 1]; // oldest by created_date desc
+        milestones.push({ type: "first_reservation", date: first.reservation_date, title: "First Founder Reservation", description: `${first.founding_member_number} — the founding chapter begins.` });
+        const thresholds = [{ n: 10, label: "First 10 Founders" }, { n: 50, label: "50 Founders" }, { n: 100, label: "100 Founders" }, { n: 500, label: "500 Founders" }, { n: 1000, label: "1,000 Founders" }];
+        for (const t of thresholds) {
+          if (allVisible.length >= t.n) {
+            const nth = allVisible[allVisible.length - t.n];
+            milestones.push({ type: `${t.n}_founders`, date: nth?.reservation_date, title: t.label, description: `The community reached ${t.label.toLowerCase()}.` });
+          }
+        }
+        const firstActivated = allVisible.find((w) => w.activated);
+        if (firstActivated) {
+          milestones.push({ type: "first_payment", date: firstActivated.activation_date, title: "First Founder Activated", description: `${firstActivated.founding_member_number} became the first activated founding member.` });
+        }
+      }
+
+      return Response.json({
+        members,
+        stats: {
+          total_founders: allVisible.length,
+          countries_represented: countrySet.size,
+          manual_activations: allVisible.filter((w) => w.activated).length,
+          conversion_forecast: allVisible.length > 0 ? Math.round((allVisible.filter((w) => w.activated).length / allVisible.length) * 100) : 0,
+          industry_distribution: Object.entries(industryMap).map(([industry, count]) => ({ industry, count })).sort((a, b) => b.count - a.count),
+          plan_distribution: Object.entries(planMap).map(([plan, count]) => ({ plan, count })),
+          display_breakdown: prefMap,
+        },
+        milestones,
+      });
     }
 
     // ============================================================
@@ -140,6 +217,25 @@ Deno.serve(async (req) => {
       }
       if (results.length === 0) return Response.json({ error: "No reservation found" }, { status: 404 });
       return Response.json({ reservation: results[0] });
+    }
+
+    // ============================================================
+    // AUTHENTICATED — Update founder profile (wall display, story, etc.)
+    // ============================================================
+    if (action === "update_founder_profile") {
+      const profileUser = await base44.auth.me();
+      if (!profileUser) return Response.json({ error: "Unauthorized" }, { status: 401 });
+      let results = await base44.asServiceRole.entities.FoundingWaitlist.filter({ user_id: profileUser.id });
+      if (results.length === 0 && profileUser.email) {
+        results = await base44.asServiceRole.entities.FoundingWaitlist.filter({ email: profileUser.email.toLowerCase() });
+      }
+      if (results.length === 0) return Response.json({ error: "No reservation found" }, { status: 404 });
+      const allowed = ["display_preference", "photo", "company", "linkedin", "industry", "executive_score", "founder_story", "public_profile", "profession"];
+      const update = {};
+      for (const k of allowed) { if (body[k] !== undefined) update[k] = body[k]; }
+      if (update.display_preference) update.public_profile = true;
+      const updated = await base44.asServiceRole.entities.FoundingWaitlist.update(results[0].id, update);
+      return Response.json({ success: true, reservation: updated });
     }
 
     // ============================================================
@@ -226,6 +322,17 @@ Deno.serve(async (req) => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
 
+      const industryMap = {};
+      all.forEach((w) => { const ind = w.industry || "Unspecified"; industryMap[ind] = (industryMap[ind] || 0) + 1; });
+      const industryDistribution = Object.entries(industryMap).map(([industry, count]) => ({ industry, count })).sort((a, b) => b.count - a.count);
+
+      const planMap = {};
+      all.forEach((w) => { planMap[w.preferred_plan] = (planMap[w.preferred_plan] || 0) + 1; });
+      const planDistribution = Object.entries(planMap).map(([plan, count]) => ({ plan, count }));
+
+      const prefMap = { public: 0, private: 0, anonymous: 0 };
+      all.forEach((w) => { const p = w.display_preference || (w.public_profile ? "public" : "private"); prefMap[p] = (prefMap[p] || 0) + 1; });
+
       return Response.json({
         total_waitlist: total,
         founding_reservations: foundingReservations,
@@ -234,7 +341,28 @@ Deno.serve(async (req) => {
         estimated_mrr: estimatedMrr,
         country_distribution: countryDistribution,
         top_referral_sources: topReferralSources,
+        industry_distribution: industryDistribution,
+        plan_distribution: planDistribution,
+        display_breakdown: prefMap,
+        countries_represented: Object.keys(countryMap).length,
       });
+    }
+
+    // ---- Feature / hide founder (admin) ----
+    if (action === "feature_founder") {
+      const { reservation_id, featured } = body;
+      const updated = await base44.asServiceRole.entities.FoundingWaitlist.update(reservation_id, { featured: featured !== false });
+      return Response.json({ success: true, reservation: updated });
+    }
+    if (action === "hide_founder") {
+      const { reservation_id, hidden } = body;
+      const updated = await base44.asServiceRole.entities.FoundingWaitlist.update(reservation_id, { hidden: hidden !== false });
+      return Response.json({ success: true, reservation: updated });
+    }
+    if (action === "edit_founder_story") {
+      const { reservation_id, founder_story } = body;
+      const updated = await base44.asServiceRole.entities.FoundingWaitlist.update(reservation_id, { founder_story });
+      return Response.json({ success: true, reservation: updated });
     }
 
     // ---- Approve a reservation ----

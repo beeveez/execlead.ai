@@ -98,7 +98,7 @@ export default function VerificationAdminTable({ verifications = [], onAction })
         const status = v.identity_status || "pending_upload";
         const statusMeta = IDENTITY_STATUSES[status] || IDENTITY_STATUSES.pending_upload;
         const docType = DOCUMENT_TYPES.find(d => d.id === v.identity_document_type);
-        const canAct = status === "submitted" || status === "under_review" || status === "rejected";
+        const canAct = status === "pending_upload" || status === "submitted" || status === "under_review" || status === "rejected";
 
         return (
           <div key={v.id} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">

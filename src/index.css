@@ -241,3 +241,18 @@ html:not(.dark) .via-\[\#0a0a0f\] {
   --tw-gradient-via: hsl(var(--background)) var(--tw-gradient-via-position, 50%);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
 }
+
+/* ============================================================
+   Native-like mobile: prevent rubber-banding & accidental text selection
+   ============================================================ */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* Non-content UI chrome — prevent accidental text selection.
+   Content areas (main, article, p, input, textarea) remain selectable. */
+header, nav, aside, button,
+.mobile-header, .mobile-bottom-nav {
+  -webkit-user-select: none;
+  user-select: none;
+}

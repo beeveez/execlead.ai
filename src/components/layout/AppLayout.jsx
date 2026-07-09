@@ -7,15 +7,15 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
 import { useGuardian } from "@/lib/GuardianContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
-import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import WorkspaceGuard from "@/components/WorkspaceGuard";
 import RoleRoute from "@/components/RoleRoute";
-import { LogOut, Menu, X, ChevronRight, Crown } from "lucide-react";
+import { LogOut, ChevronRight } from "lucide-react";
 import DebugPanel from "@/components/developer/DebugPanel";
+import MobileHeader from "@/components/layout/MobileHeader";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 import SimulationBanner from "@/components/developer/SimulationBanner";
-import ShareButton from "@/components/social/ShareButton";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -84,34 +84,8 @@ export default function AppLayout() {
         </div>
       </aside>
 
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Logo size="sm" aiTagClass="ml-1" />
-          <div className="flex items-center gap-2">
-            <WorkspaceSwitcher compact />
-            <Link to={activeWorkspace === "enterprise" ? "/organization/billing" : "/billing"} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5">
-              {loadingSub ?
-              <span className="text-xs text-white/20">···</span> :
-              activeWorkspace === "enterprise" ?
-              <span className="text-xs font-medium text-cyan-400">Enterprise</span> :
-
-              <>
-                  <span className="text-xs">{subscription.icon}</span>
-                  <span className="text-xs font-medium" style={{ color: subscription.color }}>{subscription.planName}</span>
-                </>
-              }
-            </Link>
-            <Link to="/brand-center" className="text-white/60 p-1.5">
-              <Crown size={18} className="text-amber-400" />
-            </Link>
-            <ShareButton variant="icon" shareType="landing" iconSize={16} />
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 p-1">
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Mobile Header — dynamic page title + conditional Back button */}
+      <MobileHeader mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       {/* Mobile Overlay */}
       {mobileOpen &&
@@ -144,7 +118,7 @@ export default function AppLayout() {
       }
 
       {/* Main Content — every page is role-enforced via RoleRoute */}
-      <main className="flex-1 lg:ml-64 pt-14 lg:pt-0 min-h-screen">
+      <main className="flex-1 lg:ml-64 pt-[calc(3.5rem_+_env(safe-area-inset-top))] lg:pt-0 pb-24 md:pb-0 min-h-screen">
         <ImpersonationBanner />
         <SimulationBanner />
         <TopBar />
@@ -156,6 +130,7 @@ export default function AppLayout() {
           </RoleRoute>
         </div>
       </main>
+      <MobileBottomNav />
       <DebugPanel />
     </div>);
 

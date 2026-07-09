@@ -102,6 +102,7 @@ export const WORKSPACE_NAV = {
       { path: "/referral-admin", label: "Referral Engine", icon: Gift },
       { path: "/identity-verification-admin", label: "Identity Reviews", icon: ShieldCheck },
       { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
+      { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
     ]},
     { label: "Revenue", items: [
       { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },
@@ -136,6 +137,7 @@ export const WORKSPACE_NAV = {
       { path: "/email-settings", label: "Email Templates", icon: Mail },
       { path: "/company-admin", label: "Company Admin", icon: Database },
       { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
+      { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
     ]},
     { label: "System", items: [
       { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
@@ -163,7 +165,7 @@ const ROUTE_WORKSPACE = {
   "/legacy-library/admin": ["platform", "developer"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
   "/leadership-dna": ["executive"], "/executive-legacy": ["executive"],
-  "/legacy-library": ["executive"],
+  "/legacy-library": ["executive", "platform", "developer"],
   "/career": ["executive"], "/metrics": ["executive"],
   "/notifications": ["executive"], "/compare-plans": ["executive"],
   "/brand-center": ["executive"], "/executive/rankings": ["executive"],

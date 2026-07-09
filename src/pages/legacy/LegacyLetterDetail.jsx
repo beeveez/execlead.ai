@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/lib/AuthContext";
 import ReactMarkdown from "react-markdown";
 import {
   ArrowLeft, Loader2, Heart, Bookmark, Share2, MessageCircle, Eye, Clock,
   BadgeCheck, Crown, BookOpen, Lightbulb, Target, Quote, HelpCircle,
-  Sparkles, Send, ListChecks, Award, PenLine
+  Sparkles, Send, ListChecks, Award, PenLine, Trash2
 } from "lucide-react";
 
 export default function LegacyLetterDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [letter, setLetter] = useState(null);
   const [myInteraction, setMyInteraction] = useState({ liked: false, bookmarked: false });
   const [comments, setComments] = useState([]);
@@ -20,6 +23,7 @@ export default function LegacyLetterDetail() {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [engaging, setEngaging] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   // AI Discussion
   const [aiQuestion, setAiQuestion] = useState("");
@@ -84,6 +88,24 @@ export default function LegacyLetterDetail() {
     setSubmittingComment(false);
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete "${letter.title}"? This permanently removes the letter and all related data.`)) return;
+    setDeleting(true);
+    try {
+      const res = await base44.functions.invoke("manageLegacyLibrary", { action: "delete", letter_id: id });
+      const d = res.data || res;
+      if (d.success || d.error === undefined) {
+        toast({ title: "Letter deleted" });
+        navigate("/legacy-library");
+      } else {
+        toast({ title: d.error || "Failed to delete", variant: "destructive" });
+      }
+    } catch (e) {
+      toast({ title: "Failed to delete", variant: "destructive" });
+    }
+    setDeleting(false);
+  };
+
   const handleAiDiscuss = async () => {
     if (!aiQuestion.trim()) return;
     setAiLoading(true);
@@ -122,9 +144,20 @@ export default function LegacyLetterDetail() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Link to="/legacy-library" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm mb-6">
-        <ArrowLeft size={16} /> Back to Library
-      </Link>
+      <div className="flex items-center justify-between mb-6">
+        <Link to="/legacy-library" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm">
+          <ArrowLeft size={16} /> Back to Library
+        </Link>
+        {user?.role === "admin" && (
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
+          >
+            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
+          </button>
+        )}
+      </div>
 
       {/* Header */}
       <div className="mb-6">

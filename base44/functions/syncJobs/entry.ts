@@ -293,14 +293,83 @@ async function fetchSmartRecruiters(config) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    let authedUser = null;
+    const timestamp = new Date().toISOString();
+    const ipAddress = (() => {
+      const fwd = req.headers.get('x-forwarded-for');
+      if (fwd) return fwd.split(',')[0].trim();
+      return req.headers.get('x-real-ip') || 'unknown';
+    })();
 
-    // Auth: allow admin/dev manual trigger, or scheduled automation (no user)
-    try {
-      const user = await base44.auth.me();
-      if (user && user.role !== 'admin' && user.role !== 'developer') {
-        return Response.json({ error: 'Admin access required' }, { status: 403 });
+    // Audit logging — persists every execution attempt to SecurityEvent
+    const auditLog = async (result, reason) => {
+      try {
+        await base44.asServiceRole.entities.SecurityEvent.create({
+          user_id: authedUser?.id || '',
+          user_name: authedUser?.full_name || authedUser?.email || 'unknown',
+          event_type: 'api_access',
+          severity: result === 'success' ? 'info' : (result === 'denied' ? 'medium' : 'high'),
+          ip_address: ipAddress,
+          description: 'syncJobs: ' + result + (reason ? ' (' + reason + ')' : ''),
+          action_taken: result === 'success' ? 'logged' : 'blocked',
+          metadata_json: JSON.stringify({
+            action: 'syncJobs',
+            result,
+            reason: reason || '',
+            role: authedUser?.role || 'unknown',
+            email: authedUser?.email || '',
+            timestamp,
+          }),
+        });
+      } catch (e) {
+        console.error('syncJobs audit log failed:', e.message);
       }
-    } catch (e) {}
+    };
+
+    // CSRF protection: POST-only (platform uses token-based auth, inherently CSRF-resistant)
+    if (req.method !== 'POST') {
+      return Response.json({ success: false, error: 'Method not allowed' }, { status: 405 });
+    }
+
+    // 1. Require authenticated session — auth failure returns 401 immediately (NO empty catch)
+    let user;
+    try {
+      user = await base44.auth.me();
+    } catch (e) {
+      await auditLog('denied', 'auth_error');
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!user) {
+      await auditLog('denied', 'no_session');
+      return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    authedUser = user;
+
+    // 2. Require Platform Administrator or Developer role
+    if (user.role !== 'admin' && user.role !== 'developer') {
+      await auditLog('denied', 'insufficient_role');
+      return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+
+    // 3. Rate limiting: maximum 5 executions per minute per user
+    try {
+      const recent = await base44.asServiceRole.entities.SecurityEvent.filter({ user_id: user.id }, '-created_date', 20);
+      const oneMinAgo = Date.now() - 60000;
+      const recentCount = recent.filter(e =>
+        e.description && e.description.startsWith('syncJobs') &&
+        new Date(e.created_date).getTime() >= oneMinAgo
+      ).length;
+      if (recentCount >= 5) {
+        await auditLog('denied', 'rate_limited');
+        return Response.json({ success: false, error: 'Rate limit exceeded. Maximum 5 executions per minute.' }, { status: 429 });
+      }
+    } catch (e) {
+      // Fail closed — if the rate-limit check fails, deny execution
+      await auditLog('denied', 'rate_check_failed');
+      return Response.json({ success: false, error: 'Authorization check failed' }, { status: 503 });
+    }
+
+    // === Authorization complete — no sync, DB write, or API request runs above unless authorized ===
 
     const sources = await base44.asServiceRole.entities.JobSource.filter({ is_active: true });
     const results = [];
@@ -409,8 +478,10 @@ Deno.serve(async (req) => {
       }
     } catch (e) {}
 
+    await auditLog('success', '');
     return Response.json({ success: true, totalNew, totalUpdated, expiredDeactivated: expiredCount, results });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    if (authedUser) await auditLog('error', error.message);
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 });

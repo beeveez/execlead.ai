@@ -101,6 +101,7 @@ export const WORKSPACE_NAV = {
       { path: "/membership-admin", label: "Membership Programs", icon: Award },
       { path: "/referral-admin", label: "Referral Engine", icon: Gift },
       { path: "/identity-verification-admin", label: "Identity Reviews", icon: ShieldCheck },
+      { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
     ]},
     { label: "Revenue", items: [
       { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },
@@ -158,6 +159,7 @@ const ROUTE_WORKSPACE = {
   "/settings": ["executive", "enterprise"], "/security": ["executive", "enterprise"],
   "/identity-verification": ["executive", "enterprise"],
   "/identity-verification-admin": ["platform", "developer"],
+  "/legacy-library/admin": ["platform", "developer"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
   "/leadership-dna": ["executive"], "/executive-legacy": ["executive"],
   "/legacy-library": ["executive"],

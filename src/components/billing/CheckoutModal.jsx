@@ -14,14 +14,13 @@ import { calculatePlanPrice } from "@/lib/founderPricingEngine";
 export default function CheckoutModal({ plan, cycle: initialCycle, profile, membership = null, isFoundingPurchase = false, onClose, onSuccess }) {
   const { getPrice, cycle, setCycle } = usePricingCatalog(initialCycle);
   const { user } = useAuth();
+  const hasTrial = plan.buttonText?.toLowerCase().includes("trial");
   const [coupon, setCoupon] = useState(null);
   const [provider, setProvider] = useState("stripe");
   const [billingAddress, setBillingAddress] = useState({ name: profile?.full_name || "", email: "", country: "US", address: "" });
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
-  const [mode, setMode] = useState("pay");
-
-  const hasTrial = plan.buttonText?.toLowerCase().includes("trial");
+  const [mode, setMode] = useState(hasTrial ? "trial" : "pay");
   const isEnterprise = plan.enterpriseOnly || plan.customPricing;
   const subtotal = getPrice(plan);
   const founderPricing = calculatePlanPrice(plan, membership, cycle);

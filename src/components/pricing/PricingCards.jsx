@@ -71,7 +71,7 @@ export default function PricingCards({ plans, cycle, getPrice, authed }) {
               </div>
             ) : (
               <Link
-                to={authed ? "/billing" : "/register"}
+                to={authed ? `/billing?plan=${plan.id}` : "/register"}
                 className={`block text-center font-medium py-3 rounded-xl transition-colors ${
                   plan.recommended ? "bg-indigo-500 hover:bg-indigo-600 text-white" : "bg-white/5 hover:bg-white/10 text-white/70"
                 }`}

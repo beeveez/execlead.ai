@@ -50,7 +50,15 @@ export default function Billing() {
       setIsFoundingPurchase(true);
       window.history.replaceState({}, "", "/billing");
     }
-  }, []);
+    const planId = urlParams.get("plan");
+    if (planId) {
+      const selected = getPlanById(planId);
+      if (selected && selected.id !== "free" && !selected.enterpriseOnly) {
+        setUpgradePlan(selected);
+      }
+      window.history.replaceState({}, "", "/billing");
+    }
+  }, [getPlanById]);
 
   const currentPlan = profile ? (getPlanById(profile.subscription_plan) || getPlanById("free")) : null;
 

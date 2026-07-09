@@ -1,0 +1,46 @@
+{
+  "name": "LetterComment",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "letter_id": {
+      "type": "string",
+      "description": "LeadershipLetter ID"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Commenter's user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_photo": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "flagged",
+        "hidden"
+      ],
+      "default": "active"
+    },
+    "likes": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "letter_id",
+    "user_id",
+    "content"
+  ]
+}

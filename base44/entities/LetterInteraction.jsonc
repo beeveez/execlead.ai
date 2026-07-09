@@ -1,0 +1,45 @@
+{
+  "name": "LetterInteraction",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who performed the interaction"
+    },
+    "letter_id": {
+      "type": "string",
+      "description": "LeadershipLetter ID"
+    },
+    "interaction_type": {
+      "type": "string",
+      "enum": [
+        "like",
+        "bookmark"
+      ],
+      "description": "Type of interaction"
+    }
+  },
+  "required": [
+    "user_id",
+    "letter_id",
+    "interaction_type"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {
+      "data.user_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

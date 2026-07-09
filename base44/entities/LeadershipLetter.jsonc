@@ -1,0 +1,226 @@
+{
+  "name": "LeadershipLetter",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "author_user_id": {
+      "type": "string",
+      "description": "Author's user ID"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "author_photo": {
+      "type": "string"
+    },
+    "author_headline": {
+      "type": "string",
+      "description": "Author's professional headline at time of publication"
+    },
+    "author_founder_number": {
+      "type": "string",
+      "description": "Founder number if the author is a founding member"
+    },
+    "author_is_founder": {
+      "type": "boolean",
+      "default": false
+    },
+    "author_verification_badge": {
+      "type": "boolean",
+      "default": false
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "category": {
+      "type": "string",
+      "description": "Letter type/category"
+    },
+    "message": {
+      "type": "string",
+      "description": "Main letter body"
+    },
+    "author_position": {
+      "type": "string"
+    },
+    "organization": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "years_experience": {
+      "type": "number",
+      "default": 0
+    },
+    "leadership_level": {
+      "type": "string",
+      "description": "e.g. C-Suite, VP, Director, Senior Manager"
+    },
+    "key_lessons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "advice": {
+      "type": "string"
+    },
+    "recommended_books": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_courses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_habits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "quotes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reflection_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "closing_message": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "video_url": {
+      "type": "string"
+    },
+    "audio_url": {
+      "type": "string"
+    },
+    "presentation_url": {
+      "type": "string"
+    },
+    "pdf_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_review",
+        "published",
+        "rejected",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "curated_collections": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Collection IDs this letter belongs to"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "views": {
+      "type": "number",
+      "default": 0
+    },
+    "likes": {
+      "type": "number",
+      "default": 0
+    },
+    "bookmarks": {
+      "type": "number",
+      "default": 0
+    },
+    "comments_count": {
+      "type": "number",
+      "default": 0
+    },
+    "shares": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "ai_competencies_json": {
+      "type": "string",
+      "description": "JSON array of leadership competencies"
+    },
+    "ai_principles_json": {
+      "type": "string",
+      "description": "JSON array of leadership principles"
+    },
+    "ai_decision_themes_json": {
+      "type": "string",
+      "description": "JSON array of decision themes"
+    },
+    "ai_communication_style": {
+      "type": "string"
+    },
+    "ai_executive_skills_json": {
+      "type": "string",
+      "description": "JSON array of executive skills"
+    },
+    "ai_recommended_audience": {
+      "type": "string"
+    },
+    "ai_key_takeaways_json": {
+      "type": "string",
+      "description": "JSON array of key takeaways"
+    },
+    "ai_reading_time_minutes": {
+      "type": "number",
+      "default": 0
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by_id": {
+      "type": "string"
+    },
+    "approved_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "author_user_id",
+    "title",
+    "category",
+    "message"
+  ]
+}

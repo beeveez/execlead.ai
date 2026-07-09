@@ -69,6 +69,10 @@ import FounderCertificates from '@/pages/founder/FounderCertificates';
 import FounderTimeline from '@/pages/founder/FounderTimeline';
 import FounderSettings from '@/pages/founder/FounderSettings';
 import FounderTimeCapsule from '@/pages/founder/FounderTimeCapsule';
+import LegacyLibrary from '@/pages/legacy/LegacyLibrary';
+import LegacyLetterDetail from '@/pages/legacy/LegacyLetterDetail';
+import LegacyLetterEditor from '@/pages/legacy/LegacyLetterEditor';
+import LegacyAdmin from '@/pages/legacy/LegacyAdmin';
 import NetworkLayout from '@/components/network/NetworkLayout';
 import NetworkFeed from '@/pages/network/NetworkFeed';
 import NetworkDirectory from '@/pages/network/NetworkDirectory';
@@ -209,6 +213,11 @@ const AuthenticatedApp = () => {
             <Route path=":courseSlug" element={<CourseHome />} />
             <Route path=":courseSlug/:lessonId" element={<Lesson />} />
           </Route>
+          <Route path="/legacy-library" element={<LegacyLibrary />} />
+          <Route path="/legacy-library/new" element={<LegacyLetterEditor />} />
+          <Route path="/legacy-library/admin" element={<LegacyAdmin />} />
+          <Route path="/legacy-library/:id" element={<LegacyLetterDetail />} />
+          <Route path="/legacy-library/:id/edit" element={<LegacyLetterEditor />} />
           <Route path="/metrics" element={<Metrics />} />
           <Route path="/companies" element={<FeatureGate featureId="company_intelligence"><Companies /></FeatureGate>} />
           <Route path="/companies/compare" element={<FeatureGate featureId="company_intelligence"><CompanyCompare /></FeatureGate>} />

@@ -1,0 +1,116 @@
+{
+  "name": "FoundingWaitlist",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User ID if the reserver is a registered user"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "preferred_plan": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "executive",
+        "founding_member",
+        "enterprise"
+      ],
+      "default": "professional"
+    },
+    "expected_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "comments": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "reservation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "reserved",
+        "approved",
+        "invited",
+        "activated",
+        "cancelled",
+        "declined"
+      ],
+      "default": "reserved"
+    },
+    "priority_number": {
+      "type": "number",
+      "default": 0,
+      "description": "Sequential position in the waitlist"
+    },
+    "invitation_sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "payment_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "activated": {
+      "type": "boolean",
+      "default": false
+    },
+    "activation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "activated_by_id": {
+      "type": "string"
+    },
+    "activated_by_name": {
+      "type": "string"
+    },
+    "activation_reason": {
+      "type": "string",
+      "description": "Manual activation reason (investor, partner, advisor, pilot, etc.)"
+    },
+    "assigned_plan": {
+      "type": "string",
+      "description": "Plan assigned on manual activation"
+    },
+    "founding_member_assigned": {
+      "type": "boolean",
+      "default": false
+    },
+    "founding_member_number": {
+      "type": "string"
+    },
+    "payment_method": {
+      "type": "string",
+      "description": "Recorded payment method on activation (manual, stripe, etc.)"
+    },
+    "referral_source": {
+      "type": "string",
+      "description": "How they discovered EXECLEAD.AI (referral code, direct, social, etc.)"
+    },
+    "notified_payments_live": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user was notified that payments are live"
+    }
+  },
+  "required": [
+    "email",
+    "preferred_plan"
+  ]
+}

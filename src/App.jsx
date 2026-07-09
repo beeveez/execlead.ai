@@ -130,6 +130,7 @@ import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
 import IdentityVerification from '@/pages/IdentityVerification';
 import IdentityVerificationAdmin from '@/pages/IdentityVerificationAdmin';
+import BetaLaunchDashboard from '@/pages/BetaLaunchDashboard';
 import Legal from '@/pages/Legal';
 import TrustCenter from '@/pages/TrustCenter';
 import About from '@/pages/About';
@@ -269,6 +270,7 @@ const AuthenticatedApp = () => {
           <Route path="/security" element={<SecurityCenter />} />
           <Route path="/identity-verification" element={<IdentityVerification />} />
           <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
+          <Route path="/beta-launch" element={<BetaLaunchDashboard />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />

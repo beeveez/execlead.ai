@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Sparkles, Trophy } from "lucide-react";
 import { PLAN_CONTENT } from "@/lib/pricingContent";
 import FounderPriceBadge from "./FounderPriceBadge";
 
@@ -10,7 +10,7 @@ const fmt = (n) => {
   return `$${r % 1 === 0 ? r.toString() : r.toFixed(2)}`;
 };
 
-export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFounder, currentPlanId, authed, index }) {
+export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFounder, currentPlanId, authed, index, betaMode, onReserve }) {
   const content = PLAN_CONTENT[plan.id];
   if (!content) return null;
 
@@ -204,6 +204,13 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
             <div className="flex items-center justify-center w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
               <Check size={16} className="mr-1.5" /> Active Plan
             </div>
+          ) : betaMode && !isFree ? (
+            <button
+              onClick={() => onReserve?.(plan)}
+              className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white text-sm font-semibold transition-colors"
+            >
+              Reserve My Spot <Trophy size={14} />
+            </button>
           ) : (
             <Link
               to={authed ? "/billing" : "/register"}

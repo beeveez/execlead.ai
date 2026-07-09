@@ -30,6 +30,17 @@
       ],
       "default": "disconnected"
     },
+    "launch_mode": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "development",
+        "public_beta",
+        "production"
+      ],
+      "default": "auto",
+      "description": "Explicit launch mode override. 'auto' derives from payment status: connected=production, disconnected=public_beta."
+    },
     "publishable_key": {
       "type": "string"
     },

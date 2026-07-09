@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck } from "lucide-react";
+import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck, Rocket } from "lucide-react";
 import PricingTiers from "@/components/pricing/PricingTiers";
 import PaymentTrust from "@/components/billing/PaymentTrust";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
+import { useLaunchMode } from "@/lib/launchMode";
 
 // Below-the-fold sections are lazy-loaded so the hero + pricing tiers
 // render immediately without waiting for their code or API calls.
@@ -32,6 +33,7 @@ const ReferralProgram = lazy(() => import("@/components/referral/ReferralProgram
 export default function Pricing() {
   const [authed, setAuthed] = useState(false);
   const { plans, cycle, setCycle, getPrice } = usePricingCatalog();
+  const { betaBillingMode, launchMode } = useLaunchMode();
 
   useEffect(() => {
     captureReferralCode();
@@ -67,6 +69,18 @@ export default function Pricing() {
               <button onClick={() => setCycle("annual")} className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs ml-1">2 months free</span></button>
             </div>
           </div>
+          {/* Beta Billing banner — shown when payment provider is not connected */}
+          {betaBillingMode && (
+            <div className="max-w-3xl mx-auto mb-8 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-start gap-3">
+              <Rocket size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-amber-400 font-semibold text-sm mb-1">{launchMode?.label} — Founding Membership Sales Opening Soon</h3>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  EXECLEAD.AI is currently in Public Beta. Premium plans are visible but payments aren't live yet. <span className="text-amber-400 font-medium">Reserve your Founding Membership today</span> — you'll be invited to activate your subscription when payments go live.
+                </p>
+              </div>
+            </div>
+          )}
           <PricingTiers plans={plans} cycle={cycle} getPrice={getPrice} authed={authed} />
           <div className="max-w-2xl mx-auto mt-8">
             <PaymentTrust />

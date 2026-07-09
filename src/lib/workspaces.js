@@ -135,6 +135,7 @@ export const WORKSPACE_NAV = {
       { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
       { path: "/email-settings", label: "Email Templates", icon: Mail },
       { path: "/company-admin", label: "Company Admin", icon: Database },
+      { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
     ]},
     { label: "System", items: [
       { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },

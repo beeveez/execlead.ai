@@ -15,6 +15,8 @@ export default function MarketingFooter() {
           <div className="flex items-center gap-6 text-sm text-white/30">
             <Link to="/pricing" className="hover:text-white/60 transition-colors">Pricing</Link>
             <a href="/#features" className="hover:text-white/60 transition-colors">Features</a>
+            <Link to="/about" className="hover:text-white/60 transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-white/60 transition-colors">Contact</Link>
             <Link to="/trust-center" className="hover:text-white/60 transition-colors">Trust Center</Link>
             <Link to="/login" className="hover:text-white/60 transition-colors">Sign In</Link>
           </div>

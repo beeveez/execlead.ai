@@ -2,6 +2,10 @@
   "name": "IdentityVersion",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "version_number": {
       "type": "number",
       "default": 1

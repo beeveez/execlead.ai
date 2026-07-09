@@ -2,6 +2,10 @@
   "name": "ReferralSettings",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "commission_percentage": {
       "type": "number",
       "default": 10

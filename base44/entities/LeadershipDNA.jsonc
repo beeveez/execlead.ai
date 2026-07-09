@@ -2,6 +2,10 @@
   "name": "LeadershipDNA",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "competency_scores_json": {
       "type": "string"
     },

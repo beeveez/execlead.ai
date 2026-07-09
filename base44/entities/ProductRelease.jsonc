@@ -2,6 +2,10 @@
   "name": "ProductRelease",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "version": {
       "type": "string",
       "description": "Semantic version string (e.g. 4.2.0)"

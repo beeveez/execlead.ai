@@ -2,6 +2,10 @@
   "name": "UsageLog",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "module": {
       "type": "string",
       "enum": [

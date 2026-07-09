@@ -2,6 +2,10 @@
   "name": "ExecutiveInterest",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "listing_id": {
       "type": "string",
       "description": "PartnershipListing ID"

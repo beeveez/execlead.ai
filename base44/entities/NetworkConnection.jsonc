@@ -2,6 +2,10 @@
   "name": "NetworkConnection",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "requester_id": {
       "type": "string"
     },

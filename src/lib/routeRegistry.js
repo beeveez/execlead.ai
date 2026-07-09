@@ -24,6 +24,8 @@ const APP_ROUTES = [
   { path: "/forgot-password", component: "ForgotPassword", public: true },
   { path: "/reset-password", component: "ResetPassword", public: true },
   { path: "/legal", component: "Legal", public: true },
+  { path: "/about", component: "About", public: true },
+  { path: "/contact", component: "Contact", public: true },
   { path: "/u/:username", component: "PublicProfile", public: true },
   { path: "/onboarding", component: "Onboarding" },
   { path: "/home", component: "WorkspaceHome" },

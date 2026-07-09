@@ -2,6 +2,10 @@
   "name": "Subscription",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "plan": {
       "type": "string",
       "enum": [

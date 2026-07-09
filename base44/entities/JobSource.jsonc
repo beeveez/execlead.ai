@@ -2,6 +2,10 @@
   "name": "JobSource",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "name": {
       "type": "string",
       "description": "Display name for this job source"

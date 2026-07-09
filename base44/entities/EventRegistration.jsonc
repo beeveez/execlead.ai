@@ -2,6 +2,10 @@
   "name": "EventRegistration",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "event_id": {
       "type": "string",
       "description": "NetworkEvent ID"

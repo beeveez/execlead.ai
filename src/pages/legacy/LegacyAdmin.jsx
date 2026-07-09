@@ -13,6 +13,7 @@ import RevisionModal from "@/components/legacy/RevisionModal";
 import ReportsPanel from "@/components/legacy/ReportsPanel";
 import AuditLogPanel from "@/components/legacy/AuditLogPanel";
 import AssignReviewerModal from "@/components/legacy/AssignReviewerModal";
+import CommentModerationPanel from "@/components/legacy/CommentModerationPanel";
 
 const STATUS_TABS = [
   { value: "pending_human_review", label: "Pending Review" },
@@ -165,13 +166,16 @@ export default function LegacyAdmin() {
       {/* View Toggle */}
       <div className="flex gap-2 mb-6 flex-wrap">
         <ViewButton active={view === "queue"} onClick={() => setView("queue")} icon={Shield}>Moderation Queue</ViewButton>
+        <ViewButton active={view === "comments"} onClick={() => setView("comments")} icon={MessageCircle}>Comments</ViewButton>
         <ViewButton active={view === "reports"} onClick={() => setView("reports")} icon={Flag}>Reports</ViewButton>
         <ViewButton active={view === "audit"} onClick={() => setView("audit")} icon={FileText}>Audit Log</ViewButton>
         <ViewButton active={view === "analytics"} onClick={() => setView("analytics")} icon={TrendingUp}>Analytics</ViewButton>
       </div>
 
       {/* Views */}
-      {view === "reports" ? (
+      {view === "comments" ? (
+        <CommentModerationPanel />
+      ) : view === "reports" ? (
         <ReportsPanel />
       ) : view === "audit" ? (
         <AuditLogPanel />

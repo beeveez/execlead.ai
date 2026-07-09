@@ -20,22 +20,158 @@
     "user_photo": {
       "type": "string"
     },
+    "user_email": {
+      "type": "string"
+    },
+    "author_title": {
+      "type": "string",
+      "description": "Executive title at time of comment"
+    },
+    "author_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "author_is_founder": {
+      "type": "boolean",
+      "default": false
+    },
+    "author_organization": {
+      "type": "string"
+    },
+    "author_country": {
+      "type": "string"
+    },
     "content": {
       "type": "string",
       "maxLength": 2000
+    },
+    "comment_type": {
+      "type": "string",
+      "enum": [
+        "insight",
+        "question",
+        "experience",
+        "recommendation",
+        "reflection",
+        "feedback",
+        "appreciation"
+      ],
+      "default": "insight"
     },
     "status": {
       "type": "string",
       "enum": [
         "active",
+        "pending_review",
         "flagged",
-        "hidden"
+        "hidden",
+        "rejected",
+        "deleted"
       ],
       "default": "active"
     },
     "likes": {
       "type": "number",
       "default": 0
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
+    },
+    "pinned_type": {
+      "type": "string",
+      "enum": [
+        "most_insightful",
+        "best_mentoring",
+        "editors_choice"
+      ]
+    },
+    "pinned_by_id": {
+      "type": "string"
+    },
+    "pinned_by_name": {
+      "type": "string"
+    },
+    "pinned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_professional_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_toxicity_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_spam_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_leadership_value_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_recommendation": {
+      "type": "string",
+      "enum": [
+        "publish",
+        "review",
+        "reject"
+      ]
+    },
+    "ai_reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_flags_json": {
+      "type": "string",
+      "description": "JSON of moderation flags"
+    },
+    "reported_count": {
+      "type": "number",
+      "default": 0
+    },
+    "reporters_json": {
+      "type": "string",
+      "description": "JSON array of reporter user IDs"
+    },
+    "offense_count": {
+      "type": "number",
+      "default": 0
+    },
+    "warning_sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "moderator_action": {
+      "type": "string"
+    },
+    "moderator_id": {
+      "type": "string"
+    },
+    "moderator_name": {
+      "type": "string"
+    },
+    "moderated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "moderator_notes": {
+      "type": "string"
+    },
+    "edited": {
+      "type": "boolean",
+      "default": false
+    },
+    "edited_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "suspended_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "If this comment triggered a suspension, when it expires"
     }
   },
   "required": [

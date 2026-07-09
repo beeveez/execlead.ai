@@ -233,29 +233,350 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ─── COMMENT ───────────────────────────────────────────
+    // ─── COMMENT (AI-moderated) ───────────────────────────
     if (action === 'comment') {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-      const { letter_id, content } = body;
+      const { letter_id, content, comment_type } = body;
       if (!content?.trim()) return Response.json({ error: 'Comment cannot be empty' }, { status: 400 });
+      if (content.trim().length < 10) return Response.json({ error: 'Comment is too short. Please add more substance.' }, { status: 400 });
+
+      // Check if user is suspended or banned
+      const userModComments = await base44.asServiceRole.entities.LetterComment.filter({ user_id: user.id }, '-moderated_at', 50);
+      const penalties = userModComments.filter(c => c.moderator_action === 'suspend_user' || c.moderator_action === 'ban_user');
+      if (penalties.length > 0) {
+        const latest = penalties[0];
+        if (latest.moderator_action === 'ban_user') {
+          return Response.json({ error: 'Your commenting privileges have been permanently revoked due to repeated community standards violations.' }, { status: 403 });
+        }
+        if (latest.suspended_until && new Date(latest.suspended_until) > new Date()) {
+          return Response.json({ error: `Your commenting privileges are suspended until ${new Date(latest.suspended_until).toLocaleDateString()}.` }, { status: 403 });
+        }
+      }
+
+      const profile = await getUserProfile(user.id);
+      const founder = await getFounderInfo(user.id);
+
+      // Run AI moderation
+      let aiResult = null;
+      let moderationStatus = 'active';
+      let aiRecommendation = 'publish';
+
+      try {
+        aiResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: `You are an AI content moderation system for EXECLEAD.AI, a professional executive leadership platform — not social media. Every comment should contribute meaningful professional discussion.
+
+Comment to evaluate: "${content.trim()}"
+
+Score (0-100):
+1. professional_score: Professionalism and executive-appropriate tone
+2. toxicity_score: Toxicity level (0=safe, 100=highly toxic) — profanity, hate speech, racism, sexism, harassment, bullying, threats, personal attacks, discrimination, doxxing, political extremism, religious attacks, explicit content, violence, illegal activities
+3. spam_score: Spam/promotional/phishing/fraud/malicious links (0=not spam, 100=spam)
+4. leadership_value_score: Value to executive discussion (0=none, 100=excellent)
+
+Decision: recommendation = "publish" if professional_score >= 70 AND toxicity_score <= 30; "review" if professional_score >= 50 AND toxicity_score <= 50; "reject" if professional_score < 50 OR toxicity_score > 50.
+
+flags: boolean for each violation type.
+rewrite_suggestion: If the comment is aggressive or could be more professional, provide a professional rewrite preserving the author's meaning. If already professional, return null.`,
+          response_json_schema: {
+            type: 'object',
+            properties: {
+              professional_score: { type: 'number' },
+              toxicity_score: { type: 'number' },
+              spam_score: { type: 'number' },
+              leadership_value_score: { type: 'number' },
+              recommendation: { type: 'string', enum: ['publish', 'review', 'reject'] },
+              flags: {
+                type: 'object',
+                properties: {
+                  profanity: { type: 'boolean' },
+                  hate_speech: { type: 'boolean' },
+                  racism: { type: 'boolean' },
+                  sexism: { type: 'boolean' },
+                  harassment: { type: 'boolean' },
+                  bullying: { type: 'boolean' },
+                  threats: { type: 'boolean' },
+                  personal_attacks: { type: 'boolean' },
+                  discrimination: { type: 'boolean' },
+                  spam: { type: 'boolean' },
+                  phishing: { type: 'boolean' },
+                  malicious_links: { type: 'boolean' },
+                },
+              },
+              rewrite_suggestion: { type: 'string' },
+            },
+          },
+        });
+
+        aiRecommendation = aiResult.recommendation || 'publish';
+        if (aiRecommendation === 'reject') moderationStatus = 'rejected';
+        else if (aiRecommendation === 'review') moderationStatus = 'pending_review';
+      } catch (aiError) {
+        aiResult = { professional_score: 0, toxicity_score: 0, spam_score: 0, leadership_value_score: 0, recommendation: 'publish', flags: {}, rewrite_suggestion: null };
+      }
+
+      const now = new Date().toISOString();
 
       const comment = await base44.asServiceRole.entities.LetterComment.create({
         letter_id,
         user_id: user.id,
-        user_name: user.full_name || '',
-        user_photo: '',
+        user_name: user.full_name || profile.full_name || '',
+        user_photo: profile.avatar_url || '',
+        user_email: user.email || '',
+        author_title: profile.profession || '',
+        author_verified: profile.verified || false,
+        author_is_founder: founder.isFounder,
+        author_organization: profile.company_name || '',
+        author_country: profile.country || '',
         content: content.trim(),
-        status: 'active',
+        comment_type: comment_type || 'insight',
+        status: moderationStatus,
         likes: 0,
+        ai_professional_score: aiResult.professional_score || 0,
+        ai_toxicity_score: aiResult.toxicity_score || 0,
+        ai_spam_score: aiResult.spam_score || 0,
+        ai_leadership_value_score: aiResult.leadership_value_score || 0,
+        ai_recommendation: aiRecommendation,
+        ai_reviewed_at: now,
+        ai_flags_json: JSON.stringify(aiResult.flags || {}),
+        reported_count: 0,
+        offense_count: 0,
       });
 
-      const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: letter_id });
-      if (letters[0]) {
-        await base44.asServiceRole.entities.LeadershipLetter.update(letter_id, { comments_count: (letters[0].comments_count || 0) + 1 });
+      if (moderationStatus === 'active') {
+        const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: letter_id });
+        if (letters[0]) {
+          await base44.asServiceRole.entities.LeadershipLetter.update(letter_id, { comments_count: (letters[0].comments_count || 0) + 1 });
+        }
       }
-      return Response.json({ success: true, comment });
+
+      if (moderationStatus === 'pending_review') {
+        await notifyAdmins('Comment Pending Review', `"${content.trim().substring(0, 80)}..." needs moderator review.`, '💬');
+      }
+
+      return Response.json({
+        success: true,
+        comment,
+        moderation: {
+          status: moderationStatus,
+          recommendation: aiRecommendation,
+          rewrite_suggestion: aiResult.rewrite_suggestion || null,
+          message: moderationStatus === 'rejected'
+            ? 'Your comment could not be published because it does not meet EXECLEAD.AI Community Standards. Please rewrite your comment in a respectful and constructive manner.'
+            : moderationStatus === 'pending_review'
+            ? 'Your comment is being held for moderator review. It will appear once approved.'
+            : 'Your comment has been published.',
+        },
+      });
+    }
+
+    // ─── AI REWRITE COMMENT ────────────────────────────────
+    if (action === 'ai_rewrite_comment') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: `You are an executive communication assistant. Rewrite this comment to be professional, respectful, and constructive while preserving the author's original meaning. Transform any aggressive or unprofessional language into executive-appropriate tone. Return only the rewritten comment text.
+
+Original: "${body.content}"`,
+      });
+      return Response.json({ success: true, rewrite: result });
+    }
+
+    // ─── REPORT COMMENT ────────────────────────────────────
+    if (action === 'report_comment') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const { comment_id, report_type, reason } = body;
+      const comments = await base44.asServiceRole.entities.LetterComment.filter({ id: comment_id });
+      const comment = comments[0];
+      if (!comment) return Response.json({ error: 'Comment not found' }, { status: 404 });
+
+      let reporters = [];
+      try { reporters = JSON.parse(comment.reporters_json || '[]'); } catch (e) {}
+      if (reporters.includes(user.id)) {
+        return Response.json({ error: 'You have already reported this comment' }, { status: 400 });
+      }
+
+      reporters.push(user.id);
+      const newCount = (comment.reported_count || 0) + 1;
+      const updates = { reported_count: newCount, reporters_json: JSON.stringify(reporters) };
+      if (newCount >= 3 && comment.status === 'active') updates.status = 'flagged';
+
+      await base44.asServiceRole.entities.LetterComment.update(comment.id, updates);
+
+      if (newCount >= 3) await notifyAdmins('Comment Flagged by Community', `A comment has received ${newCount} reports and needs review.`, '🚩');
+
+      return Response.json({ success: true, reported_count: newCount });
+    }
+
+    // ─── PIN COMMENT (letter author or admin) ──────────────
+    if (action === 'pin_comment') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const { comment_id, pin_type } = body;
+      const comments = await base44.asServiceRole.entities.LetterComment.filter({ id: comment_id });
+      const comment = comments[0];
+      if (!comment) return Response.json({ error: 'Comment not found' }, { status: 404 });
+
+      const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: comment.letter_id });
+      const letter = letters[0];
+      if (!letter) return Response.json({ error: 'Letter not found' }, { status: 404 });
+      if (letter.author_user_id !== user.id && user.role !== 'admin') {
+        return Response.json({ error: 'Only the letter author can pin comments' }, { status: 403 });
+      }
+
+      const now = new Date().toISOString();
+      const updated = await base44.asServiceRole.entities.LetterComment.update(comment.id, {
+        pinned: !comment.pinned,
+        pinned_type: pin_type || 'most_insightful',
+        pinned_by_id: user.id,
+        pinned_by_name: user.full_name,
+        pinned_at: comment.pinned ? null : now,
+      });
+      return Response.json({ success: true, comment: updated });
+    }
+
+    // ─── MODERATE COMMENT (admin) ──────────────────────────
+    if (action === 'moderate_comment') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+
+      const { comment_id, moderator_action, notes } = body;
+      const comments = await base44.asServiceRole.entities.LetterComment.filter({ id: comment_id });
+      const comment = comments[0];
+      if (!comment) return Response.json({ error: 'Comment not found' }, { status: 404 });
+
+      const now = new Date().toISOString();
+      const updates = {
+        moderator_action,
+        moderator_id: user.id,
+        moderator_name: user.full_name,
+        moderated_at: now,
+        moderator_notes: notes || '',
+      };
+
+      if (moderator_action === 'approve') updates.status = 'active';
+      else if (moderator_action === 'hide') updates.status = 'hidden';
+      else if (moderator_action === 'delete') updates.status = 'deleted';
+      else if (moderator_action === 'feature') {
+        updates.pinned = true;
+        updates.pinned_type = 'editors_choice';
+        updates.pinned_by_id = user.id;
+        updates.pinned_by_name = user.full_name;
+        updates.pinned_at = now;
+        updates.status = 'active';
+      } else if (moderator_action === 'unfeature') updates.pinned = false;
+
+      if (['warn_user', 'suspend_user', 'ban_user'].includes(moderator_action)) {
+        const userComments = await base44.asServiceRole.entities.LetterComment.filter({ user_id: comment.user_id }, '-created_date', 500);
+        const pastOffenses = userComments.filter(c => c.id !== comment.id && ['warn_user', 'suspend_user', 'ban_user'].includes(c.moderator_action)).length;
+        const newOffenseCount = pastOffenses + 1;
+        updates.offense_count = newOffenseCount;
+
+        let penaltyMessage = '';
+        if (moderator_action === 'ban_user' || newOffenseCount >= 5) {
+          updates.moderator_action = 'ban_user';
+          penaltyMessage = 'Your commenting privileges have been permanently revoked due to repeated community standards violations.';
+        } else if (newOffenseCount >= 4) {
+          updates.moderator_action = 'suspend_user';
+          const until = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+          updates.suspended_until = until.toISOString();
+          penaltyMessage = `Your commenting privileges are suspended for 30 days until ${until.toLocaleDateString()}.`;
+        } else if (newOffenseCount >= 3) {
+          updates.moderator_action = 'suspend_user';
+          const until = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+          updates.suspended_until = until.toISOString();
+          penaltyMessage = `Your commenting privileges are suspended for 7 days until ${until.toLocaleDateString()}.`;
+        } else if (newOffenseCount >= 2) {
+          updates.moderator_action = 'suspend_user';
+          const until = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          updates.suspended_until = until.toISOString();
+          penaltyMessage = `Your commenting privileges are suspended for 24 hours until ${until.toLocaleDateString()}.`;
+        } else {
+          penaltyMessage = 'Your comment was flagged for violating community standards. Please review our community principles.';
+        }
+
+        await notifyUser(comment.user_id, 'Comment Action', penaltyMessage, '⚠️', '/legacy-library/' + comment.letter_id);
+        updates.status = 'hidden';
+      }
+
+      if (moderator_action === 'approve' && comment.status === 'pending_review') {
+        const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: comment.letter_id });
+        if (letters[0]) {
+          await base44.asServiceRole.entities.LeadershipLetter.update(comment.letter_id, { comments_count: (letters[0].comments_count || 0) + 1 });
+        }
+      }
+
+      const updated = await base44.asServiceRole.entities.LetterComment.update(comment.id, updates);
+      return Response.json({ success: true, comment: updated });
+    }
+
+    // ─── AI DISCUSSION SUMMARY ─────────────────────────────
+    if (action === 'ai_discussion_summary') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const comments = await base44.asServiceRole.entities.LetterComment.filter({ letter_id: body.letter_id, status: 'active' }, 'created_date', 200);
+      if (comments.length < 20) {
+        return Response.json({ error: 'Discussion summary is available when there are 20+ comments' }, { status: 400 });
+      }
+
+      const commentTexts = comments.map((c, i) => `${i + 1}. ${c.user_name} (${c.author_title || 'Executive'}): ${c.content}`).join('\n');
+
+      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: `You are an AI assistant for an executive leadership platform. Summarize this discussion on a leadership letter.
+
+Discussion (${comments.length} comments):
+${commentTexts}
+
+Provide: discussion_summary (2-3 paragraphs), key_takeaways (3-5 insights), areas_of_agreement (2-3 points), constructive_differences (2-3 different perspectives presented neutrally), recommended_reading (1-2 resources).`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            discussion_summary: { type: 'string' },
+            key_takeaways: { type: 'array', items: { type: 'string' } },
+            areas_of_agreement: { type: 'array', items: { type: 'string' } },
+            constructive_differences: { type: 'array', items: { type: 'string' } },
+            recommended_reading: { type: 'array', items: { type: 'string' } },
+          },
+        },
+      });
+      return Response.json({ success: true, summary: result, comment_count: comments.length });
+    }
+
+    // ─── ADMIN: LIST COMMENTS ──────────────────────────────
+    if (action === 'admin_comments') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+
+      const status = body.status || 'pending_review';
+      let comments;
+      if (status === 'all') {
+        comments = await base44.asServiceRole.entities.LetterComment.list('-created_date', 100);
+      } else if (status === 'flagged') {
+        const flagged = await base44.asServiceRole.entities.LetterComment.filter({ status: 'flagged' }, '-created_date', 100);
+        const pending = await base44.asServiceRole.entities.LetterComment.filter({ status: 'pending_review' }, '-created_date', 100);
+        comments = [...flagged, ...pending];
+      } else {
+        comments = await base44.asServiceRole.entities.LetterComment.filter({ status }, '-created_date', 100);
+      }
+
+      const letterIds = [...new Set(comments.map(c => c.letter_id))];
+      const letterMap = {};
+      for (const lid of letterIds.slice(0, 50)) {
+        try {
+          const l = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: lid });
+          if (l[0]) letterMap[lid] = l[0].title;
+        } catch (e) {}
+      }
+
+      return Response.json({
+        comments: comments.map(c => ({ ...c, letter_title: letterMap[c.letter_id] || '' })),
+      });
     }
 
     // ─── AI ENHANCE ────────────────────────────────────────

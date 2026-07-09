@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/lib/AuthContext";
 import ReactMarkdown from "react-markdown";
+import CommentSection from "@/components/legacy/CommentSection";
 import {
   ArrowLeft, Loader2, Heart, Bookmark, Share2, MessageCircle, Eye, Clock,
   BadgeCheck, Crown, BookOpen, Lightbulb, Target, Quote, HelpCircle,
@@ -18,9 +19,6 @@ export default function LegacyLetterDetail() {
   const { user } = useAuth();
   const [letter, setLetter] = useState(null);
   const [myInteraction, setMyInteraction] = useState({ liked: false, bookmarked: false });
-  const [comments, setComments] = useState([]);
-  const [commentText, setCommentText] = useState("");
-  const [submittingComment, setSubmittingComment] = useState(false);
   const [engaging, setEngaging] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -41,9 +39,6 @@ export default function LegacyLetterDetail() {
       .catch(() => {})
       .finally(() => setLoading(false));
 
-    base44.entities.LetterComment.filter({ letter_id: id, status: "active" }, "-created_date", 100)
-      .then(setComments)
-      .catch(() => {});
   }, [id]);
 
   const handleEngage = async (type) => {
@@ -69,23 +64,6 @@ export default function LegacyLetterDetail() {
       toast({ title: "Action failed", variant: "destructive" });
     }
     setEngaging(null);
-  };
-
-  const handleComment = async () => {
-    if (!commentText.trim()) return;
-    setSubmittingComment(true);
-    try {
-      const res = await base44.functions.invoke("manageLegacyLibrary", { action: "comment", letter_id: id, content: commentText });
-      const d = res.data || res;
-      if (d.success) {
-        setComments((p) => [d.comment, ...p]);
-        setLetter((p) => ({ ...p, comments_count: (p.comments_count || 0) + 1 }));
-        setCommentText("");
-      }
-    } catch (e) {
-      toast({ title: "Failed to post comment", variant: "destructive" });
-    }
-    setSubmittingComment(false);
   };
 
   const handleDelete = async () => {
@@ -328,33 +306,7 @@ export default function LegacyLetterDetail() {
       </Section>
 
       {/* Comments */}
-      <Section icon={MessageCircle} title={`Comments (${letter.comments_count || 0})`}>
-        <div className="space-y-3 mb-4">
-          <textarea
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Share your thoughts…"
-            rows={2}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 resize-none"
-          />
-          <button onClick={handleComment} disabled={submittingComment || !commentText.trim()} className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-            {submittingComment ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Post Comment
-          </button>
-        </div>
-        <div className="space-y-3">
-          {comments.length === 0 ? (
-            <p className="text-white/30 text-sm text-center py-4">No comments yet. Be the first to share.</p>
-          ) : comments.map((c) => (
-            <div key={c.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-6 h-6 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs font-medium">{c.user_name?.charAt(0)}</div>
-                <span className="text-white/70 text-xs font-medium">{c.user_name}</span>
-              </div>
-              <p className="text-white/60 text-sm">{c.content}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
+      <CommentSection letterId={id} authorUserId={letter.author_user_id} commentsCount={letter.comments_count} />
 
       {/* Author CTA */}
       <div className="mt-12 pt-8 border-t border-white/5 text-center">

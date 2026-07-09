@@ -83,16 +83,28 @@ export default function LegacyLetterEditor() {
     try {
       const payload = buildPayload();
       let res;
+      let letterId = id;
       if (id) {
-        res = await base44.functions.invoke("manageLegacyLibrary", { action: "update", letter_id: id, fields: payload, submit });
+        res = await base44.functions.invoke("manageLegacyLibrary", { action: "update", letter_id: id, fields: payload });
       } else {
-        res = await base44.functions.invoke("manageLegacyLibrary", { action: "create", ...payload, submit });
+        res = await base44.functions.invoke("manageLegacyLibrary", { action: "create", ...payload });
       }
       const d = res.data || res;
       if (d.success) {
-        toast({ title: submit ? "Submitted for review!" : "Draft saved" });
-        if (submit) navigate(`/legacy-library/${d.letter?.id || id}`);
-        else if (!id) navigate(`/legacy-library/${d.letter?.id}/edit`);
+        letterId = d.letter?.id || id;
+        if (submit) {
+          const subRes = await base44.functions.invoke("manageLegacyLibrary", { action: "submit_for_review", letter_id: letterId });
+          const subD = subRes.data || subRes;
+          if (subD.success) {
+            toast({ title: "Submitted for review!" });
+            navigate(`/legacy-library/${letterId}`);
+          } else {
+            toast({ title: subD.error || "Saved but failed to submit", variant: "destructive" });
+          }
+        } else {
+          toast({ title: "Draft saved" });
+          if (!id) navigate(`/legacy-library/${letterId}/edit`);
+        }
       } else {
         toast({ title: d.error || "Failed to save", variant: "destructive" });
       }

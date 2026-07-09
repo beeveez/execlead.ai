@@ -5,6 +5,7 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import { formatCurrency } from "@/lib/payments";
 import PaymentHistory from "@/components/billing/PaymentHistory";
 import CompanyLogo from "@/components/companies/CompanyLogo";
+import OrganizationDangerZone from "@/components/organization/OrganizationDangerZone";
 import {
   Building2, CreditCard, Loader2, Users, DollarSign, Calendar,
   FileText, Plus, ArrowUpCircle, Cpu, HardDrive, Mail, ExternalLink,
@@ -34,6 +35,14 @@ export default function OrganizationBilling() {
   const [org, setOrg] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const reloadOrg = async () => {
+    if (!profile?.organization_id) return;
+    try {
+      const orgData = await base44.entities.Organization.get(profile.organization_id);
+      setOrg(orgData);
+    } catch {}
+  };
 
   useEffect(() => {
     if (!profile?.organization_id) { setLoading(false); return; }
@@ -180,6 +189,8 @@ export default function OrganizationBilling() {
         <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Invoice History</h3>
         <PaymentHistory invoices={invoices} profile={profile} />
       </div>
+
+      <OrganizationDangerZone org={org} onUpdated={reloadOrg} />
     </div>
   );
 }

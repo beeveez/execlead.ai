@@ -960,11 +960,14 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
     // ─── DELETE (admin) ────────────────────────────────────
     if (action === 'delete') {
       const user = await base44.auth.me();
-      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
       const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: body.letter_id });
       const letter = letters[0];
       if (!letter) return Response.json({ error: 'Not found' }, { status: 404 });
+      if (letter.author_user_id !== user.id && user.role !== 'admin') {
+        return Response.json({ error: 'You can only delete your own letters' }, { status: 403 });
+      }
 
       const prevStatus = letter.status;
       await base44.asServiceRole.entities.LeadershipLetter.delete(letter.id);

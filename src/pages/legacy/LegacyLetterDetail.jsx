@@ -134,6 +134,10 @@ export default function LegacyLetterDetail() {
     );
   }
 
+  const isAuthor = letter.author_user_id === user?.id;
+  const canManage = user?.role === "admin" || isAuthor;
+  const canEdit = canManage && !letter.locked && letter.status !== 'published';
+
   const insights = {
     competencies: safeParse(letter.ai_competencies_json),
     principles: safeParse(letter.ai_principles_json),
@@ -148,15 +152,25 @@ export default function LegacyLetterDetail() {
         <Link to="/legacy-library" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm">
           <ArrowLeft size={16} /> Back to Library
         </Link>
-        {user?.role === "admin" && (
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
-          >
-            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {canEdit && (
+            <Link
+              to={`/legacy-library/${id}/edit`}
+              className="flex items-center gap-1.5 text-white/30 hover:text-indigo-400 text-sm transition-colors"
+            >
+              <PenLine size={14} /> Edit
+            </Link>
+          )}
+          {canManage && (
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
+            >
+              {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Header */}

@@ -68,6 +68,7 @@ import FounderRewards from '@/pages/founder/FounderRewards';
 import FounderCertificates from '@/pages/founder/FounderCertificates';
 import FounderTimeline from '@/pages/founder/FounderTimeline';
 import FounderSettings from '@/pages/founder/FounderSettings';
+import FounderTimeCapsule from '@/pages/founder/FounderTimeCapsule';
 import NetworkLayout from '@/components/network/NetworkLayout';
 import NetworkFeed from '@/pages/network/NetworkFeed';
 import NetworkDirectory from '@/pages/network/NetworkDirectory';
@@ -245,6 +246,7 @@ const AuthenticatedApp = () => {
             <Route path="/founder/certificates" element={<FounderCertificates />} />
             <Route path="/founder/timeline" element={<FounderTimeline />} />
             <Route path="/founder/settings" element={<FounderSettings />} />
+            <Route path="/founder/time-capsule" element={<FounderTimeCapsule />} />
           </Route>
           <Route element={<NetworkLayout />}>
             <Route path="/network" element={<NetworkFeed />} />

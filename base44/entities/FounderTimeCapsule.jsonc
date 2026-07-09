@@ -1,0 +1,178 @@
+{
+  "name": "FounderTimeCapsule",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID \u2014 only the founder can access their capsule"
+    },
+    "founding_member_number": {
+      "type": "string",
+      "description": "Founder reservation number (FM-YYYY-NNNNNN)"
+    },
+    "capsule_id": {
+      "type": "string",
+      "description": "Unique capsule identifier (CAPS-FM-YYYY-NNNNNN)"
+    },
+    "digital_signature": {
+      "type": "string",
+      "description": "SHA-256 hash signature for immutability verification"
+    },
+    "why_joined": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "Why did you join EXECLEAD.AI?"
+    },
+    "career_goals_today": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "What are your career goals today?"
+    },
+    "hope_5_years": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "Where do you hope to be in 5 years?"
+    },
+    "hope_10_years": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "Where do you hope to be in 10 years?"
+    },
+    "hope_20_years": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "Where do you hope to be in 20 years?"
+    },
+    "advice_future_self": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "What advice would you give your future self?"
+    },
+    "belief_execlead_future": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "What do you believe EXECLEAD.AI will become?"
+    },
+    "leadership_principle": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "What leadership principle defines you today?"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Optional photo attachment URL"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "Optional video attachment URL"
+    },
+    "audio_url": {
+      "type": "string",
+      "description": "Optional audio message attachment URL"
+    },
+    "document_url": {
+      "type": "string",
+      "description": "Optional document attachment URL"
+    },
+    "lock_period": {
+      "type": "string",
+      "enum": [
+        "1_year",
+        "3_years",
+        "5_years",
+        "10_years",
+        "15_years",
+        "20_years",
+        "custom"
+      ],
+      "default": "5_years",
+      "description": "How long until the capsule unlocks"
+    },
+    "custom_unlock_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Custom unlock date (when lock_period is 'custom')"
+    },
+    "unlock_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Calculated unlock date"
+    },
+    "sealed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the capsule was sealed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sealed",
+        "unlocked",
+        "opened"
+      ],
+      "default": "draft",
+      "description": "draft=being filled, sealed=locked, unlocked=ready to open, opened=user has opened"
+    },
+    "snapshot_json": {
+      "type": "string",
+      "description": "JSON snapshot of executive profile at seal time (Then)"
+    },
+    "ai_reflection_json": {
+      "type": "string",
+      "description": "AI-generated executive journey reflection (generated on open)"
+    },
+    "ai_reflection_generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "legacy_visibility": {
+      "type": "string",
+      "enum": [
+        "private",
+        "friends",
+        "founders",
+        "public"
+      ],
+      "default": "private",
+      "description": "Who can see the published capsule story"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "unlock_notification_sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "anniversary_milestones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Anniversary milestones celebrated (1_year, 5_years, etc.)"
+    }
+  },
+  "required": [
+    "user_id",
+    "capsule_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

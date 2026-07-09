@@ -3,7 +3,7 @@ import { Outlet, NavLink, Link } from "react-router-dom";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   LayoutDashboard, Shield, Users, Calendar, Vote, UserPlus,
-  Gift, Award, Activity, Settings as SettingsIcon, Crown, Loader2,
+  Gift, Award, Activity, Settings as SettingsIcon, Crown, Loader2, Lock,
 } from "lucide-react";
 
 const SECTIONS = [
@@ -16,6 +16,7 @@ const SECTIONS = [
   { to: "/founder/rewards", label: "Rewards", icon: Gift },
   { to: "/founder/certificates", label: "Certificates", icon: Award },
   { to: "/founder/timeline", label: "Timeline", icon: Activity },
+  { to: "/founder/time-capsule", label: "Time Capsule", icon: Lock },
   { to: "/founder/settings", label: "Settings", icon: SettingsIcon },
 ];
 

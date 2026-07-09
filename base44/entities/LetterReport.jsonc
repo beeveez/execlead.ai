@@ -1,0 +1,87 @@
+{
+  "name": "LetterReport",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "letter_id": {
+      "type": "string",
+      "description": "LeadershipLetter ID"
+    },
+    "letter_title": {
+      "type": "string"
+    },
+    "reporter_id": {
+      "type": "string",
+      "description": "User who reported the content"
+    },
+    "reporter_name": {
+      "type": "string"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "spam",
+        "offensive",
+        "harassment",
+        "misinformation",
+        "copyright",
+        "other"
+      ],
+      "description": "Category of the report"
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Detailed explanation from the reporter"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewing",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "pending"
+    },
+    "resolved_by_id": {
+      "type": "string"
+    },
+    "resolved_by_name": {
+      "type": "string"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "letter_id",
+    "reporter_id",
+    "report_type"
+  ],
+  "rls": {
+    "create": {
+      "data.reporter_id": "{{user.id}}"
+    },
+    "read": {
+      "data.reporter_id": "{{user.id}}"
+    },
+    "update": {
+      "data.reporter_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.reporter_id": "{{user.id}}"
+    }
+  }
+}

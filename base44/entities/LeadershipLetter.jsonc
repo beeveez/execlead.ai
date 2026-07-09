@@ -129,16 +129,47 @@
       "type": "string",
       "enum": [
         "draft",
-        "pending_review",
+        "pending_ai_review",
+        "pending_human_review",
+        "revision_requested",
         "published",
         "rejected",
         "archived"
       ],
-      "default": "draft"
+      "default": "draft",
+      "description": "Editorial lifecycle state"
+    },
+    "locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Editing locked once submitted"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1
     },
     "featured": {
       "type": "boolean",
       "default": false
+    },
+    "featured_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "featured",
+          "pinned",
+          "editors_pick",
+          "founders_choice",
+          "trending",
+          "homepage_featured"
+        ]
+      },
+      "description": "Featured content classifications"
     },
     "curated_collections": {
       "type": "array",
@@ -205,6 +236,148 @@
     "ai_reading_time_minutes": {
       "type": "number",
       "default": 0
+    },
+    "ai_moderation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall AI moderation score 0-100"
+    },
+    "ai_grammar_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_tone_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_leadership_value_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_originality_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_risk_score": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_recommendation": {
+      "type": "string",
+      "enum": [
+        "approve",
+        "needs_review",
+        "reject"
+      ],
+      "description": "AI moderation recommendation"
+    },
+    "ai_suggested_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ai_reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_review_json": {
+      "type": "string",
+      "description": "Full AI moderation review details"
+    },
+    "ai_flags_json": {
+      "type": "string",
+      "description": "JSON of toxicity/spam/plagiarism/sensitive_info flags"
+    },
+    "revision_notes": {
+      "type": "string",
+      "description": "Moderator's revision instructions to author"
+    },
+    "revision_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revision_count": {
+      "type": "number",
+      "default": 0
+    },
+    "rejection_reason": {
+      "type": "string",
+      "enum": [
+        "spam",
+        "low_quality",
+        "duplicate",
+        "policy_violation",
+        "incomplete",
+        "copyright_issue",
+        "other"
+      ]
+    },
+    "rejection_comments": {
+      "type": "string"
+    },
+    "rejected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_by_id": {
+      "type": "string"
+    },
+    "rejected_by_name": {
+      "type": "string"
+    },
+    "publication_url": {
+      "type": "string",
+      "description": "Permanent public URL slug"
+    },
+    "seo_title": {
+      "type": "string"
+    },
+    "seo_description": {
+      "type": "string"
+    },
+    "seo_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "executive_citation": {
+      "type": "string",
+      "description": "Formatted citation for executive reference"
+    },
+    "scheduled_publish_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assigned_reviewer_id": {
+      "type": "string"
+    },
+    "assigned_reviewer_name": {
+      "type": "string"
+    },
+    "moderator_notes": {
+      "type": "string",
+      "description": "Internal notes for moderators"
+    },
+    "review_checklist_json": {
+      "type": "string",
+      "description": "JSON of moderator checklist state"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "review_round": {
+      "type": "number",
+      "default": 0,
+      "description": "How many review cycles this letter has gone through"
     },
     "published_at": {
       "type": "string",

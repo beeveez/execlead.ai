@@ -1,0 +1,71 @@
+{
+  "name": "LegacyAuditLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "letter_id": {
+      "type": "string",
+      "description": "LeadershipLetter ID"
+    },
+    "letter_title": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "submitted",
+        "ai_reviewed",
+        "assigned_reviewer",
+        "approved",
+        "rejected",
+        "revision_requested",
+        "published",
+        "archived",
+        "restored",
+        "featured",
+        "unfeatured",
+        "deleted",
+        "report_filed",
+        "report_resolved",
+        "checklist_saved",
+        "notes_saved"
+      ],
+      "description": "The editorial action performed"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who performed the action"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_role": {
+      "type": "string",
+      "description": "Role at time of action (admin, moderator, author, reader)"
+    },
+    "details_json": {
+      "type": "string",
+      "description": "JSON object with action-specific details"
+    },
+    "previous_status": {
+      "type": "string"
+    },
+    "new_status": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "letter_id",
+    "action",
+    "user_id"
+  ]
+}

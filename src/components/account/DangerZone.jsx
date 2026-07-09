@@ -59,7 +59,7 @@ export default function DangerZone() {
           <p className="text-white/40 text-sm mt-1">Irreversible and sensitive account operations.</p>
         </div>
         <div className="p-6 space-y-3">
-          <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-red-500/10 bg-red-500/[0.02]">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02]">
             <div className="flex items-start gap-3">
               <Trash2 size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -67,7 +67,7 @@ export default function DangerZone() {
                 <div className="text-xs text-white/40 mt-0.5">Permanently delete your account and all associated data. A 30-day recovery window is provided.</div>
               </div>
             </div>
-            <button onClick={() => setShowDelete(true)} className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0">Delete</button>
+            <button onClick={() => setShowDelete(true)} className="px-4 py-2 rounded-lg border border-red-900/60 hover:border-red-900 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0">Delete</button>
           </div>
 
           <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02]">

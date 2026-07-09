@@ -42,6 +42,9 @@ export default function ModerationQueueItem({ letter, acting, onAction }) {
           </div>
           <Link to={`/legacy-library/${letter.id}`} className="text-white/90 font-medium text-sm hover:text-indigo-400 transition-colors block truncate">{letter.title}</Link>
           <div className="text-white/40 text-xs mt-0.5">by {letter.author_name} · {letter.organization || "No org"} · {letter.industry || "No industry"}{letter.country ? ` · ${letter.country}` : ""}</div>
+          <Link to={`/legacy-library/${letter.id}/review`} className="inline-flex items-center gap-1 text-indigo-400 text-xs mt-1.5 hover:underline">
+            Open Full Review →
+          </Link>
 
           {/* AI Scores */}
           {hasAiReview && (

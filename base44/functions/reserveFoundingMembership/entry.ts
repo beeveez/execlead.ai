@@ -29,9 +29,14 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Compute sequential priority number
+      // Compute sequential priority number and founder reservation number
       const all = await base44.asServiceRole.entities.FoundingWaitlist.list("-created_date", 100000);
       const priority_number = all.length + 1;
+      const year = new Date().getFullYear();
+      const founding_member_number = `FM-${year}-${String(priority_number).padStart(6, "0")}`;
+      const certificate_id = `CERT-FM-${year}-${String(priority_number).padStart(6, "0")}`;
+      const verification_id = crypto.randomUUID();
+      const pricing_expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
       // Link to user account if authenticated
       let user_id = "";
@@ -45,30 +50,144 @@ Deno.serve(async (req) => {
         full_name: full_name || "",
         email: normalizedEmail,
         country: country || "",
+        profession: body.profession || "",
         preferred_plan,
         expected_start_date: expected_start_date || "",
         comments: comments || "",
         referral_source: referral_source || "",
+        public_profile: body.public_profile || false,
         reservation_date: new Date().toISOString(),
         status: "reserved",
         priority_number,
+        founding_member_number,
+        certificate_id,
+        verification_id,
+        pricing_expires_at,
         invitation_sent: false,
         payment_completed: false,
         activated: false,
+        reminder_7day_sent: false,
+        reminder_3day_sent: false,
       });
 
-      // Send welcome + confirmation email with founder position
+      // Send confirmation email with founder reservation number + certificate
       try {
         const planLabel = ({ professional: "Professional", executive: "Executive", founding_member: "Founding Member", enterprise: "Enterprise" })[preferred_plan] || preferred_plan;
+        const verifyUrl = `https://execlead.ai/verify/${verification_id}`;
         await base44.integrations.Core.SendEmail({
           to: normalizedEmail,
-          subject: "🎉 You're In! Founding Membership Reserved — EXECLEAD.AI",
-          body: `Hi ${full_name || "there"},\n\nWelcome to EXECLEAD.AI! 🎉\n\nYour Founding Membership spot has been reserved.\n\nHere are your reservation details:\n• Founder Position: #${priority_number}\n• Preferred Plan: ${planLabel}\n• Country: ${country || "Not specified"}\n\nWhat happens next?\n• EXECLEAD.AI is currently in Public Beta — you can register and start exploring the platform today.\n• When payments go live, you'll be among the first invited to activate your subscription at founding member pricing.\n• Your position (#${priority_number}) secures your spot in line.\n\nStart exploring: https://execlead.ai/dashboard\n\nThank you for being one of our earliest supporters.\n\n— The EXECLEAD.AI Team`,
+          subject: `🎉 Founding Membership Reserved — ${founding_member_number} — EXECLEAD.AI`,
+          body: `Hi ${full_name || "there"},\n\nWelcome to EXECLEAD.AI! 🎉\n\nYour Founding Membership has been officially reserved. You are now part of EXECLEAD.AI history.\n\n══════════════════════════════════\n  FOUNDER RESERVATION CONFIRMED\n══════════════════════════════════\n\n  Founder Number: ${founding_member_number}\n  Certificate ID: ${certificate_id}\n  Preferred Plan: ${planLabel}\n  Reservation Date: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}\n  Status: Reserved\n  Reserved Pricing Expires: ${new Date(pricing_expires_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}\n\n  Lifetime Founding Benefits:\n  ✓ 25% Lifetime Discount\n  ✓ Founder Badge\n  ✓ Founder Portal Access\n  ✓ Priority Roadmap Voting\n  ✓ Exclusive Founder Events\n  ✓ Founder Community Access\n  ✓ Beta Feature Access\n  ✓ Recognition Wall\n\nVerify your certificate: ${verifyUrl}\n\nWhat happens next?\n• EXECLEAD.AI is in Public Beta — register and explore today.\n• When payments go live, you'll be the first invited to activate.\n• Your reserved pricing is locked in for 30 days.\n\n— The EXECLEAD.AI Team`,
           from_name: "EXECLEAD.AI",
         });
       } catch (e) {}
 
       return Response.json({ success: true, reservation, priority_number });
+    }
+
+    // ============================================================
+    // PUBLIC — Verify a certificate by verification_id
+    // ============================================================
+    if (action === "verify") {
+      const { verification_id } = body;
+      if (!verification_id) return Response.json({ error: "Verification ID required" }, { status: 400 });
+      const results = await base44.asServiceRole.entities.FoundingWaitlist.filter({ verification_id });
+      if (results.length === 0) return Response.json({ valid: false, error: "Invalid verification ID" }, { status: 404 });
+      const r = results[0];
+      return Response.json({
+        valid: true,
+        founding_member_number: r.founding_member_number,
+        certificate_id: r.certificate_id,
+        full_name: r.full_name,
+        preferred_plan: r.preferred_plan,
+        status: r.status,
+        reservation_date: r.reservation_date,
+        activated: r.activated,
+        activation_date: r.activation_date,
+        pricing_expires_at: r.pricing_expires_at,
+      });
+    }
+
+    // ============================================================
+    // PUBLIC — Founder Directory (opt-in members only)
+    // ============================================================
+    if (action === "directory") {
+      const all = await base44.asServiceRole.entities.FoundingWaitlist.filter({ public_profile: true });
+      const members = all
+        .filter((w) => ["reserved", "approved", "invited", "activated"].includes(w.status))
+        .map((w) => ({
+          founding_member_number: w.founding_member_number,
+          full_name: w.full_name,
+          country: w.country,
+          profession: w.profession,
+          reservation_date: w.reservation_date,
+          status: w.status,
+          preferred_plan: w.preferred_plan,
+        }))
+        .sort((a, b) => (a.founding_member_number || "").localeCompare(b.founding_member_number || ""));
+      return Response.json({ members });
+    }
+
+    // ============================================================
+    // AUTHENTICATED — Get certificate for current user
+    // ============================================================
+    if (action === "get_certificate") {
+      const certUser = await base44.auth.me();
+      if (!certUser) return Response.json({ error: "Unauthorized" }, { status: 401 });
+      let results = await base44.asServiceRole.entities.FoundingWaitlist.filter({ user_id: certUser.id });
+      if (results.length === 0 && certUser.email) {
+        results = await base44.asServiceRole.entities.FoundingWaitlist.filter({ email: certUser.email.toLowerCase() });
+      }
+      if (results.length === 0) return Response.json({ error: "No reservation found" }, { status: 404 });
+      return Response.json({ reservation: results[0] });
+    }
+
+    // ============================================================
+    // SYSTEM — Send reminder emails (called by scheduled automation)
+    // ============================================================
+    if (action === "send_reminders") {
+      const all = await base44.asServiceRole.entities.FoundingWaitlist.list("-created_date", 100000);
+      const now = Date.now();
+      let sent7 = 0, sent3 = 0, expiredCount = 0;
+
+      for (const r of all) {
+        if (!r.pricing_expires_at) continue;
+        const expires = new Date(r.pricing_expires_at).getTime();
+        const daysLeft = (expires - now) / (24 * 60 * 60 * 1000);
+
+        if (daysLeft <= 0 && r.status === "reserved") {
+          await base44.asServiceRole.entities.FoundingWaitlist.update(r.id, { status: "expired" });
+          expiredCount++;
+          continue;
+        }
+
+        if (daysLeft <= 7 && daysLeft > 3 && !r.reminder_7day_sent) {
+          try {
+            await base44.integrations.Core.SendEmail({
+              to: r.email,
+              subject: `⏰ 7 Days Left — ${r.founding_member_number} — EXECLEAD.AI`,
+              body: `Hi ${r.full_name || "there"},\n\nYour founding member reservation (${r.founding_member_number}) expires in 7 days.\n\nDon't lose your reserved pricing and lifetime founding benefits!\n\nYour certificate: https://execlead.ai/verify/${r.verification_id}\n\n— The EXECLEAD.AI Team`,
+              from_name: "EXECLEAD.AI",
+            });
+            await base44.asServiceRole.entities.FoundingWaitlist.update(r.id, { reminder_7day_sent: true });
+            sent7++;
+          } catch (e) {}
+        }
+
+        if (daysLeft <= 3 && daysLeft > 0 && !r.reminder_3day_sent) {
+          try {
+            await base44.integrations.Core.SendEmail({
+              to: r.email,
+              subject: `🚨 3 Days Left — Activate ${r.founding_member_number} — EXECLEAD.AI`,
+              body: `Hi ${r.full_name || "there"},\n\nYour founding member reservation (${r.founding_member_number}) expires in 3 days!\n\nActivate now to secure your lifetime benefits and reserved pricing.\n\n— The EXECLEAD.AI Team`,
+              from_name: "EXECLEAD.AI",
+            });
+            await base44.asServiceRole.entities.FoundingWaitlist.update(r.id, { reminder_3day_sent: true });
+            sent3++;
+          } catch (e) {}
+        }
+      }
+      return Response.json({ success: true, sent_7day: sent7, sent_3day: sent3, expired: expiredCount });
     }
 
     // ============================================================

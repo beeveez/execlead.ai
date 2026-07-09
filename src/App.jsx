@@ -137,6 +137,7 @@ import Contact from '@/pages/Contact';
 const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
 import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
+import Concierge from '@/pages/Concierge';
 import Feedback from '@/pages/Feedback';
 import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
@@ -297,6 +298,7 @@ const AuthenticatedApp = () => {
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
           <Route path="/executive/rankings" element={<ExecutiveRankings />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
+          <Route path="/concierge" element={<Concierge />} />
           <Route path="/feedback" element={<Feedback />} />
         </Route>
       </Route>

@@ -90,6 +90,7 @@ const APP_ROUTES = [
   { path: "/leaderboard", component: "Leaderboard", public: true },
   { path: "/executive/rankings", component: "ExecutiveRankings" },
   { path: "/brand-center", component: "ExecutiveBrandCenter" },
+  { path: "/concierge", component: "Concierge" },
   { path: "/feedback", component: "Feedback" },
   { path: "/guardian", component: "Guardian", feature: null, public: false },
 ];

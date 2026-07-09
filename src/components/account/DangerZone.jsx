@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { AlertTriangle, Trash2, Download, Pause, Loader2, RotateCcw } from "lucide-react";
+import { AlertTriangle, Trash2, Download, Pause, Loader2, RotateCcw, Building2 } from "lucide-react";
 import DeleteAccountDialog from "./DeleteAccountDialog";
 import DownloadDataDialog from "./DownloadDataDialog";
+import { useSubscription } from "@/lib/SubscriptionContext";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function DangerZone() {
+  const { profile } = useSubscription();
+  const { user } = useAuth();
   const [showDelete, setShowDelete] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
   const [pendingDeletion, setPendingDeletion] = useState(null);
   const [restoring, setRestoring] = useState(false);
+  const [isOrgOwner, setIsOrgOwner] = useState(false);
+
+  useEffect(() => {
+    const checkOwnership = async () => {
+      if (!profile?.organization_id) return;
+      try {
+        const org = await base44.entities.Organization.get(profile.organization_id);
+        setIsOrgOwner(org.admin_user_id === user?.id);
+      } catch {}
+    };
+    checkOwnership();
+  }, [profile?.organization_id, user?.id]);
+
+  const canDeleteAccount = !profile?.organization_id || isOrgOwner;
 
   const loadStatus = async () => {
     try {
@@ -59,16 +77,29 @@ export default function DangerZone() {
           <p className="text-white/40 text-sm mt-1">Irreversible and sensitive account operations.</p>
         </div>
         <div className="p-6 space-y-3">
-          <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02]">
-            <div className="flex items-start gap-3">
-              <Trash2 size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="text-sm font-medium text-white">Delete Account</div>
-                <div className="text-xs text-white/40 mt-0.5">Permanently delete your account and all associated data. A 30-day recovery window is provided.</div>
+          {canDeleteAccount ? (
+            <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+              <div className="flex items-start gap-3">
+                <Trash2 size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-medium text-white">Delete Account</div>
+                  <div className="text-xs text-white/40 mt-0.5">Permanently delete your account and all associated data. A 30-day recovery window is provided.</div>
+                </div>
               </div>
+              <button onClick={() => setShowDelete(true)} className="px-4 py-2 rounded-lg border border-red-900/60 hover:border-red-900 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0">Delete</button>
             </div>
-            <button onClick={() => setShowDelete(true)} className="px-4 py-2 rounded-lg border border-red-900/60 hover:border-red-900 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0">Delete</button>
-          </div>
+          ) : (
+            <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02]">
+              <div className="flex items-start gap-3">
+                <Building2 size={18} className="text-cyan-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="text-sm font-medium text-white">Delete Account</div>
+                  <div className="text-xs text-white/40 mt-0.5">Your account is managed by your organization. Contact your administrator to request account removal.</div>
+                </div>
+              </div>
+              <span className="px-3 py-1.5 rounded-lg bg-white/5 text-white/30 text-xs whitespace-nowrap flex-shrink-0">Managed by Org</span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02]">
             <div className="flex items-start gap-3">

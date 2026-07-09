@@ -90,23 +90,47 @@ export default function LegacyLibrary() {
         </div>
       </div>
 
-      {/* Search + Filters */}
-      <div className="flex flex-col sm:flex-row gap-2 mb-6">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+      {/* Search Bar */}
+      <div className="mb-4">
+        <div className="relative">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by topic, author, company, or keyword…"
-            className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 h-10 text-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50"
+            placeholder="Search advice by keyword, topic, author, or company…"
+            className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-10 h-12 text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:border-indigo-500/50 focus:bg-white/[0.04] transition-colors"
           />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+              <X size={16} />
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Category Quick-Filters */}
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+        <button
+          onClick={() => setCategory("")}
+          className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${!category ? "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20" : "bg-white/5 text-white/40 hover:text-white/70 border border-transparent"}`}
+        >
+          All Categories
+        </button>
+        {LETTER_CATEGORIES.map((c) => (
+          <button
+            key={c}
+            onClick={() => setCategory(category === c ? "" : c)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${category === c ? "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20" : "bg-white/5 text-white/40 hover:text-white/70 border border-transparent"}`}
+          >
+            {c}
+          </button>
+        ))}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-1.5 px-4 h-10 rounded-lg text-sm bg-white/5 border border-white/10 text-white/60 hover:text-white/90"
+          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-white/40 hover:text-white/70 border border-transparent"
         >
-          <Filter size={14} /> Filters {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
+          <Filter size={12} /> More {hasFilters && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
         </button>
       </div>
 

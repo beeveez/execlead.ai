@@ -957,6 +957,26 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
       });
     }
 
+    // ─── DELETE (admin) ────────────────────────────────────
+    if (action === 'delete') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+
+      const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: body.letter_id });
+      const letter = letters[0];
+      if (!letter) return Response.json({ error: 'Not found' }, { status: 404 });
+
+      const prevStatus = letter.status;
+      await base44.asServiceRole.entities.LeadershipLetter.delete(letter.id);
+      // Clean up related data
+      try { await base44.asServiceRole.entities.LetterComment.deleteMany({ letter_id: letter.id }); } catch (e) {}
+      try { await base44.asServiceRole.entities.LetterInteraction.deleteMany({ letter_id: letter.id }); } catch (e) {}
+      try { await base44.asServiceRole.entities.LetterReport.deleteMany({ letter_id: letter.id }); } catch (e) {}
+
+      await logAudit(letter.id, letter.title, 'deleted', user, { reason: body.reason || '' }, prevStatus, 'deleted');
+      return Response.json({ success: true });
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

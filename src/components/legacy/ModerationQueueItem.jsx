@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Check, X, Star, Archive, RefreshCw, Copy, ChevronDown, ChevronUp,
   Bot, Flag, Eye, Heart, MessageCircle, Bookmark, TrendingUp, Lock,
-  AlertTriangle, RotateCcw, Trash2, Loader2, Send, MessageSquare
+  AlertTriangle, RotateCcw, Trash2, Loader2, Send, MessageSquare, UserCheck
 } from "lucide-react";
 import { formatCount, scoreColor, scoreBg, AI_RECOMMENDATION_LABELS } from "@/lib/legacyLibrary";
 
@@ -38,6 +38,7 @@ export default function ModerationQueueItem({ letter, acting, onAction }) {
             {letter.featured && <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-amber-400 text-[10px] font-medium"><Star size={9} className="inline" fill="currentColor" /> Featured</span>}
             {letter.locked && <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-white/40 text-[10px] font-medium"><Lock size={9} className="inline" /> Locked</span>}
             {letter.review_round > 0 && <span className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded text-blue-400 text-[10px] font-medium">Round {letter.review_round}</span>}
+            {letter.assigned_reviewer_name && <span className="px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 rounded text-cyan-400 text-[10px] font-medium"><UserCheck size={9} className="inline" /> {letter.assigned_reviewer_name}</span>}
           </div>
           <Link to={`/legacy-library/${letter.id}`} className="text-white/90 font-medium text-sm hover:text-indigo-400 transition-colors block truncate">{letter.title}</Link>
           <div className="text-white/40 text-xs mt-0.5">by {letter.author_name} · {letter.organization || "No org"} · {letter.industry || "No industry"}{letter.country ? ` · ${letter.country}` : ""}</div>
@@ -132,6 +133,8 @@ export default function ModerationQueueItem({ letter, acting, onAction }) {
               {letter.status === "pending_human_review" && (
                 <>
                   <ActionButton onClick={() => onAction("approve", letter)} color="emerald" icon={Check}>Approve</ActionButton>
+                  <ActionButton onClick={() => onAction("approve_feature", letter)} color="amber" icon={Star}>Approve & Feature</ActionButton>
+                  <ActionButton onClick={() => onAction("assign_reviewer", letter)} color="subtle" icon={UserCheck}>Assign</ActionButton>
                   <ActionButton onClick={() => onAction("request_revision", letter)} color="blue" icon={MessageSquare}>Revise</ActionButton>
                   <ActionButton onClick={() => onAction("reject", letter)} color="red" icon={X}>Reject</ActionButton>
                   <ActionButton onClick={() => onAction("run_ai_review", letter)} color="subtle" icon={RefreshCw}>Re-run AI</ActionButton>

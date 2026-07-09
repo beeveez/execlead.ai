@@ -12,6 +12,7 @@ import RejectionModal from "@/components/legacy/RejectionModal";
 import RevisionModal from "@/components/legacy/RevisionModal";
 import ReportsPanel from "@/components/legacy/ReportsPanel";
 import AuditLogPanel from "@/components/legacy/AuditLogPanel";
+import AssignReviewerModal from "@/components/legacy/AssignReviewerModal";
 
 const STATUS_TABS = [
   { value: "pending_human_review", label: "Pending Review" },
@@ -35,6 +36,7 @@ export default function LegacyAdmin() {
   const [searchInput, setSearchInput] = useState("");
   const [rejectLetter, setRejectLetter] = useState(null);
   const [revisionLetter, setRevisionLetter] = useState(null);
+  const [assignLetter, setAssignLetter] = useState(null);
 
   useEffect(() => { if (view === "queue") loadData(); }, [tab, view, search]);
   useEffect(() => { loadAnalytics(); }, []);
@@ -59,6 +61,7 @@ export default function LegacyAdmin() {
   const handleAction = async (action, letter) => {
     if (action === "reject") { setRejectLetter(letter); return; }
     if (action === "request_revision") { setRevisionLetter(letter); return; }
+    if (action === "assign_reviewer") { setAssignLetter(letter); return; }
     if (action === "delete") {
       if (!window.confirm(`Delete "${letter.title}"? This permanently removes the letter and all related data.`)) return;
     }
@@ -67,6 +70,7 @@ export default function LegacyAdmin() {
     try {
       let payload = { action, letter_id: letter.id };
       if (action === "feature") payload.feature_type = "featured";
+      if (action === "approve_feature") { payload.action = "approve"; payload.feature = true; }
 
       const res = await base44.functions.invoke("manageLegacyLibrary", payload);
       const d = res.data || res;
@@ -78,7 +82,7 @@ export default function LegacyAdmin() {
           toast({ title: "No duplicates found" });
         }
       } else if (d.success !== false) {
-        toast({ title: `Letter ${action.replace("_", " ")}d successfully` });
+        toast({ title: action === "approve_feature" ? "Letter approved & featured" : `Letter ${action.replace("_", " ")}d successfully` });
         loadData();
         loadAnalytics();
       } else {
@@ -119,6 +123,21 @@ export default function LegacyAdmin() {
         loadAnalytics();
       }
     } catch (e) { toast({ title: "Failed to request revision", variant: "destructive" }); }
+    setActing(null);
+  };
+
+  const handleAssign = async (reviewerId, reviewerName) => {
+    if (!assignLetter) return;
+    setActing(assignLetter.id);
+    try {
+      const res = await base44.functions.invoke("manageLegacyLibrary", { action: "assign_reviewer", letter_id: assignLetter.id, reviewer_id: reviewerId, reviewer_name: reviewerName });
+      const d = res.data || res;
+      if (d.success) {
+        toast({ title: reviewerId ? `Assigned to ${reviewerName}` : "Reviewer unassigned" });
+        setAssignLetter(null);
+        loadData();
+      }
+    } catch (e) { toast({ title: "Failed to assign reviewer", variant: "destructive" }); }
     setActing(null);
   };
 
@@ -208,6 +227,9 @@ export default function LegacyAdmin() {
       )}
       {revisionLetter && (
         <RevisionModal letter={revisionLetter} onClose={() => setRevisionLetter(null)} onRequestRevision={handleRequestRevision} loading={acting === revisionLetter.id} />
+      )}
+      {assignLetter && (
+        <AssignReviewerModal letter={assignLetter} onClose={() => setAssignLetter(null)} onAssign={handleAssign} loading={acting === assignLetter.id} />
       )}
     </div>
   );

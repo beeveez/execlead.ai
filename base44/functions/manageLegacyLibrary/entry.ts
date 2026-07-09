@@ -32,6 +32,51 @@ Deno.serve(async (req) => {
       } catch (e) { return {}; }
     }
 
+    // ─── Helper: Notify a user (in-app) ───────────────────
+    async function notifyUser(userId, title, message, icon, actionUrl) {
+      try {
+        await base44.asServiceRole.entities.Notification.create({
+          type: 'feedback',
+          title,
+          message,
+          icon: icon || '🔔',
+          action_url: actionUrl || '',
+          user_id: userId || '',
+          workspace: 'executive',
+          visibility: 'private',
+          read: false,
+        });
+      } catch (e) {}
+    }
+
+    // ─── Helper: Notify all platform admins ───────────────
+    async function notifyAdmins(title, message, icon) {
+      try {
+        await base44.asServiceRole.entities.Notification.create({
+          type: 'system',
+          title,
+          message,
+          icon: icon || '📋',
+          action_url: '/legacy-library/admin',
+          user_id: '',
+          workspace: 'platform',
+          visibility: 'workspace',
+          role_scope: 'admin',
+          severity: 'info',
+          category: 'legacy_library',
+          read: false,
+        });
+      } catch (e) {}
+    }
+
+    // ─── Helper: Get user email ────────────────────────────
+    async function getUserEmail(userId) {
+      try {
+        const users = await base44.asServiceRole.entities.User.filter({ id: userId });
+        return users[0]?.email || '';
+      } catch (e) { return ''; }
+    }
+
     // ─── Helper: Check founder status ──────────────────────
     async function getFounderInfo(userId) {
       try {
@@ -404,10 +449,13 @@ Also provide:
           flags: result.flags,
         }, 'pending_ai_review', 'pending_human_review');
 
+        await notifyAdmins('New Letter Pending Review', `"${letter.title}" by ${letter.author_name} — AI score: ${result.overall_score}%`, '📝');
+
         return Response.json({ success: true, letter: updated, ai_review: result });
       } catch (aiError) {
         // AI review failed — still move to human review so it's not stuck
         const updated = await base44.asServiceRole.entities.LeadershipLetter.update(letter.id, { status: 'pending_human_review', ai_reviewed_at: now });
+        await notifyAdmins('New Letter Pending Review', `"${letter.title}" by ${letter.author_name} is ready for human review.`, '📝');
         return Response.json({ success: true, letter: updated, ai_review: null, ai_error: aiError.message });
       }
     }
@@ -524,6 +572,19 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
       const updated = await base44.asServiceRole.entities.LeadershipLetter.update(letter.id, updates);
       await logAudit(letter.id, letter.title, 'approved', user, { featured: !!body.feature, scheduled: !!body.scheduled_at }, letter.status, 'published');
       await logAudit(letter.id, letter.title, 'published', user, { publication_url: slug }, 'pending_human_review', 'published');
+
+      await notifyUser(letter.author_user_id, 'Your Letter Has Been Published! 🎉', `"${letter.title}" is now live in the Leadership Legacy Library.`, '🎉', `/legacy-library/${letter.id}`);
+      const authorEmail = await getUserEmail(letter.author_user_id);
+      if (authorEmail) {
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: authorEmail,
+            subject: 'Your Leadership Letter Has Been Published!',
+            body: `Congratulations! Your leadership letter "${letter.title}" has been published in the EXECLEAD.AI Leadership Legacy Library.\n\nView it here: https://execlead.ai/legacy-library/${letter.id}\n\nShare your published letter on LinkedIn to inspire other executives.`,
+          });
+        } catch (e) {}
+      }
+
       return Response.json({ success: true, letter: updated });
     }
 
@@ -551,14 +612,18 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
 
       await logAudit(letter.id, letter.title, 'revision_requested', user, { notes: body.revision_notes, round: (letter.revision_count || 0) + 1 }, prevStatus, 'revision_requested');
 
-      // Notify author
-      try {
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          to: '', // will be filled by user lookup if needed
-          subject: 'Your Leadership Letter Requires Revisions',
-          body: `Your submission "${letter.title}" has been reviewed and requires revisions.\n\nReviewer Comments:\n${body.revision_notes || 'No additional notes.'}\n\nPlease log in to EXECLEAD.AI, edit your letter, and resubmit for review.`,
-        });
-      } catch (e) {}
+      // Notify author (in-app + email)
+      await notifyUser(letter.author_user_id, 'Revision Requested', `Your letter "${letter.title}" requires revisions. Reviewer: ${user.full_name}`, '✏️', `/legacy-library/${letter.id}/edit`);
+      const revEmail = await getUserEmail(letter.author_user_id);
+      if (revEmail) {
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: revEmail,
+            subject: 'Your Leadership Letter Requires Revisions',
+            body: `Your submission "${letter.title}" has been reviewed and requires revisions.\n\nReviewer Comments:\n${body.revision_notes || 'No additional notes.'}\n\nPlease log in to EXECLEAD.AI, edit your letter, and resubmit for review.\n\nhttps://execlead.ai/legacy-library/${letter.id}/edit`,
+          });
+        } catch (e) {}
+      }
 
       return Response.json({ success: true, letter: updated });
     }
@@ -587,6 +652,19 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
       });
 
       await logAudit(letter.id, letter.title, 'rejected', user, { reason: body.reason, comments: body.comments }, prevStatus, 'rejected');
+
+      await notifyUser(letter.author_user_id, 'Letter Not Approved', `Your letter "${letter.title}" was not approved. Reason: ${body.reason || 'other'}`, 'ℹ️', `/legacy-library/${letter.id}`);
+      const rejEmail = await getUserEmail(letter.author_user_id);
+      if (rejEmail) {
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: rejEmail,
+            subject: 'Your Leadership Letter Update',
+            body: `Your submission "${letter.title}" was not approved for publication.\n\nReason: ${body.reason || 'other'}\n${body.comments ? `Comments: ${body.comments}` : ''}\n\nYou can revise and resubmit your letter at any time.\n\nhttps://execlead.ai/legacy-library`,
+          });
+        } catch (e) {}
+      }
+
       return Response.json({ success: true, letter: updated });
     }
 
@@ -662,6 +740,11 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
       });
 
       await logAudit(letter.id, letter.title, 'assigned_reviewer', user, { reviewer: body.reviewer_name }, letter.status, letter.status);
+
+      if (body.reviewer_id && body.reviewer_id !== user.id) {
+        await notifyUser(body.reviewer_id, 'Letter Assigned to You', `"${letter.title}" by ${letter.author_name} has been assigned to you for review.`, '📋', '/legacy-library/admin');
+      }
+
       return Response.json({ success: true, letter: updated });
     }
 
@@ -800,6 +883,15 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
         logs = await base44.asServiceRole.entities.LegacyAuditLog.list('-timestamp', 200);
       }
       return Response.json({ logs });
+    }
+
+    // ─── ADMIN: LIST REVIEWERS ─────────────────────────────
+    if (action === 'list_reviewers') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+
+      const admins = await base44.asServiceRole.entities.User.list('-created_date', 100);
+      return Response.json({ reviewers: admins.map(u => ({ id: u.id, full_name: u.full_name || u.email, email: u.email, role: u.role })) });
     }
 
     // ─── ADMIN: LIST ───────────────────────────────────────

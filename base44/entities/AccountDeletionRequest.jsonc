@@ -1,0 +1,82 @@
+{
+  "name": "AccountDeletionRequest",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "verification_pending",
+        "pending_deletion",
+        "cancelled",
+        "restored",
+        "completed"
+      ],
+      "default": "verification_pending"
+    },
+    "verification_code": {
+      "type": "string",
+      "description": "6-digit email verification code"
+    },
+    "verification_code_expires": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Optional user-provided deletion reason"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scheduled_deletion_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "30 days from request \u2014 grace period end"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retention_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When retained legal records can be purged"
+    },
+    "restored_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "blocked_reasons_json": {
+      "type": "string",
+      "description": "JSON array of pre-deletion check failures"
+    },
+    "deletion_summary_json": {
+      "type": "string",
+      "description": "JSON summary of deleted entities when completed"
+    },
+    "admin_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

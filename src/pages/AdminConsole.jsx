@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Shield, Users, Building, DollarSign, Loader2, Server, Activity, Flag } from "lucide-react";
 import { motion } from "framer-motion";
 import { isPlatformAdmin } from "@/lib/roles";
+import DeletedAccountsPanel from "@/components/account/DeletedAccountsPanel";
 
 export default function AdminConsole() {
   const [user, setUser] = useState(null);
@@ -156,6 +157,8 @@ export default function AdminConsole() {
           </div>
         )}
       </div>
+
+      <DeletedAccountsPanel />
     </div>
   );
 }

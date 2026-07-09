@@ -7,6 +7,7 @@ import { Settings as SettingsIcon, Save, Loader2, User, Sliders } from "lucide-r
 import { motion } from "framer-motion";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import AppearanceSection from "@/components/settings/AppearanceSection";
+import DangerZone from "@/components/account/DangerZone";
 
 export default function Settings() {
   const { profile, refreshProfile } = useSubscription();
@@ -189,6 +190,8 @@ export default function Settings() {
         {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
         Save Changes
       </button>
+
+      <DangerZone />
     </div>
   );
 }

@@ -327,7 +327,7 @@ Deno.serve(async (req) => {
 
       // Auto-run AI review
       try {
-        const aiResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
           prompt: `You are an AI content moderation system for an executive leadership library. Evaluate this leadership letter submission across multiple dimensions.
 
 Title: ${letter.title}

@@ -206,7 +206,10 @@ html.compact-mode .max-w-7xl {
 
 /* ── Page & surface backgrounds ── */
 html:not(.dark) .bg-\[\#0a0a0f\],
-html:not(.dark) .bg-\[\#0a0a0f\]\/95 { background-color: hsl(var(--background)); }
+html:not(.dark) .bg-\[\#0a0a0f\]\/95,
+html:not(.dark) .bg-\[\#08080d\],
+html:not(.dark) .bg-\[\#08080d\]\/80,
+html:not(.dark) .bg-\[\#08080d\]\/95 { background-color: hsl(var(--background)); }
 html:not(.dark) .bg-\[\#0d0d14\],
 html:not(.dark) .bg-\[\#0d0d14\]\/95,
 html:not(.dark) .bg-\[\#0d0d14\]\/90 { background-color: hsl(var(--card)); }
@@ -274,9 +277,15 @@ html:not(.dark) .via-\[\#0a0a0f\] {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
 }
 
-/* ── Gradient text — darken for white-bg readability ── */
+/* ── Hero radial glows — suppress in light mode ── */
+html:not(.dark) .blur-\[100px\],
+html:not(.dark) .blur-\[120px\] {
+  opacity: 0.12 !important;
+}
+
+/* ── Gradient text — darken for WCAG AA on white ── */
 html:not(.dark) .bg-clip-text.text-transparent {
-  filter: brightness(0.72) saturate(1.2);
+  filter: brightness(0.5) saturate(1.4);
 }
 
 /* ── Gold shimmer — darker amber stops for light mode ── */

@@ -25,6 +25,45 @@ export const SPECIAL_BADGES = [
   { id: 'board_advisor', name: 'Board Advisor', icon: '♟', color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', description: 'Elite mentor with exceptional quality', requirement: 'Score ≥800, mentor, avg quality ≥90' },
 ];
 
+export const EXECUTIVE_COMPETENCIES = [
+  { id: 'strategic_leadership', name: 'Strategic Leadership', icon: '♟️' },
+  { id: 'communication', name: 'Communication', icon: '💬' },
+  { id: 'decision_making', name: 'Decision Making', icon: '🎯' },
+  { id: 'innovation', name: 'Innovation', icon: '💡' },
+  { id: 'executive_presence', name: 'Executive Presence', icon: '👔' },
+  { id: 'mentorship', name: 'Mentorship', icon: '🎓' },
+  { id: 'people_leadership', name: 'People Leadership', icon: '👥' },
+  { id: 'operational_excellence', name: 'Operational Excellence', icon: '⚙️' },
+  { id: 'business_acumen', name: 'Business Acumen', icon: '📊' },
+  { id: 'digital_transformation', name: 'Digital Transformation', icon: '🚀' },
+];
+
+export const EXECUTIVE_ACHIEVEMENTS = [
+  { id: 'leadership_author', name: 'Leadership Author', icon: '✍️', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20', description: 'Published first leadership letter', requirement: 'Publish 1 leadership letter' },
+  { id: 'thought_leader', name: 'Thought Leader', icon: '💭', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', description: 'Influential executive content', requirement: '100+ helpful reactions' },
+  { id: 'executive_mentor_ach', name: 'Executive Mentor', icon: '🎓', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', description: 'Completed first mentoring session', requirement: 'Complete 1 mentorship session' },
+  { id: 'community_builder', name: 'Community Builder', icon: '🏗️', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', description: 'Helped build the community', requirement: '50+ approved comments' },
+  { id: 'boardroom_contributor', name: 'Boardroom Contributor', icon: '🏛️', color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20', description: 'Executive-level discussions', requirement: '5+ featured contributions' },
+  { id: 'innovation_champion', name: 'Innovation Champion', icon: '💡', color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', description: 'Innovation-focused contributions', requirement: '5+ letters in Innovation category' },
+  { id: 'executive_speaker', name: 'Executive Speaker', icon: '🎤', color: 'text-teal-400', bg: 'bg-teal-500/10', border: 'border-teal-500/20', description: 'Content with high reach', requirement: '1,000+ total views' },
+  { id: 'distinguished_founder', name: 'Distinguished Founder', icon: '👑', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', description: 'Founding member recognition', requirement: 'Active founding member' },
+  { id: 'legacy_contributor', name: 'Legacy Contributor', icon: '📜', color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', description: 'Long-term contributor', requirement: 'Active for 12+ months' },
+  { id: 'hall_of_fame_ach', name: 'Hall of Fame', icon: '⭐', color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', description: 'Lifetime achievement', requirement: 'Lifetime score ≥900' },
+];
+
+export const EXECUTIVE_MILESTONES = [
+  { id: 'first_letter', name: 'First Leadership Letter', icon: '✉️', value: 1, description: 'Published your first leadership letter' },
+  { id: '100_helpful', name: '100 Helpful Contributions', icon: '💯', value: 100, description: 'Contributed 100 helpful responses' },
+  { id: 'first_mentoring', name: 'First Mentoring Session', icon: '🎓', value: 1, description: 'Completed your first mentoring session' },
+  { id: 'rep_100', name: '100 Reputation', icon: '🔹', value: 100, description: 'Reached 100 reputation points' },
+  { id: 'rep_250', name: '250 Reputation', icon: '⭐', value: 250, description: 'Reached 250 reputation points' },
+  { id: 'rep_500', name: '500 Reputation', icon: '🏅', value: 500, description: 'Reached 500 reputation points' },
+  { id: 'rep_750', name: '750 Reputation', icon: '💎', value: 750, description: 'Reached 750 reputation points' },
+  { id: 'rep_900', name: '900 Reputation', icon: '🏆', value: 900, description: 'Reached 900 reputation points' },
+  { id: 'rep_1000', name: '1000 Reputation', icon: '🌍', value: 1000, description: 'Reached the maximum reputation score' },
+  { id: '10_year_contributor', name: '10-Year Contributor', icon: '🎖️', value: 10, description: 'Active contributor for 10 years' },
+];
+
 export const REPUTATION_PILLARS = [
   { id: 'leadership_knowledge', name: 'Leadership Knowledge', icon: '🧠', description: 'Depth of executive knowledge demonstrated' },
   { id: 'professionalism', name: 'Professionalism', icon: '💼', description: 'Consistent professional conduct' },
@@ -75,7 +114,7 @@ export const SCORECARD_METRICS = [
   { id: 'community_recognition', name: 'Community Recognition', icon: '🏅' },
   { id: 'awards', name: 'Awards', icon: '🏆' },
   { id: 'featured_articles', name: 'Featured Articles', icon: '⭐' },
-  { id: 'thought_leadership_index', name: 'Thought Leadership Index', icon: '📈' },
+  { id: 'thought_leadership_index', name: 'Thought Leadership Index', icon: '⚖️' },
   { id: 'professional_certifications', name: 'Professional Certifications', icon: '📜' },
 ];
 
@@ -87,6 +126,26 @@ export const COMMUNITY_AWARDS = [
   { id: 'community_champion', name: 'Community Champion', icon: '🤝' },
   { id: 'innovation_award', name: 'Innovation Award', icon: '💡' },
   { id: 'founders_choice', name: "Founder's Choice", icon: '👑' },
+];
+
+export const YEARLY_HONORS = [
+  { id: 'executive_of_year', name: 'Executive of the Year', icon: '🏆', description: 'The most outstanding executive contributor of the year' },
+  { id: 'leadership_author_year', name: 'Leadership Author of the Year', icon: '✍️', description: 'Published the most impactful leadership content' },
+  { id: 'mentor_of_year', name: 'Mentor of the Year', icon: '🎓', description: 'Exceptional dedication to mentoring others' },
+  { id: 'community_champion_year', name: 'Community Champion', icon: '🤝', description: 'Most dedicated to community building' },
+  { id: 'innovation_leader', name: 'Innovation Leader', icon: '💡', description: 'Drove innovation discussions and content' },
+  { id: 'founders_choice_year', name: "Founder's Choice", icon: '👑', description: 'Selected by founders for embodying EXECLEAD.AI values' },
+  { id: 'lifetime_leadership', name: 'Lifetime Leadership Award', icon: '⭐', description: 'Lifetime achievement in executive leadership' },
+];
+
+export const LEADERBOARD_CATEGORIES = [
+  { id: 'leadership_quality', name: 'Leadership Quality', icon: '🎯', description: 'Top contributors by reputation score', field: 'reputation_score' },
+  { id: 'mentorship', name: 'Mentorship', icon: '🎓', description: 'Top mentors by hours and sessions', field: 'mentoring_hours' },
+  { id: 'executive_authors', name: 'Executive Authors', icon: '📚', description: 'Top leadership letter authors', field: 'total_letters' },
+  { id: 'community_champions', name: 'Community Champions', icon: '🤝', description: 'Top community contributors', field: 'total_contributions' },
+  { id: 'innovation', name: 'Innovation', icon: '💡', description: 'Top innovation contributors', field: 'thought_leadership_index' },
+  { id: 'enterprise_leaders', name: 'Enterprise Leaders', icon: '🏢', description: 'Top enterprise executive leaders', field: 'executive_credibility_score' },
+  { id: 'thought_leadership', name: 'Thought Leadership', icon: '💭', description: 'Top thought leadership index', field: 'thought_leadership_index' },
 ];
 
 export const OVERALL_RATINGS = [
@@ -109,6 +168,22 @@ export const ANTI_GAMING_FLAGS = {
   self_promotion: { label: 'Excessive Self-Promotion', description: 'Repeated links to own external content' },
 };
 
+export const COUNCIL_ROLES = [
+  { id: 'platform_admin', name: 'Platform Administrator', icon: '⚙️', description: 'Full platform administrative authority' },
+  { id: 'executive_advisor', name: 'Executive Advisor', icon: '🎖️', description: 'Senior executive providing governance guidance' },
+  { id: 'community_moderator', name: 'Community Moderator', icon: '🛡️', description: 'Day-to-day community moderation' },
+  { id: 'ai_moderation_engine', name: 'AI Moderation Engine', icon: '🤖', description: 'Automated AI-driven assessment' },
+];
+
+export const APPEAL_TYPES = [
+  { id: 'badge_removal', name: 'Badge Removal', icon: '❌', description: 'Appeal the removal of a badge' },
+  { id: 'score_reduction', name: 'Score Reduction', icon: '📉', description: 'Appeal a manual score reduction' },
+  { id: 'moderator_decision', name: 'Moderator Decision', icon: '⚖️', description: 'Appeal a moderator action' },
+  { id: 'council_decision', name: 'Council Decision', icon: '🏛️', description: 'Appeal a Reputation Council ruling' },
+  { id: 'suspension', name: 'Suspension', icon: '🚫', description: 'Appeal a reputation suspension' },
+  { id: 'milestone_dispute', name: 'Milestone Dispute', icon: '🎯', description: 'Dispute a missing milestone' },
+];
+
 export function getTierFromScore(score) {
   const tier = REPUTATION_TIERS.find(t => score >= t.minScore && score <= t.maxScore);
   return tier || REPUTATION_TIERS[0];
@@ -120,6 +195,14 @@ export function getTierById(id) {
 
 export function getBadgeById(id) {
   return SPECIAL_BADGES.find(b => b.id === id);
+}
+
+export function getAchievementById(id) {
+  return EXECUTIVE_ACHIEVEMENTS.find(a => a.id === id);
+}
+
+export function getMilestoneById(id) {
+  return EXECUTIVE_MILESTONES.find(m => m.id === id);
 }
 
 export function getRatingFromScore(score) {

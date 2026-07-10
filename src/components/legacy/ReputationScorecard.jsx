@@ -185,6 +185,30 @@ export default function ReputationScorecard({ reputation, userId }) {
                 <ul className="space-y-1">{activeInsights.growth_areas.map((g, i) => <li key={i} className="text-white/60 text-xs flex items-start gap-1.5"><span className="text-amber-400">→</span> {g}</li>)}</ul>
               </div>
             )}
+            {activeInsights.recommended_learning?.length > 0 && (
+              <div>
+                <div className="text-blue-400 text-[10px] font-medium mb-1.5">Recommended Learning</div>
+                <ul className="space-y-1">{activeInsights.recommended_learning.map((l, i) => <li key={i} className="text-white/60 text-xs flex items-start gap-1.5"><span className="text-blue-400">📚</span> {l}</li>)}</ul>
+              </div>
+            )}
+            {activeInsights.recommended_mentoring?.length > 0 && (
+              <div>
+                <div className="text-purple-400 text-[10px] font-medium mb-1.5">Recommended Mentoring</div>
+                <ul className="space-y-1">{activeInsights.recommended_mentoring.map((m, i) => <li key={i} className="text-white/60 text-xs flex items-start gap-1.5"><span className="text-purple-400">🎓</span> {m}</li>)}</ul>
+              </div>
+            )}
+            {activeInsights.suggested_certifications?.length > 0 && (
+              <div>
+                <div className="text-cyan-400 text-[10px] font-medium mb-1.5">Suggested Certifications</div>
+                <ul className="space-y-1">{activeInsights.suggested_certifications.map((c, i) => <li key={i} className="text-white/60 text-xs flex items-start gap-1.5"><span className="text-cyan-400">📜</span> {c}</li>)}</ul>
+              </div>
+            )}
+            {activeInsights.suggested_simulations?.length > 0 && (
+              <div>
+                <div className="text-orange-400 text-[10px] font-medium mb-1.5">Suggested Simulations</div>
+                <ul className="space-y-1">{activeInsights.suggested_simulations.map((s, i) => <li key={i} className="text-white/60 text-xs flex items-start gap-1.5"><span className="text-orange-400">🎯</span> {s}</li>)}</ul>
+              </div>
+            )}
             {reputation.ai_insights_generated_at && (
               <div className="text-white/20 text-[10px] text-right">Generated: {new Date(reputation.ai_insights_generated_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}</div>
             )}

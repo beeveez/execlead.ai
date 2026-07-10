@@ -41,7 +41,12 @@
         "manual_adjustment",
         "suspension",
         "restoration",
-        "feature"
+        "feature",
+        "council_decision",
+        "appeal_resolution",
+        "achievement_earned",
+        "milestone_reached",
+        "honor_awarded"
       ],
       "default": "recalculation"
     },
@@ -55,9 +60,16 @@
         "suspend",
         "restore",
         "recalculate",
-        "recognize"
+        "recognize",
+        "council_review",
+        "appeal_approve",
+        "appeal_deny",
+        "award_achievement",
+        "award_honor",
+        "revoke_badge",
+        "remove_achievement"
       ],
-      "description": "Specific moderator action type"
+      "description": "Specific action type"
     },
     "contribution_id": {
       "type": "string"

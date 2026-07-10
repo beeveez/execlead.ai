@@ -115,6 +115,7 @@ Deno.serve(async (req) => {
       let featuredCount = 0;
       let modRecognitions = 0;
       let totalViews = 0;
+      let innovationLetters = 0;
 
       letters.forEach(l => {
         if (l.ai_moderation_score > 0) allQualityScores.push(l.ai_moderation_score);
@@ -122,6 +123,7 @@ Deno.serve(async (req) => {
         if (l.featured) featuredCount++;
         helpfulReactions += (l.likes || 0) + (l.bookmarks || 0);
         totalViews += (l.views || 0);
+        if ((l.category || '').toLowerCase().includes('innovation') || (l.tags || []).some(t => (t || '').toLowerCase().includes('innovation'))) innovationLetters++;
       });
       comments.forEach(c => {
         if (c.ai_professional_score > 0) allQualityScores.push(c.ai_professional_score);
@@ -227,6 +229,20 @@ Deno.serve(async (req) => {
         community_benefit: Math.round(Math.min(100, helpfulReactions * 2 + featuredCount * 10)),
       };
 
+      // ─── COMPETENCY SCORES (10 executive competencies) ────
+      const competencies = {
+        strategic_leadership: Math.round(Math.min(100, (simSub * 0.4) + (letterSub * 0.4) + (avgQuality * 0.2))),
+        communication: Math.round(Math.min(100, (commentSub * 0.5) + (letterSub * 0.3) + (avgQuality * 0.2))),
+        decision_making: Math.round(Math.min(100, (simSub * 0.5) + (avgQuality * 0.3) + (mentorSub * 0.2))),
+        innovation: Math.round(Math.min(100, (innovationLetters * 15) + (academySub * 0.3) + (avgQuality * 0.2) + (letterSub * 0.2))),
+        executive_presence: Math.round(Math.min(100, (avgQuality * 0.4) + (letterSub * 0.3) + (featuredCount * 5) + (profSub * 0.1))),
+        mentorship: Math.round(Math.min(100, (mentorSub * 0.7) + (mentorshipScoreVal * 0.3))),
+        people_leadership: Math.round(Math.min(100, (mentorSub * 0.4) + (commentSub * 0.3) + (partSub * 0.3))),
+        operational_excellence: Math.round(Math.min(100, (academySub * 0.5) + (simSub * 0.3) + (professionalConduct * 0.2))),
+        business_acumen: Math.round(Math.min(100, (letterSub * 0.4) + (simSub * 0.3) + (avgQuality * 0.3))),
+        digital_transformation: Math.round(Math.min(100, (academySub * 0.6) + (simSub * 0.2) + (innovationLetters * 10))),
+      };
+
       // ─── ANTI-GAMING DETECTION ───────────────────────────
       let gamingRisk = 0;
       const gamingFlags = [];
@@ -267,6 +283,44 @@ Deno.serve(async (req) => {
             badges.push(ob);
           }
         }
+      }
+
+      // ─── ACHIEVEMENTS ────────────────────────────────────
+      const achievements = [];
+      if (letters.length >= 1) achievements.push({ id: 'leadership_author', earned_at: now, reason: 'Published first leadership letter' });
+      if (helpfulReactions >= 100) achievements.push({ id: 'thought_leader', earned_at: now, reason: `${helpfulReactions} helpful reactions` });
+      if ((profile.sessions_completed || 0) >= 1) achievements.push({ id: 'executive_mentor_ach', earned_at: now, reason: 'Completed first mentorship session' });
+      if (comments.length >= 50) achievements.push({ id: 'community_builder', earned_at: now, reason: `${comments.length} approved comments` });
+      if (featuredCount >= 5) achievements.push({ id: 'boardroom_contributor', earned_at: now, reason: `${featuredCount} featured contributions` });
+      if (innovationLetters >= 5) achievements.push({ id: 'innovation_champion', earned_at: now, reason: `${innovationLetters} innovation letters` });
+      if (totalViews >= 1000) achievements.push({ id: 'executive_speaker', earned_at: now, reason: `${totalViews} total views` });
+      if (isFoundingMember) achievements.push({ id: 'distinguished_founder', earned_at: now, reason: 'Active founding member' });
+      if (existingRec) {
+        const memberSince = new Date(existingRec.created_date || user?.created_date || now);
+        if (Date.now() - memberSince.getTime() >= 365 * 24 * 60 * 60 * 1000) achievements.push({ id: 'legacy_contributor', earned_at: now, reason: 'Active for 12+ months' });
+      }
+      if (totalScore >= 900) achievements.push({ id: 'hall_of_fame_ach', earned_at: now, reason: 'Lifetime score ≥900' });
+      if (existingRec) {
+        let oldAch = [];
+        try { oldAch = JSON.parse(existingRec.achievements_json || '[]'); } catch (e) {}
+        for (const oa of oldAch) { if (oa.manually_awarded && !achievements.some(a => a.id === oa.id)) achievements.push(oa); }
+      }
+
+      // ─── MILESTONES ──────────────────────────────────────
+      const milestones = [];
+      if (letters.length >= 1) milestones.push({ id: 'first_letter', earned_at: now, value: 1 });
+      if (helpfulReactions >= 100) milestones.push({ id: '100_helpful', earned_at: now, value: 100 });
+      if ((profile.sessions_completed || 0) >= 1) milestones.push({ id: 'first_mentoring', earned_at: now, value: 1 });
+      if (totalScore >= 100) milestones.push({ id: 'rep_100', earned_at: now, value: 100 });
+      if (totalScore >= 250) milestones.push({ id: 'rep_250', earned_at: now, value: 250 });
+      if (totalScore >= 500) milestones.push({ id: 'rep_500', earned_at: now, value: 500 });
+      if (totalScore >= 750) milestones.push({ id: 'rep_750', earned_at: now, value: 750 });
+      if (totalScore >= 900) milestones.push({ id: 'rep_900', earned_at: now, value: 900 });
+      if (totalScore >= 1000) milestones.push({ id: 'rep_1000', earned_at: now, value: 1000 });
+      if (existingRec) {
+        let oldMs = [];
+        try { oldMs = JSON.parse(existingRec.milestones_json || '[]'); } catch (e) {}
+        for (const om of oldMs) { if (!milestones.some(m => m.id === om.id)) milestones.push(om); }
       }
 
       // ─── RECOMMENDATIONS ─────────────────────────────────
@@ -346,7 +400,7 @@ Deno.serve(async (req) => {
         : null;
 
       return {
-        score: totalScore, tier, badges,
+        score: totalScore, tier, badges, achievements, milestones, competencies,
         weighted_breakdown: pillars,
         multi_dimensional: {
           community_trust: communityTrust,
@@ -390,7 +444,7 @@ Deno.serve(async (req) => {
       const profile = await getUserProfile(targetUserId);
       const history = await base44.asServiceRole.entities.ReputationAuditLog.filter({ user_id: targetUserId }, '-timestamp', 50);
       return Response.json({
-        reputation: rec || { user_id: targetUserId, reputation_score: 0, reputation_tier: 'new_member', badges_json: '[]', total_contributions: 0, average_quality_score: 0 },
+        reputation: rec || { user_id: targetUserId, reputation_score: 0, reputation_tier: 'new_member', badges_json: '[]', achievements_json: '[]', milestones_json: '[]', competencies_json: '{}', total_contributions: 0, average_quality_score: 0 },
         profile,
         history: history.slice(0, 20),
         is_self: targetUserId === user.id,
@@ -408,9 +462,14 @@ Deno.serve(async (req) => {
         if (rec) {
           let badges = [];
           try { badges = JSON.parse(rec.badges_json || '[]'); } catch (e) {}
-          result[uid] = { score: rec.reputation_score, tier: rec.reputation_tier, badges };
+          let competencies = {};
+          try { competencies = JSON.parse(rec.competencies_json || '{}'); } catch (e) {}
+          let topCompetency = null;
+          const compEntries = Object.entries(competencies).sort((a, b) => b[1] - a[1]);
+          if (compEntries.length > 0) topCompetency = { id: compEntries[0][0], score: compEntries[0][1] };
+          result[uid] = { score: rec.reputation_score, tier: rec.reputation_tier, badges, top_competency: topCompetency, community_trust: rec.community_trust_score };
         } else {
-          result[uid] = { score: 0, tier: 'new_member', badges: [] };
+          result[uid] = { score: 0, tier: 'new_member', badges: [], top_competency: null, community_trust: 0 };
         }
       }
       return Response.json({ reputations: result });
@@ -447,6 +506,9 @@ Deno.serve(async (req) => {
         reputation_score: computed.score,
         reputation_tier: computed.tier,
         badges_json: JSON.stringify(computed.badges),
+        achievements_json: JSON.stringify(computed.achievements),
+        milestones_json: JSON.stringify(computed.milestones),
+        competencies_json: JSON.stringify(computed.competencies),
         total_letters: computed.stats.total_letters,
         total_comments: computed.stats.total_comments,
         total_contributions: computed.stats.total_contributions,
@@ -497,11 +559,22 @@ Deno.serve(async (req) => {
         await logAudit(targetUserId, updates.user_name, prevScore, computed.score, 'Reputation recalculated from weighted multi-dimensional scoring', 'recalculation', 'recalculate', { id: user.id, name: user.full_name }, { ...computed.stats, new_badges: newBadges.map(b => b.id) });
       }
       for (const nb of newBadges) {
-        await logAudit(targetUserId, updates.user_name, prevScore, computed.score, `Badge earned: ${nb.id}`, 'badge_earned', 'recalculate', { id: user.id, name: user.full_name }, { badge_id: nb.id, reason: nb.reason });
+        await logAudit(targetUserId, updates.user_name, prevScore, computed.score, `Badge earned: ${nb.id}`, 'badge_earned', 'award_badge', { id: user.id, name: user.full_name }, { badge_id: nb.id, reason: nb.reason });
         await notifyUser(targetUserId, '🎉 New Badge Earned!', `You earned the "${nb.id}" badge. ${nb.reason}`, '🎉', '/reputation');
       }
+      let oldAch = []; try { oldAch = JSON.parse(existing?.achievements_json || '[]'); } catch (e) {}
+      let oldMs = []; try { oldMs = JSON.parse(existing?.milestones_json || '[]'); } catch (e) {}
+      const newAch = computed.achievements.filter(a => !oldAch.some(oa => oa.id === a.id));
+      const newMs = computed.milestones.filter(m => !oldMs.some(om => om.id === m.id));
+      for (const na of newAch) {
+        await logAudit(targetUserId, updates.user_name, prevScore, computed.score, `Achievement earned: ${na.id}`, 'achievement_earned', 'award_achievement', { id: user.id, name: user.full_name }, { achievement_id: na.id, reason: na.reason });
+        await notifyUser(targetUserId, '🏆 Achievement Unlocked!', `You earned the "${na.id}" achievement. ${na.reason}`, '🏆', '/reputation');
+      }
+      for (const nm of newMs) {
+        await logAudit(targetUserId, updates.user_name, prevScore, computed.score, `Milestone reached: ${nm.id}`, 'milestone_reached', 'recalculate', { id: user.id, name: user.full_name }, { milestone_id: nm.id, value: nm.value });
+      }
 
-      return Response.json({ success: true, reputation: rec, computed, new_badges: newBadges.map(b => b.id) });
+      return Response.json({ success: true, reputation: rec, computed, new_badges: newBadges.map(b => b.id), new_achievements: newAch.map(a => a.id), new_milestones: newMs.map(m => m.id) });
     }
 
     // ─── GENERATE AI INSIGHTS ─────────────────────────────
@@ -517,45 +590,46 @@ Deno.serve(async (req) => {
       try { breakdown = JSON.parse(rec.weighted_breakdown_json || '[]'); } catch (e) {}
       let qualityDims = {};
       try { qualityDims = JSON.parse(rec.quality_dimensions_json || '{}'); } catch (e) {}
+      let competencies = {};
+      try { competencies = JSON.parse(rec.competencies_json || '{}'); } catch (e) {}
 
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `You are an AI executive reputation analyst for EXECLEAD.AI. Based on this executive's reputation data, generate qualitative insights.
+        prompt: `You are an AI executive reputation analyst for EXECLEAD.AI. Generate qualitative insights about this executive.
 
 Executive: ${rec.user_name}
-Reputation Score: ${rec.reputation_score}/1000
-Tier: ${rec.reputation_tier}
-Overall Rating: ${rec.overall_executive_rating}
-Community Trust: ${rec.community_trust_score}/100
-Leadership Influence: ${rec.leadership_influence_pct}%
-Contribution Score: ${rec.contribution_score}/100
-Professional Conduct: ${rec.professional_conduct_score}/100
-Mentorship Score: ${rec.mentorship_score}/100
+Reputation Score: ${rec.reputation_score}/1000 | Tier: ${rec.reputation_tier} | Rating: ${rec.overall_executive_rating}
+Community Trust: ${rec.community_trust_score}/100 | Leadership Influence: ${rec.leadership_influence_pct}%
+Professional Conduct: ${rec.professional_conduct_score}/100 | Mentorship: ${rec.mentorship_score}/100
 Executive Credibility: ${rec.executive_credibility_score}/100
 
-Leadership Letters: ${rec.total_letters}
-Comments: ${rec.total_comments}
-Average Quality: ${rec.average_quality_score}
-Helpful Responses: ${rec.helpful_responses}
-Featured Contributions: ${rec.featured_contributions}
-Simulations: ${rec.simulations_completed}
-Courses: ${rec.courses_completed}
-Mentoring Hours: ${rec.mentoring_hours}
+Letters: ${rec.total_letters} | Comments: ${rec.total_comments} | Avg Quality: ${rec.average_quality_score}
+Helpful Responses: ${rec.helpful_responses} | Featured: ${rec.featured_contributions}
+Simulations: ${rec.simulations_completed} | Courses: ${rec.courses_completed} | Mentoring Hours: ${rec.mentoring_hours}
 
 Weighted Breakdown: ${JSON.stringify(breakdown)}
 Quality Dimensions: ${JSON.stringify(qualityDims)}
+Competencies: ${JSON.stringify(competencies)}
 
 Generate:
 1. insights: 5-7 short qualitative insights (e.g., "Exceptional mentor", "Highly respected in strategic leadership")
 2. strengths: 3-5 key strengths based on the data
 3. growth_areas: 2-3 areas for improvement
+4. recommended_learning: 2-3 specific learning recommendations
+5. recommended_mentoring: 1-2 mentoring recommendations
+6. suggested_certifications: 1-2 certification suggestions
+7. suggested_simulations: 1-2 simulation scenario suggestions
 
-Keep insights concise, specific, and data-driven. Do not use generic phrases.`,
+Keep insights concise, specific, and data-driven.`,
         response_json_schema: {
           type: 'object',
           properties: {
             insights: { type: 'array', items: { type: 'string' } },
             strengths: { type: 'array', items: { type: 'string' } },
             growth_areas: { type: 'array', items: { type: 'string' } },
+            recommended_learning: { type: 'array', items: { type: 'string' } },
+            recommended_mentoring: { type: 'array', items: { type: 'string' } },
+            suggested_certifications: { type: 'array', items: { type: 'string' } },
+            suggested_simulations: { type: 'array', items: { type: 'string' } },
           },
         },
       });
@@ -610,7 +684,7 @@ Keep insights concise, specific, and data-driven. Do not use generic phrases.`,
       const user = await base44.auth.me();
       if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
 
-      const { user_id, moderator_action, reason, badge_id, score_adjustment, notes } = body;
+      const { user_id, moderator_action, reason, badge_id, achievement_id, score_adjustment, notes, award_title, honor_type } = body;
       const rec = await getReputationRecord(user_id);
       if (!rec) return Response.json({ error: 'Reputation record not found' }, { status: 404 });
 
@@ -680,7 +754,151 @@ Keep insights concise, specific, and data-driven. Do not use generic phrases.`,
         return Response.json({ success: true, reputation: updated });
       }
 
+      if (moderator_action === 'award_achievement') {
+        let achievements = []; try { achievements = JSON.parse(rec.achievements_json || '[]'); } catch (e) {}
+        if (!achievements.some(a => a.id === achievement_id)) {
+          achievements.push({ id: achievement_id, earned_at: now, reason: reason || 'Manually awarded', manually_awarded: true });
+          const updated = await base44.asServiceRole.entities.ExecutiveReputation.update(rec.id, { achievements_json: JSON.stringify(achievements) });
+          await logAudit(user_id, rec.user_name, prevScore, prevScore, `Achievement awarded: ${achievement_id}`, 'achievement_earned', 'award_achievement', reviewer, { achievement_id, reason });
+          await notifyUser(user_id, '🏆 Achievement Awarded!', `You received a new achievement. Reason: ${reason}`, '🏆', '/reputation');
+          return Response.json({ success: true, reputation: updated });
+        }
+        return Response.json({ error: 'Achievement already earned' }, { status: 400 });
+      }
+
+      if (moderator_action === 'award_honor') {
+        let honors = []; try { honors = JSON.parse(rec.yearly_honors_json || '[]'); } catch (e) {}
+        const year = new Date().getFullYear();
+        honors.push({ year, award: honor_type, title: award_title || honor_type, awarded_at: now });
+        const updated = await base44.asServiceRole.entities.ExecutiveReputation.update(rec.id, { yearly_honors_json: JSON.stringify(honors), community_awards: (rec.community_awards || 0) + 1 });
+        await logAudit(user_id, rec.user_name, prevScore, prevScore, `Yearly honor awarded: ${honor_type} (${year})`, 'honor_awarded', 'award_honor', reviewer, { honor_type, year, title: award_title });
+        await notifyUser(user_id, '🏆 Yearly Honor Awarded!', `You received the "${award_title || honor_type}" honor for ${year}.`, '🏆', '/reputation');
+        return Response.json({ success: true, reputation: updated });
+      }
+
       return Response.json({ error: 'Unknown moderator action' }, { status: 400 });
+    }
+
+    // ─── LEADERBOARD ───────────────────────────────────────
+    if (action === 'get_leaderboard') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const category = body.category || 'leadership_quality';
+      const fieldMap = {
+        leadership_quality: 'reputation_score', mentorship: 'mentoring_hours', executive_authors: 'total_letters',
+        community_champions: 'total_contributions', innovation: 'thought_leadership_index',
+        enterprise_leaders: 'executive_credibility_score', thought_leadership: 'thought_leadership_index',
+      };
+      const sortField = fieldMap[category] || 'reputation_score';
+      const all = await base44.asServiceRole.entities.ExecutiveReputation.list('-' + sortField, 100);
+      const leaderboard = all.filter(r => !r.reputation_suspended && r.reputation_score > 0).map((r, i) => ({
+        rank: i + 1, user_id: r.user_id, name: r.user_name, photo: r.user_photo,
+        headline: r.professional_headline, score: r.reputation_score, tier: r.reputation_tier,
+        rating: r.overall_executive_rating, value: r[sortField] || r.reputation_score,
+        letters: r.total_letters, contributions: r.total_contributions, mentoring_hours: r.mentoring_hours,
+      }));
+      return Response.json({ leaderboard, category });
+    }
+
+    if (action === 'get_community_rank') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const targetUserId = body.user_id || user.id;
+      const all = await base44.asServiceRole.entities.ExecutiveReputation.list('-reputation_score', 200);
+      const rank = all.findIndex(r => r.user_id === targetUserId) + 1;
+      return Response.json({ rank, total: all.filter(r => r.reputation_score > 0).length });
+    }
+
+    // ─── APPEALS ──────────────────────────────────────────
+    if (action === 'submit_appeal') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const { appeal_type, appeal_reason, related_action_id, related_badge_id } = body;
+      if (!appeal_reason?.trim()) return Response.json({ error: 'Please provide a reason for your appeal' }, { status: 400 });
+      const existing = await base44.asServiceRole.entities.ReputationAppeal.filter({ user_id: user.id, status: 'pending' });
+      if (existing.length > 0) return Response.json({ error: 'You already have a pending appeal' }, { status: 400 });
+      const appeal = await base44.asServiceRole.entities.ReputationAppeal.create({
+        user_id: user.id, user_name: user.full_name || '', user_email: user.email || '',
+        appeal_type, appeal_reason: appeal_reason.trim(),
+        related_action_id: related_action_id || '', related_badge_id: related_badge_id || '',
+        status: 'pending', submitted_at: new Date().toISOString(),
+      });
+      try { await base44.asServiceRole.entities.Notification.create({ type: 'system', title: 'Reputation Appeal Submitted', message: `${user.full_name} submitted a ${appeal_type} appeal.`, icon: '⚖️', action_url: '/reputation', user_id: '', workspace: 'platform', visibility: 'workspace', role_scope: 'admin', severity: 'info', category: 'reputation', read: false }); } catch (e) {}
+      return Response.json({ success: true, appeal });
+    }
+
+    if (action === 'get_my_appeals') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const appeals = await base44.asServiceRole.entities.ReputationAppeal.filter({ user_id: user.id }, '-submitted_at', 50);
+      return Response.json({ appeals });
+    }
+
+    if (action === 'admin_appeals') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const appeals = await base44.asServiceRole.entities.ReputationAppeal.filter({ status: body.status || 'pending' }, '-submitted_at', 100);
+      return Response.json({ appeals });
+    }
+
+    if (action === 'review_appeal') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const { appeal_id, decision, review_decision, council_notes, escalate } = body;
+      const appeals = await base44.asServiceRole.entities.ReputationAppeal.filter({ id: appeal_id });
+      const appeal = appeals[0];
+      if (!appeal) return Response.json({ error: 'Appeal not found' }, { status: 404 });
+      const status = escalate ? 'escalated' : (decision === 'approve' ? 'approved' : 'denied');
+      const updated = await base44.asServiceRole.entities.ReputationAppeal.update(appeal.id, {
+        status, reviewed_at: new Date().toISOString(), reviewed_by_id: user.id, reviewed_by_name: user.full_name,
+        review_decision: review_decision || '', council_notes: council_notes || '', escalated_to_council: !!escalate,
+      });
+      await logAudit(appeal.user_id, appeal.user_name, 0, 0, `Appeal ${status}: ${appeal.appeal_type}`, 'appeal_resolution', decision === 'approve' ? 'appeal_approve' : 'appeal_deny', { id: user.id, name: user.full_name }, { appeal_id, decision, review_decision });
+      await notifyUser(appeal.user_id, `Appeal ${status}`, `Your ${appeal.appeal_type} appeal has been ${status}. ${review_decision || ''}`, status === 'approved' ? '✅' : 'ℹ️', '/reputation');
+      return Response.json({ success: true, appeal: updated });
+    }
+
+    // ─── COUNCIL ──────────────────────────────────────────
+    if (action === 'create_council_review') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const { user_id, review_type, reason, priority } = body;
+      const rec = await getReputationRecord(user_id);
+      const profile = await getUserProfile(user_id);
+      const review = await base44.asServiceRole.entities.CouncilReview.create({
+        user_id, user_name: profile.full_name || rec?.user_name || '',
+        review_type, reason, priority: priority || 'medium',
+        status: 'open', opened_at: new Date().toISOString(),
+        initiated_by_id: user.id, initiated_by_name: user.full_name,
+      });
+      if (rec) await base44.asServiceRole.entities.ExecutiveReputation.update(rec.id, { council_review_status: 'under_review', council_review_reason: reason, council_reviewed_at: new Date().toISOString(), council_reviewer_id: user.id, council_reviewer_name: user.full_name });
+      await logAudit(user_id, rec?.user_name || '', rec?.reputation_score || 0, rec?.reputation_score || 0, `Council review opened: ${review_type}`, 'council_decision', 'council_review', { id: user.id, name: user.full_name }, { review_id: review.id, review_type, reason });
+      return Response.json({ success: true, review });
+    }
+
+    if (action === 'admin_council_reviews') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const reviews = await base44.asServiceRole.entities.CouncilReview.filter({ status: body.status || 'open' }, '-opened_at', 100);
+      return Response.json({ reviews });
+    }
+
+    if (action === 'resolve_council_review') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const { review_id, decision, decision_notes, resolution_status } = body;
+      const reviews = await base44.asServiceRole.entities.CouncilReview.filter({ id: review_id });
+      const review = reviews[0];
+      if (!review) return Response.json({ error: 'Review not found' }, { status: 404 });
+      const updated = await base44.asServiceRole.entities.CouncilReview.update(review.id, {
+        status: 'resolved', decision, decision_notes: decision_notes || '',
+        resolution_status: resolution_status || 'no_action', resolved_at: new Date().toISOString(),
+      });
+      const rec = await getReputationRecord(review.user_id);
+      if (rec) await base44.asServiceRole.entities.ExecutiveReputation.update(rec.id, { council_review_status: 'resolved' });
+      await logAudit(review.user_id, review.user_name, rec?.reputation_score || 0, rec?.reputation_score || 0, `Council review resolved: ${decision}`, 'council_decision', 'council_review', { id: user.id, name: user.full_name }, { review_id, decision, resolution_status });
+      await notifyUser(review.user_id, 'Council Review Resolved', `Your reputation council review has been resolved. Decision: ${decision}`, '🏛️', '/reputation');
+      return Response.json({ success: true, review: updated });
     }
 
     // ─── RECRUITER VIEW ────────────────────────────────────
@@ -700,8 +918,13 @@ Keep insights concise, specific, and data-driven. Do not use generic phrases.`,
       try { insights = JSON.parse(rec.ai_executive_insights_json || '{}'); } catch (e) {}
       let qualityDims = {};
       try { qualityDims = JSON.parse(rec.quality_dimensions_json || '{}'); } catch (e) {}
+      let competencies = {};
+      try { competencies = JSON.parse(rec.competencies_json || '{}'); } catch (e) {}
+      let honors = [];
+      try { honors = JSON.parse(rec.yearly_honors_json || '[]'); } catch (e) {}
 
       const topPillars = breakdown.sort((a, b) => b.score - a.score).slice(0, 5);
+      const topCompetencies = Object.entries(competencies).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id, score]) => ({ id, score }));
 
       return Response.json({
         executive: {
@@ -721,6 +944,7 @@ Keep insights concise, specific, and data-driven. Do not use generic phrases.`,
           executive_credibility: rec.executive_credibility_score,
         },
         leadership_strengths: topPillars.map(p => ({ pillar: p.pillar, score: p.score, weight: p.weight })),
+        top_competencies: topCompetencies,
         thought_leadership: {
           letters_published: rec.total_letters,
           thought_leadership_index: rec.thought_leadership_index,
@@ -745,6 +969,8 @@ Keep insights concise, specific, and data-driven. Do not use generic phrases.`,
         },
         ai_insights: insights,
         quality_dimensions: qualityDims,
+        yearly_honors: honors,
+        top_competencies: topCompetencies,
         disclaimer: 'This information is provided for informational purposes only and does not constitute an employment guarantee, hiring recommendation, or endorsement by EXECLEAD.AI. All reputation data is algorithmically computed and should be independently verified.',
       });
     }

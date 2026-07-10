@@ -1,0 +1,120 @@
+{
+  "name": "CouncilReview",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User under review"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "review_type": {
+      "type": "string",
+      "enum": [
+        "abuse_investigation",
+        "appeal_review",
+        "special_recognition",
+        "policy_improvement",
+        "gaming_investigation",
+        "badge_escalation"
+      ],
+      "description": "Type of council review"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "investigating",
+        "pending_decision",
+        "resolved",
+        "escalated",
+        "closed"
+      ],
+      "default": "open"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "initiated_by_id": {
+      "type": "string"
+    },
+    "initiated_by_name": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 3000,
+      "description": "Why this review was initiated"
+    },
+    "evidence_json": {
+      "type": "string",
+      "description": "JSON array of {type, description, collected_at}"
+    },
+    "ai_analysis": {
+      "type": "string",
+      "description": "AI-generated analysis of the situation"
+    },
+    "assigned_reviewers_json": {
+      "type": "string",
+      "description": "JSON array of {id, name, role}"
+    },
+    "decision": {
+      "type": "string",
+      "description": "Final council decision"
+    },
+    "decision_notes": {
+      "type": "string",
+      "description": "Detailed decision rationale"
+    },
+    "actions_taken_json": {
+      "type": "string",
+      "description": "JSON array of actions executed"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolution_status": {
+      "type": "string",
+      "enum": [
+        "no_action",
+        "warning_issued",
+        "badge_revoked",
+        "score_adjusted",
+        "reputation_suspended",
+        "appeal_approved",
+        "appeal_denied",
+        "recognition_awarded",
+        "policy_updated"
+      ],
+      "description": "Outcome category"
+    }
+  },
+  "required": [
+    "user_id",
+    "review_type",
+    "reason"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

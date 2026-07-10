@@ -1,0 +1,113 @@
+{
+  "name": "ReputationAppeal",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User submitting the appeal"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "appeal_type": {
+      "type": "string",
+      "enum": [
+        "badge_removal",
+        "score_reduction",
+        "moderator_decision",
+        "council_decision",
+        "suspension",
+        "milestone_dispute"
+      ],
+      "description": "Type of decision being appealed"
+    },
+    "appeal_reason": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "User's explanation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "under_review",
+        "approved",
+        "denied",
+        "escalated",
+        "withdrawn"
+      ],
+      "default": "pending"
+    },
+    "related_action_id": {
+      "type": "string",
+      "description": "Audit log entry ID of the action being appealed"
+    },
+    "related_badge_id": {
+      "type": "string"
+    },
+    "previous_score": {
+      "type": "number"
+    },
+    "new_score": {
+      "type": "number"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "review_decision": {
+      "type": "string",
+      "description": "Final decision notes"
+    },
+    "council_notes": {
+      "type": "string",
+      "description": "Reputation Council private notes"
+    },
+    "ai_assessment": {
+      "type": "string",
+      "description": "AI analysis of the appeal"
+    },
+    "escalated_to_council": {
+      "type": "boolean",
+      "default": false
+    },
+    "resolution_json": {
+      "type": "string",
+      "description": "JSON of resolution actions taken"
+    }
+  },
+  "required": [
+    "user_id",
+    "appeal_type",
+    "appeal_reason"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {},
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

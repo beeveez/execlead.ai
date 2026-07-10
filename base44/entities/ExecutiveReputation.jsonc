@@ -45,6 +45,18 @@
       "type": "string",
       "description": "JSON array of {id, earned_at, reason}"
     },
+    "achievements_json": {
+      "type": "string",
+      "description": "JSON array of {id, earned_at, reason}"
+    },
+    "milestones_json": {
+      "type": "string",
+      "description": "JSON array of {id, earned_at, value}"
+    },
+    "competencies_json": {
+      "type": "string",
+      "description": "JSON object of competency_id to score 0-100"
+    },
     "total_letters": {
       "type": "number",
       "default": 0
@@ -188,7 +200,7 @@
     },
     "thought_leadership_index": {
       "type": "number",
-      "default": 0
+      "leadership_index": 0
     },
     "total_views": {
       "type": "number",
@@ -201,7 +213,7 @@
     },
     "gaming_flags_json": {
       "type": "string",
-      "description": "JSON array of gaming risk flag strings"
+      "description": "badge_earned JSON array of gaming risk flag strings"
     },
     "reputation_suspended": {
       "type": "boolean",
@@ -219,6 +231,44 @@
     },
     "suspended_by_name": {
       "type": "string"
+    },
+    "council_review_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "under_review",
+        "investigating",
+        "resolved",
+        "escalated"
+      ],
+      "default": "none",
+      "description": "Reputation Council review status"
+    },
+    "council_review_reason": {
+      "type": "string"
+    },
+    "council_reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "council_reviewer_id": {
+      "type": "string"
+    },
+    "council_reviewer_name": {
+      "type": "string"
+    },
+    "yearly_honors_json": {
+      "type": "string",
+      "description": "JSON array of {year, award, title, awarded_at}"
+    },
+    "community_rank": {
+      "type": "number",
+      "default": 0,
+      "description": "Current community ranking by reputation"
+    },
+    "leaderboard_positions_json": {
+      "type": "string",
+      "description": "JSON object of leaderboard_id to rank"
     }
   },
   "required": [

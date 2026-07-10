@@ -18,6 +18,8 @@ export const EXEC_WELCOME_MESSAGE = `Welcome to EXECLEAD.AI.
 
 I'm **EXEC™**, your AI Executive Concierge.
 
+Every conversation is designed to help you become a stronger leader through thoughtful coaching, practical guidance, and continuous development.
+
 Whether you're beginning your leadership journey or preparing for your next executive role, I'm here to guide you every step of the way.
 
 I can help you:

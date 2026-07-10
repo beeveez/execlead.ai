@@ -168,7 +168,8 @@ export default function Onboarding() {
                 <Sparkles className="text-indigo-400" size={28} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Your Personalized Executive Leadership OS</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">Welcome to your Executive Journey.</h2>
+                <p className="text-white/50 text-sm font-medium max-w-sm mx-auto mb-1">One Leadership Journey. One AI Platform.</p>
                 <p className="text-white/40 text-sm max-w-sm mx-auto">Upload your resume and let AI build a personalized development journey based on your actual career experience.</p>
               </div>
               <button onClick={() => setStep("journey")} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
@@ -343,8 +344,11 @@ export default function Onboarding() {
                 </div>
               )}
 
+              {roadmap && (
+                <p className="text-center text-white/40 text-sm">Your leadership journey begins today. Let's build your future together.</p>
+              )}
               <button onClick={finalize} disabled={saving} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-30 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                {saving ? <Loader2 size={18} className="animate-spin" /> : <><Check size={18} /> Start My Journey</>}
+                {saving ? <Loader2 size={18} className="animate-spin" /> : <><Check size={18} /> Begin My Leadership Journey</>}
               </button>
             </motion.div>
           )}

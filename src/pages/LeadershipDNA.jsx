@@ -5,6 +5,7 @@ import { Fingerprint, Loader2, RefreshCw, TrendingUp, Award, Target, Zap, Dna } 
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import CompetencyRadar from "@/components/leadership-dna/CompetencyRadar";
+import LeadershipJourneyPath from "@/components/brand/LeadershipJourneyPath";
 
 export default function LeadershipDNA() {
   const [profile, setProfile] = useState(null);
@@ -149,8 +150,8 @@ Generate a comprehensive Leadership DNA profile. Identify their leadership arche
           <Fingerprint size={12} className="text-indigo-400" />
           Leadership DNA™
         </div>
-        <h1 className="text-2xl font-bold text-white">Your Living Executive Profile</h1>
-        <p className="text-white/40 text-sm mt-1">Continuously evolving from your resume, challenges, simulations, coaching, and learning progress.</p>
+        <h1 className="text-2xl font-bold text-white">Your Executive Journey</h1>
+        <p className="text-white/40 text-sm mt-1">Leadership is a lifelong journey. See where you are and what's next.</p>
       </div>
 
       {/* Stats Summary */}
@@ -170,6 +171,9 @@ Generate a comprehensive Leadership DNA profile. Identify their leadership arche
           </div>
         ))}
       </div>
+
+      {/* Executive Journey Path */}
+      <LeadershipJourneyPath xp={profile.xp_points || 0} />
 
       {/* Radar Chart */}
       <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">

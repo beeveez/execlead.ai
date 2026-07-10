@@ -169,7 +169,8 @@ export default function LegacyLibrary() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <BookOpen size={32} className="text-indigo-400/30 mx-auto mb-3" />
-          <p className="text-white/30 text-sm">{hasFilters ? "No letters match your filters." : "No letters published yet."}</p>
+          <p className="text-white/50 text-sm font-medium">{hasFilters ? "No letters match your filters." : "Every legacy begins with a first lesson."}</p>
+          {!hasFilters && <p className="text-white/30 text-sm mt-1">Share your first leadership insight with the next generation.</p>}
           {hasFilters && <button onClick={clearFilters} className="text-indigo-400 text-sm mt-2 hover:underline">Clear filters</button>}
         </div>
       ) : (

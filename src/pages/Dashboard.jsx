@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
 import FoundingMemberBadge from "@/components/founding/FoundingMemberBadge";
+import JourneyProgress from "@/components/brand/JourneyProgress";
 
 const QUICK_ACTIONS = [
   { path: "/challenge", label: "Challenge", desc: "Test your readiness", icon: Swords, color: "from-indigo-600 to-violet-600" },
@@ -87,7 +88,9 @@ export default function Dashboard() {
           Targeting <span className="text-indigo-400 font-medium">{profile.target_role}</span> at{" "}
           <span className="text-white/70 font-medium">{profile.target_company}</span>
         </p>
-      </div>
+        <p className="text-white/50 text-sm font-medium mt-2">One Leadership Journey. One AI Platform.</p>
+        <p className="text-white/30 text-xs mt-0.5">Every session strengthens your executive capabilities. Continue building your leadership journey today.</p>
+        </div>
 
       {/* Stats Row */}
       <div className="flex items-center gap-6 flex-wrap">
@@ -113,27 +116,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* XP & Level Progress */}
-      <div className="bg-gradient-to-r from-indigo-500/10 to-violet-500/5 border border-indigo-500/10 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">{levelInfo.current.icon}</span>
-            <div>
-              <div className="text-white font-semibold text-sm">Level {levelInfo.current.level} · {levelInfo.current.title}</div>
-              <div className="text-white/40 text-xs">{profile.xp_points || 0} XP{unlockedAchievements.length > 0 && ` · ${unlockedAchievements.length} achievements`}</div>
-            </div>
-          </div>
-          {levelInfo.next && (
-            <div className="text-right">
-              <div className="text-white/40 text-xs">{levelInfo.next.title}</div>
-              <div className="text-white/30 text-xs">{levelInfo.next.xp - (profile.xp_points || 0)} XP to go</div>
-            </div>
-          )}
-        </div>
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-700" style={{ width: `${levelInfo.progress}%` }} />
-        </div>
-      </div>
+      {/* Journey Progress — brand experience card */}
+      <JourneyProgress profile={profile} />
 
       {/* Resume Intelligence */}
       {resumeData && (
@@ -246,7 +230,8 @@ export default function Dashboard() {
           <div className="space-y-2">
             {recentResults.length === 0 ? (
               <div className="bg-white/[0.02] border border-white/5 rounded-lg p-6 text-center">
-                <p className="text-white/30 text-sm">No challenges yet. Take your first challenge!</p>
+                <p className="text-white/50 text-sm">Great leaders prepare before critical moments.</p>
+                <p className="text-white/30 text-xs mt-1">Start your first executive challenge.</p>
               </div>
             ) : (
               recentResults.map((r) => {

@@ -57,7 +57,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Insights", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
-      { path: "/journey", label: "Executive Journey", icon: TrendingUp },
+      { path: "/journey", label: "Intelligence Profile", icon: TrendingUp },
       { path: "/executive-readiness", label: "Readiness", icon: Target },
       { path: "/executive-passport", label: "Executive Passport", icon: Briefcase },
       { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },

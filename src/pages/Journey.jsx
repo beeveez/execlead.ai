@@ -1,39 +1,66 @@
 import React, { useState, useEffect } from "react";
-import { Loader2, TrendingUp, Clock } from "lucide-react";
+import { Loader2, TrendingUp } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import SectionNav from "@/components/intelligence/SectionNav";
+import ProfileHeader from "@/components/intelligence/ProfileHeader";
+import ReadinessHero from "@/components/intelligence/ReadinessHero";
+import ExecutivePotential from "@/components/intelligence/ExecutivePotential";
+import AIConfidence from "@/components/intelligence/AIConfidence";
+import ExecutiveArchetype from "@/components/intelligence/ExecutiveArchetype";
+import CompetencyRadar from "@/components/intelligence/CompetencyRadar";
+import CareerReadiness from "@/components/intelligence/CareerReadiness";
+import ReputationTrustCard from "@/components/intelligence/ReputationTrustCard";
+import PlatformContribution from "@/components/intelligence/PlatformContribution";
+import AIInsights from "@/components/intelligence/AIInsights";
+import GrowthPlan from "@/components/intelligence/GrowthPlan";
+import Benchmarking from "@/components/intelligence/Benchmarking";
+import ProfileHistory from "@/components/intelligence/ProfileHistory";
+import ExportProfile from "@/components/intelligence/ExportProfile";
 import JourneyTimeline from "@/components/journey/JourneyTimeline";
 import JourneyAchievements from "@/components/journey/JourneyAchievements";
-import JourneyStreaks from "@/components/journey/JourneyStreaks";
-import JourneyRecommendations from "@/components/journey/JourneyRecommendations";
-import WeeklyDigest from "@/components/journey/WeeklyDigest";
-import CareerImpact from "@/components/journey/CareerImpact";
-import EnterpriseJourneyView from "@/components/journey/EnterpriseJourneyView";
-
-const BREAKDOWN_LABELS = {
-  leadership_dna: { label: "Leadership DNA™", icon: "🧬" },
-  letters: { label: "Leadership Letters", icon: "✍️" },
-  simulations: { label: "Executive Simulations", icon: "🎯" },
-  academy: { label: "Academy Modules", icon: "📚" },
-  challenges: { label: "Executive Challenges", icon: "⚔️" },
-  identity_verified: { label: "Identity Verified", icon: "✅" },
-  professional_verification: { label: "Professional Verification", icon: "🏅" },
-  reputation: { label: "Reputation Milestones", icon: "⭐" },
-  mentorship: { label: "Mentorship", icon: "🤝" },
-  resume: { label: "Resume Completed", icon: "📄" },
-  weekly_streak: { label: "Weekly Streaks", icon: "🔥" },
-  community_recognition: { label: "Community Recognition", icon: "🏆" },
-};
 
 export default function Journey() {
   const [journey, setJourney] = useState(null);
+  const [intelligence, setIntelligence] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [dna, setDna] = useState(null);
+  const [reputation, setReputation] = useState(null);
+  const [learning, setLearning] = useState([]);
+  const [impact, setImpact] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("timeline");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await base44.functions.invoke("manageJourney", { action: "compute" });
-        setJourney(res.data);
+        // Batch 1: core intelligence data (cached reads, <150ms)
+        const [journeyRes, intelRes] = await Promise.all([
+          base44.functions.invoke("manageJourney", { action: "compute" }),
+          base44.functions.invoke("manageIntelligence", { action: "read" }),
+        ]);
+        setJourney(journeyRes.data);
+        setIntelligence(intelRes.data);
+
+        // Batch 2: supporting entity data
+        const [profiles, dnaList, repList, lessons] = await Promise.all([
+          base44.entities.UserProfile.filter({}, "-created_date", 1).catch(() => []),
+          base44.entities.LeadershipDNA.filter({}, "-created_date", 1).catch(() => []),
+          base44.entities.ExecutiveReputation.filter({}, "-created_date", 1).catch(() => []),
+          base44.entities.LessonProgress.filter({}, "-created_date", 100).catch(() => []),
+        ]);
+        setProfile(profiles[0] || journeyRes.data?.profile || {});
+        setDna(dnaList[0]);
+        setReputation(repList[0]);
+        setLearning(lessons);
+
+        // Derive impact from journey breakdown + reputation
+        const breakdown = journeyRes.data?.breakdown || {};
+        setImpact({
+          letters: breakdown.letters?.count || repList[0]?.total_letters || 0,
+          discussions: repList[0]?.total_comments || 0,
+          mentorships: breakdown.mentorship?.count || 0,
+          followers: 0,
+          influence: repList[0]?.leadership_influence_pct || 0,
+        });
       } catch (e) {}
       setLoading(false);
     };
@@ -41,142 +68,121 @@ export default function Journey() {
   }, []);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+      </div>
+    );
   }
 
   if (!journey) {
-    return <div className="text-center py-20 text-white/30 text-sm">Unable to load your Executive Journey. Please try again later.</div>;
+    return (
+      <div className="text-center py-20 text-white/30 text-sm">
+        Unable to load your Executive Intelligence Profile. Please try again later.
+      </div>
+    );
   }
 
-  const { level, totalPoints, breakdown, timeline, achievements, recommendations, estimatedDays, streaks, digest } = journey;
-  const activeBreakdown = Object.entries(breakdown).filter(([, v]) => v.count > 0);
-
-  const tabs = [
-    { id: "timeline", label: "Timeline" },
-    { id: "achievements", label: "Achievements" },
-    { id: "streaks", label: "Streaks" },
-    { id: "digest", label: "Weekly Digest" },
-    { id: "career", label: "Career Impact" },
-    { id: "enterprise", label: "Enterprise" },
-  ];
+  const readiness = intelligence?.readiness;
+  const trust = intelligence?.trust;
+  const forecast = intelligence?.forecast;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto space-y-6 pb-12">
+      {/* Page Title */}
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
           <TrendingUp size={12} className="text-indigo-400" />
-          Executive Journey Engine™
+          Executive Intelligence Profile™
         </div>
-        <h1 className="text-2xl font-bold text-white">Your Executive Journey</h1>
-        <p className="text-white/40 text-sm mt-1">One Leadership Journey. One AI Platform. Every action contributes to your growth.</p>
+        <h1 className="text-2xl font-bold text-white">Your Living Executive Profile</h1>
+        <p className="text-white/40 text-sm mt-1">The single source of truth for your executive journey — continuously evolving as you learn, practice, publish, and lead.</p>
       </div>
 
-      {/* Journey Overview */}
-      <div className="bg-gradient-to-br from-indigo-500/10 to-violet-500/5 border border-indigo-500/15 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <p className="text-white/30 text-xs uppercase tracking-widest mb-1">Current Level</p>
-            <div className="flex items-center gap-2">
-              <span className="text-3xl">{level.current.icon}</span>
-              <div>
-                <div className="text-white font-bold text-xl">{level.current.title}</div>
-                <div className="text-white/40 text-xs">{totalPoints.toLocaleString()} Journey Points · {level.journeyPercent}% of journey</div>
-              </div>
-            </div>
-          </div>
-          {level.next && (
-            <div className="text-right">
-              <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Next Milestone</div>
-              <div className="text-white/60 text-sm font-medium flex items-center gap-1 justify-end">
-                <span className="text-lg">{level.next.icon}</span> {level.next.title}
-              </div>
-              <div className="text-white/30 text-xs">{level.pointsToNext.toLocaleString()} points to go</div>
-              {estimatedDays != null && (
-                <div className="flex items-center gap-1 justify-end mt-1 text-cyan-400 text-xs">
-                  <Clock size={10} /> ~{estimatedDays} days estimated
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+      <SectionNav />
 
-        {/* Journey progress bar */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-xs text-white/30 mb-1.5">
-            <span>Journey Progress</span>
-            <span>{level.journeyPercent}%</span>
-          </div>
-          <div className="h-3 bg-white/5 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 rounded-full transition-all duration-700" style={{ width: `${level.journeyPercent}%` }} />
-          </div>
-        </div>
+      {/* Profile Header */}
+      <section id="header">
+        <ProfileHeader profile={profile} journey={journey} readiness={readiness} trust={trust} reputation={reputation} />
+      </section>
 
-        {/* Level progress */}
-        {level.next && (
-          <div>
-            <div className="flex items-center justify-between text-xs text-white/30 mb-1.5">
-              <span>Level Progress</span>
-              <span>{level.progress}%</span>
-            </div>
-            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-              <div className="h-full bg-indigo-500 rounded-full transition-all duration-700" style={{ width: `${level.progress}%` }} />
-            </div>
-          </div>
-        )}
+      {/* Readiness Hero + Executive Potential */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section id="readiness" className="lg:col-span-2">
+          <ReadinessHero readiness={readiness} />
+        </section>
+        <section id="potential">
+          <ExecutivePotential forecast={forecast} readiness={readiness} />
+        </section>
       </div>
 
-      {/* Points Breakdown */}
-      {activeBreakdown.length > 0 && (
-        <div>
-          <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Journey Points Breakdown</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {activeBreakdown.map(([key, data]) => {
-              const meta = BREAKDOWN_LABELS[key] || { label: key, icon: "⭐" };
-              return (
-                <div key={key} className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-lg">{meta.icon}</span>
-                    <span className="text-white/60 text-xs font-medium">{meta.label}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/30 text-xs">×{data.count}</span>
-                    <span className="text-emerald-400 text-sm font-bold">+{data.points}</span>
-                  </div>
-                </div>
-              );
-            })}
+      {/* AI Confidence */}
+      <section id="confidence">
+        <AIConfidence readiness={readiness} journey={journey} />
+      </section>
+
+      {/* Archetype + Competency Radar */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section id="archetype">
+          <ExecutiveArchetype dna={dna} />
+        </section>
+        <section id="competency">
+          <CompetencyRadar dimensions={readiness?.dimensions} />
+        </section>
+      </div>
+
+      {/* Career Readiness */}
+      <section id="career">
+        <CareerReadiness readiness={readiness} profile={profile} />
+      </section>
+
+      {/* Reputation + Trust */}
+      <section id="reputation">
+        <ReputationTrustCard reputation={reputation} trust={trust} />
+      </section>
+
+      {/* Learning + Impact */}
+      <section id="impact">
+        <PlatformContribution learning={learning} impact={impact} />
+      </section>
+
+      {/* AI Insights */}
+      <section id="insights">
+        <AIInsights journey={journey} intelligence={intelligence} />
+      </section>
+
+      {/* Growth Plan */}
+      <section id="growth">
+        <GrowthPlan recommendations={journey.recommendations} readiness={readiness} />
+      </section>
+
+      {/* Timeline + Achievements */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section id="timeline" className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">
+          <h3 className="text-white font-semibold text-sm mb-4">Executive Journey Timeline™</h3>
+          <JourneyTimeline events={journey.timeline || []} />
+        </section>
+        <section id="achievements">
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">
+            <JourneyAchievements achievements={journey.achievements} />
           </div>
-        </div>
-      )}
-
-      {/* AI Recommendations */}
-      <JourneyRecommendations recommendations={recommendations} level={level} estimatedDays={estimatedDays} />
-
-      {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-white/5 overflow-x-auto">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-              tab === t.id ? "text-white border-indigo-500" : "text-white/40 border-transparent hover:text-white/60"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+        </section>
       </div>
 
-      {/* Tab Content */}
-      <div className="min-h-[300px]">
-        {tab === "timeline" && <JourneyTimeline events={timeline || []} />}
-        {tab === "achievements" && <JourneyAchievements achievements={achievements} />}
-        {tab === "streaks" && <JourneyStreaks streaks={streaks} />}
-        {tab === "digest" && <WeeklyDigest digest={digest} />}
-        {tab === "career" && <CareerImpact journey={journey} />}
-        {tab === "enterprise" && <EnterpriseJourneyView />}
+      {/* Benchmarking + History */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section id="benchmarking">
+          <Benchmarking readiness={readiness} />
+        </section>
+        <section id="history">
+          <ProfileHistory journey={journey} intelligence={intelligence} />
+        </section>
       </div>
+
+      {/* Export */}
+      <section id="export">
+        <ExportProfile journey={journey} intelligence={intelligence} />
+      </section>
     </div>
   );
 }

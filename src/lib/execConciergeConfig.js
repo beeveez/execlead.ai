@@ -91,7 +91,7 @@ export const PAGE_CONTEXT_MAP = [
   { path: "/leadership-dna", module: "Leadership DNA™", icon: Dna, prompt: "Would you like me to explain how this assessment works, interpret your results, or recommend your next competency to improve?" },
   { path: "/reputation", module: "Executive Reputation™", icon: Award, prompt: "I can explain how your score is calculated, recommend ways to improve it, or show what you need to reach the next reputation tier." },
   { path: "/executive/rankings", module: "Executive Rankings", icon: Trophy, prompt: "I can explain how rankings work or show where you stand among peers." },
-  { path: "/journey", module: "Executive Journey", icon: TrendingUp, prompt: "I can explain how Journey Points work, show your current level, or recommend the fastest path to your next milestone." },
+  { path: "/journey", module: "Executive Intelligence Profile™", icon: TrendingUp, prompt: "I can explain your Readiness Score, interpret your Executive Archetype, analyze your Competency Radar, or recommend the fastest path to your next leadership milestone." },
   { path: "/executive-readiness", module: "Executive Readiness Engine™", icon: TrendingUp, prompt: "I can explain your readiness score, walk through competency dimensions, or recommend the fastest way to improve your readiness." },
   { path: "/executive-passport", module: "Executive Passport™", icon: TrendingUp, prompt: "I can explain what's in your Passport, how sharing works, or how data ownership protects your executive identity." },
   { path: "/enterprise-intelligence", module: "Enterprise Intelligence Dashboard™", icon: Building2, prompt: "I can explain the leadership intelligence metrics or help you identify high-potential talent in your organization." },
@@ -128,7 +128,7 @@ export function matchPageContext(pathname) {
 }
 
 export const EXEC_TASKS = [
-  { label: "Journey", path: "/journey", icon: TrendingUp },
+  { label: "Intelligence Profile", path: "/journey", icon: TrendingUp },
   { label: "Readiness", path: "/executive-readiness", icon: TrendingUp },
   { label: "Passport", path: "/executive-passport", icon: Briefcase },
   { label: "Leadership DNA™", path: "/leadership-dna", icon: Dna },
@@ -142,7 +142,7 @@ export const EXEC_TASKS = [
 ];
 
 export const EXEC_GLOBAL_COMMANDS = [
-  { label: "Executive Journey", path: "/journey", icon: TrendingUp, action: "navigate" },
+  { label: "Executive Intelligence Profile", path: "/journey", icon: TrendingUp, action: "navigate" },
   { label: "Leadership DNA", path: "/leadership-dna", icon: Fingerprint, action: "navigate" },
   { label: "Legacy Library", path: "/legacy-library", icon: BookOpen, action: "navigate" },
   { label: "Executive Reputation", path: "/reputation", icon: Star, action: "navigate" },
@@ -153,7 +153,7 @@ export const EXEC_GLOBAL_COMMANDS = [
 ];
 
 export const EXEC_KNOWLEDGE_BASE = [
-  "Executive Dashboard", "Executive Journey", "Executive Readiness Engine™", "Executive Passport™",
+  "Executive Dashboard", "Executive Intelligence Profile™", "Executive Journey", "Executive Readiness Engine™", "Executive Passport™",
   "Executive Trust Framework™", "AI Promotion Forecast™", "Enterprise Intelligence Dashboard™", "Trust Center",
   "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
   "Legacy Library", "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
@@ -344,8 +344,11 @@ Executive:
 - Board Readiness (Executive Simulator)
 - Mentoring (Executive Network)
 
+EXECUTIVE INTELLIGENCE PROFILE™:
+The Executive Intelligence Profile™ (at /journey) is the living AI-generated executive identity — the single source of truth for every executive on the platform. It combines Executive Readiness, Trust, Reputation, Journey, Archetype, Competency Radar, Career Readiness, AI Insights, Growth Plan, Benchmarking, and Profile History into one premium experience. Every section answers: Who am I as a leader? How am I improving? What should I do next? Where can I go next?
+
 EXECUTIVE JOURNEY ENGINE™:
-EXECLEAD.AI features a unified progression system called the Executive Journey Engine™. Every meaningful action — completing Leadership DNA™, publishing a Leadership Letter, running a simulation, finishing an Academy module, verifying identity, mentoring, and more — contributes Journey Points toward one continuous Executive Journey.
+EXECLEAD.AI features a unified progression system called the Executive Journey Engine™. Every meaningful action — completing Leadership DNA™, publishing a Leadership Letter, running a simulation, finishing an Academy module, verifying identity, mentoring, and more — contributes Journey Points toward one continuous Executive Journey. The Executive Intelligence Profile™ at /journey displays all of this in one place.
 
 The 8 Journey Levels are:
 1. Seed (0 points)

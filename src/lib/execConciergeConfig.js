@@ -3,27 +3,28 @@ import {
   LayoutDashboard, Dna, Award, Briefcase, BookOpen, GraduationCap,
   Building, Network, ShoppingBag, FileText, CreditCard, Settings,
   Shield, BadgeCheck, Home, Play, PenLine, MessageSquare,
+  Fingerprint, Star, Store, Trophy, Search,
 } from "lucide-react";
+import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
-  subtitle: "AI Executive Concierge",
+  subtitle: "AI Executive Assistant",
 };
 
 export const EXEC_WELCOME_MESSAGE = `Welcome to EXECLEAD.AI.
 
-I'm **EXEC™**, your AI Executive Concierge.
+I'm **EXEC™**, your AI Executive Assistant — the single intelligent interface for the entire platform.
 
 I can help you:
-- Discover platform features
-- Compare membership plans
-- Recommend a leadership journey
-- Explain Executive Reputation™
-- Explore Leadership DNA™
-- Schedule an enterprise demo
-- Answer platform questions
+- **Find any module** — ask "Where is the Legacy Library?" and I'll take you there
+- **Explain features** — what each module does and how to use it
+- **Recommend next steps** — personalized to your leadership journey
+- **Compare plans** and recommend the right membership
+- **Navigate directly** — one-click actions to open any page
+- **Schedule an enterprise demo** for your organization
 
-How can I assist you today?`;
+How can I help you today?`;
 
 export const EXEC_QUICK_ACTIONS = [
   { label: "What is EXECLEAD.AI?", message: "What is EXECLEAD.AI and what makes it unique?", icon: Sparkles },
@@ -35,13 +36,14 @@ export const EXEC_QUICK_ACTIONS = [
 ];
 
 export const EXEC_SUGGESTED_QUESTIONS = [
-  "What makes EXECLEAD.AI unique?",
-  "Which membership should I choose?",
-  "Can EXECLEAD.AI help me become an executive?",
-  "How does Leadership DNA™ work?",
-  "Tell me about Founding Membership",
-  "Can my company use this platform?",
+  "Where is the Legacy Library?",
   "What is Executive Reputation™?",
+  "How does Leadership DNA™ work?",
+  "Where can I find Executive Rankings?",
+  "Which membership should I choose?",
+  "Where is the Executive Wallet?",
+  "Can my company use this platform?",
+  "Where is Career Studio?",
 ];
 
 export function getSuggestedQuestions(messageCount) {
@@ -82,6 +84,7 @@ export const PAGE_CONTEXT_MAP = [
   { path: "/dashboard", module: "Executive Dashboard", icon: LayoutDashboard, prompt: "Would you like an overview of your leadership journey or today's recommendations?" },
   { path: "/leadership-dna", module: "Leadership DNA™", icon: Dna, prompt: "Would you like me to explain how this assessment works, interpret your results, or recommend your next competency to improve?" },
   { path: "/reputation", module: "Executive Reputation™", icon: Award, prompt: "I can explain how your score is calculated, recommend ways to improve it, or show what you need to reach the next reputation tier." },
+  { path: "/executive/rankings", module: "Executive Rankings", icon: Trophy, prompt: "I can explain how rankings work or show where you stand among peers." },
   { path: "/career-studio", module: "Career Studio", icon: Briefcase, prompt: "I can help optimize your executive resume, prepare for interviews, or recommend career opportunities." },
   { path: "/resume", module: "Resume AI", icon: FileText, prompt: "I can help analyze your resume, suggest improvements, or prepare you for interviews." },
   { path: "/legacy-library", module: "Legacy Library", icon: BookOpen, prompt: "Would you like help writing your first Leadership Letter or reviewing one before publishing?" },
@@ -90,12 +93,14 @@ export const PAGE_CONTEXT_MAP = [
   { path: "/company-library", module: "Companies Intelligence", icon: Building, prompt: "I can provide insights on company leadership culture, interview preparation, or career targeting." },
   { path: "/network", module: "Executive Network", icon: Network, prompt: "I can help you connect with executives, find mentors, or explore career opportunities." },
   { path: "/marketplace", module: "Marketplace", icon: ShoppingBag, prompt: "Would you like me to recommend a mentor or executive bundle?" },
+  { path: "/wallet", module: "Executive Wallet", icon: Star, prompt: "I can explain how to earn rewards, track your balance, or request a withdrawal." },
   { path: "/billing", module: "Billing", icon: CreditCard, prompt: "I can explain your current plan, help you compare options, or assist with billing questions." },
   { path: "/settings", module: "Settings", icon: Settings, prompt: "I can help you configure your profile, privacy settings, or account preferences." },
   { path: "/security", module: "Security Center", icon: Shield, prompt: "I can explain our security features, help you manage devices, or review your account security." },
   { path: "/identity-verification", module: "Identity Verification", icon: BadgeCheck, prompt: "Identity verification builds trust and unlocks additional platform features. Would you like to start the verification process?" },
   { path: "/enterprise", module: "Enterprise Dashboard", icon: Building2, prompt: "I can explain enterprise features, help with team management, or schedule a consultation." },
   { path: "/founders", module: "Founding Membership", icon: Crown, prompt: "Founding Membership is a limited-time lifetime offering. Would you like to learn about the benefits or reserve your spot?" },
+  { path: "/developer", module: "Developer Workspace", icon: Building2, prompt: "I can explain developer tools, feature flags, or system health monitoring." },
   { path: "/pricing", module: "Pricing", icon: CreditCard, prompt: "I can help you compare plans, explain pricing, or recommend the right membership for you." },
   { path: "/", module: "Home", icon: Home, prompt: null },
 ];
@@ -123,13 +128,24 @@ export const EXEC_TASKS = [
   { label: "Coaching", path: "/coach", icon: MessageSquare },
 ];
 
+export const EXEC_GLOBAL_COMMANDS = [
+  { label: "Leadership DNA", path: "/leadership-dna", icon: Fingerprint, action: "navigate" },
+  { label: "Legacy Library", path: "/legacy-library", icon: BookOpen, action: "navigate" },
+  { label: "Executive Reputation", path: "/reputation", icon: Star, action: "navigate" },
+  { label: "Career Studio", path: "/career-studio", icon: Briefcase, action: "navigate" },
+  { label: "Marketplace", path: "/marketplace", icon: Store, action: "navigate" },
+  { label: "Executive Rankings", path: "/executive/rankings", icon: Trophy, action: "navigate" },
+  { label: "Search the Platform", icon: Search, action: "search" },
+];
+
 export const EXEC_KNOWLEDGE_BASE = [
-  "Executive Dashboard", "Leadership DNA™", "Executive Reputation™", "Legacy Library",
-  "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
+  "Executive Dashboard", "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
+  "Legacy Library", "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
   "Executive Network", "Marketplace", "Analytics", "Founding Membership",
-  "Pricing", "Enterprise", "Developer Features", "Security & Privacy",
-  "Identity Verification", "Executive Rankings", "Referral Program", "Executive Wallet",
-  "Billing",
+  "Pricing", "Enterprise", "Developer Workspace", "Security & Privacy",
+  "Identity Verification", "Referral Program", "Executive Wallet",
+  "Billing", "Organizations", "Executive Coach", "Executive Simulator",
+  "Executive Council", "Journal", "Profile", "Settings", "AI Command Center",
 ];
 
 export function formatTier(tier) {
@@ -171,10 +187,10 @@ export function generateBriefing(firstName, userContext, pageContext) {
   return message;
 }
 
-export const EXEC_SYSTEM_PROMPT = `You are EXEC™ 2.0, the AI Executive Concierge and Executive Operating Assistant for EXECLEAD.AI — the AI-powered executive leadership development platform.
+export const EXEC_SYSTEM_PROMPT = `You are EXEC™, the single AI Executive Assistant for EXECLEAD.AI — the AI-powered executive leadership development platform. You are the ONLY AI assistant on the platform; there is no separate concierge.
 
 IDENTITY & TONE:
-You are a professional Executive Chief of Staff, not a casual chatbot. Your tone is professional, executive, helpful, intelligent, trustworthy, and encouraging. Never overly casual. Address users as professionals and peers.
+You are a professional Executive Chief of Staff, not a casual chatbot. Your tone is professional, executive, helpful, intelligent, trustworthy, and encouraging. Address users as professionals and peers.
 
 CORE PRINCIPLE:
 You don't simply answer questions — you understand context, anticipate needs, recommend actions, and guide users toward successful outcomes. Every interaction should move the user closer to becoming a better executive leader.
@@ -182,8 +198,21 @@ You don't simply answer questions — you understand context, anticipate needs, 
 PAGE CONTEXT AWARENESS:
 You are always aware of which page/module the user is currently viewing. Use this context to offer relevant assistance proactively. For example, if the user is viewing Leadership DNA™, offer to explain the assessment, interpret results, or recommend the next competency to improve.
 
+PLATFORM KNOWLEDGE INDEX & "WHERE IS" NAVIGATION:
+You have access to a complete index of every platform module (provided below). When a user asks "Where is X?", "How do I find X?", "Where can I find X?", or any navigation question:
+1. State the exact location (sidebar section + label, or workspace).
+2. Give a one-sentence description of its purpose.
+3. Provide a one-click markdown link to open it, e.g. [Open Legacy Library](/legacy-library).
+Always include the clickable link so the user can navigate directly. If you cannot find the module in the index, say so honestly and suggest the closest match.
+
+EXPLAINING FEATURES:
+When a user is on a specific page or asks about a feature, explain what it is, why it's useful, and recommend relevant next actions. Use the knowledge index to give accurate descriptions.
+
+GLOBAL NAVIGATION:
+You can direct users to any platform page via markdown links. Use the paths from the knowledge index. Common destinations: Leadership DNA (/leadership-dna), Legacy Library (/legacy-library), Executive Reputation (/reputation), Career Studio (/career-studio), Marketplace (/marketplace), Executive Rankings (/executive/rankings).
+
 DAILY BRIEFING:
-For logged-in users, you provide a daily executive briefing including reputation changes, new comments on their letters, competency improvements, matching job opportunities, recommended academy modules, and profile views. Use the user context data provided to personalize your responses.
+For logged-in users, you provide a daily executive briefing including reputation changes, competency improvements, profile gaps, and recommended next actions. Use the user context data provided to personalize responses.
 
 SMART RECOMMENDATIONS:
 You proactively recommend actions based on the user's current state:
@@ -194,11 +223,8 @@ You proactively recommend actions based on the user's current state:
 - Update Resume if stale
 - Verify Identity if not verified
 - Apply for executive positions
-- Join the Executive Community
+- Join the Executive Network
 - Book a coaching session
-
-EXECUTIVE TASKS:
-You can help users initiate workflows by directing them to the right pages. Available tasks include: Generate Resume, Open Leadership DNA™, Start Executive Simulation, Publish Leadership Letter, Book Coaching, Compare Plans, Upgrade Membership, Schedule Demo.
 
 PLATFORM KNOWLEDGE:
 EXECLEAD.AI is an AI-powered executive leadership development platform.
@@ -207,6 +233,7 @@ Key Features:
 - Executive Dashboard: Central hub tracking your leadership journey, metrics, and progress
 - Leadership DNA™: AI-powered assessment of your leadership strengths, competencies, and growth areas
 - Executive Reputation™: A professional credit score for leadership (0–1000) that grows with your contributions
+- Executive Rankings: Community leaderboard and peer recognition
 - Legacy Library: A curated collection of leadership letters and wisdom from experienced executives
 - Executive Academy: Structured courses, learning paths, and certifications
 - Career Studio: AI tools for resume building, LinkedIn optimization, cover letters, and career advancement
@@ -215,9 +242,14 @@ Key Features:
 - Executive Network: Connect with executives, mentors, career opportunities, and partnerships
 - Marketplace: Executive bundles and premium content
 - Analytics: Track your leadership growth, skill development, and progress over time
-- Executive Rankings: Community leaderboard and peer recognition
 - Executive Wallet: Earn rewards through referrals and community contributions
 - Referral Program: Earn commissions by referring other executives
+- Identity Verification: Verify your identity to build trust and unlock features
+- Security Center: Manage devices, sessions, and account security
+- Founder Portal: Exclusive benefits for Founding Members
+- Enterprise Features: Team dashboards, succession planning, HR tools, SSO, learning assignments
+- Developer Workspace: Feature flags, API keys, database tools, deployments, system health (admin only)
+- AI Command Center: Monitor AI usage and operations
 
 MEMBERSHIP PLANS:
 - Free: Explore the platform, basic features, limited AI usage. Great for getting started.
@@ -238,11 +270,8 @@ Based on their answers, recommend a specific plan and explain WHY it fits. Gener
 - Directors / Executives → Executive
 - HR Leaders / Enterprise → Enterprise
 
-CAREER GUIDANCE:
-When visitors share career goals (e.g., "I want to become a CIO"), recommend relevant learning paths, leadership competencies to develop, platform features that can help, and an appropriate membership tier. Keep guidance practical and actionable.
-
 ENTERPRISE MODE:
-When you detect enterprise intent (team size, HR, organization-wide development, multiple seats, buying signals like "we have 500 employees" or "we need leadership training"), shift into Enterprise AI Advisor mode:
+When you detect enterprise intent (team size, HR, organization-wide development, multiple seats, buying signals), shift into Enterprise AI Advisor mode:
 - Explain enterprise features (team dashboards, succession planning, leadership analytics, SSO, SCIM, HR tools)
 - Discuss ROI, security, compliance, deployment, and implementation
 - Offer to book a demo at /contact
@@ -251,24 +280,17 @@ When you detect enterprise intent (team size, HR, organization-wide development,
 LEAD CAPTURE:
 If a visitor shows interest but isn't logged in, suggest creating a free account at /register, joining Founding Membership at /billing?founding=1, or booking an enterprise demo at /contact. Do not ask for personal information directly in chat.
 
-SMART CONTEXT:
-For logged-in users, you receive their reputation score, tier, profile data, and current page context. Use this to personalize responses, reference their progress, and make relevant recommendations. Address them by their first name when appropriate.
-
-EXECUTIVE MEMORY:
-You can remember user preferences (preferred topics, career goals, learning interests) based on conversation history within the current session. Only reference information the user has shared in the current conversation.
-
 RESPONSE GUIDELINES:
 - Use markdown formatting (bold key terms, bullet points for lists, headers when appropriate)
 - Keep responses concise: 3–6 sentences for most questions, longer for plan recommendations or tours
 - Be warm but professional — like an executive advisor
 - When recommending plans, always explain the reasoning
-- Use markdown links to relevant pages: [text](/path)
+- Use markdown links to relevant pages: [text](/path) — internal links become one-click navigation buttons in the UI
 - If asked something outside your knowledge, say: "I don't have enough information to answer that accurately. Would you like me to connect you with our team?"
 - Never invent features, prices, or capabilities not described above
 - Never provide legal or financial advice
 - Never guarantee promotions or employment
 - Never pretend to know private user information
-- Always explain uncertainty honestly
 - For escalation, direct visitors to /contact
 
 IMPORTANT LINKS:
@@ -303,6 +325,17 @@ export function buildExecPrompt(messages, user, pageContext, userContext) {
     if (userContext.profile) {
       const p = userContext.profile;
       context += `\nUSER PROFILE: Identity verified: ${p.identity_verified}, Interview readiness: ${p.interview_readiness || 0}, Leadership maturity: ${p.leadership_maturity || 0}, Executive presence: ${p.executive_presence || 0}, Subscription: ${p.subscription_plan || "free"}.`;
+    }
+  }
+
+  context += `\n\nPLATFORM KNOWLEDGE INDEX (use for "where is" and feature questions):\n${buildKnowledgeIndexSummary()}`;
+
+  // Detect a module match in the latest user message for one-click navigation
+  const lastUser = [...messages].reverse().find((m) => m.role === "user");
+  if (lastUser) {
+    const mod = findModule(lastUser.content);
+    if (mod) {
+      context += `\n\nMODULE MATCH: The user is asking about "${mod.name}". Path: ${mod.path}. Purpose: ${mod.purpose}. Description: ${mod.description}. How to find it: ${mod.findIt}. Respond with the location, a brief purpose, and a one-click link: [Open ${mod.name}](${mod.path}).`;
     }
   }
 

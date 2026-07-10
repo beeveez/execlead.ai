@@ -1,65 +1,38 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useExecContext } from "@/hooks/useExecContext";
+import { useExecConcierge } from "@/lib/ExecConciergeContext";
 import { useAuth } from "@/lib/AuthContext";
-import { callAI } from "@/lib/ai";
-import { Sparkles, Send, X, Minus, MapPin } from "lucide-react";
+import { Sparkles, Send, X, Minus, MapPin, Trash2, Search } from "lucide-react";
 import {
-  EXEC_WELCOME_MESSAGE,
   EXEC_QUICK_ACTIONS,
   EXEC_TASKS,
+  EXEC_GLOBAL_COMMANDS,
   getSuggestedQuestions,
-  generateBriefing,
-  buildExecPrompt,
 } from "@/lib/execConciergeConfig";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 
-const STORAGE_KEY = "exec_concierge_open";
-const GREETED_KEY = "exec_concierge_greeted";
-
 export default function ExecConcierge() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const { user } = useAuth();
+  const {
+    isOpen,
+    open,
+    close,
+    toggle,
+    messages,
+    loading,
+    sendMessage,
+    clearConversation,
+    pageContext,
+    userContext,
+  } = useExecConcierge();
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [hasGreeted, setHasGreeted] = useState(false);
+  const [showCommands, setShowCommands] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
-
-  const { user } = useAuth();
-  const { pageContext, userContext, fetchUserContext } = useExecContext();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "true") setIsOpen(true);
-    if (localStorage.getItem(GREETED_KEY) === "true") setHasGreeted(true);
-  }, []);
-
-  const initConversation = useCallback(async () => {
-    if (user) {
-      setLoading(true);
-      const context = await fetchUserContext();
-      setLoading(false);
-      const firstName = user.full_name?.split(" ")[0];
-      const briefing = generateBriefing(firstName, context, pageContext);
-      setMessages([{ role: "assistant", content: briefing }]);
-    } else {
-      setMessages([{ role: "assistant", content: EXEC_WELCOME_MESSAGE }]);
-    }
-    base44.analytics.track({ eventName: "exec_concierge_opened" });
-  }, [user, fetchUserContext, pageContext]);
-
-  useEffect(() => {
-    if (isOpen && !hasGreeted) {
-      setHasGreeted(true);
-      localStorage.setItem(GREETED_KEY, "true");
-      initConversation();
-    }
-  }, [isOpen, hasGreeted, initConversation]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -73,61 +46,28 @@ export default function ExecConcierge() {
     }
   }, [isOpen]);
 
-  const toggleOpen = () => {
-    const next = !isOpen;
-    setIsOpen(next);
-    localStorage.setItem(STORAGE_KEY, String(next));
-  };
-
-  const handleSend = async (text) => {
+  const handleSend = (text) => {
     const content = (text ?? input).trim();
-    if (!content || loading) return;
+    if (!content) return;
     setInput("");
-
-    const newMessages = [...messages, { role: "user", content }];
-    setMessages(newMessages);
-    setLoading(true);
-
-    base44.analytics.track({
-      eventName: "exec_concierge_message_sent",
-      properties: { length: content.length },
-    });
-
-    try {
-      const prompt = buildExecPrompt(newMessages, user, pageContext, userContext);
-      const res = await callAI("exec_concierge", { prompt });
-      const response =
-        typeof res === "string"
-          ? res
-          : res?.response || res?.text || "I apologize, I couldn't generate a response. Please try again.";
-      setMessages((prev) => [...prev, { role: "assistant", content: response }]);
-
-      if (/professional|executive|enterprise|founding/i.test(response) && /recommend|suggest|right for you|best fit|ideal/i.test(response)) {
-        base44.analytics.track({ eventName: "exec_concierge_plan_recommended" });
-      }
-    } catch (e) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "I apologize, I'm having trouble responding right now. Please try again in a moment, or [contact our team](/contact).",
-        },
-      ]);
-    }
-    setLoading(false);
+    sendMessage(content);
   };
 
-  const handleQuickAction = (action) => {
+  const handleCommand = (cmd) => {
     base44.analytics.track({
-      eventName: "exec_concierge_quick_action",
-      properties: { action: action.label },
+      eventName: "exec_concierge_command",
+      properties: { command: cmd.label },
     });
-    if (action.focusOnly) {
-      inputRef.current?.focus();
+    if (cmd.action === "search") {
+      setShowCommands(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
+      setInput("Find me ");
       return;
     }
-    handleSend(action.message);
+    if (cmd.path) {
+      setShowCommands(false);
+      navigate(cmd.path);
+    }
   };
 
   const handleTask = (path) => {
@@ -146,6 +86,18 @@ export default function ExecConcierge() {
     if (rec.path) navigate(rec.path);
   };
 
+  const handleQuickAction = (action) => {
+    base44.analytics.track({
+      eventName: "exec_concierge_quick_action",
+      properties: { action: action.label },
+    });
+    if (action.focusOnly) {
+      inputRef.current?.focus();
+      return;
+    }
+    sendMessage(action.message);
+  };
+
   const showWelcome = !loading && messages.length <= 1;
   const showSuggestions =
     !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
@@ -161,9 +113,9 @@ export default function ExecConcierge() {
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            onClick={toggleOpen}
+            onClick={open}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30 flex items-center justify-center"
-            aria-label="Open EXEC AI Concierge"
+            aria-label="Open EXEC AI Assistant"
           >
             <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-20" />
             <Sparkles size={24} className="text-white relative z-10" />
@@ -186,7 +138,7 @@ export default function ExecConcierge() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground text-sm">EXEC™</h3>
-                <p className="text-xs text-muted-foreground">AI Executive Concierge</p>
+                <p className="text-xs text-muted-foreground">AI Executive Assistant</p>
               </div>
               {pageContext && pageContext.module !== "Home" && (
                 <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-medium text-amber-600 dark:text-amber-400 max-w-[120px] truncate">
@@ -195,23 +147,59 @@ export default function ExecConcierge() {
                 </div>
               )}
               <button
-                onClick={toggleOpen}
+                onClick={() => setShowCommands((s) => !s)}
+                className={`p-2 rounded-lg hover:bg-muted transition-colors ${
+                  showCommands ? "text-amber-500 bg-amber-500/10" : "text-muted-foreground hover:text-foreground"
+                }`}
+                aria-label="Toggle commands"
+                title="Global commands"
+              >
+                <Search size={18} />
+              </button>
+              <button
+                onClick={clearConversation}
                 className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Minimize chat"
+                aria-label="Clear conversation"
+                title="Clear conversation"
+              >
+                <Trash2 size={16} />
+              </button>
+              <button
+                onClick={toggle}
+                className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Minimize"
               >
                 <Minus size={18} />
               </button>
               <button
-                onClick={() => {
-                  setIsOpen(false);
-                  localStorage.setItem(STORAGE_KEY, "false");
-                }}
+                onClick={close}
                 className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Close chat"
+                aria-label="Close"
               >
                 <X size={18} />
               </button>
             </div>
+
+            {/* Global Commands — always accessible */}
+            {showCommands && (
+              <div className="px-4 py-3 border-b border-border bg-muted/50 flex-shrink-0">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                  Global Commands
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {EXEC_GLOBAL_COMMANDS.map((cmd) => (
+                    <button
+                      key={cmd.label}
+                      onClick={() => handleCommand(cmd)}
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-card hover:bg-accent border border-border text-xs font-medium text-foreground transition-colors text-left"
+                    >
+                      <cmd.icon size={13} className="text-amber-500 flex-shrink-0" />
+                      <span className="truncate">{cmd.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
               {messages.map((m, i) => (

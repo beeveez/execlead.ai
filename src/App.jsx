@@ -12,6 +12,8 @@ import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
+import ExecConcierge from '@/components/concierge/ExecConcierge';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 import Login from '@/pages/Login';
@@ -148,7 +150,6 @@ const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
 import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
-import Concierge from '@/pages/Concierge';
 import ExecAdmin from '@/pages/ExecAdmin';
 import Feedback from '@/pages/Feedback';
 import PublicProfile from '@/pages/PublicProfile';
@@ -322,7 +323,6 @@ const AuthenticatedApp = () => {
           <Route path="/executive/rankings" element={<ExecutiveRankings />} />
           <Route path="/identity-transfer" element={<IdentityTransfer />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
-          <Route path="/concierge" element={<Concierge />} />
           <Route path="/exec-admin" element={<ExecAdmin />} />
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
@@ -346,7 +346,10 @@ function App() {
         <ErrorBoundary>
           <Router>
             <ScrollToTop />
-            <AuthenticatedApp />
+            <ExecConciergeProvider>
+              <AuthenticatedApp />
+              <ExecConcierge />
+            </ExecConciergeProvider>
           </Router>
           <Toaster />
         </ErrorBoundary>

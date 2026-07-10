@@ -1,0 +1,393 @@
+import {
+  LayoutDashboard, Fingerprint, Star, Trophy, BookOpen, Briefcase,
+  FileText, GraduationCap, Store, Users, Wallet, BadgeCheck,
+  CreditCard, Building2, Code2, Brain, MessageSquare, Network,
+  BarChart3, Shield, Crown, Gift, Settings as SettingsIcon,
+  UserCircle, Cpu, PenLine,
+} from "lucide-react";
+
+/**
+ * EXEC™ Platform Knowledge Index
+ * -------------------------------
+ * A single source of truth for every module on EXECLEAD.AI.
+ * Powers "Where is X?" questions, global commands, and context-aware help.
+ */
+export const EXEC_KNOWLEDGE_INDEX = [
+  {
+    id: "dashboard",
+    name: "Executive Dashboard",
+    aliases: ["dashboard", "home", "main", "overview", "hub"],
+    path: "/dashboard",
+    category: "Core",
+    icon: LayoutDashboard,
+    description: "Your central hub tracking the entire leadership journey — metrics, progress, recent activity, and AI recommendations.",
+    purpose: "Get a bird's-eye view of your leadership development and see what to work on next.",
+    keyFeatures: ["Progress tracking", "Recent simulations", "AI recommendations", "Quick stats"],
+    findIt: "Sidebar → Platform → Dashboard, or click the EXECLEAD.AI logo.",
+  },
+  {
+    id: "leadership-dna",
+    name: "Leadership DNA™",
+    aliases: ["leadership dna", "dna", "leadership assessment", "leadership strengths", "competency", "competencies"],
+    path: "/leadership-dna",
+    category: "Insights",
+    icon: Fingerprint,
+    description: "An AI-powered assessment that maps your leadership strengths, competencies, and growth areas into a personalized profile.",
+    purpose: "Understand your unique leadership fingerprint and identify which competencies to develop next.",
+    keyFeatures: ["Competency radar", "Strength & gap analysis", "Personalized growth recommendations"],
+    findIt: "Sidebar → Insights → Leadership DNA.",
+  },
+  {
+    id: "reputation",
+    name: "Executive Reputation™",
+    aliases: ["reputation", "executive reputation", "reputation score", "credit score", "professional score"],
+    path: "/reputation",
+    category: "Insights",
+    icon: Star,
+    description: "A professional credit score for leadership (0–1000) that grows with your contributions, coaching, and community activity.",
+    purpose: "Build a portable, verifiable measure of your leadership credibility.",
+    keyFeatures: ["Multi-dimensional score", "Badges & achievements", "Tier progression", "AI improvement coaching"],
+    findIt: "Sidebar → Insights → Executive Reputation.",
+  },
+  {
+    id: "rankings",
+    name: "Executive Rankings",
+    aliases: ["rankings", "leaderboard", "ranking", "executive rankings", "top executives"],
+    path: "/executive/rankings",
+    category: "Insights",
+    icon: Trophy,
+    description: "Community leaderboards and peer recognition showcasing top executives by reputation, referrals, and contributions.",
+    purpose: "See how you compare to peers and earn recognition for your leadership growth.",
+    keyFeatures: ["Reputation leaderboard", "Referral rankings", "Share analytics", "Podium highlights"],
+    findIt: "Sidebar → Insights → Executive Rankings.",
+  },
+  {
+    id: "legacy-library",
+    name: "Legacy Library",
+    aliases: ["legacy library", "legacy", "letters", "leadership letters", "legacy letter"],
+    path: "/legacy-library",
+    category: "Insights",
+    icon: BookOpen,
+    description: "A curated collection of leadership letters and wisdom published by experienced executives, with AI-assisted editorial review.",
+    purpose: "Learn from real executive experiences and publish your own leadership wisdom for the community.",
+    keyFeatures: ["Published leadership letters", "Comments & reactions", "AI editorial review", "Collections & featured content"],
+    findIt: "Sidebar → Insights → Legacy Library. Use 'Write Letter' to publish your own.",
+  },
+  {
+    id: "career-studio",
+    name: "Career Studio",
+    aliases: ["career studio", "career", "career tools", "resume builder", "linkedin"],
+    path: "/career-studio",
+    category: "Career",
+    icon: Briefcase,
+    description: "An AI-powered suite for resume building, LinkedIn optimization, cover letters, executive bios, and achievement writing.",
+    purpose: "Advance your career with polished, AI-enhanced executive application materials.",
+    keyFeatures: ["Resume builder", "LinkedIn optimizer", "Cover letters", "Executive bio", "Achievement writer"],
+    findIt: "Sidebar → Career → Career Studio.",
+  },
+  {
+    id: "resume",
+    name: "Resume AI",
+    aliases: ["resume", "resume ai", "cv", "resume intelligence", "resume analysis"],
+    path: "/resume",
+    category: "Career",
+    icon: FileText,
+    description: "AI-powered resume analysis, enhancement, skill-gap detection, and interview preparation.",
+    purpose: "Turn your resume into an executive-grade document and identify skills to develop.",
+    keyFeatures: ["Resume upload & analysis", "Skill-gap analysis", "Truth Engine report", "Learning roadmap", "Version compare"],
+    findIt: "Sidebar → Career → Resume AI.",
+  },
+  {
+    id: "academy",
+    name: "Executive Academy",
+    aliases: ["academy", "courses", "learning", "lessons", "executive academy", "training", "certifications"],
+    path: "/academy",
+    category: "Platform",
+    icon: GraduationCap,
+    description: "Structured courses, learning paths, and certifications covering leadership, strategy, and executive skills.",
+    purpose: "Build executive capabilities through guided, AI-coached learning journeys.",
+    keyFeatures: ["Course catalog", "AI coach per lesson", "Quizzes & certificates", "Learning path recommendations"],
+    findIt: "Sidebar → Platform → Academy.",
+  },
+  {
+    id: "marketplace",
+    name: "Marketplace",
+    aliases: ["marketplace", "bundles", "executive bundles", "premium content", "buy"],
+    path: "/marketplace",
+    category: "Platform",
+    icon: Store,
+    description: "Executive bundles, premium content collections, and company intelligence packages.",
+    purpose: "Discover premium learning bundles and targeted intelligence to accelerate your goals.",
+    keyFeatures: ["Executive bundles", "Company collections", "AI content tools", "One-click purchase"],
+    findIt: "Sidebar → Platform → Marketplace.",
+  },
+  {
+    id: "network",
+    name: "Executive Network",
+    aliases: ["network", "executive network", "connections", "mentors", "mentorship", "community", "events"],
+    path: "/network",
+    category: "Network",
+    icon: Users,
+    description: "Connect with executives, find mentors, join communities, attend events, and explore career opportunities and partnerships.",
+    purpose: "Build the relationships that accelerate executive growth and opportunity.",
+    keyFeatures: ["Executive directory", "Discussions & circles", "Mentorship", "Events", "Careers & partnerships"],
+    findIt: "Sidebar → Network → Executive Network.",
+  },
+  {
+    id: "wallet",
+    name: "Executive Wallet",
+    aliases: ["wallet", "executive wallet", "earnings", "commissions", "rewards", "withdrawal"],
+    path: "/wallet",
+    category: "Account",
+    icon: Wallet,
+    description: "Earn rewards through referrals and community contributions, track balances, and request withdrawals.",
+    purpose: "Monetize your network and contributions to the EXECLEAD.AI community.",
+    keyFeatures: ["Balance breakdown", "Transaction history", "Withdrawals", "Founder bonuses", "Ambassador progress"],
+    findIt: "Sidebar → Account → Executive Wallet.",
+  },
+  {
+    id: "identity-verification",
+    name: "Identity Verification",
+    aliases: ["identity verification", "verify identity", "verification", "verified", "trust", "kyc"],
+    path: "/identity-verification",
+    category: "Account",
+    icon: BadgeCheck,
+    description: "Verify your identity to build trust, unlock additional platform features, and earn a verification badge.",
+    purpose: "Establish authentic executive credibility on the platform.",
+    keyFeatures: ["Document upload", "Trust score", "Verification history", "Verified badge"],
+    findIt: "Sidebar → Account → Identity Verification.",
+  },
+  {
+    id: "billing",
+    name: "Billing",
+    aliases: ["billing", "subscription", "payment", "plan", "upgrade", "invoice"],
+    path: "/billing",
+    category: "Account",
+    icon: CreditCard,
+    description: "Manage your subscription, view payment history, upgrade plans, and access founding member pricing.",
+    purpose: "Control your membership and billing in one place.",
+    keyFeatures: ["Current plan", "Payment history", "Plan comparison", "Coupon input", "Founding member benefits"],
+    findIt: "Sidebar → Account → Billing.",
+  },
+  {
+    id: "organizations",
+    name: "Organizations",
+    aliases: ["organizations", "organization", "org admin", "company admin", "manage organization"],
+    path: "/developer/organizations",
+    category: "Administration",
+    icon: Building2,
+    description: "Platform administration for managing organizations, memberships, and enterprise accounts.",
+    purpose: "Administer enterprise organizations and their configurations.",
+    keyFeatures: ["Organization directory", "Membership management", "Audit logs"],
+    findIt: "Platform/Developer workspace → Organizations (admin only).",
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise Features",
+    aliases: ["enterprise", "team", "organization dashboard", "hr", "succession", "sso", "team dashboard"],
+    path: "/enterprise",
+    category: "Enterprise",
+    icon: Building2,
+    description: "Team dashboards, succession planning, HR tools, leadership analytics, SSO, and learning assignments for organizations.",
+    purpose: "Develop leadership capabilities across your entire organization.",
+    keyFeatures: ["Team dashboard", "Succession planning", "HR dashboard", "Promotion readiness", "Learning assignments", "SSO"],
+    findIt: "Switch to the Enterprise workspace → Enterprise Dashboard.",
+  },
+  {
+    id: "developer",
+    name: "Developer Workspace",
+    aliases: ["developer", "developer workspace", "engineering", "feature flags", "api keys", "database", "deployments", "guardian"],
+    path: "/developer",
+    category: "Developer",
+    icon: Code2,
+    description: "Engineering workspace for feature flags, API keys, database tools, deployments, system health, and the Guardian™ consistency engine.",
+    purpose: "Operate and maintain the platform infrastructure (admin/developer only).",
+    keyFeatures: ["Feature flags", "API management", "Database explorer", "Deployment center", "System health", "Guardian™"],
+    findIt: "Switch to the Developer workspace (admin/developer only).",
+  },
+  {
+    id: "coach",
+    name: "Executive Coach",
+    aliases: ["coach", "coaching", "executive coach", "ai coach", "mentoring session"],
+    path: "/coach",
+    category: "Platform",
+    icon: MessageSquare,
+    description: "One-on-one AI executive coaching sessions tailored to your goals, competencies, and growth areas.",
+    purpose: "Get personalized, on-demand executive guidance.",
+    keyFeatures: ["AI coaching sessions", "Goal-aligned guidance", "Session history"],
+    findIt: "Sidebar → Platform → Executive Coach.",
+  },
+  {
+    id: "simulator",
+    name: "Executive Simulator",
+    aliases: ["simulator", "simulation", "executive simulator", "practice", "scenario"],
+    path: "/simulator",
+    category: "Platform",
+    icon: Brain,
+    description: "Practice high-stakes executive decisions through AI-driven realistic scenarios with performance scoring.",
+    purpose: "Build decision-making confidence in a safe, repeatable environment.",
+    keyFeatures: ["Realistic scenarios", "Performance scoring", "Debrief & feedback", "Session history"],
+    findIt: "Sidebar → Platform → Executive Simulator.",
+  },
+  {
+    id: "council",
+    name: "Executive Council",
+    aliases: ["council", "executive council", "debate", "decision", "advisory"],
+    path: "/council",
+    category: "Platform",
+    icon: Network,
+    description: "An AI advisory council that debates your strategic decisions from multiple executive perspectives.",
+    purpose: "Pressure-test decisions before you make them.",
+    keyFeatures: ["Multi-persona debate", "Risk matrix", "Decision brief", "Voting summary"],
+    findIt: "Sidebar → Platform → Executive Council.",
+  },
+  {
+    id: "companies",
+    name: "Companies Intelligence",
+    aliases: ["companies", "company", "company intelligence", "company library", "interview prep", "target company"],
+    path: "/companies",
+    category: "Career",
+    icon: Building2,
+    description: "Deep insights into companies — leadership culture, interview preparation, and career targeting intelligence.",
+    purpose: "Research target companies and prepare for executive interviews.",
+    keyFeatures: ["Company profiles", "Leadership culture insights", "Interview prep", "Compare companies", "Natural-language search"],
+    findIt: "Sidebar → Career → Companies (also public at /company-library).",
+  },
+  {
+    id: "analytics",
+    name: "Analytics",
+    aliases: ["analytics", "metrics", "leadership analytics", "growth", "progress analytics"],
+    path: "/analytics",
+    category: "Insights",
+    icon: BarChart3,
+    description: "Track your leadership growth, skill development, and progress over time with rich visualizations.",
+    purpose: "Measure your development and spot trends in your leadership capabilities.",
+    keyFeatures: ["Growth trends", "Skill development charts", "Progress benchmarks"],
+    findIt: "Sidebar → Insights → Analytics.",
+  },
+  {
+    id: "security",
+    name: "Security Center",
+    aliases: ["security", "security center", "devices", "sessions", "access control", "compliance"],
+    path: "/security",
+    category: "Account",
+    icon: Shield,
+    description: "Manage devices, sessions, access control, compliance, and review your account security posture.",
+    purpose: "Keep your executive account secure and compliant.",
+    keyFeatures: ["Device management", "Session manager", "Access control", "Compliance center", "Security audit log"],
+    findIt: "Sidebar → Account → Security Center.",
+  },
+  {
+    id: "founder",
+    name: "Founder Portal",
+    aliases: ["founder", "founder portal", "founding member", "founders", "founding"],
+    path: "/founder",
+    category: "Account",
+    icon: Crown,
+    description: "Exclusive portal for Founding Members — benefits, community, events, roadmap, referrals, rewards, certificates, and time capsule.",
+    purpose: "Enjoy your founding membership privileges and shape the platform's future.",
+    keyFeatures: ["Founder benefits", "Founder community", "Events", "Roadmap", "Rewards", "Certificates", "Time capsule"],
+    findIt: "Sidebar → Account → Founder Portal (founding members only).",
+  },
+  {
+    id: "referrals",
+    name: "Referral Program",
+    aliases: ["referrals", "referral", "refer", "invite", "commission", "ambassador"],
+    path: "/referrals",
+    category: "Account",
+    icon: Gift,
+    description: "Earn commissions by referring other executives, track your referrals, and monitor ambassador progress.",
+    purpose: "Grow the community and earn rewards for successful referrals.",
+    keyFeatures: ["Referral link", "Referral tracking", "Commission dashboard", "Ambassador tiers"],
+    findIt: "Sidebar → Account → Referrals.",
+  },
+  {
+    id: "settings",
+    name: "Settings",
+    aliases: ["settings", "preferences", "appearance", "account settings", "configuration"],
+    path: "/settings",
+    category: "Account",
+    icon: SettingsIcon,
+    description: "Configure your profile, privacy, appearance, notifications, and account preferences.",
+    purpose: "Personalize your EXECLEAD.AI experience.",
+    keyFeatures: ["Profile editing", "Privacy controls", "Appearance & theme", "Notifications"],
+    findIt: "Sidebar → Account → Settings.",
+  },
+  {
+    id: "profile",
+    name: "Profile",
+    aliases: ["profile", "my profile", "executive profile", "public profile"],
+    path: "/profile",
+    category: "Account",
+    icon: UserCircle,
+    description: "Your executive profile — personal info, experience, education, skills, target career, and public visibility.",
+    purpose: "Maintain the professional profile that powers your AI experience and public presence.",
+    keyFeatures: ["Experience & education", "Skills", "Target career", "Public profile", "Resume sync"],
+    findIt: "Sidebar → Account → Profile.",
+  },
+  {
+    id: "ai-command-center",
+    name: "AI Command Center",
+    aliases: ["ai command center", "command center", "ai usage", "ai operations", "tokens"],
+    path: "/ai-command-center",
+    category: "Platform",
+    icon: Cpu,
+    description: "Monitor your AI usage, model activity, token consumption, and operational insights across the platform.",
+    purpose: "Understand and optimize how you use EXECLEAD.AI's AI capabilities.",
+    keyFeatures: ["Usage analytics", "Model analytics", "Token tracking", "Health score"],
+    findIt: "Sidebar → Platform → AI Command Center.",
+  },
+  {
+    id: "journal",
+    name: "Executive Journal",
+    aliases: ["journal", "executive journal", "reflections", "leadership journal", "notes"],
+    path: "/journal",
+    category: "Career",
+    icon: PenLine,
+    description: "A private leadership journal for reflections, decisions, and growth notes over time.",
+    purpose: "Reflect on your leadership journey and track your thinking as it evolves.",
+    keyFeatures: ["Journal entries", "Reflection prompts", "Search & filter"],
+    findIt: "Sidebar → Career → Journal.",
+  },
+];
+
+/**
+ * Find the best-matching module for a natural-language query.
+ * Used to power "Where is X?" questions with one-click navigation.
+ */
+export function findModule(query) {
+  if (!query) return null;
+  const q = query.toLowerCase();
+  // Direct "where is" / "how do I find" detection
+  const whereMatch = q.match(/where(?:'s| is| can i find| do i find)?\s+(.*)/);
+  const findMatch = q.match(/how (?:do|can) i (?:find|get to|open|access)\s+(.*)/);
+  const target = (whereMatch?.[1] || findMatch?.[1] || q).replace(/[?.!]/g, "").trim();
+  if (!target) return null;
+
+  let best = null;
+  let bestScore = 0;
+  for (const mod of EXEC_KNOWLEDGE_INDEX) {
+    let score = 0;
+    const name = mod.name.toLowerCase().replace(/[™]/g, "");
+    if (q.includes(name)) score += 3;
+    for (const alias of mod.aliases) {
+      if (target.includes(alias) || alias.includes(target)) score += 2;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = mod;
+    }
+  }
+  return bestScore > 0 ? best : null;
+}
+
+/**
+ * Build a compact summary of the full knowledge index for injection into the LLM prompt.
+ */
+export function buildKnowledgeIndexSummary() {
+  return EXEC_KNOWLEDGE_INDEX.map((m) =>
+    `- ${m.name} (${m.path}): ${m.description} | Find it: ${m.findIt}`
+  ).join("\n");
+}
+
+export const EXEC_KNOWLEDGE_BASE = EXEC_KNOWLEDGE_INDEX.map((m) => m.name);

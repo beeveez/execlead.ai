@@ -149,6 +149,7 @@ import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import Concierge from '@/pages/Concierge';
+import ExecAdmin from '@/pages/ExecAdmin';
 import Feedback from '@/pages/Feedback';
 import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
@@ -322,6 +323,7 @@ const AuthenticatedApp = () => {
           <Route path="/identity-transfer" element={<IdentityTransfer />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
           <Route path="/concierge" element={<Concierge />} />
+          <Route path="/exec-admin" element={<ExecAdmin />} />
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
         </Route>

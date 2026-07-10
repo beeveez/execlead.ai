@@ -17,6 +17,7 @@ import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 import SimulationBanner from "@/components/developer/SimulationBanner";
 import GracePeriodBanner from "@/components/identity/GracePeriodBanner";
+import ExecConcierge from "@/components/concierge/ExecConcierge";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -134,6 +135,7 @@ export default function AppLayout() {
       </main>
       <MobileBottomNav />
       <DebugPanel />
+      <ExecConcierge />
     </div>);
 
 }

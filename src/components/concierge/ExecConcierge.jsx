@@ -1,11 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Sparkles, Send, X, Minus } from "lucide-react";
+import { useExecContext } from "@/hooks/useExecContext";
+import { useAuth } from "@/lib/AuthContext";
+import { callAI } from "@/lib/ai";
+import { Sparkles, Send, X, Minus, MapPin } from "lucide-react";
 import {
   EXEC_WELCOME_MESSAGE,
   EXEC_QUICK_ACTIONS,
+  EXEC_TASKS,
   getSuggestedQuestions,
+  generateBriefing,
   buildExecPrompt,
 } from "@/lib/execConciergeConfig";
 import ExecMessageBubble from "./ExecMessageBubble";
@@ -19,52 +25,48 @@ export default function ExecConcierge() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
   const [hasGreeted, setHasGreeted] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Load open/closed preference from local storage
+  const { user } = useAuth();
+  const { pageContext, userContext, fetchUserContext } = useExecContext();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === "true") setIsOpen(true);
     if (localStorage.getItem(GREETED_KEY) === "true") setHasGreeted(true);
   }, []);
 
-  // Smart context — check if visitor is logged in
-  useEffect(() => {
-    base44.auth.isAuthenticated().then(async (authed) => {
-      if (authed) {
-        try {
-          const u = await base44.auth.me();
-          setUser(u);
-        } catch {}
-      }
-    });
-  }, []);
+  const initConversation = useCallback(async () => {
+    if (user) {
+      setLoading(true);
+      const context = await fetchUserContext();
+      setLoading(false);
+      const firstName = user.full_name?.split(" ")[0];
+      const briefing = generateBriefing(firstName, context, pageContext);
+      setMessages([{ role: "assistant", content: briefing }]);
+    } else {
+      setMessages([{ role: "assistant", content: EXEC_WELCOME_MESSAGE }]);
+    }
+    base44.analytics.track({ eventName: "exec_concierge_opened" });
+  }, [user, fetchUserContext, pageContext]);
 
-  // Initialize welcome message when first opened
   useEffect(() => {
     if (isOpen && !hasGreeted) {
       setHasGreeted(true);
       localStorage.setItem(GREETED_KEY, "true");
-      const firstName = user?.full_name?.split(" ")[0];
-      const welcome = firstName
-        ? `Welcome back, ${firstName}. I'm **EXEC™**, your AI Executive Concierge. How can I help you advance your leadership journey today?`
-        : EXEC_WELCOME_MESSAGE;
-      setMessages([{ role: "assistant", content: welcome }]);
-      base44.analytics.track({ eventName: "exec_concierge_opened" });
+      initConversation();
     }
-  }, [isOpen, hasGreeted, user]);
+  }, [isOpen, hasGreeted, initConversation]);
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, loading]);
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 300);
@@ -92,18 +94,14 @@ export default function ExecConcierge() {
     });
 
     try {
-      const prompt = buildExecPrompt(newMessages, user);
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        model: "automatic",
-      });
+      const prompt = buildExecPrompt(newMessages, user, pageContext, userContext);
+      const res = await callAI("exec_concierge", { prompt });
       const response =
         typeof res === "string"
           ? res
           : res?.response || res?.text || "I apologize, I couldn't generate a response. Please try again.";
       setMessages((prev) => [...prev, { role: "assistant", content: response }]);
 
-      // Track plan recommendations
       if (/professional|executive|enterprise|founding/i.test(response) && /recommend|suggest|right for you|best fit|ideal/i.test(response)) {
         base44.analytics.track({ eventName: "exec_concierge_plan_recommended" });
       }
@@ -132,13 +130,29 @@ export default function ExecConcierge() {
     handleSend(action.message);
   };
 
-  const showQuickActions = messages.length <= 1 && !loading;
+  const handleTask = (path) => {
+    base44.analytics.track({
+      eventName: "exec_concierge_task",
+      properties: { path },
+    });
+    navigate(path);
+  };
+
+  const handleRecommendation = (rec) => {
+    base44.analytics.track({
+      eventName: "exec_concierge_recommendation",
+      properties: { label: rec.label },
+    });
+    if (rec.path) navigate(rec.path);
+  };
+
+  const showWelcome = !loading && messages.length <= 1;
   const showSuggestions =
     !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
+  const recommendations = userContext?.recommendations || [];
 
   return (
     <>
-      {/* Floating Button */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -157,7 +171,6 @@ export default function ExecConcierge() {
         )}
       </AnimatePresence>
 
-      {/* Chat Panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -167,7 +180,6 @@ export default function ExecConcierge() {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="fixed inset-x-0 bottom-0 top-16 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[400px] sm:h-[600px] z-50 bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Header */}
             <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-500/10 to-transparent border-b border-border flex-shrink-0">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Sparkles size={20} className="text-white" />
@@ -176,6 +188,12 @@ export default function ExecConcierge() {
                 <h3 className="font-bold text-foreground text-sm">EXEC™</h3>
                 <p className="text-xs text-muted-foreground">AI Executive Concierge</p>
               </div>
+              {pageContext && pageContext.module !== "Home" && (
+                <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-medium text-amber-600 dark:text-amber-400 max-w-[120px] truncate">
+                  <MapPin size={10} className="flex-shrink-0" />
+                  <span className="truncate">{pageContext.module}</span>
+                </div>
+              )}
               <button
                 onClick={toggleOpen}
                 className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -195,30 +213,76 @@ export default function ExecConcierge() {
               </button>
             </div>
 
-            {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
               {messages.map((m, i) => (
                 <ExecMessageBubble key={i} message={m} />
               ))}
               {loading && <ExecTypingIndicator />}
 
-              {/* Quick Actions — welcome state */}
-              {showQuickActions && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {EXEC_QUICK_ACTIONS.map((action) => (
-                    <button
-                      key={action.label}
-                      onClick={() => handleQuickAction(action)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted hover:bg-accent border border-border text-xs font-medium text-foreground transition-colors"
-                    >
-                      <action.icon size={14} className="text-amber-500" />
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
+              {showWelcome && !loading && (
+                <>
+                  {user ? (
+                    <>
+                      {recommendations.length > 0 && (
+                        <div className="space-y-2 pt-1">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                            Recommended Next Steps
+                          </p>
+                          {recommendations.map((rec) => (
+                            <button
+                              key={rec.label}
+                              onClick={() => handleRecommendation(rec)}
+                              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted hover:bg-accent border border-border text-sm text-foreground transition-colors text-left"
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                                  rec.priority === "high"
+                                    ? "bg-red-500"
+                                    : rec.priority === "medium"
+                                    ? "bg-amber-500"
+                                    : "bg-blue-500"
+                                }`}
+                              />
+                              {rec.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <div className="space-y-2 pt-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                          Quick Actions
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {EXEC_TASKS.map((task) => (
+                            <button
+                              key={task.label}
+                              onClick={() => handleTask(task.path)}
+                              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-muted hover:bg-accent border border-border text-[11px] font-medium text-foreground transition-colors"
+                            >
+                              <task.icon size={11} className="text-amber-500" />
+                              {task.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {EXEC_QUICK_ACTIONS.map((action) => (
+                        <button
+                          key={action.label}
+                          onClick={() => handleQuickAction(action)}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted hover:bg-accent border border-border text-xs font-medium text-foreground transition-colors"
+                        >
+                          <action.icon size={14} className="text-amber-500" />
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
 
-              {/* Rotating Suggestions — after each AI response */}
               {showSuggestions && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {getSuggestedQuestions(messages.length).map((q) => (
@@ -234,7 +298,6 @@ export default function ExecConcierge() {
               )}
             </div>
 
-            {/* Input */}
             <div className="p-3 border-t border-border bg-card flex-shrink-0">
               <div className="flex items-center gap-2 bg-muted border border-border rounded-xl px-3 py-2">
                 <input

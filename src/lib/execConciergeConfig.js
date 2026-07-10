@@ -1,4 +1,9 @@
-import { Sparkles, GitCompare, Map, Crown, Building2, MessageCircle } from "lucide-react";
+import {
+  Sparkles, GitCompare, Map, Crown, Building2, MessageCircle,
+  LayoutDashboard, Dna, Award, Briefcase, BookOpen, GraduationCap,
+  Building, Network, ShoppingBag, FileText, CreditCard, Settings,
+  Shield, BadgeCheck, Home, Play, PenLine, MessageSquare,
+} from "lucide-react";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -48,16 +53,155 @@ export function getSuggestedQuestions(messageCount) {
   return rotated.slice(0, 3);
 }
 
-export const EXEC_SYSTEM_PROMPT = `You are EXEC™, the AI Executive Concierge for EXECLEAD.AI — the AI-powered executive leadership development platform.
+export const ANONYMOUS_STARTERS = [
+  "What is EXECLEAD.AI?",
+  "Compare Membership Plans",
+  "Take Product Tour",
+  "Why is this different from ChatGPT?",
+  "Can this help me become an executive?",
+];
+
+export const AUTHENTICATED_STARTERS = [
+  "Continue my Leadership Journey",
+  "Improve Executive Reputation",
+  "Review Today's Recommendations",
+  "Recommend Learning",
+  "Improve My Resume",
+  "Prepare for Interview",
+];
+
+export const ENTERPRISE_STARTERS = [
+  "Enterprise Pricing",
+  "Security & Compliance",
+  "Organization Intelligence",
+  "Leadership Analytics",
+  "Book Enterprise Demo",
+];
+
+export const PAGE_CONTEXT_MAP = [
+  { path: "/dashboard", module: "Executive Dashboard", icon: LayoutDashboard, prompt: "Would you like an overview of your leadership journey or today's recommendations?" },
+  { path: "/leadership-dna", module: "Leadership DNA™", icon: Dna, prompt: "Would you like me to explain how this assessment works, interpret your results, or recommend your next competency to improve?" },
+  { path: "/reputation", module: "Executive Reputation™", icon: Award, prompt: "I can explain how your score is calculated, recommend ways to improve it, or show what you need to reach the next reputation tier." },
+  { path: "/career-studio", module: "Career Studio", icon: Briefcase, prompt: "I can help optimize your executive resume, prepare for interviews, or recommend career opportunities." },
+  { path: "/resume", module: "Resume AI", icon: FileText, prompt: "I can help analyze your resume, suggest improvements, or prepare you for interviews." },
+  { path: "/legacy-library", module: "Legacy Library", icon: BookOpen, prompt: "Would you like help writing your first Leadership Letter or reviewing one before publishing?" },
+  { path: "/academy", module: "Executive Academy", icon: GraduationCap, prompt: "I can recommend learning paths, explain course content, or help you choose your next module." },
+  { path: "/companies", module: "Companies Intelligence", icon: Building, prompt: "I can provide insights on company leadership culture, interview preparation, or career targeting." },
+  { path: "/company-library", module: "Companies Intelligence", icon: Building, prompt: "I can provide insights on company leadership culture, interview preparation, or career targeting." },
+  { path: "/network", module: "Executive Network", icon: Network, prompt: "I can help you connect with executives, find mentors, or explore career opportunities." },
+  { path: "/marketplace", module: "Marketplace", icon: ShoppingBag, prompt: "Would you like me to recommend a mentor or executive bundle?" },
+  { path: "/billing", module: "Billing", icon: CreditCard, prompt: "I can explain your current plan, help you compare options, or assist with billing questions." },
+  { path: "/settings", module: "Settings", icon: Settings, prompt: "I can help you configure your profile, privacy settings, or account preferences." },
+  { path: "/security", module: "Security Center", icon: Shield, prompt: "I can explain our security features, help you manage devices, or review your account security." },
+  { path: "/identity-verification", module: "Identity Verification", icon: BadgeCheck, prompt: "Identity verification builds trust and unlocks additional platform features. Would you like to start the verification process?" },
+  { path: "/enterprise", module: "Enterprise Dashboard", icon: Building2, prompt: "I can explain enterprise features, help with team management, or schedule a consultation." },
+  { path: "/founders", module: "Founding Membership", icon: Crown, prompt: "Founding Membership is a limited-time lifetime offering. Would you like to learn about the benefits or reserve your spot?" },
+  { path: "/pricing", module: "Pricing", icon: CreditCard, prompt: "I can help you compare plans, explain pricing, or recommend the right membership for you." },
+  { path: "/", module: "Home", icon: Home, prompt: null },
+];
+
+export function matchPageContext(pathname) {
+  let bestMatch = null;
+  let bestLength = 0;
+  for (const ctx of PAGE_CONTEXT_MAP) {
+    if (pathname.startsWith(ctx.path) && ctx.path.length > bestLength) {
+      bestMatch = ctx;
+      bestLength = ctx.path.length;
+    }
+  }
+  return bestMatch;
+}
+
+export const EXEC_TASKS = [
+  { label: "Leadership DNA™", path: "/leadership-dna", icon: Dna },
+  { label: "Simulation", path: "/simulator", icon: Play },
+  { label: "Write Letter", path: "/legacy-library/new", icon: PenLine },
+  { label: "Update Resume", path: "/resume", icon: FileText },
+  { label: "Reputation", path: "/reputation", icon: Award },
+  { label: "Academy", path: "/academy", icon: GraduationCap },
+  { label: "Compare Plans", path: "/compare-plans", icon: GitCompare },
+  { label: "Coaching", path: "/coach", icon: MessageSquare },
+];
+
+export const EXEC_KNOWLEDGE_BASE = [
+  "Executive Dashboard", "Leadership DNA™", "Executive Reputation™", "Legacy Library",
+  "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
+  "Executive Network", "Marketplace", "Analytics", "Founding Membership",
+  "Pricing", "Enterprise", "Developer Features", "Security & Privacy",
+  "Identity Verification", "Executive Rankings", "Referral Program", "Executive Wallet",
+  "Billing",
+];
+
+export function formatTier(tier) {
+  if (!tier) return "New Member";
+  return tier.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export function generateBriefing(firstName, userContext, pageContext) {
+  const greeting = firstName ? `Welcome back, ${firstName}.` : "Welcome back.";
+  const insights = [];
+
+  if (userContext?.reputation) {
+    const rep = userContext.reputation;
+    insights.push(`Your Executive Reputation is **${rep.reputation_score}** (${formatTier(rep.reputation_tier)})`);
+    if (rep.reputation_trend === "up") {
+      insights.push("Your reputation trend is **rising** 📈");
+    }
+  } else {
+    insights.push("Start by calculating your **Executive Reputation™** to unlock personalized insights");
+  }
+
+  if (userContext?.profile) {
+    const p = userContext.profile;
+    if (p.sessions_completed > 0) {
+      insights.push(`You've completed **${p.sessions_completed}** coaching session${p.sessions_completed > 1 ? "s" : ""}`);
+    }
+    if (!p.identity_verified) {
+      insights.push("⚠️ Your identity isn't verified yet — [verify now](/identity-verification)");
+    }
+  }
+
+  let message = `${greeting}\n\nHere's today's executive briefing:\n\n${insights.map((i) => `• ${i}`).join("\n")}`;
+
+  if (pageContext?.prompt) {
+    message += `\n\n${pageContext.prompt}`;
+  }
+
+  message += "\n\nHow can I help you advance your leadership journey today?";
+  return message;
+}
+
+export const EXEC_SYSTEM_PROMPT = `You are EXEC™ 2.0, the AI Executive Concierge and Executive Operating Assistant for EXECLEAD.AI — the AI-powered executive leadership development platform.
 
 IDENTITY & TONE:
-You are a professional executive advisor, not a casual chatbot. Your tone is professional, executive, helpful, intelligent, trustworthy, and encouraging. Never overly casual. Address visitors as professionals and peers.
+You are a professional Executive Chief of Staff, not a casual chatbot. Your tone is professional, executive, helpful, intelligent, trustworthy, and encouraging. Never overly casual. Address users as professionals and peers.
 
-YOUR MISSION:
-Educate visitors about EXECLEAD.AI, guide them to the right membership, qualify enterprise prospects, and help them get started. You are the intelligent front door to the platform.
+CORE PRINCIPLE:
+You don't simply answer questions — you understand context, anticipate needs, recommend actions, and guide users toward successful outcomes. Every interaction should move the user closer to becoming a better executive leader.
+
+PAGE CONTEXT AWARENESS:
+You are always aware of which page/module the user is currently viewing. Use this context to offer relevant assistance proactively. For example, if the user is viewing Leadership DNA™, offer to explain the assessment, interpret results, or recommend the next competency to improve.
+
+DAILY BRIEFING:
+For logged-in users, you provide a daily executive briefing including reputation changes, new comments on their letters, competency improvements, matching job opportunities, recommended academy modules, and profile views. Use the user context data provided to personalize your responses.
+
+SMART RECOMMENDATIONS:
+You proactively recommend actions based on the user's current state:
+- Complete Leadership DNA™ if not done
+- Improve Executive Reputation™ if score is low
+- Finish Academy modules in progress
+- Write a Leadership Letter
+- Update Resume if stale
+- Verify Identity if not verified
+- Apply for executive positions
+- Join the Executive Community
+- Book a coaching session
+
+EXECUTIVE TASKS:
+You can help users initiate workflows by directing them to the right pages. Available tasks include: Generate Resume, Open Leadership DNA™, Start Executive Simulation, Publish Leadership Letter, Book Coaching, Compare Plans, Upgrade Membership, Schedule Demo.
 
 PLATFORM KNOWLEDGE:
-EXECLEAD.AI is an AI-powered executive leadership development platform that helps professionals advance their careers through AI coaching, simulations, analytics, and a community of executives.
+EXECLEAD.AI is an AI-powered executive leadership development platform.
 
 Key Features:
 - Executive Dashboard: Central hub tracking your leadership journey, metrics, and progress
@@ -98,10 +242,20 @@ CAREER GUIDANCE:
 When visitors share career goals (e.g., "I want to become a CIO"), recommend relevant learning paths, leadership competencies to develop, platform features that can help, and an appropriate membership tier. Keep guidance practical and actionable.
 
 ENTERPRISE MODE:
-When you detect enterprise intent (team size, HR, organization-wide development, multiple seats), share the enterprise overview (team dashboards, succession planning, leadership analytics, SSO, HR tools), offer to book a demo at /contact, and mention seat licensing.
+When you detect enterprise intent (team size, HR, organization-wide development, multiple seats, buying signals like "we have 500 employees" or "we need leadership training"), shift into Enterprise AI Advisor mode:
+- Explain enterprise features (team dashboards, succession planning, leadership analytics, SSO, SCIM, HR tools)
+- Discuss ROI, security, compliance, deployment, and implementation
+- Offer to book a demo at /contact
+- Mention seat licensing and enterprise pricing
 
 LEAD CAPTURE:
 If a visitor shows interest but isn't logged in, suggest creating a free account at /register, joining Founding Membership at /billing?founding=1, or booking an enterprise demo at /contact. Do not ask for personal information directly in chat.
+
+SMART CONTEXT:
+For logged-in users, you receive their reputation score, tier, profile data, and current page context. Use this to personalize responses, reference their progress, and make relevant recommendations. Address them by their first name when appropriate.
+
+EXECUTIVE MEMORY:
+You can remember user preferences (preferred topics, career goals, learning interests) based on conversation history within the current session. Only reference information the user has shared in the current conversation.
 
 RESPONSE GUIDELINES:
 - Use markdown formatting (bold key terms, bullet points for lists, headers when appropriate)
@@ -113,6 +267,8 @@ RESPONSE GUIDELINES:
 - Never invent features, prices, or capabilities not described above
 - Never provide legal or financial advice
 - Never guarantee promotions or employment
+- Never pretend to know private user information
+- Always explain uncertainty honestly
 - For escalation, direct visitors to /contact
 
 IMPORTANT LINKS:
@@ -126,10 +282,29 @@ IMPORTANT LINKS:
 - Contact: /contact
 - About: /about`;
 
-export function buildExecPrompt(messages, user) {
-  const context = user
-    ? `\n\nVISITOR CONTEXT: The visitor is logged in as ${user.full_name || "a registered user"}. Personalize your response using their first name when appropriate.`
-    : "\n\nVISITOR CONTEXT: The visitor is not logged in (a public visitor). If they show interest, suggest creating a free account at /register or booking a demo at /contact.";
+export function buildExecPrompt(messages, user, pageContext, userContext) {
+  let context = user
+    ? `\n\nVISITOR CONTEXT: The user is logged in as ${user.full_name || "a registered user"}.`
+    : `\n\nVISITOR CONTEXT: The visitor is not logged in (a public visitor). If they show interest, suggest creating a free account at /register or booking a demo at /contact.`;
+
+  if (pageContext && pageContext.module !== "Home") {
+    context += `\n\nCURRENT PAGE: The user is currently viewing "${pageContext.module}".`;
+    if (pageContext.prompt) {
+      context += ` Contextual assistance for this page: ${pageContext.prompt}`;
+    }
+    context += ` Tailor your response to the current page context when relevant.`;
+  }
+
+  if (userContext) {
+    if (userContext.reputation) {
+      const rep = userContext.reputation;
+      context += `\n\nUSER REPUTATION DATA: Score ${rep.reputation_score}, Tier: ${rep.reputation_tier}, Trend: ${rep.reputation_trend}, Sessions completed: ${rep.sessions_completed || 0}.`;
+    }
+    if (userContext.profile) {
+      const p = userContext.profile;
+      context += `\nUSER PROFILE: Identity verified: ${p.identity_verified}, Interview readiness: ${p.interview_readiness || 0}, Leadership maturity: ${p.leadership_maturity || 0}, Executive presence: ${p.executive_presence || 0}, Subscription: ${p.subscription_plan || "free"}.`;
+    }
+  }
 
   const history = messages
     .map((m) => `${m.role === "user" ? "Visitor" : "EXEC™"}: ${m.content}`)

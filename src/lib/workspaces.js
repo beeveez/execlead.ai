@@ -13,7 +13,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet,
-  BookOpen, Star, Sparkles,
+  BookOpen, Star, Sparkles, Target,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -58,6 +58,8 @@ export const WORKSPACE_NAV = {
     { label: "Insights", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
       { path: "/journey", label: "Executive Journey", icon: TrendingUp },
+      { path: "/executive-readiness", label: "Readiness", icon: Target },
+      { path: "/executive-passport", label: "Executive Passport", icon: Briefcase },
       { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
       { path: "/reputation", label: "Executive Reputation", icon: Star },
@@ -78,6 +80,7 @@ export const WORKSPACE_NAV = {
   enterprise: [
     { label: "Organization", items: [
       { path: "/enterprise", label: "Enterprise Dashboard", icon: LayoutDashboard, feature: "team_dashboard" },
+      { path: "/enterprise-intelligence", label: "Intelligence", icon: TrendingUp },
       { path: "/organization/users", label: "Users", icon: Users },
       { path: "/succession-planning", label: "Teams", icon: Users, feature: "succession_planning" },
       { path: "/hr-dashboard", label: "Departments", icon: Users, feature: "hr_dashboard" },
@@ -168,6 +171,8 @@ const ROUTE_WORKSPACE = {
   "/legacy-library/admin": ["platform", "developer"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
   "/leadership-dna": ["executive"], "/executive-legacy": ["executive"], "/journey": ["executive"],
+  "/executive-readiness": ["executive"], "/executive-passport": ["executive"],
+  "/enterprise-intelligence": ["enterprise"],
   "/legacy-library": ["executive", "platform", "developer"],
   "/career": ["executive"], "/metrics": ["executive"],
   "/notifications": ["executive"], "/compare-plans": ["executive"],

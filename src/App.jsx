@@ -109,6 +109,9 @@ import Reputation from '@/pages/Reputation';
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
 import Journey from '@/pages/Journey';
+import ExecutiveReadiness from '@/pages/ExecutiveReadiness';
+import ExecutivePassport from '@/pages/ExecutivePassport';
+import EnterpriseIntelligence from '@/pages/EnterpriseIntelligence';
 import Marketplace from '@/pages/Marketplace';
 import AICommandCenter from '@/pages/AICommandCenter';
 import DeveloperAICommandCenter from '@/pages/DeveloperAICommandCenter';
@@ -232,6 +235,9 @@ const AuthenticatedApp = () => {
           <Route path="/career" element={<FeatureGate featureId="career_advisor"><Career /></FeatureGate>} />
           <Route path="/analytics" element={<FeatureGate featureId="leadership_analytics"><Analytics /></FeatureGate>} />
           <Route path="/journey" element={<Journey />} />
+          <Route path="/executive-readiness" element={<ExecutiveReadiness />} />
+          <Route path="/executive-passport" element={<ExecutivePassport />} />
+          <Route path="/enterprise-intelligence" element={<EnterpriseIntelligence />} />
           <Route path="/leadership-dna" element={<FeatureGate featureId="leadership_dna"><LeadershipDNA /></FeatureGate>} />
           <Route path="/executive-legacy" element={<FeatureGate featureId="executive_legacy"><ExecutiveLegacy /></FeatureGate>} />
           <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />

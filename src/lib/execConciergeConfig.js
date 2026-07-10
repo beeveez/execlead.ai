@@ -92,6 +92,9 @@ export const PAGE_CONTEXT_MAP = [
   { path: "/reputation", module: "Executive Reputation™", icon: Award, prompt: "I can explain how your score is calculated, recommend ways to improve it, or show what you need to reach the next reputation tier." },
   { path: "/executive/rankings", module: "Executive Rankings", icon: Trophy, prompt: "I can explain how rankings work or show where you stand among peers." },
   { path: "/journey", module: "Executive Journey", icon: TrendingUp, prompt: "I can explain how Journey Points work, show your current level, or recommend the fastest path to your next milestone." },
+  { path: "/executive-readiness", module: "Executive Readiness Engine™", icon: TrendingUp, prompt: "I can explain your readiness score, walk through competency dimensions, or recommend the fastest way to improve your readiness." },
+  { path: "/executive-passport", module: "Executive Passport™", icon: TrendingUp, prompt: "I can explain what's in your Passport, how sharing works, or how data ownership protects your executive identity." },
+  { path: "/enterprise-intelligence", module: "Enterprise Intelligence Dashboard™", icon: Building2, prompt: "I can explain the leadership intelligence metrics or help you identify high-potential talent in your organization." },
   { path: "/career-studio", module: "Career Studio", icon: Briefcase, prompt: "I can help optimize your executive resume, prepare for interviews, or recommend career opportunities." },
   { path: "/resume", module: "Resume AI", icon: FileText, prompt: "I can help analyze your resume, suggest improvements, or prepare you for interviews." },
   { path: "/legacy-library", module: "Legacy Library", icon: BookOpen, prompt: "Would you like help writing your first Leadership Letter or reviewing one before publishing?" },
@@ -126,6 +129,8 @@ export function matchPageContext(pathname) {
 
 export const EXEC_TASKS = [
   { label: "Journey", path: "/journey", icon: TrendingUp },
+  { label: "Readiness", path: "/executive-readiness", icon: TrendingUp },
+  { label: "Passport", path: "/executive-passport", icon: Briefcase },
   { label: "Leadership DNA™", path: "/leadership-dna", icon: Dna },
   { label: "Simulation", path: "/simulator", icon: Play },
   { label: "Write Letter", path: "/legacy-library/new", icon: PenLine },
@@ -148,7 +153,9 @@ export const EXEC_GLOBAL_COMMANDS = [
 ];
 
 export const EXEC_KNOWLEDGE_BASE = [
-  "Executive Dashboard", "Executive Journey", "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
+  "Executive Dashboard", "Executive Journey", "Executive Readiness Engine™", "Executive Passport™",
+  "Executive Trust Framework™", "AI Promotion Forecast™", "Enterprise Intelligence Dashboard™", "Trust Center",
+  "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
   "Legacy Library", "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
   "Executive Network", "Marketplace", "Analytics", "Founding Membership",
   "Pricing", "Enterprise", "Developer Workspace", "Security & Privacy",
@@ -363,6 +370,30 @@ Journey Points examples:
 - Weekly Login Streak: +25
 - Executive Reputation Milestone: +100
 - Community Recognition: +50
+
+EXECUTIVE READINESS ENGINE™:
+Executive Readiness measures capability — not just activity. It continuously evaluates how prepared each member is for their target leadership role. The Readiness Score (0-100%) is computed from 12 competency dimensions (Leadership, Strategic Thinking, Executive Communication, Commercial Acumen, Financial Literacy, Decision Making, People Leadership, Innovation, Executive Presence, Stakeholder Management, Change Leadership, Board Readiness), each with a current score, industry benchmark, improvement trend, and AI recommendation. The page at /executive-readiness shows the full score, dimensions, AI Readiness Coach with estimated gain, and career alignment.
+
+EXECUTIVE TRUST FRAMEWORK™:
+The Executive Trust Framework replaces a simple verification badge with a complete trust ecosystem. Trust Levels: Email Verified, Phone Verified, Identity Verified, Professional Verified, Enterprise Verified, Verified Executive, Founder Verified. Trust Factors (11 total, scored 0-100): Identity Verification, Professional Verification, Leadership DNA Completion, Resume Verification, Published Profile, Executive Reputation, Executive Legacy, Community Conduct, Account Security, No Policy Violations, Activity Authenticity. When a user asks "Why is my Trust Score X?", explain which factors are earned vs missing and recommend actions to improve.
+
+AI PROMOTION FORECAST™:
+The AI Promotion Forecast provides an intelligent promotion readiness estimate using Journey, Readiness, Trust, Reputation, and Career Baseline signals. It shows: Promotion Probability (%), Estimated Timeline (months), Confidence Level, and Factor Breakdown. IMPORTANT: Always clearly state that the Promotion Forecast is an AI-generated development estimate — it does NOT guarantee employment or promotion. When a user asks "What affects my Promotion Forecast?", explain the factors and recommend specific actions to improve.
+
+EXECUTIVE PASSPORT™:
+The Executive Passport is a portable professional identity that belongs to the member — NOT the employer. It contains: Executive Profile, Journey Level, Executive Readiness, Executive Trust, Executive Reputation, Executive Legacy, Leadership DNA™, Career Timeline, Certifications, Achievements, Published Leadership Letters, Current Organization, Career Goals, and Verification Status. Sharing options: Public Profile, Recruiter View, Private View, PDF Export, QR Code, Shareable URL. Data Ownership: When leaving an employer, the member keeps Journey, Readiness, Trust, Legacy, Reputation, Achievements, Learning, and Letters. Only organization-specific analytics remain with the employer. The page at /executive-passport shows the full passport.
+
+ENTERPRISE INTELLIGENCE DASHBOARD™:
+For enterprise admins, the Enterprise Intelligence Dashboard at /enterprise-intelligence provides: Leadership Distribution (by Journey Level), Executive Readiness Distribution (Elite/Ready/Developing/Critical), High-Potential Talent, Leadership Risk Indicators, Top Contributors, Average Readiness, Average Journey, and Average Trust.
+
+TRUST CENTER & ENTERPRISE SECURITY™:
+The public Trust Center at /trust-center demonstrates EXECLEAD.AI's commitment to security, privacy, responsible AI, and enterprise readiness. It includes: Security Overview, Privacy, Responsible AI, Executive Trust Framework, Encryption, RBAC, Identity Verification, Platform Status, Incident Response, Business Continuity, Enterprise Documents (Security Whitepaper, Privacy Policy, Terms, DPA, Subprocessor List, Responsible Disclosure, Security Contact, Trust FAQ), and a Security Roadmap showing Available Today vs Planned capabilities (MFA, SSO, SCIM, Passkeys, SOC 2, ISO 27001, Regional Data Residency, Advanced Audit Logging). Never present roadmap items as already implemented.
+
+PLATFORM INTELLIGENCE LAYER:
+These six intelligence systems work together as the intelligence layer of EXECLEAD.AI:
+Executive Journey → Leadership DNA™ → Executive Readiness™ → Executive Trust™ → Executive Reputation™ → Promotion Forecast™ → Executive Passport™ → Enterprise Intelligence™
+
+Every score answers: What does this mean? Why is it my score? How was it calculated? How do I improve it? What should I do next? Avoid vanity metrics — every metric provides actionable leadership insights.
 
 ENTERPRISE MODE:
 When you detect enterprise intent (team size, HR, organization-wide development, multiple seats, buying signals), shift into Enterprise AI Advisor mode:

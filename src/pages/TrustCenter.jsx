@@ -20,6 +20,8 @@ const SECTIONS = [
   { id: "contacts", label: "Security Contacts", icon: Mail },
   { id: "status", label: "System Status", icon: Activity },
   { id: "disclosure", label: "Responsible Disclosure", icon: Bug },
+  { id: "roadmap", label: "Security Roadmap", icon: CheckCircle2 },
+  { id: "responsible_ai", label: "Responsible AI", icon: Bug },
 ];
 
 const TRUST_LEVELS = [
@@ -370,6 +372,67 @@ export default function TrustCenter() {
                     <Bug size={16} className="text-amber-400 mb-2" />
                     <div className="text-white/70 text-sm font-medium">Report a Vulnerability</div>
                     <div className="text-white/40 text-xs mt-1">Contact our security team via Base44 support with full details of the vulnerability.</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {section === "roadmap" && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-white mb-2">Security Roadmap</h2>
+                <p className="text-white/50 text-sm leading-relaxed mb-4">
+                  Transparency about what's available today and what's planned. We never present roadmap items as already implemented.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle2 size={16} className="text-emerald-400" />
+                      <h3 className="text-emerald-400 font-semibold text-sm">Available Today</h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {["HTTPS / TLS Encryption", "Role-Based Access Control (RBAC)", "Identity Verification", "Executive Trust Framework™", "Data Ownership & Portability", "GDPR-Compliant Data Export", "Audit Logging", "Secure File Storage"].map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-xs text-white/60">
+                          <CheckCircle2 size={11} className="text-emerald-400 mt-0.5 flex-shrink-0" /> {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Activity size={16} className="text-amber-400" />
+                      <h3 className="text-amber-400 font-semibold text-sm">Planned</h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {["Multi-Factor Authentication (MFA)", "Single Sign-On (SSO)", "SCIM User Provisioning", "Passkeys / WebAuthn", "SOC 2 Type II Certification", "ISO 27001 Certification", "Regional Data Residency", "Advanced Audit Logging", "Zero Trust Architecture", "Penetration Testing Program"].map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-xs text-white/60">
+                          <div className="w-3 h-3 rounded-full border border-amber-400/40 mt-0.5 flex-shrink-0" /> {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {section === "responsible_ai" && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-white mb-2">Responsible AI</h2>
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 space-y-4 text-sm text-white/60 leading-relaxed">
+                  <p>EXECLEAD.AI is committed to responsible AI practices. Our AI systems — including EXEC™, Leadership DNA™, Executive Readiness, and the AI Promotion Forecast — are designed with transparency, fairness, and human oversight.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { title: "Transparency", desc: "Every AI-generated score explains what it means, how it was calculated, and how to improve it." },
+                      { title: "No Guaranteed Outcomes", desc: "The AI Promotion Forecast is a development estimate — it does NOT guarantee employment or promotion." },
+                      { title: "Human Oversight", desc: "AI recommendations guide development; humans make final career decisions." },
+                      { title: "Data Privacy", desc: "AI models process your data to provide insights — your data is never sold to third parties." },
+                      { title: "Bias Mitigation", desc: "We continuously monitor for bias in scoring and recommendations." },
+                      { title: "Member Control", desc: "You control your data, your Passport, and your sharing preferences at all times." },
+                    ].map((item) => (
+                      <div key={item.title} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                        <div className="text-white/80 font-medium text-sm">{item.title}</div>
+                        <div className="text-white/40 text-xs mt-1">{item.desc}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

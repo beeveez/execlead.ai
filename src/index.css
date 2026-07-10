@@ -281,6 +281,10 @@ html:not(.dark) .border-amber-500\/10,
 html:not(.dark) .border-amber-500\/15,
 html:not(.dark) .border-amber-500\/20 { border-color: hsl(var(--border)); }
 
+/* ── Emerald/green text — darken for WCAG AA in light mode ── */
+html:not(.dark) .text-emerald-500,
+html:not(.dark) .text-emerald-400 { color: #047857; }
+
 /* ── Gradient stops (marketing/hero sections) ── */
 html:not(.dark) .from-\[\#0a0a0f\] {
   --tw-gradient-from: hsl(var(--background)) var(--tw-gradient-from-position, 0%);

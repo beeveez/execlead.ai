@@ -14,6 +14,7 @@ import ReputationUnlocks from "@/components/reputation/ReputationUnlocks";
 import ExecutiveInsights from "@/components/reputation/ExecutiveInsights";
 import Benchmarking from "@/components/reputation/Benchmarking";
 import AuditHistory from "@/components/reputation/AuditHistory";
+import ReputationHistory from "@/components/reputation/ReputationHistory";
 import CommunityTrust from "@/components/reputation/CommunityTrust";
 import ExecutiveInfluence from "@/components/reputation/ExecutiveInfluence";
 import ExecutivePhilosophy from "@/components/reputation/ExecutivePhilosophy";
@@ -153,6 +154,7 @@ export default function Reputation() {
         <ExecutiveInsights rep={rep} onGenerate={handleGenerateInsights} generating={generatingInsights} />
         <Benchmarking rep={rep} rank={rank} />
         <ReputationRecruiterView userId={user.id} />
+        <ReputationHistory rep={rep} history={history} />
         <AuditHistory history={history} />
         <ExecutivePhilosophy rep={rep} />
       </div>

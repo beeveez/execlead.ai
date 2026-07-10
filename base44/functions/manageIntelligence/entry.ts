@@ -66,7 +66,10 @@ async function getProfile(base44, userId) {
   try {
     const profiles = await base44.asServiceRole.entities.UserProfile.filter({ created_by_id: userId }, '-created_date', 5);
     return profiles[0] || null;
-  } catch (e) { return null; }
+  } catch (e) {
+    console.error('[manageIntelligence] getProfile failed:', e.message);
+    return null;
+  }
 }
 
 function computeReadiness(profile, reputationScore) {
@@ -148,33 +151,47 @@ function computeForecast(readiness, trust, journeyPoints, reputationScore) {
   return { probability, timelineLow: monthsLow, timelineHigh: monthsHigh, confidence, factorBreakdown };
 }
 
+// Gather journey signals with parallel queries (H3) + error logging (M3)
 async function gatherJourneySignals(base44, userId) {
-  let journeyPoints = 0, dnaCompleted = false, letterCount = 0, simCount = 0, lessonCount = 0, challengeCount = 0, mentorCount = 0;
-  try {
-    const dna = await base44.asServiceRole.entities.LeadershipDNA.filter({ created_by_id: userId }, '-created_date', 5);
-    if (dna.length > 0) { journeyPoints += POINTS.leadership_dna; dnaCompleted = true; }
-  } catch (e) {}
-  try {
-    const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: userId, status: 'published' }, '-created_date', 200);
-    letterCount = letters.length; journeyPoints += letterCount * POINTS.letter_published;
-  } catch (e) {}
-  try {
-    const sims = await base44.asServiceRole.entities.SimulationSession.filter({ created_by_id: userId }, '-created_date', 200);
-    simCount = sims.length; journeyPoints += simCount * POINTS.simulation_completed;
-  } catch (e) {}
-  try {
-    const lessons = await base44.asServiceRole.entities.LessonProgress.filter({ created_by_id: userId }, '-updated_date', 500);
-    lessonCount = lessons.filter((l) => l.completed).length; journeyPoints += lessonCount * POINTS.academy_module;
-  } catch (e) {}
-  try {
-    const challenges = await base44.asServiceRole.entities.ChallengeResult.filter({ created_by_id: userId }, '-created_date', 500);
-    challengeCount = challenges.length; journeyPoints += challengeCount * POINTS.challenge_completed;
-  } catch (e) {}
-  try {
-    const mentors = await base44.asServiceRole.entities.MentorProfile.filter({ created_by_id: userId }, '-created_date', 10);
-    mentorCount = mentors.length; journeyPoints += mentorCount * POINTS.mentorship;
-  } catch (e) {}
-  return { journeyPoints, dnaCompleted, letterCount, simCount, lessonCount, challengeCount, mentorCount };
+  const warnings = [];
+  const [dnaRes, lettersRes, simsRes, lessonsRes, challengesRes, mentorsRes] = await Promise.allSettled([
+    base44.asServiceRole.entities.LeadershipDNA.filter({ created_by_id: userId }, '-created_date', 5),
+    base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: userId, status: 'published' }, '-created_date', 200),
+    base44.asServiceRole.entities.SimulationSession.filter({ created_by_id: userId }, '-created_date', 200),
+    base44.asServiceRole.entities.LessonProgress.filter({ created_by_id: userId }, '-updated_date', 500),
+    base44.asServiceRole.entities.ChallengeResult.filter({ created_by_id: userId }, '-created_date', 500),
+    base44.asServiceRole.entities.MentorProfile.filter({ created_by_id: userId }, '-created_date', 10),
+  ]);
+
+  const unwrap = (res, label) => {
+    if (res.status === 'fulfilled') return res.value;
+    console.error(`[manageIntelligence] ${label} query failed:`, res.reason?.message || res.reason);
+    warnings.push(label);
+    return [];
+  };
+
+  const dna = unwrap(dnaRes, 'leadership_dna');
+  const letters = unwrap(lettersRes, 'letters');
+  const sims = unwrap(simsRes, 'simulations');
+  const lessons = unwrap(lessonsRes, 'lessons');
+  const challenges = unwrap(challengesRes, 'challenges');
+  const mentors = unwrap(mentorsRes, 'mentorship');
+
+  let journeyPoints = 0;
+  let dnaCompleted = false;
+  if (dna.length > 0) { journeyPoints += POINTS.leadership_dna; dnaCompleted = true; }
+  const letterCount = letters.length;
+  journeyPoints += letterCount * POINTS.letter_published;
+  const simCount = sims.length;
+  journeyPoints += simCount * POINTS.simulation_completed;
+  const lessonCount = lessons.filter((l) => l.completed).length;
+  journeyPoints += lessonCount * POINTS.academy_module;
+  const challengeCount = challenges.length;
+  journeyPoints += challengeCount * POINTS.challenge_completed;
+  const mentorCount = mentors.length;
+  journeyPoints += mentorCount * POINTS.mentorship;
+
+  return { journeyPoints, dnaCompleted, letterCount, simCount, lessonCount, challengeCount, mentorCount, warnings };
 }
 
 Deno.serve(async (req) => {
@@ -228,24 +245,37 @@ Deno.serve(async (req) => {
       });
     }
 
-    // === Full compute ===
-    const profile = await getProfile(base44, user.id);
-    const signals = await gatherJourneySignals(base44, user.id);
-    const journeyLevel = getLevel(signals.journeyPoints);
+    // === Full compute — parallel data gathering (H3) ===
+    // profile, journey signals, and reputation are independent — fetch in parallel
+    const [profile, signals, repsRes] = await Promise.all([
+      getProfile(base44, user.id),
+      gatherJourneySignals(base44, user.id),
+      base44.asServiceRole.entities.ExecutiveReputation.filter({ user_id: user.id }, '-updated_date', 1)
+        .catch((e) => { console.error('[manageIntelligence] reputation query failed:', e.message); return []; }),
+    ]);
 
+    const warnings = [...signals.warnings];
     let reputationScore = 0, reputationTier = 'new_member';
-    try {
-      const reps = await base44.asServiceRole.entities.ExecutiveReputation.filter({ user_id: user.id }, '-updated_date', 1);
-      if (reps.length > 0) { reputationScore = reps[0].reputation_score || 0; reputationTier = reps[0].reputation_tier || 'new_member'; }
-    } catch (e) {}
+    if (repsRes.length > 0) {
+      reputationScore = repsRes[0].reputation_score || 0;
+      reputationTier = repsRes[0].reputation_tier || 'new_member';
+    } else {
+      warnings.push('reputation');
+    }
 
+    const journeyLevel = getLevel(signals.journeyPoints);
     const readiness = computeReadiness(profile, reputationScore);
     const trust = computeTrust(profile, signals.journeyPoints, reputationScore, signals.dnaCompleted);
     const forecast = computeForecast(readiness, trust, signals.journeyPoints, reputationScore);
 
     if (action === 'passport') {
       let letters = [];
-      try { letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: user.id, status: 'published' }, '-published_at', 10); } catch (e) {}
+      try {
+        letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: user.id, status: 'published' }, '-published_at', 10);
+      } catch (e) {
+        console.error('[manageIntelligence] passport letters query failed:', e.message);
+        warnings.push('passport_letters');
+      }
       return Response.json({
         profile: profile ? {
           full_name: profile.full_name, professional_headline: profile.professional_headline,
@@ -262,13 +292,14 @@ Deno.serve(async (req) => {
         reputation: { score: reputationScore, tier: reputationTier },
         letters: letters.map((l) => ({ id: l.id, title: l.title, category: l.category, published_at: l.published_at })),
         forecast,
+        warnings,
       });
     }
 
     if (action === 'trust') {
       const trustTimeline = [];
       trust.levels.filter((l) => l.unlocked).forEach((l) => trustTimeline.push({ level: l, date: profile?.created_date }));
-      return Response.json({ trust, trustTimeline, profile: profile ? { identity_verified: profile.identity_verified, verified_executive: profile.verified_executive, founding_member: profile.founding_member } : null });
+      return Response.json({ trust, trustTimeline, warnings, profile: profile ? { identity_verified: profile.identity_verified, verified_executive: profile.verified_executive, founding_member: profile.founding_member } : null });
     }
 
     // Default: compute all
@@ -278,6 +309,7 @@ Deno.serve(async (req) => {
       forecast,
       journey: { level: journeyLevel, points: signals.journeyPoints, signals },
       reputation: { score: reputationScore, tier: reputationTier },
+      warnings,
       profile: profile ? {
         current_role: profile.current_role, target_role: profile.target_role, target_company: profile.target_company,
         industry: profile.industry, years_experience: profile.years_experience, career_stage: profile.career_stage,
@@ -289,6 +321,7 @@ Deno.serve(async (req) => {
       } : null,
     });
   } catch (error) {
+    console.error('[manageIntelligence] Unhandled error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

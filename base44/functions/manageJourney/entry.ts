@@ -142,6 +142,7 @@ async function getProfile(base44, userId) {
     const profiles = await base44.asServiceRole.entities.UserProfile.filter({ created_by_id: userId }, '-created_date', 5);
     return profiles[0] || null;
   } catch (e) {
+    console.error('[manageJourney] getProfile failed:', e.message);
     return null;
   }
 }
@@ -210,59 +211,90 @@ Deno.serve(async (req) => {
       });
     }
 
-    // === Full compute: gather all data ===
+    // === Full compute: gather all data in parallel (H3) ===
+    const warnings = [];
+    const profile = await getProfile(base44, user.id);
+
+    // Run all independent entity queries in parallel — latency = max(query) instead of sum(queries)
+    const [dnaRes, lettersRes, simsRes, lessonsRes, challengesRes, resumeRes, careerResumeRes, repsRes, mentorsRes, storedRes] = await Promise.allSettled([
+      base44.asServiceRole.entities.LeadershipDNA.filter({ created_by_id: user.id }, '-created_date', 10),
+      base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: user.id, status: 'published' }, '-published_at', 200),
+      base44.asServiceRole.entities.SimulationSession.filter({ created_by_id: user.id }, '-created_date', 200),
+      base44.asServiceRole.entities.LessonProgress.filter({ created_by_id: user.id }, '-updated_date', 500),
+      base44.asServiceRole.entities.ChallengeResult.filter({ created_by_id: user.id }, '-created_date', 500),
+      base44.asServiceRole.entities.ResumeVersion.filter({ created_by_id: user.id }, '-created_date', 5),
+      base44.asServiceRole.entities.CareerResume.filter({ created_by_id: user.id }, '-created_date', 5),
+      base44.asServiceRole.entities.ExecutiveReputation.filter({ user_id: user.id }, '-updated_date', 5),
+      base44.asServiceRole.entities.MentorProfile.filter({ created_by_id: user.id }, '-created_date', 10),
+      base44.asServiceRole.entities.JourneyEvent.filter({ user_id: user.id }, '-event_date', 200),
+    ]);
+
+    // Unwrap results — log failures and collect warnings instead of silent swallow (M3)
+    const unwrap = (res, label) => {
+      if (res.status === 'fulfilled') return res.value;
+      console.error(`[manageJourney] ${label} query failed:`, res.reason?.message || res.reason);
+      warnings.push(label);
+      return [];
+    };
+
+    const dna = unwrap(dnaRes, 'leadership_dna');
+    const letters = unwrap(lettersRes, 'letters');
+    const sims = unwrap(simsRes, 'simulations');
+    const lessons = unwrap(lessonsRes, 'lessons');
+    const challenges = unwrap(challengesRes, 'challenges');
+    const resumes = unwrap(resumeRes, 'resumes');
+    const careerResumes = unwrap(careerResumeRes, 'career_resumes');
+    const reps = unwrap(repsRes, 'reputation');
+    const mentors = unwrap(mentorsRes, 'mentorship');
+    const stored = unwrap(storedRes, 'journey_events');
+
+    // Process results — same computation logic, now from parallel-fetched data
     const breakdown = {};
     let totalPoints = 0;
     const timeline = [];
-    const profile = await getProfile(base44, user.id);
 
     // Leadership DNA
-    try {
-      const dna = await base44.asServiceRole.entities.LeadershipDNA.filter({ created_by_id: user.id }, '-created_date', 10);
+    {
       const pts = dna.length > 0 ? POINTS.leadership_dna : 0;
       breakdown.leadership_dna = { count: dna.length, points: pts };
       totalPoints += pts;
       if (dna.length > 0) timeline.push({ date: dna[0].created_date, type: 'leadership_dna', title: 'Leadership DNA™ Completed', description: 'Completed leadership assessment', points: pts, category: 'learning', icon: '🧬', milestone: true });
-    } catch (e) { breakdown.leadership_dna = { count: 0, points: 0 }; }
+    }
 
     // Published Letters
-    try {
-      const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: user.id, status: 'published' }, '-published_at', 200);
+    {
       const pts = letters.length * POINTS.letter_published;
       breakdown.letters = { count: letters.length, points: pts };
       totalPoints += pts;
       letters.forEach((l) => timeline.push({ date: l.published_at || l.created_date, type: 'letter_published', title: 'Published Leadership Letter', description: l.title, points: POINTS.letter_published, category: 'publishing', icon: '✍️' }));
-    } catch (e) { breakdown.letters = { count: 0, points: 0 }; }
+    }
 
     // Simulations
-    try {
-      const sims = await base44.asServiceRole.entities.SimulationSession.filter({ created_by_id: user.id }, '-created_date', 200);
+    {
       const pts = sims.length * POINTS.simulation_completed;
       breakdown.simulations = { count: sims.length, points: pts };
       totalPoints += pts;
       sims.forEach((s) => timeline.push({ date: s.created_date, type: 'simulation', title: 'Executive Simulation Completed', description: s.scenario_title || s.title || 'Simulation', points: POINTS.simulation_completed, category: 'leadership', icon: '🎯' }));
-    } catch (e) { breakdown.simulations = { count: 0, points: 0 }; }
+    }
 
     // Academy (completed lessons)
-    try {
-      const lessons = await base44.asServiceRole.entities.LessonProgress.filter({ created_by_id: user.id }, '-updated_date', 500);
+    {
       const completed = lessons.filter((l) => l.completed);
       const pts = completed.length * POINTS.academy_module;
       breakdown.academy = { count: completed.length, points: pts };
       totalPoints += pts;
       completed.forEach((l) => timeline.push({ date: l.updated_date || l.created_date, type: 'academy', title: 'Academy Module Completed', description: l.lesson_title || l.course_title || 'Lesson', points: POINTS.academy_module, category: 'learning', icon: '📚' }));
-    } catch (e) { breakdown.academy = { count: 0, points: 0 }; }
+    }
 
     // Challenges
-    try {
-      const challenges = await base44.asServiceRole.entities.ChallengeResult.filter({ created_by_id: user.id }, '-created_date', 500);
+    {
       const pts = challenges.length * POINTS.challenge_completed;
       breakdown.challenges = { count: challenges.length, points: pts };
       totalPoints += pts;
       challenges.forEach((c) => timeline.push({ date: c.created_date, type: 'challenge', title: 'Executive Challenge Completed', description: c.question || c.category || 'Challenge', points: POINTS.challenge_completed, category: 'leadership', icon: '⚔️' }));
-    } catch (e) { breakdown.challenges = { count: 0, points: 0 }; }
+    }
 
-    // Identity & Verification + Streaks
+    // Identity & Verification + Streaks (from profile, no query needed)
     if (profile) {
       if (profile.identity_verified) {
         totalPoints += POINTS.identity_verified;
@@ -283,20 +315,17 @@ Deno.serve(async (req) => {
     }
 
     // Resume
-    try {
-      const resumes = await base44.asServiceRole.entities.ResumeVersion.filter({ created_by_id: user.id }, '-created_date', 5);
-      const careerResumes = await base44.asServiceRole.entities.CareerResume.filter({ created_by_id: user.id }, '-created_date', 5);
+    {
       if (resumes.length > 0 || careerResumes.length > 0) {
         totalPoints += POINTS.resume_completed;
         breakdown.resume = { count: 1, points: POINTS.resume_completed };
         const r = resumes[0] || careerResumes[0];
         timeline.push({ date: r.created_date, type: 'resume', title: 'Resume Completed', description: 'Executive resume uploaded', points: POINTS.resume_completed, category: 'career', icon: '📄' });
       }
-    } catch (e) { breakdown.resume = { count: 0, points: 0 }; }
+    }
 
     // Reputation
-    try {
-      const reps = await base44.asServiceRole.entities.ExecutiveReputation.filter({ user_id: user.id }, '-updated_date', 5);
+    {
       if (reps.length > 0) {
         const rep = reps[0];
         const milestones = Math.floor((rep.reputation_score || 0) / 100);
@@ -313,18 +342,17 @@ Deno.serve(async (req) => {
           totalPoints += apts;
         }
       }
-    } catch (e) { breakdown.reputation = { count: 0, points: 0 }; }
+    }
 
     // Mentorship
-    try {
-      const mentors = await base44.asServiceRole.entities.MentorProfile.filter({ created_by_id: user.id }, '-created_date', 10);
+    {
       if (mentors.length > 0) {
         const pts = mentors.length * POINTS.mentorship;
         breakdown.mentorship = { count: mentors.length, points: pts };
         totalPoints += pts;
         timeline.push({ date: mentors[0].created_date, type: 'mentorship', title: 'Mentorship', description: 'Became an executive mentor', points: POINTS.mentorship, category: 'mentorship', icon: '🤝', milestone: true });
       }
-    } catch (e) { breakdown.mentorship = { count: 0, points: 0 }; }
+    }
 
     // Joined event
     if (profile) {
@@ -338,19 +366,16 @@ Deno.serve(async (req) => {
     });
 
     // Stored JourneyEvents
-    try {
-      const stored = await base44.asServiceRole.entities.JourneyEvent.filter({ user_id: user.id }, '-event_date', 200);
-      stored.forEach((e) => timeline.push({
-        date: e.event_date || e.created_date,
-        type: e.event_type,
-        title: e.title,
-        description: e.description || '',
-        points: e.points || 0,
-        category: e.category || 'contribution',
-        icon: '⭐',
-        milestone: e.milestone || false,
-      }));
-    } catch (e) {}
+    stored.forEach((e) => timeline.push({
+      date: e.event_date || e.created_date,
+      type: e.event_type,
+      title: e.title,
+      description: e.description || '',
+      points: e.points || 0,
+      category: e.category || 'contribution',
+      icon: '⭐',
+      milestone: e.milestone || false,
+    }));
 
     // Sort timeline
     timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -358,7 +383,7 @@ Deno.serve(async (req) => {
     // Timeline-only action (filtered)
     if (action === 'timeline') {
       const range = body.range || 'lifetime';
-      return Response.json({ events: filterByRange(timeline, range) });
+      return Response.json({ events: filterByRange(timeline, range), warnings });
     }
 
     // Compute everything
@@ -384,6 +409,7 @@ Deno.serve(async (req) => {
       streaks,
       digest,
       timeline: timeline.slice(0, 200),
+      warnings,
       profile: profile ? {
         target_role: profile.target_role,
         target_company: profile.target_company,
@@ -397,6 +423,7 @@ Deno.serve(async (req) => {
       } : null,
     });
   } catch (error) {
+    console.error('[manageJourney] Unhandled error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

@@ -88,6 +88,7 @@ const APP_ROUTES = [
   { path: "/learning-assignments", component: "LearningAssignments", feature: "learning_assignments" },
   { path: "/sso", component: "SSOIdentity", feature: "sso" },
   { path: "/leaderboard", component: "Leaderboard", public: true },
+  { path: "/reputation", component: "Reputation" },
   { path: "/executive/rankings", component: "ExecutiveRankings" },
   { path: "/brand-center", component: "ExecutiveBrandCenter" },
   { path: "/concierge", component: "Concierge" },

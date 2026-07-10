@@ -20,13 +20,13 @@ export const BRAND = {
  */
 export const JOURNEY_STAGES = [
   { id: "seed", title: "Seed", xp: 0, icon: "🌱" },
-  { id: "emerging", title: "Emerging Leader", xp: 100, icon: "🌿" },
-  { id: "manager", title: "People Manager", xp: 300, icon: "👥" },
-  { id: "senior", title: "Senior Leader", xp: 600, icon: "🎯" },
-  { id: "executive", title: "Executive", xp: 1000, icon: "🏆" },
-  { id: "enterprise", title: "Enterprise Leader", xp: 2200, icon: "⚡" },
-  { id: "board", title: "Board Ready", xp: 4000, icon: "👑" },
-  { id: "legacy", title: "Legacy Leader", xp: 5500, icon: "💎" },
+  { id: "emerging", title: "Emerging Leader", xp: 500, icon: "🌿" },
+  { id: "manager", title: "People Manager", xp: 2000, icon: "👥" },
+  { id: "senior", title: "Senior Leader", xp: 5000, icon: "🎯" },
+  { id: "executive", title: "Executive", xp: 10000, icon: "🏆" },
+  { id: "enterprise", title: "Enterprise Leader", xp: 20000, icon: "⚡" },
+  { id: "board", title: "Board Ready", xp: 35000, icon: "👑" },
+  { id: "legacy", title: "Legacy Leader", xp: 50000, icon: "💎" },
 ];
 
 /**

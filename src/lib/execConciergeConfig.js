@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Dna, Award, Briefcase, BookOpen, GraduationCap,
   Building, Network, ShoppingBag, FileText, CreditCard, Settings,
   Shield, BadgeCheck, Home, Play, PenLine, MessageSquare,
-  Fingerprint, Star, Store, Trophy, Search,
+  Fingerprint, Star, Store, Trophy, Search, TrendingUp,
 } from "lucide-react";
 import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase";
 
@@ -42,13 +42,13 @@ export const EXEC_QUICK_ACTIONS = [
 ];
 
 export const EXEC_SUGGESTED_QUESTIONS = [
+  "What is my Executive Journey level?",
   "Where is the Legacy Library?",
   "What is Executive Reputation™?",
   "How does Leadership DNA™ work?",
   "Who is EXECLEAD.AI designed for?",
   "Which membership should I choose?",
   "Where can I find Executive Rankings?",
-  "Can my company use this platform?",
   "Where is Career Studio?",
 ];
 
@@ -91,6 +91,7 @@ export const PAGE_CONTEXT_MAP = [
   { path: "/leadership-dna", module: "Leadership DNA™", icon: Dna, prompt: "Would you like me to explain how this assessment works, interpret your results, or recommend your next competency to improve?" },
   { path: "/reputation", module: "Executive Reputation™", icon: Award, prompt: "I can explain how your score is calculated, recommend ways to improve it, or show what you need to reach the next reputation tier." },
   { path: "/executive/rankings", module: "Executive Rankings", icon: Trophy, prompt: "I can explain how rankings work or show where you stand among peers." },
+  { path: "/journey", module: "Executive Journey", icon: TrendingUp, prompt: "I can explain how Journey Points work, show your current level, or recommend the fastest path to your next milestone." },
   { path: "/career-studio", module: "Career Studio", icon: Briefcase, prompt: "I can help optimize your executive resume, prepare for interviews, or recommend career opportunities." },
   { path: "/resume", module: "Resume AI", icon: FileText, prompt: "I can help analyze your resume, suggest improvements, or prepare you for interviews." },
   { path: "/legacy-library", module: "Legacy Library", icon: BookOpen, prompt: "Would you like help writing your first Leadership Letter or reviewing one before publishing?" },
@@ -124,6 +125,7 @@ export function matchPageContext(pathname) {
 }
 
 export const EXEC_TASKS = [
+  { label: "Journey", path: "/journey", icon: TrendingUp },
   { label: "Leadership DNA™", path: "/leadership-dna", icon: Dna },
   { label: "Simulation", path: "/simulator", icon: Play },
   { label: "Write Letter", path: "/legacy-library/new", icon: PenLine },
@@ -135,6 +137,7 @@ export const EXEC_TASKS = [
 ];
 
 export const EXEC_GLOBAL_COMMANDS = [
+  { label: "Executive Journey", path: "/journey", icon: TrendingUp, action: "navigate" },
   { label: "Leadership DNA", path: "/leadership-dna", icon: Fingerprint, action: "navigate" },
   { label: "Legacy Library", path: "/legacy-library", icon: BookOpen, action: "navigate" },
   { label: "Executive Reputation", path: "/reputation", icon: Star, action: "navigate" },
@@ -145,7 +148,7 @@ export const EXEC_GLOBAL_COMMANDS = [
 ];
 
 export const EXEC_KNOWLEDGE_BASE = [
-  "Executive Dashboard", "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
+  "Executive Dashboard", "Executive Journey", "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
   "Legacy Library", "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
   "Executive Network", "Marketplace", "Analytics", "Founding Membership",
   "Pricing", "Enterprise", "Developer Workspace", "Security & Privacy",
@@ -171,6 +174,14 @@ export function generateBriefing(firstName, userContext, pageContext) {
     }
   } else {
     insights.push("Start by calculating your **Executive Reputation™** to unlock personalized insights");
+  }
+
+  if (userContext?.journey) {
+    const j = userContext.journey;
+    insights.push(`Your Executive Journey level is **${j.level.current.title}** with **${j.totalPoints.toLocaleString()}** Journey Points`);
+    if (j.level.next) {
+      insights.push(`You are **${j.level.pointsToNext.toLocaleString()} points** away from **${j.level.next.title}** 🎯 — [view your journey](/journey)`);
+    }
   }
 
   if (userContext?.profile) {
@@ -326,6 +337,33 @@ Executive:
 - Board Readiness (Executive Simulator)
 - Mentoring (Executive Network)
 
+EXECUTIVE JOURNEY ENGINE™:
+EXECLEAD.AI features a unified progression system called the Executive Journey Engine™. Every meaningful action — completing Leadership DNA™, publishing a Leadership Letter, running a simulation, finishing an Academy module, verifying identity, mentoring, and more — contributes Journey Points toward one continuous Executive Journey.
+
+The 8 Journey Levels are:
+1. Seed (0 points)
+2. Emerging Leader (500)
+3. People Manager (2,000)
+4. Senior Leader (5,000)
+5. Executive (10,000)
+6. Enterprise Leader (20,000)
+7. Board Ready (35,000)
+8. Legacy Leader (50,000)
+
+When a user asks about their journey, progress, level, or points, reference their current level, points, next milestone, and recommended activities. Use phrases like "You are only X Journey Points away from [next level]" and recommend specific activities that maximize Journey growth. The Executive Journey page at /journey shows the full timeline, achievements, streaks, weekly digest, and career impact.
+
+Journey Points examples:
+- Complete Leadership DNA: +500
+- Publish Leadership Letter: +250
+- Complete Executive Simulation: +300
+- Complete Academy Module: +150
+- Identity Verified: +200
+- Mentor Someone: +300
+- Complete Resume: +100
+- Weekly Login Streak: +25
+- Executive Reputation Milestone: +100
+- Community Recognition: +50
+
 ENTERPRISE MODE:
 When you detect enterprise intent (team size, HR, organization-wide development, multiple seats, buying signals), shift into Enterprise AI Advisor mode:
 - Explain enterprise features (team dashboards, succession planning, leadership analytics, SSO, SCIM, HR tools)
@@ -381,6 +419,19 @@ export function buildExecPrompt(messages, user, pageContext, userContext) {
     if (userContext.profile) {
       const p = userContext.profile;
       context += `\nUSER PROFILE: Identity verified: ${p.identity_verified}, Interview readiness: ${p.interview_readiness || 0}, Leadership maturity: ${p.leadership_maturity || 0}, Executive presence: ${p.executive_presence || 0}, Subscription: ${p.subscription_plan || "free"}.`;
+    }
+    if (userContext.journey) {
+      const j = userContext.journey;
+      context += `\n\nUSER JOURNEY DATA: Current Level: ${j.level.current.title} (${j.totalPoints} Journey Points, ${j.level.journeyPercent}% of journey complete).`;
+      if (j.level.next) {
+        context += ` Next level: ${j.level.next.title} — ${j.level.pointsToNext} points to go (${j.level.progress}% progress, ~${j.estimatedDays} days estimated).`;
+        if (j.recommendations && j.recommendations.length > 0) {
+          context += ` Recommended activities to reach ${j.level.next.title}: ${j.recommendations.map(r => `${r.label} (+${r.points} pts)`).join(", ")}.`;
+        }
+        context += ` When discussing the user's journey, use these EXACT numbers. Say things like "You are only ${j.level.pointsToNext} Journey Points away from ${j.level.next.title}." and recommend the specific activities listed above.`;
+      } else {
+        context += ` The user has reached Legacy Leader — the highest journey level. Congratulate them and encourage mentoring and legacy building.`;
+      }
     }
   }
 

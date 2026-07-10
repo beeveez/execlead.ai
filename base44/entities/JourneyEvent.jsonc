@@ -1,0 +1,79 @@
+{
+  "name": "JourneyEvent",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Type of journey event (e.g. leadership_dna, letter_published, level_up)"
+    },
+    "module": {
+      "type": "string",
+      "description": "Platform module that generated the event"
+    },
+    "points": {
+      "type": "number",
+      "default": 0,
+      "description": "Journey Points earned from this event"
+    },
+    "title": {
+      "type": "string"
+    },
+    "milestone": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a major milestone event"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "learning",
+        "career",
+        "reputation",
+        "network",
+        "verification",
+        "challenge",
+        "simulation",
+        "contribution",
+        "streak",
+        "level",
+        "publishing",
+        "mentorship",
+        "community"
+      ],
+      "default": "contribution"
+    },
+    "metadata_json": {
+      "type": "string"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "event_type",
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {},
+    "delete": {}
+  }
+}

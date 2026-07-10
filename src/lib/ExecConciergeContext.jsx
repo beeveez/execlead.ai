@@ -122,9 +122,16 @@ export function ExecConciergeProvider({ children }) {
         user_id: user.id,
       });
       const data = res.data || res;
+      // Fetch journey data for journey-aware EXEC™
+      let journey = null;
+      try {
+        const journeyRes = await base44.functions.invoke("manageJourney", { action: "compute" });
+        journey = journeyRes.data;
+      } catch (e) {}
       const ctx = {
         reputation: data?.reputation,
         profile: data?.profile,
+        journey,
         recommendations: computeRecommendations(data, user),
       };
       userContextRef.current = ctx;

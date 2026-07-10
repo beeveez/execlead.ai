@@ -57,6 +57,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Insights", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
+      { path: "/journey", label: "Executive Journey", icon: TrendingUp },
       { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
       { path: "/reputation", label: "Executive Reputation", icon: Star },
@@ -166,7 +167,7 @@ const ROUTE_WORKSPACE = {
   "/identity-verification-admin": ["platform", "developer"],
   "/legacy-library/admin": ["platform", "developer"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
-  "/leadership-dna": ["executive"], "/executive-legacy": ["executive"],
+  "/leadership-dna": ["executive"], "/executive-legacy": ["executive"], "/journey": ["executive"],
   "/legacy-library": ["executive", "platform", "developer"],
   "/career": ["executive"], "/metrics": ["executive"],
   "/notifications": ["executive"], "/compare-plans": ["executive"],

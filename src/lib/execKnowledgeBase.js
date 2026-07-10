@@ -3,7 +3,7 @@ import {
   FileText, GraduationCap, Store, Users, Wallet, BadgeCheck,
   CreditCard, Building2, Code2, Brain, MessageSquare, Network,
   BarChart3, Shield, Crown, Gift, Settings as SettingsIcon,
-  UserCircle, Cpu, PenLine,
+  UserCircle, Cpu, PenLine, TrendingUp,
 } from "lucide-react";
 
 /**
@@ -24,6 +24,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     purpose: "Get a bird's-eye view of your leadership development and see what to work on next.",
     keyFeatures: ["Progress tracking", "Recent simulations", "AI recommendations", "Quick stats"],
     findIt: "Sidebar → Platform → Dashboard, or click the EXECLEAD.AI logo.",
+  },
+  {
+    id: "journey",
+    name: "Executive Journey",
+    aliases: ["journey", "executive journey", "timeline", "journey points", "journey level", "progress", "milestones", "achievements", "streaks", "weekly digest"],
+    path: "/journey",
+    category: "Insights",
+    icon: TrendingUp,
+    description: "The Executive Journey Engine™ — a unified progression system where every meaningful action contributes Journey Points toward one continuous leadership journey, from Seed to Legacy Leader.",
+    purpose: "See your complete leadership journey: current level, total points, timeline of milestones, achievements, streaks, weekly digest, and career impact.",
+    keyFeatures: ["8 Journey Levels", "Cross-module Journey Points", "Achievement badges", "Journey streaks", "Weekly digest", "Career readiness mapping", "Enterprise analytics"],
+    findIt: "Sidebar → Insights → Executive Journey.",
   },
   {
     id: "leadership-dna",

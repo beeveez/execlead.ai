@@ -363,6 +363,72 @@
       "type": "boolean",
       "default": false,
       "description": "Permanent account ban"
+    },
+    "cached_journey_points": {
+      "type": "number",
+      "default": 0,
+      "description": "Cached total Journey Points"
+    },
+    "cached_journey_level_id": {
+      "type": "string",
+      "description": "Cached Journey Level ID (queryable)"
+    },
+    "cached_readiness_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Cached Executive Readiness 0-100 (queryable)"
+    },
+    "cached_trust_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Cached Executive Trust Score 0-100 (queryable)"
+    },
+    "cached_trust_tier": {
+      "type": "string",
+      "description": "Cached Trust Tier (queryable)"
+    },
+    "cached_promotion_probability": {
+      "type": "number",
+      "default": 0,
+      "description": "Cached Promotion Forecast probability 0-100 (queryable)"
+    },
+    "cached_promotion_timeline_low": {
+      "type": "number",
+      "default": 0
+    },
+    "cached_promotion_timeline_high": {
+      "type": "number",
+      "default": 0
+    },
+    "cached_promotion_confidence": {
+      "type": "string"
+    },
+    "cached_intelligence_json": {
+      "type": "string",
+      "description": "Full computed intelligence result (journey+readiness+trust+forecast+timeline+achievements+streaks+digest)"
+    },
+    "intelligence_computed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When intelligence was last computed"
+    },
+    "intelligence_config_version": {
+      "type": "string",
+      "description": "Config version used for last computation (for cache invalidation)"
+    },
+    "intelligence_warnings_json": {
+      "type": "string",
+      "description": "Warnings from last computation"
+    },
+    "intelligence_recompute_count": {
+      "type": "number",
+      "default": 0,
+      "description": "How many times intelligence has been recomputed"
+    },
+    "intelligence_compute_duration_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Duration of last computation in milliseconds"
     }
   },
   "required": [

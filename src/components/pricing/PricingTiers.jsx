@@ -8,7 +8,7 @@ import ReservationModal from "./ReservationModal";
 
 export default function PricingTiers({ plans, cycle, getPrice, authed }) {
   const { calculatePrice, isFounder, membership } = useFounderPricing();
-  const { profile } = useSubscription();
+  const { subscription } = useSubscription();
   const { betaBillingMode } = useLaunchMode();
   const [reservingPlan, setReservingPlan] = useState(null);
   const visiblePlans = plans.filter(p => p.visible !== false && p.id !== "developer_unlimited");
@@ -25,7 +25,7 @@ export default function PricingTiers({ plans, cycle, getPrice, authed }) {
             getPrice={getPrice}
             calculatePrice={calculatePrice}
             isFounder={isFounder}
-            currentPlanId={profile?.subscription_plan}
+            currentPlanId={subscription?.planTier}
             authed={authed}
             index={i}
             betaMode={betaBillingMode}

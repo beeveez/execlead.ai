@@ -63,8 +63,6 @@ export default function TopBar() {
         <CreditCard size={14} className="text-white/40" />
         {loading ? (
           <span className="text-xs text-white/20">···</span>
-        ) : activeWorkspace === "enterprise" ? (
-          <span className="text-xs font-medium text-cyan-400">Enterprise</span>
         ) : (
           <span className="text-xs font-medium flex items-center gap-1">
             <span>{subscription.icon}</span>

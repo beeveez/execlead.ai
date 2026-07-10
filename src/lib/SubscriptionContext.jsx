@@ -26,8 +26,21 @@ export const SubscriptionProvider = ({ children }) => {
     try {
       const profiles = user?.id
         ? await base44.entities.UserProfile.filter({ created_by_id: user.id })
-        : await base44.entities.UserProfile.list();
+        : [];
       const p = profiles[0] || null;
+      // Defensive validation: ensure loaded profile belongs to the authenticated user
+      if (p && user?.id && p.created_by_id && p.created_by_id !== user.id) {
+        console.error("[SECURITY] SubscriptionContext: profile owner mismatch", {
+          authenticatedUserId: user.id,
+          profileOwnerId: p.created_by_id,
+        });
+        setProfile(null);
+        setEntitlements(null);
+        setMemberships([]);
+        setRenewalDate(null);
+        setLoading(false);
+        return;
+      }
       setProfile(p);
       if (p) {
         try {

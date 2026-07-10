@@ -19,7 +19,7 @@ import { createNotification } from "@/lib/notifications";
 
 export default function Billing() {
   const { user } = useAuth();
-  const { profile, renewalDate, refreshProfile, membership } = useSubscription();
+  const { profile, subscription, renewalDate, refreshProfile, membership } = useSubscription();
   const { plans, cycle, setCycle, getPrice, getPlanById } = usePricingCatalog();
   const [invoices, setInvoices] = useState([]);
   const [upgradePlan, setUpgradePlan] = useState(null);
@@ -60,7 +60,7 @@ export default function Billing() {
     }
   }, [getPlanById]);
 
-  const currentPlan = profile ? (getPlanById(profile.subscription_plan) || getPlanById("free")) : null;
+  const currentPlan = subscription ? (getPlanById(subscription.planTier) || getPlanById("free")) : null;
 
   const handleCheckoutSuccess = async () => {
     setUpgradePlan(null);

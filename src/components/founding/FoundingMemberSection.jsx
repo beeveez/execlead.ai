@@ -52,7 +52,7 @@ export default function FoundingMemberSection() {
               </span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Become a Founding Member</h2>
-            <p className="text-white/50 text-sm leading-relaxed mb-3 max-w-md">
+            <p className="text-white/50 text-base leading-relaxed mb-3 max-w-md">
               Join the inaugural cohort of EXECLEAD.AI leaders and receive exclusive lifetime
               benefits reserved only for our earliest supporters.
             </p>
@@ -78,7 +78,7 @@ export default function FoundingMemberSection() {
             <Sparkles size={18} className="text-amber-400" />
             <h3 className="text-white font-semibold">Why Become a Founding Member?</h3>
           </div>
-          <p className="text-white/50 text-sm leading-relaxed max-w-3xl">
+          <p className="text-white/50 text-base leading-relaxed max-w-3xl">
             You're not simply purchasing a subscription. You're joining the first generation of
             leaders helping shape the future of AI-powered executive leadership development. Your
             early support helps build a platform designed to empower professionals and organizations
@@ -120,7 +120,7 @@ export default function FoundingMemberSection() {
           </button>
           <a
             href="#benefits"
-            className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/60 font-medium px-6 py-3.5 rounded-xl transition-colors text-sm"
+            className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-foreground font-medium px-6 py-3.5 rounded-xl transition-colors text-sm border border-border"
           >
             View Membership Benefits
           </a>

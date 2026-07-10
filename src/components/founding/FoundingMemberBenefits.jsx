@@ -18,7 +18,7 @@ export default function FoundingMemberBenefits() {
             {benefit.icon}
           </div>
           <h4 className="text-white font-semibold text-sm mb-2">{benefit.title}</h4>
-          <p className="text-white/40 text-xs leading-relaxed">{benefit.description}</p>
+          <p className="text-white/40 text-sm leading-relaxed">{benefit.description}</p>
         </motion.div>
       ))}
     </div>

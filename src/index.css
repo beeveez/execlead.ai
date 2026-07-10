@@ -263,6 +263,24 @@ html:not(.dark) .border-white\/5,
 html:not(.dark) .border-white\/10,
 html:not(.dark) .border-white\/20 { border-color: hsl(var(--border)); }
 
+/* ── Amber/gold text — darken for WCAG AA in light mode ── */
+/* Light gold shades are invisible on white; darken to readable amber */
+html:not(.dark) .text-amber-400 { color: #b45309; }
+html:not(.dark) .text-amber-300 { color: #b45309; }
+html:not(.dark) .text-amber-200 { color: #92400e; }
+html:not(.dark) .text-amber-100 { color: #78350f; }
+/* Amber opacity variants — map to muted-foreground for body text */
+html:not(.dark) .text-amber-100\/70,
+html:not(.dark) .text-amber-100\/60 { color: hsl(var(--muted-foreground)); }
+html:not(.dark) .text-amber-400\/60,
+html:not(.dark) .text-amber-400\/50,
+html:not(.dark) .text-amber-400\/40 { color: hsl(var(--muted-foreground)); }
+
+/* ── Amber borders — semantic border in light mode ── */
+html:not(.dark) .border-amber-500\/10,
+html:not(.dark) .border-amber-500\/15,
+html:not(.dark) .border-amber-500\/20 { border-color: hsl(var(--border)); }
+
 /* ── Gradient stops (marketing/hero sections) ── */
 html:not(.dark) .from-\[\#0a0a0f\] {
   --tw-gradient-from: hsl(var(--background)) var(--tw-gradient-from-position, 0%);

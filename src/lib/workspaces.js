@@ -13,7 +13,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet,
-  BookOpen,
+  BookOpen, Star,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -59,6 +59,7 @@ export const WORKSPACE_NAV = {
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
       { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
+      { path: "/reputation", label: "Executive Reputation", icon: Star },
       { path: "/executive/rankings", label: "Executive Rankings", icon: Trophy },
     ]},
     { label: "Account", items: [
@@ -168,7 +169,7 @@ const ROUTE_WORKSPACE = {
   "/legacy-library": ["executive", "platform", "developer"],
   "/career": ["executive"], "/metrics": ["executive"],
   "/notifications": ["executive"], "/compare-plans": ["executive"],
-  "/brand-center": ["executive"], "/executive/rankings": ["executive"],
+  "/brand-center": ["executive"], "/executive/rankings": ["executive"], "/reputation": ["executive"],
   "/connected-accounts": ["executive"],
   "/enterprise": ["enterprise"], "/hr-dashboard": ["enterprise"],
   "/succession-planning": ["enterprise"], "/promotion-readiness": ["enterprise"],

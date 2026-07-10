@@ -39,7 +39,6 @@ export default function CommentSection({ letterId, authorUserId, commentsCount }
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [eligibility, setEligibility] = useState(null);
   const [limit, setLimit] = useState(null);
-  const [accepting, setAccepting] = useState(false);
   const [reactions, setReactions] = useState({});
   const [myReactions, setMyReactions] = useState({});
 
@@ -75,18 +74,6 @@ export default function CommentSection({ letterId, authorUserId, commentsCount }
       setEligibility(d.eligibility);
       setLimit(d.limit);
     } catch (e) {}
-  };
-
-  const handleAcceptStandards = async () => {
-    setAccepting(true);
-    try {
-      await base44.functions.invoke("manageLegacyLibrary", { action: "accept_community_standards" });
-      toast({ title: "Community Standards accepted" });
-      await loadEligibility();
-    } catch (e) {
-      toast({ title: "Failed to accept", variant: "destructive" });
-    }
-    setAccepting(false);
   };
 
   const handlePost = async () => {
@@ -208,7 +195,7 @@ export default function CommentSection({ letterId, authorUserId, commentsCount }
 
       {/* Eligibility Gate */}
       {user && eligibility && !eligibility.eligible && (
-        <CommentEligibilityGate eligibility={eligibility} onAcceptStandards={handleAcceptStandards} accepting={accepting} />
+        <CommentEligibilityGate eligibility={eligibility} onAccepted={loadEligibility} />
       )}
 
       {/* Comment Form */}

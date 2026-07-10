@@ -1,0 +1,66 @@
+{
+  "name": "CodeOfConductAcceptance",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who accepted"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "member_id": {
+      "type": "string",
+      "description": "User ID at time of acceptance"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the Code accepted"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "browser_user_agent": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "platform_version": {
+      "type": "string"
+    },
+    "acceptance_version": {
+      "type": "string",
+      "description": "Version of the acceptance record format"
+    },
+    "digital_signature_hash": {
+      "type": "string",
+      "description": "SHA-256 hash signature for compliance"
+    }
+  },
+  "required": [
+    "user_id",
+    "version"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {},
+    "delete": {}
+  }
+}

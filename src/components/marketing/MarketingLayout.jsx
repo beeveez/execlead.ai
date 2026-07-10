@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import MarketingNav from "./MarketingNav";
 import MarketingFooter from "./MarketingFooter";
 import EarlyAccessBanner from "./EarlyAccessBanner";
+import ExecConcierge from "@/components/concierge/ExecConcierge";
 
 /**
  * MarketingLayout — persistent shell for all public marketing pages.
@@ -32,6 +33,7 @@ export default function MarketingLayout({ children }) {
         </motion.div>
       </main>
       <MarketingFooter />
+      <ExecConcierge />
     </div>
   );
 }

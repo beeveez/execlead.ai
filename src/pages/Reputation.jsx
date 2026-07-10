@@ -100,6 +100,12 @@ export default function Reputation() {
   const profile = data?.profile;
   const history = data?.history || [];
   const isAdmin = user?.role === 'admin';
+  // Recruiter View is an optional enhancement — only show for users with
+  // recruiter/enterprise access. Free & Professional users never see it,
+  // so the API is never called and no auth-related error surfaces.
+  const canAccessRecruiterView = isAdmin
+    || profile?.subscription_plan === 'enterprise'
+    || Boolean(profile?.organization_id);
 
   // Empty state — no reputation record yet
   if (!rep || rep.reputation_score === undefined) {
@@ -153,7 +159,7 @@ export default function Reputation() {
         <ReputationUnlocks rep={rep} badges={badges} isAdmin={isAdmin} profile={profile} />
         <ExecutiveInsights rep={rep} onGenerate={handleGenerateInsights} generating={generatingInsights} />
         <Benchmarking rep={rep} rank={rank} />
-        <ReputationRecruiterView userId={user.id} />
+        {canAccessRecruiterView && <ReputationRecruiterView userId={user.id} />}
         <ReputationHistory rep={rep} history={history} />
         <AuditHistory history={history} />
         <ExecutivePhilosophy rep={rep} />

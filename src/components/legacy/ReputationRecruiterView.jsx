@@ -12,7 +12,14 @@ export default function ReputationRecruiterView({ userId }) {
     if (!userId) return;
     base44.functions.invoke("manageReputation", { action: "get_recruiter_view", user_id: userId })
       .then((res) => { const d = res.data || res; setData(d); })
-      .catch(() => { toast({ title: "Failed to load recruiter view", variant: "destructive" }); })
+      .catch((err) => {
+        // 404 = no reputation record yet — silently omit, not an error.
+        // Only surface a toast for genuine API failures on authorized accounts.
+        const status = err?.response?.status || err?.status;
+        if (status !== 404) {
+          toast({ title: "Failed to load recruiter view", variant: "destructive" });
+        }
+      })
       .finally(() => setLoading(false));
   }, [userId]);
 

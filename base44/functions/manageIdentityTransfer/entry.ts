@@ -153,6 +153,16 @@ Deno.serve(async (req) => {
         enterprise_features_revoked: true,
       });
 
+      // End the affiliation for this organization (other affiliations remain)
+      const userAffs = await safeFilter(base44, 'ExecutiveAffiliation',
+        { user_id: user.id, organization_id: transfer.organization_id, status: 'active' });
+      if (userAffs.length > 0) {
+        await base44.asServiceRole.entities.ExecutiveAffiliation.update(userAffs[0].id, {
+          status: 'ended',
+          ended_at: new Date().toISOString(),
+        });
+      }
+
       return Response.json({
         success: true,
         chosen_plan,
@@ -222,6 +232,27 @@ Deno.serve(async (req) => {
         initiated_by_id: user.id,
         initiated_by_name: adminProfile.full_name || user.email,
       });
+
+      // Create affiliation record (retroactive if needed — preserves multi-org history)
+      const existingAffs = await safeFilter(base44, 'ExecutiveAffiliation',
+        { user_id: target_user_id, organization_id: adminProfile.organization_id, status: 'active' });
+      if (existingAffs.length === 0) {
+        await base44.asServiceRole.entities.ExecutiveAffiliation.create({
+          user_id: target_user_id,
+          user_name: targetProfile.full_name || 'Unknown',
+          organization_id: adminProfile.organization_id,
+          organization_name: org?.name || '',
+          affiliation_type: 'employee',
+          role_title: targetProfile.custom_role || '',
+          department: targetProfile.department || '',
+          department_id: targetProfile.department_id || '',
+          is_primary: true,
+          status: 'active',
+          started_at: targetProfile.created_date || now.toISOString(),
+          subscription_plan: targetProfile.subscription_plan || 'enterprise',
+          sponsored_by_org: true,
+        });
+      }
 
       // Decrement seat count
       if (org && (org.seats_used || 0) > 0) {
@@ -305,6 +336,21 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Create new affiliation record (rehire — no duplicate profile)
+      await base44.asServiceRole.entities.ExecutiveAffiliation.create({
+        user_id: target_user_id,
+        user_name: targetProfile.full_name || 'Unknown',
+        organization_id: adminProfile.organization_id,
+        organization_name: org?.name || '',
+        affiliation_type: 'employee',
+        role_title: new_custom_role || 'Enterprise User',
+        is_primary: true,
+        status: 'active',
+        started_at: new Date().toISOString(),
+        subscription_plan: 'enterprise',
+        sponsored_by_org: true,
+      });
+
       // Increment seats
       if (org) {
         await base44.asServiceRole.entities.Organization.update(org.id, { seats_used: (org.seats_used || 0) + 1 });
@@ -315,6 +361,87 @@ Deno.serve(async (req) => {
         rehired: true,
         previous_orgs: previousTransfers.map(t => ({ name: t.organization_name, completed_at: t.completed_at }))
       });
+    }
+
+    // ── MEMBER: Get all organization affiliations (multi-org support) ──
+    if (action === 'get_affiliations') {
+      const targetUserId = body.target_user_id || user.id;
+      const affiliations = await safeFilter(base44, 'ExecutiveAffiliation',
+        { user_id: targetUserId, status: 'active' }, '-created_date', 50);
+
+      // Retroactive migration: synthesize affiliation from profile org_id if missing
+      const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: targetUserId });
+      const profile = profiles[0];
+      if (profile?.organization_id) {
+        const hasAff = affiliations.some(a => a.organization_id === profile.organization_id);
+        if (!hasAff) {
+          let orgName = '';
+          try {
+            const org = await base44.asServiceRole.entities.Organization.get(profile.organization_id);
+            orgName = org?.name || '';
+          } catch {}
+          const retro = await base44.asServiceRole.entities.ExecutiveAffiliation.create({
+            user_id: targetUserId,
+            user_name: profile.full_name || 'Unknown',
+            organization_id: profile.organization_id,
+            organization_name: orgName,
+            affiliation_type: 'employee',
+            role_title: profile.custom_role || '',
+            department: profile.department || '',
+            department_id: profile.department_id || '',
+            is_primary: true,
+            status: 'active',
+            started_at: profile.created_date || new Date().toISOString(),
+            subscription_plan: profile.subscription_plan || 'enterprise',
+            sponsored_by_org: true,
+          });
+          affiliations.unshift(retro);
+        }
+      }
+
+      return Response.json({ affiliations });
+    }
+
+    // ── MEMBER: Add a self-declared affiliation (board member, advisor, etc.) ──
+    if (action === 'add_affiliation') {
+      const { organization_name, affiliation_type, role_title, visibility } = body;
+      if (!organization_name) return Response.json({ error: 'organization_name required' }, { status: 400 });
+
+      const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
+      const profile = profiles[0];
+
+      const aff = await base44.asServiceRole.entities.ExecutiveAffiliation.create({
+        user_id: user.id,
+        user_name: profile?.full_name || user.email || 'Unknown',
+        organization_name,
+        affiliation_type: affiliation_type || 'advisor',
+        role_title: role_title || '',
+        is_primary: false,
+        status: 'active',
+        started_at: new Date().toISOString(),
+        visibility: visibility || 'public',
+        sponsored_by_org: false,
+      });
+
+      return Response.json({ success: true, affiliation: aff });
+    }
+
+    // ── MEMBER: End a self-declared affiliation ──
+    if (action === 'end_affiliation') {
+      const { affiliation_id } = body;
+      if (!affiliation_id) return Response.json({ error: 'affiliation_id required' }, { status: 400 });
+
+      const userAffs = await safeFilter(base44, 'ExecutiveAffiliation',
+        { user_id: user.id, status: 'active' }, '-created_date', 500);
+      const aff = userAffs.find(a => a.id === affiliation_id);
+      if (!aff) return Response.json({ error: 'Affiliation not found' }, { status: 404 });
+
+      await base44.asServiceRole.entities.ExecutiveAffiliation.update(affiliation_id, {
+        status: 'ended',
+        ended_at: new Date().toISOString(),
+      });
+
+      return Response.json({ success: true });
     }
 
     return Response.json({ error: 'Unknown action: ' + (action || 'none') }, { status: 400 });

@@ -9,6 +9,7 @@ import {
   Target, Wallet, Dna, Users, MessageSquare, Share2, X,
   Sparkles, Crown, ArrowRight, AlertCircle
 } from "lucide-react";
+import MultiOrgCard from "@/components/identity/MultiOrgCard";
 
 const PLAN_OPTIONS = [
   {
@@ -73,6 +74,7 @@ export default function IdentityTransferWizard() {
   const [completing, setCompleting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState(null);
+  const [affiliations, setAffiliations] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -89,6 +91,12 @@ export default function IdentityTransferWizard() {
       })
       .catch(() => setError("Failed to load transfer status."));
     return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    base44.functions.invoke("manageIdentityTransfer", { action: "get_affiliations" })
+      .then(res => { const d = res.data || res; setAffiliations(d.affiliations || []); })
+      .catch(() => {});
   }, []);
 
   const loadAssets = async () => {
@@ -237,6 +245,10 @@ export default function IdentityTransferWizard() {
                   </ul>
                 </div>
               </div>
+
+              {affiliations.filter(a => a.organization_id !== transfer.organization_id).length > 0 && (
+                <MultiOrgCard affiliations={affiliations.filter(a => a.organization_id !== transfer.organization_id)} />
+              )}
             </div>
 
             <div className="flex justify-end mt-4">
@@ -438,6 +450,32 @@ export default function IdentityTransferWizard() {
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <ProductMessaging />
+    </div>
+  );
+}
+
+const IDENTITY_MESSAGES = [
+  "Your employer may sponsor your EXECLEAD.AI membership, but your Executive Identity belongs to you.",
+  "Your leadership journey doesn't end when you leave a company.",
+  "EXECLEAD.AI grows with you throughout your career.",
+];
+
+function ProductMessaging() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setIdx(i => (i + 1) % IDENTITY_MESSAGES.length), 5000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div className="text-center mt-8">
+      <AnimatePresence mode="wait">
+        <motion.p key={idx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
+          className="text-white/30 text-xs italic max-w-md mx-auto">
+          {IDENTITY_MESSAGES[idx]}
+        </motion.p>
       </AnimatePresence>
     </div>
   );

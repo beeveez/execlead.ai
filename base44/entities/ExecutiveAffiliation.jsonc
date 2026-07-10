@@ -1,0 +1,130 @@
+{
+  "name": "ExecutiveAffiliation",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Executive user ID \u2014 one identity, many affiliations"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Platform organization ID (empty for self-declared affiliations)"
+    },
+    "organization_name": {
+      "type": "string",
+      "description": "Organization name displayed on profile"
+    },
+    "affiliation_type": {
+      "type": "string",
+      "enum": [
+        "employee",
+        "board_member",
+        "advisor",
+        "mentor",
+        "investor",
+        "consultant",
+        "partner",
+        "fellow"
+      ],
+      "default": "employee",
+      "description": "Type of relationship with the organization"
+    },
+    "role_title": {
+      "type": "string",
+      "description": "Specific role title (e.g., CEO, Board Director, Strategic Advisor)"
+    },
+    "department": {
+      "type": "string"
+    },
+    "department_id": {
+      "type": "string"
+    },
+    "manager_id": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Primary affiliation shown on profile header"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending",
+        "ended"
+      ],
+      "default": "active"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "description": "Plan sponsored by this org (if enterprise)"
+    },
+    "sponsored_by_org": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this org sponsors the membership"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "connections",
+        "private"
+      ],
+      "default": "public",
+      "description": "Who can see this affiliation on the executive's profile"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Organization-verified affiliation"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "invited_by_id": {
+      "type": "string"
+    },
+    "invited_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "organization_name",
+    "affiliation_type"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {},
+    "update": {
+      "data.user_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

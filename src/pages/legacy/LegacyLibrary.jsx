@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { BookOpen, Search, PenLine, Loader2, Sparkles, Filter, X } from "lucide-react";
+import { BookOpen, Search, PenLine, Loader2, Sparkles, Filter, X, Lock } from "lucide-react";
+import UpgradeDialog from "@/components/common/UpgradeDialog";
+import { usePlanTier } from "@/hooks/usePlanTier";
 import LegacyLetterCard from "@/components/legacy/LegacyLetterCard";
 import { LETTER_CATEGORIES, CURATED_COLLECTIONS, LEADERSHIP_LEVELS, INDUSTRIES } from "@/lib/legacyLibrary";
 
@@ -17,6 +19,8 @@ export default function LegacyLibrary() {
   const [level, setLevel] = useState("");
   const [collection, setCollection] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { hasPro } = usePlanTier();
 
   useEffect(() => {
     base44.entities.LeadershipLetter.filter({ status: "published" }, "-views", 200)
@@ -64,9 +68,18 @@ export default function LegacyLibrary() {
 
       {/* Write CTA */}
       <div className="flex justify-center mb-8">
-        <Link to="/legacy-library/new" className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-5 py-2.5 rounded-xl transition-colors text-sm">
-          <PenLine size={16} /> Write a Leadership Letter
-        </Link>
+        {hasPro ? (
+          <Link to="/legacy-library/new" className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-5 py-2.5 rounded-xl transition-colors text-sm">
+            <PenLine size={16} /> Write a Leadership Letter
+          </Link>
+        ) : (
+          <button
+            onClick={() => setUpgradeOpen(true)}
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-5 py-2.5 rounded-xl transition-colors text-sm"
+          >
+            <Lock size={16} /> Write a Leadership Letter
+          </button>
+        )}
       </div>
 
       {/* Collections */}
@@ -177,6 +190,14 @@ export default function LegacyLibrary() {
           </div>
         </>
       )}
+      <UpgradeDialog
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        featureName="Publish Leadership Letter"
+        description="Share your leadership lessons with future generations. Publish your own Leadership Letter in the Legacy Library."
+        benefits={["Publish your leadership letter", "AI writing assistant", "Save drafts", "Scheduled publishing", "Featured author program", "Letter analytics"]}
+        requiredPlan="professional"
+      />
     </div>
   );
 }

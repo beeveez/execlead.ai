@@ -25,6 +25,8 @@ import AchievementsMilestones from "@/components/legacy/AchievementsMilestones";
 import ReputationRecruiterView from "@/components/legacy/ReputationRecruiterView";
 
 import { ArrowLeft, Loader2, RefreshCw, Sparkles, AlertCircle } from "lucide-react";
+import LockedFeatureSection from "@/components/common/LockedFeatureSection";
+import { usePlanTier } from "@/hooks/usePlanTier";
 
 export default function Reputation() {
   const { user } = useAuth();
@@ -34,6 +36,7 @@ export default function Reputation() {
   const [recalculating, setRecalculating] = useState(false);
   const [generatingInsights, setGeneratingInsights] = useState(false);
   const [rank, setRank] = useState(null);
+  const { hasPro, hasExec } = usePlanTier();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -100,12 +103,6 @@ export default function Reputation() {
   const profile = data?.profile;
   const history = data?.history || [];
   const isAdmin = user?.role === 'admin';
-  // Recruiter View is an optional enhancement — only show for users with
-  // recruiter/enterprise access. Free & Professional users never see it,
-  // so the API is never called and no auth-related error surfaces.
-  const canAccessRecruiterView = isAdmin
-    || profile?.subscription_plan === 'enterprise'
-    || Boolean(profile?.organization_id);
 
   // Empty state — no reputation record yet
   if (!rep || rep.reputation_score === undefined) {
@@ -151,16 +148,61 @@ export default function Reputation() {
         <ScoreBreakdown breakdown={breakdown} score={rep.reputation_score} />
         <CompetencyRadar reputation={rep} />
         <ReputationTimeline reputation={rep} history={history} />
-        <AICoach rep={rep} recommendations={recommendations} />
+        {hasPro ? (
+          <AICoach rep={rep} recommendations={recommendations} />
+        ) : (
+          <LockedFeatureSection
+            title="AI Reputation Coach"
+            description="Receive personalized recommendations to improve your Executive Reputation with AI-powered coaching."
+            benefits={["Personalized coaching", "Reputation improvement roadmap", "Benchmark against executives", "Historical trend analysis"]}
+            requiredPlan="professional"
+          />
+        )}
         <AchievementsMilestones reputation={rep} />
         <BadgesShowcase badges={badges} />
         <CommunityTrust rep={rep} />
         <ExecutiveInfluence rep={rep} />
         <ReputationUnlocks rep={rep} badges={badges} isAdmin={isAdmin} profile={profile} />
-        <ExecutiveInsights rep={rep} onGenerate={handleGenerateInsights} generating={generatingInsights} />
-        <Benchmarking rep={rep} rank={rank} />
-        {canAccessRecruiterView && <ReputationRecruiterView userId={user.id} />}
-        <ReputationHistory rep={rep} history={history} />
+        {hasExec ? (
+          <ExecutiveInsights rep={rep} onGenerate={handleGenerateInsights} generating={generatingInsights} />
+        ) : (
+          <LockedFeatureSection
+            title="Executive Insights"
+            description="AI-generated qualitative analysis of your executive strengths, growth areas, and learning recommendations."
+            benefits={["AI strengths analysis", "Growth area identification", "Personalized learning recommendations", "Mentoring suggestions"]}
+            requiredPlan="executive"
+          />
+        )}
+        {hasPro ? (
+          <Benchmarking rep={rep} rank={rank} />
+        ) : (
+          <LockedFeatureSection
+            title="Reputation Benchmarking"
+            description="Compare your reputation scores against community averages and track your percentile ranking."
+            benefits={["Community percentile ranking", "Peer comparison", "Performance gap analysis"]}
+            requiredPlan="professional"
+          />
+        )}
+        {hasExec ? (
+          <ReputationRecruiterView userId={user.id} />
+        ) : (
+          <LockedFeatureSection
+            title="Recruiter Visibility"
+            description="Make your executive reputation visible to recruiters and hiring managers with a professional summary view."
+            benefits={["Recruiter-ready profile", "Executive credibility score", "Leadership strengths summary", "Professional verification"]}
+            requiredPlan="executive"
+          />
+        )}
+        {hasPro ? (
+          <ReputationHistory rep={rep} history={history} />
+        ) : (
+          <LockedFeatureSection
+            title="Reputation History"
+            description="Track your leadership growth over time and identify improvement opportunities with historical trend analysis."
+            benefits={["Historical score tracking", "Growth trend visualization", "Milestone markers", "Performance statistics"]}
+            requiredPlan="professional"
+          />
+        )}
         <AuditHistory history={history} />
         <ExecutivePhilosophy rep={rep} />
       </div>

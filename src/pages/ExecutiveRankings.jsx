@@ -5,6 +5,7 @@ import { Trophy, Users, BookOpen, Share2, TrendingUp, Gift, ArrowRight, Crown } 
 import { SHARE_PLATFORMS, getUserReferralCode, getShareUrl } from "@/lib/socialShare";
 import ShareButton from "@/components/social/ShareButton";
 import { useLeaderboardData } from "@/hooks/useLeaderboardData";
+import ReputationLeaderboard from "@/components/rankings/ReputationLeaderboard";
 import { LeaderboardListSkeleton, AnalyticsBarSkeleton } from "@/components/marketing/Shimmer";
 
 const PLATFORM_ICONS = {
@@ -65,6 +66,9 @@ export default function ExecutiveRankings() {
         <h1 className="text-2xl font-bold text-white">Executive Rankings & Share Analytics</h1>
         <p className="text-white/40 text-sm mt-1">Top referrers, executive learners, and marketplace contributors across the EXECLEAD.AI community.</p>
       </div>
+
+      {/* Reputation Rankings */}
+      <ReputationLeaderboard />
 
       {/* Share CTA */}
       <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

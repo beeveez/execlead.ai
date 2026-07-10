@@ -37,8 +37,8 @@ export const WORKSPACE_PERSONAS = {
       "Executive Readiness", "Executive Reputation", "Executive Passport",
     ],
     greeting: (firstName) => {
-      const name = firstName ? `${firstName}.` : "back.";
-      return `Welcome back, ${name}\n\nI'm **EXEC™**, your AI Executive Concierge.\n\nI'm here to help you advance your leadership journey — from Executive Readiness to Reputation, Passport, and beyond.\n\nHow can I help you grow as a leader today?`;
+      const name = firstName ? `, ${firstName}` : " back";
+      return `Welcome back${name}.\n\n**Executive Workspace** is active.\n\nI'm **EXEC™**, your **Executive Coach™**.\n\nI'm here to help you advance your leadership journey — from Executive Readiness to Reputation, Passport, and beyond.\n\nHow can I help you grow as a leader today?`;
     },
     anonymousGreeting: `Welcome to EXECLEAD.AI.
 
@@ -100,13 +100,15 @@ Prioritize guidance that helps the user become a stronger leader. Use journey po
     ],
     greeting: (firstName) => {
       const name = firstName ? `, ${firstName}` : "";
-      return `Developer mode activated${name}.
+      return `Welcome back${name}.
 
-I'm **EXEC™**, operating as your **Developer Copilot**.
+**Developer Workspace** is active.
+
+I'm **EXEC™**, your **Developer Copilot™**.
 
 I can help you with system health, Guardian™ consistency checks, feature flags, API management, deployments, database operations, diagnostics, and architecture decisions.
 
-What are we building or debugging today?`;
+How can I help you build EXECLEAD.AI today?`;
     },
     anonymousGreeting: `I'm **EXEC™**, operating as Developer Copilot.
 
@@ -162,9 +164,11 @@ You have deep technical knowledge of the platform infrastructure. Provide precis
     ],
     greeting: (firstName) => {
       const name = firstName ? `, ${firstName}` : "";
-      return `Enterprise mode activated${name}.
+      return `Welcome back${name}.
 
-I'm **EXEC™**, operating as your **Enterprise Advisor**.
+**Enterprise Workspace** is active.
+
+I'm **EXEC™**, your **Enterprise Advisor™**.
 
 I can help you manage your organization, seats, enterprise analytics, billing, identity reviews, and enterprise intelligence dashboards.
 
@@ -224,9 +228,11 @@ You advise enterprise leaders on building leadership pipelines, developing talen
     ],
     greeting: (firstName) => {
       const name = firstName ? `, ${firstName}` : "";
-      return `Platform administration mode${name}.
+      return `Welcome back${name}.
 
-I'm **EXEC™**, operating as your **Platform Administrator**.
+**Platform Workspace** is active.
+
+I'm **EXEC™**, your **Platform Administrator™**.
 
 I can help you manage subscriptions, pricing plans, payment settings, feature management, email configuration, and membership programs.
 

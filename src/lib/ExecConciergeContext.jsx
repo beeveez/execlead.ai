@@ -86,6 +86,7 @@ export function ExecConciergeProvider({ children }) {
   const [userContext, setUserContext] = useState(null);
   const [hasGreeted, setHasGreeted] = useState(false);
   const userContextRef = useRef(null);
+  const greetedWorkspaceRef = useRef(null);
 
   // Track current page context
   useEffect(() => {
@@ -164,8 +165,10 @@ export function ExecConciergeProvider({ children }) {
       const firstName = user.full_name?.split(" ")[0];
       const briefing = generateBriefing(firstName, ctx, matchPageContext(location.pathname), workspacePersona);
       setMessages([{ role: "assistant", content: briefing }]);
+      greetedWorkspaceRef.current = activeWorkspace;
     } else {
       setMessages([{ role: "assistant", content: workspacePersona?.anonymousGreeting || EXEC_WELCOME_MESSAGE }]);
+      greetedWorkspaceRef.current = activeWorkspace;
     }
     base44.analytics.track({ eventName: "exec_concierge_opened", properties: { workspace: activeWorkspace } });
   }, [user, fetchUserContext, location.pathname, workspacePersona, activeWorkspace]);
@@ -178,6 +181,27 @@ export function ExecConciergeProvider({ children }) {
       initConversation();
     }
   }, [isOpen, hasGreeted, initConversation, user]);
+
+  // Regenerate greeting when active workspace changes (after initial greeting)
+  useEffect(() => {
+    if (!user || !activeWorkspace || !hasGreeted) return;
+    if (greetedWorkspaceRef.current === activeWorkspace) return;
+    greetedWorkspaceRef.current = activeWorkspace;
+    const firstName = user.full_name?.split(" ")[0];
+    const briefing = generateBriefing(
+      firstName,
+      userContextRef.current,
+      matchPageContext(location.pathname),
+      workspacePersona
+    );
+    setMessages((prev) => {
+      if (prev.length > 0 && prev[0].role === "assistant") {
+        return [{ role: "assistant", content: briefing }, ...prev.slice(1)];
+      }
+      return [{ role: "assistant", content: briefing }];
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWorkspace, hasGreeted, user?.id]);
 
   const open = useCallback(() => {
     setIsOpen(true);

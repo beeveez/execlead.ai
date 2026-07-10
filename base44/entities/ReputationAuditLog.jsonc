@@ -37,9 +37,27 @@
         "recalculation",
         "penalty",
         "badge_earned",
-        "badge_revoked"
+        "badge_revoked",
+        "manual_adjustment",
+        "suspension",
+        "restoration",
+        "feature"
       ],
       "default": "recalculation"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "adjust_score",
+        "award_badge",
+        "remove_badge",
+        "feature_member",
+        "suspend",
+        "restore",
+        "recalculate",
+        "recognize"
+      ],
+      "description": "Specific moderator action type"
     },
     "contribution_id": {
       "type": "string"
@@ -47,6 +65,20 @@
     "contribution_type": {
       "type": "string",
       "description": "letter, comment, discussion, etc."
+    },
+    "ai_recommendation": {
+      "type": "string",
+      "description": "AI-suggested action or assessment"
+    },
+    "moderator_decision": {
+      "type": "string",
+      "description": "Moderator's decision notes"
+    },
+    "reviewer_id": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
     },
     "details_json": {
       "type": "string",

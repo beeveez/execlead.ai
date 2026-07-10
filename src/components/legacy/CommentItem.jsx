@@ -68,7 +68,7 @@ export default function CommentItem({ comment, isLetterAuthor, isAdmin, currentU
             {comment.author_verified && <BadgeCheck size={12} className="text-indigo-400" />}
             {comment.author_is_founder && <span className="flex items-center gap-0.5 px-1 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-amber-400 text-[9px] font-medium"><Crown size={8} /> Founder</span>}
             {comment.author_trust_level && <TrustBadge level={comment.author_trust_level} score={comment.author_trust_score} />}
-            {reputation && reputation.score > 0 && <ReputationBadges score={reputation.score} tier={reputation.tier} badges={reputation.badges} compact />}
+            {reputation && reputation.score > 0 && <ReputationBadges score={reputation.score} tier={reputation.tier} badges={reputation.badges} compact context={{ trustScore: comment.author_trust_score, leadershipLevel: comment.author_title }} />}
             {hasHighScore && <span className="flex items-center gap-0.5 px-1 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 text-[9px] font-medium"><Sparkles size={8} /> High Quality</span>}
           </div>
           <div className="text-white/30 text-[10px]">{comment.author_title}{comment.author_organization ? ` at ${comment.author_organization}` : ""}{comment.author_country ? ` · ${comment.author_country}` : ""}</div>

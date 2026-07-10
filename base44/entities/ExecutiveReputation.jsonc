@@ -43,7 +43,7 @@
     },
     "badges_json": {
       "type": "string",
-      "description": "JSON array of {id, earned_at}"
+      "description": "JSON array of {id, earned_at, reason}"
     },
     "total_letters": {
       "type": "number",
@@ -118,6 +118,107 @@
     "last_calculated_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "community_trust_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Community Trust 0-100 (synced from UserProfile)"
+    },
+    "leadership_influence_pct": {
+      "type": "number",
+      "default": 0,
+      "description": "Leadership Influence 0-100%"
+    },
+    "contribution_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Contribution Score 0-100"
+    },
+    "professional_conduct_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Professional Conduct 0-100"
+    },
+    "mentorship_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Mentorship Score 0-100"
+    },
+    "executive_credibility_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Executive Credibility 0-100"
+    },
+    "overall_executive_rating": {
+      "type": "string",
+      "default": "F",
+      "description": "A+ to F rating"
+    },
+    "weighted_breakdown_json": {
+      "type": "string",
+      "description": "JSON array of {pillar, weight, score, points}"
+    },
+    "quality_dimensions_json": {
+      "type": "string",
+      "description": "JSON object of 10 quality dimension scores"
+    },
+    "quality_history_json": {
+      "type": "string",
+      "description": "JSON of {monthly, yearly, highest_rated, most_helpful, most_read_letter}"
+    },
+    "ai_executive_insights_json": {
+      "type": "string",
+      "description": "JSON of {insights, strengths, growth_areas}"
+    },
+    "ai_insights_generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "simulations_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "courses_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "mentoring_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "thought_leadership_index": {
+      "type": "number",
+      "default": 0
+    },
+    "total_views": {
+      "type": "number",
+      "default": 0
+    },
+    "gaming_risk_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Anti-gaming risk 0-100 (higher = more risk)"
+    },
+    "gaming_flags_json": {
+      "type": "string",
+      "description": "JSON array of gaming risk flag strings"
+    },
+    "reputation_suspended": {
+      "type": "boolean",
+      "default": false
+    },
+    "suspended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "suspension_reason": {
+      "type": "string"
+    },
+    "suspended_by_id": {
+      "type": "string"
+    },
+    "suspended_by_name": {
+      "type": "string"
     }
   },
   "required": [

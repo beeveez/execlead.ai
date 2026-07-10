@@ -20,9 +20,10 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <Logo />
           </div>
+          <p className="text-white/40 text-xs font-medium tracking-wide mb-6">One Leadership Journey. One AI Platform.</p>
           <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
           {subtitle && <p className="text-white/40 text-sm mt-2">{subtitle}</p>}
         </div>

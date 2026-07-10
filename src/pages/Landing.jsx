@@ -96,20 +96,29 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
           >
-            One Platform for
+            Become the Executive
             <br />
             <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Every Stage of Your Leadership Journey.
+              Every Company Wants to Hire.
             </span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed"
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-lg md:text-2xl font-medium text-white/60 max-w-2xl mx-auto mb-4"
           >
-            From your first leadership opportunity to the boardroom — develop leadership, communication, strategic thinking, and executive presence through AI-powered coaching at every stage of your career.
+            One Leadership Journey. One AI Platform.
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-base md:text-lg text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
+            Whether you're a student, aspiring leader, manager, executive, founder, or enterprise organization, EXECLEAD.AI grows with you throughout your leadership journey.
           </motion.p>
 
           <motion.div
@@ -138,7 +147,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="text-white/20 text-xs mt-6"
           >
-            From Your First Leadership Opportunity to the Boardroom.
+            From Classroom to Boardroom.
           </motion.p>
         </div>
       </section>

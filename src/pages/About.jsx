@@ -10,12 +10,14 @@ export default function About() {
 
         <div className="prose prose-invert max-w-none space-y-6 text-white/60 text-lg leading-relaxed">
           <p>
-            EXECLEAD.AI is the world's first AI Executive Leadership Operating System — a complete
-            platform designed to transform technical professionals into authentic executive leaders.
-            Rather than simply preparing candidates for interviews, the platform develops the core
-            leadership competencies that make someone the executive every company wants to hire:
-            strategic thinking, executive communication, commercial awareness, and confident
-            decision-making under pressure.
+            EXECLEAD.AI was built on a simple belief: <strong>Leadership is a lifelong journey—not a single promotion.</strong>
+          </p>
+          <p>
+            Our mission is to provide one intelligent AI platform that grows with professionals from
+            their earliest career aspirations to executive leadership and beyond. From your first
+            leadership opportunity to the boardroom, EXECLEAD.AI provides personalized AI coaching,
+            assessments, simulations, executive development, career intelligence, and lifelong
+            leadership growth—all within one intelligent platform.
           </p>
 
           <p>
@@ -31,11 +33,12 @@ export default function About() {
           </p>
 
           <p>
-            EXECLEAD.AI is built for IT professionals, engineers, managers, directors, and aspiring
-            executives who want to accelerate their transition into senior leadership roles. Whether
-            you are a service desk lead targeting your first director position or a seasoned VP
-            preparing for a C-suite role, the platform adapts to your level and target company,
-            delivering tailored coaching, challenges, and feedback every step of the way.
+            EXECLEAD.AI is built for every stage of the leadership journey — students, graduates,
+            individual contributors, team leaders, managers, directors, executives, founders, HR
+            leaders, recruiters, and enterprise organizations. Whether you are preparing for your
+            first leadership opportunity or your next executive role, the platform adapts to your
+            level and goals, delivering tailored coaching, challenges, and feedback every step of
+            the way.
           </p>
 
           <p>
@@ -50,12 +53,12 @@ export default function About() {
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Target size={20} className="text-indigo-400 mb-3" />
             <h3 className="text-white font-semibold text-sm mb-1">Our Mission</h3>
-            <p className="text-white/40 text-xs leading-relaxed">Develop executive leaders, not interview candidates.</p>
+            <p className="text-white/40 text-xs leading-relaxed">One leadership journey, one AI platform — from classroom to boardroom.</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Users size={20} className="text-cyan-400 mb-3" />
             <h3 className="text-white font-semibold text-sm mb-1">Who We Serve</h3>
-            <p className="text-white/40 text-xs leading-relaxed">Technical professionals advancing into executive leadership.</p>
+            <p className="text-white/40 text-xs leading-relaxed">Professionals at every stage — from students to executives and enterprise organizations.</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Building2 size={20} className="text-purple-400 mb-3" />

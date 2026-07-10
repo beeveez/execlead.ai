@@ -81,6 +81,10 @@ export default function Pricing() {
               </div>
             </div>
           )}
+          <div className="text-center mb-10">
+            <p className="text-xl md:text-2xl font-medium text-white/80 mb-2">One Leadership Journey. One AI Platform.</p>
+            <p className="text-white/40 text-sm max-w-xl mx-auto">Choose the membership that matches where you are today—and upgrade as your leadership journey evolves.</p>
+          </div>
           <PricingTiers plans={plans} cycle={cycle} getPrice={getPrice} authed={authed} />
           <div className="max-w-2xl mx-auto mt-8">
             <PaymentTrust />

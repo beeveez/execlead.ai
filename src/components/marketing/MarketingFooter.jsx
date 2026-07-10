@@ -10,7 +10,8 @@ export default function MarketingFooter() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <Link to="/"><Logo aiTagClass="ml-1" /></Link>
-            <p className="text-white/30 text-xs mt-1">Develop Executive Leaders. Not Interview Candidates.</p>
+            <p className="text-white/50 text-sm font-medium mt-2">One Leadership Journey. One AI Platform.</p>
+            <p className="text-white/25 text-xs mt-1">Developing executive leaders through AI-powered coaching, assessments, simulations, reputation, and lifelong learning.</p>
           </div>
           <div className="flex items-center gap-6 text-sm text-white/30">
             <Link to="/pricing" className="hover:text-white/60 transition-colors">Pricing</Link>

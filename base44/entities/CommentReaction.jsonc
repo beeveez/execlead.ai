@@ -1,0 +1,55 @@
+{
+  "name": "CommentReaction",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "comment_id": {
+      "type": "string",
+      "description": "LetterComment ID"
+    },
+    "letter_id": {
+      "type": "string",
+      "description": "LeadershipLetter ID for batch queries"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who reacted"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "reaction_type": {
+      "type": "string",
+      "enum": [
+        "insightful",
+        "helpful",
+        "thought_provoking",
+        "agreed",
+        "well_researched",
+        "inspiring"
+      ],
+      "description": "Professional reaction type \u2014 no negative reactions allowed"
+    }
+  },
+  "required": [
+    "comment_id",
+    "letter_id",
+    "user_id",
+    "reaction_type"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {},
+    "update": {
+      "data.user_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "name": "CommentAppeal",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "comment_id": {
+      "type": "string",
+      "description": "LetterComment ID being appealed"
+    },
+    "letter_id": {
+      "type": "string",
+      "description": "LeadershipLetter ID"
+    },
+    "letter_title": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User submitting the appeal"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "moderator_action": {
+      "type": "string",
+      "description": "The moderator action being appealed"
+    },
+    "appeal_reason": {
+      "type": "string",
+      "maxLength": 3000,
+      "description": "User's explanation of why the decision should be reversed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "denied"
+      ],
+      "default": "pending"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Admin's decision notes"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "comment_id",
+    "user_id",
+    "appeal_reason"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {},
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

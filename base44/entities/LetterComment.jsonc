@@ -41,6 +41,20 @@
     "author_country": {
       "type": "string"
     },
+    "author_trust_level": {
+      "type": "string",
+      "enum": [
+        "restricted",
+        "limited",
+        "good",
+        "very_good",
+        "excellent"
+      ]
+    },
+    "author_trust_score": {
+      "type": "number",
+      "default": 0
+    },
     "content": {
       "type": "string",
       "maxLength": 2000
@@ -73,6 +87,10 @@
     "likes": {
       "type": "number",
       "default": 0
+    },
+    "reactions_json": {
+      "type": "string",
+      "description": "JSON of reaction type to count"
     },
     "pinned": {
       "type": "boolean",
@@ -167,6 +185,14 @@
     "edited_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "edit_requested": {
+      "type": "boolean",
+      "default": false,
+      "description": "Moderator requested author to edit"
+    },
+    "edit_request_notes": {
+      "type": "string"
     },
     "suspended_until": {
       "type": "string",

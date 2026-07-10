@@ -27,9 +27,85 @@ Deno.serve(async (req) => {
     // ─── Helper: Get user profile ──────────────────────────
     async function getUserProfile(userId) {
       try {
-        const profiles = await base44.asServiceRole.entities.UserProfile.filter({ user_id: userId });
+        const profiles = await base44.asServiceRole.entities.UserProfile.filter({ created_by_id: userId });
         return profiles[0] || {};
       } catch (e) { return {}; }
+    }
+
+    // ─── Helper: Trust level from score ───────────────────
+    function trustLevelFromScore(score) {
+      if (score >= 90) return 'excellent';
+      if (score >= 75) return 'very_good';
+      if (score >= 60) return 'good';
+      if (score >= 40) return 'limited';
+      return 'restricted';
+    }
+
+    // ─── Helper: Compute trust score ──────────────────────
+    async function computeTrustScore(userId) {
+      try {
+        const profile = await getUserProfile(userId);
+        let score = 40;
+        const fields = ['full_name', 'professional_headline', 'industry', 'country', 'current_role', 'current_company', 'bio'];
+        const filled = fields.filter(f => profile[f] && String(profile[f]).trim().length > 0).length;
+        const completion = Math.round((filled / fields.length) * 100);
+        if (completion >= 50) score += 10;
+        if (completion >= 80) score += 5;
+        if (profile.identity_verified || profile.verified_executive) score += 10;
+        const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: userId, status: 'published' });
+        score += Math.min(20, letters.length * 5);
+        const reactions = await base44.asServiceRole.entities.CommentReaction.filter({ user_id: userId });
+        score += Math.min(15, reactions.length);
+        if (profile.sessions_completed > 0) score += Math.min(10, Math.floor(profile.sessions_completed / 2));
+        if (profile.challenges_completed > 0) score += Math.min(5, profile.challenges_completed);
+        const userComments = await base44.asServiceRole.entities.LetterComment.filter({ user_id: userId }, '-moderated_at', 500);
+        const warnings = userComments.filter(c => c.moderator_action === 'warn_user').length;
+        const suspensions = userComments.filter(c => c.moderator_action === 'suspend_user').length;
+        const bans = userComments.filter(c => c.moderator_action === 'ban_user').length;
+        score -= warnings * 5;
+        score -= suspensions * 10;
+        score -= bans * 30;
+        score = Math.max(0, Math.min(100, score));
+        const level = trustLevelFromScore(score);
+        if (profile.id) {
+          await base44.asServiceRole.entities.UserProfile.update(profile.id, { trust_score: score, trust_level: level, trust_updated_at: new Date().toISOString() });
+        }
+        return { score, level };
+      } catch (e) { return { score: 40, level: 'limited' }; }
+    }
+
+    // ─── Helper: Check comment eligibility ────────────────
+    async function checkCommentEligibility(user) {
+      const profile = await getUserProfile(user.id);
+      const reasons = [];
+      const users = await base44.asServiceRole.entities.User.filter({ id: user.id });
+      const userRecord = users[0];
+      if (userRecord && userRecord.email_verified === false) reasons.push('Verify your email address');
+      if (!profile.community_standards_accepted) reasons.push('Accept the Community Standards');
+      const fields = ['full_name', 'professional_headline', 'industry', 'country', 'current_role', 'current_company', 'bio'];
+      const filled = fields.filter(f => profile[f] && String(profile[f]).trim().length > 0).length;
+      const completion = Math.round((filled / fields.length) * 100);
+      if (completion < 50) reasons.push(`Complete your profile (${completion}% done, need 50%)`);
+      if (profile.status === 'suspended') reasons.push('Your account is suspended');
+      if (profile.account_banned) reasons.push('Your account has been banned');
+      if (profile.commenting_suspended_until && new Date(profile.commenting_suspended_until) > new Date()) {
+        reasons.push(`Commenting suspended until ${new Date(profile.commenting_suspended_until).toLocaleDateString()}`);
+      }
+      const trust = await computeTrustScore(user.id);
+      if (trust.score < 40) reasons.push(`Community Trust Score is ${trust.score} (minimum 40 required)`);
+      return { eligible: reasons.length === 0, reasons, trust_score: trust.score, trust_level: trust.level, profile_completion: completion, community_standards_accepted: profile.community_standards_accepted };
+    }
+
+    // ─── Helper: Check daily comment limit ────────────────
+    async function checkCommentLimit(user, profile) {
+      const plan = profile.subscription_plan || 'free';
+      const limits = { free: 5, professional: 25, executive: -1, enterprise: 50, founding_member: -1, developer: -1 };
+      const limit = limits[plan] ?? 5;
+      if (limit === -1) return { allowed: true, limit: -1, used: 0 };
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const todayComments = await base44.asServiceRole.entities.LetterComment.filter({ user_id: user.id }, '-created_date', 100);
+      const usedToday = todayComments.filter(c => new Date(c.created_date) >= today).length;
+      return { allowed: usedToday < limit, limit, used: usedToday };
     }
 
     // ─── Helper: Notify a user (in-app) ───────────────────
@@ -103,17 +179,17 @@ Deno.serve(async (req) => {
       const letter = await base44.asServiceRole.entities.LeadershipLetter.create({
         author_user_id: user.id,
         author_name: body.author_name || profile.full_name || user.full_name || '',
-        author_photo: profile.avatar_url || '',
-        author_headline: body.author_position || profile.profession || '',
+        author_photo: profile.profile_photo || '',
+        author_headline: body.author_position || profile.professional_headline || '',
         author_founder_number: founder.number,
         author_is_founder: founder.isFounder,
-        author_verification_badge: profile.verified || false,
+        author_verification_badge: profile.verified_executive || false,
         title: body.title || '',
         subtitle: body.subtitle || '',
         category: body.category || '',
         message: body.message || '',
-        author_position: body.author_position || profile.profession || '',
-        organization: body.organization || profile.company_name || '',
+        author_position: body.author_position || profile.professional_headline || '',
+        organization: body.organization || profile.current_company || '',
         industry: body.industry || '',
         country: body.country || profile.country || '',
         years_experience: body.years_experience || 0,
@@ -258,6 +334,18 @@ Deno.serve(async (req) => {
       const profile = await getUserProfile(user.id);
       const founder = await getFounderInfo(user.id);
 
+      // V2: Check comment eligibility
+      const eligibility = await checkCommentEligibility(user);
+      if (!eligibility.eligible) {
+        return Response.json({ error: 'Commenting requirements not met', eligibility, reasons: eligibility.reasons }, { status: 403 });
+      }
+
+      // V2: Check daily comment limit
+      const limitCheck = await checkCommentLimit(user, profile);
+      if (!limitCheck.allowed) {
+        return Response.json({ error: `Daily comment limit reached (${limitCheck.limit}/day). Resets tomorrow.`, limit: limitCheck.limit, used: limitCheck.used }, { status: 429 });
+      }
+
       // Run AI moderation
       let aiResult = null;
       let moderationStatus = 'active';
@@ -322,13 +410,16 @@ rewrite_suggestion: If the comment is aggressive or could be more professional, 
         letter_id,
         user_id: user.id,
         user_name: user.full_name || profile.full_name || '',
-        user_photo: profile.avatar_url || '',
+        user_photo: profile.profile_photo || '',
         user_email: user.email || '',
-        author_title: profile.profession || '',
-        author_verified: profile.verified || false,
+        author_title: profile.professional_headline || profile.current_role || '',
+        author_verified: profile.verified_executive || false,
         author_is_founder: founder.isFounder,
-        author_organization: profile.company_name || '',
+        author_organization: profile.current_company || '',
         author_country: profile.country || '',
+        author_trust_level: eligibility.trust_level,
+        author_trust_score: eligibility.trust_score,
+        reactions_json: JSON.stringify({}),
         content: content.trim(),
         comment_type: comment_type || 'insight',
         status: moderationStatus,
@@ -382,6 +473,48 @@ rewrite_suggestion: If the comment is aggressive or could be more professional, 
 Original: "${body.content}"`,
       });
       return Response.json({ success: true, rewrite: result });
+    }
+
+    // ─── REACT TO COMMENT ─────────────────────────────────
+    if (action === 'react') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const { comment_id, reaction_type } = body;
+      const validTypes = ['insightful', 'helpful', 'thought_provoking', 'agreed', 'well_researched', 'inspiring'];
+      if (!validTypes.includes(reaction_type)) return Response.json({ error: 'Invalid reaction type' }, { status: 400 });
+      const comments = await base44.asServiceRole.entities.LetterComment.filter({ id: comment_id });
+      const comment = comments[0];
+      if (!comment) return Response.json({ error: 'Comment not found' }, { status: 404 });
+      const existing = await base44.asServiceRole.entities.CommentReaction.filter({ comment_id, user_id: user.id });
+      if (existing.length > 0) {
+        if (existing[0].reaction_type === reaction_type) {
+          await base44.asServiceRole.entities.CommentReaction.delete(existing[0].id);
+        } else {
+          await base44.asServiceRole.entities.CommentReaction.update(existing[0].id, { reaction_type });
+        }
+      } else {
+        await base44.asServiceRole.entities.CommentReaction.create({ comment_id, letter_id: comment.letter_id, user_id: user.id, user_name: user.full_name || '', reaction_type });
+      }
+      const allReactions = await base44.asServiceRole.entities.CommentReaction.filter({ comment_id });
+      const counts = {};
+      for (const rt of validTypes) counts[rt] = 0;
+      for (const r of allReactions) counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
+      await base44.asServiceRole.entities.LetterComment.update(comment_id, { reactions_json: JSON.stringify(counts) });
+      if (allReactions.length > 0 && comment.user_id !== user.id) { try { await computeTrustScore(comment.user_id); } catch (e) {} }
+      const myReaction = existing.length > 0 && existing[0].reaction_type === reaction_type ? null : reaction_type;
+      return Response.json({ success: true, reactions: counts, my_reaction: myReaction });
+    }
+
+    // ─── GET REACTIONS (batch) ─────────────────────────────
+    if (action === 'get_reactions') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const reactions = await base44.asServiceRole.entities.CommentReaction.filter({ letter_id: body.letter_id });
+      const myReactions = reactions.filter(r => r.user_id === user.id);
+      return Response.json({
+        reactions: reactions.reduce((acc, r) => { if (!acc[r.comment_id]) acc[r.comment_id] = {}; acc[r.comment_id][r.reaction_type] = (acc[r.comment_id][r.reaction_type] || 0) + 1; return acc; }, {}),
+        my_reactions: myReactions.reduce((acc, r) => { acc[r.comment_id] = r.reaction_type; return acc; }, {}),
+      });
     }
 
     // ─── REPORT COMMENT ────────────────────────────────────
@@ -470,6 +603,29 @@ Original: "${body.content}"`,
         updates.pinned_at = now;
         updates.status = 'active';
       } else if (moderator_action === 'unfeature') updates.pinned = false;
+      else if (moderator_action === 'request_edit') {
+        updates.edit_requested = true;
+        updates.edit_request_notes = notes || '';
+        updates.status = 'active';
+        await notifyUser(comment.user_id, 'Edit Requested', `A moderator has requested that you edit your comment. Notes: ${notes || 'No specific notes.'}`, '✏️', '/legacy-library/' + comment.letter_id);
+      } else if (moderator_action === 'mute') {
+        const until = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        updates.suspended_until = until.toISOString();
+        updates.status = 'hidden';
+        const mp = await getUserProfile(comment.user_id);
+        if (mp.id) await base44.asServiceRole.entities.UserProfile.update(mp.id, { commenting_suspended_until: until.toISOString() });
+        await notifyUser(comment.user_id, 'Commenting Muted', `Your commenting privileges have been muted for 24 hours until ${until.toLocaleDateString()}.`, '🔇', '/legacy-library/' + comment.letter_id);
+      } else if (moderator_action === 'suspend_account') {
+        const sp = await getUserProfile(comment.user_id);
+        if (sp.id) await base44.asServiceRole.entities.UserProfile.update(sp.id, { status: 'suspended' });
+        updates.status = 'hidden';
+        await notifyUser(comment.user_id, 'Account Suspended', 'Your account has been suspended.', '🚫', '/legacy-library/' + comment.letter_id);
+      } else if (moderator_action === 'ban_account') {
+        const bp = await getUserProfile(comment.user_id);
+        if (bp.id) await base44.asServiceRole.entities.UserProfile.update(bp.id, { account_banned: true, status: 'suspended' });
+        updates.status = 'hidden';
+        await notifyUser(comment.user_id, 'Account Banned', 'Your account has been permanently banned due to severe community standards violations.', '⛔', '/legacy-library/' + comment.letter_id);
+      }
 
       if (['warn_user', 'suspend_user', 'ban_user'].includes(moderator_action)) {
         const userComments = await base44.asServiceRole.entities.LetterComment.filter({ user_id: comment.user_id }, '-created_date', 500);
@@ -502,6 +658,14 @@ Original: "${body.content}"`,
 
         await notifyUser(comment.user_id, 'Comment Action', penaltyMessage, '⚠️', '/legacy-library/' + comment.letter_id);
         updates.status = 'hidden';
+        const pp = await getUserProfile(comment.user_id);
+        if (pp.id) {
+          const pu = {};
+          if (updates.moderator_action === 'ban_user') { pu.account_banned = true; pu.status = 'suspended'; }
+          if (updates.suspended_until) pu.commenting_suspended_until = updates.suspended_until;
+          if (Object.keys(pu).length > 0) await base44.asServiceRole.entities.UserProfile.update(pp.id, pu);
+        }
+        try { await computeTrustScore(comment.user_id); } catch (e) {}
       }
 
       if (moderator_action === 'approve' && comment.status === 'pending_review') {
@@ -1388,9 +1552,107 @@ Also provide: overall_score, recommendation (approve/needs_review/reject), sugge
       try { await base44.asServiceRole.entities.LetterComment.deleteMany({ letter_id: letter.id }); } catch (e) {}
       try { await base44.asServiceRole.entities.LetterInteraction.deleteMany({ letter_id: letter.id }); } catch (e) {}
       try { await base44.asServiceRole.entities.LetterReport.deleteMany({ letter_id: letter.id }); } catch (e) {}
+      try { await base44.asServiceRole.entities.CommentReaction.deleteMany({ letter_id: letter.id }); } catch (e) {}
+      try { await base44.asServiceRole.entities.CommentAppeal.deleteMany({ letter_id: letter.id }); } catch (e) {}
 
       await logAudit(letter.id, letter.title, 'deleted', user, { reason: body.reason || '' }, prevStatus, 'deleted');
       return Response.json({ success: true });
+    }
+
+    // ─── SUBMIT APPEAL ─────────────────────────────────────
+    if (action === 'submit_appeal') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const { comment_id, appeal_reason } = body;
+      if (!appeal_reason?.trim()) return Response.json({ error: 'Please provide a reason for your appeal' }, { status: 400 });
+      const comments = await base44.asServiceRole.entities.LetterComment.filter({ id: comment_id });
+      const comment = comments[0];
+      if (!comment) return Response.json({ error: 'Comment not found' }, { status: 404 });
+      if (comment.user_id !== user.id) return Response.json({ error: 'You can only appeal your own comments' }, { status: 403 });
+      const existing = await base44.asServiceRole.entities.CommentAppeal.filter({ comment_id, user_id: user.id, status: 'pending' });
+      if (existing.length > 0) return Response.json({ error: 'You already have a pending appeal for this comment' }, { status: 400 });
+      const letters = await base44.asServiceRole.entities.LeadershipLetter.filter({ id: comment.letter_id });
+      const letter = letters[0];
+      const appeal = await base44.asServiceRole.entities.CommentAppeal.create({
+        comment_id, letter_id: comment.letter_id, letter_title: letter?.title || '',
+        user_id: user.id, user_name: user.full_name || '', user_email: user.email || '',
+        moderator_action: comment.moderator_action || '', appeal_reason: appeal_reason.trim(),
+        status: 'pending', submitted_at: new Date().toISOString(),
+      });
+      await notifyAdmins('Comment Appeal Submitted', `${user.full_name} appealed a moderation decision.`, '⚖️');
+      return Response.json({ success: true, appeal });
+    }
+
+    // ─── ADMIN: LIST APPEALS ───────────────────────────────
+    if (action === 'admin_appeals') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const appeals = await base44.asServiceRole.entities.CommentAppeal.filter({ status: body.status || 'pending' }, '-submitted_at', 100);
+      return Response.json({ appeals });
+    }
+
+    // ─── REVIEW APPEAL ─────────────────────────────────────
+    if (action === 'review_appeal') {
+      const user = await base44.auth.me();
+      if (!user || user.role !== 'admin') return Response.json({ error: 'Admin access required' }, { status: 403 });
+      const { appeal_id, decision, review_notes } = body;
+      const appeals = await base44.asServiceRole.entities.CommentAppeal.filter({ id: appeal_id });
+      const appeal = appeals[0];
+      if (!appeal) return Response.json({ error: 'Appeal not found' }, { status: 404 });
+      const updated = await base44.asServiceRole.entities.CommentAppeal.update(appeal.id, {
+        status: decision === 'approve' ? 'approved' : 'denied',
+        reviewed_by_id: user.id, reviewed_by_name: user.full_name,
+        review_notes: review_notes || '', reviewed_at: new Date().toISOString(),
+      });
+      if (decision === 'approve') {
+        const comments = await base44.asServiceRole.entities.LetterComment.filter({ id: appeal.comment_id });
+        if (comments[0]) {
+          await base44.asServiceRole.entities.LetterComment.update(appeal.comment_id, {
+            status: 'active', moderator_action: 'appeal_approved',
+            moderated_at: new Date().toISOString(), moderator_id: user.id, moderator_name: user.full_name,
+          });
+          const ap = await getUserProfile(appeal.user_id);
+          if (ap.id) await base44.asServiceRole.entities.UserProfile.update(ap.id, { commenting_suspended_until: null, account_banned: false, status: 'active' });
+          await computeTrustScore(appeal.user_id);
+        }
+        await notifyUser(appeal.user_id, 'Appeal Approved', 'Your appeal has been approved. Your comment has been restored.', '✅', '/legacy-library/' + appeal.letter_id);
+      } else {
+        await notifyUser(appeal.user_id, 'Appeal Denied', `Your appeal has been reviewed and denied. ${review_notes || ''}`, 'ℹ️', '/legacy-library/' + appeal.letter_id);
+      }
+      return Response.json({ success: true, appeal: updated });
+    }
+
+    // ─── CHECK ELIGIBILITY ─────────────────────────────────
+    if (action === 'check_eligibility') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const eligibility = await checkCommentEligibility(user);
+      const profile = await getUserProfile(user.id);
+      const limit = await checkCommentLimit(user, profile);
+      return Response.json({ eligibility, limit });
+    }
+
+    // ─── ACCEPT COMMUNITY STANDARDS ────────────────────────
+    if (action === 'accept_community_standards') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const profile = await getUserProfile(user.id);
+      if (profile.id) {
+        await base44.asServiceRole.entities.UserProfile.update(profile.id, {
+          community_standards_accepted: true, community_standards_accepted_at: new Date().toISOString(),
+        });
+      }
+      await computeTrustScore(user.id);
+      return Response.json({ success: true });
+    }
+
+    // ─── GET TRUST SCORE ───────────────────────────────────
+    if (action === 'get_trust_score') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const trust = await computeTrustScore(user.id);
+      const profile = await getUserProfile(user.id);
+      return Response.json({ trust, profile });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });

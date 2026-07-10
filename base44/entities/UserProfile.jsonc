@@ -317,6 +317,48 @@
     "founding_member_since": {
       "type": "string",
       "format": "date-time"
+    },
+    "trust_score": {
+      "type": "number",
+      "default": 40,
+      "description": "Community Trust Score 0-100"
+    },
+    "trust_level": {
+      "type": "string",
+      "enum": [
+        "restricted",
+        "limited",
+        "good",
+        "very_good",
+        "excellent"
+      ],
+      "default": "limited"
+    },
+    "trust_updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "community_standards_accepted": {
+      "type": "boolean",
+      "default": false
+    },
+    "community_standards_accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "identity_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "commenting_suspended_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Temporary commenting mute/suspension expiry"
+    },
+    "account_banned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Permanent account ban"
     }
   },
   "required": [

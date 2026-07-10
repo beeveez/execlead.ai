@@ -5,9 +5,11 @@ import { useDeveloper } from "@/lib/DeveloperContext";
 import { WORKSPACES, WORKSPACE_HOME } from "@/lib/workspaces";
 import { ChevronDown, Check } from "lucide-react";
 import PlanSimulatorSection from "@/components/developer/PlanSimulatorSection";
+import MobileBottomSheet from "@/components/layout/MobileBottomSheet";
 
 export default function WorkspaceSwitcher({ compact = false }) {
   const { activeWorkspace, availableWorkspaces, setActiveWorkspace } = useWorkspace();
+  const { developerMode } = useDeveloper();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const navigate = useNavigate();
@@ -34,13 +36,39 @@ export default function WorkspaceSwitcher({ compact = false }) {
 
   if (compact) {
     return (
-      <div className="relative" ref={ref}>
-        <button onClick={() => setOpen(!open)} className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-          <Icon size={14} style={{ color: current.color }} />
-          <ChevronDown size={12} className="text-white/40" />
-        </button>
-        {open && <Dropdown available={availableWorkspaces} active={activeWorkspace} onSelect={handleSelect} />}
-      </div>
+      <MobileBottomSheet
+        open={open}
+        onOpenChange={setOpen}
+        title="Switch Workspace"
+        trigger={
+          <button className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <Icon size={14} style={{ color: current.color }} />
+            <ChevronDown size={12} className="text-white/40" />
+          </button>
+        }
+      >
+        <div className="py-1">
+          {availableWorkspaces.map((wsId) => {
+            const ws = WORKSPACES[wsId];
+            if (!ws) return null;
+            const WsIcon = ws.icon;
+            const isActive = wsId === activeWorkspace;
+            return (
+              <button key={wsId} onClick={() => handleSelect(wsId)} className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left ${isActive ? "bg-white/[0.03]" : ""}`}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${ws.color}15` }}>
+                  <WsIcon size={15} style={{ color: ws.color }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white/80">{ws.label}</div>
+                  <div className="text-[10px] text-white/30 truncate">{ws.description}</div>
+                </div>
+                {isActive && <Check size={14} className="text-indigo-400 shrink-0" />}
+              </button>
+            );
+          })}
+        </div>
+        {developerMode && <PlanSimulatorSection />}
+      </MobileBottomSheet>
     );
   }
 

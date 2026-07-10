@@ -1,16 +1,19 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Sparkles, Users, Settings } from "lucide-react";
+import { LayoutDashboard, GraduationCap, MessageSquare, UserCircle } from "lucide-react";
 
 const NAV_ITEMS = [
-  { path: "/dashboard", label: "Home", icon: Home },
-  { path: "/coach", label: "Coach", icon: Sparkles },
-  { path: "/network", label: "Network", icon: Users },
-  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/academy", label: "Academy", icon: GraduationCap },
+  { path: "/coach", label: "Coach", icon: MessageSquare },
+  { path: "/profile", label: "Profile", icon: UserCircle },
 ];
 
 export default function MobileBottomNav() {
   const location = useLocation();
+
+  const isActive = (path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/");
 
   return (
     <nav
@@ -19,18 +22,22 @@ export default function MobileBottomNav() {
     >
       <div className="flex items-center justify-around px-2 py-2">
         {NAV_ITEMS.map((item) => {
-          const active = location.pathname === item.path;
+          const active = isActive(item.path);
           const Icon = item.icon;
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+              aria-label={item.label}
+              className={`relative flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
                 active ? "text-indigo-400" : "text-white/40 hover:text-white/70"
               }`}
             >
-              <Icon size={20} />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-indigo-400" />
+              )}
+              <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+              <span className={`text-[10px] ${active ? "font-semibold" : "font-medium"}`}>{item.label}</span>
             </Link>
           );
         })}

@@ -91,7 +91,7 @@ export default function AppLayout() {
       {/* Mobile Overlay */}
       {mobileOpen &&
       <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
-          <div className="w-72 h-full bg-[#0d0d14] border-r border-white/5 p-4 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="w-72 h-full bg-[#0d0d14] border-r border-white/5 p-4 overflow-y-auto" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))", paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }} onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 pb-4 border-b border-white/5">
               <Logo showAiTag={false} />
             </div>

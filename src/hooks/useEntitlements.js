@@ -4,8 +4,8 @@ import { useDeveloper } from "@/lib/DeveloperContext";
 import { DEFAULT_FEATURES, PLAN_TIERS, getFeatureCatalog, getUpgradePlan, normalizeFeature, isFeatureLive, isComingSoon } from "@/lib/featureCatalog";
 
 export function useEntitlements() {
-  const { profile, membership } = useSubscription();
-  const { canAccessDeveloper, developerMode, simulatedPlan, featureOverrides, impersonation, getEffectivePlan } = useDeveloper();
+  const { profile, membership, subscription } = useSubscription();
+  const { canAccessDeveloper, developerMode, simulatedPlan, featureOverrides, impersonation } = useDeveloper();
   const [features, setFeatures] = useState(DEFAULT_FEATURES.map(normalizeFeature));
   const [loading, setLoading] = useState(true);
 
@@ -20,8 +20,9 @@ export function useEntitlements() {
     return () => { active = false; };
   }, []);
 
-  const realPlan = profile?.subscription_plan || "free";
-  const planId = getEffectivePlan(realPlan);
+  // Plan comes from the Subscription Service (backend-resolved), not profile.subscription_plan.
+  // subscription.planTier already has developer simulation applied by SubscriptionContext.
+  const planId = subscription?.planTier || "free";
   const userTier = PLAN_TIERS[planId] ?? 0;
   const isSimulating = Boolean(simulatedPlan || impersonation);
 
@@ -77,11 +78,15 @@ export function useEntitlements() {
     }
     // Developer mode / super admin → unlock all
     if (developerMode || canAccessDeveloper) return true;
-    // Normal plan-based check
+    // Backend-computed entitlements (primary source — never hardcode plan names)
+    if (subscription?.featureEntitlements?.length > 0) {
+      return subscription.featureEntitlements.includes(featureId);
+    }
+    // Fallback: plan-based check
     const f = features.find(x => x.id === featureId);
     if (!f || !f.isEnabled || !isFeatureLive(f) || isComingSoon(f)) return false;
     return userTier >= (PLAN_TIERS[f.minimumPlan] ?? 0);
-  }, [features, userTier, canAccessDeveloper, developerMode, isSimulating, featureOverrides]);
+  }, [features, userTier, canAccessDeveloper, developerMode, isSimulating, featureOverrides, subscription?.featureEntitlements]);
 
   const checkComingSoon = useCallback((featureId) => {
     const f = features.find(x => x.id === featureId);

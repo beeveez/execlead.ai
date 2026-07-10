@@ -5,41 +5,30 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import { getUserEntitlements } from "@/lib/entitlementService";
-import { CheckCircle2, XCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, RefreshCw, Shield } from "lucide-react";
 
 export default function SubscriptionDiagnostics() {
   const { user } = useAuth();
-  const { profile, subscription, entitlements, loading } = useSubscription();
+  const { profile, subscription, canonicalSubscription, entitlements, loading } = useSubscription();
   const { activeWorkspace, plan: workspacePlan } = useWorkspace();
   const { simulation, getEffectivePlan } = useDeveloper();
   const { getPlanById } = usePricingCatalog();
-  const [stripeStatus, setStripeStatus] = useState(null);
-  const [lastSync, setLastSync] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [configVersion, setConfigVersion] = useState(null);
+  const [stripeStatus, setStripeStatus] = useState(null);
 
-  const loadDiagnostics = async () => {
+  const loadStripeStatus = async () => {
     setRefreshing(true);
     try {
       const settings = await base44.entities.PaymentSettings.filter({}, "-created_date", 1).catch(() => []);
       const ps = settings[0];
       setStripeStatus(ps ? { provider: ps.provider, status: ps.status, connected: ps.status === "connected" } : null);
-
-      if (profile?.id) {
-        const invoices = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 1).catch(() => []);
-        setLastSync(invoices[0]?.created_date || profile?.updated_date || null);
-      }
-
-      const configRes = await base44.functions.invoke("manageConfig", {}).catch(() => ({ data: {} }));
-      setConfigVersion(configRes.data?.configVersion || null);
     } catch (e) {}
     setRefreshing(false);
   };
 
   useEffect(() => {
-    if (user?.id) loadDiagnostics();
-  }, [user?.id, profile?.id]);
+    if (user?.id) loadStripeStatus();
+  }, [user?.id]);
 
   if (loading) {
     return (
@@ -49,22 +38,21 @@ export default function SubscriptionDiagnostics() {
     );
   }
 
-  const billingPlanId = subscription?.planTier || "free";
-  const billingPlan = getPlanById(billingPlanId);
-  const navPlanName = subscription?.planName || "—";
+  const sub = subscription || {};
+  const billingPlan = getPlanById(sub.planTier);
   const rawDbPlan = profile?.subscription_plan || "free";
   const effectivePlan = getEffectivePlan(rawDbPlan);
-  const workspacePlanId = workspacePlan || "—";
-  const entitlementPlan = entitlements?.planTier || billingPlanId;
+  const consistency = sub.consistency;
+  const allConsistent = consistency?.allMatch ?? true;
 
-  // Consistency check — all sources must agree
+  // Cross-source consistency checks
   const checks = [
-    { label: "Nav Plan === Subscription Plan", pass: navPlanName === (billingPlan?.name || subscription?.planName) },
-    { label: "Subscription Plan === Workspace Plan", pass: billingPlanId === workspacePlanId || (billingPlanId === "developer_unlimited" && workspacePlanId === "developer") },
-    { label: "Subscription Plan === Entitlements Plan", pass: billingPlanId === entitlementPlan },
-    { label: "Raw DB Plan → Effective Plan matches Subscription", pass: effectivePlan === billingPlanId },
+    { label: "Nav Plan === Subscription Plan", pass: sub.planName === (billingPlan?.name || sub.planName) },
+    { label: "Subscription Plan === Workspace Plan", pass: sub.planTier === workspacePlan || (sub.planTier === "developer_unlimited" && workspacePlan === "developer") },
+    { label: "Raw DB Plan → Effective Plan matches Subscription", pass: effectivePlan === sub.planTier },
+    ...(consistency?.checks || []),
   ];
-  const allConsistent = checks.every(c => c.pass);
+  const allMatch = allConsistent && checks.every(c => c.pass);
 
   const Row = ({ label, value, mono }) => (
     <div className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
@@ -73,20 +61,35 @@ export default function SubscriptionDiagnostics() {
     </div>
   );
 
+  const fm = sub.foundingMember || {};
+
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
+          <Shield size={16} className="text-indigo-400" />
           <h3 className="text-white font-semibold text-sm">Subscription Diagnostics</h3>
-          {allConsistent ? (
-            <span className="flex items-center gap-1 text-emerald-400 text-xs"><CheckCircle2 size={12} /> Consistent</span>
+          {allMatch ? (
+            <span className="flex items-center gap-1 text-emerald-400 text-xs"><CheckCircle2 size={12} /> All Systems Match</span>
           ) : (
-            <span className="flex items-center gap-1 text-red-400 text-xs"><AlertTriangle size={12} /> Inconsistency Detected</span>
+            <span className="flex items-center gap-1 text-red-400 text-xs"><AlertTriangle size={12} /> Subscription Mismatch</span>
           )}
         </div>
-        <button onClick={loadDiagnostics} className="p-1.5 rounded-lg hover:bg-white/5 transition-colors" disabled={refreshing}>
+        <button onClick={loadStripeStatus} className="p-1.5 rounded-lg hover:bg-white/5 transition-colors" disabled={refreshing}>
           <RefreshCw size={14} className={`text-white/40 ${refreshing ? "animate-spin" : ""}`} />
         </button>
+      </div>
+
+      {/* Source Badge */}
+      <div className="mb-4">
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium ${sub.source === "backend" ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}>
+          {sub.source === "backend" ? "Backend Resolved" : "Frontend Fallback"}
+        </span>
+        {sub.isSimulated && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-purple-500/10 text-purple-400 ml-1">
+            Developer Simulation Active
+          </span>
+        )}
       </div>
 
       {/* Consistency Checks */}
@@ -100,49 +103,81 @@ export default function SubscriptionDiagnostics() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+        {/* Identity */}
         <div>
           <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Identity</div>
           <Row label="Authenticated User" value={user?.full_name || user?.email || user?.id} />
-          <Row label="User ID" value={user?.id} mono />
+          <Row label="User ID" value={sub.userId || user?.id} mono />
           <Row label="Profile Owner ID" value={profile?.created_by_id} mono />
           <Row label="Profile Match" value={profile?.created_by_id === user?.id ? "✓ Match" : "✗ MISMATCH"} />
         </div>
+
+        {/* Subscription */}
         <div>
           <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Subscription</div>
-          <Row label="Plan Name (Nav)" value={navPlanName} />
-          <Row label="Plan Tier (Subscription)" value={billingPlanId} mono />
+          <Row label="Current Plan" value={sub.planName} />
+          <Row label="Plan Tier" value={sub.planTier} mono />
           <Row label="Raw DB Plan" value={rawDbPlan} mono />
-          <Row label="Effective Plan (Dev)" value={effectivePlan} mono />
-          <Row label="Status" value={subscription?.status} />
-          <Row label="Billing Cycle" value={subscription?.billingCycle} />
-          <Row label="Renewal Date" value={subscription?.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString() : null} />
-          <Row label="Is Simulated" value={subscription?.isSimulated ? "Yes" : "No"} />
+          <Row label="Status" value={sub.status} />
+          <Row label="Billing Cycle" value={sub.billingCycle} />
+          <Row label="Workspace" value={sub.workspace || activeWorkspace} />
+          <Row label="Renewal Date" value={sub.renewalDate ? new Date(sub.renewalDate).toLocaleDateString() : null} />
+          <Row label="Trial Ends" value={sub.trialEndsAt ? new Date(sub.trialEndsAt).toLocaleDateString() : null} />
+          <Row label="Cancel at Period End" value={sub.cancelAtPeriodEnd ? "Yes" : "No"} />
         </div>
+
+        {/* Stripe & Payment */}
         <div>
-          <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Workspace & Entitlements</div>
-          <Row label="Active Workspace" value={activeWorkspace} />
-          <Row label="Workspace Plan" value={workspacePlanId} mono />
-          <Row label="Entitlements Plan" value={entitlementPlan} mono />
-          <Row label="Founder Portal Enabled" value={entitlements?.founderPortalEnabled ? "Yes" : "No"} />
-          <Row label="Purchase Verified" value={entitlements?.purchaseVerified ? "Yes" : "No"} />
+          <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Stripe & Payment</div>
+          <Row label="Payment Provider" value={sub.paymentProvider} />
+          <Row label="Stripe Customer ID" value={sub.stripeCustomerId} mono />
+          <Row label="Stripe Subscription ID" value={sub.stripeSubscriptionId} mono />
+          <Row label="Payment Settings Status" value={stripeStatus?.status} />
+          <Row label="Payment Connected" value={stripeStatus?.connected ? "Yes" : "No"} />
+          <Row label="Next Invoice Amount" value={sub.nextInvoice ? `${sub.nextInvoice.currency} ${sub.nextInvoice.amount}` : null} />
+          <Row label="Next Invoice Period End" value={sub.nextInvoice?.periodEnd ? new Date(sub.nextInvoice.periodEnd).toLocaleDateString() : null} />
         </div>
+
+        {/* Founder Status */}
         <div>
-          <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Stripe & Sync</div>
-          <Row label="Provider" value={stripeStatus?.provider} />
-          <Row label="Stripe Status" value={stripeStatus?.status} />
-          <Row label="Connected" value={stripeStatus?.connected ? "Yes" : "No"} />
-          <Row label="Last Sync" value={lastSync ? new Date(lastSync).toLocaleString() : null} />
-          <Row label="Source" value={subscription?.isSimulated ? "Developer Simulation" : "Database"} />
-          <Row label="Config Version" value={configVersion} mono />
+          <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Founder Status</div>
+          <Row label="Is Founding Member" value={fm.isFoundingMember ? "Yes" : "No"} />
+          <Row label="Founder Portal Enabled" value={fm.founderPortalEnabled ? "Yes" : "No"} />
+          <Row label="Purchase Verified" value={fm.purchaseVerified ? "Yes" : "No"} />
+          <Row label="Founder Number" value={fm.founderNumber} mono />
+          <Row label="Founder Tier" value={fm.founderTier} />
+          <Row label="Founder Since" value={fm.founderSince ? new Date(fm.founderSince).toLocaleDateString() : null} />
+          <Row label="Lifetime Discount" value={`${fm.lifetimeDiscount || 0}%`} />
+          <Row label="Price Protection" value={fm.priceProtection ? "Yes" : "No"} />
+        </div>
+
+        {/* Enterprise Seat */}
+        <div>
+          <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Enterprise Seat</div>
+          <Row label="Organization ID" value={sub.enterpriseOrganizationId} mono />
+          <Row label="Organization Name" value={sub.enterpriseOrganizationName} />
+          <Row label="Seat ID" value={sub.enterpriseSeatId} mono />
+          <Row label="Seat Role" value={sub.seatRole} />
+        </div>
+
+        {/* Sync & Config */}
+        <div>
+          <div className="text-white/30 text-[10px] uppercase tracking-widest mb-1">Sync & Config</div>
+          <Row label="Source" value={sub.source} />
+          <Row label="Last Synced" value={sub.lastSynced ? new Date(sub.lastSynced).toLocaleString() : null} />
+          <Row label="Config Version" value={sub.configVersion} mono />
+          <Row label="Feature Entitlements Count" value={sub.featureEntitlements?.length || 0} />
+          <Row label="Entitlement Source" value={entitlements?.entitlementSource} />
+          <Row label="Is Simulated" value={sub.isSimulated ? "Yes" : "No"} />
         </div>
       </div>
 
-      {!allConsistent && (
+      {!allMatch && (
         <div className="mt-4 bg-red-500/5 border border-red-500/15 rounded-lg p-3">
-          <p className="text-red-400 text-xs font-medium mb-1">⚠ Inconsistency Detected</p>
+          <p className="text-red-400 text-xs font-medium mb-1">⚠ Subscription Mismatch Detected</p>
           <p className="text-white/40 text-xs">
-            Navigation, Billing, Workspace, and Entitlements plans do not all match. This indicates a subscription source-of-truth issue.
-            {!subscription?.isSimulated && " Check that profile.subscription_plan matches the active Stripe subscription."}
+            Navigation, Billing, Workspace, Entitlements, and Stripe data do not all match. This indicates a subscription source-of-truth issue.
+            {sub.source === "frontend_fallback" && " Backend resolveSubscription is unavailable — using frontend fallback. Check function deployment."}
           </p>
         </div>
       )}

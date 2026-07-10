@@ -1,0 +1,170 @@
+{
+  "name": "SubscriptionAuditLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User whose subscription changed"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "plan_changed",
+        "workspace_changed",
+        "stripe_event",
+        "founder_status_changed",
+        "enterprise_assigned",
+        "enterprise_removed",
+        "seat_transferred",
+        "billing_changed",
+        "entitlement_changed",
+        "cancellation",
+        "renewal",
+        "subscription_created",
+        "subscription_canceled",
+        "subscription_resumed",
+        "trial_started",
+        "trial_ended",
+        "cycle_changed",
+        "consistency_mismatch"
+      ],
+      "description": "Type of subscription event"
+    },
+    "previous_plan": {
+      "type": "string"
+    },
+    "new_plan": {
+      "type": "string"
+    },
+    "previous_workspace": {
+      "type": "string"
+    },
+    "new_workspace": {
+      "type": "string"
+    },
+    "previous_status": {
+      "type": "string"
+    },
+    "new_status": {
+      "type": "string"
+    },
+    "previous_cycle": {
+      "type": "string"
+    },
+    "new_cycle": {
+      "type": "string"
+    },
+    "stripe_event_type": {
+      "type": "string",
+      "description": "Raw Stripe event type (e.g. customer.subscription.updated)"
+    },
+    "stripe_subscription_id": {
+      "type": "string"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "founder_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ]
+    },
+    "founder_number": {
+      "type": "string"
+    },
+    "enterprise_organization_id": {
+      "type": "string"
+    },
+    "enterprise_organization_name": {
+      "type": "string"
+    },
+    "enterprise_seat_id": {
+      "type": "string"
+    },
+    "previous_seat_role": {
+      "type": "string"
+    },
+    "new_seat_role": {
+      "type": "string"
+    },
+    "previous_entitlements_json": {
+      "type": "string",
+      "description": "JSON snapshot of entitlements before the change"
+    },
+    "new_entitlements_json": {
+      "type": "string",
+      "description": "JSON snapshot of entitlements after the change"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable reason for the change"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "stripe_webhook",
+        "admin_action",
+        "user_action",
+        "system_sync",
+        "transition",
+        "developer_simulation",
+        "consistency_check"
+      ],
+      "default": "system_sync",
+      "description": "What triggered the audit event"
+    },
+    "initiated_by_id": {
+      "type": "string"
+    },
+    "initiated_by_name": {
+      "type": "string"
+    },
+    "metadata_json": {
+      "type": "string",
+      "description": "JSON object with additional context"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "event_type"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {},
+    "delete": {}
+  }
+}

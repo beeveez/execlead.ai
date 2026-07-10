@@ -6,7 +6,7 @@ import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
 import { syncFounderEntitlements } from '@/lib/entitlementSync';
-import { getUserEntitlements } from '@/lib/entitlementService';
+import { getUserEntitlements, FOUNDER_BENEFIT_KEYS } from '@/lib/entitlementService';
 import { useDeveloper } from '@/lib/DeveloperContext';
 
 const SubscriptionContext = createContext(null);
@@ -15,18 +15,31 @@ export const SubscriptionProvider = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const { getEffectivePlan, simulation } = useDeveloper();
   const [profile, setProfile] = useState(null);
+  const [canonicalSubscription, setCanonicalSubscription] = useState(null);
   const [renewalDate, setRenewalDate] = useState(null);
   const [memberships, setMemberships] = useState([]);
   const [entitlements, setEntitlements] = useState(null);
   const [lastEntitlementRefresh, setLastEntitlementRefresh] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ============================================================
+  // SINGLE SOURCE OF TRUTH LOADER
+  // Calls backend resolveSubscription (authoritative) in parallel
+  // with the frontend profile load. If the backend is unavailable,
+  // falls back to frontend computation from profile.subscription_plan.
+  // ============================================================
   const loadProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const profiles = user?.id
-        ? await base44.entities.UserProfile.filter({ created_by_id: user.id })
-        : [];
+      const [profiles, subRes] = await Promise.all([
+        user?.id
+          ? base44.entities.UserProfile.filter({ created_by_id: user.id })
+          : Promise.resolve([]),
+        user?.id
+          ? base44.functions.invoke("resolveSubscription", {}).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+
       const p = profiles[0] || null;
       // Defensive validation: ensure loaded profile belongs to the authenticated user
       if (p && user?.id && p.created_by_id && p.created_by_id !== user.id) {
@@ -35,6 +48,7 @@ export const SubscriptionProvider = ({ children }) => {
           profileOwnerId: p.created_by_id,
         });
         setProfile(null);
+        setCanonicalSubscription(null);
         setEntitlements(null);
         setMemberships([]);
         setRenewalDate(null);
@@ -42,7 +56,14 @@ export const SubscriptionProvider = ({ children }) => {
         return;
       }
       setProfile(p);
-      if (p) {
+
+      const canonical = subRes?.data || null;
+      setCanonicalSubscription(canonical);
+
+      // Renewal date: prefer backend result, fall back to invoice query
+      if (canonical?.renewalDate) {
+        setRenewalDate(canonical.renewalDate);
+      } else if (p) {
         try {
           const invs = await base44.entities.Invoice.filter({ owner_user_id: user.id }, "-created_date", 1);
           setRenewalDate(invs[0]?.period_end || null);
@@ -52,6 +73,7 @@ export const SubscriptionProvider = ({ children }) => {
       } else {
         setRenewalDate(null);
       }
+
       // Load active membership programs (independent of subscription plan)
       if (user?.id) {
         try {
@@ -61,17 +83,44 @@ export const SubscriptionProvider = ({ children }) => {
           setMemberships([]);
         }
       }
+
       // ============================================================
-      // CENTRALIZED ENTITLEMENT SERVICE — single source of truth.
-      // Founder status is determined SOLELY by getUserEntitlements(),
-      // which reads the FoundingMember entity directly. No profile
-      // flag fallback, no synthetic membership, no cached/stale state.
-      // Account switch (user.id change) triggers a full refetch.
+      // ENTITLEMENTS: Backend is the primary source of truth.
+      // If backend succeeded, populate from canonical result.
+      // If backend failed, fall back to frontend entitlement service.
       // ============================================================
-      if (user?.id && p) {
-        // Self-heal existing founder records / clear stale flags
+      if (canonical?.foundingMember) {
+        const fm = canonical.foundingMember;
+        setEntitlements({
+          subscription: { plan: canonical.currentPlan, status: canonical.status, cycle: canonical.billingCycle },
+          isFoundingMember: fm.isFoundingMember,
+          founderPortalEnabled: fm.founderPortalEnabled,
+          purchaseVerified: fm.purchaseVerified,
+          founderNumber: fm.founderNumber,
+          founderTier: fm.founderTier,
+          founderSince: fm.founderSince,
+          lifetimeDiscount: fm.lifetimeDiscount,
+          discountEnabled: fm.founderPortalEnabled,
+          priceProtection: fm.priceProtection,
+          betaAccess: fm.founderPortalEnabled,
+          earlyAccess: fm.founderPortalEnabled,
+          communityAccess: fm.founderPortalEnabled,
+          roadmapVoting: fm.founderPortalEnabled,
+          feedbackSessions: fm.founderPortalEnabled,
+          founderBenefits: fm.founderPortalEnabled ? FOUNDER_BENEFIT_KEYS : [],
+          founderRecord: null,
+          entitlementSource: "backend",
+        });
+        setLastEntitlementRefresh(Date.now());
+        if (fm.isFoundingMember) {
+          try {
+            const active = await getUserActiveMemberships(user.id);
+            setMemberships(active);
+          } catch {}
+        }
+      } else if (user?.id && p) {
+        // Fallback: frontend entitlement service
         try { await syncFounderEntitlements(user, p); } catch {}
-        // Read the single source of truth
         try {
           const ents = await getUserEntitlements(user.id, p);
           setEntitlements(ents);
@@ -90,6 +139,7 @@ export const SubscriptionProvider = ({ children }) => {
       }
     } catch (e) {
       setProfile(null);
+      setCanonicalSubscription(null);
       setRenewalDate(null);
       setMemberships([]);
       setEntitlements(null);
@@ -122,33 +172,27 @@ export const SubscriptionProvider = ({ children }) => {
   }, [loadProfile]);
 
   const isDevUser = canAccessDeveloperWorkspace(user?.role);
-  const realPlanId = isDevUser ? "developer_unlimited" : (profile?.subscription_plan || "free");
+  // ============================================================
+  // PLAN RESOLUTION: Backend canonical subscription is the primary
+  // source. Developer simulation applies ONLY to developer-role
+  // users and ONLY when explicitly active. Falls back to
+  // profile.subscription_plan if backend is unavailable.
+  // ============================================================
+  const backendPlan = canonicalSubscription?.currentPlan;
+  const realPlanId = isDevUser ? "developer_unlimited" : (backendPlan || profile?.subscription_plan || "free");
   const effectivePlanId = getEffectivePlan(realPlanId);
   const plan = PLANS[effectivePlanId] || PLANS.free;
+
   // ============================================================
   // FOUNDER STATUS — from the centralized Entitlement Service ONLY.
   // No profile.founding_member flag, no synthetic membership, no
   // cached/stale state. Developer simulation applies ONLY when
   // explicitly active in the developer console (never for real users).
   // ============================================================
-  // Use founderPortalEnabled (ALL conditions: active record + purchase
-  // verified + eligible subscription) — NOT just isFoundingMember (which
-  // only means a record exists). This prevents Free users with stale
-  // records from seeing the badge.
   const serviceFounder = entitlements?.founderPortalEnabled ?? false;
-  // Developer simulation applies ONLY to developer-role users and ONLY
-  // when explicitly active. It never leaks to real user accounts and
-  // never persists to the database — the backend validation is the
-  // authoritative source of truth for real users.
   const simulationApplies = isDevUser && simulation?.active && simulation?.founder !== null;
   const isFoundingMember = simulationApplies ? simulation.founder : serviceFounder;
 
-  // Membership programs are independent of the subscription plan.
-  // A user may be on the Free plan AND be a Founding Member — both
-  // statuses are displayed side by side, never one replacing the other.
-  // Filter out founding_member program memberships when the user is not
-  // entitled — prevents UserMembership records from showing the badge
-  // when the Entitlement Service says founderPortalEnabled is false.
   const visibleMemberships = memberships.filter(m => m.program_type !== "founding_member" || isFoundingMember);
   const primaryMembership = visibleMemberships.length > 0 ? visibleMemberships[0] : null;
   const membershipMeta = primaryMembership?.program_type ? PROGRAM_TYPES[primaryMembership.program_type] : null;
@@ -156,9 +200,6 @@ export const SubscriptionProvider = ({ children }) => {
   const hasProtection = hasLifetimePricingProtection(memberships);
 
   const fmMeta = PROGRAM_TYPES.founding_member;
-  // Build the membership object from DB-backed sources ONLY.
-  // The founder fallback uses the entitlement service result —
-  // NEVER the profile.founding_member flag.
   const membership = primaryMembership ? {
     name: primaryMembership.program_name || membershipMeta?.label || "Member",
     type: primaryMembership.program_type,
@@ -181,14 +222,22 @@ export const SubscriptionProvider = ({ children }) => {
     isLifetime: true,
   } : null);
 
-  // Hide membership badge ONLY when a developer is explicitly simulating non-founder
   const effectiveMembership = (simulationApplies && simulation?.founder === false) ? null : membership;
 
+  // ============================================================
+  // CANONICAL SUBSCRIPTION OBJECT — single source of truth.
+  // Every field is either from the backend resolveSubscription
+  // function or derived from it. Frontend computation is only
+  // a fallback when the backend is unavailable (source: "frontend_fallback").
+  // Every page consumes this object — no page independently
+  // determines plan, workspace, billing, or entitlements.
+  // ============================================================
   const subscription = {
+    // Plan fields (backward compatible)
     planName: plan.name,
     planTier: plan.id,
-    status: simulation.subscriptionStatus || profile?.subscription_status || "active",
-    billingCycle: profile?.subscription_cycle || "monthly",
+    status: simulation.subscriptionStatus || profile?.subscription_status || canonicalSubscription?.status || "active",
+    billingCycle: profile?.subscription_cycle || canonicalSubscription?.billingCycle || "monthly",
     renewalDate,
     features: plan.features,
     limits: plan.limits,
@@ -200,10 +249,31 @@ export const SubscriptionProvider = ({ children }) => {
     founderPortalEnabled: isFoundingMember,
     membership: effectiveMembership,
     isSimulated: simulation.active,
+    // Canonical fields from backend resolveSubscription
+    userId: canonicalSubscription?.userId || user?.id,
+    subscriptionId: canonicalSubscription?.subscriptionId || null,
+    customerId: canonicalSubscription?.customerId || null,
+    stripeSubscriptionId: canonicalSubscription?.stripeSubscriptionId || null,
+    stripeCustomerId: canonicalSubscription?.stripeCustomerId || null,
+    workspace: canonicalSubscription?.workspace || null,
+    foundingMember: canonicalSubscription?.foundingMember || null,
+    enterpriseOrganizationId: canonicalSubscription?.enterpriseOrganizationId || profile?.organization_id || null,
+    enterpriseOrganizationName: canonicalSubscription?.enterpriseOrganizationName || null,
+    enterpriseSeatId: canonicalSubscription?.enterpriseSeatId || null,
+    seatRole: canonicalSubscription?.seatRole || null,
+    trialEndsAt: canonicalSubscription?.trialEndsAt || null,
+    cancelAtPeriodEnd: canonicalSubscription?.cancelAtPeriodEnd ?? false,
+    nextInvoice: canonicalSubscription?.nextInvoice || null,
+    paymentProvider: canonicalSubscription?.paymentProvider || "stripe",
+    featureEntitlements: canonicalSubscription?.featureEntitlements || [],
+    configVersion: canonicalSubscription?.configVersion || "1.0",
+    lastSynced: canonicalSubscription?.lastSynced || null,
+    source: canonicalSubscription?.source || "frontend_fallback",
+    consistency: canonicalSubscription?.consistency || null,
   };
 
   return (
-    <SubscriptionContext.Provider value={{ profile, subscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements, lastEntitlementRefresh }}>
+    <SubscriptionContext.Provider value={{ profile, subscription, canonicalSubscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements, lastEntitlementRefresh }}>
       {children}
     </SubscriptionContext.Provider>
   );

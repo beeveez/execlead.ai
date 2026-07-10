@@ -28,11 +28,19 @@ export default function Journey() {
   const [learning, setLearning] = useState([]);
   const [impact, setImpact] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [securityError, setSecurityError] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
-        // Batch 1: core intelligence data (cached reads, <150ms)
+        // Get authenticated user — all data MUST resolve from this user's identity
+        const user = await base44.auth.me();
+        if (!user?.id) {
+          setLoading(false);
+          return;
+        }
+
+        // Batch 1: core intelligence data (backend filters by user.id)
         const [journeyRes, intelRes] = await Promise.all([
           base44.functions.invoke("manageJourney", { action: "compute" }),
           base44.functions.invoke("manageIntelligence", { action: "read" }),
@@ -40,14 +48,27 @@ export default function Journey() {
         setJourney(journeyRes.data);
         setIntelligence(intelRes.data);
 
-        // Batch 2: supporting entity data
+        // Batch 2: supporting entity data — ALL filtered by authenticated user ID
         const [profiles, dnaList, repList, lessons] = await Promise.all([
-          base44.entities.UserProfile.filter({}, "-created_date", 1).catch(() => []),
-          base44.entities.LeadershipDNA.filter({}, "-created_date", 1).catch(() => []),
-          base44.entities.ExecutiveReputation.filter({}, "-created_date", 1).catch(() => []),
-          base44.entities.LessonProgress.filter({}, "-created_date", 100).catch(() => []),
+          base44.entities.UserProfile.filter({ created_by_id: user.id }, "-created_date", 1).catch(() => []),
+          base44.entities.LeadershipDNA.filter({ created_by_id: user.id }, "-created_date", 1).catch(() => []),
+          base44.entities.ExecutiveReputation.filter({ user_id: user.id }, "-created_date", 1).catch(() => []),
+          base44.entities.LessonProgress.filter({ created_by_id: user.id }, "-created_date", 100).catch(() => []),
         ]);
-        setProfile(profiles[0] || journeyRes.data?.profile || {});
+
+        // Defensive validation: ensure loaded profile belongs to the authenticated user
+        const loadedProfile = profiles[0] || journeyRes.data?.profile || {};
+        if (loadedProfile.created_by_id && loadedProfile.created_by_id !== user.id) {
+          console.error("[SECURITY] Executive Intelligence Profile: profile owner mismatch", {
+            authenticatedUserId: user.id,
+            profileOwnerId: loadedProfile.created_by_id,
+          });
+          setSecurityError(true);
+          setLoading(false);
+          return;
+        }
+
+        setProfile(loadedProfile);
         setDna(dnaList[0]);
         setReputation(repList[0]);
         setLearning(lessons);
@@ -71,6 +92,14 @@ export default function Journey() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+      </div>
+    );
+  }
+
+  if (securityError) {
+    return (
+      <div className="text-center py-20 text-white/30 text-sm">
+        Unable to load your Executive Intelligence Profile. Please refresh or contact support.
       </div>
     );
   }

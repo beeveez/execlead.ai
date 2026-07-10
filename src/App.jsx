@@ -103,6 +103,7 @@ import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import BillingAdmin from '@/pages/BillingAdmin';
 import PaymentSettings from '@/pages/PaymentSettings';
 const Pricing = lazy(() => import('@/pages/Pricing'));
+import Reputation from '@/pages/Reputation';
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
 import Marketplace from '@/pages/Marketplace';
@@ -319,6 +320,7 @@ const AuthenticatedApp = () => {
           <Route path="/executive/rankings" element={<ExecutiveRankings />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
           <Route path="/concierge" element={<Concierge />} />
+          <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
         </Route>
       </Route>

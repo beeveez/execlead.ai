@@ -1,0 +1,134 @@
+{
+  "name": "ExecutiveReputation",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User this reputation belongs to"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_photo": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "professional_headline": {
+      "type": "string"
+    },
+    "reputation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Executive Reputation Score 0-1000"
+    },
+    "reputation_tier": {
+      "type": "string",
+      "enum": [
+        "new_member",
+        "contributor",
+        "rising_leader",
+        "executive_contributor",
+        "distinguished_executive",
+        "elite_executive",
+        "leadership_fellow",
+        "global_thought_leader"
+      ],
+      "default": "new_member"
+    },
+    "badges_json": {
+      "type": "string",
+      "description": "JSON array of {id, earned_at}"
+    },
+    "total_letters": {
+      "type": "number",
+      "default": 0
+    },
+    "total_comments": {
+      "type": "number",
+      "default": 0
+    },
+    "total_contributions": {
+      "type": "number",
+      "default": 0
+    },
+    "average_quality_score": {
+      "type": "number",
+      "default": 0
+    },
+    "helpful_responses": {
+      "type": "number",
+      "default": 0
+    },
+    "featured_contributions": {
+      "type": "number",
+      "default": 0
+    },
+    "moderator_recognitions": {
+      "type": "number",
+      "default": 0
+    },
+    "community_awards": {
+      "type": "number",
+      "default": 0
+    },
+    "warnings_count": {
+      "type": "number",
+      "default": 0
+    },
+    "violations_count": {
+      "type": "number",
+      "default": 0
+    },
+    "sessions_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "reputation_trend": {
+      "type": "string",
+      "enum": [
+        "up",
+        "down",
+        "stable"
+      ],
+      "default": "stable"
+    },
+    "previous_score": {
+      "type": "number",
+      "default": 0
+    },
+    "lifetime_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Highest score ever achieved"
+    },
+    "monthly_recognitions_json": {
+      "type": "string",
+      "description": "JSON array of {type, month, year, title}"
+    },
+    "improvement_recommendations_json": {
+      "type": "string",
+      "description": "JSON array of recommendation strings"
+    },
+    "last_calculated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

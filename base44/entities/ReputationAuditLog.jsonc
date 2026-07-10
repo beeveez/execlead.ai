@@ -1,0 +1,70 @@
+{
+  "name": "ReputationAuditLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User whose reputation changed"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "previous_score": {
+      "type": "number",
+      "default": 0
+    },
+    "new_score": {
+      "type": "number",
+      "default": 0
+    },
+    "change_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "reason": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "ai_assessment",
+        "moderator_action",
+        "community_recognition",
+        "recalculation",
+        "penalty",
+        "badge_earned",
+        "badge_revoked"
+      ],
+      "default": "recalculation"
+    },
+    "contribution_id": {
+      "type": "string"
+    },
+    "contribution_type": {
+      "type": "string",
+      "description": "letter, comment, discussion, etc."
+    },
+    "details_json": {
+      "type": "string",
+      "description": "JSON object with additional context"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "new_score"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

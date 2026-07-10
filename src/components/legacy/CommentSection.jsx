@@ -41,12 +41,22 @@ export default function CommentSection({ letterId, authorUserId, commentsCount }
   const [limit, setLimit] = useState(null);
   const [reactions, setReactions] = useState({});
   const [myReactions, setMyReactions] = useState({});
+  const [reputations, setReputations] = useState({});
 
   useEffect(() => {
     loadComments();
     loadReactions();
     if (user) loadEligibility();
   }, [letterId, user?.id]);
+
+  useEffect(() => {
+    if (comments.length === 0) return;
+    const uniqueIds = [...new Set(comments.map(c => c.user_id).filter(Boolean))];
+    if (uniqueIds.length === 0) return;
+    base44.functions.invoke("manageReputation", { action: "batch_get", user_ids: uniqueIds })
+      .then((res) => { const d = res.data || res; setReputations(d.reputations || {}); })
+      .catch(() => {});
+  }, [comments]);
 
   const loadComments = async () => {
     try {
@@ -269,7 +279,7 @@ export default function CommentSection({ letterId, authorUserId, commentsCount }
       ) : (
         <div className="space-y-3">
           {comments.map((c) => (
-            <CommentItem key={c.id} comment={c} isLetterAuthor={user?.id === authorUserId} isAdmin={user?.role === "admin"} currentUserId={user?.id} reactions={reactions[c.id]} myReaction={myReactions[c.id]} onReact={handleReact} onReport={handleReport} onPin={handlePin} />
+            <CommentItem key={c.id} comment={c} isLetterAuthor={user?.id === authorUserId} isAdmin={user?.role === "admin"} currentUserId={user?.id} reactions={reactions[c.id]} myReaction={myReactions[c.id]} onReact={handleReact} onReport={handleReport} onPin={handlePin} reputation={reputations[c.user_id]} />
           ))}
         </div>
       )}

@@ -5,6 +5,7 @@ import {
   Lightbulb, ThumbsUp, MessageCircle, Check, BookOpen, Scale
 } from "lucide-react";
 import TrustBadge from "@/components/legacy/TrustBadge";
+import ReputationBadges from "@/components/legacy/ReputationBadges";
 import AppealModal from "@/components/legacy/AppealModal";
 
 const COMMENT_TYPE_LABELS = {
@@ -33,7 +34,7 @@ const REPORT_TYPES = [
   { value: "other", label: "Other" },
 ];
 
-export default function CommentItem({ comment, isLetterAuthor, isAdmin, currentUserId, reactions, myReaction, onReact, onReport, onPin }) {
+export default function CommentItem({ comment, isLetterAuthor, isAdmin, currentUserId, reactions, myReaction, onReact, onReport, onPin, reputation }) {
   const [showReport, setShowReport] = useState(false);
   const [reportType, setReportType] = useState("");
   const [reportReason, setReportReason] = useState("");
@@ -67,6 +68,7 @@ export default function CommentItem({ comment, isLetterAuthor, isAdmin, currentU
             {comment.author_verified && <BadgeCheck size={12} className="text-indigo-400" />}
             {comment.author_is_founder && <span className="flex items-center gap-0.5 px-1 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-amber-400 text-[9px] font-medium"><Crown size={8} /> Founder</span>}
             {comment.author_trust_level && <TrustBadge level={comment.author_trust_level} score={comment.author_trust_score} />}
+            {reputation && reputation.score > 0 && <ReputationBadges score={reputation.score} tier={reputation.tier} badges={reputation.badges} compact />}
             {hasHighScore && <span className="flex items-center gap-0.5 px-1 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 text-[9px] font-medium"><Sparkles size={8} /> High Quality</span>}
           </div>
           <div className="text-white/30 text-[10px]">{comment.author_title}{comment.author_organization ? ` at ${comment.author_organization}` : ""}{comment.author_country ? ` · ${comment.author_country}` : ""}</div>

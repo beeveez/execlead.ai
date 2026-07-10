@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/lib/AuthContext";
 import ReactMarkdown from "react-markdown";
 import CommentSection from "@/components/legacy/CommentSection";
+import ReputationBadges from "@/components/legacy/ReputationBadges";
 import {
   ArrowLeft, Loader2, Heart, Bookmark, Share2, MessageCircle, Eye, Clock,
   BadgeCheck, Crown, BookOpen, Lightbulb, Target, Quote, HelpCircle,
@@ -22,6 +23,7 @@ export default function LegacyLetterDetail() {
   const [engaging, setEngaging] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [authorReputation, setAuthorReputation] = useState(null);
 
   // AI Discussion
   const [aiQuestion, setAiQuestion] = useState("");
@@ -35,6 +37,11 @@ export default function LegacyLetterDetail() {
         const d = res.data || res;
         setLetter(d.letter);
         setMyInteraction(d.my_interaction || { liked: false, bookmarked: false });
+        if (d.letter?.author_user_id) {
+          base44.functions.invoke("manageReputation", { action: "batch_get", user_ids: [d.letter.author_user_id] })
+            .then((r) => { const rd = r.data || r; setAuthorReputation(rd.reputations?.[d.letter.author_user_id] || null); })
+            .catch(() => {});
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -178,7 +185,12 @@ export default function LegacyLetterDetail() {
               </span>
             )}
           </div>
-          <div className="text-white/40 text-xs">{letter.author_position}{letter.organization ? ` at ${letter.organization}` : ""}</div>
+          {authorReputation && authorReputation.score > 0 && (
+            <div className="mt-1.5">
+              <ReputationBadges score={authorReputation.score} tier={authorReputation.tier} badges={authorReputation.badges} compact />
+            </div>
+          )}
+          <div className="text-white/40 text-xs mt-1">{letter.author_position}{letter.organization ? ` at ${letter.organization}` : ""}</div>
           <div className="text-white/30 text-[10px] mt-0.5">
             {[letter.industry, letter.country, letter.years_experience ? `${letter.years_experience} yrs exp` : null].filter(Boolean).join(" · ")}
           </div>

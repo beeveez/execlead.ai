@@ -79,7 +79,7 @@ export default function ReputationTimeline({ reputation, history = [] }) {
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-1 text-[10px] text-white/30">
-                      <span>{new Date(event.timestamp).toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      <span>{new Date(event.timestamp).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                       {event.reviewer && <span>· by {event.reviewer}</span>}
                       {event.scoreChange !== 0 && <span>· {event.prevScore} → {event.newScore}</span>}
                     </div>

@@ -47,6 +47,10 @@
     "current_role": {
       "type": "string"
     },
+    "career_stage": {
+      "type": "string",
+      "description": "Where the user is in their leadership journey"
+    },
     "current_company": {
       "type": "string"
     },

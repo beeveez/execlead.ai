@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
-import { COMPANIES, CAREER_PATHS, COUNTRIES } from "@/lib/constants";
+import { COMPANIES, CAREER_PATHS, COUNTRIES, CAREER_STAGES } from "@/lib/constants";
 import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildTruthEnginePrompt, buildRoadmapPrompt, getResumeHealthScore } from "@/lib/resume";
 import { motion, AnimatePresence } from "framer-motion";
 import { getStoredAttribution } from "@/lib/referralEngine";
@@ -10,7 +10,7 @@ import ReactMarkdown from "react-markdown";
 
 export default function Onboarding() {
   const [step, setStep] = useState("welcome");
-  const [form, setForm] = useState({ full_name: "", country: "", target_company: "", target_role: "" });
+  const [form, setForm] = useState({ full_name: "", country: "", target_company: "", target_role: "", career_stage: "" });
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -171,8 +171,26 @@ export default function Onboarding() {
                 <h2 className="text-2xl font-bold text-white mb-2">Your Personalized Executive Leadership OS</h2>
                 <p className="text-white/40 text-sm max-w-sm mx-auto">Upload your resume and let AI build a personalized development journey based on your actual career experience.</p>
               </div>
-              <button onClick={() => setStep("target")} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+              <button onClick={() => setStep("journey")} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
                 Get Started <ArrowRight size={16} />
+              </button>
+            </motion.div>
+          )}
+
+          {step === "journey" && (
+            <motion.div key="journey" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
+              <div className="text-center mb-4">
+                <Sparkles className="mx-auto mb-2 text-indigo-400" size={24} />
+                <h2 className="text-lg font-semibold text-white">Where are you in your leadership journey?</h2>
+                <p className="text-white/40 text-sm mt-1">We'll personalize your experience based on your stage</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {CAREER_STAGES.map(stage => (
+                  <button key={stage} onClick={() => setForm(f => ({ ...f, career_stage: stage }))} className={`px-3 py-3 rounded-lg text-sm transition-all ${form.career_stage === stage ? "bg-indigo-500/15 text-indigo-400 ring-1 ring-indigo-500/30" : "bg-white/5 text-white/50 hover:bg-white/10"}`}>{stage}</button>
+                ))}
+              </div>
+              <button onClick={() => setStep("target")} disabled={!form.career_stage} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-30 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                Continue <ArrowRight size={16} />
               </button>
             </motion.div>
           )}

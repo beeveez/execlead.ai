@@ -34,7 +34,8 @@ const FAQS = [
   { q: "How does the Truth Engine work?", a: "Every answer you give is analyzed for exaggeration, inflated metrics, false ownership, and unsupported claims. The AI then rewrites your answer in truthful executive language." },
   { q: "Which companies are supported?", a: "126+ global organizations across Fortune 500, Big Four, FAANG, consulting firms, and leading enterprises — growing weekly. Can't find yours? Request it directly in the Company Intelligence hub." },
   { q: "Can I use this on mobile?", a: "Yes. The entire platform is fully responsive and works seamlessly on desktop, tablet, and mobile." },
-  { q: "Do I need prior leadership experience?", a: "No. Whether you're a service desk lead or a seasoned director, the platform adapts to your level and target role." },
+  { q: "Do I need prior leadership experience?", a: "No.\n\nEXECLEAD.AI is designed for every stage of the leadership journey—from students and fresh graduates to individual contributors, team leaders, managers, directors, executives, founders, and board members.\n\nThe platform personalizes your assessments, AI coaching, learning paths, simulations, and career recommendations based on your current experience, industry, competencies, and long-term career goals.\n\nWhether you're preparing for your first leadership opportunity or your next executive role, EXECLEAD.AI grows with you throughout your career." },
+  { q: "Who is EXECLEAD.AI designed for?", a: "EXECLEAD.AI is built for ambitious professionals and organizations that want to develop stronger leaders.\n\nWhether you're a student, graduate, aspiring leader, experienced executive, HR professional, recruiter, founder, or enterprise organization, the platform adapts to your current level and provides a personalized leadership journey." },
 ];
 
 export default function Landing() {
@@ -95,10 +96,10 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
           >
-            Become the Executive
+            One Platform for
             <br />
             <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Every Company Wants to Hire.
+              Every Stage of Your Leadership Journey.
             </span>
           </motion.h1>
 
@@ -108,7 +109,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Develop leadership, executive communication, commercial thinking, and strategic decision-making through AI-powered coaching.
+            From your first leadership opportunity to the boardroom — develop leadership, communication, strategic thinking, and executive presence through AI-powered coaching at every stage of your career.
           </motion.p>
 
           <motion.div
@@ -137,7 +138,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="text-white/20 text-xs mt-6"
           >
-            Develop Executive Leaders. Not Interview Candidates.
+            From Your First Leadership Opportunity to the Boardroom.
           </motion.p>
         </div>
       </section>
@@ -172,8 +173,8 @@ export default function Landing() {
       <section id="features" className="py-20 md:py-32 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">One Platform. Complete Executive Development.</h2>
-            <p className="text-white/40 max-w-2xl mx-auto">Everything you need to transform from a technical professional into an authentic executive leader.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">One Platform. Complete Leadership Development.</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">Everything you need to grow as a leader — from your first management role to the executive suite.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {FEATURES.map((f, i) => (
@@ -200,8 +201,8 @@ export default function Landing() {
       <section id="journey" className="py-20 md:py-32 px-6 lg:px-8 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Your Executive Journey</h2>
-            <p className="text-white/40 max-w-2xl mx-auto">A structured path from where you are today to the executive you want to become.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Your Leadership Journey</h2>
+            <p className="text-white/40 max-w-2xl mx-auto">A structured path from where you are today to the leader you want to become.</p>
           </div>
           <div className="space-y-6">
             {[
@@ -267,7 +268,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-white/40 max-w-2xl mx-auto">Start free. Upgrade when you're ready to go all-in on your executive journey.</p>
+            <p className="text-white/40 max-w-2xl mx-auto">Start free. Upgrade when you're ready to go all-in on your leadership journey.</p>
           </div>
           <div className="flex items-center justify-center gap-3 mb-12">
             <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
@@ -372,8 +373,8 @@ export default function Landing() {
             viewport={{ once: true }}
             className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 rounded-3xl p-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Become an Executive?</h2>
-            <p className="text-white/40 mb-8 max-w-xl mx-auto">Join thousands of IT professionals transforming into the leaders their organizations need.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Grow Your Leadership?</h2>
+            <p className="text-white/40 mb-8 max-w-xl mx-auto">Join thousands of professionals growing from their first leadership role to the executive suite.</p>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors"

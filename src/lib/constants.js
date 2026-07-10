@@ -11,6 +11,11 @@ export const CAREER_PATHS = [
   "VP Operations", "COO", "CIO", "CTO", "CEO"
 ];
 
+export const CAREER_STAGES = [
+  "Student", "Graduate", "Early Career", "Individual Contributor",
+  "Team Leader", "Manager", "Director", "Executive"
+];
+
 export const COUNTRIES = [
   "United States", "United Kingdom", "Germany", "India", "Philippines", "Poland",
   "Spain", "Portugal", "Romania", "Mexico", "Brazil", "South Africa",

@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 import { callAI } from "@/lib/ai";
 import {
   matchPageContext,
@@ -9,6 +10,7 @@ import {
   EXEC_WELCOME_MESSAGE,
   buildExecPrompt,
 } from "@/lib/execConciergeConfig";
+import { resolveWorkspacePersona } from "@/lib/execWorkspacePersonas";
 
 const ExecConciergeContext = createContext(null);
 
@@ -27,6 +29,8 @@ export function useExecConcierge() {
       pageContext: null,
       userContext: null,
       hasGreeted: false,
+      workspacePersona: null,
+      activeWorkspace: null,
     };
   }
   return ctx;
@@ -74,6 +78,7 @@ function computeRecommendations(data, user) {
 export function ExecConciergeProvider({ children }) {
   const location = useLocation();
   const { user } = useAuth();
+  const { activeWorkspace } = useWorkspace();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -86,6 +91,12 @@ export function ExecConciergeProvider({ children }) {
   useEffect(() => {
     setPageContext(matchPageContext(location.pathname));
   }, [location.pathname]);
+
+  // Resolve workspace-aware persona (reactive to workspace + page changes)
+  const workspacePersona = useMemo(
+    () => resolveWorkspacePersona(activeWorkspace, location.pathname),
+    [activeWorkspace, location.pathname]
+  );
 
   // Restore open state on mount
   useEffect(() => {
@@ -151,13 +162,13 @@ export function ExecConciergeProvider({ children }) {
       const ctx = await fetchUserContext();
       setLoading(false);
       const firstName = user.full_name?.split(" ")[0];
-      const briefing = generateBriefing(firstName, ctx, matchPageContext(location.pathname));
+      const briefing = generateBriefing(firstName, ctx, matchPageContext(location.pathname), workspacePersona);
       setMessages([{ role: "assistant", content: briefing }]);
     } else {
-      setMessages([{ role: "assistant", content: EXEC_WELCOME_MESSAGE }]);
+      setMessages([{ role: "assistant", content: workspacePersona?.anonymousGreeting || EXEC_WELCOME_MESSAGE }]);
     }
-    base44.analytics.track({ eventName: "exec_concierge_opened" });
-  }, [user, fetchUserContext, location.pathname]);
+    base44.analytics.track({ eventName: "exec_concierge_opened", properties: { workspace: activeWorkspace } });
+  }, [user, fetchUserContext, location.pathname, workspacePersona, activeWorkspace]);
 
   // Greet on first open (per user)
   useEffect(() => {
@@ -202,7 +213,8 @@ export function ExecConciergeProvider({ children }) {
           newMessages,
           user,
           matchPageContext(location.pathname),
-          userContextRef.current || userContext
+          userContextRef.current || userContext,
+          workspacePersona
         );
         const res = await callAI("exec_concierge", { prompt });
         const response =
@@ -222,8 +234,8 @@ export function ExecConciergeProvider({ children }) {
       }
       setLoading(false);
     },
-    [messages, loading, user, location.pathname, userContext]
-  );
+    [messages, loading, user, location.pathname, userContext, workspacePersona]
+    );
 
   const clearConversation = useCallback(() => {
     setMessages([]);
@@ -246,6 +258,8 @@ export function ExecConciergeProvider({ children }) {
     userContext,
     hasGreeted,
     initConversation,
+    workspacePersona,
+    activeWorkspace,
   };
 
   return (

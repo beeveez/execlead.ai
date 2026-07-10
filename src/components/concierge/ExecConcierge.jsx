@@ -4,13 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 import { useAuth } from "@/lib/AuthContext";
-import { Sparkles, Send, X, Minus, MapPin, Trash2, Search } from "lucide-react";
+import { Sparkles, Send, X, Minus, MapPin, Trash2, Search, Layers } from "lucide-react";
 import {
-  EXEC_QUICK_ACTIONS,
-  EXEC_TASKS,
   EXEC_GLOBAL_COMMANDS,
-  getSuggestedQuestions,
 } from "@/lib/execConciergeConfig";
+import { getWorkspaceSuggestedQuestions } from "@/lib/execWorkspacePersonas";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 
@@ -27,6 +25,7 @@ export default function ExecConcierge() {
     clearConversation,
     pageContext,
     userContext,
+    workspacePersona,
   } = useExecConcierge();
   const [input, setInput] = useState("");
   const [showCommands, setShowCommands] = useState(false);
@@ -103,6 +102,13 @@ export default function ExecConcierge() {
     !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
   const recommendations = userContext?.recommendations || [];
 
+  // Workspace-aware quick actions, tasks, and suggestions
+  const quickActions = workspacePersona?.quickActions || [];
+  const tasks = workspacePersona?.tasks || [];
+  const personaSubtitle = workspacePersona?.subtitle || "AI Executive Assistant";
+  const personaTagline = workspacePersona?.tagline || "";
+  const personaColor = workspacePersona?.color || "#f59e0b";
+
   return (
     <>
       <AnimatePresence>
@@ -138,8 +144,14 @@ export default function ExecConcierge() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground text-sm">EXEC™</h3>
-                <p className="text-xs text-muted-foreground">AI Executive Assistant</p>
+                <p className="text-xs text-muted-foreground truncate">{personaSubtitle}</p>
               </div>
+              {personaTagline && (
+                <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium max-w-[130px] truncate" style={{ background: `${personaColor}15`, border: `1px solid ${personaColor}30`, color: personaColor }}>
+                  <Layers size={10} className="flex-shrink-0" />
+                  <span className="truncate">{personaTagline}</span>
+                </div>
+              )}
               {pageContext && pageContext.module !== "Home" && (
                 <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-medium text-amber-600 dark:text-amber-400 max-w-[120px] truncate">
                   <MapPin size={10} className="flex-shrink-0" />
@@ -236,33 +248,35 @@ export default function ExecConcierge() {
                           ))}
                         </div>
                       )}
-                      <div className="space-y-2 pt-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
-                          Quick Actions
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {EXEC_TASKS.map((task) => (
-                            <button
-                              key={task.label}
-                              onClick={() => handleTask(task.path)}
-                              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-muted hover:bg-accent border border-border text-[11px] font-medium text-foreground transition-colors"
-                            >
-                              <task.icon size={11} className="text-amber-500" />
-                              {task.label}
-                            </button>
-                          ))}
+                      {tasks.length > 0 && (
+                        <div className="space-y-2 pt-1">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                            Quick Actions
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {tasks.map((task) => (
+                              <button
+                                key={task.label}
+                                onClick={() => handleTask(task.path)}
+                                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-muted hover:bg-accent border border-border text-[11px] font-medium text-foreground transition-colors"
+                              >
+                                <task.icon size={11} style={{ color: personaColor }} />
+                                {task.label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </>
                   ) : (
                     <div className="flex flex-wrap gap-2 pt-2">
-                      {EXEC_QUICK_ACTIONS.map((action) => (
+                      {quickActions.map((action) => (
                         <button
                           key={action.label}
                           onClick={() => handleQuickAction(action)}
                           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted hover:bg-accent border border-border text-xs font-medium text-foreground transition-colors"
                         >
-                          <action.icon size={14} className="text-amber-500" />
+                          <action.icon size={14} style={{ color: personaColor }} />
                           {action.label}
                         </button>
                       ))}
@@ -273,7 +287,7 @@ export default function ExecConcierge() {
 
               {showSuggestions && (
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {getSuggestedQuestions(messages.length).map((q) => (
+                  {getWorkspaceSuggestedQuestions(workspacePersona, messages.length).map((q) => (
                     <button
                       key={q}
                       onClick={() => handleSend(q)}

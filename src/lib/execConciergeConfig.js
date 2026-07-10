@@ -169,7 +169,32 @@ export function formatTier(tier) {
   return tier.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function generateBriefing(firstName, userContext, pageContext) {
+export function generateBriefing(firstName, userContext, pageContext, persona) {
+  // Use workspace persona greeting if available
+  if (persona && persona.greeting) {
+    const personaGreeting = persona.greeting(firstName);
+    // For the executive workspace, append personalized insights after the greeting
+    if (persona.id === "executive" && userContext) {
+      const insights = [];
+      if (userContext.reputation) {
+        const rep = userContext.reputation;
+        insights.push(`Your Executive Reputation is **${rep.reputation_score}** (${formatTier(rep.reputation_tier)})`);
+        if (rep.reputation_trend === "up") insights.push("Your reputation trend is **rising** 📈");
+      }
+      if (userContext.journey) {
+        const j = userContext.journey;
+        insights.push(`Journey level: **${j.level.current.title}** (${j.totalPoints.toLocaleString()} points)`);
+        if (j.level.next) insights.push(`**${j.level.pointsToNext.toLocaleString()} points** to **${j.level.next.title}** 🎯`);
+      }
+      if (userContext.profile && !userContext.profile.identity_verified) {
+        insights.push("⚠️ Identity not verified yet — [verify now](/identity-verification)");
+      }
+      if (insights.length > 0) {
+        return `${personaGreeting}\n\n**Your Executive Briefing:**\n${insights.map(i => `• ${i}`).join("\n")}`;
+      }
+    }
+    return personaGreeting;
+  }
   const greeting = firstName ? `Welcome back, ${firstName}.` : "Welcome back.";
   const insights = [];
 
@@ -432,10 +457,21 @@ IMPORTANT LINKS:
 - Contact: /contact
 - About: /about`;
 
-export function buildExecPrompt(messages, user, pageContext, userContext) {
+export function buildExecPrompt(messages, user, pageContext, userContext, persona) {
   let context = user
     ? `\n\nVISITOR CONTEXT: The user is logged in as ${user.full_name || "a registered user"}.`
     : `\n\nVISITOR CONTEXT: The visitor is not logged in (a public visitor). If they show interest, suggest creating a free account at /register or booking a demo at /contact.`;
+
+  // Inject workspace persona context to shift EXEC™'s behavior
+  if (persona && persona.promptContext) {
+    context += `\n\n${persona.promptContext}`;
+    if (persona.tagline) {
+      context += `\nYour active persona subtitle is "${persona.tagline}". Adapt your tone and expertise accordingly while remaining EXEC™ — one unified AI identity.`;
+    }
+    if (persona.expertise && persona.expertise.length > 0) {
+      context += `\nYour current expertise areas: ${persona.expertise.join(", ")}.`;
+    }
+  }
 
   if (pageContext && pageContext.module !== "Home") {
     context += `\n\nCURRENT PAGE: The user is currently viewing "${pageContext.module}".`;

@@ -276,8 +276,8 @@ Key Features:
 - Executive Network: Connect with executives, mentors, career opportunities, and partnerships
 - Marketplace: Executive bundles and premium content
 - Analytics: Track your leadership growth, skill development, and progress over time
-- Executive Wallet: Earn rewards through referrals and community contributions
-- Referral Program: Earn commissions by referring other executives
+- Executive Wallet: Earn rewards through community contributions
+- Executive Ambassador Program™: Introduce future leaders and earn platform value — Journey Points, EXEC™ Credits, Reputation, and Badges (not cash commissions). 7 Ambassador Levels from Explorer to Legacy Builder.
 - Identity Verification: Verify your identity to build trust and unlock features
 - Security Center: Manage devices, sessions, and account security
 - Founder Portal: Exclusive benefits for Founding Members

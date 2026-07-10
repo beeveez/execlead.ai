@@ -68,7 +68,7 @@ export const WORKSPACE_NAV = {
     { label: "Account", items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/founder", label: "Founder Portal", icon: Crown },
-      { path: "/referrals", label: "Referrals", icon: Gift },
+      { path: "/referrals", label: "Ambassador Program", icon: Gift },
       { path: "/wallet", label: "Executive Wallet", icon: Wallet },
       { path: "/billing", label: "Billing", icon: CreditCard },
       { path: "/settings", label: "Settings", icon: SettingsIcon },

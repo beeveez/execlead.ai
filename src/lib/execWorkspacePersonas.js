@@ -20,6 +20,7 @@ import {
   Fingerprint, GraduationCap, Store, Trophy, Home, Calculator,
   CreditCard,
 } from "lucide-react";
+import { MODULE_PERSONA_OVERRIDES } from "./execModulePersonas";
 
 // ============================================================
 // BASE WORKSPACE PERSONAS
@@ -85,6 +86,37 @@ How can I help you today?`,
 - Leadership DNA, Legacy Library, Executive Academy, Career Studio
 - Personalized coaching, simulations, and leadership development
 Prioritize guidance that helps the user become a stronger leader. Use journey points, readiness scores, and reputation data to personalize recommendations.`,
+    recommendations: (userContext) => {
+      const recs = [];
+      const rep = userContext?.reputation;
+      const profile = userContext?.profile;
+      if (!rep || rep.reputation_score === undefined) {
+        recs.push({ label: "Calculate Executive Reputation™", path: "/reputation", priority: "high" });
+      } else {
+        if (rep.reputation_score < 500) {
+          recs.push({ label: "Improve Executive Reputation™", path: "/reputation", priority: "high" });
+        }
+        if (rep.reputation_tier === "new_member" || rep.reputation_tier === "contributor") {
+          recs.push({ label: "Earn your next reputation badge", path: "/reputation", priority: "medium" });
+        }
+      }
+      if (profile) {
+        if (!profile.identity_verified) {
+          recs.push({ label: "Verify your identity", path: "/identity-verification", priority: "high" });
+        }
+        if ((profile.interview_readiness || 0) < 50) {
+          recs.push({ label: "Prepare for interviews", path: "/career-studio", priority: "medium" });
+        }
+        if ((profile.leadership_maturity || 0) < 50) {
+          recs.push({ label: "Complete Leadership DNA™", path: "/leadership-dna", priority: "medium" });
+        }
+        if (!profile.founding_member && profile.subscription_plan === "free") {
+          recs.push({ label: "Upgrade your membership", path: "/compare-plans", priority: "low" });
+        }
+      }
+      recs.push({ label: "Continue Leadership Journey", path: "/dashboard", priority: "low" });
+      return recs.slice(0, 4);
+    },
   },
 
   // ── DEVELOPER WORKSPACE ──
@@ -104,9 +136,14 @@ Prioritize guidance that helps the user become a stronger leader. Use journey po
 
 **Developer Workspace** is active.
 
-I'm **EXEC™**, your **Developer Copilot™**.
+**Platform Status**
+✓ System Health: Healthy
+✓ Cache: Healthy
+✓ Config Version: Current
+✓ Guardian™: Passed
+✓ Deployment: Stable
 
-I can help you with system health, Guardian™ consistency checks, feature flags, API management, deployments, database operations, diagnostics, and architecture decisions.
+I'm **EXEC™**, your **Developer Copilot™**.
 
 How can I help you build EXECLEAD.AI today?`;
     },
@@ -150,6 +187,12 @@ How can I help?`,
 - API Management, Deployment Center, Database Explorer
 - Diagnostics, Architecture, Performance, Error Analysis
 You have deep technical knowledge of the platform infrastructure. Provide precise, technical guidance. Reference specific developer tools, system metrics, and operational procedures. When discussing issues, prioritize root-cause analysis and actionable remediation steps. You understand the Guardian™ consistency engine, feature flag system, API architecture, database schema, deployment pipeline, and diagnostic tools.`,
+    recommendations: () => [
+      { label: "Run Diagnostics", path: "/developer/diagnostics", priority: "high" },
+      { label: "Review Guardian™ Findings", path: "/guardian", priority: "high" },
+      { label: "Check System Health", path: "/developer/system-health", priority: "medium" },
+      { label: "Review Deployments", path: "/developer/deployments", priority: "medium" },
+    ],
   },
 
   // ── ENTERPRISE WORKSPACE ──
@@ -214,6 +257,12 @@ How can I help your organization?`,
 - Enterprise Billing, Identity Reviews, Enterprise Intelligence
 - Succession Planning, HR Dashboard, Learning Assignments, SSO
 You advise enterprise leaders on building leadership pipelines, developing talent, and managing organizational development. Reference enterprise intelligence metrics (readiness distribution, high-potential talent, risk indicators, promotion pipeline). Discuss ROI, security, compliance, and deployment when relevant.`,
+    recommendations: () => [
+      { label: "Review Organization Intelligence", path: "/enterprise-intelligence", priority: "high" },
+      { label: "Manage Members", path: "/organization/users", priority: "medium" },
+      { label: "Review Identity Verifications", path: "/identity-verification-admin", priority: "medium" },
+      { label: "Check Succession Pipeline", path: "/succession-planning", priority: "low" },
+    ],
   },
 
   // ── PLATFORM / BILLING ADMIN WORKSPACE ──
@@ -278,6 +327,12 @@ How can I help?`,
 - Feature Management, Email Settings, Membership Programs
 - Founding Member Administration, Organization Management
 You help platform admins configure and operate the platform. Reference pricing catalogs, feature flags, payment providers, email providers, membership programs, and CPQ configuration. Provide precise operational guidance for administrative tasks.`,
+    recommendations: () => [
+      { label: "Review Pricing Plans", path: "/pricing-admin", priority: "medium" },
+      { label: "Check Feature Flags", path: "/feature-management", priority: "medium" },
+      { label: "Review Email Settings", path: "/email-settings", priority: "low" },
+      { label: "Manage Membership Programs", path: "/membership-admin", priority: "low" },
+    ],
   },
 };
 
@@ -410,24 +465,27 @@ You help moderators review leadership letters, interpret AI moderation scores, m
  * @param {string} pathname - current route pathname
  * @returns {object} resolved persona with all properties
  */
+const ALL_PAGE_OVERRIDES = [...PAGE_PERSONA_OVERRIDES, ...MODULE_PERSONA_OVERRIDES];
+
 export function resolveWorkspacePersona(workspaceId, pathname) {
   const base = WORKSPACE_PERSONAS[workspaceId] || WORKSPACE_PERSONAS.executive;
 
-  // Check page-context overrides
+  // Check page-context module overrides (workspace ALWAYS takes priority — base persona is from active workspace)
   if (pathname) {
-    for (const override of PAGE_PERSONA_OVERRIDES) {
+    for (const override of ALL_PAGE_OVERRIDES) {
       if (override.match(pathname)) {
-        // Merge: override properties take precedence, but fall back to base
+        // Merge: override properties take precedence, but fall back to base workspace persona
         return {
           ...base,
           ...override,
           id: override.id,
+          baseWorkspace: workspaceId,
         };
       }
     }
   }
 
-  return base;
+  return { ...base, baseWorkspace: workspaceId };
 }
 
 /**

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 import { useAuth } from "@/lib/AuthContext";
@@ -11,6 +11,7 @@ import {
 import { getWorkspaceSuggestedQuestions } from "@/lib/execWorkspacePersonas";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
+import ExecDebugPanel from "./ExecDebugPanel";
 
 export default function ExecConcierge() {
   const { user } = useAuth();
@@ -25,13 +26,17 @@ export default function ExecConcierge() {
     clearConversation,
     pageContext,
     userContext,
+    recommendations,
     workspacePersona,
+    activeWorkspace,
+    contextSwitchAt,
   } = useExecConcierge();
   const [input, setInput] = useState("");
   const [showCommands, setShowCommands] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -100,8 +105,6 @@ export default function ExecConcierge() {
   const showWelcome = !loading && messages.length <= 1;
   const showSuggestions =
     !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
-  const recommendations = userContext?.recommendations || [];
-
   // Workspace-aware quick actions, tasks, and suggestions
   const quickActions = workspacePersona?.quickActions || [];
   const tasks = workspacePersona?.tasks || [];
@@ -191,6 +194,17 @@ export default function ExecConcierge() {
                 <X size={18} />
               </button>
             </div>
+
+            {activeWorkspace === "developer" && (
+              <ExecDebugPanel
+                workspacePersona={workspacePersona}
+                activeWorkspace={activeWorkspace}
+                pageContext={pageContext}
+                pathname={location.pathname}
+                messages={messages}
+                contextSwitchAt={contextSwitchAt}
+              />
+            )}
 
             {/* Global Commands — always accessible */}
             {showCommands && (

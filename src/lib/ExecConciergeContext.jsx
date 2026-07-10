@@ -28,16 +28,18 @@ export function useExecConcierge() {
       clearConversation: () => {},
       pageContext: null,
       userContext: null,
+      recommendations: [],
       hasGreeted: false,
       workspacePersona: null,
       activeWorkspace: null,
+      contextSwitchAt: null,
     };
   }
   return ctx;
 }
 
-function storageKey(prefix, user) {
-  return `${prefix}_${user?.id || "anon"}`;
+function storageKey(prefix, user, workspace) {
+  return `${prefix}_${user?.id || "anon"}_${workspace || "default"}`;
 }
 
 function computeRecommendations(data, user) {
@@ -85,6 +87,7 @@ export function ExecConciergeProvider({ children }) {
   const [pageContext, setPageContext] = useState(null);
   const [userContext, setUserContext] = useState(null);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [contextSwitchAt, setContextSwitchAt] = useState(null);
   const userContextRef = useRef(null);
   const greetedWorkspaceRef = useRef(null);
 
@@ -99,15 +102,26 @@ export function ExecConciergeProvider({ children }) {
     [activeWorkspace, location.pathname]
   );
 
+  // Track context switch timestamp for debug panel
+  useEffect(() => {
+    setContextSwitchAt(new Date().toISOString());
+  }, [activeWorkspace, location.pathname]);
+
+  // Workspace-specific recommendations — NEVER cross-contaminate between workspaces
+  const recommendations = useMemo(() => {
+    if (!workspacePersona?.recommendations) return [];
+    return workspacePersona.recommendations(userContext);
+  }, [workspacePersona, userContext]);
+
   // Restore open state on mount
   useEffect(() => {
     if (localStorage.getItem("exec_open") === "true") setIsOpen(true);
   }, []);
 
-  // Load conversation + greeting state when the user changes
+  // Load conversation + greeting state when user or workspace changes (per-workspace memory isolation)
   useEffect(() => {
-    const mKey = storageKey("exec_messages", user);
-    const gKey = storageKey("exec_greeted", user);
+    const mKey = storageKey("exec_messages", user, activeWorkspace);
+    const gKey = storageKey("exec_greeted", user, activeWorkspace);
     try {
       const saved = localStorage.getItem(mKey);
       setMessages(saved ? JSON.parse(saved) : []);
@@ -115,14 +129,15 @@ export function ExecConciergeProvider({ children }) {
       setMessages([]);
     }
     setHasGreeted(localStorage.getItem(gKey) === "true");
+    greetedWorkspaceRef.current = null;
     userContextRef.current = null;
     setUserContext(null);
-  }, [user?.id]);
+  }, [user?.id, activeWorkspace]);
 
-  // Persist messages whenever they change
+  // Persist messages whenever they change (per-workspace)
   useEffect(() => {
-    localStorage.setItem(storageKey("exec_messages", user), JSON.stringify(messages));
-  }, [messages, user?.id]);
+    localStorage.setItem(storageKey("exec_messages", user, activeWorkspace), JSON.stringify(messages));
+  }, [messages, user?.id, activeWorkspace]);
 
   // Fetch user context (memoized per user)
   const fetchUserContext = useCallback(async () => {
@@ -144,13 +159,12 @@ export function ExecConciergeProvider({ children }) {
         reputation: data?.reputation,
         profile: data?.profile,
         journey,
-        recommendations: computeRecommendations(data, user),
       };
       userContextRef.current = ctx;
       setUserContext(ctx);
       return ctx;
     } catch {
-      const fallback = { recommendations: computeRecommendations(null, user) };
+      const fallback = {};
       userContextRef.current = fallback;
       setUserContext(fallback);
       return fallback;
@@ -173,14 +187,14 @@ export function ExecConciergeProvider({ children }) {
     base44.analytics.track({ eventName: "exec_concierge_opened", properties: { workspace: activeWorkspace } });
   }, [user, fetchUserContext, location.pathname, workspacePersona, activeWorkspace]);
 
-  // Greet on first open (per user)
+  // Greet on first open (per user + per workspace)
   useEffect(() => {
     if (isOpen && !hasGreeted) {
       setHasGreeted(true);
-      localStorage.setItem(storageKey("exec_greeted", user), "true");
+      localStorage.setItem(storageKey("exec_greeted", user, activeWorkspace), "true");
       initConversation();
     }
-  }, [isOpen, hasGreeted, initConversation, user]);
+  }, [isOpen, hasGreeted, initConversation, user, activeWorkspace]);
 
   // Regenerate greeting when active workspace changes (after initial greeting)
   useEffect(() => {
@@ -265,9 +279,9 @@ export function ExecConciergeProvider({ children }) {
     setMessages([]);
     setHasGreeted(false);
     userContextRef.current = null;
-    localStorage.removeItem(storageKey("exec_greeted", user));
-    localStorage.removeItem(storageKey("exec_messages", user));
-  }, [user]);
+    localStorage.removeItem(storageKey("exec_greeted", user, activeWorkspace));
+    localStorage.removeItem(storageKey("exec_messages", user, activeWorkspace));
+  }, [user, activeWorkspace]);
 
   const value = {
     isOpen,
@@ -280,10 +294,12 @@ export function ExecConciergeProvider({ children }) {
     clearConversation,
     pageContext,
     userContext,
+    recommendations,
     hasGreeted,
     initConversation,
     workspacePersona,
     activeWorkspace,
+    contextSwitchAt,
   };
 
   return (

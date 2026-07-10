@@ -16,6 +16,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 import SimulationBanner from "@/components/developer/SimulationBanner";
+import GracePeriodBanner from "@/components/identity/GracePeriodBanner";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -121,6 +122,7 @@ export default function AppLayout() {
       <main className="flex-1 lg:ml-64 pt-[calc(3.5rem_+_env(safe-area-inset-top))] lg:pt-0 pb-24 md:pb-0 min-h-screen">
         <ImpersonationBanner />
         <SimulationBanner />
+        <GracePeriodBanner />
         <TopBar />
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <RoleRoute>

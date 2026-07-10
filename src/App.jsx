@@ -146,6 +146,7 @@ import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
 import ExecutiveRankings from '@/pages/ExecutiveRankings';
+import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import Concierge from '@/pages/Concierge';
 import Feedback from '@/pages/Feedback';
@@ -318,6 +319,7 @@ const AuthenticatedApp = () => {
           <Route path="/learning-assignments" element={<FeatureGate featureId="learning_assignments"><LearningAssignments /></FeatureGate>} />
           <Route path="/sso" element={<FeatureGate featureId="sso"><SSOIdentity /></FeatureGate>} />
           <Route path="/executive/rankings" element={<ExecutiveRankings />} />
+          <Route path="/identity-transfer" element={<IdentityTransfer />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
           <Route path="/concierge" element={<Concierge />} />
           <Route path="/reputation" element={<Reputation />} />

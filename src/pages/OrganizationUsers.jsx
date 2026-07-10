@@ -3,10 +3,12 @@ import { base44 } from "@/api/base44Client";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { toast } from "@/components/ui/use-toast";
-import { Shield, Users, UserPlus, Loader2, MoreVertical, Trash2, UserCog, BookOpen, Ban, CheckCircle2 } from "lucide-react";
+import { Shield, Users, UserPlus, Loader2, MoreVertical, Trash2, UserCog, BookOpen, Ban, CheckCircle2, UserX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import EditUserModal from "@/components/organization/EditUserModal";
 import AssignmentModal from "@/components/hr/AssignmentModal";
+import OffboardingDashboard from "@/components/identity/OffboardingDashboard";
+import OffboardingConfirmModal from "@/components/identity/OffboardingConfirmModal";
 
 export default function OrganizationUsers() {
   const { members, loading, organizationId } = useOrganizationMembers();
@@ -19,6 +21,7 @@ export default function OrganizationUsers() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignTarget, setAssignTarget] = useState(null);
   const [menuOpen, setMenuOpen] = useState(null);
+  const [offboardingTarget, setOffboardingTarget] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -85,23 +88,31 @@ export default function OrganizationUsers() {
     }
   };
 
-  const handleRemove = async (member) => {
+  const handleRemove = (member) => {
     if (member.id === profile?.id) {
       toast({ title: "Cannot Remove", description: "You cannot remove yourself.", variant: "destructive" });
       return;
     }
+    setOffboardingTarget(member);
+    setMenuOpen(null);
+  };
+
+  const handleConfirmOffboarding = async (reason, notifyMember) => {
+    setOffboardingTarget(null);
     try {
-      await base44.entities.UserProfile.update(member.id, {
-        organization_id: "", custom_role: "", department: "", department_id: "", manager_id: "", manager_name: "",
+      const res = await base44.functions.invoke("manageIdentityTransfer", {
+        action: "initiate_offboarding",
+        target_user_id: offboardingTarget.created_by_id,
+        reason,
+        notify_member: notifyMember,
       });
-      if (org && (org.seats_used || 0) > 0) {
-        await base44.entities.Organization.update(org.id, { seats_used: org.seats_used - 1 });
+      const d = res.data || res;
+      if (d.success) {
+        toast({ title: "Offboarding Initiated", description: `${offboardingTarget.full_name} has been notified. A 30-day grace period has started.` });
+        window.location.reload();
       }
-      toast({ title: "Member Removed", description: `${member.full_name} has been removed from the organization.` });
-      setMenuOpen(null);
-      window.location.reload();
     } catch (e) {
-      toast({ title: "Failed", description: e.message, variant: "destructive" });
+      toast({ title: "Offboarding Failed", description: e.response?.data?.error || e.message, variant: "destructive" });
     }
   };
 
@@ -152,6 +163,9 @@ export default function OrganizationUsers() {
           )}
         </div>
       </div>
+
+      {/* Offboarding Queue */}
+      <OffboardingDashboard />
 
       {/* Invite */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
@@ -268,6 +282,17 @@ export default function OrganizationUsers() {
         {editMember && (
           <EditUserModal member={editMember} departments={departments} managers={managers}
             onSave={handleSaveMember} onClose={() => setEditMember(null)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {offboardingTarget && (
+          <OffboardingConfirmModal
+            member={offboardingTarget}
+            orgName={org?.name}
+            onConfirm={handleConfirmOffboarding}
+            onClose={() => setOffboardingTarget(null)}
+          />
         )}
       </AnimatePresence>
 

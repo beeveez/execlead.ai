@@ -1,0 +1,162 @@
+{
+  "name": "ExecutiveIdentityTransfer",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User being offboarded"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization the user is leaving"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "organization_admin_id": {
+      "type": "string"
+    },
+    "organization_admin_name": {
+      "type": "string"
+    },
+    "trigger_reason": {
+      "type": "string",
+      "enum": [
+        "admin_removed",
+        "member_resigned",
+        "subscription_ended",
+        "org_archived",
+        "org_deleted"
+      ],
+      "description": "Why the offboarding was triggered"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "grace_period",
+        "transfer_pending",
+        "completed",
+        "expired"
+      ],
+      "default": "grace_period"
+    },
+    "grace_period_days": {
+      "type": "number",
+      "default": 30
+    },
+    "grace_period_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "grace_period_ends_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "enterprise_features_revoked": {
+      "type": "boolean",
+      "default": false
+    },
+    "previous_custom_role": {
+      "type": "string"
+    },
+    "previous_department": {
+      "type": "string"
+    },
+    "previous_department_id": {
+      "type": "string"
+    },
+    "previous_manager_id": {
+      "type": "string"
+    },
+    "previous_manager_name": {
+      "type": "string"
+    },
+    "previous_subscription_plan": {
+      "type": "string"
+    },
+    "chosen_plan": {
+      "type": "string",
+      "enum": [
+        "free",
+        "professional",
+        "executive"
+      ],
+      "description": "Plan chosen by member during transfer"
+    },
+    "chosen_plan_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "personal_assets_snapshot_json": {
+      "type": "string",
+      "description": "JSON snapshot of personal assets at transfer time"
+    },
+    "company_data_archived": {
+      "type": "boolean",
+      "default": false
+    },
+    "company_data_archive_json": {
+      "type": "string",
+      "description": "JSON snapshot of company-specific data archived for employer"
+    },
+    "transferred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notified": {
+      "type": "boolean",
+      "default": false
+    },
+    "notified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rehired_to_organization_id": {
+      "type": "string",
+      "description": "If rehired later, the new org ID"
+    },
+    "rehired_to_organization_name": {
+      "type": "string"
+    },
+    "rehired_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "initiated_by_id": {
+      "type": "string"
+    },
+    "initiated_by_name": {
+      "type": "string"
+    },
+    "admin_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "organization_id",
+    "trigger_reason"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {},
+    "delete": {}
+  }
+}

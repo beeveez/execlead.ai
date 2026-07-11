@@ -40,6 +40,7 @@ import SelfHealingHistory from "@/components/developer/SelfHealingHistory";
 import RepairDiagnostics from "@/components/developer/RepairDiagnostics";
 import FoundationCertificationDashboard from "@/components/developer/foundation/FoundationCertificationDashboard";
 import PlatformIntelligenceCenter from "@/components/developer/pii/PlatformIntelligenceCenter";
+import FeatureGovernanceRuleCard from "@/components/developer/FeatureGovernanceRuleCard";
 
 const WORKSPACES = [
   {
@@ -77,6 +78,7 @@ const WORKSPACES = [
         <GovernanceCertificationBanner certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} onRefresh={() => ctx.runPipeline("manual")} />
         <GovernancePipelineStatus certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} />
         <GovernanceCertificateCard certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} onRefresh={() => ctx.runPipeline("manual")} />
+        <FeatureGovernanceRuleCard />
         <PlatformManifestDashboard />
         <RegistrySynchronization />
         <ContextValidation />

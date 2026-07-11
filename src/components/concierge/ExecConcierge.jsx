@@ -44,7 +44,7 @@ export default function ExecConcierge() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, loading]);
+  }, [messages, loading, showDiagnostics]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -85,15 +85,17 @@ export default function ExecConcierge() {
   };
 
   const handleRecommendation = (rec) => {
-    base44.analytics.track({
-      eventName: "exec_concierge_recommendation",
-      properties: { label: rec.label, action: rec.action || "navigate" },
-    });
     if (rec.action === "run_diagnostics") {
       setShowDiagnostics(true);
-      return;
+    } else if (rec.path) {
+      navigate(rec.path);
     }
-    if (rec.path) navigate(rec.path);
+    try {
+      base44.analytics.track({
+        eventName: "exec_concierge_recommendation",
+        properties: { label: rec.label, action: rec.action || "navigate" },
+      });
+    } catch (e) {}
   };
 
   const handleQuickAction = (action) => {

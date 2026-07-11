@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { validateManifest, getManifestCoverage, PLATFORM_MANIFEST } from "@/lib/platformManifest";
+import { validateManifest, getManifestCoverage } from "@/lib/platformManifest";
 import {
   CheckCircle2, AlertTriangle, XCircle, Loader2, Gauge,
   RefreshCw, ShieldCheck,

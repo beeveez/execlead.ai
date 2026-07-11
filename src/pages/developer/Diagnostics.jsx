@@ -4,6 +4,7 @@ import {
   Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar, FileText, Database,
 } from "lucide-react";
 import MissionControlDashboard from "@/components/developer/MissionControlDashboard";
+import MissionControlConsole from "@/components/developer/MissionControlConsole";
 import PlatformStatusGrid from "@/components/developer/PlatformStatusGrid";
 import SystemTimeline from "@/components/developer/SystemTimeline";
 import CorePlatformServices from "@/components/developer/CorePlatformServices";
@@ -67,6 +68,12 @@ export default function Diagnostics() {
         {/* SECTION 0: Mission Control Dashboard                   */}
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider icon={Radar} label="Mission Control" color="emerald" />
+        <MissionControlConsole />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION 0.4: Mission Control Dashboard (Detail)        */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Gauge} label="Mission Control Dashboard" color="emerald" />
         <MissionControlDashboard />
 
         {/* ────────────────────────────────────────────────────── */}

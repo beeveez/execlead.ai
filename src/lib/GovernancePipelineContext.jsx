@@ -61,8 +61,16 @@ export function GovernancePipelineProvider({ children }) {
         warnings: cert.warnings,
         failures: cert.failures,
         repair_actions: cert.repairActions,
-        stages_json: JSON.stringify(cert.stages),
-        findings_json: JSON.stringify(cert.findings),
+        stages_json: JSON.stringify(cert.stages.map((s) => ({
+          id: s.id, name: s.name, order: s.order,
+          status: s.status, score: s.score, summary: s.summary, duration: s.duration,
+          findings: s.findings?.length || 0,
+        }))),
+        findings_json: JSON.stringify(cert.findings.map((f) => ({
+          id: f.id, stageId: f.stageId, code: f.code,
+          level: f.level, autoRepairable: f.autoRepairable,
+          message: f.message.slice(0, 200),
+        }))),
         pipeline_version: cert.pipelineVersion,
         platform_version: cert.platformVersion,
         execution_time_ms: cert.duration,

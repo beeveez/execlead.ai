@@ -27,8 +27,33 @@ Deno.serve(async (req) => {
     const buildNumber = '2026.07.11';
 
     // ── Knowledge Pack status from ELIMKnowledgePack entity ──
+    // The canonical pack definitions (mirrors src/lib/elimFrameworks.js).
+    // If the entity is empty, we seed it so backend and frontend agree.
+    const PLATFORM_KNOWLEDGE_PACKS = [
+      { pack_id: 'kp_eecf', framework_id: 'eecf', name: 'EECF™ Knowledge Pack', version: '1.0', status: 'active' },
+      { pack_id: 'kp_leadership_dna', framework_id: 'leadership_dna', name: 'Leadership DNA™ Knowledge Pack', version: '2.0', status: 'active' },
+      { pack_id: 'kp_eri', framework_id: 'eri', name: 'Executive Readiness Index™ Knowledge Pack', version: '1.2', status: 'active' },
+      { pack_id: 'kp_erf', framework_id: 'erf', name: 'Executive Reputation Framework™ Knowledge Pack', version: '1.1', status: 'active' },
+      { pack_id: 'kp_ejf', framework_id: 'ejf', name: 'Executive Journey Framework™ Knowledge Pack', version: '1.0', status: 'active' },
+      { pack_id: 'kp_platform', framework_id: 'ejf', name: 'Platform Operations Knowledge Pack', version: '1.0', status: 'active' },
+    ];
+
     let knowledgePacks = { total: 0, active: 0, draft: 0, archived: 0 };
     try {
+      // Seed the entity if empty — ensures backend agrees with frontend definition
+      const existing = await base44.asServiceRole.entities.ELIMKnowledgePack.list('-created_date', 100);
+      if (existing.length === 0) {
+        for (const pack of PLATFORM_KNOWLEDGE_PACKS) {
+          await base44.asServiceRole.entities.ELIMKnowledgePack.create({
+            pack_id: pack.pack_id,
+            framework_id: pack.framework_id,
+            name: pack.name,
+            version: pack.version,
+            status: pack.status,
+          });
+        }
+      }
+
       const active = await base44.asServiceRole.entities.ELIMKnowledgePack.filter({ status: 'active' }, '-created_date', 50);
       const all = await base44.asServiceRole.entities.ELIMKnowledgePack.list('-created_date', 100);
       const draft = await base44.asServiceRole.entities.ELIMKnowledgePack.filter({ status: 'draft' }, '-created_date', 50);
@@ -47,7 +72,14 @@ Deno.serve(async (req) => {
         })),
       };
     } catch (e) {
-      // ELIMKnowledgePack entity may not exist yet
+      // ELIMKnowledgePack entity may not exist yet — fall back to canonical definition
+      knowledgePacks = {
+        total: PLATFORM_KNOWLEDGE_PACKS.length,
+        active: PLATFORM_KNOWLEDGE_PACKS.filter((p) => p.status === 'active').length,
+        draft: PLATFORM_KNOWLEDGE_PACKS.filter((p) => p.status === 'draft').length,
+        archived: PLATFORM_KNOWLEDGE_PACKS.filter((p) => p.status === 'archived').length,
+        active_packs: PLATFORM_KNOWLEDGE_PACKS.filter((p) => p.status === 'active'),
+      };
     }
 
     // ── Entity health check ──

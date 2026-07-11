@@ -1,4 +1,5 @@
 import { validateManifest, getManifestCoverage, PLATFORM_METADATA, applyRepairs, getRepairLog, getActiveRepairCount, invalidateManifestCache, verifyPersistence, diagnoseNonPersistence } from "./platformManifest";
+import { isKnowledgePackEngineActive, getActiveKnowledgePacks } from "./knowledgeResolution";
 
 // ============================================================
 // CLASSIFICATION RULES
@@ -275,7 +276,12 @@ export function computePlatformHealth(guardianPending = 0) {
   const infos = findings.filter((f) => f.level === "info").length;
 
   const manifestCoverage = coverage.routeCoverage;
-  const knowledgeCoverage = Math.max(0, 100 - findings.filter((f) => f.code === "MODULE_MISSING_PACK").length * 5);
+  // Knowledge coverage: 0 if no active packs, else penalized by missing-pack findings.
+  // Consumes the Knowledge Resolution Engine™ — same source as all other components.
+  const activePackCount = getActiveKnowledgePacks().length;
+  const knowledgeCoverage = isKnowledgePackEngineActive()
+    ? Math.max(0, 100 - findings.filter((f) => f.code === "MODULE_MISSING_PACK").length * 5)
+    : 0;
   const routeCoverage = coverage.routeCoverage;
   const entityHealth = 100;
   const guardianHealth = guardianPending === 0 ? 100 : Math.max(0, 100 - guardianPending * 10);

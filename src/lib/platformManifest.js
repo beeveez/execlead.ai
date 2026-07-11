@@ -27,6 +27,7 @@ import { ELIM_FRAMEWORKS, KNOWLEDGE_PACKS, ELIM_VERSION } from "./elimFrameworks
 import { EELM_FRAMEWORKS, EELM_VERSION } from "./eelmMethodology";
 import { EXEC_KNOWLEDGE_INDEX, EXEC_FRAMEWORK_HIERARCHY, EXEC_KNOWLEDGE_VERSION, EXEC_PROMPT_VERSION, EXEC_PLATFORM_VERSION } from "./execKnowledgeBase";
 import { dispatch as platformDispatch } from "./platformEventBus";
+import { CONFIG_VERSION } from "./platformConfig";
 
 // ============================================================
 // REPAIR OVERRIDE LAYER
@@ -250,7 +251,7 @@ export const PLATFORM_METADATA = {
   platformName: "EXECLEAD.AI",
   platformVersion: EXEC_PLATFORM_VERSION,
   releaseVersion: "2.0",
-  configVersion: null,
+  configVersion: CONFIG_VERSION,
   knowledgeVersion: EXEC_KNOWLEDGE_VERSION,
   frameworkVersion: EELM_VERSION,
   promptVersion: EXEC_PROMPT_VERSION,
@@ -586,6 +587,25 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/developer/product", "/portal/:quoteId", "/verify/:verificationId",
   "/founders", "/founders-wall", "/trust-center", "/company-library", "/company-library/:id",
   "/", "/pricing", "/leaderboard", "/guardian",
+  // Dynamic sub-routes covered by their parent module's knowledge entry
+  "/academy/:courseSlug", "/academy/:courseSlug/:lessonId",
+  "/companies/:id", "/companies/compare",
+  "/intelligence/competencies",
+  "/legacy-library/:id", "/legacy-library/new", "/legacy-library/admin", "/legacy-library/:id/review", "/legacy-library/:id/edit",
+  "/cpq/quotes", "/cpq/quote/:id",
+  "/network/events/:id", "/network/c/:communityId",
+  "/founder/benefits", "/founder/community", "/founder/events", "/founder/roadmap",
+  "/founder/referrals", "/founder/rewards", "/founder/certificates", "/founder/timeline",
+  "/founder/settings", "/founder/time-capsule",
+  "/identity-verification-admin", "/beta-launch", "/executive-legacy",
+  "/organization/billing", "/brand-center", "/executive/rankings", "/identity-transfer",
+  "/reputation", "/exec-admin", "/concierge", "/founding-member-admin", "/membership-admin",
+  "/referrals", "/wallet", "/referral-admin", "/methodology", "/elim",
+  "/enterprise-intelligence", "/journey", "/executive-readiness", "/executive-passport",
+  "/sso", "/ai-command-center", "/developer/ai-command-center", "/developer/governance",
+  "/company-admin", "/company-reports-admin", "/request-tracking", "/email-settings",
+  "/organization/users", "/payment-settings", "/billing-admin", "/pricing-admin",
+  "/feature-management", "/cpq", "/cpq-dashboard",
 ];
 
 function isRouteExempt(path) {

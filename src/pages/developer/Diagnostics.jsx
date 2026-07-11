@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Cpu, Boxes, Brain, Network, Zap, Layers, Package,
-  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar, FileText,
+  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar, FileText, Database,
 } from "lucide-react";
 import MissionControlDashboard from "@/components/developer/MissionControlDashboard";
 import PlatformStatusGrid from "@/components/developer/PlatformStatusGrid";
@@ -21,6 +21,8 @@ import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
 import PlatformStateDebugPanel from "@/components/developer/PlatformStateDebugPanel";
 import FoundationIntegrationReport from "@/components/developer/FoundationIntegrationReport";
 import KnowledgeResolutionAudit from "@/components/developer/KnowledgeResolutionAudit";
+import PlatformMetadataCompletion from "@/components/developer/PlatformMetadataCompletion";
+import PlatformMetadataCompletionReport from "@/components/developer/PlatformMetadataCompletionReport";
 
 export default function Diagnostics() {
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
@@ -167,6 +169,18 @@ export default function Diagnostics() {
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider icon={Brain} label="Knowledge Resolution Audit™" color="cyan" />
         <KnowledgeResolutionAudit />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* PLATFORM METADATA COMPLETION                           */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Database} label="Platform Metadata Completion™" color="emerald" />
+        <PlatformMetadataCompletion />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* METADATA COMPLETION REPORT                             */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={FileText} label="Platform Metadata Completion Report™" color="indigo" />
+        <PlatformMetadataCompletionReport />
       </div>
     </div>
   );

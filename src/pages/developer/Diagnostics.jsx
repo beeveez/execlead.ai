@@ -20,6 +20,7 @@ import ContextValidation from "@/components/developer/ContextValidation";
 import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
 import PlatformStateDebugPanel from "@/components/developer/PlatformStateDebugPanel";
 import FoundationIntegrationReport from "@/components/developer/FoundationIntegrationReport";
+import KnowledgeResolutionAudit from "@/components/developer/KnowledgeResolutionAudit";
 
 export default function Diagnostics() {
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
@@ -160,6 +161,12 @@ export default function Diagnostics() {
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider icon={FileText} label="Foundation Integration Report™" color="indigo" />
         <FoundationIntegrationReport />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* KNOWLEDGE RESOLUTION AUDIT                             */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Brain} label="Knowledge Resolution Audit™" color="cyan" />
+        <KnowledgeResolutionAudit />
       </div>
     </div>
   );

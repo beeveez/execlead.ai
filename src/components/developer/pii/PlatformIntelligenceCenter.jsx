@@ -9,6 +9,7 @@ import {
 } from "recharts";
 import { computePlatformIntelligence, generateIntelligenceReport } from "@/lib/platformIntelligenceEngine";
 import PlatformIntelligenceMap from "./PlatformIntelligenceMap";
+import PlatformIQHistoricalTrend from "./PlatformIQHistoricalTrend";
 
 /**
  * Platform Intelligence Center™
@@ -87,6 +88,9 @@ export default function PlatformIntelligenceCenter() {
           </div>
         </div>
       </div>
+
+      {/* ── Historical Trend — Platform IQ™ ── */}
+      <PlatformIQHistoricalTrend currentScore={piq.piqScore} />
 
       {/* ── Radar Chart + Readiness ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

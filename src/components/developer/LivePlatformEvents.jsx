@@ -21,7 +21,8 @@ const EVENT_COLORS = {
 };
 
 export default function LivePlatformEvents() {
-  const { liveEvents } = usePlatformState();
+  const state = usePlatformState();
+  const liveEvents = state?.liveEvents || [];
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">

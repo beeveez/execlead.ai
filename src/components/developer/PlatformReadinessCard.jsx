@@ -3,7 +3,8 @@ import { ShieldCheck } from "lucide-react";
 import { usePlatformState } from "@/lib/PlatformStateContext";
 
 export default function PlatformReadinessCard() {
-  const { readiness } = usePlatformState();
+  const state = usePlatformState();
+  const readiness = state?.readiness;
   if (!readiness) return null;
 
   const { overall, label, signals } = readiness;

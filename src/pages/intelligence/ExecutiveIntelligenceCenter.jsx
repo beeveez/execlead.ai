@@ -3,6 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useExecutiveIntelligence } from "@/hooks/useExecutiveIntelligence";
+import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 import IntelligenceSummary from "@/components/intelligence/IntelligenceSummary";
 import IntelligenceRadarSection from "@/components/intelligence/IntelligenceRadarSection";
 import CapabilityDomains from "@/components/intelligence/CapabilityDomains";
@@ -78,15 +79,31 @@ export default function ExecutiveIntelligenceCenter() {
         </div>
       </div>
 
-      {/* Sections */}
-      <IntelligenceSummary intel={intel} profile={profile} />
-      <IntelligenceRadarSection />
-      <CapabilityDomains domainSummary={intel.domainSummary} />
-      <CompetencyIntelligence intel={intel} />
-      <LeadershipDNARelationship domainSummary={intel.domainSummary} />
-      <ReadinessIntegration domainSummary={intel.domainSummary} profile={profile} />
-      <AIExecutiveInsights intel={intel} />
-      <HistoricalIntelligence competencies={intel.competencies} />
+      {/* Sections — each wrapped in an isolated error boundary */}
+      <WidgetErrorBoundary name="Intelligence Summary">
+        <IntelligenceSummary intel={intel} profile={profile} />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="Intelligence Radar">
+        <IntelligenceRadarSection />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="Capability Domains">
+        <CapabilityDomains domainSummary={intel.domainSummary} />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="Competency Intelligence">
+        <CompetencyIntelligence intel={intel} />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="Leadership DNA Relationship">
+        <LeadershipDNARelationship domainSummary={intel.domainSummary} />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="Readiness Integration">
+        <ReadinessIntegration domainSummary={intel.domainSummary} profile={profile} />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="AI Executive Insights">
+        <AIExecutiveInsights intel={intel} />
+      </WidgetErrorBoundary>
+      <WidgetErrorBoundary name="Historical Intelligence">
+        <HistoricalIntelligence competencies={intel.competencies} />
+      </WidgetErrorBoundary>
     </div>
   );
 }

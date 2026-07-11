@@ -41,7 +41,7 @@ export default function MissionControl({ onNavigate }) {
     [health, certificate?.certified, guardianPending]
   );
 
-  const pii = useMemo(() => computePlatformIntelligence(), []);
+  const piq = useMemo(() => computePlatformIntelligence(), []);
 
   const deploymentScore = certificate?.deployment_readiness ?? health?.overall ?? 0;
   const runtimeScore = health?.entityHealth ?? health?.overall ?? 0;
@@ -51,10 +51,10 @@ export default function MissionControl({ onNavigate }) {
   const kpis = [
     {
       label: "Platform Intelligence™",
-      value: `${pii.piiScore}%`,
-      sub: `${pii.maturity.short} — ${pii.maturity.name}`,
+      value: `${piq.piqScore}%`,
+      sub: `${piq.maturity.short} — ${piq.maturity.name}`,
       icon: Sparkles,
-      color: scoreToColor(pii.piiScore),
+      color: scoreToColor(piq.piqScore),
       workspace: "platform-intelligence",
     },
     {

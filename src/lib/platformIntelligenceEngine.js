@@ -1,7 +1,7 @@
 /**
  * EXECLEAD.AI — PLATFORM INTELLIGENCE ENGINE™
  * ============================================================
- * Sprint 1.6 — Platform Intelligence Index™ (PII)
+ * Sprint 1.6 — Platform Intelligence Quotient™ (PIQ™)
  *
  * The executive intelligence score for the platform itself.
  * Measures architectural intelligence, semantic completeness,
@@ -29,8 +29,8 @@ import { getActiveKnowledgePacks, getKnowledgePackCount } from "./knowledgeResol
 import { getManifestCoverage, validateManifest, PLATFORM_METADATA } from "./platformManifest";
 import { CONFIG_VERSION } from "./platformConfig";
 
-// ── PII Maturity Levels ──
-export const PII_LEVELS = [
+// ── PIQ Maturity Levels ──
+export const PIQ_LEVELS = [
   { level: 0, name: "Foundational", short: "L0", minScore: 0, color: "#ef4444" },
   { level: 1, name: "Aware", short: "L1", minScore: 21, color: "#f97316" },
   { level: 2, name: "Connected", short: "L2", minScore: 41, color: "#f59e0b" },
@@ -39,16 +39,16 @@ export const PII_LEVELS = [
   { level: 5, name: "Cognitive Ready", short: "L5", minScore: 96, color: "#10b981" },
 ];
 
-export function getPiiLevel(score) {
+export function getPiqLevel(score) {
   let level = 0;
-  for (const l of PII_LEVELS) {
+  for (const l of PIQ_LEVELS) {
     if (score >= l.minScore) level = l.level;
   }
-  return { ...PII_LEVELS[level], level };
+  return { ...PIQ_LEVELS[level], level };
 }
 
-// ── Domain Definitions ──
-export const PII_DOMAINS = [
+// ── PIQ Domain Definitions ──
+export const PIQ_DOMAINS = [
   { id: "foundation", label: "Foundation Certification™", weight: 15, color: "#10b981" },
   { id: "metadata", label: "Metadata Intelligence™", weight: 20, color: "#f59e0b" },
   { id: "discoverability", label: "Platform Discoverability™", weight: 15, color: "#06b6d4" },
@@ -253,7 +253,7 @@ export const INTELLIGENCE_MAP_EDGES = [
 ];
 
 // ============================================================
-// MAIN — COMPUTE PLATFORM INTELLIGENCE INDEX™
+// MAIN — COMPUTE PLATFORM INTELLIGENCE QUOTIENT™
 // ============================================================
 export function computePlatformIntelligence() {
   const cert = computeFoundationCertification();
@@ -262,22 +262,22 @@ export function computePlatformIntelligence() {
 
   // Compute all 8 domains
   const domains = [
-    { ...PII_DOMAINS[0], ...computeFoundationDomain(cert) },
-    { ...PII_DOMAINS[1], ...computeMetadataDomain(meta) },
-    { ...PII_DOMAINS[2], ...computeDiscoverabilityDomain(verification, meta) },
-    { ...PII_DOMAINS[3], ...computeKnowledgeDomain(verification, meta) },
-    { ...PII_DOMAINS[4], ...computeExplainabilityDomain(meta, verification) },
-    { ...PII_DOMAINS[5], ...computeDependencyDomain(verification, meta) },
-    { ...PII_DOMAINS[6], ...computeGovernanceDomain(verification, meta) },
-    { ...PII_DOMAINS[7], ...computeAiReadinessDomain(verification, meta) },
+    { ...PIQ_DOMAINS[0], ...computeFoundationDomain(cert) },
+    { ...PIQ_DOMAINS[1], ...computeMetadataDomain(meta) },
+    { ...PIQ_DOMAINS[2], ...computeDiscoverabilityDomain(verification, meta) },
+    { ...PIQ_DOMAINS[3], ...computeKnowledgeDomain(verification, meta) },
+    { ...PIQ_DOMAINS[4], ...computeExplainabilityDomain(meta, verification) },
+    { ...PIQ_DOMAINS[5], ...computeDependencyDomain(verification, meta) },
+    { ...PIQ_DOMAINS[6], ...computeGovernanceDomain(verification, meta) },
+    { ...PIQ_DOMAINS[7], ...computeAiReadinessDomain(verification, meta) },
   ];
 
-  // Weighted PII score
-  const piiScore = clamp(
+  // Weighted PIQ score
+  const piqScore = clamp(
     domains.reduce((sum, d) => sum + d.score * (d.weight / 100), 0)
   );
 
-  const maturity = getPiiLevel(piiScore);
+  const maturity = getPiqLevel(piqScore);
 
   // Strengths: top 3 domains by score
   const strengths = [...domains].sort((a, b) => b.score - a.score).slice(0, 3);
@@ -325,7 +325,7 @@ export function computePlatformIntelligence() {
   };
 
   return {
-    piiScore,
+    piqScore,
     maturity,
     domains,
     strengths,
@@ -351,9 +351,9 @@ export function computePlatformIntelligence() {
 // ============================================================
 // PLATFORM INTELLIGENCE REPORT™
 // ============================================================
-export function generateIntelligenceReport(pii) {
-  const cognitiveReadyGap = Math.max(0, 96 - pii.piiScore);
-  const weakestDomain = pii.weaknesses[0];
+export function generateIntelligenceReport(piq) {
+  const cognitiveReadyGap = Math.max(0, 96 - piq.piqScore);
+  const weakestDomain = piq.weaknesses[0];
   const estTimeToCognitive = cognitiveReadyGap > 0
     ? `~${Math.ceil(cognitiveReadyGap / 5)} sprint(s) — focus on ${weakestDomain?.label}`
     : "Achieved";
@@ -361,23 +361,23 @@ export function generateIntelligenceReport(pii) {
   return {
     title: "EXECLEAD.AI Platform Intelligence Report™",
     generatedAt: new Date().toISOString(),
-    sprint: "Sprint 1.6 — Platform Intelligence Index™",
-    overallIntelligenceScore: pii.piiScore,
-    currentMaturityLevel: `${pii.maturity.short} — ${pii.maturity.name}`,
-    platformIQ: pii.piiScore,
-    domainScores: pii.domains.map((d) => ({
+    sprint: "Sprint 1.6 — Platform Intelligence Quotient™ (PIQ™)",
+    overallIntelligenceScore: piq.piqScore,
+    currentMaturityLevel: `${piq.maturity.short} — ${piq.maturity.name}`,
+    platformIQ: piq.piqScore,
+    domainScores: piq.domains.map((d) => ({
       domain: d.label,
       score: d.score,
       weight: `${d.weight}%`,
     })),
-    topStrengths: pii.strengths.map((d) => `${d.label}: ${d.score}%`),
-    weakestDomains: pii.weaknesses.map((d) => `${d.label}: ${d.score}%`),
-    aiReadiness: pii.aiReadiness,
-    foundationCertification: pii.foundationCertified ? "Certified" : "Not Certified",
-    recommendedImprovements: pii.recommendations.map((r) => r.recommendation),
+    topStrengths: piq.strengths.map((d) => `${d.label}: ${d.score}%`),
+    weakestDomains: piq.weaknesses.map((d) => `${d.label}: ${d.score}%`),
+    aiReadiness: piq.aiReadiness,
+    foundationCertification: piq.foundationCertified ? "Certified" : "Not Certified",
+    recommendedImprovements: piq.recommendations.map((r) => r.recommendation),
     estimatedTimeToCognitiveReadiness: estTimeToCognitive,
-    execConfidence: pii.execConfidence,
-    versions: pii.versions,
-    buildNumber: pii.buildNumber,
+    execConfidence: piq.execConfidence,
+    versions: piq.versions,
+    buildNumber: piq.buildNumber,
   };
 }

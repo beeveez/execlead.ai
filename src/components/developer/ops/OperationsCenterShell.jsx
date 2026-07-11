@@ -63,7 +63,7 @@ const WORKSPACES = [
     name: "Platform Intelligence",
     icon: Sparkles,
     color: "indigo",
-    description: "Intelligence Index™ & digital twin",
+    description: "Intelligence Quotient™ & digital twin",
     render: () => <PlatformIntelligenceCenter />,
   },
   {

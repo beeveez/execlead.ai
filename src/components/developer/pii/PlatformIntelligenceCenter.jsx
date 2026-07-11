@@ -12,24 +12,24 @@ import PlatformIntelligenceMap from "./PlatformIntelligenceMap";
 
 /**
  * Platform Intelligence Center™
- * The dedicated operational workspace for the Platform Intelligence Index™.
+ * The dedicated operational workspace for the Platform Intelligence Quotient™ (PIQ™).
  * Displays overall score, domain breakdown, radar chart, strengths,
  * weaknesses, recommendations, AI/foundation readiness, EXEC™ confidence.
  */
 export default function PlatformIntelligenceCenter() {
-  const pii = useMemo(() => computePlatformIntelligence(), []);
+  const piq = useMemo(() => computePlatformIntelligence(), []);
 
-  const ringColor = pii.maturity.color;
-  const cognitiveReady = pii.piiScore >= 96;
+  const ringColor = piq.maturity.color;
+  const cognitiveReady = piq.piqScore >= 96;
 
-  const radarData = pii.domains.map((d) => ({
+  const radarData = piq.domains.map((d) => ({
     domain: d.label.replace("™", ""),
     score: d.score,
     fullMark: 100,
   }));
 
   const downloadReport = () => {
-    const report = generateIntelligenceReport(pii);
+    const report = generateIntelligenceReport(piq);
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -41,7 +41,7 @@ export default function PlatformIntelligenceCenter() {
 
   return (
     <div className="space-y-5">
-      {/* ── PII Hero ── */}
+      {/* ── PIQ Hero ── */}
       <div className="rounded-xl border border-white/5 bg-gradient-to-br from-indigo-500/5 to-violet-500/5 p-6">
         <div className="flex flex-col md:flex-row items-center gap-6">
           {/* Score Ring */}
@@ -50,14 +50,14 @@ export default function PlatformIntelligenceCenter() {
               <circle cx="75" cy="75" r="65" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
               <circle
                 cx="75" cy="75" r="65" fill="none" stroke={ringColor} strokeWidth="8"
-                strokeDasharray={`${2 * Math.PI * 65 * (pii.piiScore / 100)} ${2 * Math.PI * 65}`}
+                strokeDasharray={`${2 * Math.PI * 65 * (piq.piqScore / 100)} ${2 * Math.PI * 65}`}
                 strokeLinecap="round" transform="rotate(-90 75 75)"
                 style={{ transition: "stroke-dasharray 1s ease" }}
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-bold text-white">{pii.piiScore}</span>
-              <span className="text-[10px] text-white/30 uppercase tracking-wider">PII Score</span>
+              <span className="text-4xl font-bold text-white">{piq.piqScore}</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider">PIQ Score</span>
             </div>
           </div>
 
@@ -65,18 +65,18 @@ export default function PlatformIntelligenceCenter() {
           <div className="flex-1 text-center md:text-left">
             <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
               <Brain size={20} className="text-indigo-400" />
-              <h2 className="text-lg font-bold text-white">Platform Intelligence Index™</h2>
+              <h2 className="text-lg font-bold text-white">Platform Intelligence Quotient™</h2>
             </div>
             <div className="text-2xl font-bold mb-1" style={{ color: ringColor }}>
-              {pii.maturity.short} — {pii.maturity.name}
+              {piq.maturity.short} — {piq.maturity.name}
             </div>
             <p className="text-sm text-white/50">
               {cognitiveReady
                 ? "Cognitive Ready — Sprint 2 (EXEC™ Cognitive Engine™) is authorized."
-                : `${96 - pii.piiScore} points from Cognitive Readiness (L5). Est. gain available: +${pii.estGain} pts`}
+                : `${96 - piq.piqScore} points from Cognitive Readiness (L5). Est. gain available: +${piq.estGain} pts`}
             </p>
             <div className="flex items-center gap-3 mt-3 justify-center md:justify-start">
-              <span className="text-[10px] text-white/30">Last Analysis: {new Date(pii.computedAt).toLocaleTimeString()}</span>
+              <span className="text-[10px] text-white/30">Last Analysis: {new Date(piq.computedAt).toLocaleTimeString()}</span>
               <button
                 onClick={downloadReport}
                 className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20"
@@ -112,20 +112,20 @@ export default function PlatformIntelligenceCenter() {
         <div className="space-y-3">
           <ReadinessCard
             label="AI Readiness"
-            value={pii.aiReadiness}
+            value={piq.aiReadiness}
             icon={Zap}
             color="#14b8a6"
           />
           <ReadinessCard
             label="Foundation Readiness"
-            value={pii.foundationReadiness}
+            value={piq.foundationReadiness}
             icon={Award}
             color="#10b981"
-            certified={pii.foundationCertified}
+            certified={piq.foundationCertified}
           />
           <ReadinessCard
             label="EXEC™ Confidence"
-            value={pii.execConfidence}
+            value={piq.execConfidence}
             icon={Sparkles}
             color="#8b5cf6"
           />
@@ -138,7 +138,7 @@ export default function PlatformIntelligenceCenter() {
           Domain Breakdown
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {pii.domains.map((d) => (
+          {piq.domains.map((d) => (
             <div key={d.id} className="bg-white/[0.02] rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium text-white/70">{d.label}</span>
@@ -182,7 +182,7 @@ export default function PlatformIntelligenceCenter() {
             <h3 className="text-sm font-medium text-white/80">Top Strengths</h3>
           </div>
           <div className="space-y-2">
-            {pii.strengths.map((d, i) => (
+            {piq.strengths.map((d, i) => (
               <div key={d.id} className="flex items-center gap-3">
                 <span className="text-[10px] text-white/30 w-4">{i + 1}.</span>
                 <span className="text-xs text-white/70 flex-1">{d.label}</span>
@@ -197,7 +197,7 @@ export default function PlatformIntelligenceCenter() {
             <h3 className="text-sm font-medium text-white/80">Weakest Domains</h3>
           </div>
           <div className="space-y-2">
-            {pii.weaknesses.map((d, i) => (
+            {piq.weaknesses.map((d, i) => (
               <div key={d.id} className="flex items-center gap-3">
                 <span className="text-[10px] text-white/30 w-4">{i + 1}.</span>
                 <span className="text-xs text-white/70 flex-1">{d.label}</span>
@@ -213,10 +213,10 @@ export default function PlatformIntelligenceCenter() {
         <div className="flex items-center gap-2 mb-3">
           <Target size={14} className="text-indigo-400" />
           <h3 className="text-sm font-medium text-white/80">Improvement Recommendations</h3>
-          <span className="ml-auto text-xs text-white/40">Est. gain: +{pii.estGain} pts</span>
+          <span className="ml-auto text-xs text-white/40">Est. gain: +{piq.estGain} pts</span>
         </div>
         <div className="space-y-2">
-          {pii.recommendations.map((r, i) => (
+          {piq.recommendations.map((r, i) => (
             <div key={i} className="flex items-start gap-2 text-xs text-white/60">
               <span className="text-indigo-400 mt-0.5">•</span>
               <span>{r.recommendation}</span>
@@ -226,7 +226,7 @@ export default function PlatformIntelligenceCenter() {
       </div>
 
       {/* ── Platform Intelligence Map™ ── */}
-      <PlatformIntelligenceMap pii={pii} />
+      <PlatformIntelligenceMap piq={piq} />
     </div>
   );
 }

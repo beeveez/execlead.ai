@@ -7,8 +7,8 @@ import { INTELLIGENCE_MAP_NODES, INTELLIGENCE_MAP_EDGES } from "@/lib/platformIn
  * Visualizes live relationships between core platform services.
  * Healthy relationships appear green, warnings yellow, critical red.
  */
-export default function PlatformIntelligenceMap({ pii }) {
-  const getHealth = (nodeId) => pii.nodeHealth?.[nodeId] ?? 100;
+export default function PlatformIntelligenceMap({ piq }) {
+  const getHealth = (nodeId) => piq.nodeHealth?.[nodeId] ?? 100;
 
   const getEdgeColor = (from, to) => {
     const fromHealth = getHealth(from);

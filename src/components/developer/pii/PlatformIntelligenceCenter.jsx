@@ -11,6 +11,7 @@ import { computePlatformIntelligence, generateIntelligenceReport, PIQ_LEVELS } f
 import PlatformIntelligenceMap from "./PlatformIntelligenceMap";
 import PlatformIQHistoricalTrend from "./PlatformIQHistoricalTrend";
 import PlatformIQAIConfidence from "./PlatformIQAIConfidence";
+import PlatformEvolution from "./PlatformEvolution";
 
 /**
  * Platform Intelligence Center™
@@ -159,6 +160,9 @@ export default function PlatformIntelligenceCenter({ onNavigate }) {
 
       {/* ── Historical Trend — Platform IQ™ ── */}
       <PlatformIQHistoricalTrend currentScore={piq.piqScore} />
+
+      {/* ── Platform Evolution™ — AI-predicted trajectory ── */}
+      <PlatformEvolution piq={piq} />
 
       {/* ── AI Confidence ── */}
       <PlatformIQAIConfidence piqScore={piq.piqScore} aiConfidence={piq.execConfidence} />

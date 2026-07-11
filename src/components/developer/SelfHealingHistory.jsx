@@ -1,7 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Activity, Wrench, Clock, ShieldCheck, AlertTriangle, TrendingUp } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
-export default function SelfHealingHistory({ events, onBack }) {
+export default function SelfHealingHistory({ events: propEvents, onBack }) {
+  const [fetchedEvents, setFetchedEvents] = useState(propEvents || []);
+  const [loading, setLoading] = useState(!propEvents);
+
+  useEffect(() => {
+    if (propEvents) return;
+    base44.entities.SelfHealingEvent.list("-created_date", 20)
+      .then((data) => setFetchedEvents(data || []))
+      .catch(() => setFetchedEvents([]))
+      .finally(() => setLoading(false));
+  }, [propEvents]);
+
+  const events = propEvents || fetchedEvents;
+
   const parseRepairsJson = (json) => {
     try {
       const parsed = JSON.parse(json);
@@ -27,7 +41,11 @@ export default function SelfHealingHistory({ events, onBack }) {
         </button>
       </div>
 
-      {events.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="w-5 h-5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+        </div>
+      ) : events.length === 0 ? (
         <div className="text-center py-6">
           <p className="text-sm text-muted-foreground">No self-healing events recorded yet.</p>
           <p className="text-xs text-muted-foreground/60 mt-1">Run an analysis or repair to start tracking history.</p>

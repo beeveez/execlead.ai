@@ -32,6 +32,15 @@ const REPAIR_STEPS = [
   "Rebuilding Navigation...",
 ];
 
+const COMMIT_STEPS = [
+  "Committing Platform Changes...",
+  "Writing Registry Updates...",
+  "Rebuilding Platform Manifest...",
+  "Refreshing Platform Cache...",
+  "Running Final Validation...",
+  "Commit Complete.",
+];
+
 const STEP_INTERVAL = 300;
 
 export default function SelfHealingEngine() {
@@ -79,7 +88,13 @@ export default function SelfHealingEngine() {
         manifest_version: data.manifestVersion,
         knowledge_version: data.knowledgeVersion,
         findings_json: JSON.stringify(data.findings || []),
-        repairs_json: JSON.stringify(data.repairs || []),
+        repairs_json: JSON.stringify({
+          repairs: data.repairs || [],
+          lifecycle: data.lifecycle || null,
+          persistence: data.persistence || null,
+          validationResult: data.validationResult || null,
+          diagnostics: data.diagnostics || [],
+        }),
         review_items_json: JSON.stringify(data.review || []),
       });
       setTimeout(loadHistory, 500);
@@ -117,17 +132,22 @@ export default function SelfHealingEngine() {
     if (!analysis) return;
     setStepIndex(0);
     setPhase("repairing");
-    const duration = REPAIR_STEPS.length * STEP_INTERVAL + 500;
+    const repairDuration = REPAIR_STEPS.length * STEP_INTERVAL + 500;
     setTimeout(() => {
-      // Execute repairs against the authoritative manifest override layer.
-      // This persists to localStorage and re-validates, producing real
-      // before/after metrics — not projected values.
+      // Execute the full repair pipeline: apply → persist → invalidate cache →
+      // rebuild → validate → commit → failure detection.
       const result = executeRepairs(analysis.safe);
       setRepairResult(result);
       setAnalysis(result.postRepairAnalysis);
-      setPhase("repair");
-      logEvent("repair", result);
-    }, duration);
+      // Move to commit phase — shows commit animation while result is ready
+      setStepIndex(0);
+      setPhase("committing");
+      const commitDuration = COMMIT_STEPS.length * STEP_INTERVAL + 500;
+      setTimeout(() => {
+        setPhase("repair");
+        logEvent("repair", result);
+      }, commitDuration);
+    }, repairDuration);
   };
 
   const handleReset = () => {
@@ -146,9 +166,9 @@ export default function SelfHealingEngine() {
     );
   }
 
-  if (phase === "analyzing" || phase === "repairing") {
-    const steps = phase === "analyzing" ? ANALYZE_STEPS : REPAIR_STEPS;
-    const label = phase === "analyzing" ? "Analyzing Platform..." : "Repairing Safe Issues...";
+  if (phase === "analyzing" || phase === "repairing" || phase === "committing") {
+    const steps = phase === "analyzing" ? ANALYZE_STEPS : phase === "repairing" ? REPAIR_STEPS : COMMIT_STEPS;
+    const label = phase === "analyzing" ? "Analyzing Platform..." : phase === "repairing" ? "Repairing Safe Issues..." : "Committing Platform Changes...";
     return (
       <div className="bg-muted/50 border border-border rounded-lg p-4 space-y-3">
         <div className="flex items-center gap-2">

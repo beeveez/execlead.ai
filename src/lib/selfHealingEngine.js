@@ -1,4 +1,4 @@
-import { validateManifest, getManifestCoverage, PLATFORM_METADATA, applyRepairs, getRepairLog, getActiveRepairCount } from "./platformManifest";
+import { validateManifest, getManifestCoverage, PLATFORM_METADATA, applyRepairs, getRepairLog, getActiveRepairCount, invalidateManifestCache, verifyPersistence, diagnoseNonPersistence } from "./platformManifest";
 
 // ============================================================
 // CLASSIFICATION RULES
@@ -100,54 +100,80 @@ export function computeProjectedCoverage(baseCoverage, safeCount, relevantRoutes
 // ============================================================
 
 export function executeRepairs(safeFindings) {
+  const lifecycle = {};
+  lifecycle.analysisStarted = new Date().toISOString();
   const startTime = Date.now();
   const steps = [];
 
-  steps.push({ step: "Repair Started", timestamp: new Date().toISOString() });
-
-  // Capture BEFORE state (real validation, not projected)
+  // STEP 1: Analyze — capture real before state
+  steps.push({ step: "Analysis Started", timestamp: lifecycle.analysisStarted });
   const beforeAnalysis = analyzePlatform();
+  const beforeFindings = beforeAnalysis.findings;
   const coverageBefore = beforeAnalysis.coverage;
   const warningsBefore = beforeAnalysis.totalFindings;
   const healthBefore = beforeAnalysis.healthScore;
-
-  steps.push({
-    step: "Validation Started (Before)",
-    coverage: coverageBefore,
-    warnings: warningsBefore,
-  });
+  lifecycle.analysisCompleted = new Date().toISOString();
+  steps.push({ step: "Analysis Completed", timestamp: lifecycle.analysisCompleted });
   steps.push({ step: "Coverage Before", value: coverageBefore });
   steps.push({ step: "Warnings Before", value: warningsBefore });
 
-  // Apply repairs to the manifest override layer (persists to localStorage)
+  // STEP 2: Generate Repair Plan
+  steps.push({ step: "Repair Plan Generated", count: safeFindings.length });
+
+  // STEP 3: Apply Safe Repairs to authoritative override layer
+  lifecycle.repairStarted = new Date().toISOString();
+  steps.push({ step: "Repair Started", timestamp: lifecycle.repairStarted });
   const repairLogs = applyRepairs(safeFindings);
   const newRepairs = repairLogs.filter((r) => !r.alreadyRepaired);
+  steps.push({ step: "Repairs Applied", count: newRepairs.length });
+  steps.push({ step: "Registry Updated", registries: [...new Set(repairLogs.map((r) => r.registryUpdated))] });
 
-  steps.push({ step: "Repair Applied", count: newRepairs.length });
-  steps.push({
-    step: "Registry Updated",
-    registries: [...new Set(repairLogs.map((r) => r.registryUpdated))],
-  });
-  steps.push({ step: "Manifest Saved", storage: "localStorage" });
-  steps.push({ step: "Manifest Reloaded", timestamp: new Date().toISOString() });
+  // STEP 4: Persist Repairs (localStorage — survives page reloads)
+  steps.push({ step: "Repairs Persisted", storage: "localStorage" });
+  lifecycle.repairCompleted = new Date().toISOString();
+  steps.push({ step: "Repair Completed", timestamp: lifecycle.repairCompleted });
 
-  // Re-analyze AFTER repairs — validateManifest() now suppresses repaired findings
+  // STEP 5: Rebuild Platform Manifest — invalidate cache & reload
+  lifecycle.commitStarted = new Date().toISOString();
+  steps.push({ step: "Commit Started", timestamp: lifecycle.commitStarted });
+  steps.push({ step: "Writing Registry Updates..." });
+  steps.push({ step: "Rebuilding Platform Manifest..." });
+  invalidateManifestCache();
+  steps.push({ step: "Refreshing Platform Cache...", cache: "cleared" });
+  steps.push({ step: "Manifest Cache Invalidated" });
+
+  // STEP 6: Re-run Validation on the rebuilt manifest
+  steps.push({ step: "Running Final Validation..." });
   const afterAnalysis = analyzePlatform();
+  const afterFindings = afterAnalysis.findings;
   const coverageAfter = afterAnalysis.coverage;
   const warningsAfter = afterAnalysis.totalFindings;
   const healthAfter = afterAnalysis.healthScore;
-
-  steps.push({
-    step: "Validation Started (After)",
-    coverage: coverageAfter,
-    warnings: warningsAfter,
-  });
+  lifecycle.validationCompleted = new Date().toISOString();
+  steps.push({ step: "Validation Completed", timestamp: lifecycle.validationCompleted });
   steps.push({ step: "Coverage After", value: coverageAfter });
   steps.push({ step: "Warnings After", value: warningsAfter });
+
+  // STEP 7: Commit New Platform State
+  lifecycle.commitCompleted = new Date().toISOString();
+  steps.push({ step: "Commit Complete", timestamp: lifecycle.commitCompleted });
+
+  // STEP 8: Failure Detection — verify persistence
+  const persistenceResult = verifyPersistence(safeFindings, afterFindings);
+  if (persistenceResult.nonPersistent.length > 0) {
+    persistenceResult.nonPersistent.forEach((np) => {
+      steps.push({
+        step: "NON-PERSISTENT REPAIR DETECTED",
+        code: np.finding.code,
+        rootCause: np.rootCause,
+      });
+    });
+  }
 
   return {
     repairs: repairLogs,
     issuesRepaired: newRepairs.length,
+    repairsPersisted: persistenceResult.persistedCount,
     remaining: afterAnalysis.reviewCount,
     coverageBefore,
     coverageAfter,
@@ -158,6 +184,20 @@ export function executeRepairs(safeFindings) {
     repairTime: Date.now() - startTime,
     diagnostics: steps,
     postRepairAnalysis: afterAnalysis,
+    lifecycle,
+    persistence: persistenceResult,
+    validationResult: persistenceResult.allPersistent ? "passed" : "failed",
+    // Fields needed by logEvent
+    totalFindings: afterAnalysis.totalFindings,
+    safeCount: safeFindings.length,
+    reviewCount: afterAnalysis.reviewCount,
+    coverage: coverageAfter,
+    healthScore: healthAfter,
+    platformVersion: afterAnalysis.platformVersion,
+    manifestVersion: afterAnalysis.manifestVersion,
+    knowledgeVersion: afterAnalysis.knowledgeVersion,
+    findings: afterAnalysis.findings,
+    review: afterAnalysis.review,
   };
 }
 

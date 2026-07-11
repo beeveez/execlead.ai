@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { getLevel, checkAchievements, ACHIEVEMENTS } from "@/lib/gamification";
 import FoundingMemberBadge from "@/components/founding/FoundingMemberBadge";
 import JourneyProgress from "@/components/brand/JourneyProgress";
+import DomainMaturityRadar from "@/components/dashboard/DomainMaturityRadar";
 
 const QUICK_ACTIONS = [
   { path: "/challenge", label: "Challenge", desc: "Test your readiness", icon: Swords, color: "from-indigo-600 to-violet-600" },
@@ -118,6 +119,9 @@ export default function Dashboard() {
 
       {/* Journey Progress — brand experience card */}
       <JourneyProgress profile={profile} />
+
+      {/* ELIM™ Domain Maturity Radar */}
+      <DomainMaturityRadar />
 
       {/* Resume Intelligence */}
       {resumeData && (

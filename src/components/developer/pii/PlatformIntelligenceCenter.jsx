@@ -10,6 +10,7 @@ import {
 import { computePlatformIntelligence, generateIntelligenceReport } from "@/lib/platformIntelligenceEngine";
 import PlatformIntelligenceMap from "./PlatformIntelligenceMap";
 import PlatformIQHistoricalTrend from "./PlatformIQHistoricalTrend";
+import PlatformIQAIConfidence from "./PlatformIQAIConfidence";
 
 /**
  * Platform Intelligence Center™
@@ -91,6 +92,9 @@ export default function PlatformIntelligenceCenter() {
 
       {/* ── Historical Trend — Platform IQ™ ── */}
       <PlatformIQHistoricalTrend currentScore={piq.piqScore} />
+
+      {/* ── AI Confidence ── */}
+      <PlatformIQAIConfidence piqScore={piq.piqScore} aiConfidence={piq.execConfidence} />
 
       {/* ── Radar Chart + Readiness ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

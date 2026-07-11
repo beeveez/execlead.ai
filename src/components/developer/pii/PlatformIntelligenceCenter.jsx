@@ -12,6 +12,7 @@ import PlatformIntelligenceMap from "./PlatformIntelligenceMap";
 import PlatformIQHistoricalTrend from "./PlatformIQHistoricalTrend";
 import PlatformIQAIConfidence from "./PlatformIQAIConfidence";
 import PlatformEvolution from "./PlatformEvolution";
+import ExecutiveSummary from "./ExecutiveSummary";
 
 /**
  * Platform Intelligence Center™
@@ -157,6 +158,9 @@ export default function PlatformIntelligenceCenter({ onNavigate }) {
           </div>
         </div>
       </div>
+
+      {/* ── EXEC™ Executive Summary ── */}
+      <ExecutiveSummary piq={piq} />
 
       {/* ── Historical Trend — Platform IQ™ ── */}
       <PlatformIQHistoricalTrend currentScore={piq.piqScore} />

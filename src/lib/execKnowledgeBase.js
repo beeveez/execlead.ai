@@ -12,6 +12,30 @@ import {
  * A single source of truth for every module on EXECLEAD.AI.
  * Powers "Where is X?" questions, global commands, and context-aware help.
  */
+// ============================================================
+// EXEC™ KNOWLEDGE SYNCHRONIZATION METADATA
+// Tracks knowledge version, framework versions, and last sync.
+// Visible in Developer Diagnostics → EXEC™ Knowledge Audit.
+// ============================================================
+export const EXEC_KNOWLEDGE_VERSION = "2.0";
+export const EXEC_KNOWLEDGE_LAST_SYNC = "2026-07-11";
+export const EXEC_PROMPT_VERSION = "2.0";
+
+// Framework Hierarchy: EELM™ → ELIM™ → EECF™ → ... → Executive Intelligence Profile™
+// Every EXEC™ recommendation must align with this architecture.
+export const EXEC_FRAMEWORK_HIERARCHY = [
+  { id: "eelm", name: "EELM™", full: "EXECLEAD Executive Leadership Methodology™", version: "1.0", description: "The governing methodology that defines how EXECLEAD.AI evaluates, develops, validates, measures, and evolves executive leadership capability." },
+  { id: "elim", name: "ELIM™", full: "EXECLEAD Leadership Intelligence Model™", version: "1.0", description: "The intelligence architecture mapping five frameworks, evidence sources, and scoring rules into AI-driven executive insights." },
+  { id: "eecf", name: "EECF™", full: "EXECLEAD Executive Competency Framework™", version: "1.0", description: "The global leadership competency standard — six domains, 8-stage maturity model, and verified competency library." },
+  { id: "leadership_dna", name: "Leadership DNA™", full: "Leadership DNA™", version: "1.0", description: "AI-powered assessment mapping leadership style, communication, decision-making, influence, and executive presence." },
+  { id: "readiness", name: "Executive Readiness™", full: "Executive Readiness Engine™", version: "1.0", description: "Continuous evaluation of how prepared the executive is for their target role across 12 competency dimensions." },
+  { id: "reputation", name: "Executive Reputation™", full: "Executive Reputation Framework™", version: "1.0", description: "Professional credit score for leadership (0–1000) growing with contributions, coaching, and community activity." },
+  { id: "journey", name: "Executive Journey™", full: "Executive Journey Engine™", version: "1.0", description: "Unified progression system — every meaningful action contributes Journey Points toward one continuous journey." },
+  { id: "trust", name: "Executive Trust™", full: "Executive Trust Framework™", version: "1.0", description: "Complete trust ecosystem with 7 trust levels and 11 trust factors scored 0-100." },
+  { id: "passport", name: "Executive Passport™", full: "Executive Passport™", version: "1.0", description: "Portable professional identity that belongs to the member, not the employer." },
+  { id: "intelligence_profile", name: "Executive Intelligence Profile™", full: "Executive Intelligence Profile™", version: "1.0", description: "The living AI-generated executive identity — single source of truth combining all frameworks." },
+];
+
 export const EXEC_KNOWLEDGE_INDEX = [
   {
     id: "dashboard",
@@ -398,6 +422,30 @@ export const EXEC_KNOWLEDGE_INDEX = [
     findIt: "Sidebar → Career → Journal.",
   },
   {
+    id: "executive-legacy",
+    name: "Executive Legacy™",
+    aliases: ["legacy", "executive legacy", "leadership legacy", "legacy building", "case studies", "legacy letters"],
+    path: "/executive-legacy",
+    category: "Insights",
+    icon: Crown,
+    description: "Your long-term executive impact — legacy building, case studies, and the enduring leadership narrative you leave behind.",
+    purpose: "Shape and document the legacy you are building as an executive leader.",
+    keyFeatures: ["Legacy case studies", "Leadership narrative", "Executive impact timeline", "Legacy letters"],
+    findIt: "Sidebar → Insights → Executive Legacy.",
+  },
+  {
+    id: "elim",
+    name: "ELIM™ Management Center",
+    aliases: ["elim", "elim management", "leadership intelligence model", "knowledge packs", "frameworks admin"],
+    path: "/elim",
+    category: "Platform",
+    icon: Brain,
+    description: "Administrative center for the EXECLEAD Leadership Intelligence Model™ — manage frameworks, knowledge packs, evidence rules, and research analytics.",
+    purpose: "Configure and maintain the intelligence architecture powering every AI assessment and recommendation.",
+    keyFeatures: ["Framework management", "Knowledge packs", "Evidence rules", "Scoring rules", "Research analytics"],
+    findIt: "Sidebar → Platform → ELIM Management (admin only).",
+  },
+  {
     id: "methodology",
     name: "EELM™ Methodology",
     aliases: ["methodology", "eelm", "executive leadership methodology", "principles", "evidence model", "decision model", "maturity model", "governance", "research foundation", "transparency"],
@@ -444,6 +492,13 @@ export function findModule(query) {
 /**
  * Build a compact summary of the full knowledge index for injection into the LLM prompt.
  */
+export function buildFrameworkHierarchySummary() {
+  return EXEC_FRAMEWORK_HIERARCHY.map((f, i) => {
+    const arrow = i < EXEC_FRAMEWORK_HIERARCHY.length - 1 ? " →" : "";
+    return `${f.name} (${f.full} v${f.version})${arrow}`;
+  }).join("\n");
+}
+
 export function buildKnowledgeIndexSummary() {
   return EXEC_KNOWLEDGE_INDEX.map((m) =>
     `- ${m.name} (${m.path}): ${m.description} | Find it: ${m.findIt}`

@@ -4,6 +4,7 @@ import {
   Activity, AlertTriangle, CheckCircle2, Clock, Database,
   Cpu, RefreshCw, Zap, TrendingUp, Shield,
 } from "lucide-react";
+import ExecKnowledgeAudit from "@/components/developer/ExecKnowledgeAudit";
 
 export default function Diagnostics() {
   const [journeyData, setJourneyData] = useState(null);
@@ -298,6 +299,11 @@ export default function Diagnostics() {
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* EXEC™ Knowledge Audit */}
+            <div className="mt-6">
+              <ExecKnowledgeAudit />
             </div>
           </>
         )}

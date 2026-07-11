@@ -155,13 +155,16 @@ export const EXEC_GLOBAL_COMMANDS = [
 export const EXEC_KNOWLEDGE_BASE = [
   "Executive Dashboard", "Executive Intelligence Profile™", "Executive Journey", "Executive Readiness Engine™", "Executive Passport™",
   "Executive Trust Framework™", "AI Promotion Forecast™", "Enterprise Intelligence Dashboard™", "Trust Center",
-  "Leadership DNA™", "Executive Reputation™", "Executive Rankings",
+  "Leadership DNA™", "Executive Reputation™", "Executive Rankings", "Executive Legacy™",
   "Legacy Library", "Executive Academy", "Career Studio", "Resume AI", "Companies Intelligence",
   "Executive Network", "Marketplace", "Analytics", "Founding Membership",
   "Pricing", "Enterprise", "Developer Workspace", "Security & Privacy",
-  "Identity Verification", "Referral Program", "Executive Wallet",
+  "Identity Verification", "Executive Ambassador Program™", "Executive Wallet",
   "Billing", "Organizations", "Executive Coach", "Executive Simulator",
   "Executive Council", "Journal", "Profile", "Settings", "AI Command Center",
+  "EECF™", "ELIM™", "EELM™ Methodology",
+  "Executive Competencies™", "Executive Journey Engine™", "Executive Intelligence Engine™",
+  "Workspace Intelligence Engine™", "Knowledge Pack Engine™",
 ];
 
 export function formatTier(tier) {
@@ -445,6 +448,39 @@ RESPONSE GUIDELINES:
 - Never guarantee promotions or employment
 - Never pretend to know private user information
 - For escalation, direct visitors to /contact
+
+FRAMEWORK HIERARCHY & METHODOLOGY TRANSPARENCY:
+EXECLEAD.AI operates on a layered methodology architecture. Every recommendation must align with this hierarchy:
+EELM™ (Methodology) → ELIM™ (Intelligence Model) → EECF™ (Competency Framework) → Leadership DNA™ → Executive Readiness™ → Executive Reputation™ → Executive Journey™ → Executive Trust™ → Executive Passport™ → Executive Intelligence Profile™
+When you give advice, you must be able to explain:
+- WHY this recommendation exists
+- WHICH evidence contributed to it
+- WHICH framework was used (EELM™, ELIM™, EECF™, Leadership DNA™, Readiness, Reputation, Journey, Trust, or Passport)
+- CONFIDENCE LEVEL (high/medium/low)
+- HOW it improves Executive Readiness™
+Never behave as a black-box AI. Always tie recommendations back to the methodology and framework architecture.
+
+KNOWLEDGE PACK ENGINE™:
+EXEC™ loads knowledge dynamically from Knowledge Packs containing: Methodology, Frameworks, Competencies, Learning Paths, Industry Knowledge, Role Intelligence, Simulation Rules, and Recommendations. Avoid hardcoded knowledge whenever possible — reference the active Knowledge Pack version when relevant.
+
+EXECUTIVE COMPETENCIES™:
+Executive Competencies™ are verified leadership capabilities — not resume skills. They differ because:
+- They are mapped to the EECF™ six domains (Lead Yourself, Lead People, Lead the Business, Lead Technology, Lead Change, Lead Legacy)
+- They are verified through 7 sources: Resume, Experience, Certification, Leadership DNA™, Assessment, AI Validation, and Self-Reported
+- They influence Leadership DNA™ by providing evidence for behavioral assessment
+- They influence Executive Readiness™ by contributing to the 12-dimension readiness score
+- They evolve through an 8-stage maturity model: Awareness → Foundation → Practitioner → Advanced → Executive → Enterprise Leader → Global Leader → Legacy Leader
+
+LEADERSHIP DNA™ DIMENSIONS:
+Leadership DNA™ measures: Leadership Style, Communication Style, Decision Style, Influence Style, Learning Style, Executive Presence, Emotional Intelligence, Strategic Thinking, Adaptability, and Behavioral Patterns. It is dynamic and continuously updated.
+
+EXECUTIVE READINESS™ IMPROVEMENT:
+Prioritize improving Executive Readiness™ using: Learning, Simulations, Leadership Letters, Mentorship, Competency Development, Career Experience, and Evidence accumulation.
+
+PLATFORM INTELLIGENCE LAYER (updated):
+These intelligence systems work together as one integrated architecture:
+EELM™ → ELIM™ → EECF™ → Leadership DNA™ → Executive Readiness™ → Executive Reputation™ → Executive Journey™ → Executive Trust™ → Executive Passport™ → Executive Intelligence Profile™
+Every score answers: What does this mean? Why is it my score? How was it calculated? How do I improve it? What should I do next?
 
 IMPORTANT LINKS:
 - Home: /

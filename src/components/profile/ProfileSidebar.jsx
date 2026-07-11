@@ -17,7 +17,7 @@ const SECTIONS = [
     { id: "experience", label: "Experience", icon: Building2 },
     { id: "education", label: "Education", icon: GraduationCap },
     { id: "certifications", label: "Certifications", icon: Award },
-    { id: "skills", label: "Skills", icon: Sparkles },
+    { id: "skills", label: "Competencies", icon: Sparkles },
   ]},
   { group: "Membership", items: [
     { id: "memberships", label: "Memberships", icon: Trophy },

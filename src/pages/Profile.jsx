@@ -11,7 +11,7 @@ import TargetCareerSection from "@/components/profile/TargetCareerSection";
 import ResumeSection from "@/components/profile/ResumeSection";
 import SocialLinksSection from "@/components/profile/SocialLinksSection";
 import CertificationsSection from "@/components/profile/CertificationsSection";
-import SkillsSection from "@/components/profile/SkillsSection";
+import CompetenciesSection from "@/components/competencies/CompetenciesSection";
 import ExperienceSection from "@/components/profile/ExperienceSection";
 import EducationSection from "@/components/profile/EducationSection";
 import PrivacySection from "@/components/profile/PrivacySection";
@@ -285,7 +285,7 @@ export default function Profile() {
     resume: <ResumeSection resumeUrl={form.resume_url} onResumeUpload={handleResumeUpload} uploadingResume={uploadingResume} />,
     social: <SocialLinksSection form={form} setField={setField} />,
     certifications: <CertificationsSection items={form.certifications} onChange={arr => setField("certifications", arr)} />,
-    skills: <SkillsSection skills={form.skills} onChange={arr => setField("skills", arr)} />,
+    skills: <CompetenciesSection userId={user?.id} targetRole={form.target_role} onSkillsChange={arr => setField("skills", arr)} />,
     experience: <ExperienceSection items={form.experience} onChange={arr => setField("experience", arr)} />,
     education: <EducationSection items={form.education} onChange={arr => setField("education", arr)} />,
     privacy: <PrivacySection form={form} setField={setField} />,

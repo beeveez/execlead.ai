@@ -1,0 +1,118 @@
+{
+  "name": "ExecutiveCompetency",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "competency_name": {
+      "type": "string",
+      "description": "Name of the executive competency"
+    },
+    "category": {
+      "type": "string",
+      "description": "Category ID from the competency catalog"
+    },
+    "proficiency": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert",
+        "executive"
+      ],
+      "default": "beginner",
+      "description": "Proficiency level"
+    },
+    "years_experience": {
+      "type": "number",
+      "default": 0,
+      "description": "Years of experience in this competency"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this competency is verified"
+    },
+    "verification_source": {
+      "type": "string",
+      "enum": [
+        "resume",
+        "experience",
+        "certification",
+        "leadership_dna",
+        "assessment",
+        "ai_validation",
+        "manual"
+      ],
+      "default": "manual",
+      "description": "How the competency was verified"
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Evidence supporting this competency"
+    },
+    "confidence_score": {
+      "type": "number",
+      "default": 0,
+      "description": "AI confidence score 0-100"
+    },
+    "related_certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_experiences": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_projects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "display_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order for sorting"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last updated date"
+    }
+  },
+  "required": [
+    "user_id",
+    "competency_name",
+    "category",
+    "proficiency"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "update": {
+      "data.user_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

@@ -41,18 +41,36 @@ export const FEATURE_GOVERNANCE_CRITERIA = [
 
 export const FEATURE_GOVERNANCE_THRESHOLD = 2;
 
+export const PLATFORM_PHILOSOPHY_QUESTION =
+  "Does this make EXEC™ think better, or merely add another feature?";
+
 export const FEATURE_GOVERNANCE_RULE = {
   id: "feature-governance-rule",
   name: "Feature Governance Rule™",
-  version: "1.0",
+  version: "1.1",
   threshold: FEATURE_GOVERNANCE_THRESHOLD,
   criteria: FEATURE_GOVERNANCE_CRITERIA,
+  preScreenQuestion: PLATFORM_PHILOSOPHY_QUESTION,
   principle:
-    "Every major feature proposal must satisfy at least two of three criteria before development begins. " +
+    "Every major feature proposal must first pass the philosophy pre-screen, then satisfy at least two of three criteria before development begins. " +
     "This discipline helps EXECLEAD.AI grow in depth rather than simply accumulating more modules, " +
     "keeping the platform coherent and aligned with its vision as an Executive Intelligence Operating System.",
   escalationPath: "/developer/product",
 };
+
+/**
+ * Philosophy pre-screen — the single gating question for every new capability.
+ * If the answer is only "another feature," the proposal is deferred before
+ * the three-criteria evaluation even runs.
+ * @param {string} answer — "think_better" | "another_feature"
+ * @returns {{ passed: boolean, reason: string }}
+ */
+export function evaluatePhilosophyPreScreen(answer) {
+  if (answer === "think_better") {
+    return { passed: true, reason: "Capability makes EXEC™ think better — proceeds to criteria evaluation." };
+  }
+  return { passed: false, reason: "Merely adds another feature — reconsider its priority." };
+}
 
 /**
  * Evaluate a feature proposal against the governance rule.

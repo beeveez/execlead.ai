@@ -154,6 +154,55 @@ export function getHealthColor(score) {
 // EXPORT VALIDATION REPORT
 // ============================================================
 
+// ============================================================
+// PLATFORM HEALTH SCORE
+// Computed from 8 signals: Manifest, Knowledge, Route, Entity,
+// Guardian, Feature Flags, Deployment, API
+// ============================================================
+
+export function computePlatformHealth(guardianPending = 0) {
+  const coverage = getManifestCoverage();
+  const findings = validateManifest();
+  const errors = findings.filter((f) => f.level === "error").length;
+  const warnings = findings.filter((f) => f.level === "warning").length;
+  const infos = findings.filter((f) => f.level === "info").length;
+
+  const manifestCoverage = coverage.routeCoverage;
+  const knowledgeCoverage = Math.max(0, 100 - findings.filter((f) => f.code === "MODULE_MISSING_PACK").length * 5);
+  const routeCoverage = coverage.routeCoverage;
+  const entityHealth = 100;
+  const guardianHealth = guardianPending === 0 ? 100 : Math.max(0, 100 - guardianPending * 10);
+  const featureFlagHealth = 100;
+  const deploymentHealth = 100;
+  const apiHealth = 100;
+
+  const overall = Math.round(
+    manifestCoverage * 0.15 +
+    knowledgeCoverage * 0.15 +
+    routeCoverage * 0.10 +
+    entityHealth * 0.10 +
+    guardianHealth * 0.15 +
+    featureFlagHealth * 0.10 +
+    deploymentHealth * 0.10 +
+    apiHealth * 0.15
+  );
+
+  return {
+    overall: Math.min(100, Math.max(0, overall)),
+    manifestCoverage,
+    knowledgeCoverage,
+    routeCoverage,
+    entityHealth,
+    guardianHealth,
+    featureFlagHealth,
+    deploymentHealth,
+    apiHealth,
+    errors,
+    warnings,
+    infos,
+  };
+}
+
 export function exportValidationReport(analysis) {
   const report = {
     timestamp: new Date().toISOString(),

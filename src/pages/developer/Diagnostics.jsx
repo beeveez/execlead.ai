@@ -1,9 +1,11 @@
 import React from "react";
 import {
   Cpu, Boxes, Brain, Network, Zap, Layers, Package,
-  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench,
+  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar,
 } from "lucide-react";
-import PlatformOverview from "@/components/developer/PlatformOverview";
+import MissionControlDashboard from "@/components/developer/MissionControlDashboard";
+import PlatformStatusGrid from "@/components/developer/PlatformStatusGrid";
+import SystemTimeline from "@/components/developer/SystemTimeline";
 import CorePlatformServices from "@/components/developer/CorePlatformServices";
 import PlatformManifestDashboard from "@/components/developer/PlatformManifestDashboard";
 import ExecKnowledgeAudit from "@/components/developer/ExecKnowledgeAudit";
@@ -46,19 +48,31 @@ export default function Diagnostics() {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 text-emerald-400 text-xs uppercase tracking-widest mb-1">
-            <Gauge size={14} /> Platform Governance Center™
+            <Radar size={14} /> Platform Governance Center™
           </div>
           <h1 className="text-2xl font-bold text-white">Mission Control</h1>
           <p className="text-white/40 text-sm mt-1">
-            Central governance console for monitoring platform architecture, AI intelligence, operational health, configuration, and platform integrity.
+            The operational command center of EXECLEAD.AI — complete platform visibility in 30 seconds.
           </p>
         </div>
 
         {/* ────────────────────────────────────────────────────── */}
-        {/* SECTION 1: Platform Overview                           */}
+        {/* SECTION 0: Mission Control Dashboard                   */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={1} icon={Cpu} label="Platform Overview" color="indigo" />
-        <PlatformOverview />
+        <SectionDivider icon={Radar} label="Mission Control" color="emerald" />
+        <MissionControlDashboard />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION 0.5: Live Platform Status                      */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Activity} label="Live Platform Status" color="cyan" />
+        <PlatformStatusGrid />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION 0.6: System Timeline                           */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Clock} label="System Timeline" color="indigo" />
+        <SystemTimeline />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 2: Core Platform Services™                    */}
@@ -70,13 +84,17 @@ export default function Diagnostics() {
         {/* SECTION 3: Platform Manifest™                          */}
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider number={3} icon={Boxes} label="Platform Manifest™" color="purple" />
-        <PlatformManifestDashboard />
+        <div id="manifest-section">
+          <PlatformManifestDashboard />
+        </div>
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 3.5: Platform Self-Healing Engine™             */}
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider icon={Wrench} label="Platform Self-Healing Engine™" color="emerald" />
-        <SelfHealingEngine />
+        <div id="self-healing-section">
+          <SelfHealingEngine />
+        </div>
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 3: EXEC™ Knowledge Center                      */}

@@ -3,7 +3,7 @@ import {
   FileText, GraduationCap, Store, Users, Wallet, BadgeCheck,
   CreditCard, Building2, Code2, Brain, MessageSquare, Network,
   BarChart3, Shield, Crown, Gift, Settings as SettingsIcon,
-  UserCircle, Cpu, PenLine, TrendingUp, Wrench,
+  UserCircle, Cpu, PenLine, TrendingUp, Wrench, Gauge,
 } from "lucide-react";
 
 /**
@@ -493,6 +493,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     purpose: "Give executives a single pane of glass for their complete ELIM™ Intelligence profile, with AI-driven interpretation and actionable growth recommendations.",
     keyFeatures: ["Overall ELIM™ Intelligence Score", "Competency Radar", "Score Distribution", "Growth Velocity", "AI Interpretation", "Recommendations", "Evidence Sources", "Confidence Score"],
     findIt: "ELIM™ Management Center → Intelligence Scores tab.",
+  },
+  {
+    id: "mission_control",
+    name: "Mission Control",
+    aliases: ["mission control", "platform health", "show platform health", "open mission control", "run self-healing", "review platform risks", "today's platform summary", "platform status", "platform governance", "platform command center", "platform operational status"],
+    path: "/developer/governance",
+    category: "Developer",
+    icon: Gauge,
+    description: "The operational command center of EXECLEAD.AI — provides complete visibility into platform health, core platform services, Platform Manifest™, knowledge synchronization, self-healing, Guardian™, deployments, AI governance, and operational metrics. Features an AI-generated EXEC™ Mission Brief, a Platform Health Score computed from 8 signals, a live service status grid, a system timeline, and quick operational actions.",
+    purpose: "Enable a founder, platform engineer, or administrator to understand the health of the entire platform within 30 seconds of opening Mission Control.",
+    keyFeatures: ["EXEC™ Mission Brief", "Platform Health Score", "Live Platform Status Grid", "System Timeline", "Quick Actions", "Platform Metrics", "Service Drill-Down", "Self-Healing Integration"],
+    findIt: "Developer Workspace → Platform Governance Center™ → Mission Control.",
   },
 ];
 

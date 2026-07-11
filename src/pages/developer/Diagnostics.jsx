@@ -23,6 +23,8 @@ import FoundationIntegrationReport from "@/components/developer/FoundationIntegr
 import KnowledgeResolutionAudit from "@/components/developer/KnowledgeResolutionAudit";
 import PlatformMetadataCompletion from "@/components/developer/PlatformMetadataCompletion";
 import PlatformMetadataCompletionReport from "@/components/developer/PlatformMetadataCompletionReport";
+import FoundationVerificationCenter from "@/components/developer/FoundationVerificationCenter";
+import FoundationVerificationReport from "@/components/developer/FoundationVerificationReport";
 
 export default function Diagnostics() {
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
@@ -181,6 +183,18 @@ export default function Diagnostics() {
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider icon={FileText} label="Platform Metadata Completion Report™" color="indigo" />
         <PlatformMetadataCompletionReport />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* FOUNDATION VERIFICATION CENTER                          */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={ShieldCheck} label="Foundation Verification Center™" color="emerald" />
+        <FoundationVerificationCenter />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* FOUNDATION VERIFICATION REPORT                         */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Rocket} label="Foundation Verification Report™" color="indigo" />
+        <FoundationVerificationReport />
       </div>
     </div>
   );

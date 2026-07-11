@@ -1,90 +1,106 @@
-import React, { useMemo } from "react";
-import {
-  validateManifest,
-  getManifestCoverage,
-  MODULE_REGISTRY,
-  ROUTE_REGISTRY,
-  FRAMEWORK_REGISTRY,
-  KNOWLEDGE_PACK_REGISTRY,
-  AI_PERSONA_REGISTRY,
-  FEATURE_FLAG_REGISTRY,
-  PLATFORM_METADATA,
-} from "@/lib/platformManifest";
+import React, { useState, useMemo, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { computeDeploymentReadiness } from "@/lib/deploymentReadinessEngine";
+import { applyRepairs, invalidateManifestCache } from "@/lib/platformManifest";
+import DeploymentReadinessDetail from "./DeploymentReadinessDetail";
 import {
   CheckCircle2, AlertTriangle, XCircle, Rocket, ShieldCheck,
+  FileText, Network, Package, Layers, Code2, Users, Boxes, Brain, Settings,
+  ChevronRight,
 } from "lucide-react";
 
+const ICON_MAP = { FileText, Network, Package, Layers, Code2, Users, Boxes, Brain, Settings, ShieldCheck };
+
+function exportJSON(check) {
+  const blob = new Blob([JSON.stringify(check, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `${check.id}-diagnostic-report.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportCSV(check) {
+  const rows = [
+    ["Field", "Value"],
+    ["Check", check.label], ["Panel Title", check.panelTitle], ["Status", check.status],
+    ["Severity", check.severity], ["Health Score", check.healthScore],
+    ["Summary", check.summary.detail], ["Affected Count", check.affectedCount],
+    ["Can Repair", check.canRepair], ["Repairable Findings", check.repairableFindings.length],
+    ["Last Validated", check.lastValidated],
+  ];
+  check.evidence.failed.forEach((f) => rows.push(["Failed Evidence", f.message]));
+  check.recommendedActions.forEach((a) => rows.push(["Recommended Action", a]));
+  check.dependencies.upstream.forEach((d) => rows.push(["Upstream Dependency", d]));
+  check.dependencies.downstream.forEach((d) => rows.push(["Downstream Dependency", d]));
+  check.impact.affectedComponents.forEach((c) => rows.push(["Affected Component", c]));
+  check.auditHistory.forEach((h) => rows.push(["Audit Entry", `${h.action || h.issue} (${h.timestamp})`]));
+
+  const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `${check.id}-diagnostic-report.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function exportPDF(check) {
+  try {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF();
+    let y = 20;
+    doc.setFontSize(14); doc.text(check.panelTitle, 20, y); y += 8;
+    doc.setFontSize(9);
+    doc.text(`Status: ${check.status.toUpperCase()}`, 20, y); y += 5;
+    doc.text(`Severity: ${check.severity}`, 20, y); y += 5;
+    doc.text(`Health Score: ${check.healthScore}%`, 20, y); y += 5;
+    doc.text(`Summary: ${check.summary.detail}`, 20, y); y += 5;
+    doc.text(`Affected Components: ${check.affectedCount}`, 20, y); y += 5;
+    doc.text(`Last Validated: ${check.lastValidated}`, 20, y); y += 8;
+    doc.setFontSize(11); doc.text("Details", 20, y); y += 6; doc.setFontSize(9);
+    Object.entries(check.details).forEach(([k, v]) => {
+      doc.text(`${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`, 20, y); y += 5;
+    });
+    y += 3; doc.setFontSize(11); doc.text("Evidence", 20, y); y += 6; doc.setFontSize(9);
+    check.evidence.passed.forEach((e) => { doc.text(`[PASS] ${e}`, 20, y); y += 5; });
+    check.evidence.failed.forEach((e) => { doc.text(`[FAIL] ${e.message}`, 20, y); y += 5; });
+    y += 3; doc.setFontSize(11); doc.text("Impact", 20, y); y += 6; doc.setFontSize(9);
+    const impactLines = doc.splitTextToSize(check.impact.description, 170);
+    impactLines.forEach((line) => { doc.text(line, 20, y); y += 5; });
+    y += 3; doc.setFontSize(11); doc.text("Recommended Actions", 20, y); y += 6; doc.setFontSize(9);
+    check.recommendedActions.forEach((a, i) => {
+      const lines = doc.splitTextToSize(`${i + 1}. ${a}`, 170);
+      lines.forEach((line) => { doc.text(line, 20, y); y += 5; });
+    });
+    doc.save(`${check.id}-diagnostic-report.pdf`);
+  } catch (e) {
+    console.error("PDF export failed:", e);
+  }
+}
+
 export default function DeploymentReadiness() {
-  const checks = useMemo(() => {
-    const warnings = validateManifest();
-    const coverage = getManifestCoverage();
+  const [activeCheckId, setActiveCheckId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [repairResult, setRepairResult] = useState(null);
 
-    const errors = warnings.filter((w) => w.level === "error");
-    const warns = warnings.filter((w) => w.level === "warning");
+  const { checks, summary } = useMemo(() => computeDeploymentReadiness(), [refreshKey]);
+  const activeCheck = checks.find((c) => c.id === activeCheckId);
 
-    const brokenModules = MODULE_REGISTRY.filter((m) => !m.routeExists);
-    const frameworksMissingPacks = FRAMEWORK_REGISTRY.filter((f) => f.type === "intelligence" && !f.knowledgePack);
-    const brokenFrameworkDeps = FRAMEWORK_REGISTRY.filter((f) => f.dependencies && !f.dependencies.every((dep) => FRAMEWORK_REGISTRY.some((fw) => fw.frameworkId === dep)));
+  const handleRepair = useCallback((checkId) => {
+    const check = checks.find((c) => c.id === checkId);
+    if (!check?.repairableFindings?.length) return;
+    const logs = applyRepairs(check.repairableFindings);
+    invalidateManifestCache();
+    setRepairResult({ checkId, logs, timestamp: new Date().toISOString() });
+    setRefreshKey((k) => k + 1);
+  }, [checks]);
 
-    return [
-      {
-        label: "Platform Manifest Complete",
-        status: errors.length === 0 ? "pass" : "fail",
-        detail: errors.length === 0 ? "No validation errors" : `${errors.length} error(s) found`,
-      },
-      {
-        label: "EXEC™ Synchronized",
-        status: "pass",
-        detail: `Knowledge v${PLATFORM_METADATA.knowledgeVersion} · Prompt v${PLATFORM_METADATA.promptVersion}`,
-      },
-      {
-        label: "Framework Registry Healthy",
-        status: brokenFrameworkDeps.length === 0 ? "pass" : "fail",
-        detail: brokenFrameworkDeps.length === 0 ? `${FRAMEWORK_REGISTRY.length} frameworks registered` : `${brokenFrameworkDeps.length} broken dependency(ies)`,
-      },
-      {
-        label: "Knowledge Packs Loaded",
-        status: frameworksMissingPacks.length === 0 ? "pass" : "warn",
-        detail: frameworksMissingPacks.length === 0 ? `${KNOWLEDGE_PACK_REGISTRY.length} packs loaded` : `${frameworksMissingPacks.length} framework(s) missing packs`,
-      },
-      {
-        label: "Personas Registered",
-        status: AI_PERSONA_REGISTRY.length > 0 ? "pass" : "fail",
-        detail: `${AI_PERSONA_REGISTRY.length} AI personas registered`,
-      },
-      {
-        label: "Routes Valid",
-        status: brokenModules.length === 0 ? "pass" : "warn",
-        detail: brokenModules.length === 0 ? `${ROUTE_REGISTRY.length} routes valid` : `${brokenModules.length} broken reference(s)`,
-      },
-      {
-        label: "Modules Registered",
-        status: MODULE_REGISTRY.length > 0 ? "pass" : "fail",
-        detail: `${MODULE_REGISTRY.length} modules registered`,
-      },
-      {
-        label: "Feature Flags Valid",
-        status: FEATURE_FLAG_REGISTRY.length > 0 ? "pass" : "warn",
-        detail: `${FEATURE_FLAG_REGISTRY.length} flags configured`,
-      },
-      {
-        label: "Configuration Loaded",
-        status: "pass",
-        detail: `Config v${PLATFORM_METADATA.configVersion || "auto"} · Build ${PLATFORM_METADATA.buildNumber}`,
-      },
-      {
-        label: "No Broken References",
-        status: errors.length === 0 && warns.length === 0 ? "pass" : errors.length === 0 ? "warn" : "fail",
-        detail: errors.length === 0 && warns.length === 0 ? "All references resolve" : `${errors.length + warns.length} finding(s)`,
-      },
-    ];
+  const handleExport = useCallback((check, format) => {
+    if (format === "json") exportJSON(check);
+    else if (format === "csv") exportCSV(check);
+    else if (format === "pdf") exportPDF(check);
   }, []);
-
-  const passed = checks.filter((c) => c.status === "pass").length;
-  const failed = checks.filter((c) => c.status === "fail").length;
-  const warned = checks.filter((c) => c.status === "warn").length;
-  const ready = failed === 0 && warned === 0;
-  const canDeploy = failed === 0;
 
   const statusConfig = {
     pass: { icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/5", border: "border-emerald-500/10" },
@@ -96,43 +112,93 @@ export default function DeploymentReadiness() {
     <div className="space-y-4">
       {/* Readiness Banner */}
       <div className={`flex items-center gap-3 p-4 rounded-xl border ${
-        ready ? "bg-emerald-500/5 border-emerald-500/10" :
-        canDeploy ? "bg-amber-500/5 border-amber-500/10" :
+        summary.ready ? "bg-emerald-500/5 border-emerald-500/10" :
+        summary.canDeploy ? "bg-amber-500/5 border-amber-500/10" :
         "bg-red-500/5 border-red-500/10"
       }`}>
-        <Rocket size={24} className={ready ? "text-emerald-400" : canDeploy ? "text-amber-400" : "text-red-400"} />
+        <Rocket size={24} className={summary.ready ? "text-emerald-400" : summary.canDeploy ? "text-amber-400" : "text-red-400"} />
         <div className="flex-1">
           <div className="text-white font-semibold">
-            {ready ? "Ready for Deployment" : canDeploy ? "Deployable with Warnings" : "Deployment Blocked"}
+            {summary.ready ? "Ready for Deployment" : summary.canDeploy ? "Deployable with Warnings" : "Deployment Blocked"}
           </div>
           <div className="text-white/40 text-xs">
-            {passed} passed · {warned} warnings · {failed} failures
+            {summary.passed} passed · {summary.warned} warnings · {summary.failed} failures
+            {summary.activeRepairs > 0 && ` · ${summary.activeRepairs} active repairs`}
           </div>
         </div>
         <div className="text-right">
           <div className="text-white/60 text-xs">Readiness</div>
-          <div className={`font-bold text-lg ${ready ? "text-emerald-400" : canDeploy ? "text-amber-400" : "text-red-400"}`}>
-            {Math.round((passed / checks.length) * 100)}%
+          <div className={`font-bold text-lg ${summary.ready ? "text-emerald-400" : summary.canDeploy ? "text-amber-400" : "text-red-400"}`}>
+            {summary.healthScore}%
           </div>
         </div>
       </div>
 
-      {/* Checklist */}
+      {/* Interactive Checklist */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {checks.map((check, i) => {
+        {checks.map((check) => {
           const cfg = statusConfig[check.status];
+          const Icon = ICON_MAP[check.iconName] || ShieldCheck;
           return (
-            <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border ${cfg.bg} ${cfg.border}`}>
+            <button
+              key={check.id}
+              onClick={() => { setRepairResult(null); setActiveCheckId(check.id); }}
+              className={`flex items-start gap-3 p-3 rounded-lg border ${cfg.bg} ${cfg.border} hover:bg-white/[0.04] transition-colors text-left group`}
+            >
               <cfg.icon size={16} className={`${cfg.color} mt-0.5 flex-shrink-0`} />
               <div className="flex-1 min-w-0">
-                <div className="text-white/80 text-sm font-medium">{check.label}</div>
-                <div className="text-white/40 text-xs mt-0.5">{check.detail}</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/80 text-sm font-medium">{check.label}</span>
+                  <Icon size={10} className="text-white/20" />
+                </div>
+                <div className="text-white/40 text-xs mt-0.5">{check.summary.detail}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded ${cfg.bg} ${cfg.border} ${cfg.color}`}>{check.severity}</span>
+                  {check.canRepair && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-0.5">
+                      <ShieldCheck size={8} /> Repairable
+                    </span>
+                  )}
+                  <span className="text-[9px] text-white/30">{check.affectedCount} affected</span>
+                </div>
               </div>
-              <ShieldCheck size={12} className="text-white/20" />
-            </div>
+              <ChevronRight size={14} className="text-white/20 group-hover:text-white/40 transition-colors flex-shrink-0 mt-1" />
+            </button>
           );
         })}
       </div>
+
+      {/* Slide-in Detail Panel */}
+      <AnimatePresence>
+        {activeCheck && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+            <motion.div
+              className="absolute inset-0 bg-black/50"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setActiveCheckId(null)}
+            />
+            <motion.div
+              className="relative w-full max-w-[600px] bg-[#0a0a0f] border-l border-white/10 overflow-y-auto h-full"
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            >
+              <button
+                onClick={() => setActiveCheckId(null)}
+                className="sticky top-0 z-10 w-full flex items-center gap-2 px-5 py-3 bg-[#0a0a0f]/95 backdrop-blur border-b border-white/10 text-white/60 hover:text-white text-sm"
+              >
+                <ChevronRight size={14} className="rotate-180" />
+                Close Diagnostic Panel
+              </button>
+              <DeploymentReadinessDetail
+                check={activeCheck}
+                onRepair={handleRepair}
+                onExport={handleExport}
+                repairResult={repairResult}
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

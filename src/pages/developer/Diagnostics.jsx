@@ -2,6 +2,7 @@ import React from "react";
 import {
   Cpu, Boxes, Brain, Network, Zap, Layers, Package,
   Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar, FileText, Database,
+  Award, GitBranch,
 } from "lucide-react";
 import MissionControlDashboard from "@/components/developer/MissionControlDashboard";
 import MissionControlConsole from "@/components/developer/MissionControlConsole";
@@ -27,8 +28,13 @@ import PlatformMetadataCompletion from "@/components/developer/PlatformMetadataC
 import PlatformMetadataCompletionReport from "@/components/developer/PlatformMetadataCompletionReport";
 import FoundationVerificationCenter from "@/components/developer/FoundationVerificationCenter";
 import FoundationVerificationReport from "@/components/developer/FoundationVerificationReport";
+import GovernanceCertificationBanner from "@/components/developer/GovernanceCertificationBanner";
+import GovernancePipelineStatus from "@/components/developer/GovernancePipelineStatus";
+import GovernanceCertificateCard from "@/components/developer/GovernanceCertificateCard";
+import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
 
 export default function Diagnostics() {
+  const { certificate, pipelineRunning, runPipeline } = useGovernancePipeline();
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
     const colors = {
       purple: "text-purple-400 border-purple-500/20",
@@ -64,6 +70,27 @@ export default function Diagnostics() {
             The operational command center of EXECLEAD.AI — complete platform visibility in 30 seconds.
           </p>
         </div>
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION: Platform Governance Pipeline™                 */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={GitBranch} label="Platform Governance Pipeline™" color="indigo" />
+        <GovernanceCertificationBanner
+          certificate={certificate}
+          pipelineRunning={pipelineRunning}
+          onRefresh={() => runPipeline("manual")}
+        />
+        <GovernancePipelineStatus certificate={certificate} pipelineRunning={pipelineRunning} />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION: Governance Certificate™                       */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Award} label="Governance Certificate™" color="emerald" />
+        <GovernanceCertificateCard
+          certificate={certificate}
+          pipelineRunning={pipelineRunning}
+          onRefresh={() => runPipeline("manual")}
+        />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 0: Mission Control Dashboard                   */}

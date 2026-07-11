@@ -1,0 +1,104 @@
+{
+  "name": "GovernanceCertificate",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "certificate_id": {
+      "type": "string",
+      "description": "Unique governance certificate identifier"
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Platform event that triggered the pipeline run"
+    },
+    "certified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the platform passed governance certification"
+    },
+    "overall_governance_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall governance score 0-100"
+    },
+    "manifest_health": {
+      "type": "number",
+      "default": 0
+    },
+    "registry_health": {
+      "type": "number",
+      "default": 0
+    },
+    "knowledge_health": {
+      "type": "number",
+      "default": 0
+    },
+    "synchronization_health": {
+      "type": "number",
+      "default": 0
+    },
+    "deployment_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "platform_state": {
+      "type": "number",
+      "default": 0
+    },
+    "enterprise_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "warnings": {
+      "type": "number",
+      "default": 0
+    },
+    "failures": {
+      "type": "number",
+      "default": 0
+    },
+    "repair_actions": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of findings that can be auto-repaired"
+    },
+    "stages_json": {
+      "type": "string",
+      "description": "JSON array of 16 pipeline stage results"
+    },
+    "findings_json": {
+      "type": "string",
+      "description": "JSON array of all findings with drill-down data"
+    },
+    "pipeline_version": {
+      "type": "string"
+    },
+    "platform_version": {
+      "type": "string"
+    },
+    "execution_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Developer who triggered the pipeline, or 'system'"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "certificate_id",
+    "trigger"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

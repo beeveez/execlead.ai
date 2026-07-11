@@ -235,6 +235,9 @@ export function PlatformStateProvider({ children }) {
         if (eventName === "RegistrySynchronizationCompleted") {
           persistStateEvent("RegistrySynchronizationCompleted", payload, newState);
         }
+        if (eventName === "GovernancePipelineCompleted") {
+          persistStateEvent("GovernancePipelineCompleted", payload, newState);
+        }
         if (eventName === "GuardianCompleted") {
           setLastGuardianScan(now);
         }

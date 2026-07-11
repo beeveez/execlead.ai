@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { GuardianProvider } from '@/lib/GuardianContext';
 import { PlatformStateProvider } from '@/lib/PlatformStateContext';
+import { GovernancePipelineProvider } from '@/lib/GovernancePipelineContext';
 import { WorkspaceProvider } from '@/lib/WorkspaceContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -360,6 +361,7 @@ function App() {
       <ThemeProvider>
       <GuardianProvider>
       <PlatformStateProvider>
+      <GovernancePipelineProvider>
       <DeveloperProvider>
       <SubscriptionProvider>
       <WorkspaceProvider>
@@ -378,6 +380,7 @@ function App() {
       </WorkspaceProvider>
       </SubscriptionProvider>
       </DeveloperProvider>
+      </GovernancePipelineProvider>
       </PlatformStateProvider>
       </GuardianProvider>
       </ThemeProvider>

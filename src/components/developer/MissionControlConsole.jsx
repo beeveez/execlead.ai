@@ -8,6 +8,8 @@ import { applyRepairs, invalidateManifestCache } from "@/lib/platformManifest";
 import ExecutiveOperationsRibbon from "./ExecutiveOperationsRibbon";
 import GovernanceDomainCard from "./GovernanceDomainCard";
 import GovernanceDomainPanel from "./GovernanceDomainPanel";
+import GovernanceCertificationBanner from "./GovernanceCertificationBanner";
+import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
 import { Gauge, ChevronRight } from "lucide-react";
 
 function exportJSON(domain) {
@@ -108,6 +110,7 @@ async function exportPDF(domain) {
 export default function MissionControlConsole() {
   const state = usePlatformState();
   const guardian = useGuardian();
+  const { certificate, pipelineRunning, runPipeline } = useGovernancePipeline();
   const [activeDomainId, setActiveDomainId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [repairResult, setRepairResult] = useState(null);
@@ -136,6 +139,13 @@ export default function MissionControlConsole() {
 
   return (
     <div className="space-y-4">
+      {/* Governance Certification Banner */}
+      <GovernanceCertificationBanner
+        certificate={certificate}
+        pipelineRunning={pipelineRunning}
+        onRefresh={() => runPipeline("manual")}
+      />
+
       {/* Executive Operations Ribbon */}
       <div>
         <div className="flex items-center gap-2 mb-2">

@@ -1,0 +1,86 @@
+{
+  "name": "ELIMKnowledgePack",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "pack_id": {
+      "type": "string",
+      "description": "Unique knowledge pack identifier"
+    },
+    "framework_id": {
+      "type": "string",
+      "description": "Associated ELIM framework ID (eecf, leadership_dna, eri, erf, ejf)"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "methodology_json": {
+      "type": "string",
+      "description": "JSON methodology documentation"
+    },
+    "competencies_json": {
+      "type": "string"
+    },
+    "evidence_rules_json": {
+      "type": "string"
+    },
+    "scoring_rules_json": {
+      "type": "string"
+    },
+    "learning_json": {
+      "type": "string"
+    },
+    "recommendations_json": {
+      "type": "string"
+    },
+    "role_mapping_json": {
+      "type": "string"
+    },
+    "industry_mapping_json": {
+      "type": "string"
+    },
+    "simulation_mapping_json": {
+      "type": "string"
+    },
+    "research_references_json": {
+      "type": "string"
+    },
+    "created_by_id": {
+      "type": "string"
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "pack_id",
+    "framework_id",
+    "name"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

@@ -56,6 +56,7 @@ import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
 import FoundingMemberAdmin from '@/pages/FoundingMemberAdmin';
 import MembershipAdmin from '@/pages/MembershipAdmin';
+import ELIMManagementCenter from '@/pages/elim/ELIMManagementCenter';
 import ReferralDashboard from '@/pages/ReferralDashboard';
 import ExecutiveWallet from '@/pages/ExecutiveWallet';
 import ReferralAdmin from '@/pages/ReferralAdmin';
@@ -256,6 +257,7 @@ const AuthenticatedApp = () => {
           <Route path="/feature-management" element={<FeatureManagement />} />
           <Route path="/founding-member-admin" element={<FoundingMemberAdmin />} />
           <Route path="/membership-admin" element={<MembershipAdmin />} />
+          <Route path="/elim" element={<ELIMManagementCenter />} />
           <Route path="/referrals" element={<ReferralDashboard />} />
           <Route path="/wallet" element={<ExecutiveWallet />} />
           <Route path="/referral-admin" element={<ReferralAdmin />} />

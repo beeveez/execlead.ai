@@ -2,10 +2,15 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import {
   Activity, AlertTriangle, CheckCircle2, Clock, Database,
-  Cpu, RefreshCw, Zap, TrendingUp, Shield,
+  Cpu, RefreshCw, Zap, TrendingUp, Shield, ShieldCheck, Boxes, Brain,
+  Network, Layers,
 } from "lucide-react";
 import ExecKnowledgeAudit from "@/components/developer/ExecKnowledgeAudit";
 import PlatformManifestDashboard from "@/components/developer/PlatformManifestDashboard";
+import WorkspaceIntelligence from "@/components/developer/WorkspaceIntelligence";
+import ContextValidation from "@/components/developer/ContextValidation";
+import CapabilityRegistryStatus from "@/components/developer/CapabilityRegistryStatus";
+import FrameworkRegistry from "@/components/developer/FrameworkRegistry";
 
 export default function Diagnostics() {
   const [journeyData, setJourneyData] = useState(null);
@@ -77,9 +82,31 @@ export default function Diagnostics() {
     </div>
   );
 
+  const SectionDivider = ({ number, icon: Icon, label, color }) => {
+    const colors = {
+      purple: "text-purple-400 border-purple-500/20",
+      indigo: "text-indigo-400 border-indigo-500/20",
+      cyan: "text-cyan-400 border-cyan-500/20",
+      amber: "text-amber-400 border-amber-500/20",
+      blue: "text-blue-400 border-blue-500/20",
+      emerald: "text-emerald-400 border-emerald-500/20",
+    };
+    return (
+      <div className={`flex items-center gap-3 mt-8 mb-4 pb-2 border-b ${colors[color] || colors.indigo}`}>
+        {number && (
+          <div className={`w-7 h-7 rounded-lg bg-white/5 border ${colors[color]?.split(" ")[1] || "border-white/10"} flex items-center justify-center text-xs font-bold ${colors[color]?.split(" ")[0] || "text-white/60"}`}>
+            {number}
+          </div>
+        )}
+        <Icon size={16} className={colors[color]?.split(" ")[0] || "text-white/60"} />
+        <h2 className="text-white/80 font-medium text-sm uppercase tracking-wider">{label}</h2>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] p-6">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -302,15 +329,41 @@ export default function Diagnostics() {
               </div>
             </div>
 
-            {/* Platform Manifest™ Dashboard */}
-            <div className="mt-6">
-              <PlatformManifestDashboard />
-            </div>
+            {/* ────────────────────────────────────────────────────── */}
+            {/* SECTION 1: Platform Manifest™ Dashboard               */}
+            {/* ────────────────────────────────────────────────────── */}
+            <SectionDivider number={1} icon={Boxes} label="Platform Manifest™ Dashboard" color="purple" />
+            <PlatformManifestDashboard />
 
-            {/* EXEC™ Knowledge Audit */}
-            <div className="mt-6">
-              <ExecKnowledgeAudit />
-            </div>
+            {/* ────────────────────────────────────────────────────── */}
+            {/* SECTION 2: EXEC™ Knowledge Audit                       */}
+            {/* ────────────────────────────────────────────────────── */}
+            <SectionDivider number={2} icon={Brain} label="EXEC™ Knowledge Audit" color="indigo" />
+            <ExecKnowledgeAudit />
+
+            {/* ────────────────────────────────────────────────────── */}
+            {/* SECTION 3: Workspace Intelligence                      */}
+            {/* ────────────────────────────────────────────────────── */}
+            <SectionDivider number={3} icon={Network} label="Workspace Intelligence" color="cyan" />
+            <WorkspaceIntelligence />
+
+            {/* ────────────────────────────────────────────────────── */}
+            {/* SECTION 4: Capability Registry Status                  */}
+            {/* ────────────────────────────────────────────────────── */}
+            <SectionDivider number={4} icon={Zap} label="Capability Registry Status" color="amber" />
+            <CapabilityRegistryStatus />
+
+            {/* ────────────────────────────────────────────────────── */}
+            {/* SECTION 5: Framework Registry                         */}
+            {/* ────────────────────────────────────────────────────── */}
+            <SectionDivider number={5} icon={Layers} label="Framework Registry" color="blue" />
+            <FrameworkRegistry />
+
+            {/* ────────────────────────────────────────────────────── */}
+            {/* CONTEXT VALIDATION                                     */}
+            {/* ────────────────────────────────────────────────────── */}
+            <SectionDivider icon={ShieldCheck} label="Active Context Validation" color="emerald" />
+            <ContextValidation />
           </>
         )}
       </div>

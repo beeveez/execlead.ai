@@ -282,7 +282,7 @@ export default function PlatformIntelligenceCenter({ onNavigate }) {
       </div>
 
       {/* ── Platform Intelligence Map™ ── */}
-      <PlatformIntelligenceMap piq={piq} />
+      <PlatformIntelligenceMap piq={piq} onNavigate={onNavigate} />
     </div>
   );
 }

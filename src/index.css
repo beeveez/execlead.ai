@@ -136,6 +136,28 @@
 }
 
 /* ============================================================
+   Platform Intelligence Map™ — Node pulse & edge flow animations
+   ============================================================ */
+@keyframes pi-node-pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+.pi-node-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pi-node-pulse 2.5s ease-out infinite;
+}
+
+@keyframes pi-edge-flow {
+  from { stroke-dashoffset: 5; }
+  to { stroke-dashoffset: 0; }
+}
+.pi-edge-flow {
+  stroke-dasharray: 2 3;
+  animation: pi-edge-flow 1.5s linear infinite;
+}
+
+/* ============================================================
    Founding Member Program — Premium gold effects
    ============================================================ */
 @keyframes gold-shimmer {

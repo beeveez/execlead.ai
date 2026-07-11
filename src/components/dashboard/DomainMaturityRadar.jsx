@@ -147,11 +147,7 @@ export default function DomainMaturityRadar() {
     : null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white/[0.02] border border-white/5 rounded-xl p-5"
-    >
+    <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -175,12 +171,12 @@ export default function DomainMaturityRadar() {
         </div>
       ) : competencies.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[320px] text-center">
-          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-3">
-            <Brain size={20} className="text-white/30" />
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-3">
+            <Brain size={20} className="text-indigo-400" />
           </div>
-          <p className="text-white/50 text-sm font-medium">No competencies assessed yet</p>
-          <p className="text-white/30 text-xs mt-1 max-w-xs">
-            Complete a Leadership DNA™ assessment or add competencies to see your domain maturity radar.
+          <p className="text-white/70 text-sm font-medium">No competency data yet</p>
+          <p className="text-white/40 text-xs mt-2 max-w-sm leading-relaxed">
+            Complete Leadership DNA™, simulations, learning paths, or add experience to generate your Executive Intelligence.
           </p>
         </div>
       ) : (
@@ -308,6 +304,6 @@ export default function DomainMaturityRadar() {
           </AnimatePresence>
         </>
       )}
-    </motion.div>
+    </div>
   );
 }

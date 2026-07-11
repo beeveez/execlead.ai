@@ -336,6 +336,7 @@ export function computePlatformIntelligence() {
     aiReadiness,
     foundationReadiness,
     foundationCertified: cert.certified,
+    metadataMissingEntries: meta.totalMissingEntries,
     nodeHealth,
     versions: {
       platform: PLATFORM_METADATA.platformVersion,

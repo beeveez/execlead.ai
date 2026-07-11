@@ -7,7 +7,7 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
-import { computePlatformIntelligence, generateIntelligenceReport } from "@/lib/platformIntelligenceEngine";
+import { computePlatformIntelligence, generateIntelligenceReport, PIQ_LEVELS } from "@/lib/platformIntelligenceEngine";
 import PlatformIntelligenceMap from "./PlatformIntelligenceMap";
 import PlatformIQHistoricalTrend from "./PlatformIQHistoricalTrend";
 import PlatformIQAIConfidence from "./PlatformIQAIConfidence";
@@ -67,6 +67,34 @@ export default function PlatformIntelligenceCenter({ onNavigate }) {
         {label}
       </text>
     );
+  };
+
+  // Returns maturity info for a domain score: current level, next level, gap
+  const getDomainMaturity = (score) => {
+    let current = PIQ_LEVELS[0];
+    let next = null;
+    for (let i = 0; i < PIQ_LEVELS.length; i++) {
+      if (score >= PIQ_LEVELS[i].minScore) {
+        current = PIQ_LEVELS[i];
+        next = PIQ_LEVELS[i + 1] || null;
+      }
+    }
+    const shortName = (name) => name.split(" ")[0];
+    return {
+      maturity: shortName(current.name),
+      maturityColor: current.color,
+      next: next ? shortName(next.name) : null,
+      gap: next ? next.minScore - score : 0,
+    };
+  };
+
+  // Returns a human-readable "remaining" label for a domain
+  const getRemainingLabel = (domain) => {
+    if (domain.id === "metadata" && piq.metadataMissingEntries != null) {
+      return `${piq.metadataMissingEntries} metadata entries`;
+    }
+    const m = getDomainMaturity(domain.score);
+    return m.next ? `${m.gap} pts to ${m.next}` : "Max level";
   };
 
   const downloadReport = () => {
@@ -209,6 +237,17 @@ export default function PlatformIntelligenceCenter({ onNavigate }) {
                 </div>
                 <span className="text-sm font-bold text-white w-10 text-right">{d.score}%</span>
               </div>
+              {/* Maturity / Next / Remaining */}
+              {(() => {
+                const m = getDomainMaturity(d.score);
+                return (
+                  <div className="flex items-center gap-3 mt-2 text-[10px]">
+                    <span className="text-white/30">Maturity <span className="font-medium" style={{ color: m.maturityColor }}>{m.maturity}</span></span>
+                    {m.next && <span className="text-white/30">Next <span className="text-white/70 font-medium">{m.next}</span></span>}
+                    <span className="text-white/30 ml-auto">Remaining <span className="text-white/70 font-medium">{getRemainingLabel(d)}</span></span>
+                  </div>
+                );
+              })()}
               <div className="mt-2 flex flex-wrap gap-1">
                 {d.subMetrics.slice(0, 4).map((sm) => (
                   <span

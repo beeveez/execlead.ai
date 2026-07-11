@@ -498,6 +498,7 @@ export const CAPABILITY_REGISTRY = [
   { capabilityId: "can_generate_reports", name: "Can Generate Reports", status: "active", workspace: "enterprise", knowledgePack: "kp_eri", dependencies: ["eri"], aiPersona: "enterprise" },
   { capabilityId: "can_review_reputation", name: "Can Review Reputation", status: "active", workspace: "executive", knowledgePack: "kp_erf", dependencies: ["erf"], aiPersona: "reputation_advisor" },
   { capabilityId: "can_execute_diagnostics", name: "Can Execute Diagnostics", status: "active", workspace: "developer", knowledgePack: null, dependencies: [], aiPersona: "developer" },
+  { capabilityId: "can_query_platform_state", name: "Can Query Platform State", status: "active", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "developer" },
   { capabilityId: "can_review_billing", name: "Can Review Billing", status: "active", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "billing" },
   { capabilityId: "can_manage_organizations", name: "Can Manage Organizations", status: "active", workspace: "enterprise", knowledgePack: null, dependencies: [], aiPersona: "enterprise" },
   { capabilityId: "can_execute_actions", name: "Can Execute Actions", status: "future", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "executive" },

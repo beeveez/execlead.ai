@@ -8,7 +8,7 @@ export default function PlatformStateDebugPanel() {
 
   if (!state) return null;
 
-  const { cacheVersion, runtimeVersion, manifestVersion, knowledgeVersion, cacheTimestamp, lastRefresh, lastCommit, lastBroadcast, subscribersUpdated, status, stateVersion, totalFindings, health } = state;
+  const { cacheVersion, runtimeVersion, runtimeStateVersion, platformVersion, manifestVersion, knowledgeVersion, configVersion, cacheTimestamp, lastRefresh, lastCommit, lastBroadcast, subscribersUpdated, status, stateVersion, totalFindings, health } = state;
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
@@ -25,9 +25,13 @@ export default function PlatformStateDebugPanel() {
         <div className="px-4 pb-4 space-y-3">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             <DebugItem icon={RefreshCw} label="State Version" value={`#${stateVersion}`} />
+            <DebugItem icon={RefreshCw} label="Runtime State Version" value={`#${runtimeStateVersion ?? stateVersion}`} />
+            <DebugItem icon={Cpu} label="Platform Version" value={`v${platformVersion || "—"}`} />
             <DebugItem icon={Cpu} label="Runtime Version" value={`v${runtimeVersion || "—"}`} />
             <DebugItem icon={Database} label="Manifest Version" value={`v${manifestVersion}`} />
             <DebugItem icon={Database} label="Knowledge Version" value={`v${knowledgeVersion || "—"}`} />
+            <DebugItem icon={Database} label="Configuration Version" value={configVersion || "—"} />
+            <DebugItem icon={GitCommit} label="Cache Version" value={cacheVersion} />
             <DebugItem icon={Clock} label="Cache Timestamp" value={cacheTimestamp ? new Date(cacheTimestamp).toLocaleTimeString() : "—"} />
             <DebugItem icon={Clock} label="Last Refresh" value={lastRefresh ? new Date(lastRefresh).toLocaleTimeString() : "—"} />
             <DebugItem icon={GitCommit} label="Last Commit" value={lastCommit ? new Date(lastCommit).toLocaleTimeString() : "—"} />

@@ -3,31 +3,45 @@
  * --------------------
  * Lightweight pub/sub event system for the Platform State Manager™.
  *
- * Any platform-state-changing operation (repair, knowledge sync, deployment,
- * guardian scan, manifest update, cache invalidation) dispatches an event here.
- * The PlatformStateManager subscribes to ALL events and recomputes, so every
- * consuming widget re-renders with identical values — no page refresh required.
+ * Any platform-state-changing operation dispatches an event here.
+ * The PlatformStateManager subscribes to ALL events and recomputes,
+ * so every consuming widget re-renders with identical values —
+ * no page refresh required.
  *
  * Events:
- *   PlatformStateUpdated  — generic state refresh
- *   ManifestUpdated       — manifest registry changed (or analyzed)
- *   KnowledgeUpdated      — knowledge index synced
- *   RepairCompleted       — self-healing repair finished
- *   DeploymentCompleted   — deployment finalized
- *   GuardianCompleted     — guardian scan finished
- *   WorkspaceChanged      — active workspace switched
- *   CacheInvalidated      — platform cache cleared
+ *   PlatformStateUpdated    — generic state refresh
+ *   ManifestUpdated         — manifest registry changed (or analyzed)
+ *   KnowledgeUpdated        — knowledge index changed
+ *   KnowledgeSyncCompleted  — knowledge sync finished
+ *   SelfHealingStarted      — self-healing analysis began
+ *   SelfHealingCompleted    — self-healing repair finished
+ *   PlatformCommitted       — platform changes committed
+ *   DeploymentStarted       — deployment began
+ *   DeploymentCompleted     — deployment finalized
+ *   GuardianStarted         — guardian scan began
+ *   GuardianCompleted       — guardian scan finished
+ *   WorkspaceChanged        — active workspace switched
+ *   CacheInvalidated        — platform cache cleared
+ *   ConfigUpdated           — configuration changed
+ *   EntityChanged           — entity data changed
  */
 
 export const PLATFORM_EVENTS = [
   "PlatformStateUpdated",
   "ManifestUpdated",
   "KnowledgeUpdated",
-  "RepairCompleted",
+  "KnowledgeSyncCompleted",
+  "SelfHealingStarted",
+  "SelfHealingCompleted",
+  "PlatformCommitted",
+  "DeploymentStarted",
   "DeploymentCompleted",
+  "GuardianStarted",
   "GuardianCompleted",
   "WorkspaceChanged",
   "CacheInvalidated",
+  "ConfigUpdated",
+  "EntityChanged",
 ];
 
 const subscribers = new Map(PLATFORM_EVENTS.map((e) => [e, new Set()]));
@@ -40,8 +54,13 @@ export function subscribe(event, callback) {
   return () => subscribers.get(event).delete(callback);
 }
 
+/**
+ * Subscribe to ALL platform events. Callback receives (eventName, payload).
+ */
 export function subscribeAll(callback) {
-  const unsubs = PLATFORM_EVENTS.map((e) => subscribe(e, callback));
+  const unsubs = PLATFORM_EVENTS.map((e) =>
+    subscribe(e, (payload) => callback(e, payload))
+  );
   return () => unsubs.forEach((u) => u());
 }
 
@@ -57,7 +76,7 @@ export function dispatch(event, payload) {
       } catch {}
     });
   }
-  // Backward compat: also fire the legacy DOM event so any non-bus listeners refresh.
+  // Backward compat: also fire the legacy DOM event.
   try {
     window.dispatchEvent(new CustomEvent("platform-manifest-cache-invalidated"));
   } catch {}

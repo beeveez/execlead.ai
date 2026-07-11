@@ -1,0 +1,62 @@
+{
+  "name": "PlatformStateEvent",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Event that triggered the state change (e.g. SelfHealingCompleted, PlatformCommitted, KnowledgeSyncCompleted)"
+    },
+    "source": {
+      "type": "string",
+      "description": "Where the event originated (e.g. repair, analyze, system_sync)"
+    },
+    "platform_version": {
+      "type": "string"
+    },
+    "manifest_version": {
+      "type": "string"
+    },
+    "coverage": {
+      "type": "number",
+      "default": 0,
+      "description": "Manifest route coverage % at time of event"
+    },
+    "health": {
+      "type": "number",
+      "default": 0,
+      "description": "Platform Health Score 0-100 at time of event"
+    },
+    "warnings": {
+      "type": "number",
+      "default": 0
+    },
+    "errors": {
+      "type": "number",
+      "default": 0
+    },
+    "execution_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Developer who triggered the state event"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "trigger"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

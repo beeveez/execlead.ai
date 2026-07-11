@@ -506,6 +506,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     keyFeatures: ["EXEC™ Mission Brief", "Platform Health Score", "Live Platform Status Grid", "System Timeline", "Quick Actions", "Platform Metrics", "Service Drill-Down", "Self-Healing Integration"],
     findIt: "Developer Workspace → Platform Governance Center™ → Mission Control.",
   },
+  {
+    id: "platform_state_manager",
+    name: "Platform State Manager™",
+    aliases: ["platform state", "state manager", "platform state manager", "runtime state", "platform health", "readiness index", "platform readiness", "platform state version", "platform event bus", "live platform events"],
+    path: "/developer/governance",
+    category: "Developer",
+    icon: Gauge,
+    description: "The single runtime source of truth for the entire platform. Maintains one authoritative runtime state — Platform Health, Platform Readiness Index™, Manifest Coverage, Knowledge Coverage, Guardian Health, Deployment Status, and all platform versions. Every dashboard, widget, and module consumes this service instead of computing health independently.",
+    purpose: "Ensure every platform component displays identical runtime values after any platform operation (Analyze, Repair, Commit, Knowledge Sync, Deployment, Guardian Scan). No stale widgets, no conflicting values, no manual refresh.",
+    keyFeatures: ["Platform Health Score", "Platform Readiness Index™", "Manifest & Knowledge Coverage", "Guardian & Deployment Status", "Platform Event Bus™", "Live Synchronization", "Cache Invalidation", "Platform State Events", "Developer Debug Panel"],
+    findIt: "Developer Workspace → Platform Governance Center™ → Platform State Debug Panel.",
+  },
 ];
 
 /**

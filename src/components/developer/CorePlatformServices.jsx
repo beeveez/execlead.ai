@@ -7,7 +7,7 @@ import {
 import {
   CheckCircle2, AlertTriangle, XCircle, Boxes, Package, Network,
   TrendingUp, Brain, Gauge, ArrowRight, Clock, Layers,
-  Sparkles, ShieldCheck,
+  Sparkles, ShieldCheck, Activity,
 } from "lucide-react";
 
 const SERVICE_ICONS = {
@@ -17,6 +17,7 @@ const SERVICE_ICONS = {
   executive_journey_engine: TrendingUp,
   executive_intelligence_engine: Brain,
   platform_governance_center: Gauge,
+  platform_state_manager: Activity,
 };
 
 export default function CorePlatformServices() {

@@ -2,13 +2,14 @@
  * EXECLEAD.AI — CORE PLATFORM SERVICES™
  * Version 1.0
  * ---------------------------------------------------
- * The six foundational platform services that power every
+ * The seven foundational platform services that power every
  * capability within EXECLEAD.AI.
  *
  * Architecture:
  *   Platform Manifest™ → Knowledge Pack Engine™ →
  *   Workspace Intelligence Engine™ → Executive Journey Engine™ →
- *   Executive Intelligence Engine™ → Platform Governance Center™
+ *   Executive Intelligence Engine™ → Platform Governance Center™ →
+ *   Platform State Manager™
  *
  * Every new module, AI capability, workflow, enterprise feature,
  * and integration must connect to one or more of these services.
@@ -18,7 +19,7 @@ import { PLATFORM_METADATA } from "./platformManifest";
 import { EXEC_KNOWLEDGE_VERSION, EXEC_PLATFORM_VERSION } from "./execKnowledgeBase";
 import { EELM_VERSION } from "./eelmMethodology";
 
-export const CORE_PLATFORM_SERVICES_VERSION = "1.0";
+export const CORE_PLATFORM_SERVICES_VERSION = "2.0";
 
 export const CORE_PLATFORM_SERVICES = [
   {
@@ -120,6 +121,34 @@ export const CORE_PLATFORM_SERVICES = [
     lastUpdated: PLATFORM_METADATA.releaseDate,
     futureRoadmap: "Automated remediation, predictive health alerts, governance policy engine",
   },
+  {
+    serviceId: "platform_state_manager",
+    name: "Platform State Manager™",
+    version: "2.0",
+    purpose: "The single runtime source of truth for the entire platform.",
+    responsibilities: [
+      "Platform Health", "Platform Readiness Index™", "Manifest Coverage",
+      "Manifest Warnings", "Knowledge Coverage", "Framework Health",
+      "Workspace Health", "Feature Flag Health", "Guardian Health",
+      "Deployment Status", "Entity Health", "Database Health",
+      "Cache Health", "Queue Health", "API Health", "Background Jobs",
+      "Platform Versions", "Platform Event Bus™", "Cache Invalidation",
+      "Live Synchronization", "Platform State Events",
+    ],
+    consumers: [
+      "Platform Governance Center™", "Mission Control", "Core Platform Services™",
+      "Platform Self-Healing Engine™", "Knowledge Pack Engine™", "Guardian™",
+      "Developer Diagnostics", "EXEC™", "Dashboard Widgets",
+      "Enterprise Dashboard", "Developer Dashboard",
+    ],
+    dependencies: [
+      "platform_manifest", "knowledge_pack_engine", "workspace_intelligence_engine",
+      "executive_journey_engine", "executive_intelligence_engine", "platform_governance_center",
+    ],
+    owner: "Platform",
+    lastUpdated: PLATFORM_METADATA.releaseDate,
+    futureRoadmap: "Predictive state forecasting, cross-region state sync, real-time drift detection",
+  },
 ];
 
 export const SERVICE_RELATIONSHIPS = [
@@ -128,6 +157,7 @@ export const SERVICE_RELATIONSHIPS = [
   { from: "Workspace Intelligence Engine™", to: "Executive Journey Engine™" },
   { from: "Executive Journey Engine™", to: "Executive Intelligence Engine™" },
   { from: "Executive Intelligence Engine™", to: "Platform Governance Center™" },
+  { from: "Platform Governance Center™", to: "Platform State Manager™" },
 ];
 
 export const FUTURE_SERVICES = [

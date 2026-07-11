@@ -120,6 +120,7 @@ export default function SelfHealingEngine() {
   const handleAnalyze = () => {
     setStepIndex(0);
     setPhase("analyzing");
+    platformDispatch("SelfHealingStarted", { source: "analyze" });
     const duration = ANALYZE_STEPS.length * STEP_INTERVAL + 500;
     setTimeout(() => {
       const result = analyzePlatform();
@@ -127,6 +128,7 @@ export default function SelfHealingEngine() {
       setPhase("analysis");
       logEvent("analysis", result);
       platformDispatch("ManifestUpdated", { source: "analyze" });
+      platformDispatch("SelfHealingCompleted", { source: "analyze" });
     }, duration);
   };
 
@@ -134,6 +136,7 @@ export default function SelfHealingEngine() {
     if (!analysis) return;
     setStepIndex(0);
     setPhase("repairing");
+    platformDispatch("SelfHealingStarted", { source: "repair" });
     const repairDuration = REPAIR_STEPS.length * STEP_INTERVAL + 500;
     setTimeout(() => {
       // Execute the full repair pipeline: apply → persist → invalidate cache →
@@ -148,7 +151,8 @@ export default function SelfHealingEngine() {
       setTimeout(() => {
         setPhase("repair");
         logEvent("repair", result);
-        platformDispatch("RepairCompleted", { source: "repair" });
+        platformDispatch("SelfHealingCompleted", { source: "repair" });
+        platformDispatch("PlatformCommitted", { source: "repair" });
       }, commitDuration);
     }, repairDuration);
   };

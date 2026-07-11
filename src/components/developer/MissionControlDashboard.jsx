@@ -4,6 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { useGuardian } from "@/lib/GuardianContext";
 import { PLATFORM_METADATA } from "@/lib/platformManifest";
 import { usePlatformState } from "@/lib/PlatformStateContext";
+import PlatformReadinessCard from "./PlatformReadinessCard";
+import LivePlatformEvents from "./LivePlatformEvents";
 import {
   Activity, ShieldCheck, Brain, RefreshCw, Boxes, Code2,
   Rocket, ClipboardCheck, Zap, Database, Wrench, Cpu,
@@ -206,6 +208,12 @@ Generate a brief, professional mission brief that a platform engineer or founder
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Platform Readiness Index™ + Live Platform Events */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <PlatformReadinessCard />
+        <LivePlatformEvents />
       </div>
 
       {/* Quick Actions */}

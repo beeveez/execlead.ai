@@ -5,6 +5,7 @@ import {
   Cpu, RefreshCw, Zap, TrendingUp, Shield,
 } from "lucide-react";
 import ExecKnowledgeAudit from "@/components/developer/ExecKnowledgeAudit";
+import PlatformManifestDashboard from "@/components/developer/PlatformManifestDashboard";
 
 export default function Diagnostics() {
   const [journeyData, setJourneyData] = useState(null);
@@ -299,6 +300,11 @@ export default function Diagnostics() {
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Platform Manifest™ Dashboard */}
+            <div className="mt-6">
+              <PlatformManifestDashboard />
             </div>
 
             {/* EXEC™ Knowledge Audit */}

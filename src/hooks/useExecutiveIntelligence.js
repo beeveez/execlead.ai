@@ -62,14 +62,22 @@ export function useExecutiveIntelligence() {
       if (mounted) setLoading(false);
     };
     load();
-    const unsubscribe = base44.entities.ExecutiveCompetency.subscribe((event) => {
-      setCompetencies((prev) => {
-        if (event.type === "create") return [...prev, event.data];
-        if (event.type === "update") return prev.map((c) => (c.id === event.data.id ? event.data : c));
-        if (event.type === "delete") return prev.filter((c) => c.id !== event.data.id);
-        return prev;
+    // Wrap subscribe in try/catch — if subscription fails, the widget still
+    // renders with whatever data was fetched. Never let this crash the component.
+    let unsubscribe = () => {};
+    try {
+      const unsub = base44.entities.ExecutiveCompetency.subscribe((event) => {
+        setCompetencies((prev) => {
+          if (event.type === "create") return [...prev, event.data];
+          if (event.type === "update") return prev.map((c) => (c.id === event.data.id ? event.data : c));
+          if (event.type === "delete") return prev.filter((c) => c.id !== event.data.id);
+          return prev;
+        });
       });
-    });
+      if (typeof unsub === "function") unsubscribe = unsub;
+    } catch (e) {
+      console.warn("[useExecutiveIntelligence] Subscribe failed, widget will use fetched data only:", e.message);
+    }
     return () => { mounted = false; unsubscribe(); };
   }, []);
 

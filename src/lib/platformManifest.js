@@ -77,6 +77,7 @@ const MODULE_TO_PERSONA = {
   "billing": "billing",
   "elim": "developer",
   "methodology": "executive",
+  "intelligence": "executive",
 };
 
 function deriveModulePersona(moduleId, category) {

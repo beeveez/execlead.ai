@@ -111,6 +111,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     findIt: "Sidebar → Insights → Leadership DNA.",
   },
   {
+    id: "intelligence",
+    name: "Executive Intelligence Center™",
+    aliases: ["intelligence", "executive intelligence", "intelligence center", "competency radar", "domain radar", "elim radar", "maturity radar", "competency domains", "executive strengths", "growth opportunities", "leadership intelligence", "executive intelligence center"],
+    path: "/intelligence",
+    category: "Insights",
+    icon: Brain,
+    description: "The flagship intelligence module that transforms competency assessments into actionable executive intelligence. Visualize your six leadership domains, explore competency gaps, connect with Leadership DNA™, track readiness, and receive AI-powered growth recommendations from EXEC™.",
+    purpose: "Understand your executive strengths, discover growth opportunities, and build leadership intelligence across all six ELIM™ capability domains.",
+    keyFeatures: ["Interactive Domain Radar", "Six Capability Domains", "Competency Intelligence (Verified, Emerging, Developing, Gaps)", "Leadership DNA™ Relationship", "Executive Readiness™ Integration", "AI Executive Insights", "Historical Intelligence Timeline", "Export PNG/PDF", "Fullscreen Mode"],
+    findIt: "Sidebar → Insights → Intelligence Center.",
+  },
+  {
     id: "reputation",
     name: "Executive Reputation™",
     aliases: ["reputation", "executive reputation", "reputation score", "credit score", "professional score"],

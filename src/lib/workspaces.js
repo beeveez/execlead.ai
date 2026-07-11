@@ -13,7 +13,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet,
-  BookOpen, Star, Sparkles, Target, Gauge,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -57,6 +57,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Insights", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
+      { path: "/intelligence", label: "Intelligence Center", icon: Radar },
       { path: "/methodology", label: "EELM™ Methodology", icon: Brain },
       { path: "/journey", label: "Intelligence Profile", icon: TrendingUp },
       { path: "/executive-readiness", label: "Readiness", icon: Target },
@@ -174,7 +175,8 @@ const ROUTE_WORKSPACE = {
   "/identity-verification-admin": ["platform", "developer"],
   "/legacy-library/admin": ["platform", "developer"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
-  "/leadership-dna": ["executive"], "/executive-legacy": ["executive"], "/journey": ["executive"],
+  "/leadership-dna": ["executive"],
+  "/intelligence": ["executive"], "/executive-legacy": ["executive"], "/journey": ["executive"],
   "/executive-readiness": ["executive"], "/executive-passport": ["executive"],
   "/enterprise-intelligence": ["enterprise"],
   "/legacy-library": ["executive", "platform", "developer"],

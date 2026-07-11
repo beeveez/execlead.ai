@@ -48,6 +48,8 @@ const APP_ROUTES = [
   { path: "/career", component: "Career", feature: "career_advisor" },
   { path: "/analytics", component: "Analytics", feature: "leadership_analytics" },
   { path: "/leadership-dna", component: "LeadershipDNA", feature: "leadership_dna" },
+  { path: "/intelligence", component: "ExecutiveIntelligenceCenter" },
+  { path: "/intelligence/competencies", component: "ExecutiveIntelligenceCenter" },
   { path: "/executive-legacy", component: "ExecutiveLegacy", feature: "executive_legacy" },
   { path: "/journal", component: "Journal", feature: "executive_journal" },
   { path: "/resume", component: "ResumeIntelligence", feature: "resume_intelligence" },

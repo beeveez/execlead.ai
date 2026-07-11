@@ -110,6 +110,7 @@ const Pricing = lazy(() => import('@/pages/Pricing'));
 import Reputation from '@/pages/Reputation';
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
+import ExecutiveIntelligenceCenter from '@/pages/intelligence/ExecutiveIntelligenceCenter';
 import Journey from '@/pages/Journey';
 import ExecutiveReadiness from '@/pages/ExecutiveReadiness';
 import ExecutivePassport from '@/pages/ExecutivePassport';
@@ -242,6 +243,8 @@ const AuthenticatedApp = () => {
           <Route path="/executive-passport" element={<ExecutivePassport />} />
           <Route path="/enterprise-intelligence" element={<EnterpriseIntelligence />} />
           <Route path="/leadership-dna" element={<FeatureGate featureId="leadership_dna"><LeadershipDNA /></FeatureGate>} />
+          <Route path="/intelligence" element={<ExecutiveIntelligenceCenter />} />
+          <Route path="/intelligence/competencies" element={<ExecutiveIntelligenceCenter />} />
           <Route path="/executive-legacy" element={<FeatureGate featureId="executive_legacy"><ExecutiveLegacy /></FeatureGate>} />
           <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />
           <Route path="/resume" element={<FeatureGate featureId="resume_intelligence"><ResumeIntelligence /></FeatureGate>} />

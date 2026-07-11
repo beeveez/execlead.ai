@@ -13,7 +13,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet,
-  BookOpen, Star, Sparkles, Target,
+  BookOpen, Star, Sparkles, Target, Gauge,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -127,6 +127,7 @@ export const WORKSPACE_NAV = {
   developer: [
     { label: "Workspace", items: [
       { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
+      { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
       { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },

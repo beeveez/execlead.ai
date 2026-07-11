@@ -6,6 +6,7 @@ import {
   Fingerprint, Star, Store, Trophy, Search, TrendingUp,
 } from "lucide-react";
 import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase";
+import { buildEnforcementDirective } from "@/lib/workspaceContextEnforcement";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -498,6 +499,10 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
     ? `\n\nVISITOR CONTEXT: The user is logged in as ${user.full_name || "a registered user"}.`
     : `\n\nVISITOR CONTEXT: The visitor is not logged in (a public visitor). If they show interest, suggest creating a free account at /register or booking a demo at /contact.`;
 
+  // ── Workspace Context Enforcement™ — strict workspace-first intelligence ──
+  const activeWorkspace = persona?.baseWorkspace || "executive";
+  context += `\n\n${buildEnforcementDirective(activeWorkspace)}`;
+
   // Inject workspace persona context to shift EXEC™'s behavior
   if (persona && persona.promptContext) {
     context += `\n\n${persona.promptContext}`;
@@ -518,9 +523,13 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
   }
 
   if (userContext) {
+    const isExecutiveWs = activeWorkspace === "executive";
+    context += isExecutiveWs
+      ? `\n\nEXECUTIVE USER CONTEXT (active workspace — use for personalized recommendations):`
+      : `\n\nEXECUTIVE USER CONTEXT (REFERENCE ONLY — belongs to the Executive Workspace. Do NOT surface this data in the ${activeWorkspace.toUpperCase()} workspace unless the user explicitly requests executive information via a context switch):`;
     if (userContext.reputation) {
       const rep = userContext.reputation;
-      context += `\n\nUSER REPUTATION DATA: Score ${rep.reputation_score}, Tier: ${rep.reputation_tier}, Trend: ${rep.reputation_trend}, Sessions completed: ${rep.sessions_completed || 0}.`;
+      context += `\nUSER REPUTATION DATA: Score ${rep.reputation_score}, Tier: ${rep.reputation_tier}, Trend: ${rep.reputation_trend}, Sessions completed: ${rep.sessions_completed || 0}.`;
     }
     if (userContext.profile) {
       const p = userContext.profile;

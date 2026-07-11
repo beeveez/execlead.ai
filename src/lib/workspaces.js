@@ -57,6 +57,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Insights", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
+      { path: "/methodology", label: "EELM™ Methodology", icon: Brain },
       { path: "/journey", label: "Intelligence Profile", icon: TrendingUp },
       { path: "/executive-readiness", label: "Readiness", icon: Target },
       { path: "/executive-passport", label: "Executive Passport", icon: Briefcase },
@@ -186,6 +187,7 @@ const ROUTE_WORKSPACE = {
   "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer", "platform"],
   "/pricing-admin": ["platform", "developer"], "/membership-admin": ["platform", "developer"], "/billing-admin": ["platform", "developer"],
   "/elim": ["platform", "developer"],
+  "/methodology": ["executive", "platform", "developer"],
   "/payment-settings": ["platform", "developer"], "/email-settings": ["platform", "developer"],
   "/company-admin": ["platform", "developer"], "/cpq": ["platform", "developer"],
   "/cpq-dashboard": ["platform", "developer"], "/admin": ["platform"],

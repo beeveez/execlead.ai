@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import ELIMFrameworkOverview from "@/components/elim/ELIMFrameworkOverview";
 import ELIMKnowledgePacks from "@/components/elim/ELIMKnowledgePacks";
 import ELIMEvidenceRules from "@/components/elim/ELIMEvidenceRules";
-import { Layers, Package, FlaskConical, BarChart3, Brain } from "lucide-react";
+import { Layers, Package, FlaskConical, BarChart3, Brain, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const TABS = [
   { id: "overview", label: "Frameworks", icon: Layers },
@@ -34,6 +35,9 @@ export default function ELIMManagementCenter() {
             <h1 className="text-xl font-bold">ELIM™ Management Center</h1>
           </div>
           <p className="text-white/40 text-sm">EXECLEAD Leadership Intelligence Model™ — The central intelligence architecture</p>
+          <Link to="/methodology" className="inline-flex items-center gap-1 mt-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+            View EELM™ Methodology <ArrowUpRight size={12} />
+          </Link>
         </div>
 
         <div className="flex gap-1 mb-6 border-b border-white/5 overflow-x-auto">

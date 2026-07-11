@@ -397,6 +397,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     keyFeatures: ["Journal entries", "Reflection prompts", "Search & filter"],
     findIt: "Sidebar → Career → Journal.",
   },
+  {
+    id: "methodology",
+    name: "EELM™ Methodology",
+    aliases: ["methodology", "eelm", "executive leadership methodology", "principles", "evidence model", "decision model", "maturity model", "governance", "research foundation", "transparency"],
+    path: "/methodology",
+    category: "Insights",
+    icon: Brain,
+    description: "The EXECLEAD Executive Leadership Methodology™ (EELM™) — the formal methodology governing how EXECLEAD.AI evaluates, develops, validates, measures, predicts, and continuously improves executive leadership capability. Defines the five principles (Assess, Develop, Validate, Measure, Evolve), the Executive Intelligence Loop, five core frameworks, the evidence model, the AI decision model, and the eight-stage leadership maturity model.",
+    purpose: "Understand the scientific methodology behind every AI recommendation, assessment, and executive insight on the platform.",
+    keyFeatures: ["Five Principles", "Executive Intelligence Loop", "Five Core Frameworks", "Evidence Model (20 sources)", "AI Decision Model", "8-Stage Maturity Model", "Methodology Governance", "Research Foundation", "Transparency Principles"],
+    findIt: "Sidebar → Insights → EELM™ Methodology.",
+  },
 ];
 
 /**

@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Cpu, Boxes, Brain, Network, Zap, Layers, Package,
-  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar,
+  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench, Radar, FileText,
 } from "lucide-react";
 import MissionControlDashboard from "@/components/developer/MissionControlDashboard";
 import PlatformStatusGrid from "@/components/developer/PlatformStatusGrid";
@@ -19,6 +19,7 @@ import GovernanceTimeline from "@/components/developer/GovernanceTimeline";
 import ContextValidation from "@/components/developer/ContextValidation";
 import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
 import PlatformStateDebugPanel from "@/components/developer/PlatformStateDebugPanel";
+import FoundationIntegrationReport from "@/components/developer/FoundationIntegrationReport";
 
 export default function Diagnostics() {
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
@@ -153,6 +154,12 @@ export default function Diagnostics() {
 
         <SectionDivider icon={Activity} label="Platform State Debug" color="amber" />
         <PlatformStateDebugPanel />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* FOUNDATION INTEGRATION REPORT                          */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={FileText} label="Foundation Integration Report™" color="indigo" />
+        <FoundationIntegrationReport />
       </div>
     </div>
   );

@@ -189,6 +189,15 @@ export const KNOWLEDGE_PACKS = [
     description: "Journey progression system with 8 levels, points, milestones, and streaks.",
     contents: ["Methodology", "Journey Levels", "Points System", "Milestones", "Achievements", "Streaks", "Recommendations"],
   },
+  {
+    id: "kp_platform",
+    framework_id: "ejf",
+    name: "Platform Operations Knowledge Pack",
+    version: "1.0",
+    status: "active",
+    description: "Platform-level operations knowledge covering module navigation, diagnostics, platform state, billing, and organizational administration.",
+    contents: ["Module Registry", "Route Registry", "Platform State", "Diagnostics", "Billing", "Organization Management", "Navigation", "System Events"],
+  },
 ];
 
 // ============================================================

@@ -488,22 +488,22 @@ export const AI_PERSONA_REGISTRY = ALL_PERSONAS;
 // Defines what EXEC™ and the platform can do.
 // ============================================================
 export const CAPABILITY_REGISTRY = [
-  { capabilityId: "can_explain_modules", name: "Can Explain Modules", status: "active", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "executive" },
-  { capabilityId: "can_coach", name: "Can Coach", status: "active", workspace: "executive", knowledgePack: "kp_leadership_dna", dependencies: ["leadership_dna"], aiPersona: "executive" },
-  { capabilityId: "can_navigate", name: "Can Navigate", status: "active", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "executive" },
-  { capabilityId: "can_recommend_learning", name: "Can Recommend Learning", status: "active", workspace: "executive", knowledgePack: "kp_ejf", dependencies: ["ejf"], aiPersona: "executive" },
-  { capabilityId: "can_predict_readiness", name: "Can Predict Readiness", status: "active", workspace: "executive", knowledgePack: "kp_eri", dependencies: ["eri"], aiPersona: "executive" },
-  { capabilityId: "can_analyze_resume", name: "Can Analyze Resume", status: "active", workspace: "executive", knowledgePack: "kp_eri", dependencies: ["eri"], aiPersona: "executive" },
-  { capabilityId: "can_analyze_leadership_dna", name: "Can Analyze Leadership DNA", status: "active", workspace: "executive", knowledgePack: "kp_leadership_dna", dependencies: ["leadership_dna"], aiPersona: "leadership_dna_coach" },
-  { capabilityId: "can_generate_reports", name: "Can Generate Reports", status: "active", workspace: "enterprise", knowledgePack: "kp_eri", dependencies: ["eri"], aiPersona: "enterprise" },
-  { capabilityId: "can_review_reputation", name: "Can Review Reputation", status: "active", workspace: "executive", knowledgePack: "kp_erf", dependencies: ["erf"], aiPersona: "reputation_advisor" },
-  { capabilityId: "can_execute_diagnostics", name: "Can Execute Diagnostics", status: "active", workspace: "developer", knowledgePack: null, dependencies: [], aiPersona: "developer" },
-  { capabilityId: "can_query_platform_state", name: "Can Query Platform State", status: "active", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "developer" },
-  { capabilityId: "can_review_billing", name: "Can Review Billing", status: "active", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "billing" },
-  { capabilityId: "can_manage_organizations", name: "Can Manage Organizations", status: "active", workspace: "enterprise", knowledgePack: null, dependencies: [], aiPersona: "enterprise" },
-  { capabilityId: "can_execute_actions", name: "Can Execute Actions", status: "future", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "executive" },
-  { capabilityId: "can_create_workflows", name: "Can Create Workflows", status: "future", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "executive" },
-  { capabilityId: "can_automate_tasks", name: "Can Automate Tasks", status: "future", workspace: "all", knowledgePack: null, dependencies: [], aiPersona: "executive" },
+  { capabilityId: "can_explain_modules", name: "Can Explain Modules", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "ai_conversation", dependencies: [], aiPersona: "executive" },
+  { capabilityId: "can_coach", name: "Can Coach", status: "active", workspace: "executive", knowledgePack: "kp_leadership_dna", framework: "leadership_dna", evidenceSource: "leadership_dna", dependencies: ["leadership_dna"], aiPersona: "executive" },
+  { capabilityId: "can_navigate", name: "Can Navigate", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "ai_conversation", dependencies: [], aiPersona: "executive" },
+  { capabilityId: "can_recommend_learning", name: "Can Recommend Learning", status: "active", workspace: "executive", knowledgePack: "kp_ejf", framework: "ejf", evidenceSource: "learning_progress", dependencies: ["ejf"], aiPersona: "executive" },
+  { capabilityId: "can_predict_readiness", name: "Can Predict Readiness", status: "active", workspace: "executive", knowledgePack: "kp_eri", framework: "eri", evidenceSource: "experience", dependencies: ["eri"], aiPersona: "executive" },
+  { capabilityId: "can_analyze_resume", name: "Can Analyze Resume", status: "active", workspace: "executive", knowledgePack: "kp_eri", framework: "eri", evidenceSource: "resume", dependencies: ["eri"], aiPersona: "executive" },
+  { capabilityId: "can_analyze_leadership_dna", name: "Can Analyze Leadership DNA", status: "active", workspace: "executive", knowledgePack: "kp_leadership_dna", framework: "leadership_dna", evidenceSource: "leadership_dna", dependencies: ["leadership_dna"], aiPersona: "leadership_dna_coach" },
+  { capabilityId: "can_generate_reports", name: "Can Generate Reports", status: "active", workspace: "enterprise", knowledgePack: "kp_eri", framework: "eri", evidenceSource: "enterprise_verification", dependencies: ["eri"], aiPersona: "enterprise" },
+  { capabilityId: "can_review_reputation", name: "Can Review Reputation", status: "active", workspace: "executive", knowledgePack: "kp_erf", framework: "erf", evidenceSource: "reputation", dependencies: ["erf"], aiPersona: "reputation_advisor" },
+  { capabilityId: "can_execute_diagnostics", name: "Can Execute Diagnostics", status: "active", workspace: "developer", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "developer" },
+  { capabilityId: "can_query_platform_state", name: "Can Query Platform State", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "developer" },
+  { capabilityId: "can_review_billing", name: "Can Review Billing", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "enterprise_verification", dependencies: [], aiPersona: "billing" },
+  { capabilityId: "can_manage_organizations", name: "Can Manage Organizations", status: "active", workspace: "enterprise", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "enterprise_verification", dependencies: [], aiPersona: "enterprise" },
+  { capabilityId: "can_execute_actions", name: "Can Execute Actions", status: "future", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "ai_conversation", dependencies: [], aiPersona: "executive" },
+  { capabilityId: "can_create_workflows", name: "Can Create Workflows", status: "future", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "ai_conversation", dependencies: [], aiPersona: "executive" },
+  { capabilityId: "can_automate_tasks", name: "Can Automate Tasks", status: "future", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "ai_conversation", dependencies: [], aiPersona: "executive" },
 ];
 
 // ============================================================

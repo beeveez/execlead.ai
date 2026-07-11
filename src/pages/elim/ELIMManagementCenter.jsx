@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import ELIMFrameworkOverview from "@/components/elim/ELIMFrameworkOverview";
 import ELIMKnowledgePacks from "@/components/elim/ELIMKnowledgePacks";
 import ELIMEvidenceRules from "@/components/elim/ELIMEvidenceRules";
+import ELIMIntelligenceScores from "@/components/elim/ELIMIntelligenceScores";
 import { Layers, Package, FlaskConical, BarChart3, Brain, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -58,7 +59,7 @@ export default function ELIMManagementCenter() {
         </div>
 
         {tab === "overview" && <ELIMFrameworkOverview />}
-        {tab === "scores" && <ELIMFrameworkOverview />}
+        {tab === "scores" && <ELIMIntelligenceScores />}
         {tab === "packs" && <ELIMKnowledgePacks />}
         {tab === "evidence" && <ELIMEvidenceRules />}
         {tab === "analytics" && <AnalyticsTab analytics={analytics} />}

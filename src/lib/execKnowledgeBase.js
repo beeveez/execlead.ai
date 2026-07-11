@@ -482,6 +482,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     keyFeatures: ["Analyze Platform", "Auto-Repair Safe Issues", "Review Critical Issues", "Platform Manifest Health Score", "Self-Healing History", "Export Validation Report"],
     findIt: "Developer Workspace → Platform Governance Center™ → Self-Healing Engine™.",
   },
+  {
+    id: "intelligence_scores",
+    name: "Intelligence Scores",
+    aliases: ["intelligence scores", "elim scores", "intelligence score", "executive intelligence", "overall intelligence", "competency score", "why is my intelligence score low", "how is intelligence score calculated", "explain intelligence scores"],
+    path: "/elim",
+    category: "Platform",
+    icon: Brain,
+    description: "The Intelligence Scores workspace within the ELIM™ Management Center provides a comprehensive executive intelligence overview — Overall ELIM™ Intelligence Score, Competency Score, Leadership DNA™, Executive Readiness™, Executive Reputation™, Executive Journey™, Executive Trust™, radar chart, trend analysis, growth velocity, confidence score, score distribution, evidence sources, AI interpretation, and recommendations.",
+    purpose: "Give executives a single pane of glass for their complete ELIM™ Intelligence profile, with AI-driven interpretation and actionable growth recommendations.",
+    keyFeatures: ["Overall ELIM™ Intelligence Score", "Competency Radar", "Score Distribution", "Growth Velocity", "AI Interpretation", "Recommendations", "Evidence Sources", "Confidence Score"],
+    findIt: "ELIM™ Management Center → Intelligence Scores tab.",
+  },
 ];
 
 /**

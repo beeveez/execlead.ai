@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 import {
   ShieldCheck, Activity, Brain, Boxes, Rocket, Lock,
-  Clock, AlertTriangle, TrendingUp, ChevronRight, Radar,
+  Clock, AlertTriangle, TrendingUp, ChevronRight, Radar, Sparkles,
 } from "lucide-react";
 import { usePlatformState } from "@/lib/PlatformStateContext";
 import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
 import { useGuardian } from "@/lib/GuardianContext";
 import { computeReadinessLevel, READINESS_LEVELS, scoreToColor } from "@/lib/platformReadinessModel";
+import { computePlatformIntelligence } from "@/lib/platformIntelligenceEngine";
 import ArchitectureMap from "./ArchitectureMap";
 
 const COLOR_MAP = {
@@ -40,6 +41,8 @@ export default function MissionControl({ onNavigate }) {
     [health, certificate?.certified, guardianPending]
   );
 
+  const pii = useMemo(() => computePlatformIntelligence(), []);
+
   const deploymentScore = certificate?.deployment_readiness ?? health?.overall ?? 0;
   const runtimeScore = health?.entityHealth ?? health?.overall ?? 0;
   const knowledgeScore = health?.knowledgeCoverage ?? 100;
@@ -47,12 +50,20 @@ export default function MissionControl({ onNavigate }) {
 
   const kpis = [
     {
+      label: "Platform Intelligence™",
+      value: `${pii.piiScore}%`,
+      sub: `${pii.maturity.short} — ${pii.maturity.name}`,
+      icon: Sparkles,
+      color: scoreToColor(pii.piiScore),
+      workspace: "platform-intelligence",
+    },
+    {
       label: "Certification",
       value: certificate?.certified ? "Certified" : "Not Certified",
       sub: certificate ? `${certificate.overall_governance_score}% governance score` : "Awaiting pipeline",
       icon: ShieldCheck,
       color: certificate?.certified ? "emerald" : "red",
-      workspace: "platform-governance",
+      workspace: "foundation-certification",
     },
     {
       label: "Readiness Level",

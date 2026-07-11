@@ -221,6 +221,7 @@ export function computeFoundationCertification() {
     sprintVersion: "1.5",
     successCriteria,
     recommendations,
+    verification,
   };
 }
 

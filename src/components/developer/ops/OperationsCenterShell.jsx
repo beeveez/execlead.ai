@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  Radar, ShieldCheck, Activity, Brain, Rocket, Boxes, Award,
+  Radar, ShieldCheck, Activity, Brain, Rocket, Boxes, Award, Sparkles,
   Lock, BarChart3, ScrollText, Zap, ChevronRight, Cpu,
 } from "lucide-react";
 import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
@@ -39,6 +39,7 @@ import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
 import SelfHealingHistory from "@/components/developer/SelfHealingHistory";
 import RepairDiagnostics from "@/components/developer/RepairDiagnostics";
 import FoundationCertificationDashboard from "@/components/developer/foundation/FoundationCertificationDashboard";
+import PlatformIntelligenceCenter from "@/components/developer/pii/PlatformIntelligenceCenter";
 
 const WORKSPACES = [
   {
@@ -56,6 +57,14 @@ const WORKSPACES = [
     color: "emerald",
     description: "Certification & release gate",
     render: () => <FoundationCertificationDashboard />,
+  },
+  {
+    id: "platform-intelligence",
+    name: "Platform Intelligence",
+    icon: Sparkles,
+    color: "indigo",
+    description: "Intelligence Index™ & digital twin",
+    render: () => <PlatformIntelligenceCenter />,
   },
   {
     id: "platform-governance",

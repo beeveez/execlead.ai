@@ -19,6 +19,7 @@ import DeploymentReadiness from "@/components/developer/DeploymentReadiness";
 import GovernanceTimeline from "@/components/developer/GovernanceTimeline";
 import ContextValidation from "@/components/developer/ContextValidation";
 import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
+import RegistrySynchronization from "@/components/developer/RegistrySynchronization";
 import PlatformStateDebugPanel from "@/components/developer/PlatformStateDebugPanel";
 import FoundationIntegrationReport from "@/components/developer/FoundationIntegrationReport";
 import KnowledgeResolutionAudit from "@/components/developer/KnowledgeResolutionAudit";
@@ -108,6 +109,14 @@ export default function Diagnostics() {
         <SectionDivider icon={Wrench} label="Platform Self-Healing Engine™" color="emerald" />
         <div id="self-healing-section">
           <SelfHealingEngine />
+        </div>
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION 3.6: Registry Synchronization Engine™          */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Database} label="Registry Synchronization Engine™" color="purple" />
+        <div id="registry-sync-section">
+          <RegistrySynchronization />
         </div>
 
         {/* ────────────────────────────────────────────────────── */}

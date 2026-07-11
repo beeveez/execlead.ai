@@ -25,6 +25,7 @@ export const PLATFORM_EVENTS = [
   "CacheInvalidated",
   "ConfigUpdated",
   "EntityChanged",
+  "RegistrySynchronizationCompleted",
 ];
 
 const subscribers = new Map(PLATFORM_EVENTS.map((e) => [e, new Set()]));

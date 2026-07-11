@@ -232,6 +232,9 @@ export function PlatformStateProvider({ children }) {
           setLastKnowledgeSync(now);
           persistStateEvent(eventName, payload, newState);
         }
+        if (eventName === "RegistrySynchronizationCompleted") {
+          persistStateEvent("RegistrySynchronizationCompleted", payload, newState);
+        }
         if (eventName === "GuardianCompleted") {
           setLastGuardianScan(now);
         }

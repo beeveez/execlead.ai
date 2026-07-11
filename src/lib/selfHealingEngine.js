@@ -1,5 +1,6 @@
 import { validateManifest, getManifestCoverage, PLATFORM_METADATA, applyRepairs, getRepairLog, getActiveRepairCount, invalidateManifestCache, verifyPersistence, diagnoseNonPersistence } from "./platformManifest";
 import { isKnowledgePackEngineActive, getActiveKnowledgePacks } from "./knowledgeResolution";
+import { synchronizeRegistries } from "./registrySyncEngine";
 
 // ============================================================
 // CLASSIFICATION RULES
@@ -155,6 +156,17 @@ export function executeRepairs(safeFindings) {
   steps.push({ step: "Coverage After", value: coverageAfter });
   steps.push({ step: "Warnings After", value: warningsAfter });
 
+  // STEP 6.5: Registry Synchronization — synchronize all 14 registries
+  lifecycle.registrySyncStarted = new Date().toISOString();
+  steps.push({ step: "Registry Synchronization Started", timestamp: lifecycle.registrySyncStarted });
+  const syncReport = synchronizeRegistries();
+  steps.push({ step: "Registries Synchronized", modulesSynced: syncReport.summary.modulesSynchronized, syncPercentage: syncReport.summary.syncPercentage });
+  steps.push({ step: "Search Entries Rebuilt", count: syncReport.summary.searchEntriesRebuilt });
+  steps.push({ step: "EXEC™ Entries Created", count: syncReport.summary.execEntriesCreated });
+  steps.push({ step: "Broken References Fixed", count: syncReport.summary.brokenReferencesFixed });
+  lifecycle.registrySyncCompleted = new Date().toISOString();
+  steps.push({ step: "Registry Synchronization Completed", timestamp: lifecycle.registrySyncCompleted });
+
   // STEP 7: Commit New Platform State
   lifecycle.commitCompleted = new Date().toISOString();
   steps.push({ step: "Commit Complete", timestamp: lifecycle.commitCompleted });
@@ -185,6 +197,7 @@ export function executeRepairs(safeFindings) {
     repairTime: Date.now() - startTime,
     diagnostics: steps,
     postRepairAnalysis: afterAnalysis,
+    registrySyncReport: syncReport,
     lifecycle,
     persistence: persistenceResult,
     validationResult: persistenceResult.allPersistent ? "passed" : "failed",

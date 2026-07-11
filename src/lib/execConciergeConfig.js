@@ -6,7 +6,7 @@ import {
   Fingerprint, Star, Store, Trophy, Search, TrendingUp,
 } from "lucide-react";
 import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase";
-import { buildEnforcementDirective } from "@/lib/workspaceContextEnforcement";
+import { buildEnforcementDirective, WORKSPACE_CONTEXT_LABELS } from "@/lib/workspaceContextEnforcement";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -502,6 +502,10 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
   // ── Workspace Context Enforcement™ — strict workspace-first intelligence ──
   const activeWorkspace = persona?.baseWorkspace || "executive";
   context += `\n\n${buildEnforcementDirective(activeWorkspace)}`;
+
+  // ── Context Acknowledgment Cue — reassure users of active context ──
+  const summaryLabel = (WORKSPACE_CONTEXT_LABELS[activeWorkspace] || "Executive Leadership Summary");
+  context += `\n\nCONTEXT ACKNOWLEDGMENT CUE: Begin your response with a brief italicized cue acknowledging the active context, then continue with your answer on the next line. The cue format is: *Generating ${summaryLabel}...* Use the active workspace's summary label. If the user explicitly requested a context switch to another workspace, use that workspace's label instead (e.g., *Generating Executive Leadership Summary...* when switching to Executive context). Keep the cue to exactly one line.`;
 
   // Inject workspace persona context to shift EXEC™'s behavior
   if (persona && persona.promptContext) {

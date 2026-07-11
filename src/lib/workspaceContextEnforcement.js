@@ -16,6 +16,17 @@
  * appears when the user explicitly requests a context switch.
  */
 
+/**
+ * Summary labels for the Context Acknowledgment Cue.
+ * Used by EXEC™ to prefix responses with the active workspace's summary name.
+ */
+export const WORKSPACE_CONTEXT_LABELS = {
+  executive: "Executive Leadership Summary",
+  developer: "Developer Operations Summary",
+  enterprise: "Enterprise Operations Summary",
+  platform: "Platform Operations Summary",
+};
+
 export const WORKSPACE_CONTEXTS = {
   executive: {
     id: "executive",
@@ -56,7 +67,7 @@ export const WORKSPACE_CONTEXTS = {
   enterprise: {
     id: "enterprise",
     persona: "Enterprise Advisor™",
-    defaultSummary: "Enterprise Executive Summary",
+    defaultSummary: "Enterprise Operations Summary",
     focus: [
       "Organizations", "Users", "Seats", "Billing", "Identity",
       "Compliance", "Analytics", "Enterprise Intelligence",

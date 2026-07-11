@@ -20,6 +20,7 @@ import {
 export const EXEC_KNOWLEDGE_VERSION = "2.0";
 export const EXEC_KNOWLEDGE_LAST_SYNC = "2026-07-11";
 export const EXEC_PROMPT_VERSION = "2.0";
+export const EXEC_PLATFORM_VERSION = "2.0";
 
 // Framework Hierarchy: EELM™ → ELIM™ → EECF™ → ... → Executive Intelligence Profile™
 // Every EXEC™ recommendation must align with this architecture.

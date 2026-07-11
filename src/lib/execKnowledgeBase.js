@@ -3,7 +3,7 @@ import {
   FileText, GraduationCap, Store, Users, Wallet, BadgeCheck,
   CreditCard, Building2, Code2, Brain, MessageSquare, Network,
   BarChart3, Shield, Crown, Gift, Settings as SettingsIcon,
-  UserCircle, Cpu, PenLine, TrendingUp,
+  UserCircle, Cpu, PenLine, TrendingUp, Wrench,
 } from "lucide-react";
 
 /**
@@ -469,6 +469,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     purpose: "Understand the scientific methodology behind every AI recommendation, assessment, and executive insight on the platform.",
     keyFeatures: ["Five Principles", "Executive Intelligence Loop", "Five Core Frameworks", "Evidence Model (20 sources)", "AI Decision Model", "8-Stage Maturity Model", "Methodology Governance", "Research Foundation", "Transparency Principles"],
     findIt: "Sidebar → Insights → EELM™ Methodology.",
+  },
+  {
+    id: "self-healing",
+    name: "Platform Self-Healing Engine™",
+    aliases: ["self-healing", "auto repair", "self healing", "analyze platform", "repair platform", "platform manifest health", "manifest health", "repair manifest", "platform repair", "auto-repair", "self-healing engine", "platform self-healing"],
+    path: "/developer/governance",
+    category: "Developer",
+    icon: Wrench,
+    description: "Automatically analyzes, validates, and safely repairs deterministic Platform Manifest™ issues while escalating architectural decisions for developer review. Transforms the Platform Governance Center™ from a passive monitoring dashboard into an intelligent operational system.",
+    purpose: "Make the platform increasingly self-maintaining without hiding important governance decisions. Analyze, auto-repair safe issues, validate, and escalate remaining issues for developer review.",
+    keyFeatures: ["Analyze Platform", "Auto-Repair Safe Issues", "Review Critical Issues", "Platform Manifest Health Score", "Self-Healing History", "Export Validation Report"],
+    findIt: "Developer Workspace → Platform Governance Center™ → Self-Healing Engine™.",
   },
 ];
 

@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Cpu, Boxes, Brain, Network, Zap, Layers, Package,
-  Activity, Rocket, Clock, ShieldCheck, Gauge,
+  Activity, Rocket, Clock, ShieldCheck, Gauge, Wrench,
 } from "lucide-react";
 import PlatformOverview from "@/components/developer/PlatformOverview";
 import CorePlatformServices from "@/components/developer/CorePlatformServices";
@@ -15,6 +15,7 @@ import PlatformHealth from "@/components/developer/PlatformHealth";
 import DeploymentReadiness from "@/components/developer/DeploymentReadiness";
 import GovernanceTimeline from "@/components/developer/GovernanceTimeline";
 import ContextValidation from "@/components/developer/ContextValidation";
+import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
 
 export default function Diagnostics() {
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
@@ -70,6 +71,12 @@ export default function Diagnostics() {
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider number={3} icon={Boxes} label="Platform Manifest™" color="purple" />
         <PlatformManifestDashboard />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION 3.5: Platform Self-Healing Engine™             */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider icon={Wrench} label="Platform Self-Healing Engine™" color="emerald" />
+        <SelfHealingEngine />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 3: EXEC™ Knowledge Center                      */}

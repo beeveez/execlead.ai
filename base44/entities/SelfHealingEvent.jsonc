@@ -1,0 +1,101 @@
+{
+  "name": "SelfHealingEvent",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Developer who triggered the event"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "analysis",
+        "repair"
+      ],
+      "default": "analysis",
+      "description": "Type of self-healing event"
+    },
+    "total_findings": {
+      "type": "number",
+      "default": 0
+    },
+    "safe_repairs_available": {
+      "type": "number",
+      "default": 0
+    },
+    "require_review": {
+      "type": "number",
+      "default": 0
+    },
+    "issues_repaired": {
+      "type": "number",
+      "default": 0
+    },
+    "remaining_issues": {
+      "type": "number",
+      "default": 0
+    },
+    "coverage_before": {
+      "type": "number",
+      "default": 0
+    },
+    "coverage_after": {
+      "type": "number",
+      "default": 0
+    },
+    "health_before": {
+      "type": "number",
+      "default": 0
+    },
+    "health_after": {
+      "type": "number",
+      "default": 0
+    },
+    "analysis_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "repair_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "platform_version": {
+      "type": "string"
+    },
+    "manifest_version": {
+      "type": "string"
+    },
+    "knowledge_version": {
+      "type": "string"
+    },
+    "findings_json": {
+      "type": "string",
+      "description": "JSON array of all findings at time of analysis"
+    },
+    "repairs_json": {
+      "type": "string",
+      "description": "JSON array of repairs applied"
+    },
+    "review_items_json": {
+      "type": "string",
+      "description": "JSON array of items requiring developer review"
+    }
+  },
+  "required": [
+    "user_id",
+    "event_type"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

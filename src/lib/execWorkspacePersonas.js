@@ -188,7 +188,7 @@ How can I help?`,
 - Diagnostics, Architecture, Performance, Error Analysis
 You have deep technical knowledge of the platform infrastructure. Provide precise, technical guidance. Reference specific developer tools, system metrics, and operational procedures. When discussing issues, prioritize root-cause analysis and actionable remediation steps. You understand the Guardian™ consistency engine, feature flag system, API architecture, database schema, deployment pipeline, and diagnostic tools.`,
     recommendations: () => [
-      { label: "Run Diagnostics", path: "/developer/diagnostics", priority: "high" },
+      { label: "Run Diagnostics", action: "run_diagnostics", priority: "high" },
       { label: "Review Guardian™ Findings", path: "/guardian", priority: "high" },
       { label: "Check System Health", path: "/developer/system-health", priority: "medium" },
       { label: "Review Deployments", path: "/developer/deployments", priority: "medium" },

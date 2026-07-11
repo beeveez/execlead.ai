@@ -12,6 +12,7 @@ import { getWorkspaceSuggestedQuestions } from "@/lib/execWorkspacePersonas";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
+import ConciergeDiagnosticsPanel from "./ConciergeDiagnosticsPanel";
 
 export default function ExecConcierge() {
   const { user } = useAuth();
@@ -33,6 +34,7 @@ export default function ExecConcierge() {
   } = useExecConcierge();
   const [input, setInput] = useState("");
   const [showCommands, setShowCommands] = useState(false);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -85,8 +87,12 @@ export default function ExecConcierge() {
   const handleRecommendation = (rec) => {
     base44.analytics.track({
       eventName: "exec_concierge_recommendation",
-      properties: { label: rec.label },
+      properties: { label: rec.label, action: rec.action || "navigate" },
     });
+    if (rec.action === "run_diagnostics") {
+      setShowDiagnostics(true);
+      return;
+    }
     if (rec.path) navigate(rec.path);
   };
 
@@ -102,7 +108,7 @@ export default function ExecConcierge() {
     sendMessage(action.message);
   };
 
-  const showWelcome = !loading && messages.length <= 1;
+  const showWelcome = !loading && !showDiagnostics && messages.length <= 1;
   const showSuggestions =
     !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
   // Workspace-aware quick actions, tasks, and suggestions
@@ -233,7 +239,16 @@ export default function ExecConcierge() {
               ))}
               {loading && <ExecTypingIndicator />}
 
-              {showWelcome && !loading && (
+              {showDiagnostics && (
+                <ConciergeDiagnosticsPanel
+                  workspacePersona={workspacePersona}
+                  activeWorkspace={activeWorkspace}
+                  pathname={location.pathname}
+                  onClose={() => setShowDiagnostics(false)}
+                />
+              )}
+
+              {showWelcome && !loading && !showDiagnostics && (
                 <>
                   {user ? (
                     <>

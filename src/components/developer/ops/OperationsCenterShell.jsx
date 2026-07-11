@@ -64,7 +64,7 @@ const WORKSPACES = [
     icon: Sparkles,
     color: "indigo",
     description: "Intelligence Quotient™ & digital twin",
-    render: () => <PlatformIntelligenceCenter />,
+    render: (ctx) => <PlatformIntelligenceCenter onNavigate={ctx.navigate} />,
   },
   {
     id: "platform-governance",

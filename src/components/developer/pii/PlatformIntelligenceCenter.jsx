@@ -18,7 +18,19 @@ import PlatformIQAIConfidence from "./PlatformIQAIConfidence";
  * Displays overall score, domain breakdown, radar chart, strengths,
  * weaknesses, recommendations, AI/foundation readiness, EXEC™ confidence.
  */
-export default function PlatformIntelligenceCenter() {
+// Maps each PIQ domain to its corresponding Operations Center workspace
+const DOMAIN_WORKSPACE_MAP = {
+  foundation: "foundation-certification",
+  metadata: "architecture-center",
+  discoverability: "architecture-center",
+  knowledge: "knowledge-operations",
+  explainability: "knowledge-operations",
+  dependencies: "architecture-center",
+  governance: "platform-governance",
+  ai_readiness: "knowledge-operations",
+};
+
+export default function PlatformIntelligenceCenter({ onNavigate }) {
   const piq = useMemo(() => computePlatformIntelligence(), []);
 
   const ringColor = piq.maturity.color;
@@ -26,9 +38,36 @@ export default function PlatformIntelligenceCenter() {
 
   const radarData = piq.domains.map((d) => ({
     domain: d.label.replace("™", ""),
+    domainId: d.id,
     score: d.score,
     fullMark: 100,
   }));
+
+  const handleDomainClick = (domainId) => {
+    const ws = DOMAIN_WORKSPACE_MAP[domainId];
+    if (ws && onNavigate) onNavigate(ws);
+  };
+
+  const renderAxisTick = ({ payload, x, y }) => {
+    const domainId = payload?.payload?.domainId;
+    const label = payload?.value;
+    if (!domainId) return null;
+    return (
+      <text
+        x={x} y={y}
+        fill="rgba(255,255,255,0.5)"
+        fontSize={10}
+        textAnchor="middle"
+        dominantBaseline="central"
+        style={{ cursor: onNavigate ? "pointer" : "default" }}
+        onClick={() => handleDomainClick(domainId)}
+        onMouseEnter={(e) => { if (onNavigate) e.target.style.fill = "#a78bfa"; }}
+        onMouseLeave={(e) => { e.target.style.fill = "rgba(255,255,255,0.5)"; }}
+      >
+        {label}
+      </text>
+    );
+  };
 
   const downloadReport = () => {
     const report = generateIntelligenceReport(piq);
@@ -100,17 +139,26 @@ export default function PlatformIntelligenceCenter() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Radar */}
         <div className="lg:col-span-2 bg-white/[0.02] border border-white/5 rounded-xl p-5">
-          <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3">
-            Intelligence Domain Radar
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider">
+              Intelligence Domain Radar
+            </h3>
+            {onNavigate && (
+              <span className="text-[10px] text-indigo-400/60 flex items-center gap-1">
+                Click a domain to explore →
+              </span>
+            )}
+          </div>
           <ResponsiveContainer width="100%" height={300}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="rgba(255,255,255,0.1)" />
-              <PolarAngleAxis dataKey="domain" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
+              <PolarAngleAxis dataKey="domain" tick={renderAxisTick} />
               <PolarRadiusAxis domain={[0, 100]} tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9 }} />
               <Radar
                 name="Score" dataKey="score" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3}
                 strokeWidth={2}
+                style={{ cursor: onNavigate ? "pointer" : "default" }}
+                onClick={(props) => handleDomainClick(props?.payload?.domainId)}
               />
             </RadarChart>
           </ResponsiveContainer>

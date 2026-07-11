@@ -107,23 +107,35 @@ export default function CompetencyPicker({ isOpen, onClose, onAdd, existingNames
 
             {/* Category chips (browse tab) */}
             {tab === "browse" && (
-              <div className="px-3 py-2 flex gap-1.5 flex-wrap border-b border-white/5 flex-shrink-0">
-                {COMPETENCY_CATEGORIES.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setSelectedCategory(c.id)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all ${
-                      selectedCategory === c.id
-                        ? "text-white"
-                        : "text-white/40 border-white/10 bg-white/[0.02] hover:bg-white/5"
-                    }`}
-                    style={selectedCategory === c.id ? { borderColor: c.color, backgroundColor: `${c.color}15`, color: c.color } : {}}
-                  >
-                    <c.icon size={10} />
-                    {c.label}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="px-3 py-2 flex gap-1.5 flex-wrap border-b border-white/5 flex-shrink-0">
+                  {COMPETENCY_CATEGORIES.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setSelectedCategory(c.id)}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all ${
+                        selectedCategory === c.id
+                          ? "text-white"
+                          : "text-white/40 border-white/10 bg-white/[0.02] hover:bg-white/5"
+                      }`}
+                      style={selectedCategory === c.id ? { borderColor: c.color, backgroundColor: `${c.color}15`, color: c.color } : {}}
+                    >
+                      <c.icon size={10} />
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+                {tab === "browse" && results.length > 0 && (
+                  <div className="px-3 py-1.5 border-b border-white/5 flex-shrink-0">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-white/20 mb-1">Subcategories</p>
+                    <div className="flex gap-1 flex-wrap">
+                      {[...new Set(results.map((r) => r.subcategory))].map((sub) => (
+                        <span key={sub} className="px-2 py-0.5 rounded text-[9px] bg-white/5 text-white/30">{sub}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Results */}

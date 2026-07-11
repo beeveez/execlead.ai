@@ -6,8 +6,9 @@ import { SectionCard } from "@/components/profile/FormFields";
 import CompetencyBadge from "./CompetencyBadge";
 import CompetencyPicker from "./CompetencyPicker";
 import CompetencyEditModal from "./CompetencyEditModal";
-import { getCategoryById, addRecentlyUsed } from "@/lib/competencyCatalog";
-import { Fingerprint, Plus, Loader2 } from "lucide-react";
+import GapAnalysisCard from "./GapAnalysisCard";
+import { getCategoryById, addRecentlyUsed, computeGapAnalysis } from "@/lib/competencyCatalog";
+import { Fingerprint, Plus, Loader2, TrendingUp, Target } from "lucide-react";
 
 export default function CompetenciesSection({ userId, targetRole, onSkillsChange }) {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
   const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [showGap, setShowGap] = useState(false);
   const onSkillsChangeRef = useRef(onSkillsChange);
   onSkillsChangeRef.current = onSkillsChange;
 
@@ -38,10 +40,15 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
         user_name: user?.full_name,
         competency_name: comp.name,
         category: comp.category,
-        proficiency: "intermediate",
+        subcategory: comp.subcategory,
+        proficiency: "working",
+        competency_score: 0,
+        confidence_score: 0,
         years_experience: 0,
         verified: false,
         verification_source: "manual",
+        evidence_count: 0,
+        growth_trend: "stable",
         display_order: competencies.length,
         last_updated: new Date().toISOString().split("T")[0],
       });
@@ -84,9 +91,12 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
 
   const total = competencies.length;
   const verifiedCount = competencies.filter((c) => c.verified).length;
+  const avgScore = total > 0 ? Math.round(competencies.reduce((s, c) => s + (c.competency_score || 0), 0) / total) : 0;
+  const growingCount = competencies.filter((c) => c.growth_trend === "up").length;
   const categoryCounts = {};
   competencies.forEach((c) => { categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1; });
   const topCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const gap = computeGapAnalysis(competencies, targetRole);
 
   return (
     <SectionCard
@@ -94,16 +104,30 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
       description="Build your executive capability profile through verified competencies, experience, certifications, and continuous learning."
       icon={Fingerprint}
       action={
-        <button
-          onClick={() => setPickerOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 text-xs font-medium transition-colors"
-        >
-          <Plus size={14} /> Add
-        </button>
+        <div className="flex items-center gap-1.5">
+          {gap && (
+            <button
+              onClick={() => setShowGap((s) => !s)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                showGap ? "bg-amber-500/20 text-amber-400" : "bg-white/5 text-white/40 hover:text-white/70"
+              }`}
+            >
+              <Target size={14} /> Gap Analysis
+            </button>
+          )}
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 text-xs font-medium transition-colors"
+          >
+            <Plus size={14} /> Add
+          </button>
+        </div>
       }
     >
+      {showGap && gap && <GapAnalysisCard gap={gap} />}
+
       {total > 0 && (
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-4 gap-3 mb-4">
           <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-center">
             <div className="text-2xl font-bold text-white/90">{total}</div>
             <div className="text-[10px] text-white/30 uppercase tracking-wider">Total</div>
@@ -113,8 +137,15 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
             <div className="text-[10px] text-white/30 uppercase tracking-wider">Verified</div>
           </div>
           <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-indigo-400">{Object.keys(categoryCounts).length}</div>
-            <div className="text-[10px] text-white/30 uppercase tracking-wider">Categories</div>
+            <div className="text-2xl font-bold text-indigo-400">{avgScore}</div>
+            <div className="text-[10px] text-white/30 uppercase tracking-wider">Avg Score</div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-center">
+            <div className="text-2xl font-bold text-emerald-400 flex items-center justify-center gap-1">
+              {growingCount}
+              {growingCount > 0 && <TrendingUp size={14} className="text-emerald-400" />}
+            </div>
+            <div className="text-[10px] text-white/30 uppercase tracking-wider">Growing</div>
           </div>
         </div>
       )}
@@ -139,7 +170,7 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
 
       {topCategories.length > 0 && (
         <div className="mt-4 flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] text-white/20 uppercase tracking-wider">Top:</span>
+          <span className="text-[10px] text-white/20 uppercase tracking-wider">Top Domains:</span>
           {topCategories.map(([catId, count]) => {
             const cat = getCategoryById(catId);
             return (

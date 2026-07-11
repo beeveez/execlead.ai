@@ -19,19 +19,36 @@
     },
     "category": {
       "type": "string",
-      "description": "Category ID from the competency catalog"
+      "description": "Domain/category ID from the competency catalog"
+    },
+    "subcategory": {
+      "type": "string",
+      "description": "Subcategory within the domain"
     },
     "proficiency": {
       "type": "string",
       "enum": [
-        "beginner",
-        "intermediate",
+        "awareness",
+        "working",
+        "practitioner",
         "advanced",
         "expert",
-        "executive"
+        "executive",
+        "industry_leader",
+        "thought_leader"
       ],
-      "default": "beginner",
-      "description": "Proficiency level"
+      "default": "awareness",
+      "description": "Maturity level on the 8-stage competency maturity model"
+    },
+    "competency_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall competency score 0-100"
+    },
+    "confidence_score": {
+      "type": "number",
+      "default": 0,
+      "description": "AI confidence score 0-100 based on evidence accumulation"
     },
     "years_experience": {
       "type": "number",
@@ -61,10 +78,20 @@
       "type": "string",
       "description": "Evidence supporting this competency"
     },
-    "confidence_score": {
+    "evidence_count": {
       "type": "number",
       "default": 0,
-      "description": "AI confidence score 0-100"
+      "description": "Number of evidence sources accumulated"
+    },
+    "growth_trend": {
+      "type": "string",
+      "enum": [
+        "up",
+        "stable",
+        "down"
+      ],
+      "default": "stable",
+      "description": "Growth trend direction"
     },
     "related_certifications": {
       "type": "array",
@@ -93,6 +120,11 @@
       "type": "string",
       "format": "date",
       "description": "Last updated date"
+    },
+    "last_assessed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last AI assessment date"
     }
   },
   "required": [

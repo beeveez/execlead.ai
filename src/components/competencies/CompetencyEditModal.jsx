@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Trash2, Save, BadgeCheck } from "lucide-react";
+import { X, Trash2, Save, BadgeCheck, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import {
   getCategoryById,
   getProficiencyById,
@@ -12,16 +12,19 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
   const cat = getCategoryById(competency.category);
   const CatIcon = cat?.icon;
   const [form, setForm] = useState({
-    proficiency: competency.proficiency || "beginner",
+    proficiency: competency.proficiency || "awareness",
     years_experience: competency.years_experience || 0,
     verified: competency.verified || false,
     verification_source: competency.verification_source || "manual",
     evidence: competency.evidence || "",
+    competency_score: competency.competency_score || 0,
+    growth_trend: competency.growth_trend || "stable",
   });
 
   const setField = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleSave = () => onSave(competency.id, form);
+  const TrendIcon = form.growth_trend === "up" ? TrendingUp : form.growth_trend === "down" ? TrendingDown : Minus;
+  const trendColor = form.growth_trend === "up" ? "text-emerald-400" : form.growth_trend === "down" ? "text-red-400" : "text-white/40";
 
   return (
     <AnimatePresence>
@@ -37,10 +40,10 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-md bg-[#0d0d14] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+          className="w-full max-w-md bg-[#0d0d14] border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-5 border-b border-white/5 flex items-center justify-between" style={{ background: `${cat?.color || "#6366f1"}0d` }}>
+          <div className="p-5 border-b border-white/5 flex items-center justify-between flex-shrink-0" style={{ background: `${cat?.color || "#6366f1"}0d` }}>
             <div className="flex items-center gap-3">
               {CatIcon && (
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: `${cat.color}20` }}>
@@ -49,7 +52,7 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
               )}
               <div>
                 <h3 className="text-white font-semibold text-sm">{competency.competency_name}</h3>
-                <p className="text-white/40 text-xs">{cat?.label}</p>
+                <p className="text-white/40 text-xs">{cat?.label} · {competency.subcategory}</p>
               </div>
             </div>
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white/80 transition-colors">
@@ -58,16 +61,49 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
           </div>
 
           {/* Body */}
-          <div className="p-5 space-y-4">
-            {/* Proficiency */}
+          <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            {/* Competency Score */}
             <div>
-              <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 block">Proficiency</label>
-              <div className="grid grid-cols-5 gap-1.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-white/50 uppercase tracking-wider">Competency Score</label>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setField("growth_trend", form.growth_trend === "up" ? "stable" : "up")}
+                    className={`p-1 rounded ${form.growth_trend === "up" ? "bg-emerald-500/20" : "hover:bg-white/5"} ${trendColor}`}
+                  >
+                    <TrendingUp size={12} />
+                  </button>
+                  <button
+                    onClick={() => setField("growth_trend", form.growth_trend === "down" ? "stable" : "down")}
+                    className={`p-1 rounded ${form.growth_trend === "down" ? "bg-red-500/20" : "hover:bg-white/5"} ${form.growth_trend === "down" ? "text-red-400" : "text-white/40"}`}
+                  >
+                    <TrendingDown size={12} />
+                  </button>
+                  <TrendIcon size={12} className={trendColor} />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={form.competency_score}
+                  onChange={(e) => setField("competency_score", Number(e.target.value))}
+                  className="flex-1 accent-indigo-500"
+                />
+                <span className="text-2xl font-bold text-white/90 w-12 text-right">{form.competency_score}</span>
+              </div>
+            </div>
+
+            {/* Maturity Level */}
+            <div>
+              <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 block">Maturity Level</label>
+              <div className="grid grid-cols-4 gap-1.5">
                 {PROFICIENCY_LEVELS.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => setField("proficiency", p.id)}
-                    className={`px-2 py-2 rounded-lg text-[10px] font-medium border transition-all ${
+                    className={`px-1 py-2 rounded-lg text-[9px] font-medium border transition-all text-center leading-tight ${
                       form.proficiency === p.id
                         ? "text-white"
                         : "text-white/40 border-white/10 bg-white/[0.02] hover:bg-white/5"
@@ -78,6 +114,9 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
                   </button>
                 ))}
               </div>
+              <p className="text-[10px] text-white/30 mt-1.5">
+                {PROFICIENCY_LEVELS.find((p) => p.id === form.proficiency)?.description}
+              </p>
             </div>
 
             {/* Years */}
@@ -139,7 +178,7 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-white/5 flex items-center justify-between">
+          <div className="p-4 border-t border-white/5 flex items-center justify-between flex-shrink-0">
             <button
               onClick={() => onDelete(competency.id)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors"
@@ -147,7 +186,7 @@ export default function CompetencyEditModal({ competency, onClose, onSave, onDel
               <Trash2 size={14} /> Remove
             </button>
             <button
-              onClick={handleSave}
+              onClick={() => onSave(competency.id, form)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
             >
               <Save size={14} /> Save

@@ -1,11 +1,12 @@
 import React from "react";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, TrendingUp } from "lucide-react";
 import { getCategoryById, getProficiencyById } from "@/lib/competencyCatalog";
 
 export default function CompetencyBadge({ competency, onClick }) {
   const cat = getCategoryById(competency.category);
   const prof = getProficiencyById(competency.proficiency);
   const Icon = cat?.icon;
+  const score = competency.competency_score || 0;
 
   return (
     <button
@@ -26,9 +27,13 @@ export default function CompetencyBadge({ competency, onClick }) {
           {prof.label}
         </span>
       )}
+      {score > 0 && (
+        <span className="text-[10px] font-bold text-white/60 tabular-nums">{score}</span>
+      )}
       {competency.years_experience > 0 && (
         <span className="text-[10px] text-white/30">{competency.years_experience}y</span>
       )}
+      {competency.growth_trend === "up" && <TrendingUp size={11} className="text-emerald-400 flex-shrink-0" />}
       {competency.verified && <BadgeCheck size={13} className="text-emerald-400 flex-shrink-0" />}
     </button>
   );

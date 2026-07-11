@@ -4,6 +4,7 @@ import {
   Activity, Rocket, Clock, ShieldCheck, Gauge,
 } from "lucide-react";
 import PlatformOverview from "@/components/developer/PlatformOverview";
+import CorePlatformServices from "@/components/developer/CorePlatformServices";
 import PlatformManifestDashboard from "@/components/developer/PlatformManifestDashboard";
 import ExecKnowledgeAudit from "@/components/developer/ExecKnowledgeAudit";
 import WorkspaceIntelligence from "@/components/developer/WorkspaceIntelligence";
@@ -59,57 +60,63 @@ export default function Diagnostics() {
         <PlatformOverview />
 
         {/* ────────────────────────────────────────────────────── */}
-        {/* SECTION 2: Platform Manifest™                          */}
+        {/* SECTION 2: Core Platform Services™                    */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={2} icon={Boxes} label="Platform Manifest™" color="purple" />
+        <SectionDivider number={2} icon={Boxes} label="Core Platform Services™" color="purple" />
+        <CorePlatformServices />
+
+        {/* ────────────────────────────────────────────────────── */}
+        {/* SECTION 3: Platform Manifest™                          */}
+        {/* ────────────────────────────────────────────────────── */}
+        <SectionDivider number={3} icon={Boxes} label="Platform Manifest™" color="purple" />
         <PlatformManifestDashboard />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 3: EXEC™ Knowledge Center                      */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={3} icon={Brain} label="EXEC™ Knowledge Center" color="indigo" />
+        <SectionDivider number={4} icon={Brain} label="EXEC™ Knowledge Center" color="indigo" />
         <ExecKnowledgeAudit />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 4: Workspace Intelligence Center               */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={4} icon={Network} label="Workspace Intelligence Center" color="cyan" />
+        <SectionDivider number={5} icon={Network} label="Workspace Intelligence Center" color="cyan" />
         <WorkspaceIntelligence />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 5: Capability Registry                         */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={5} icon={Zap} label="Capability Registry" color="amber" />
+        <SectionDivider number={6} icon={Zap} label="Capability Registry" color="amber" />
         <CapabilityRegistryStatus />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 6: Framework Governance                        */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={6} icon={Layers} label="Framework Governance" color="blue" />
+        <SectionDivider number={7} icon={Layers} label="Framework Governance" color="blue" />
         <FrameworkRegistry />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 7: Knowledge Pack Engine™                      */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={7} icon={Package} label="Knowledge Pack Engine™" color="amber" />
+        <SectionDivider number={8} icon={Package} label="Knowledge Pack Engine™" color="amber" />
         <KnowledgePackEngine />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 8: Platform Health                             */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={8} icon={Activity} label="Platform Health" color="emerald" />
+        <SectionDivider number={9} icon={Activity} label="Platform Health" color="emerald" />
         <PlatformHealth />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 9: Deployment Readiness                        */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={9} icon={Rocket} label="Deployment Readiness" color="emerald" />
+        <SectionDivider number={10} icon={Rocket} label="Deployment Readiness" color="emerald" />
         <DeploymentReadiness />
 
         {/* ────────────────────────────────────────────────────── */}
         {/* SECTION 10: Governance Timeline                        */}
         {/* ────────────────────────────────────────────────────── */}
-        <SectionDivider number={10} icon={Clock} label="Governance Timeline" color="indigo" />
+        <SectionDivider number={11} icon={Clock} label="Governance Timeline" color="indigo" />
         <GovernanceTimeline />
 
         {/* ────────────────────────────────────────────────────── */}

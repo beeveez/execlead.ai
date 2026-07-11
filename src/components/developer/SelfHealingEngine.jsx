@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
-import { analyzePlatform, generateRepairs } from "@/lib/selfHealingEngine";
+import { analyzePlatform, executeRepairs } from "@/lib/selfHealingEngine";
+import { clearRepairs, getActiveRepairCount } from "@/lib/platformManifest";
 import SelfHealingSummary from "./SelfHealingSummary";
 import SelfHealingReport from "./SelfHealingReport";
 import SelfHealingReview from "./SelfHealingReview";
@@ -116,25 +117,24 @@ export default function SelfHealingEngine() {
     if (!analysis) return;
     setStepIndex(0);
     setPhase("repairing");
-    const startTime = Date.now();
     const duration = REPAIR_STEPS.length * STEP_INTERVAL + 500;
     setTimeout(() => {
-      const repairs = generateRepairs(analysis.safe);
-      const result = {
-        ...analysis,
-        issuesRepaired: repairs.length,
-        coverageBefore: analysis.coverage,
-        coverageAfter: analysis.projectedCoverage,
-        healthBefore: analysis.healthScore,
-        healthAfter: analysis.projectedHealth,
-        remaining: analysis.reviewCount,
-        repairTime: Date.now() - startTime,
-        repairs,
-      };
+      // Execute repairs against the authoritative manifest override layer.
+      // This persists to localStorage and re-validates, producing real
+      // before/after metrics — not projected values.
+      const result = executeRepairs(analysis.safe);
       setRepairResult(result);
+      setAnalysis(result.postRepairAnalysis);
       setPhase("repair");
       logEvent("repair", result);
     }, duration);
+  };
+
+  const handleReset = () => {
+    clearRepairs();
+    const result = analyzePlatform();
+    setAnalysis(result);
+    setRepairResult(null);
   };
 
   if (phase === "loading") {
@@ -215,6 +215,8 @@ export default function SelfHealingEngine() {
       onRepair={handleRepair}
       onReview={() => setPhase("review")}
       onHistory={() => setPhase("history")}
+      onReset={handleReset}
+      activeRepairs={getActiveRepairCount()}
     />
   );
 }

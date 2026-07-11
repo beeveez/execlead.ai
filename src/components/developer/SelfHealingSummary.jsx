@@ -1,5 +1,5 @@
 import React from "react";
-import { Activity, Wrench, AlertTriangle, History } from "lucide-react";
+import { Activity, Wrench, AlertTriangle, History, RotateCcw } from "lucide-react";
 import { getHealthLabel, getHealthColor } from "@/lib/selfHealingEngine";
 
 const COLOR_CLASSES = {
@@ -9,7 +9,7 @@ const COLOR_CLASSES = {
   red: { text: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" },
 };
 
-export default function SelfHealingSummary({ analysis, onAnalyze, onRepair, onReview, onHistory }) {
+export default function SelfHealingSummary({ analysis, onAnalyze, onRepair, onReview, onHistory, onReset, activeRepairs }) {
   const score = analysis?.healthScore ?? 0;
   const label = analysis ? getHealthLabel(score) : "Not Analyzed";
   const colorKey = analysis ? getHealthColor(score) : "red";
@@ -42,10 +42,19 @@ export default function SelfHealingSummary({ analysis, onAnalyze, onRepair, onRe
 
       <div className="grid grid-cols-4 gap-2">
         <ActionButton icon={Activity} label="Analyze" onClick={onAnalyze} primary />
-        <ActionButton icon={Wrench} label="Repair" onClick={onRepair} disabled={!analysis} />
+        <ActionButton icon={Wrench} label="Repair" onClick={onRepair} disabled={!analysis || analysis.safeCount === 0} />
         <ActionButton icon={AlertTriangle} label="Review" onClick={onReview} disabled={!analysis?.reviewCount} />
         <ActionButton icon={History} label="History" onClick={onHistory} />
       </div>
+
+      {onReset && activeRepairs > 0 && (
+        <button
+          onClick={onReset}
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted border border-border text-muted-foreground text-[11px] font-medium hover:text-foreground transition-colors"
+        >
+          <RotateCcw size={11} /> Reset Repairs ({activeRepairs})
+        </button>
+      )}
     </div>
   );
 }

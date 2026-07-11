@@ -1,6 +1,7 @@
 import React from "react";
 import { CheckCircle2, AlertTriangle, Wrench, FileDown, X } from "lucide-react";
 import { getHealthLabel, getHealthColor, exportValidationReport } from "@/lib/selfHealingEngine";
+import RepairDiagnostics from "./RepairDiagnostics";
 
 const HIGHLIGHT_COLORS = {
   emerald: "text-emerald-500",
@@ -108,6 +109,8 @@ function RepairComplete({ data, onReview, onDone }) {
           {data.remaining > 0 ? "Needs Review" : "Healthy"}
         </span>
       </div>
+
+      <RepairDiagnostics data={data} />
 
       <div className="flex items-center gap-2">
         {data.remaining > 0 && (

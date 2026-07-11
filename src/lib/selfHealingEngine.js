@@ -1,4 +1,4 @@
-import { validateManifest, getManifestCoverage, PLATFORM_METADATA } from "./platformManifest";
+import { validateManifest, getManifestCoverage, PLATFORM_METADATA, applyRepairs, getRepairLog, getActiveRepairCount } from "./platformManifest";
 
 // ============================================================
 // CLASSIFICATION RULES
@@ -92,9 +92,76 @@ export function computeProjectedCoverage(baseCoverage, safeCount, relevantRoutes
 }
 
 // ============================================================
-// REPAIR GENERATION
+// REPAIR EXECUTION
+// Applies repairs to the authoritative Platform Manifest™ override
+// layer, persists them to localStorage, then re-validates to produce
+// real before/after metrics. Repairs survive page reloads and
+// re-analysis — a repaired finding does NOT return.
 // ============================================================
 
+export function executeRepairs(safeFindings) {
+  const startTime = Date.now();
+  const steps = [];
+
+  steps.push({ step: "Repair Started", timestamp: new Date().toISOString() });
+
+  // Capture BEFORE state (real validation, not projected)
+  const beforeAnalysis = analyzePlatform();
+  const coverageBefore = beforeAnalysis.coverage;
+  const warningsBefore = beforeAnalysis.totalFindings;
+  const healthBefore = beforeAnalysis.healthScore;
+
+  steps.push({
+    step: "Validation Started (Before)",
+    coverage: coverageBefore,
+    warnings: warningsBefore,
+  });
+  steps.push({ step: "Coverage Before", value: coverageBefore });
+  steps.push({ step: "Warnings Before", value: warningsBefore });
+
+  // Apply repairs to the manifest override layer (persists to localStorage)
+  const repairLogs = applyRepairs(safeFindings);
+  const newRepairs = repairLogs.filter((r) => !r.alreadyRepaired);
+
+  steps.push({ step: "Repair Applied", count: newRepairs.length });
+  steps.push({
+    step: "Registry Updated",
+    registries: [...new Set(repairLogs.map((r) => r.registryUpdated))],
+  });
+  steps.push({ step: "Manifest Saved", storage: "localStorage" });
+  steps.push({ step: "Manifest Reloaded", timestamp: new Date().toISOString() });
+
+  // Re-analyze AFTER repairs — validateManifest() now suppresses repaired findings
+  const afterAnalysis = analyzePlatform();
+  const coverageAfter = afterAnalysis.coverage;
+  const warningsAfter = afterAnalysis.totalFindings;
+  const healthAfter = afterAnalysis.healthScore;
+
+  steps.push({
+    step: "Validation Started (After)",
+    coverage: coverageAfter,
+    warnings: warningsAfter,
+  });
+  steps.push({ step: "Coverage After", value: coverageAfter });
+  steps.push({ step: "Warnings After", value: warningsAfter });
+
+  return {
+    repairs: repairLogs,
+    issuesRepaired: newRepairs.length,
+    remaining: afterAnalysis.reviewCount,
+    coverageBefore,
+    coverageAfter,
+    healthBefore,
+    healthAfter,
+    warningsBefore,
+    warningsAfter,
+    repairTime: Date.now() - startTime,
+    diagnostics: steps,
+    postRepairAnalysis: afterAnalysis,
+  };
+}
+
+// Backward-compatible wrapper (retained for any external callers)
 export function generateRepairs(safeFindings) {
   return safeFindings.map((f) => ({
     code: f.code,

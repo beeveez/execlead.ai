@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
 import { analyzePlatform, executeRepairs } from "@/lib/selfHealingEngine";
 import { clearRepairs, getActiveRepairCount } from "@/lib/platformManifest";
+import { dispatch as platformDispatch } from "@/lib/platformEventBus";
 import SelfHealingSummary from "./SelfHealingSummary";
 import SelfHealingReport from "./SelfHealingReport";
 import SelfHealingReview from "./SelfHealingReview";
@@ -125,6 +126,7 @@ export default function SelfHealingEngine() {
       setAnalysis(result);
       setPhase("analysis");
       logEvent("analysis", result);
+      platformDispatch("ManifestUpdated", { source: "analyze" });
     }, duration);
   };
 
@@ -146,6 +148,7 @@ export default function SelfHealingEngine() {
       setTimeout(() => {
         setPhase("repair");
         logEvent("repair", result);
+        platformDispatch("RepairCompleted", { source: "repair" });
       }, commitDuration);
     }, repairDuration);
   };

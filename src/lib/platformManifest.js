@@ -26,6 +26,7 @@ import { PLANS, PLAN_LIST } from "./plans";
 import { ELIM_FRAMEWORKS, KNOWLEDGE_PACKS, ELIM_VERSION } from "./elimFrameworks";
 import { EELM_FRAMEWORKS, EELM_VERSION } from "./eelmMethodology";
 import { EXEC_KNOWLEDGE_INDEX, EXEC_FRAMEWORK_HIERARCHY, EXEC_KNOWLEDGE_VERSION, EXEC_PROMPT_VERSION, EXEC_PLATFORM_VERSION } from "./execKnowledgeBase";
+import { dispatch as platformDispatch } from "./platformEventBus";
 
 // ============================================================
 // REPAIR OVERRIDE LAYER
@@ -177,9 +178,7 @@ export function getActiveRepairCount() {
 export function clearRepairs() {
   repairState = { repairs: [], repairedKeys: new Set() };
   saveRepairState();
-  try {
-    window.dispatchEvent(new CustomEvent("platform-manifest-cache-invalidated"));
-  } catch {}
+  platformDispatch("CacheInvalidated");
 }
 
 /**
@@ -203,9 +202,7 @@ function isRouteRepaired(route) {
 // ============================================================
 export function invalidateManifestCache() {
   repairState = loadRepairState();
-  try {
-    window.dispatchEvent(new CustomEvent("platform-manifest-cache-invalidated"));
-  } catch {}
+  platformDispatch("CacheInvalidated");
   return true;
 }
 

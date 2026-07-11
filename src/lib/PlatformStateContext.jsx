@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { validateManifest, getManifestCoverage, PLATFORM_METADATA, invalidateManifestCache } from "./platformManifest";
 import { computePlatformHealth } from "./selfHealingEngine";
 import { useGuardian } from "./GuardianContext";
+import { subscribeAll, getLastBroadcast } from "./platformEventBus";
 
 /**
  * PlatformStateManager — the single observable platform state.
@@ -60,18 +61,29 @@ export function PlatformStateProvider({ children }) {
   const [stateVersion, setStateVersion] = useState(0);
   const [lastRefresh, setLastRefresh] = useState(() => new Date().toISOString());
   const [lastCommit, setLastCommit] = useState(null);
+  const [lastAnalysis, setLastAnalysis] = useState(null);
+  const [lastRepair, setLastRepair] = useState(null);
+  const [lastBroadcast, setLastBroadcast] = useState(null);
+  const [subscribersUpdated, setSubscribersUpdated] = useState(0);
+  const [cacheTimestamp, setCacheTimestamp] = useState(() => new Date().toISOString());
 
-  // Listen for cache invalidation broadcasts (dispatched by invalidateManifestCache
-  // after Self-Healing Engine repair/commit, and by clearRepairs on reset).
+  // Subscribe to the Platform Event Bus™. Any platform-state-changing event
+  // (CacheInvalidated, RepairCompleted, ManifestUpdated, KnowledgeUpdated, etc.)
+  // triggers a recompute so every consuming widget re-renders with identical values.
   useEffect(() => {
-    const handler = () => {
+    const handler = (payload) => {
+      const now = new Date().toISOString();
+      const last = getLastBroadcast();
       setState(computeState());
-      setLastRefresh(new Date().toISOString());
-      setLastCommit(new Date().toISOString());
+      setLastRefresh(now);
+      setCacheTimestamp(now);
+      setLastBroadcast(last);
+      setSubscribersUpdated(last?.notifiedCount ?? 0);
+      if (payload?.source === "repair") setLastRepair(now);
+      if (payload?.source === "analyze") setLastAnalysis(now);
       setStateVersion((v) => v + 1);
     };
-    window.addEventListener("platform-manifest-cache-invalidated", handler);
-    return () => window.removeEventListener("platform-manifest-cache-invalidated", handler);
+    return subscribeAll(handler);
   }, [computeState]);
 
   // Recompute when guardian pending count changes.
@@ -89,11 +101,18 @@ export function PlatformStateProvider({ children }) {
       ...state,
       stateVersion,
       cacheVersion: `v${stateVersion}`,
+      runtimeVersion: PLATFORM_METADATA.platformVersion,
+      configVersion: PLATFORM_METADATA.configVersion,
       lastRefresh,
       lastCommit,
+      lastAnalysis,
+      lastRepair,
+      lastBroadcast,
+      subscribersUpdated,
+      cacheTimestamp,
       refreshState,
     }),
-    [state, stateVersion, lastRefresh, lastCommit, refreshState]
+    [state, stateVersion, lastRefresh, lastCommit, lastAnalysis, lastRepair, lastBroadcast, subscribersUpdated, cacheTimestamp, refreshState]
   );
 
   return <PlatformStateContext.Provider value={value}>{children}</PlatformStateContext.Provider>;

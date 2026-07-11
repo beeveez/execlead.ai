@@ -7,6 +7,7 @@ import CompetencyBadge from "./CompetencyBadge";
 import CompetencyPicker from "./CompetencyPicker";
 import CompetencyEditModal from "./CompetencyEditModal";
 import GapAnalysisCard from "./GapAnalysisCard";
+import DomainSummary from "./DomainSummary";
 import { getCategoryById, addRecentlyUsed, computeGapAnalysis } from "@/lib/competencyCatalog";
 import { Fingerprint, Plus, Loader2, TrendingUp, Target } from "lucide-react";
 
@@ -125,6 +126,8 @@ export default function CompetenciesSection({ userId, targetRole, onSkillsChange
       }
     >
       {showGap && gap && <GapAnalysisCard gap={gap} />}
+
+      {total > 0 && <DomainSummary competencies={competencies} />}
 
       {total > 0 && (
         <div className="grid grid-cols-4 gap-3 mb-4">

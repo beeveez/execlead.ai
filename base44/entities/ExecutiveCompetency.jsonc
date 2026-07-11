@@ -19,7 +19,7 @@
     },
     "category": {
       "type": "string",
-      "description": "Domain/category ID from the competency catalog"
+      "description": "EECF\u2122 Executive Capability Domain ID (lead_yourself, lead_people, lead_business, lead_technology, lead_change, lead_legacy, certifications)"
     },
     "subcategory": {
       "type": "string",
@@ -29,16 +29,16 @@
       "type": "string",
       "enum": [
         "awareness",
-        "working",
+        "foundation",
         "practitioner",
         "advanced",
-        "expert",
         "executive",
-        "industry_leader",
-        "thought_leader"
+        "enterprise_leader",
+        "global_leader",
+        "legacy_leader"
       ],
       "default": "awareness",
-      "description": "Maturity level on the 8-stage competency maturity model"
+      "description": "Maturity level on the 8-stage EECF\u2122 executive maturity model"
     },
     "competency_score": {
       "type": "number",

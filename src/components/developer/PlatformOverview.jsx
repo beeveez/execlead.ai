@@ -1,23 +1,13 @@
-import React, { useMemo } from "react";
-import {
-  PLATFORM_METADATA,
-  validateManifest,
-  getManifestCoverage,
-} from "@/lib/platformManifest";
+import React from "react";
+import { PLATFORM_METADATA } from "@/lib/platformManifest";
+import { usePlatformState } from "@/lib/PlatformStateContext";
 import {
   Cpu, Boxes, Zap, Layers, ShieldCheck, Calendar, Globe,
   CheckCircle2, AlertTriangle, XCircle, Code2, Brain,
 } from "lucide-react";
 
 export default function PlatformOverview() {
-  const warnings = useMemo(() => validateManifest(), []);
-  const coverage = useMemo(() => getManifestCoverage(), []);
-
-  const errors = warnings.filter((w) => w.level === "error");
-  const warns = warnings.filter((w) => w.level === "warning");
-  const infos = warnings.filter((w) => w.level === "info");
-
-  const status = errors.length > 0 ? "critical" : warns.length > 0 ? "warning" : "healthy";
+  const { coverage, warnings, errors, warns, infos, status } = usePlatformState();
 
   const statusConfig = {
     healthy: { label: "Healthy", icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/5", border: "border-emerald-500/10" },

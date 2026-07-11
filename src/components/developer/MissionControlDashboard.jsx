@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useGuardian } from "@/lib/GuardianContext";
-import { computePlatformHealth } from "@/lib/selfHealingEngine";
-import { PLATFORM_METADATA, getManifestCoverage } from "@/lib/platformManifest";
+import { PLATFORM_METADATA } from "@/lib/platformManifest";
+import { usePlatformState } from "@/lib/PlatformStateContext";
 import {
   Activity, ShieldCheck, Brain, RefreshCw, Boxes, Code2,
   Rocket, ClipboardCheck, Zap, Database, Wrench, Cpu,
@@ -24,19 +24,12 @@ const QUICK_ACTIONS = [
 export default function MissionControlDashboard() {
   const navigate = useNavigate();
   const guardian = useGuardian();
-  const [health, setHealth] = useState(null);
+  const { coverage, health } = usePlatformState();
   const [lastSelfHealing, setLastSelfHealing] = useState(null);
   const [selfHealingSuccess, setSelfHealingSuccess] = useState(100);
   const [responseTime, setResponseTime] = useState(0);
   const [brief, setBrief] = useState(null);
   const [loadingBrief, setLoadingBrief] = useState(true);
-
-  const coverage = useMemo(() => getManifestCoverage(), []);
-
-  useEffect(() => {
-    const guardianPending = guardian?.pending?.length || 0;
-    setHealth(computePlatformHealth(guardianPending));
-  }, [guardian?.pending?.length]);
 
   useEffect(() => {
     const startTime = Date.now();

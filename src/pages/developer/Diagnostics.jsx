@@ -18,6 +18,7 @@ import DeploymentReadiness from "@/components/developer/DeploymentReadiness";
 import GovernanceTimeline from "@/components/developer/GovernanceTimeline";
 import ContextValidation from "@/components/developer/ContextValidation";
 import SelfHealingEngine from "@/components/developer/SelfHealingEngine";
+import PlatformStateDebugPanel from "@/components/developer/PlatformStateDebugPanel";
 
 export default function Diagnostics() {
   const SectionDivider = ({ number, icon: Icon, label, color }) => {
@@ -149,6 +150,9 @@ export default function Diagnostics() {
         {/* ────────────────────────────────────────────────────── */}
         <SectionDivider icon={ShieldCheck} label="Active Context Validation" color="emerald" />
         <ContextValidation />
+
+        <SectionDivider icon={Activity} label="Platform State Debug" color="amber" />
+        <PlatformStateDebugPanel />
       </div>
     </div>
   );

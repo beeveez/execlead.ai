@@ -177,6 +177,9 @@ export function getActiveRepairCount() {
 export function clearRepairs() {
   repairState = { repairs: [], repairedKeys: new Set() };
   saveRepairState();
+  try {
+    window.dispatchEvent(new CustomEvent("platform-manifest-cache-invalidated"));
+  } catch {}
 }
 
 /**

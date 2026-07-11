@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { validateManifest, getManifestCoverage } from "@/lib/platformManifest";
+import { usePlatformState } from "@/lib/PlatformStateContext";
 import {
   CORE_PLATFORM_SERVICES, CORE_PLATFORM_SERVICES_VERSION,
   FUTURE_SERVICES, MODULE_INTEGRATION_STANDARD, getServiceById,
@@ -20,11 +20,7 @@ const SERVICE_ICONS = {
 };
 
 export default function CorePlatformServices() {
-  const warnings = useMemo(() => validateManifest(), []);
-  const coverage = useMemo(() => getManifestCoverage(), []);
-
-  const errors = warnings.filter((w) => w.level === "error");
-  const warns = warnings.filter((w) => w.level === "warning");
+  const { coverage, warnings, errors, warns } = usePlatformState();
 
   const serviceHealth = useMemo(() => {
     const manifestStatus = errors.length > 0 ? "critical" : warns.length > 0 ? "warning" : "healthy";

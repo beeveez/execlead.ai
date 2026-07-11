@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import {
   PLATFORM_METADATA, MODULE_REGISTRY, ROUTE_REGISTRY,
   WORKSPACE_REGISTRY, FRAMEWORK_REGISTRY, KNOWLEDGE_PACK_REGISTRY,
   AI_PERSONA_REGISTRY, CAPABILITY_REGISTRY, SUBSCRIPTION_REGISTRY,
-  FEATURE_FLAG_REGISTRY, validateManifest, getManifestCoverage,
+  FEATURE_FLAG_REGISTRY,
 } from "@/lib/platformManifest";
+import { usePlatformState } from "@/lib/PlatformStateContext";
 import {
   CheckCircle2, AlertTriangle, Info, RefreshCw, Boxes, Layers,
   Map, Network, Package, Cpu, ShieldCheck, Zap, Crown, Flag,
@@ -30,8 +31,7 @@ export default function PlatformManifestDashboard() {
     runSync();
   }, []);
 
-  const coverage = useMemo(() => getManifestCoverage(), []);
-  const warnings = useMemo(() => validateManifest(), []);
+  const { coverage, warnings } = usePlatformState();
   const hasIssues = warnings.some((w) => w.level === "error" || w.level === "warning") || (syncData?.warnings?.some((w) => w.level === "warning") ?? false);
 
   return (

@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { GuardianProvider } from '@/lib/GuardianContext';
+import { PlatformStateProvider } from '@/lib/PlatformStateContext';
 import { WorkspaceProvider } from '@/lib/WorkspaceContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -358,6 +359,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider>
       <GuardianProvider>
+      <PlatformStateProvider>
       <DeveloperProvider>
       <SubscriptionProvider>
       <WorkspaceProvider>
@@ -376,6 +378,7 @@ function App() {
       </WorkspaceProvider>
       </SubscriptionProvider>
       </DeveloperProvider>
+      </PlatformStateProvider>
       </GuardianProvider>
       </ThemeProvider>
     </AuthProvider>

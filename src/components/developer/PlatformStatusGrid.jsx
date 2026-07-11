@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { computePlatformHealth } from "@/lib/selfHealingEngine";
 import { CORE_PLATFORM_SERVICES } from "@/lib/corePlatformServices";
-import { useGuardian } from "@/lib/GuardianContext";
+import { usePlatformState } from "@/lib/PlatformStateContext";
 import { CheckCircle2, AlertTriangle, XCircle, ChevronRight } from "lucide-react";
 
 const OPERATIONAL_SERVICES = [
@@ -25,13 +24,7 @@ const SERVICE_PATHS = {
 
 export default function PlatformStatusGrid() {
   const navigate = useNavigate();
-  const guardian = useGuardian();
-  const [health, setHealth] = useState(null);
-
-  useEffect(() => {
-    const guardianPending = guardian?.pending?.length || 0;
-    setHealth(computePlatformHealth(guardianPending));
-  }, [guardian?.pending?.length]);
+  const { health, guardianPending } = usePlatformState();
 
   const services = useMemo(() => {
     const coreServices = CORE_PLATFORM_SERVICES.map((s) => ({
@@ -60,7 +53,7 @@ export default function PlatformStatusGrid() {
         const warnings = service.healthKey === "manifestCoverage" || service.healthKey === "routeCoverage"
           ? health.warnings
           : service.healthKey === "guardianHealth"
-          ? guardian?.pending?.length || 0
+          ? guardianPending
           : 0;
         return (
           <ServiceCard

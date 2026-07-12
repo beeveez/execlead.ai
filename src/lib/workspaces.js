@@ -42,7 +42,9 @@ export const WORKSPACE_NAV = {
       { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/academy", label: "Academy", icon: GraduationCap, feature: "executive_academy" },
       { path: "/coach", label: "Executive Coach", icon: MessageSquare },
+      { path: "/challenge", label: "Daily Challenge", icon: Target, feature: "daily_executive_challenge" },
       { path: "/simulator", label: "Executive Simulator", icon: Brain, feature: "executive_simulator" },
+      { path: "/debate", label: "Executive Debate", icon: Scale, feature: "executive_debate" },
       { path: "/council", label: "Executive Council", icon: Network, feature: "executive_council" },
       { path: "/marketplace", label: "Marketplace", icon: Store, feature: "marketplace" },
     ]},
@@ -50,6 +52,7 @@ export const WORKSPACE_NAV = {
       { path: "/network", label: "Executive Network", icon: Users },
     ]},
     { label: "Career", items: [
+      { path: "/career", label: "Career Advisor", icon: Briefcase, feature: "career_advisor" },
       { path: "/career-studio", label: "Career Studio", icon: Briefcase, feature: "career_studio" },
       { path: "/resume", label: "Resume AI", icon: FileText, feature: "resume_intelligence" },
       { path: "/companies", label: "Companies", icon: Building2, feature: "company_intelligence" },
@@ -63,12 +66,15 @@ export const WORKSPACE_NAV = {
       { path: "/executive-readiness", label: "Readiness", icon: Target },
       { path: "/executive-passport", label: "Executive Passport", icon: Briefcase },
       { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },
+      { path: "/metrics", label: "Executive Metrics", icon: Gauge },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
+      { path: "/executive-legacy", label: "Executive Legacy", icon: Award, feature: "executive_legacy" },
       { path: "/reputation", label: "Executive Reputation", icon: Star },
       { path: "/executive/rankings", label: "Executive Rankings", icon: Trophy },
     ]},
     { label: "Account", items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
+      { path: "/brand-center", label: "Executive Brand Center", icon: Sparkles },
       { path: "/founder", label: "Founder Portal", icon: Crown },
       { path: "/referrals", label: "Ambassador Program", icon: Gift },
       { path: "/wallet", label: "Executive Wallet", icon: Wallet },
@@ -88,6 +94,7 @@ export const WORKSPACE_NAV = {
       { path: "/hr-dashboard", label: "Departments", icon: Users, feature: "hr_dashboard" },
       { path: "/learning-assignments", label: "Learning Assignments", icon: ClipboardCheck, feature: "learning_assignments" },
       { path: "/promotion-readiness", label: "Promotion Readiness", icon: TrendingUp, feature: "promotion_readiness" },
+      { path: "/sso", label: "SSO & Identity", icon: KeyRound, feature: "sso" },
     ]},
     { label: "Insights", items: [
       { path: "/analytics", label: "Leadership Analytics", icon: BarChart3, feature: "leadership_analytics" },
@@ -210,6 +217,7 @@ export function getRouteWorkspace(path) {
   if (path.startsWith("/companies/")) return ["executive", "enterprise"];
   if (path.startsWith("/network/")) return ["executive"];
   if (path.startsWith("/founder")) return ["executive"];
+  if (path.startsWith("/intelligence")) return ["executive"];
   if (path.startsWith("/cpq/")) return ["platform", "developer"];
   if (path.startsWith("/portal/")) return ["enterprise"];
   return null;

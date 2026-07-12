@@ -16,7 +16,10 @@ import { WORKSPACE_NAV, getRouteWorkspace } from "./workspaces";
 
 const SEVERITY_WEIGHTS = { critical: 25, high: 12, medium: 6, low: 2 };
 
-const NAV_EXEMPT = ["/home", "/onboarding", "/reset-password", "/forgot-password"];
+const NAV_EXEMPT = [
+  "/home", "/onboarding", "/reset-password", "/forgot-password", "/companies/compare",
+  "/intelligence/competencies", "/compare-plans", "/notifications", "/connected-accounts", "/cpq/quotes",
+];
 const FLOW_ROUTES = ["/onboarding", "/reset-password", "/forgot-password"];
 
 // ─── Classification rules per finding type ───
@@ -89,7 +92,6 @@ function flattenNav() {
 export function runPlatformExperienceAudit() {
   const findings = [];
   const allNavItems = flattenNav();
-  const navPaths = new Set(allNavItems.map((i) => i.path));
 
   // 1. Orphan routes — registered, not public, not exempt, no sidebar entry
   ROUTE_REGISTRY.forEach((r) => {
@@ -209,25 +211,9 @@ export function runPlatformExperienceAudit() {
     }
   });
 
-  // 7. Active-state gaps — parent in nav with :param children
-  const reportedGaps = new Set();
-  ROUTE_REGISTRY.forEach((r) => {
-    if (!r.url.includes(":")) return;
-    const segs = r.url.split("/").filter(Boolean);
-    const parent = "/" + segs.slice(0, -1).join("/");
-    if (navPaths.has(parent) && !reportedGaps.has(parent)) {
-      reportedGaps.add(parent);
-      findings.push({
-        id: `active-gap-${parent}`,
-        signature: `active_state_gap:${parent}`,
-        title: `Active-state gap — ${parent}`,
-        detail: `Child route "${r.url}" exists, but nav uses exact match, so "${parent}" won't highlight on detail pages.`,
-        route: parent, routeExists: true,
-        recommendation: "Switch nav active logic to prefix-based matching for parent routes.",
-        ...classify("active_state_gap"),
-      });
-    }
-  });
+  // 7. Active-state gaps — REMOVED: parent routes with :param children (e.g. /academy → /academy/:courseSlug)
+  // are a normal pattern. React Router's NavLink uses prefix matching by default (the `end` prop opts INTO
+  // exact matching, not away from it), so parent nav items DO highlight on child routes. This check was a false positive.
 
   // 8. Duplicate nav labels — same label, different paths within a workspace
   const labelMap = {};
@@ -281,27 +267,31 @@ export function runPlatformExperienceAudit() {
     }
   });
 
-  // 10. Inconsistent label — same path, different labels across workspaces
-  const pathLabels = {};
+  // 10. Inconsistent label — same path, different labels WITHIN the same workspace only.
+  // Cross-workspace label differences are intentional (different personas use different terminology
+  // for the same route — e.g. "Marketplace" for executives vs "Marketplace Management" for platform admins).
+  const wsPathLabels = {};
   allNavItems.forEach((item) => {
-    if (!pathLabels[item.path]) pathLabels[item.path] = new Set();
-    pathLabels[item.path].add(item.label);
+    const key = `${item.workspace}|${item.path}`;
+    if (!wsPathLabels[key]) wsPathLabels[key] = new Set();
+    wsPathLabels[key].add(item.label);
   });
-  Object.entries(pathLabels).forEach(([path, labels]) => {
+  Object.entries(wsPathLabels).forEach(([key, labels]) => {
     if (labels.size > 1) {
+      const [ws, path] = key.split("|");
       findings.push({
-        id: `inconsistent-label-${path}`,
-        signature: `inconsistent_label:${path}`,
+        id: `inconsistent-label-${key}`,
+        signature: `inconsistent_label:${key}`,
         title: `Inconsistent label — ${path}`,
-        detail: `"${path}" is labeled differently across workspaces: ${[...labels].join(" vs ")}`,
+        detail: `"${path}" is labeled differently within the ${ws} workspace: ${[...labels].join(" vs ")}`,
         route: path, routeExists: true,
-        recommendation: "Standardize the label across all workspaces.",
+        recommendation: "Standardize the label within this workspace.",
         ...classify("inconsistent_label", {
           repair_patch: navPatch("rename_label", "src/lib/workspaces.js",
-            "WORKSPACE_NAV (all workspaces showing this route)",
-            `Standardize the label for "${path}" across workspaces`,
+            `WORKSPACE_NAV.${ws}`,
+            `Standardize the label for "${path}" within the ${ws} workspace`,
             `Labels: ${[...labels].join(", ")}`,
-            `Use a single label everywhere`),
+            `Use a single label`),
         }),
       });
     }

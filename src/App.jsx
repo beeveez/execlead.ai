@@ -137,6 +137,7 @@ import DeploymentCenter from '@/pages/developer/DeploymentCenter';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import Diagnostics from '@/pages/developer/Diagnostics';
 import DiagnosticsAlias from '@/pages/developer/Diagnostics';
+import LaunchReadiness from '@/pages/developer/LaunchReadiness';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -326,6 +327,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/developer/diagnostics" element={<Diagnostics />} />
           <Route path="/developer/governance" element={<DiagnosticsAlias />} />
+          <Route path="/developer/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/cpq" element={<CPQWizard />} />
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />

@@ -8,6 +8,7 @@ import { usePlatformState } from "@/lib/PlatformStateContext";
 import { computeReadinessLevel } from "@/lib/platformReadinessModel";
 import { useGuardian } from "@/lib/GuardianContext";
 import MissionControl from "./MissionControl";
+import LaunchReadinessCenter from "@/components/developer/launch/LaunchReadinessCenter";
 
 // Diagnostic components
 import GovernanceCertificationBanner from "@/components/developer/GovernanceCertificationBanner";
@@ -51,6 +52,14 @@ const WORKSPACES = [
     color: "emerald",
     description: "Executive overview",
     render: (ctx) => <MissionControl onNavigate={ctx.navigate} />,
+  },
+  {
+    id: "launch-readiness",
+    name: "Launch Readiness",
+    icon: Rocket,
+    color: "emerald",
+    description: "Launch Readiness Program™",
+    render: () => <LaunchReadinessCenter />,
   },
   {
     id: "foundation-certification",
@@ -212,8 +221,8 @@ function WorkspaceContainer({ children }) {
   return <div className="space-y-6">{children}</div>;
 }
 
-export default function OperationsCenterShell() {
-  const [activeId, setActiveId] = useState("mission-control");
+export default function OperationsCenterShell({ initialWorkspaceId = "mission-control" }) {
+  const [activeId, setActiveId] = useState(initialWorkspaceId);
   const { certificate, pipelineRunning, runPipeline } = useGovernancePipeline();
   const { health } = usePlatformState();
   const guardian = useGuardian();

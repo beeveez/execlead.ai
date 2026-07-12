@@ -1,0 +1,105 @@
+{
+  "name": "OrgMembership",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization this membership belongs to"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User ID (empty for pending invites)"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Official job title"
+    },
+    "business_unit_id": {
+      "type": "string",
+      "description": "Business Unit (Department with type=business_unit)"
+    },
+    "business_unit_name": {
+      "type": "string"
+    },
+    "department_id": {
+      "type": "string",
+      "description": "Department ID"
+    },
+    "department_name": {
+      "type": "string"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "Team ID (optional)"
+    },
+    "team_name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "platform_admin",
+        "organization_admin",
+        "department_admin",
+        "manager",
+        "team_lead",
+        "coach",
+        "mentor",
+        "member",
+        "guest",
+        "auditor",
+        "read_only"
+      ],
+      "default": "member",
+      "description": "Enterprise RBAC role"
+    },
+    "workspaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Assigned workspace IDs"
+    },
+    "manager_id": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "pending",
+        "deactivated"
+      ],
+      "default": "active"
+    },
+    "joined_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "organization_id",
+    "user_name",
+    "role"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

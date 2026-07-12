@@ -20,7 +20,7 @@ export default function OrgHierarchyTab({ organization }) {
       const [depts, tms, mems] = await Promise.all([
         base44.entities.Department.filter({ organization_id: organization.id }),
         base44.entities.Team.filter({ organization_id: organization.id }),
-        base44.entities.UserMembership.filter({ organization_id: organization.id }),
+        base44.entities.OrgMembership.filter({ organization_id: organization.id }),
       ]);
       setDepartments(depts);
       setTeams(tms);

@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Building2, Network, Users, Shield, Layers, Loader2, ChevronDown, Check } from "lucide-react";
+import { Building2, Network, Users, Shield, Layers, Loader2, ChevronDown, Check, LayoutDashboard, KeyRound } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import OrganizationDashboard from "@/components/enterprise/OrganizationDashboard";
 import OrgProfileTab from "@/components/enterprise/OrgProfileTab";
 import OrgHierarchyTab from "@/components/enterprise/OrgHierarchyTab";
 import DepartmentManagement from "@/components/enterprise/DepartmentManagement";
 import TeamManagement from "@/components/enterprise/TeamManagement";
 import RoleHierarchyTab from "@/components/enterprise/RoleHierarchyTab";
 import WorkspaceManagementTab from "@/components/enterprise/WorkspaceManagementTab";
+import WorkspaceAssignment from "@/components/enterprise/WorkspaceAssignment";
 
 const TABS = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "profile", label: "Organization Profile", icon: Building2 },
   { id: "hierarchy", label: "Organization Hierarchy", icon: Network },
   { id: "departments", label: "Departments", icon: Layers },
   { id: "teams", label: "Teams", icon: Users },
   { id: "roles", label: "Role Hierarchy™", icon: Shield },
   { id: "workspaces", label: "Workspace Management", icon: Building2 },
+  { id: "assignment", label: "Workspace Assignment", icon: KeyRound },
 ];
 
 const TENANT_BADGE = {
@@ -30,7 +34,7 @@ export default function OrganizationManagement() {
   const [organizations, setOrganizations] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("profile");
+  const [tab, setTab] = useState("dashboard");
   const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
 
   useEffect(() => {
@@ -147,12 +151,14 @@ export default function OrganizationManagement() {
         </div>
       ) : (
         <>
+          {tab === "dashboard" && <OrganizationDashboard organization={selectedOrg} />}
           {tab === "profile" && <OrgProfileTab organization={selectedOrg} onUpdate={loadOrganizations} />}
           {tab === "hierarchy" && <OrgHierarchyTab organization={selectedOrg} />}
           {tab === "departments" && <DepartmentManagement organization={selectedOrg} />}
           {tab === "teams" && <TeamManagement organization={selectedOrg} />}
           {tab === "roles" && <RoleHierarchyTab />}
           {tab === "workspaces" && <WorkspaceManagementTab organization={selectedOrg} />}
+          {tab === "assignment" && <WorkspaceAssignment organization={selectedOrg} />}
         </>
       )}
     </div>

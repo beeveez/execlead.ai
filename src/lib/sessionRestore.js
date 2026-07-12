@@ -52,7 +52,11 @@ export function clearSessionContext() {
 }
 
 export function markOnboardingCompleted() {
-  saveSessionContext({ onboardingCompleted: true });
+  saveSessionContext({
+    onboardingCompleted: true,
+    lastCompletedAt: new Date().toISOString(),
+    completedVersion: "1.0",
+  });
 }
 
 /**

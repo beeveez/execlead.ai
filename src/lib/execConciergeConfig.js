@@ -8,6 +8,7 @@ import {
 import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase";
 import { buildEnforcementDirective, WORKSPACE_CONTEXT_LABELS } from "@/lib/workspaceContextEnforcement";
 import { computeEvidenceCoverage, formatEvidenceForPrompt, formatEvidenceBriefing } from "@/lib/evidenceCompletenessEngine";
+import { formatRuntimeProfileForPrompt } from "@/lib/executiveRuntimeProfile";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -196,7 +197,7 @@ export function generateBriefing(firstName, userContext, pageContext, persona) {
         insights.push("⚠️ Identity not verified yet — [verify now](/identity-verification)");
       }
       if (insights.length > 0) {
-        const evidence = computeEvidenceCoverage(userContext);
+        const evidence = userContext.evidence || computeEvidenceCoverage(userContext);
         const evidenceLine = formatEvidenceBriefing(evidence);
         return `${personaGreeting}\n\n**Your Executive Briefing:**\n${insights.map(i => `• ${i}`).join("\n")}\n\n${evidenceLine}`;
       }
@@ -614,37 +615,18 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
     context += ` Tailor your response to the current page context when relevant.`;
   }
 
+  // ── Executive Runtime Profile™ — single canonical source of truth ──
+  // EXEC™ never independently queries entities. It receives only this profile.
+  // Missing sources reduce confidence — they NEVER zero out the profile.
   if (userContext) {
     const isExecutiveWs = activeWorkspace === "executive";
-    context += isExecutiveWs
-      ? `\n\nEXECUTIVE USER CONTEXT (active workspace — use for personalized recommendations):`
-      : `\n\nEXECUTIVE USER CONTEXT (REFERENCE ONLY — belongs to the Executive Workspace. Do NOT surface this data in the ${activeWorkspace.toUpperCase()} workspace unless the user explicitly requests executive information via a context switch):`;
-    if (userContext.reputation) {
-      const rep = userContext.reputation;
-      context += `\nUSER REPUTATION DATA: Score ${rep.reputation_score}, Tier: ${rep.reputation_tier}, Trend: ${rep.reputation_trend}, Sessions completed: ${rep.sessions_completed || 0}.`;
+    if (!isExecutiveWs) {
+      context += `\n\nEXECUTIVE RUNTIME PROFILE™ (REFERENCE ONLY — belongs to the Executive Workspace. Do NOT surface this data in the ${activeWorkspace.toUpperCase()} workspace unless the user explicitly requests executive information via a context switch):`;
     }
-    if (userContext.profile) {
-      const p = userContext.profile;
-      context += `\nUSER PROFILE: Identity verified: ${p.identity_verified}, Interview readiness: ${p.interview_readiness || 0}, Leadership maturity: ${p.leadership_maturity || 0}, Executive presence: ${p.executive_presence || 0}, Subscription: ${p.subscription_plan || "free"}.`;
-    }
-    if (userContext.journey) {
-      const j = userContext.journey;
-      context += `\n\nUSER JOURNEY DATA: Current Level: ${j.level.current.title} (${j.totalPoints} Journey Points, ${j.level.journeyPercent}% of journey complete).`;
-      if (j.level.next) {
-        context += ` Next level: ${j.level.next.title} — ${j.level.pointsToNext} points to go (${j.level.progress}% progress, ~${j.estimatedDays} days estimated).`;
-        if (j.recommendations && j.recommendations.length > 0) {
-          context += ` Recommended activities to reach ${j.level.next.title}: ${j.recommendations.map(r => `${r.label} (+${r.points} pts)`).join(", ")}.`;
-        }
-        context += ` When discussing the user's journey, use these EXACT numbers. Say things like "You are only ${j.level.pointsToNext} Journey Points away from ${j.level.next.title}." and recommend the specific activities listed above.`;
-      } else {
-        context += ` The user has reached Legacy Leader — the highest journey level. Congratulate them and encourage mentoring and legacy building.`;
-      }
-    }
+    context += `\n\n${formatRuntimeProfileForPrompt(userContext)}`;
+  } else if (user) {
+    context += `\n\nEXECUTIVE RUNTIME PROFILE™: Not loaded. If the user asks about their personal data, acknowledge that their profile is still loading and suggest refreshing the conversation.`;
   }
-
-  // ── Evidence Completeness Engine™ — inject evidence coverage so EXEC™ reasons over available data ──
-  const evidence = computeEvidenceCoverage(userContext);
-  context += `\n\n${formatEvidenceForPrompt(evidence)}`;
 
   context += `\n\nPLATFORM KNOWLEDGE INDEX (use for "where is" and feature questions):\n${buildKnowledgeIndexSummary()}`;
 

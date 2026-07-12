@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { callAI } from "@/lib/ai";
 import { runQualityGate } from "@/lib/responseQualityEngine";
+import { buildExecutiveRuntimeProfile } from "@/lib/executiveRuntimeProfile";
 import {
   matchPageContext,
   generateBriefing,
@@ -140,60 +141,13 @@ export function ExecConciergeProvider({ children }) {
     localStorage.setItem(storageKey("exec_messages", user, activeWorkspace), JSON.stringify(messages));
   }, [messages, user?.id, activeWorkspace]);
 
-  // Fetch user context (memoized per user)
+  // Fetch user context (memoized per user) — builds the Executive Runtime Profile™
+  // (single canonical source of truth for every EXEC™ response).
   const fetchUserContext = useCallback(async () => {
     if (!user?.id) return null;
     if (userContextRef.current) return userContextRef.current;
     try {
-      const res = await base44.functions.invoke("manageReputation", {
-        action: "get_status",
-        user_id: user.id,
-      });
-      const data = res.data || res;
-      // Fetch journey data for journey-aware EXEC™
-      let journey = null;
-      try {
-        const journeyRes = await base44.functions.invoke("manageJourney", { action: "compute" });
-        journey = journeyRes.data;
-      } catch (e) {}
-
-      // ── Fetch additional evidence sources for Evidence Completeness Engine™ ──
-      // These are fetched independently with individual error tracking so a
-      // single failed load never zeroes out coverage.
-      const loadErrors = {};
-      let leadershipDNA = null;
-      let competencies = [];
-      let simulations = [];
-      let lessonProgress = [];
-
-      try {
-        const dnaRes = await base44.entities.LeadershipDNA.list("-created_date", 1);
-        leadershipDNA = dnaRes?.[0] || null;
-      } catch (e) { loadErrors.leadershipDNA = e.message; }
-
-      try {
-        competencies = await base44.entities.ExecutiveCompetency.list("-created_date", 50);
-      } catch (e) { loadErrors.competencies = e.message; }
-
-      try {
-        simulations = await base44.entities.SimulationSession.list("-created_date", 50);
-      } catch (e) { loadErrors.simulations = e.message; }
-
-      try {
-        lessonProgress = await base44.entities.LessonProgress.list("-created_date", 50);
-      } catch (e) { loadErrors.lessonProgress = e.message; }
-
-      const ctx = {
-        reputation: data?.reputation,
-        profile: data?.profile,
-        journey,
-        leadershipDNA,
-        competencies,
-        simulations,
-        lessonProgress,
-        loadErrors,
-        activeWorkspace,
-      };
+      const ctx = await buildExecutiveRuntimeProfile(user, activeWorkspace);
       userContextRef.current = ctx;
       setUserContext(ctx);
       return ctx;

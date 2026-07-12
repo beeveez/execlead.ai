@@ -17,6 +17,8 @@
 
 const ONBOARDING_VERSION = "1.0";
 const SESSION_KEY = "execlead_session";
+const FAILSAFE_KEY = "execlead_onboarding_redirect_count";
+const MAX_ONBOARDING_REDIRECTS = 1;
 
 function getSessionContext() {
   try {
@@ -42,6 +44,8 @@ export function markOnboardingCompleted() {
   try {
     localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
   } catch {}
+  // Clear failsafe counter — onboarding is complete, no more redirects needed
+  try { sessionStorage.removeItem(FAILSAFE_KEY); } catch {}
 }
 
 /**
@@ -110,10 +114,15 @@ export function evaluateOnboardingState(profile, user) {
   const isComplete = minimumRequirements || anySafeguard;
 
   // ── Missing requirements ──
+  // Leadership DNA™, Identity Verification, and Resume Upload are OPTIONAL.
+  // They improve personalization — they do NOT block platform access.
   const missingRequirements = [];
+  const optionalMissing = [];
   if (!signals.executivePassportCompleted) missingRequirements.push("Executive Passport™ (target role + company)");
   if (!signals.requiredProfileFields) missingRequirements.push("Required profile fields (name, target role, target company)");
-  if (!signals.resumeUploaded) missingRequirements.push("Resume upload (optional but recommended)");
+  if (!signals.resumeUploaded) optionalMissing.push("Resume upload");
+  if (signals.leadershipDNAStatus === "pending") optionalMissing.push("Leadership DNA™ assessment");
+  if (signals.identityStatus === "pending") optionalMissing.push("Identity verification");
 
   // ── Reason ──
   let reason;
@@ -137,6 +146,7 @@ export function evaluateOnboardingState(profile, user) {
     anySafeguard,
     missingRequirements,
     reason,
+    optionalMissing,
     sessionContext: {
       onboardingCompleted: session.onboardingCompleted ?? false,
       lastCompletedAt: session.lastCompletedAt || null,
@@ -147,13 +157,61 @@ export function evaluateOnboardingState(profile, user) {
 }
 
 /**
+ * FAILSAFE: Check and increment the onboarding redirect counter.
+ * Maximum onboarding redirects: 1.
+ * If a second redirect is detected, stop routing and go to Dashboard.
+ */
+export function checkOnboardingFailsafe() {
+  let count = 0;
+  try { count = parseInt(sessionStorage.getItem(FAILSAFE_KEY) || "0", 10); } catch {}
+  if (count >= MAX_ONBOARDING_REDIRECTS) {
+    return { shouldStop: true, count, max: MAX_ONBOARDING_REDIRECTS };
+  }
+  try { sessionStorage.setItem(FAILSAFE_KEY, String(count + 1)); } catch {}
+  return { shouldStop: false, count, max: MAX_ONBOARDING_REDIRECTS };
+}
+
+/**
+ * Clear the failsafe counter. Called when profile loads successfully
+ * (returning user confirmed) or onboarding completes.
+ */
+export function clearOnboardingFailsafe() {
+  try { sessionStorage.removeItem(FAILSAFE_KEY); } catch {}
+}
+
+/**
+ * Get current failsafe state for diagnostics.
+ */
+export function getFailsafeState() {
+  let count = 0;
+  try { count = parseInt(sessionStorage.getItem(FAILSAFE_KEY) || "0", 10); } catch {}
+  return { count, max: MAX_ONBOARDING_REDIRECTS, triggered: count >= MAX_ONBOARDING_REDIRECTS };
+}
+
+/**
  * Resolve whether the user should be redirected to onboarding.
+ * Includes failsafe: if we've already redirected once, stop and
+ * go to Dashboard to break any infinite loop.
+ *
  * Returns the redirect decision plus full state for diagnostics.
  */
 export function resolveOnboardingRedirect(profile, user) {
   const state = evaluateOnboardingState(profile, user);
   if (state.isComplete) {
-    return { shouldRedirect: false, target: "/dashboard", state };
+    clearOnboardingFailsafe();
+    return { shouldRedirect: false, target: "/dashboard", state, failsafe: getFailsafeState() };
   }
-  return { shouldRedirect: true, target: "/onboarding", state };
+  // Failsafe: prevent infinite onboarding redirect loops
+  const failsafe = checkOnboardingFailsafe();
+  if (failsafe.shouldStop) {
+    return {
+      shouldRedirect: false,
+      target: "/dashboard",
+      state,
+      failsafe,
+      failsafeTriggered: true,
+      reason: "FAILSAFE: Onboarding redirect limit reached — routing to Dashboard to prevent infinite loop",
+    };
+  }
+  return { shouldRedirect: true, target: "/onboarding", state, failsafe };
 }

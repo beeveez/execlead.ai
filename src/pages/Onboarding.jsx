@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { COMPANIES, CAREER_PATHS, COUNTRIES, CAREER_STAGES } from "@/lib/constants";
@@ -6,10 +7,13 @@ import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildTru
 import { motion, AnimatePresence } from "framer-motion";
 import { getStoredAttribution } from "@/lib/referralEngine";
 import { markOnboardingCompleted } from "@/lib/sessionRestore";
+import { evaluateOnboardingState } from "@/lib/onboardingStateManager";
+import { useAuth } from "@/lib/AuthContext";
 import { Target, ArrowRight, Check, Search, FileUp, Loader2, Sparkles, SkipForward, ShieldAlert, Zap } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 export default function Onboarding() {
+  const { user } = useAuth();
   const [step, setStep] = useState("welcome");
   const [form, setForm] = useState({ full_name: "", country: "", target_company: "", target_role: "", career_stage: "" });
   const [search, setSearch] = useState("");
@@ -23,6 +27,7 @@ export default function Onboarding() {
   const [fileUrl, setFileUrl] = useState(null);
   const [fileName, setFileName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [checkingExisting, setCheckingExisting] = useState(true);
   const fileInputRef = useRef(null);
 
   const filteredCompanies = COMPANIES.filter(c => c.toLowerCase().includes(search.toLowerCase()));
@@ -34,6 +39,40 @@ export default function Onboarding() {
       base44.functions.invoke("processReferral", { action: "register", attribution: attr }).catch(() => {});
     }
   }, []);
+
+  // Onboarding Validator™: Check if user already has a profile or executive data.
+  // If so, they're a returning user — redirect to Dashboard instead of showing onboarding.
+  useEffect(() => {
+    const checkExisting = async () => {
+      if (!user?.id) { setCheckingExisting(false); return; }
+      try {
+        const existing = await base44.entities.UserProfile.filter({ created_by_id: user.id });
+        const profile = existing[0];
+        if (profile) {
+          const state = evaluateOnboardingState(profile, user);
+          if (state.isComplete) {
+            // Returning user with complete onboarding — send to Dashboard
+            markOnboardingCompleted();
+            window.location.href = "/dashboard";
+            return;
+          }
+        }
+      } catch {}
+      setCheckingExisting(false);
+    };
+    checkExisting();
+  }, [user?.id]);
+
+  if (checkingExisting) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={28} className="animate-spin text-indigo-400" />
+          <p className="text-white/40 text-sm">Checking your executive profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleFile = async (file) => {
     if (!file) return;

@@ -9,9 +9,9 @@ import DailyBriefing from "@/components/dashboard/DailyBriefing";
 import ExecutiveHealth from "@/components/dashboard/ExecutiveHealth";
 import ExecutiveMomentum from "@/components/dashboard/ExecutiveMomentum";
 import ExecutiveTimeline from "@/components/dashboard/ExecutiveTimeline";
-import OnboardingDiagnostics from "@/components/dashboard/OnboardingDiagnostics";
+import AuthenticationDiagnostics from "@/components/dashboard/AuthenticationDiagnostics";
 import { useWorkspace } from "@/lib/WorkspaceContext";
-import { evaluateOnboardingState } from "@/lib/onboardingStateManager";
+import { resolveOnboardingRedirect, clearOnboardingFailsafe } from "@/lib/onboardingStateManager";
 
 const QUICK_ACTIONS = [
   { path: "/challenge", label: "Challenge", desc: "Test readiness", icon: Swords, color: "from-indigo-600 to-violet-600" },
@@ -35,7 +35,7 @@ function ProfileLoadError({ onRetry }) {
           <RefreshCw size={14} /> Retry
         </button>
       </div>
-      <OnboardingDiagnostics profile={null} loading={false} />
+      <AuthenticationDiagnostics profile={null} loading={false} />
     </div>
   );
 }
@@ -53,18 +53,36 @@ export default function Dashboard() {
     );
   }
 
-  // ── Onboarding State Manager™ ──
+  // ── Onboarding State Manager™ + Failsafe ──
   // Never redirect to onboarding if safeguards are present (existing executive data).
-  // Only first-time users with NO data should see onboarding.
+  // Failsafe: max 1 onboarding redirect — if a second is detected, stop and show dashboard.
   if (!profile) {
-    const onboardingState = evaluateOnboardingState(null, user);
-    if (onboardingState.isComplete) {
-      // Profile failed to load but onboarding was completed — show retry, NOT redirect
-      return <ProfileLoadError onRetry={refreshProfile} />;
+    const decision = resolveOnboardingRedirect(null, user);
+    if (decision.failsafeTriggered) {
+      // Failsafe: redirect loop detected — show dashboard with warning instead of redirecting
+      return (
+        <div className="space-y-6">
+          <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-4 flex items-start gap-3">
+            <AlertTriangle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-amber-400 text-sm font-medium">Routing failsafe triggered</p>
+              <p className="text-white/40 text-xs mt-1">Onboarding redirect limit reached. Loading Dashboard to prevent an infinite loop. Your profile data is safe.</p>
+            </div>
+          </div>
+          <ProfileLoadError onRetry={refreshProfile} />
+          <AuthenticationDiagnostics profile={profile} loading={loadingProfile} failsafeTriggered />
+        </div>
+      );
     }
-    // Genuinely a first-time user — redirect to onboarding
-    return <Navigate to="/onboarding" replace />;
+    if (decision.shouldRedirect) {
+      return <Navigate to={decision.target} replace />;
+    }
+    // Safeguard says complete (e.g., session flag) but profile didn't load — show retry
+    return <ProfileLoadError onRetry={refreshProfile} />;
   }
+
+  // Profile loaded successfully — clear any failsafe counter
+  clearOnboardingFailsafe();
 
   return (
     <div className="space-y-6">
@@ -91,7 +109,7 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
-      <OnboardingDiagnostics profile={profile} loading={loadingProfile} />
+      <AuthenticationDiagnostics profile={profile} loading={loadingProfile} />
     </div>
   );
 }

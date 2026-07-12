@@ -30,7 +30,7 @@ export const WORKSPACE_HOME = {
   executive: "/dashboard",
   enterprise: "/enterprise",
   platform: "/billing-admin",
-  developer: "/developer",
+  developer: "/developer/executive-platform-status",
 };
 
 /* ======================= NAVIGATION DEFINITIONS ======================= */
@@ -134,18 +134,21 @@ export const WORKSPACE_NAV = {
   ],
   developer: [
     { label: "Workspace", items: [
+      { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
       { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
       { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
       { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
-      { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
-      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
+      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
+      { path: "/developer/experience-audit", label: "Platform Autonomic Experience Engine™", icon: ClipboardCheck },
+      { path: "/trust-center", label: "Trust Center™", icon: ShieldCheck },
     ]},
     { label: "Engineering", items: [
       { path: "/developer/api-keys", label: "API Management", icon: KeyRound },
       { path: "/developer/database", label: "Database Explorer", icon: Database },
-      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
       { path: "/developer/system-health", label: "System Health", icon: Activity },
+      { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
+      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
     ]},
     { label: "Administration", items: [
       { path: "/payment-settings", label: "Payment Providers", icon: Lock },
@@ -207,7 +210,9 @@ const ROUTE_WORKSPACE = {
   "/developer/system-health": ["platform", "developer"],
   "/ai-command-center": ["executive"],
   "/developer/ai-command-center": ["developer"],
-  "/developer": ["developer"], "/feature-management": ["developer"], "/guardian": ["developer"],
+  "/developer": ["developer"], "/developer/executive-platform-status": ["developer"],
+  "/feature-management": ["developer"], "/guardian": ["developer"],
+  "/trust-center": ["developer"],
 };
 
 export function getRouteWorkspace(path) {

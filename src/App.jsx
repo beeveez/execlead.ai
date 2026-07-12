@@ -129,6 +129,7 @@ import LearningAssignments from '@/pages/LearningAssignments';
 import SSOIdentity from '@/pages/SSOIdentity';
 import ExecutiveLegacy from '@/pages/ExecutiveLegacy';
 import DeveloperConsole from '@/pages/DeveloperConsole';
+import ExecutivePlatformStatus from '@/pages/ExecutivePlatformStatus';
 import ProductManagement from '@/pages/product/ProductManagement';
 import AuditLogs from '@/pages/developer/AuditLogs';
 import SystemHealth from '@/pages/developer/SystemHealth';
@@ -326,6 +327,7 @@ const AuthenticatedApp = () => {
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
+          <Route path="/developer/executive-platform-status" element={<ExecutivePlatformStatus />} />
           <Route path="/developer" element={<DeveloperConsole />} />
           <Route path="/developer/product" element={<ProductManagement />} />
           <Route path="/developer/audit-logs" element={<AuditLogs />} />

@@ -70,6 +70,7 @@ const APP_ROUTES = [
   { path: "/billing-admin", component: "BillingAdmin" },
   { path: "/payment-settings", component: "PaymentSettings" },
   { path: "/developer", component: "DeveloperConsole" },
+  { path: "/developer/executive-platform-status", component: "ExecutivePlatformStatus", name: "Executive Platform Status™" },
   { path: "/developer/audit-logs", component: "AuditLogs" },
   { path: "/developer/system-health", component: "SystemHealth" },
   { path: "/developer/api-keys", component: "ApiKeys" },

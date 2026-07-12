@@ -5,6 +5,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { runDeploymentPipeline, DEPLOYMENT_PIPELINE_STAGES } from "@/lib/deploymentPipeline";
 import PipelineStage from "@/components/developer/deployment/PipelineStage";
 import DiagnosticsDrawer from "@/components/developer/deployment/DiagnosticsDrawer";
+import ReportToolbar from "@/components/reports/ReportToolbar";
+import { buildPlatformValidationReport } from "@/lib/reports/platformValidationReport";
 
 const ENV_INFO = [
   { label: "Environment", value: "Production", icon: Server },
@@ -75,6 +77,18 @@ export default function DeploymentCenter() {
             <><Rocket size={14} className="mr-2" /> Publish</>
           )}
         </Button>
+      </div>
+
+      {/* Enterprise Report Engine™ */}
+      <div className="flex items-center justify-between flex-wrap gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-white/30 text-xs uppercase tracking-widest">Enterprise Report Engine</span>
+        </div>
+        <ReportToolbar
+          reportBuilder={(type) => buildPlatformValidationReport(type, user)}
+          filenamePrefix="Platform-Validation-Report"
+          supportCSV
+        />
       </div>
 
       {/* Environment info */}

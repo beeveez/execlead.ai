@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import Logo from "@/components/layout/Logo";
 import ShareButton from "@/components/social/ShareButton";
 import { prefetchRoute } from "@/lib/routePrefetch";
+import { buildSignInUrl } from "@/lib/sessionRestore";
 import { Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -57,8 +58,8 @@ export default function MarketingNav() {
             <Link to="/home" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Dashboard</Link>
           ) : (
             <>
-              <Link to="/login" className="hidden sm:inline text-sm text-white/50 hover:text-white transition-colors">Sign In</Link>
-              <Link to="/register" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Start Free</Link>
+              <Link to={buildSignInUrl(location.pathname + location.search)} className="hidden sm:inline text-sm text-white/50 hover:text-white transition-colors">Sign In</Link>
+              <Link to="/register?redirect=/dashboard" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Start Free</Link>
             </>
           )}
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white/60 p-1">
@@ -92,7 +93,7 @@ export default function MarketingNav() {
               )
             )}
             {!authed && (
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-white/50 hover:text-white">Sign In</Link>
+              <Link to={buildSignInUrl(location.pathname + location.search)} onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-white/50 hover:text-white">Sign In</Link>
             )}
           </div>
         </div>

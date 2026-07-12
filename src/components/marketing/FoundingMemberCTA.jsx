@@ -40,7 +40,7 @@ export default function FoundingMemberCTA() {
         </div>
 
         <Link
-          to="/register"
+          to="/register?redirect=/dashboard"
           className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-semibold px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-amber-500/10"
         >
           <Crown size={17} /> Become a Founding Member <ArrowRight size={16} />

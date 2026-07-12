@@ -242,7 +242,7 @@ export default function Pricing() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Begin Your Leadership Journey</h2>
             <p className="text-white/40 mb-8 max-w-xl mx-auto text-lg">Start free today. Upgrade when you're ready to go all-in on your executive development. Enterprise solutions for organizations of any size.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to={authed ? "/dashboard" : "/register"} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
+              <Link to={authed ? "/dashboard" : "/register?redirect=/dashboard"} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
                 {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />
               </Link>
               <Link to="/cpq" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">

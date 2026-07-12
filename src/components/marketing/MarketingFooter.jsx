@@ -1,9 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "@/components/layout/Logo";
 import { LEGAL_STATUS } from "@/lib/legalCompliance";
+import { buildSignInUrl } from "@/lib/sessionRestore";
 
 export default function MarketingFooter() {
+  const location = useLocation();
   return (
     <footer className="border-t border-white/5 py-12 px-4">
       <div className="max-w-6xl mx-auto">
@@ -19,7 +21,7 @@ export default function MarketingFooter() {
             <Link to="/about" className="hover:text-white/60 transition-colors">About</Link>
             <Link to="/contact" className="hover:text-white/60 transition-colors">Contact</Link>
             <Link to="/trust-center" className="hover:text-white/60 transition-colors">Trust Center</Link>
-            <Link to="/login" className="hover:text-white/60 transition-colors">Sign In</Link>
+            <Link to={buildSignInUrl(location.pathname + location.search)} className="hover:text-white/60 transition-colors">Sign In</Link>
           </div>
         </div>
         <div className="mt-6 pt-6 border-t border-white/5">

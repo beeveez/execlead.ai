@@ -48,7 +48,7 @@ export default function Leaderboard() {
         </div>
         <div className="flex items-center gap-3">
           <ShareButton shareType="landing" label="Share" className="bg-white/5 hover:bg-white/10 text-white/80" />
-          <Link to="/register" className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          <Link to="/register?redirect=/dashboard" className="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
             Join Free <ArrowRight size={14} />
           </Link>
         </div>

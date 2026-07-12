@@ -188,7 +188,7 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
         <div className="mt-5">
           {isCustom ? (
             <div className="space-y-2">
-              <Link to={authed ? "/cpq" : "/register"} className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">
+              <Link to={authed ? "/cpq" : "/register?redirect=/dashboard"} className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">
                 {content.cta} <ArrowRight size={14} />
               </Link>
               <div className="grid grid-cols-2 gap-2">
@@ -213,7 +213,7 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
             </button>
           ) : (
             <Link
-              to={authed ? "/billing" : "/register"}
+              to={authed ? "/billing" : "/register?redirect=/dashboard"}
               className={`flex items-center justify-center gap-1.5 w-full py-3 rounded-xl text-sm font-semibold transition-colors ${
                 showFounderPricing
                   ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white"

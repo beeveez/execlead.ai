@@ -5,28 +5,28 @@
  *
  * Redirect priority after authentication:
  *   1. First-time user (no onboarding completed) → /onboarding
- *   2. redirect parameter (from URL)
- *   3. stored lastRoute
+ *   2. redirect parameter (from URL) — explicit returnTo
+ *   3. stored lastRoute — the last page the user was viewing
  *   4. Executive Dashboard (/dashboard)
+ *
+ * Two CTA patterns:
+ *   • "Sign In" links → buildSignInUrl(currentPath) → returns to current page
+ *   • "Get Started" / "Start Free" CTAs → /register?redirect=/dashboard
+ *     (first-time users are redirected to /onboarding by priority #1)
  */
 
 const SESSION_KEY = "execlead_session";
 
-const PUBLIC_ROUTES = [
-  "/", "/login", "/register", "/forgot-password", "/reset-password",
-  "/trust-center", "/legal", "/about", "/contact",
-  "/founders", "/founders-wall", "/pricing", "/leaderboard",
-  "/company-library", "/verify",
-];
+const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password"];
 
-function isPublicRoute(path) {
+function isAuthRoute(path) {
   const pathname = (path || "").split("?")[0];
-  if (!pathname) return true;
-  return PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + "/"));
+  if (!pathname) return false;
+  return AUTH_ROUTES.some((r) => pathname === r || pathname.startsWith(r + "/"));
 }
 
 function isValidRoute(path) {
-  return path && path.startsWith("/") && !isPublicRoute(path);
+  return path && path.startsWith("/") && !isAuthRoute(path);
 }
 
 export function getSessionContext() {
@@ -56,6 +56,15 @@ export function markOnboardingCompleted() {
 }
 
 /**
+ * Builds a sign-in URL that returns the user to the current page after login.
+ * Use for "Sign In" links in nav, footer, etc.
+ */
+export function buildSignInUrl(currentPath) {
+  const returnTo = currentPath || "/dashboard";
+  return `/login?redirect=${encodeURIComponent(returnTo)}`;
+}
+
+/**
  * Resolves where to send the user after authentication.
  * Priority: first-time check → redirect param → lastRoute → dashboard
  */
@@ -67,7 +76,7 @@ export function getPostAuthRedirect() {
     return "/onboarding";
   }
 
-  // 2. Check redirect parameter from URL
+  // 2. Check redirect parameter from URL (explicit returnTo)
   const urlParams = new URLSearchParams(window.location.search);
   const redirectParam = urlParams.get("redirect");
   if (redirectParam && isValidRoute(redirectParam)) {

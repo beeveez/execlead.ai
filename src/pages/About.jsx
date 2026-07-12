@@ -68,7 +68,7 @@ export default function About() {
         </div>
 
         <div className="mt-12 flex flex-col sm:flex-row items-center gap-4">
-          <Link to="/register" className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 transition-colors">
+          <Link to="/register?redirect=/dashboard" className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 transition-colors">
             Start Free <ArrowRight size={16} />
           </Link>
           <Link to="/contact" className="text-white/50 hover:text-white/80 text-sm transition-colors">Get in touch</Link>

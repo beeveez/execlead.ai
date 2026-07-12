@@ -128,7 +128,7 @@ export default function Landing() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              to={authed ? "/home" : "/register"}
+              to={authed ? "/home" : "/register?redirect=/dashboard"}
               className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
               {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />
@@ -324,7 +324,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Link
-                  to={plan.customPricing ? (authed ? "/cpq" : "/register") : (authed ? "/billing" : "/register")}
+                  to={plan.customPricing ? (authed ? "/cpq" : "/register?redirect=/dashboard") : (authed ? "/billing" : "/register?redirect=/dashboard")}
                   className={`block text-center font-medium py-3 rounded-xl transition-colors ${
                     plan.customPricing
                       ? "bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -385,7 +385,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Grow Your Leadership?</h2>
             <p className="text-white/40 mb-8 max-w-xl mx-auto">Join thousands of professionals growing from their first leadership role to the executive suite.</p>
             <Link
-              to="/register"
+              to="/register?redirect=/dashboard"
               className="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors"
             >
               Start Free <ArrowRight size={18} />

@@ -2,27 +2,26 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { saveSessionContext } from "@/lib/sessionRestore";
 
-const PUBLIC_ROUTES = [
-  "/", "/login", "/register", "/forgot-password", "/reset-password",
-  "/trust-center", "/legal", "/about", "/contact",
-  "/founders", "/founders-wall", "/pricing", "/leaderboard",
-  "/company-library", "/verify",
-];
+const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password"];
 
-function isPublicRoute(pathname) {
-  if (!pathname) return true;
-  return PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + "/"));
+function isAuthRoute(pathname) {
+  if (!pathname) return false;
+  return AUTH_ROUTES.some((r) => pathname === r || pathname.startsWith(r + "/"));
 }
 
 /**
- * Tracks route changes and persists the last non-public route
+ * Tracks route changes and persists the last non-auth route
  * to session context for restoration after re-authentication.
+ *
+ * Auth routes (login, register, etc.) are excluded so that
+ * lastRoute always points to the page the user was viewing
+ * before entering the auth flow.
  */
 export default function RouteTracker() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isPublicRoute(location.pathname)) {
+    if (!isAuthRoute(location.pathname)) {
       saveSessionContext({ lastRoute: location.pathname + location.search });
     }
   }, [location.pathname, location.search]);

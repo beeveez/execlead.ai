@@ -62,16 +62,16 @@ export default function PricingCards({ plans, cycle, getPrice, authed }) {
 
             {isCustom ? (
               <div className="space-y-2">
-                <Link to={authed ? "/cpq" : "/register"} className="block text-center font-medium py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">
+                <Link to={authed ? "/cpq" : "/register?redirect=/dashboard"} className="block text-center font-medium py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">
                   Configure Proposal
                 </Link>
-                <Link to={authed ? "/cpq-dashboard" : "/register"} className="block text-center font-medium py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 transition-colors">
+                <Link to={authed ? "/cpq-dashboard" : "/register?redirect=/dashboard"} className="block text-center font-medium py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 transition-colors">
                   View Pipeline
                 </Link>
               </div>
             ) : (
               <Link
-                to={authed ? `/billing?plan=${plan.id}` : "/register"}
+                to={authed ? `/billing?plan=${plan.id}` : "/register?redirect=/dashboard"}
                 className={`block text-center font-medium py-3 rounded-xl transition-colors ${
                   plan.recommended ? "bg-indigo-500 hover:bg-indigo-600 text-white" : "bg-white/5 hover:bg-white/10 text-white/70"
                 }`}

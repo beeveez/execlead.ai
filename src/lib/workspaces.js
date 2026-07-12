@@ -215,6 +215,8 @@ const ROUTE_WORKSPACE = {
   "/developer/knowledge-sync": ["developer"],
   "/feature-management": ["developer"], "/guardian": ["developer"],
   "/trust-center": ["developer"],
+  "/referrals": ["executive"], "/referral-admin": ["platform", "developer"],
+  "/exec-admin": ["developer"],
 };
 
 export function getRouteWorkspace(path) {

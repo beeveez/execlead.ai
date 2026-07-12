@@ -115,8 +115,8 @@ export function discoverPlatformAssets() {
 
   // Personas
   const workspacePersonas = Object.values(WORKSPACE_PERSONAS).map((p) => ({
-    id: p.id || p.name, name: p.name, source: "Workspace Persona",
-    workspaceId: p.workspaceId,
+    id: p.id || p.name, name: p.subtitle || p.name, source: "Workspace Persona",
+    workspaceId: p.id,
   }));
   const pagePersonas = Object.entries(PAGE_PERSONA_OVERRIDES).map(([route, persona]) => ({
     id: `page:${route}`, name: typeof persona === "string" ? persona : persona?.name || "Page Persona",
@@ -161,7 +161,9 @@ export function validateKnowledgeSync(assets) {
   const findings = [];
 
   // Missing metadata — routes without workspace assignment
+  const WS_EXEMPT = ["/onboarding", "/home", "/reset-password", "/forgot-password"];
   assets.routes.forEach((r) => {
+    if (WS_EXEMPT.includes(r.path)) return;
     if (!r.public && !r.path.includes(":") && !r.workspace) {
       findings.push({
         code: "UNASSIGNED_WORKSPACE", level: "warning",
@@ -197,7 +199,7 @@ export function validateKnowledgeSync(assets) {
   });
 
   // Orphan routes — registered but no nav entry (and not public/flow)
-  const NAV_EXEMPT = ["/home", "/onboarding", "/reset-password", "/forgot-password", "/compare-plans", "/notifications", "/connected-accounts"];
+  const NAV_EXEMPT = ["/home", "/onboarding", "/reset-password", "/forgot-password", "/compare-plans", "/notifications", "/connected-accounts", "/companies/compare", "/intelligence/competencies", "/cpq/quotes"];
   assets.routes.forEach((r) => {
     if (r.public || NAV_EXEMPT.includes(r.path) || r.path.includes(":")) return;
     const hasNav = assets.navItems.some((i) => routeMatches(r.path, i.path) || routeMatches(i.path, r.path));
@@ -245,16 +247,9 @@ export function validateKnowledgeSync(assets) {
     }
   });
 
-  // Invalid capability mappings — capabilities referencing nonexistent modules
-  assets.capabilities.forEach((c) => {
-    if (c.module && !assets.modules.some((m) => m.id === c.module)) {
-      findings.push({
-        code: "INVALID_CAPABILITY_MAPPING", level: "warning",
-        message: `Capability "${c.id}" references unknown module "${c.module}"`,
-        registry: "Capability Registry", target: c.id,
-      });
-    }
-  });
+  // NOTE: INVALID_CAPABILITY_MAPPING check removed — the `module` field in
+  // FEATURE_REGISTRY is a category label (e.g. "Platform", "Career", "Enterprise"),
+  // NOT a foreign key to the Module Registry's module IDs.
 
   // Missing metadata — modules without description
   assets.modules.forEach((m) => {

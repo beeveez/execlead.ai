@@ -97,6 +97,7 @@ const APP_ROUTES = [
   { path: "/executive/rankings", component: "ExecutiveRankings" },
   { path: "/brand-center", component: "ExecutiveBrandCenter" },
   { path: "/feedback", component: "Feedback" },
+  { path: "/trust-center", component: "TrustCenter", public: true },
   { path: "/guardian", component: "Guardian", feature: null, public: false },
   // Routes registered from App.jsx layout routes and feature pages
   { path: "/network", component: "NetworkFeed" },

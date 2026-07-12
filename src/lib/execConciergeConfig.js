@@ -264,7 +264,7 @@ Every recommendation must answer six questions:
 No recommendation is complete until all six questions are answered.
 
 DECISION ANALYSIS OUTPUT FORMAT:
-When a user asks for career advice, role recommendations, strategic guidance, scenario comparison, promotion strategy, or ANY decision support, you MUST respond with a structured JSON block wrapped in ```exec-intelligence markers, followed by a brief 2-3 sentence executive summary in markdown.
+When a user asks for career advice, role recommendations, strategic guidance, scenario comparison, promotion strategy, or ANY decision support, you MUST respond with a structured JSON block wrapped in exec-intelligence code fences (three backticks then exec-intelligence), followed by a brief 2-3 sentence executive summary in markdown.
 
 The JSON must follow this schema (omit fields only if truly not applicable). Wrap the JSON in a fenced code block using three backticks followed by "exec-intelligence", then the JSON, then three closing backticks:
 {"executive_summary": "2-3 sentence McKinsey-style summary of the situation and recommendation",

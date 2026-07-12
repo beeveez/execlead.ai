@@ -8,6 +8,7 @@ import DailyBriefing from "@/components/dashboard/DailyBriefing";
 import ExecutiveHealth from "@/components/dashboard/ExecutiveHealth";
 import ExecutiveMomentum from "@/components/dashboard/ExecutiveMomentum";
 import ExecutiveTimeline from "@/components/dashboard/ExecutiveTimeline";
+import DashboardConcierge from "@/components/dashboard/DashboardConcierge";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 
 const QUICK_ACTIONS = [
@@ -38,12 +39,13 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <DashboardModeBanner profile={profile} activeWorkspace={activeWorkspace} />
-      <DailyBriefing profile={profile} />
+      <DashboardConcierge />
+      <div id="briefing"><DailyBriefing profile={profile} /></div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ExecutiveHealth profile={profile} />
-        <ExecutiveMomentum profile={profile} />
+        <div id="health"><ExecutiveHealth profile={profile} /></div>
+        <div id="momentum"><ExecutiveMomentum profile={profile} /></div>
       </div>
-      <ExecutiveTimeline profile={profile} />
+      <div id="timeline"><ExecutiveTimeline profile={profile} /></div>
       <div>
         <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">

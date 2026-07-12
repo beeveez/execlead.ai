@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Rocket, GitBranch, Server, Globe, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { runDeploymentPipeline, DEPLOYMENT_PIPELINE_STAGES } from "@/lib/deploymentPipeline";
 import PipelineStage from "@/components/developer/deployment/PipelineStage";
@@ -83,6 +84,7 @@ export default function DeploymentCenter() {
       <div className="flex items-center justify-between flex-wrap gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="text-white/30 text-xs uppercase tracking-widest">Enterprise Report Engine</span>
+          <Link to="/developer/report-registry" className="text-indigo-400 text-xs hover:text-indigo-300 ml-1">Registry →</Link>
         </div>
         <ReportToolbar
           reportBuilder={(type) => buildPlatformValidationReport(type, user)}

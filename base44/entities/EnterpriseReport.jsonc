@@ -1,0 +1,108 @@
+{
+  "name": "EnterpriseReport",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "report_name": {
+      "type": "string",
+      "description": "Report name (e.g. Platform Validation\u2122)"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "platform_validation",
+        "executive_summary",
+        "full_engineering",
+        "board",
+        "audit",
+        "procurement",
+        "security",
+        "customer"
+      ],
+      "default": "platform_validation"
+    },
+    "version": {
+      "type": "number",
+      "default": 1,
+      "description": "Incrementing iteration number"
+    },
+    "report_id": {
+      "type": "string",
+      "description": "Human-readable report ID (RPT-XXXXX)"
+    },
+    "integrity_hash": {
+      "type": "string",
+      "description": "Digital signature hash"
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generated_by_id": {
+      "type": "string"
+    },
+    "generated_by_name": {
+      "type": "string"
+    },
+    "downloads": {
+      "type": "number",
+      "default": 0
+    },
+    "recipients": {
+      "type": "string",
+      "default": "Internal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "platform_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall platform score 0-100"
+    },
+    "warnings": {
+      "type": "number",
+      "default": 0
+    },
+    "failures": {
+      "type": "number",
+      "default": 0
+    },
+    "security_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Security score 0-100"
+    },
+    "readiness_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Deployment readiness 0-100"
+    },
+    "metrics_json": {
+      "type": "string",
+      "description": "Full metrics snapshot JSON"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "report_name",
+    "report_type",
+    "report_id"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

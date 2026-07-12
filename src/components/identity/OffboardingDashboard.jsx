@@ -12,7 +12,7 @@ import { UserX, Clock, Loader2, AlertTriangle, RefreshCw, X, Shield, Building2 }
  */
 export default function OffboardingDashboard() {
   const { toast } = useToast();
-  const [queue, setQueue] = useState(null);
+  const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadQueue = async () => {
@@ -22,6 +22,7 @@ export default function OffboardingDashboard() {
       const d = res.data || res;
       setQueue(d.queue || []);
     } catch {
+      setQueue([]);
       toast({ title: "Failed to load offboarding queue", variant: "destructive" });
     }
     setLoading(false);

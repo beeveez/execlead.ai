@@ -15,6 +15,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import RouteTracker from './components/RouteTracker';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import SessionRoutingManager from '@/components/SessionRoutingManager';
 import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
 import ExecConcierge from '@/components/concierge/ExecConcierge';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -221,6 +222,7 @@ const AuthenticatedApp = () => {
       {/* Protected */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route element={<SessionRoutingManager />}>
         <Route path="/home" element={<WorkspaceHome />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
@@ -360,6 +362,7 @@ const AuthenticatedApp = () => {
           <Route path="/exec-admin" element={<ExecAdmin />} />
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
+        </Route>
         </Route>
       </Route>
 

@@ -21,6 +21,8 @@ export const SubscriptionProvider = ({ children }) => {
   const [entitlements, setEntitlements] = useState(null);
   const [lastEntitlementRefresh, setLastEntitlementRefresh] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState(null);
+  const [profileLoadAttempted, setProfileLoadAttempted] = useState(false);
 
   // ============================================================
   // SINGLE SOURCE OF TRUTH LOADER
@@ -30,6 +32,8 @@ export const SubscriptionProvider = ({ children }) => {
   // ============================================================
   const loadProfile = useCallback(async () => {
     setLoading(true);
+    setProfileError(null);
+    setProfileLoadAttempted(false);
     try {
       const [profiles, subRes] = await Promise.all([
         user?.id
@@ -139,18 +143,22 @@ export const SubscriptionProvider = ({ children }) => {
       }
     } catch (e) {
       setProfile(null);
+      setProfileError(e?.message || 'Failed to load executive profile');
       setCanonicalSubscription(null);
       setRenewalDate(null);
       setMemberships([]);
       setEntitlements(null);
     } finally {
       setLoading(false);
+      setProfileLoadAttempted(true);
     }
   }, [user?.id]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       setLoading(false);
+      setProfileLoadAttempted(false);
+      setProfileError(null);
       return;
     }
     loadProfile();
@@ -273,7 +281,7 @@ export const SubscriptionProvider = ({ children }) => {
   };
 
   return (
-    <SubscriptionContext.Provider value={{ profile, subscription, canonicalSubscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements, lastEntitlementRefresh }}>
+    <SubscriptionContext.Provider value={{ profile, subscription, canonicalSubscription, membership: effectiveMembership, memberships, renewalDate, loading, refreshProfile, entitlements, lastEntitlementRefresh, profileError, profileLoadAttempted }}>
       {children}
     </SubscriptionContext.Provider>
   );

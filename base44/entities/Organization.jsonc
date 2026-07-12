@@ -3,7 +3,16 @@
   "type": "object",
   "properties": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "description": "Display name"
+    },
+    "legal_name": {
+      "type": "string",
+      "description": "Legal entity name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000
     },
     "logo_url": {
       "type": "string"
@@ -13,7 +22,67 @@
       "default": "#6366f1"
     },
     "domain": {
+      "type": "string",
+      "description": "Primary domain (e.g. acme.com)"
+    },
+    "industry": {
       "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographic region"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "UTC"
+    },
+    "company_size": {
+      "type": "string",
+      "enum": [
+        "1-10",
+        "11-50",
+        "51-200",
+        "201-500",
+        "501-1000",
+        "1001-5000",
+        "5001-10000",
+        "10000+"
+      ],
+      "description": "Company size band"
+    },
+    "employee_count": {
+      "type": "number",
+      "default": 0
+    },
+    "tenant_type": {
+      "type": "string",
+      "enum": [
+        "single",
+        "multi",
+        "enterprise",
+        "education",
+        "government",
+        "partner"
+      ],
+      "default": "enterprise",
+      "description": "Organization tenant classification"
+    },
+    "organization_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "suspended",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "parent_organization_id": {
+      "type": "string",
+      "description": "Parent org for multi-tenant hierarchy"
     },
     "plan": {
       "type": "string",
@@ -43,13 +112,23 @@
       "type": "number",
       "default": 0
     },
-    "industry": {
+    "workspaces_enabled": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Enabled workspace IDs"
+    },
+    "enabled_modules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "admin_user_id": {
       "type": "string"
     },
-    "country": {
-      "type": "string"
-    },
-    "description": {
+    "admin_email": {
       "type": "string"
     },
     "quote_id": {
@@ -62,18 +141,6 @@
       "type": "string"
     },
     "support_package_id": {
-      "type": "string"
-    },
-    "enabled_modules": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "admin_user_id": {
-      "type": "string"
-    },
-    "admin_email": {
       "type": "string"
     },
     "contract_start_date": {
@@ -110,5 +177,11 @@
   },
   "required": [
     "name"
-  ]
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
 }

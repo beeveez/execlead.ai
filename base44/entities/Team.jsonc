@@ -1,5 +1,5 @@
 {
-  "name": "Department",
+  "name": "Team",
   "type": "object",
   "properties": {
     "name": {
@@ -8,40 +8,41 @@
     "organization_id": {
       "type": "string"
     },
+    "department_id": {
+      "type": "string",
+      "description": "Parent department"
+    },
     "description": {
       "type": "string",
       "maxLength": 1000
     },
-    "parent_department_id": {
-      "type": "string",
-      "description": "Parent department for hierarchy (Business Unit \u2192 Department \u2192 Team)"
-    },
-    "department_type": {
-      "type": "string",
-      "enum": [
-        "business_unit",
-        "department",
-        "team"
-      ],
-      "default": "department"
-    },
-    "head_user_id": {
+    "manager_user_id": {
       "type": "string"
     },
-    "head_name": {
+    "manager_name": {
       "type": "string"
     },
     "member_count": {
       "type": "number",
       "default": 0
     },
-    "sort_order": {
+    "capacity": {
       "type": "number",
-      "default": 0
+      "default": 10,
+      "description": "Max team size"
+    },
+    "is_cross_functional": {
+      "type": "boolean",
+      "default": false,
+      "description": "Cross-functional team spanning multiple departments"
     },
     "is_active": {
       "type": "boolean",
       "default": true
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

@@ -138,6 +138,7 @@ import DatabaseTools from '@/pages/developer/DatabaseTools';
 import MigrationHistory from '@/pages/developer/MigrationHistory';
 import DeploymentCenter from '@/pages/developer/DeploymentCenter';
 import ReportRegistry from '@/pages/developer/ReportRegistry';
+import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import Diagnostics from '@/pages/developer/Diagnostics';
 import DiagnosticsAlias from '@/pages/developer/Diagnostics';
@@ -339,6 +340,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/migrations" element={<MigrationHistory />} />
           <Route path="/developer/deployments" element={<DeploymentCenter />} />
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
+          <Route path="/enterprise/organizations" element={<OrganizationManagement />} />
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/developer/diagnostics" element={<Diagnostics />} />
           <Route path="/developer/governance" element={<DiagnosticsAlias />} />

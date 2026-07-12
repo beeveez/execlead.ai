@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import {
   ShieldCheck, Lock, CheckCircle2, Boxes, Brain, Activity,
   Award, ArrowRight, ChevronRight, FileText, Heart,
+  Mail, Bug, Download, Server,
 } from "lucide-react";
 import StatusBadge from "@/components/trust/StatusBadge";
 import CapabilityCard from "@/components/trust/CapabilityCard";
 import CertificationTimeline from "@/components/trust/CertificationTimeline";
+import { generateSecurityOverviewPdf } from "@/lib/securityOverviewPdf";
 import {
   PLATFORM_SECURITY, PRIVACY_DATA, COMPLIANCE_FRAMEWORKS,
   ENTERPRISE_GOVERNANCE, RESPONSIBLE_AI, OPERATIONAL_RELIABILITY,
-  EXEC_TRUST_QA,
+  EXEC_TRUST_QA, PLATFORM_STATUS, SECURITY_CONTACT, SECURITY_REPORTING,
 } from "@/lib/trustCenterData";
 
 const SECTIONS = [
@@ -21,6 +23,10 @@ const SECTIONS = [
   { id: "ai", label: "Responsible AI", icon: Brain },
   { id: "reliability", label: "Operational Reliability", icon: Activity },
   { id: "certification", label: "Certification Roadmap", icon: Award },
+  { id: "status", label: "Platform Status", icon: Server },
+  { id: "contact", label: "Security Contact", icon: Mail },
+  { id: "report", label: "Report a Security Issue", icon: Bug },
+  { id: "overview", label: "Download Overview", icon: Download },
   { id: "exec", label: "EXEC™ Q&A", icon: FileText },
 ];
 
@@ -130,6 +136,118 @@ export default function TrustCenter() {
             {section === "certification" && (
               <SectionWrapper title="Certification Roadmap™" description="The certification journey from internal foundation to external audit. Each milestone displays its honest status.">
                 <CertificationTimeline />
+              </SectionWrapper>
+            )}
+
+            {section === "status" && (
+              <SectionWrapper title="Platform Status™" description="Real-time operational status of EXECLEAD.AI platform components.">
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-sm font-bold text-white">{PLATFORM_STATUS.currentStatus}</span>
+                    <span className="text-[11px] text-white/40 ml-auto">Uptime: {PLATFORM_STATUS.uptime}</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {PLATFORM_STATUS.components.map((c) => (
+                      <div key={c.name} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                        <span className="text-xs text-white/70">{c.name}</span>
+                        <span className="text-[10px] text-emerald-400 ml-auto capitalize">{c.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-white/30 mt-3">{PLATFORM_STATUS.lastIncident}</p>
+                </div>
+              </SectionWrapper>
+            )}
+
+            {section === "contact" && (
+              <SectionWrapper title="Security Contact™" description="Contact the appropriate team for security, compliance, and privacy inquiries.">
+                <div className="space-y-3">
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Mail size={16} className="text-indigo-400" />
+                      <span className="text-sm font-bold text-white">Security Inbox</span>
+                    </div>
+                    <p className="text-[11px] text-white/50 mb-2">For vulnerability reports, security assessments, and penetration testing coordination:</p>
+                    <a href={`mailto:${SECURITY_CONTACT.email}`} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">{SECURITY_CONTACT.email}</a>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                      <div className="text-[10px] text-white/40"><span className="text-white/30">Response Time:</span> {SECURITY_CONTACT.responseTime}</div>
+                      <div className="text-[10px] text-white/40"><span className="text-white/30">Escalation:</span> {SECURITY_CONTACT.escalationPath}</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {SECURITY_CONTACT.teams.map((team) => (
+                      <div key={team.name} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                        <div className="text-sm font-medium text-white/80 mb-1">{team.name}</div>
+                        <p className="text-[10px] text-white/40 mb-2">{team.purpose}</p>
+                        <a href={`mailto:${team.contact}`} className="text-[11px] text-indigo-400 hover:text-indigo-300">{team.contact}</a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </SectionWrapper>
+            )}
+
+            {section === "report" && (
+              <SectionWrapper title="Report a Security Issue™" description="Responsible disclosure program for security vulnerabilities.">
+                <div className="space-y-3">
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                    <p className="text-[11px] text-white/60 leading-relaxed">{SECURITY_REPORTING.policy}</p>
+                  </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                    <div className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Scope</div>
+                    <p className="text-[11px] text-white/50">{SECURITY_REPORTING.scope}</p>
+                  </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                    <div className="text-[10px] text-white/30 uppercase tracking-wider mb-3">Disclosure Process</div>
+                    <div className="space-y-2">
+                      {SECURITY_REPORTING.process.map((p) => (
+                        <div key={p.step} className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-[10px] font-bold text-indigo-400 flex-shrink-0">{p.step}</span>
+                          <div>
+                            <div className="text-xs font-medium text-white/80">{p.title}</div>
+                            <p className="text-[10px] text-white/40 mt-0.5">{p.detail}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                    <div className="text-[10px] text-white/30 uppercase tracking-wider mb-2">Guidelines</div>
+                    <ul className="space-y-1">
+                      {SECURITY_REPORTING.guidelines.map((g, i) => (
+                        <li key={i} className="text-[11px] text-white/50 flex items-start gap-2">
+                          <span className="text-indigo-400 mt-0.5">•</span>
+                          <span>{g}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <a href="mailto:security@execlead.ai" className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
+                    <Bug size={14} /> Report a Vulnerability
+                  </a>
+                </div>
+              </SectionWrapper>
+            )}
+
+            {section === "overview" && (
+              <SectionWrapper title="Download Security Overview" description="Download a comprehensive security overview document for vendor assessments, due diligence, and procurement reviews.">
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center">
+                  <Download size={40} className="mx-auto text-indigo-400 mb-4" />
+                  <h3 className="text-lg font-bold text-white mb-2">Security Overview (PDF)</h3>
+                  <p className="text-[11px] text-white/50 max-w-md mx-auto mb-4">
+                    Includes platform security capabilities, privacy controls, compliance roadmap, certification status,
+                    operational reliability, and security contact information. Generated in real-time with the latest status.
+                  </p>
+                  <button
+                    onClick={() => generateSecurityOverviewPdf()}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
+                  >
+                    <Download size={14} /> Download PDF
+                  </button>
+                  <p className="text-[10px] text-white/30 mt-3">All statuses reflect the live Trust Center as of {new Date().toLocaleDateString()}</p>
+                </div>
               </SectionWrapper>
             )}
 

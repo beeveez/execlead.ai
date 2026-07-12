@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Radar, ShieldCheck, Activity, Brain, Rocket, Boxes, Award, Sparkles,
   Lock, BarChart3, ScrollText, Zap, ChevronRight, Cpu, TrendingUp, Gauge,
+  ArrowRight,
 } from "lucide-react";
 import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
 import { usePlatformState } from "@/lib/PlatformStateContext";
@@ -166,6 +168,14 @@ const WORKSPACES = [
     description: "Self-healing & guardian",
     render: () => (
       <WorkspaceContainer>
+        <Link to="/trust-center" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors group">
+          <ShieldCheck size={18} className="text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-white">Enterprise Trust Center™</div>
+            <div className="text-[11px] text-white/40">Customer-facing security, compliance, and certification documentation</div>
+          </div>
+          <ArrowRight size={14} className="text-amber-400 group-hover:translate-x-1 transition-transform" />
+        </Link>
         <SelfHealingEngine />
       </WorkspaceContainer>
     ),

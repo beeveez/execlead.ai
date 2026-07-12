@@ -154,6 +154,63 @@ export const CERTIFICATION_TIMELINE = [
 // ════════════════════════════════════════════════════════════
 // EXEC™ INTEGRATION — Truthful Q&A
 // ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// SECTION 8 — PLATFORM STATUS™
+// ════════════════════════════════════════════════════════════
+export const PLATFORM_STATUS = {
+  currentStatus: "Operational",
+  uptime: "99.9%",
+  lastIncident: "None in the last 90 days",
+  components: [
+    { name: "Web Application", status: "operational" },
+    { name: "Authentication Services", status: "operational" },
+    { name: "AI Engine (EXEC™)", status: "operational" },
+    { name: "Database", status: "operational" },
+    { name: "File Storage", status: "operational" },
+    { name: "Email Delivery", status: "operational" },
+    { name: "Payment Processing", status: "operational" },
+    { name: "Platform Governance™", status: "operational" },
+  ],
+};
+
+// ════════════════════════════════════════════════════════════
+// SECTION 9 — SECURITY CONTACT™
+// ════════════════════════════════════════════════════════════
+export const SECURITY_CONTACT = {
+  email: "security@execlead.ai",
+  pgpFingerprint: "Available upon request to verified security researchers",
+  responseTime: "Within 48 hours for security inquiries",
+  escalationPath: "Critical vulnerabilities are escalated to the CTO within 1 hour",
+  teams: [
+    { name: "Security Team", purpose: "Vulnerability reports, security assessments, penetration testing coordination", contact: "security@execlead.ai" },
+    { name: "Compliance Team", purpose: "GDPR, data processing agreements, compliance documentation", contact: "compliance@execlead.ai" },
+    { name: "Privacy Team", purpose: "Data subject requests, privacy inquiries, data residency", contact: "privacy@execlead.ai" },
+    { name: "Enterprise Trust", purpose: "Security questionnaires, vendor assessments, due diligence", contact: "trust@execlead.ai" },
+  ],
+};
+
+// ════════════════════════════════════════════════════════════
+// SECTION 10 — REPORT A SECURITY ISSUE™
+// ════════════════════════════════════════════════════════════
+export const SECURITY_REPORTING = {
+  policy: "EXECLEAD.AI welcomes responsible disclosure of security vulnerabilities from independent researchers, customers, and partners. We are committed to working with the security community to verify and remediate reported vulnerabilities.",
+  scope: "All EXECLEAD.AI-owned domains, subdomains, applications, and APIs. Excludes: social engineering, physical attacks, DoS/DDoS, automated scanning tools without prior coordination.",
+  process: [
+    { step: 1, title: "Report", detail: "Email security@execlead.ai with a detailed description of the vulnerability, including reproduction steps and potential impact." },
+    { step: 2, title: "Acknowledge", detail: "We acknowledge receipt within 48 hours and assign a tracking ID." },
+    { step: 3, title: "Validate", detail: "Our security team validates the report and assesses severity using CVSS scoring." },
+    { step: 4, title: "Remediate", detail: "We develop and deploy a fix. Critical vulnerabilities are patched within 72 hours." },
+    { step: 5, title: "Disclose", detail: "After remediation, we coordinate public disclosure timelines with the reporter." },
+  ],
+  guidelines: [
+    "Provide detailed reports with reproduction steps",
+    "Allow reasonable time for remediation before public disclosure",
+    "Do not access or modify user data that is not your own",
+    "Do not degrade platform performance or availability",
+    "Report vulnerabilities privately — do not post publicly until remediated",
+  ],
+};
+
 export const EXEC_TRUST_QA = [
   {
     question: "What security features are implemented?",

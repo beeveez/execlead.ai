@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Building, Users, TrendingUp, Loader2, Plus, Crown } from "lucide-react";
+import { Building, Users, TrendingUp, Loader2, Plus, Crown, ShieldCheck, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { useSubscription } from "@/lib/SubscriptionContext";
@@ -79,6 +80,16 @@ export default function EnterpriseDashboard() {
         </div>
       ) : (
         <>
+          {/* Trust Center Link */}
+          <Link to="/trust-center" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors group">
+            <ShieldCheck size={18} className="text-emerald-400 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-medium text-white">Enterprise Trust Center™</div>
+              <div className="text-[11px] text-white/40">Security, compliance, and certification documentation for procurement and vendor review</div>
+            </div>
+            <ArrowRight size={14} className="text-emerald-400 group-hover:translate-x-1 transition-transform" />
+          </Link>
+
           {/* Org Info */}
           <div className="bg-gradient-to-br from-emerald-500/10 to-white/[0.02] border border-emerald-500/10 rounded-xl p-6">
             <div className="flex items-center justify-between">

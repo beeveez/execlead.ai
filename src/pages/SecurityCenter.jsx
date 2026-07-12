@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ShieldCheck, Eye, Lock, Activity, Key, AlertTriangle,
   FileText, Code, Brain, Shield, Monitor, AlertCircle, Smartphone,
-  Users, Settings,
+  Users, Settings, ArrowRight,
 } from "lucide-react";
 import { SECURITY_META } from "@/lib/securityArchitecture";
 import SecurityOverview from "@/components/security/SecurityOverview";
@@ -59,6 +60,9 @@ export default function SecurityCenter() {
             </span>
           ))}
         </div>
+        <Link to="/trust-center" className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium hover:bg-violet-500/20 transition-colors">
+          <ShieldCheck size={14} /> Enterprise Trust Center™ <ArrowRight size={12} />
+        </Link>
       </div>
 
       {/* Tabs */}

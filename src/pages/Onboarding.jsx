@@ -5,6 +5,7 @@ import { COMPANIES, CAREER_PATHS, COUNTRIES, CAREER_STAGES } from "@/lib/constan
 import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildTruthEnginePrompt, buildRoadmapPrompt, getResumeHealthScore } from "@/lib/resume";
 import { motion, AnimatePresence } from "framer-motion";
 import { getStoredAttribution } from "@/lib/referralEngine";
+import { markOnboardingCompleted } from "@/lib/sessionRestore";
 import { Target, ArrowRight, Check, Search, FileUp, Loader2, Sparkles, SkipForward, ShieldAlert, Zap } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -97,6 +98,7 @@ export default function Onboarding() {
         weak_areas: [], strong_areas: [],
         subscription_plan: "free", subscription_status: "active", subscription_cycle: "monthly",
       });
+      markOnboardingCompleted();
       window.location.href = "/dashboard";
     } catch (e) { setSaving(false); }
   };
@@ -135,6 +137,7 @@ export default function Onboarding() {
         icon: "🎯", action_url: "/resume",
       });
 
+      markOnboardingCompleted();
       window.location.href = "/dashboard";
     } catch (e) { setSaving(false); }
   };

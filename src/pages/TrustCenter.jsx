@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 import {
   ShieldCheck, Lock, CheckCircle2, Boxes, Brain, Activity,
   Award, ArrowRight, ChevronRight, FileText, Heart,
-  Mail, Bug, Download, Server,
+  Mail, Bug, Download, Server, LayoutDashboard,
 } from "lucide-react";
 import StatusBadge from "@/components/trust/StatusBadge";
 import CapabilityCard from "@/components/trust/CapabilityCard";
@@ -32,6 +33,7 @@ const SECTIONS = [
 
 export default function TrustCenter() {
   const [section, setSection] = useState("security");
+  const { isAuthenticated, isLoadingAuth } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -47,9 +49,17 @@ export default function TrustCenter() {
             earned certifications. We never imply certification unless it has been officially obtained.
           </p>
           <div className="flex items-center gap-4 mt-6">
-            <Link to="/register" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
-              Get Started <ArrowRight size={14} />
-            </Link>
+            {isLoadingAuth ? (
+              <div className="w-32 h-9 rounded-lg bg-white/5 animate-pulse" />
+            ) : isAuthenticated ? (
+              <Link to="/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
+                <LayoutDashboard size={14} /> Open Dashboard <ArrowRight size={14} />
+              </Link>
+            ) : (
+              <Link to="/login?redirect=/dashboard" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
+                Get Started <ArrowRight size={14} />
+              </Link>
+            )}
             <Link to="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">Back to home</Link>
           </div>
         </div>

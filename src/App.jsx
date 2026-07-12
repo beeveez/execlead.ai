@@ -13,6 +13,7 @@ import { WorkspaceProvider } from '@/lib/WorkspaceContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
+import RouteTracker from './components/RouteTracker';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
 import ExecConcierge from '@/components/concierge/ExecConcierge';
@@ -375,6 +376,7 @@ function App() {
         <ErrorBoundary>
           <Router>
             <ScrollToTop />
+            <RouteTracker />
             <ExecConciergeProvider>
               <AuthenticatedApp />
               <ExecConcierge />

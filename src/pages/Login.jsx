@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { getPostAuthRedirect } from "@/lib/sessionRestore";
 import { Mail, Lock, Loader2, AlertCircle, ArrowRight, Rocket } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
@@ -16,7 +17,7 @@ export default function Login() {
 
   const handleProvider = (provider) => {
     setError("");
-    base44.auth.loginWithProvider(provider, "/");
+    base44.auth.loginWithProvider(provider, getPostAuthRedirect());
   };
 
   const handleSubmit = async (e) => {
@@ -25,7 +26,7 @@ export default function Login() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = "/";
+      window.location.href = getPostAuthRedirect();
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {

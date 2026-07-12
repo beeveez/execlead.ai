@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { getPostAuthRedirect } from "@/lib/sessionRestore";
 import { Mail, Lock, Loader2, AlertCircle, ArrowRight, Check } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
@@ -19,7 +20,7 @@ export default function Register() {
 
   const handleProvider = (provider) => {
     setError("");
-    base44.auth.loginWithProvider(provider, "/");
+    base44.auth.loginWithProvider(provider, getPostAuthRedirect());
   };
 
   const handleSubmit = async (e) => {
@@ -52,7 +53,7 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
-      window.location.href = "/";
+      window.location.href = getPostAuthRedirect();
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {

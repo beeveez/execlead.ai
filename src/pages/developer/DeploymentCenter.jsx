@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/AuthContext";
 import { runDeploymentPipeline, DEPLOYMENT_PIPELINE_STAGES } from "@/lib/deploymentPipeline";
 import PipelineStage from "@/components/developer/deployment/PipelineStage";
+import DiagnosticsDrawer from "@/components/developer/deployment/DiagnosticsDrawer";
 
 const ENV_INFO = [
   { label: "Environment", value: "Production", icon: Server },
@@ -12,11 +13,22 @@ const ENV_INFO = [
   { label: "Build Date", value: new Date().toISOString().split("T")[0], icon: Rocket },
 ];
 
+const BADGE_FILTERS = {
+  failures: "error",
+  errors: "error",
+  warnings: "warning",
+  pending: "warning",
+  alerts: "warning",
+  certified: "all",
+  score: "all",
+};
+
 export default function DeploymentCenter() {
   const { user } = useAuth();
   const [pipelineState, setPipelineState] = useState({});
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState(null);
+  const [activeDrawer, setActiveDrawer] = useState(null);
 
   const handlePublish = async () => {
     setIsRunning(true);
@@ -37,6 +49,14 @@ export default function DeploymentCenter() {
     }
   };
 
+  const handleStageClick = (stageId) => {
+    setActiveDrawer({ stageId, initialFilter: "all" });
+  };
+
+  const handleBadgeClick = (stageId, badgeKey) => {
+    setActiveDrawer({ stageId, initialFilter: BADGE_FILTERS[badgeKey] || "all" });
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-4">
       {/* Header */}
@@ -46,6 +66,7 @@ export default function DeploymentCenter() {
             <Rocket size={12} className="text-indigo-400" /> System
           </div>
           <h1 className="text-2xl font-bold text-white">Deployment Center</h1>
+          <p className="text-white/40 text-sm mt-1">Interactive engineering operations console — every stage, metric, and finding is clickable.</p>
         </div>
         <Button onClick={handlePublish} disabled={isRunning} className="bg-indigo-600 hover:bg-indigo-500">
           {isRunning ? (
@@ -98,12 +119,15 @@ export default function DeploymentCenter() {
           <GitBranch size={14} className="text-indigo-400" />
           <h2 className="text-white/80 text-sm font-semibold uppercase tracking-wider">Deployment Pipeline</h2>
           {!isRunning && !result && (
-            <span className="text-white/30 text-xs ml-auto">Click Publish to start</span>
+            <span className="text-white/30 text-xs ml-auto">Click Publish to start · Click any stage or badge for diagnostics</span>
           )}
           {isRunning && (
             <span className="text-blue-400 text-xs ml-auto flex items-center gap-1.5">
               <Loader2 size={12} className="animate-spin" /> Running pipeline...
             </span>
+          )}
+          {result && !isRunning && (
+            <span className="text-white/30 text-xs ml-auto">Click any stage or badge to explore diagnostics</span>
           )}
         </div>
         <div>
@@ -114,10 +138,22 @@ export default function DeploymentCenter() {
               index={i}
               state={pipelineState[stage.id]}
               isLast={i === DEPLOYMENT_PIPELINE_STAGES.length - 1}
+              onStageClick={handleStageClick}
+              onBadgeClick={handleBadgeClick}
             />
           ))}
         </div>
       </div>
+
+      {/* Diagnostics Drawer */}
+      {activeDrawer && (
+        <DiagnosticsDrawer
+          stageId={activeDrawer.stageId}
+          stageData={pipelineState[activeDrawer.stageId]}
+          initialFilter={activeDrawer.initialFilter}
+          onClose={() => setActiveDrawer(null)}
+        />
+      )}
     </div>
   );
 }

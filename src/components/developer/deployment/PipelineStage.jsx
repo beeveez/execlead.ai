@@ -1,5 +1,6 @@
 import React from "react";
-import { CheckCircle2, AlertTriangle, XCircle, Loader2, Clock } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Loader2, Clock, ChevronRight } from "lucide-react";
+import ClickableBadge from "./ClickableBadge";
 
 const STATUS_CONFIG = {
   pending: { icon: Clock, color: "text-white/20", label: "Pending", border: "border-white/10", bg: "" },
@@ -9,10 +10,33 @@ const STATUS_CONFIG = {
   failed: { icon: XCircle, color: "text-red-400", label: "Failed", border: "border-red-400/40", bg: "bg-red-400/10" },
 };
 
-export default function PipelineStage({ stage, index, state, isLast }) {
+const BADGE_TONES = {
+  score: "default",
+  certified: "warning",
+  failures: "error",
+  warnings: "warning",
+  repaired: "success",
+  pending: "info",
+  alerts: "warning",
+  rolledBack: "error",
+  assets: "success",
+  registries: "default",
+  findings: "warning",
+  errors: "error",
+  caches: "success",
+  capabilityGraphNodes: "default",
+  platformGraphNodes: "default",
+  passed: "success",
+  total: "default",
+  healthScore: "default",
+  canDeploy: "success",
+};
+
+export default function PipelineStage({ stage, index, state, isLast, onStageClick, onBadgeClick }) {
   const status = state?.status || "pending";
   const config = STATUS_CONFIG[status];
   const StatusIcon = config.icon;
+  const isClickable = status !== "pending" && status !== "running";
 
   return (
     <div className="flex gap-4">
@@ -32,8 +56,14 @@ export default function PipelineStage({ stage, index, state, isLast }) {
 
       {/* Stage content */}
       <div className={`flex-1 pb-6 ${status === "pending" ? "opacity-40" : ""}`}>
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-white font-medium text-sm">{stage.name}</h3>
+        <div
+          className={`flex items-center justify-between mb-1 ${isClickable ? "cursor-pointer group" : ""}`}
+          onClick={() => isClickable && onStageClick?.(stage.id)}
+        >
+          <h3 className={`text-white font-medium text-sm flex items-center gap-1.5 ${isClickable ? "group-hover:text-indigo-400 transition-colors" : ""}`}>
+            {stage.name}
+            {isClickable && <ChevronRight size={12} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />}
+          </h3>
           <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
         </div>
         <p className="text-white/40 text-xs mb-2">{stage.description}</p>
@@ -41,11 +71,15 @@ export default function PipelineStage({ stage, index, state, isLast }) {
           <div className="flex flex-wrap gap-2">
             {Object.entries(state.data)
               .filter(([k]) => k !== "error")
-              .slice(0, 5)
+              .slice(0, 6)
               .map(([key, val]) => (
-                <span key={key} className="text-xs bg-white/5 border border-white/5 rounded px-2 py-0.5 text-white/50 font-mono">
-                  {key}: {String(val)}
-                </span>
+                <ClickableBadge
+                  key={key}
+                  label={key}
+                  value={val}
+                  tone={BADGE_TONES[key] || "default"}
+                  onClick={() => onBadgeClick?.(stage.id, key)}
+                />
               ))}
           </div>
         )}

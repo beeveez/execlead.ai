@@ -76,6 +76,7 @@ const APP_ROUTES = [
   { path: "/developer/migrations", component: "MigrationHistory" },
   { path: "/developer/deployments", component: "DeploymentCenter" },
   { path: "/developer/organizations", component: "OrganizationAdmin" },
+  { path: "/developer/experience-audit", component: "PlatformExperienceAudit" },
   { path: "/cpq", component: "CPQWizard" },
   { path: "/cpq-dashboard", component: "CPQDashboard" },
   { path: "/company-admin", component: "CompanyAdmin" },

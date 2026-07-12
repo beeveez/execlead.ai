@@ -345,6 +345,7 @@ export const DEVELOPER_WORKSPACE_NAV = [
       { path: "/developer/database", label: "Database Tools", icon: Database },
       { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
       { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
+      { path: "/developer/experience-audit", label: "Experience Audit", icon: ClipboardCheck },
     ],
   },
 ];
@@ -383,6 +384,7 @@ export const ROUTE_ACCESS = {
   "/developer/migrations": ["developer", "super_admin"],
   "/developer/deployments": ["developer", "super_admin"],
   "/developer/organizations": ["developer", "super_admin"],
+  "/developer/experience-audit": ["developer", "super_admin"],
   "/feature-management": ["developer", "super_admin"],
   "/guardian": ["developer", "super_admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],

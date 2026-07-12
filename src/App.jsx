@@ -144,6 +144,7 @@ import PlatformStabilityDashboard from '@/pages/developer/PlatformStabilityDashb
 import CognitiveExcellenceDashboard from '@/pages/developer/CognitiveExcellenceDashboard';
 import ScalabilityAssessment from '@/pages/developer/ScalabilityAssessment';
 import PerformanceResilience from '@/pages/developer/PerformanceResilience';
+import PlatformExperienceAudit from '@/pages/developer/PlatformExperienceAudit';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -341,6 +342,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/cognitive" element={<CognitiveExcellenceDashboard />} />
           <Route path="/developer/scalability" element={<ScalabilityAssessment />} />
           <Route path="/developer/performance-resilience" element={<PerformanceResilience />} />
+          <Route path="/developer/experience-audit" element={<PlatformExperienceAudit />} />
           <Route path="/cpq" element={<CPQWizard />} />
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />

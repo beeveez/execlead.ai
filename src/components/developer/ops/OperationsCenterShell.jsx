@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   Radar, ShieldCheck, Activity, Brain, Rocket, Boxes, Award, Sparkles,
-  Lock, BarChart3, ScrollText, Zap, ChevronRight, Cpu,
+  Lock, BarChart3, ScrollText, Zap, ChevronRight, Cpu, TrendingUp,
 } from "lucide-react";
 import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
 import { usePlatformState } from "@/lib/PlatformStateContext";
@@ -9,6 +9,7 @@ import { computeReadinessLevel } from "@/lib/platformReadinessModel";
 import { useGuardian } from "@/lib/GuardianContext";
 import MissionControl from "./MissionControl";
 import LaunchReadinessCenter from "@/components/developer/launch/LaunchReadinessCenter";
+import ScalabilityAssessmentCenter from "@/components/developer/scalability/ScalabilityAssessmentCenter";
 
 // Diagnostic components
 import GovernanceCertificationBanner from "@/components/developer/GovernanceCertificationBanner";
@@ -180,6 +181,14 @@ const WORKSPACES = [
         <MissionControlDashboard />
       </WorkspaceContainer>
     ),
+  },
+  {
+    id: "scalability-assessment",
+    name: "Scalability Assessment",
+    icon: TrendingUp,
+    color: "cyan",
+    description: "Capacity & scaling analysis",
+    render: () => <ScalabilityAssessmentCenter />,
   },
   {
     id: "audit-center",

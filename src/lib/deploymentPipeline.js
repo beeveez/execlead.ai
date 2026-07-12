@@ -72,7 +72,8 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
   await delay(150);
   try {
     const cert = runGovernancePipeline("deployment", 0);
-    setStage("platform_validation", cert.certified ? "completed" : "warning", {
+    const validationStatus = cert.failures > 0 ? "failed" : (cert.certified ? "completed" : "warning");
+    setStage("platform_validation", validationStatus, {
       score: cert.overallGovernanceScore,
       certified: cert.certified,
       failures: cert.failures,

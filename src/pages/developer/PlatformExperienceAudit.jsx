@@ -130,8 +130,11 @@ export default function PlatformExperienceAudit() {
           <Link to="/developer" className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 mb-2 transition-colors">
             <ArrowLeft size={12} /> Developer Console
           </Link>
-          <h1 className="text-xl font-bold text-white">Platform Experience Audit™</h1>
-          <p className="text-white/40 text-sm mt-0.5">Self-healing engine — discover, classify, repair, verify.</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-white">Platform Autonomic Experience Engine™</h1>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 font-medium">v3.0</span>
+          </div>
+          <p className="text-white/40 text-sm mt-0.5">Autonomous engineering platform for continuous discovery, classification, repair, verification, rollback, learning, and engineering intelligence.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)} className="bg-white/5 border-white/10 text-white/70 hover:text-white">

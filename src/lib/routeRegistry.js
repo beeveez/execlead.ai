@@ -77,7 +77,7 @@ const APP_ROUTES = [
   { path: "/developer/migrations", component: "MigrationHistory" },
   { path: "/developer/deployments", component: "DeploymentCenter" },
   { path: "/developer/organizations", component: "OrganizationAdmin" },
-  { path: "/developer/experience-audit", component: "PlatformExperienceAudit" },
+  { path: "/developer/experience-audit", component: "PlatformExperienceAudit", name: "Platform Autonomic Experience Engine™" },
   { path: "/cpq", component: "CPQWizard" },
   { path: "/cpq-dashboard", component: "CPQDashboard" },
   { path: "/company-admin", component: "CompanyAdmin" },
@@ -132,7 +132,7 @@ function buildRegistry() {
     const duplicate = seen.has(r.path);
     seen.add(r.path);
     return {
-      name: deriveName(r.path, r.component),
+      name: r.name || deriveName(r.path, r.component),
       url: r.path,
       component: r.component,
       permission: permission ? permission.join(", ") : "authenticated",

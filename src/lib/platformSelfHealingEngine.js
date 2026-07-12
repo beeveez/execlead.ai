@@ -189,7 +189,7 @@ export function downloadAuditJSON(cycleResult) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `exec-experience-audit-${new Date().toISOString().split("T")[0]}.json`;
+  a.download = `exec-autonomic-engine-${new Date().toISOString().split("T")[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -324,7 +324,7 @@ export function buildExecContext(cycleResult) {
   const metrics = computeEngineeringMetrics(cycleResult);
   const recurring = getRecurringIssues();
 
-  return `EXECLEAD.AI PLATFORM EXPERIENCE AUDIT — LIVE TELEMETRY
+  return `EXECLEAD.AI PLATFORM AUTONOMIC EXPERIENCE ENGINE — LIVE TELEMETRY
 
 SCORE: ${cycleResult.score}/100 (${cycleResult.tier?.label || "Unknown"})
 TARGET: 90

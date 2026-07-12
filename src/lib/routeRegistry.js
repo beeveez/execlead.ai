@@ -117,6 +117,7 @@ const APP_ROUTES = [
   { path: "/identity-verification-admin", component: "IdentityVerificationAdmin" },
   { path: "/legacy-library/admin", component: "LegacyAdmin" },
   { path: "/developer/diagnostics", component: "Diagnostics" },
+  { path: "/developer/knowledge-sync", component: "ExecKnowledgeSync", name: "EXEC™ Knowledge Synchronization™" },
   { path: "/exec-admin", component: "ExecAdmin" },
 ];
 

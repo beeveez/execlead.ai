@@ -8,6 +8,7 @@ import { computePlatformHealth } from "./selfHealingEngine";
 import { useGuardian } from "./GuardianContext";
 import { subscribeAll, getLastBroadcast, getSubscriberCount } from "./platformEventBus";
 import { computeReadinessIndex } from "./platformReadinessIndex";
+import { runKnowledgeSync } from "./execKnowledgeSyncEngine";
 import { useAuth } from "./AuthContext";
 import { base44 } from "@/api/base44Client";
 
@@ -264,6 +265,34 @@ export function PlatformStateProvider({ children }) {
     setState(computeState());
     setLastRefresh(new Date().toISOString());
   }, [computeState]);
+
+  // ── AUTOMATIC KNOWLEDGE SYNCHRONIZATION ──
+  // After significant platform events, EXEC™ automatically synchronizes
+  // its knowledge so every AI persona understands the latest platform state.
+  // Debounced 5s to avoid rapid-fire syncs during batch changes.
+  useEffect(() => {
+    const TRIGGER_EVENTS = [
+      "PlatformCommitted", "ManifestUpdated", "DeploymentCompleted",
+      "KnowledgeUpdated", "RegistrySynchronizationCompleted", "GuardianCompleted",
+    ];
+    let debounceTimer = null;
+    const unsub = subscribeAll((eventName) => {
+      if (!TRIGGER_EVENTS.includes(eventName)) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        try {
+          runKnowledgeSync();
+          setLastKnowledgeSync(new Date().toISOString());
+        } catch (e) {
+          console.error("[PlatformStateManager] Auto knowledge sync failed:", e);
+        }
+      }, 5000);
+    });
+    return () => {
+      unsub();
+      clearTimeout(debounceTimer);
+    };
+  }, []);
 
   const refreshState = useCallback(() => {
     try {

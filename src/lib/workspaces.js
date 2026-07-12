@@ -136,6 +136,7 @@ export const WORKSPACE_NAV = {
     { label: "Workspace", items: [
       { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
       { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
+      { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
       { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
       { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
@@ -211,6 +212,7 @@ const ROUTE_WORKSPACE = {
   "/ai-command-center": ["executive"],
   "/developer/ai-command-center": ["developer"],
   "/developer": ["developer"], "/developer/executive-platform-status": ["developer"],
+  "/developer/knowledge-sync": ["developer"],
   "/feature-management": ["developer"], "/guardian": ["developer"],
   "/trust-center": ["developer"],
 };

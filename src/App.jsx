@@ -140,6 +140,7 @@ import DeploymentCenter from '@/pages/developer/DeploymentCenter';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import Diagnostics from '@/pages/developer/Diagnostics';
 import DiagnosticsAlias from '@/pages/developer/Diagnostics';
+import ExecKnowledgeSync from '@/pages/developer/ExecKnowledgeSync';
 import LaunchReadiness from '@/pages/developer/LaunchReadiness';
 import PlatformStabilityDashboard from '@/pages/developer/PlatformStabilityDashboard';
 import CognitiveExcellenceDashboard from '@/pages/developer/CognitiveExcellenceDashboard';
@@ -339,6 +340,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/developer/diagnostics" element={<Diagnostics />} />
           <Route path="/developer/governance" element={<DiagnosticsAlias />} />
+          <Route path="/developer/knowledge-sync" element={<ExecKnowledgeSync />} />
           <Route path="/developer/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/developer/stability" element={<PlatformStabilityDashboard />} />
           <Route path="/developer/cognitive" element={<CognitiveExcellenceDashboard />} />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   Radar, ShieldCheck, Activity, Brain, Rocket, Boxes, Award, Sparkles,
-  Lock, BarChart3, ScrollText, Zap, ChevronRight, Cpu, TrendingUp,
+  Lock, BarChart3, ScrollText, Zap, ChevronRight, Cpu, TrendingUp, Gauge,
 } from "lucide-react";
 import { useGovernancePipeline } from "@/lib/GovernancePipelineContext";
 import { usePlatformState } from "@/lib/PlatformStateContext";
@@ -10,6 +10,7 @@ import { useGuardian } from "@/lib/GuardianContext";
 import MissionControl from "./MissionControl";
 import LaunchReadinessCenter from "@/components/developer/launch/LaunchReadinessCenter";
 import ScalabilityAssessmentCenter from "@/components/developer/scalability/ScalabilityAssessmentCenter";
+import PerformanceResilienceCenter from "@/components/developer/prp/PerformanceResilienceCenter";
 
 // Diagnostic components
 import GovernanceCertificationBanner from "@/components/developer/GovernanceCertificationBanner";
@@ -189,6 +190,14 @@ const WORKSPACES = [
     color: "cyan",
     description: "Capacity & scaling analysis",
     render: () => <ScalabilityAssessmentCenter />,
+  },
+  {
+    id: "performance-resilience",
+    name: "Performance & Resilience",
+    icon: Gauge,
+    color: "indigo",
+    description: "PRP™ — final launch phase",
+    render: () => <PerformanceResilienceCenter />,
   },
   {
     id: "audit-center",

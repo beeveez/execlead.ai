@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -13,6 +13,8 @@ import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
 import ConciergeDiagnosticsPanel from "./ConciergeDiagnosticsPanel";
+import EvidenceCompletenessPanel from "./EvidenceCompletenessPanel";
+import { computeEvidenceCoverage } from "@/lib/evidenceCompletenessEngine";
 
 export default function ExecConcierge() {
   const { user } = useAuth();
@@ -110,6 +112,8 @@ export default function ExecConcierge() {
     sendMessage(action.message);
   };
 
+  const evidenceCoverage = useMemo(() => computeEvidenceCoverage(userContext), [userContext]);
+
   const showWelcome = !loading && !showDiagnostics && messages.length <= 1;
   const showSuggestions =
     !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
@@ -202,6 +206,10 @@ export default function ExecConcierge() {
                 <X size={18} />
               </button>
             </div>
+
+            {user && userContext && (
+              <EvidenceCompletenessPanel coverage={evidenceCoverage} onNavigate={handleTask} />
+            )}
 
             {activeWorkspace === "developer" && (
               <ExecDebugPanel

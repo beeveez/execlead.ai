@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase";
 import { buildEnforcementDirective, WORKSPACE_CONTEXT_LABELS } from "@/lib/workspaceContextEnforcement";
+import { computeEvidenceCoverage, formatEvidenceForPrompt, formatEvidenceBriefing } from "@/lib/evidenceCompletenessEngine";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -194,7 +195,9 @@ export function generateBriefing(firstName, userContext, pageContext, persona) {
         insights.push("⚠️ Identity not verified yet — [verify now](/identity-verification)");
       }
       if (insights.length > 0) {
-        return `${personaGreeting}\n\n**Your Executive Briefing:**\n${insights.map(i => `• ${i}`).join("\n")}`;
+        const evidence = computeEvidenceCoverage(userContext);
+        const evidenceLine = formatEvidenceBriefing(evidence);
+        return `${personaGreeting}\n\n**Your Executive Briefing:**\n${insights.map(i => `• ${i}`).join("\n")}\n\n${evidenceLine}`;
       }
     }
     return personaGreeting;
@@ -553,6 +556,10 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
       }
     }
   }
+
+  // ── Evidence Completeness Engine™ — inject evidence coverage so EXEC™ reasons over available data ──
+  const evidence = computeEvidenceCoverage(userContext);
+  context += `\n\n${formatEvidenceForPrompt(evidence)}`;
 
   context += `\n\nPLATFORM KNOWLEDGE INDEX (use for "where is" and feature questions):\n${buildKnowledgeIndexSummary()}`;
 

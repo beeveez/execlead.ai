@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { runSelfHealingCycle, getHistory, getRecurringIssues, markApplied, dismissFinding, resetFinding, downloadAuditJSON } from "@/lib/platformSelfHealingEngine";
+import { runSelfHealingCycle, getHistory, getRecurringIssues, markApplied, dismissFinding, resetFinding, downloadAuditJSON, rollbackFinding } from "@/lib/platformSelfHealingEngine";
+import EngineeringMetrics from "@/components/developer/audit/EngineeringMetrics";
+import ExecExperienceIntelligence from "@/components/developer/audit/ExecExperienceIntelligence";
+import RecommendationsPanel from "@/components/developer/audit/RecommendationsPanel";
 import { scoreTier, FINDING_TYPE_LABELS } from "@/lib/platformExperienceAudit";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +32,7 @@ const LIFECYCLE_BADGE = {
   applied: { label: "Applied", color: "#6366f1" },
   verified: { label: "Verified", color: "#10b981" },
   failed: { label: "Failed", color: "#ef4444" },
+  rolled_back: { label: "Rolled Back", color: "#ef4444" },
   dismissed: { label: "Dismissed", color: "#6b7280" },
 };
 
@@ -200,6 +204,13 @@ export default function PlatformExperienceAudit() {
             <p className="text-white/50 text-sm">
               {findings.length} findings · {summary.autoRepairable} auto-repairable · {summary.requiresReview} require review
             </p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-[10px] text-white/30 uppercase tracking-wider">Target: 90</span>
+              <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min((score / 90) * 100, 100)}%`, backgroundColor: score >= 90 ? "#10b981" : "#6366f1" }} />
+              </div>
+              {score >= 90 ? <span className="text-[10px] text-emerald-400">✓ On target</span> : <span className="text-[10px] text-white/30">{90 - score} pts to go</span>}
+            </div>
             {summary.autoRepairable > 0 && (
               <p className="text-indigo-400 text-xs mt-1 flex items-center gap-1">
                 <Zap size={11} /> Applying all safe repairs would raise the score to <strong className="ml-0.5">{expectedAfter}</strong>
@@ -226,6 +237,15 @@ export default function PlatformExperienceAudit() {
           ))}
         </div>
       )}
+
+      {/* Engineering Dashboard */}
+      {result && !running && <EngineeringMetrics result={result} />}
+
+      {/* EXEC™ Experience Intelligence */}
+      {result && !running && <ExecExperienceIntelligence result={result} />}
+
+      {/* Recommendations */}
+      {result && !running && <RecommendationsPanel result={result} />}
 
       {/* Learning Engine: Recurring Issues */}
       {recurring.length > 0 && !running && (

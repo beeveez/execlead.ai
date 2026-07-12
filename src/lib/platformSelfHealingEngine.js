@@ -193,3 +193,166 @@ export function downloadAuditJSON(cycleResult) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+// ─── Rollback Engine™ ───
+// Explicitly marks a finding as rolled back — the developer undid the code change
+// because verification failed. Logs the rollback for audit history.
+export function rollbackFinding(signature, reason = "") {
+  const entry = getLifecycleEntry(signature);
+  const prevState = entry.status;
+  entry.status = "rolled_back";
+  entry.rolledBackFrom = prevState;
+  logLifecycleEvent(entry, "rolled_back", reason || `Verification failed — restoring previous state (was ${prevState})`);
+  setLifecycleEntry(signature, entry);
+}
+
+// ─── Engineering Metrics ───
+// Computes the full Engineering Dashboard KPI set from lifecycle state + history.
+export function computeEngineeringMetrics(cycleResult) {
+  const lifecycle = loadLifecycle();
+  const entries = Object.values(lifecycle);
+  const todayStr = new Date().toDateString();
+
+  const repairedToday = entries.filter((e) =>
+    e.history?.some((h) => h.action === "marked_applied" && new Date(h.timestamp).toDateString() === todayStr)
+  ).length;
+
+  const verified = entries.filter((e) => e.status === "verified").length;
+  const failed = entries.filter((e) => e.status === "failed").length;
+  const rolledBack = entries.filter((e) => e.status === "rolled_back").length;
+  const totalAttempts = verified + failed + rolledBack;
+  const verificationSuccessRate = totalAttempts > 0 ? Math.round((verified / totalAttempts) * 100) : 100;
+
+  // Technical debt: sum of estimated fix minutes for all open/applied/failed findings
+  const techDebtMinutes = (cycleResult?.findings || [])
+    .filter((f) => f.lifecycle !== "verified" && f.lifecycle !== "dismissed")
+    .reduce((sum, f) => sum + (parseInt(f.estimated_fix_time) || 0), 0);
+
+  // Engineering hours saved: each verified repair saved its estimated fix time
+  const hoursSavedMinutes = entries
+    .filter((e) => e.status === "verified")
+    .reduce((sum, e) => sum + (parseInt(e.savedMinutes) || 3), 0);
+
+  const recurring = getRecurringIssues();
+
+  return {
+    totalFindings: cycleResult?.findings?.length || 0,
+    autoRepairable: cycleResult?.summary?.autoRepairable || 0,
+    requiresReview: cycleResult?.summary?.requiresReview || 0,
+    repairedToday,
+    pendingReview: cycleResult?.summary?.requiresReview || 0,
+    verificationSuccessRate,
+    rollbackCount: rolledBack + failed,
+    recurringCount: recurring.length,
+    technicalDebtHours: Math.round((techDebtMinutes / 60) * 10) / 10,
+    engineeringHoursSaved: Math.round((hoursSavedMinutes / 60) * 10) / 10,
+    experienceScore: cycleResult?.score || 0,
+    expectedAfterRepair: cycleResult?.summary?.expectedScoreAfterRepair || 0,
+  };
+}
+
+// ─── Recommendation Engine™ ───
+// Analyzes recurring patterns + current findings to suggest structural fixes.
+export function generateRecommendations(cycleResult) {
+  const recs = [];
+  const recurring = getRecurringIssues();
+  const findings = cycleResult?.findings || [];
+
+  // Cluster recurring issues by type
+  const recurringByType = {};
+  recurring.forEach((r) => {
+    const type = r.signature.split(":")[0];
+    recurringByType[type] = (recurringByType[type] || 0) + 1;
+  });
+  Object.entries(recurringByType).forEach(([type, count]) => {
+    if (count >= 2) {
+      recs.push({
+        priority: "high",
+        title: `Structural fix needed — recurring ${type.replace(/_/g, " ")} (${count} runs)`,
+        detail: `${count} recurring instances across audit runs. Individual patches keep regenerating — a structural guard is needed.`,
+        action: `Implement a permanent prevention: CI check, lint rule, or registry validator that blocks ${type} from recurring.`,
+      });
+    }
+  });
+
+  // Broken nav — critical, user-facing
+  const broken = findings.filter((f) => f.type === "broken_nav");
+  if (broken.length > 0) {
+    recs.push({
+      priority: "critical",
+      title: `${broken.length} broken nav link${broken.length !== 1 ? "s" : ""} — users hitting dead ends`,
+      detail: "Sidebar items point to unregistered routes. This is a live user-facing issue.",
+      action: "Remove the broken nav items or register the missing routes immediately.",
+    });
+  }
+
+  // Orphan route cluster
+  const orphans = findings.filter((f) => f.type === "orphan_route");
+  if (orphans.length >= 3) {
+    recs.push({
+      priority: "medium",
+      title: `${orphans.length} orphan routes — nav completeness gap`,
+      detail: "Multiple routes have no sidebar entry. The workspace nav definitions lag behind route additions.",
+      action: "Add a CI check that fails when a registered route lacks a nav entry in WORKSPACE_NAV.",
+    });
+  }
+
+  // Score below target
+  if ((cycleResult?.score || 0) < 90) {
+    recs.push({
+      priority: "high",
+      title: `Experience Score ${cycleResult?.score} — below the 90 production target`,
+      detail: `Applying all ${cycleResult?.summary?.autoRepairable || 0} safe repairs would raise the score to ${cycleResult?.summary?.expectedScoreAfterRepair || 0}.`,
+      action: "Apply all auto-repairable findings, mark them applied, then re-run verification.",
+    });
+  }
+
+  const order = { critical: 0, high: 1, medium: 2, low: 3 };
+  return recs.sort((a, b) => order[a.priority] - order[b.priority]);
+}
+
+// ─── EXEC™ Experience Intelligence context builder ───
+// Serializes live audit telemetry into a context string for InvokeLLM.
+export function buildExecContext(cycleResult) {
+  if (!cycleResult) return "No audit data available.";
+  const findings = cycleResult.findings || [];
+  const byType = {};
+  findings.forEach((f) => { byType[f.type] = (byType[f.type] || 0) + 1; });
+  const bySev = { critical: 0, high: 0, medium: 0, low: 0 };
+  findings.forEach((f) => { bySev[f.severity]++; });
+
+  const metrics = computeEngineeringMetrics(cycleResult);
+  const recurring = getRecurringIssues();
+
+  return `EXECLEAD.AI PLATFORM EXPERIENCE AUDIT — LIVE TELEMETRY
+
+SCORE: ${cycleResult.score}/100 (${cycleResult.tier?.label || "Unknown"})
+TARGET: 90
+
+FINDINGS: ${findings.length} total
+  Critical: ${bySev.critical}
+  High: ${bySev.high}
+  Medium: ${bySev.medium}
+  Low: ${bySev.low}
+
+BY TYPE: ${Object.entries(byType).map(([t, c]) => `${t}: ${c}`).join(", ")}
+
+REPAIRABILITY:
+  Auto-Repairable: ${metrics.autoRepairable}
+  Requires Review: ${metrics.requiresReview}
+  Expected Score After Repair: ${metrics.expectedAfterRepair}
+
+ENGINEERING METRICS:
+  Repaired Today: ${metrics.repairedToday}
+  Verification Success Rate: ${metrics.verificationSuccessRate}%
+  Rollback Count: ${metrics.rollbackCount}
+  Technical Debt: ${metrics.technicalDebtHours} hours
+  Engineering Hours Saved: ${metrics.engineeringHoursSaved} hours
+
+RECURRING ISSUES: ${recurring.length}
+${recurring.slice(0, 5).map((r) => `  - ${r.signature} (${r.occurrences} runs)`).join("\n")}
+
+TOP FINDINGS (first 15):
+${findings.slice(0, 15).map((f) => `- [${f.severity.toUpperCase()}] ${f.title} — ${f.detail} (Auto-repairable: ${f.auto_repairable}, Lifecycle: ${f.lifecycle})`).join("\n")}
+`;
+}

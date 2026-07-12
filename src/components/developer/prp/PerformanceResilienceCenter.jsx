@@ -3,10 +3,8 @@ import {
   Gauge, TrendingUp, AlertTriangle, Brain, Shield, Activity,
   DollarSign, Award, CheckCircle2,
 } from "lucide-react";
-import {
-  ENTERPRISE_RESILIENCE_SCORE, getErsLevel,
-  computeProductionReadinessCertification,
-} from "@/lib/performanceResilienceEngine";
+import { ENTERPRISE_RESILIENCE_SCORE, getErsLevel } from "@/lib/performanceResilienceEngine";
+import { computeProductionReadinessCertification } from "@/lib/productionReadinessEngine";
 import PerformanceDashboard from "./PerformanceDashboard";
 import ScalabilityValidation from "./ScalabilityValidation";
 import SubsystemBottlenecks from "./SubsystemBottlenecks";

@@ -159,6 +159,7 @@ import FoundersWall from '@/pages/FoundersWall';
 import CertificateVerify from '@/pages/CertificateVerify';
 import Legal from '@/pages/Legal';
 import TrustCenter from '@/pages/TrustCenter';
+import VendorDueDiligence from '@/pages/VendorDueDiligence';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
@@ -207,6 +208,7 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/trust-center" element={<TrustCenter />} />
+      <Route path="/vendor-due-diligence" element={<VendorDueDiligence />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/founders" element={<FoundersWall />} />

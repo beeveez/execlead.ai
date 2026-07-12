@@ -369,3 +369,41 @@ export const CLASSIFICATION_LEVELS = {
   Confidential: { color: "#f59e0b", description: "Available under NDA" },
   Internal: { color: "#64748b", description: "Internal use only" },
 };
+
+// ════════════════════════════════════════════════════════════
+// DATA PROCESSING INFORMATION — For Vendor Due Diligence
+// ════════════════════════════════════════════════════════════
+export const DATA_PROCESSING_INFO = {
+  overview: "EXECLEAD.AI processes personal data in accordance with GDPR principles of lawfulness, fairness, and transparency. Data is collected for specified, explicit purposes and not processed further in incompatible ways. This section documents data categories, processing purposes, sub-processors, retention periods, and cross-border transfer safeguards.",
+  dataCategories: [
+    { category: "Account Data", examples: "Name, email, password hash, role, auth tokens", purpose: "Identity management, authentication, authorization" },
+    { category: "Profile Data", examples: "Career history, resume, skills, target roles, goals", purpose: "Executive development, AI coaching, intelligence" },
+    { category: "Usage Data", examples: "Feature usage, session analytics, preferences", purpose: "Product improvement, analytics, personalization" },
+    { category: "Uploaded Documents", examples: "Resumes, certifications, identity documents", purpose: "Profile enrichment, identity verification" },
+    { category: "Communication Data", examples: "Support tickets, feedback, notifications", purpose: "Customer support, service delivery" },
+    { category: "Billing Data", examples: "Subscription plan, payment method, invoices", purpose: "Subscription management, billing" },
+  ],
+  subProcessors: [
+    { name: "Base44", purpose: "Backend infrastructure, database, authentication, file storage", location: "United States" },
+    { name: "Google", purpose: "OAuth authentication, AI model inference", location: "United States / EU" },
+    { name: "Stripe", purpose: "Payment processing, subscription billing", location: "United States" },
+    { name: "Email Provider", purpose: "Transactional email delivery", location: "United States" },
+  ],
+  retention: [
+    { data: "Active account data", period: "Duration of account + 30-day grace period" },
+    { data: "Identity verification documents", period: "Deleted after verification or 90 days post-deletion" },
+    { data: "Audit logs", period: "Minimum 12 months" },
+    { data: "Payment records", period: "7 years per financial regulations" },
+    { data: "Deleted account data", period: "Permanently removed after 30-day grace period" },
+  ],
+  dataResidency: "Data is stored in United States infrastructure. EU/UK data residency options are available on Enterprise plans.",
+  crossBorder: "Data may be processed in the United States. Standard Contractual Clauses (SCCs) are available for EU/UK customers upon request.",
+  dataSubjectRights: [
+    "Right to access — download all your data at any time",
+    "Right to rectification — correct inaccurate data",
+    "Right to erasure — delete your account with 30-day grace period",
+    "Right to data portability — export in machine-readable format",
+    "Right to object — opt out of certain processing",
+    "Right to restrict processing — limit how data is used",
+  ],
+};

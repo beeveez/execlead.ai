@@ -80,6 +80,9 @@ export default function TrustCenter() {
                 Get Started <ArrowRight size={14} />
               </Link>
             )}
+            <Link to="/vendor-due-diligence" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-white/70 hover:text-white text-sm font-medium transition-colors">
+              <Building2 size={14} /> Vendor Due Diligence Center
+            </Link>
             <Link to="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">Back to home</Link>
           </div>
           {/* Trust Score Mini Badge */}

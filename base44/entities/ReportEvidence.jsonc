@@ -1,0 +1,82 @@
+{
+  "name": "ReportEvidence",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "What this evidence demonstrates"
+    },
+    "finding_id": {
+      "type": "string",
+      "description": "Governance pipeline finding code/id this evidence is attached to"
+    },
+    "finding_description": {
+      "type": "string",
+      "description": "Finding message for display context"
+    },
+    "finding_severity": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ]
+    },
+    "report_id": {
+      "type": "string",
+      "description": "EnterpriseReport ID where evidence was attached (optional context)"
+    },
+    "evidence_type": {
+      "type": "string",
+      "enum": [
+        "screenshot",
+        "log",
+        "source_file",
+        "commit",
+        "route",
+        "configuration",
+        "validation_rule",
+        "audit_history",
+        "related_finding"
+      ],
+      "description": "Type of evidence artifact"
+    },
+    "title": {
+      "type": "string",
+      "description": "Evidence title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Text content for logs, configs, commits, routes, validation rules"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Uploaded file URL for screenshots and source files"
+    },
+    "related_finding_id": {
+      "type": "string",
+      "description": "For related_finding evidence type"
+    },
+    "metadata_json": {
+      "type": "string",
+      "description": "Additional structured metadata"
+    },
+    "attached_by_id": {
+      "type": "string"
+    },
+    "attached_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "finding_id",
+    "evidence_type",
+    "title"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

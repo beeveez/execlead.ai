@@ -1,0 +1,97 @@
+{
+  "name": "ScheduledReport",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "report_name": {
+      "type": "string",
+      "description": "Report name (e.g. Daily Engineering Report)"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "platform_validation",
+        "executive_summary",
+        "full_engineering",
+        "board",
+        "audit",
+        "procurement",
+        "security",
+        "trust",
+        "customer"
+      ],
+      "default": "full_engineering"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "default": "daily",
+      "description": "How often the report generates"
+    },
+    "schedule_description": {
+      "type": "string",
+      "description": "Human-readable schedule (e.g. Every Monday at 8:00 AM)"
+    },
+    "day_of_week": {
+      "type": "number",
+      "description": "0=Sunday, 6=Saturday (for weekly frequency)"
+    },
+    "day_of_month": {
+      "type": "number",
+      "description": "1-31 (for monthly frequency)"
+    },
+    "time": {
+      "type": "string",
+      "description": "HH:MM format, 24h"
+    },
+    "recipients": {
+      "type": "string",
+      "default": "Internal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused"
+      ],
+      "default": "active"
+    },
+    "last_run_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "next_run_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_report_id": {
+      "type": "string",
+      "description": "EnterpriseReport ID of the last generated report"
+    },
+    "total_generated": {
+      "type": "number",
+      "default": 0
+    },
+    "created_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "report_name",
+    "report_type",
+    "frequency"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

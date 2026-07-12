@@ -9,7 +9,8 @@
  * Each entry: { name, url, component, permission, feature, plan,
  *   status, owner, version, deprecated, lastUpdated, public, navRefs }
  */
-import { NAV_GROUPS, ROUTE_ACCESS } from "./roles";
+import { ROUTE_ACCESS } from "./roles";
+import { WORKSPACE_NAV } from "./workspaces";
 import { DEFAULT_FEATURES, FEATURE_REGISTRY, PLAN_TIERS, normalizeFeature, isFeatureLive } from "./featureCatalog";
 
 const ROUTE_VERSION = "2.0";
@@ -99,7 +100,9 @@ const APP_ROUTES = [
   { path: "/guardian", component: "Guardian", feature: null, public: false },
 ];
 
-const ALL_NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })));
+const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>
+  groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })))
+);
 
 function routeMatches(known, path) {
   if (known === path) return true;

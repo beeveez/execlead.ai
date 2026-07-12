@@ -152,6 +152,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "System", items: [
       { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
+      { path: "/developer/experience-audit", label: "Experience Audit™", icon: ClipboardCheck },
       { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
       { path: "/developer/organizations", label: "Organization Admin", icon: Network },
       { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },

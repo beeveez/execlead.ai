@@ -19,7 +19,7 @@
  * Produces a weighted Executive Experience Score™ (0–100) + a findings list.
  */
 import { ROUTE_REGISTRY, routeMatches } from "./routeRegistry";
-import { NAV_GROUPS } from "./roles";
+import { WORKSPACE_NAV } from "./workspaces";
 
 const SEVERITY_WEIGHTS = { critical: 25, high: 12, medium: 6, low: 2 };
 
@@ -33,9 +33,9 @@ const FLOW_ROUTES = ["/onboarding", "/reset-password", "/forgot-password"];
 export function runPlatformExperienceAudit() {
   const findings = [];
 
-  // Flatten every sidebar item across all role-scoped groups.
-  const allNavItems = NAV_GROUPS.flatMap((g) =>
-    g.items.map((i) => ({ ...i, group: g.label }))
+  // Flatten every sidebar item across all workspaces (the live sidebar source).
+  const allNavItems = Object.values(WORKSPACE_NAV).flatMap((groups) =>
+    groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })))
   );
   const navPaths = new Set(allNavItems.map((i) => i.path));
 

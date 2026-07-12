@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { callAI } from "@/lib/ai";
+import { runQualityGate } from "@/lib/responseQualityEngine";
 import {
   matchPageContext,
   generateBriefing,
@@ -288,10 +289,19 @@ export function ExecConciergeProvider({ children }) {
           workspacePersona
         );
         const res = await callAI("exec_concierge", { prompt });
-        const response =
+        const initialResponse =
           typeof res === "string"
             ? res
             : res?.response || res?.text || "I apologize, I couldn't generate a response. Please try again.";
+        const { response, review, revised } = await runQualityGate(content, initialResponse);
+        base44.analytics.track({
+          eventName: "exec_response_quality_review",
+          properties: {
+            passed: review.passed,
+            revised,
+            failed_checks: review.checks.filter((c) => !c.passed).map((c) => c.id),
+          },
+        });
         setMessages((prev) => [...prev, { role: "assistant", content: response }]);
       } catch {
         setMessages((prev) => [

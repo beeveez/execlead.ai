@@ -105,7 +105,6 @@ export const WORKSPACE_NAV = {
       { path: "/enterprise/commercial", label: "Commercial Intelligence™", icon: BarChart3 },
       { path: "/cpq", label: "CPQ™", icon: Calculator },
       { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
-      { path: "/organization/billing", label: "Billing", icon: CreditCard },
     ]},
     { label: "Insights", items: [
       { path: "/analytics", label: "Leadership Analytics", icon: BarChart3, feature: "leadership_analytics" },

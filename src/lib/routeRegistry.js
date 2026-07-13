@@ -91,6 +91,8 @@ const APP_ROUTES = [
   { path: "/enterprise/admin", component: "EnterpriseAdmin", name: "Enterprise Administration™", feature: "enterprise_management" },
   { path: "/enterprise/identity", component: "EnterpriseIdentity", name: "Enterprise Identity™", feature: "enterprise_management" },
   { path: "/enterprise/procurement", component: "ProcurementCommandCenter", name: "Enterprise Procurement™", feature: "enterprise_management" },
+  { path: "/enterprise/vendors", component: "VendorManagement", name: "Vendor Management™", feature: "enterprise_management" },
+  { path: "/enterprise/commercial", component: "CommercialIntelligence", name: "Commercial Intelligence™", feature: "enterprise_management" },
   { path: "/cpq/quotes", component: "MyQuotes", feature: "cpq_access" },
   { path: "/cpq/quote/:id", component: "CPQQuoteView", feature: "cpq_access" },
   { path: "/portal/:quoteId", component: "EnterprisePortal", feature: "cpq_access" },

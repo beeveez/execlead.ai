@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import RepairWorkflowDrawer from "@/components/developer/repair/RepairWorkflowDrawer";
-import { normalizeFinding } from "@/lib/repairWorkflowEngine";
+import RepairQueueWidget from "@/components/developer/repair/RepairQueueWidget";
+import { normalizeFinding, registerFinding } from "@/lib/repairWorkflowEngine";
 
 const RepairWorkflowContext = createContext(null);
 
@@ -15,6 +16,7 @@ export function RepairWorkflowProvider({ children }) {
 
   const openRepairWorkflow = useCallback((finding, options = {}) => {
     const normalized = normalizeFinding(finding, options.source || finding?.source || finding?.category);
+    registerFinding(normalized);
     setActiveFinding(normalized);
   }, []);
 
@@ -23,6 +25,7 @@ export function RepairWorkflowProvider({ children }) {
   return (
     <RepairWorkflowContext.Provider value={{ openRepairWorkflow, closeRepairWorkflow }}>
       {children}
+      <RepairQueueWidget />
       {activeFinding && (
         <RepairWorkflowDrawer finding={activeFinding} onClose={closeRepairWorkflow} />
       )}

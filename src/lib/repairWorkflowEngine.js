@@ -352,6 +352,105 @@ export function exportPDF(finding) {
   setTimeout(() => win.print(), 500);
 }
 
+// ─── Repair Queue™ & Bulk Operations ───
+const REGISTRY_KEY = "exec_repair_finding_registry";
+
+function loadRegistry() {
+  try { return JSON.parse(localStorage.getItem(REGISTRY_KEY) || "{}"); } catch { return {}; }
+}
+function saveRegistry(registry) {
+  try { localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry)); } catch {}
+}
+
+export function registerFinding(finding) {
+  const registry = loadRegistry();
+  if (!registry[finding.id]) {
+    registry[finding.id] = {
+      id: finding.id,
+      issue: finding.issue,
+      source: finding.source,
+      severity: finding.severity,
+      autoRepairable: finding.autoRepairable,
+      owner: finding.owner,
+      repairAction: finding.repairAction,
+      verificationEngine: finding.verificationEngine,
+      registeredAt: new Date().toISOString(),
+    };
+    saveRegistry(registry);
+  }
+}
+
+export function getRegisteredFindings() {
+  return Object.values(loadRegistry());
+}
+
+export function getRepairQueueStats() {
+  const findings = getRegisteredFindings();
+  const stats = { pending: 0, running: 0, completed: 0, failed: 0, total: findings.length };
+  findings.forEach(f => {
+    const state = getRepairState(f.id);
+    const status = state.status || "open";
+    if (status === "verified") stats.completed++;
+    else if (status === "failed") stats.failed++;
+    else if (status === "applied") stats.running++;
+    else stats.pending++;
+  });
+  return stats;
+}
+
+export async function bulkRepairSafe(user, onProgress) {
+  const findings = getRegisteredFindings();
+  const safeFindings = findings.filter(f => f.autoRepairable && (getRepairState(f.id).status || "open") === "open");
+  const results = { total: safeFindings.length, repaired: 0, failed: 0, verified: 0 };
+  for (const f of safeFindings) {
+    const normalized = normalizeFinding({
+      id: f.id, issue: f.issue, source: f.source,
+      autoRepairable: true, repairAction: f.repairAction || "Auto-repair",
+      verificationEngine: f.verificationEngine || "Diagnostics",
+      severity: f.severity, owner: f.owner,
+    }, f.source);
+    const result = await executeAutoRepair(normalized, user);
+    if (result.success) results.repaired++;
+    else results.failed++;
+    if (result.verified) results.verified++;
+    if (onProgress) onProgress(results);
+  }
+  return results;
+}
+
+export async function bulkVerifyAll() {
+  const findings = getRegisteredFindings();
+  const results = { total: 0, verified: 0, failed: 0 };
+  for (const f of findings) {
+    const state = getRepairState(f.id);
+    if (state.status === "applied") {
+      results.total++;
+      const normalized = normalizeFinding({ id: f.id, issue: f.issue, source: f.source }, f.source);
+      const result = await verifyRepair(normalized);
+      if (result.verified) results.verified++;
+      else results.failed++;
+    }
+  }
+  return results;
+}
+
+export function exportRepairPlan() {
+  const findings = getRegisteredFindings();
+  const lines = [
+    "Repair Plan™ — EXECLEAD.AI",
+    `Generated: ${new Date().toISOString()}`,
+    `Total Findings: ${findings.length}`,
+    "",
+  ];
+  findings.forEach((f, i) => {
+    const state = getRepairState(f.id);
+    lines.push(`${i + 1}. [${state.status || "open"}] ${f.issue}`);
+    lines.push(`   Source: ${f.source} | Severity: ${f.severity} | Auto-Repairable: ${f.autoRepairable}`);
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
 export function downloadFile(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

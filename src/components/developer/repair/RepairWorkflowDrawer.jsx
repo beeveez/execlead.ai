@@ -5,6 +5,7 @@ import { getRepairState, getRepairHistory } from "@/lib/repairWorkflowEngine";
 import RepairInfoPanel from "@/components/developer/repair/RepairInfoPanel";
 import RepairActionBar from "@/components/developer/repair/RepairActionBar";
 import RepairHistory from "@/components/developer/repair/RepairHistory";
+import RepairPipeline from "@/components/developer/repair/RepairPipeline";
 
 const SEV_STYLE = {
   Critical: "text-red-400 bg-red-500/10 border-red-500/20",
@@ -65,6 +66,8 @@ export default function RepairWorkflowDrawer({ finding, onClose }) {
             </div>
             <h3 className="text-sm text-white font-medium leading-snug">{finding.issue}</h3>
           </div>
+
+          <RepairPipeline repairState={repairState} />
 
           <RepairInfoPanel finding={finding} repairState={repairState} />
 

@@ -17,7 +17,7 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
         <div className="shrink-0 border-b border-white/10 px-5 py-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">{detail.scoreLabel} → Contribution Diagnostics</div>
+              <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">{detail.scoreLabel} → {detail.scoreId === "enterprise" ? "Enterprise Capability" : "Contribution"} Diagnostics</div>
               <h2 className="text-white font-semibold text-lg">{detail.label}</h2>
               <p className="text-white/40 text-xs mt-0.5">{detail.module}</p>
             </div>
@@ -151,6 +151,54 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
             </div>
           )}
 
+          {/* Risks */}
+          {detail.risks && detail.risks.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle size={13} className="text-amber-400" />
+                <span className="text-xs font-medium text-white/70 uppercase tracking-wider">Risks</span>
+              </div>
+              <div className="space-y-1.5">
+                {detail.risks.map((r, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2">
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded shrink-0 mt-0.5 ${
+                      r.severity === "high" ? "bg-red-500/10 text-red-400" :
+                      r.severity === "medium" ? "bg-amber-500/10 text-amber-400" :
+                      "bg-white/5 text-white/40"
+                    }`}>{r.severity}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-white/70">{r.description}</div>
+                      {r.mitigation && <div className="text-[10px] text-emerald-400/70 mt-0.5">↳ {r.mitigation}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Timeline */}
+          {detail.timeline && detail.timeline.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarClock size={13} className="text-blue-400" />
+                <span className="text-xs font-medium text-white/70 uppercase tracking-wider">Timeline</span>
+              </div>
+              <div className="space-y-1">
+                {detail.timeline.map((t, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      t.status === "complete" ? "bg-emerald-400" :
+                      t.status === "in_progress" ? "bg-amber-400" :
+                      "bg-white/20"
+                    }`} />
+                    <span className="text-xs text-white/70 flex-1">{t.milestone}</span>
+                    <span className="text-[10px] text-white/40">{t.target}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Sub-Capability Breakdown */}
           {detail.subCapabilities && detail.subCapabilities.length > 0 && (
             <div>
@@ -204,7 +252,7 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
 
           {/* Deep Link */}
           <a href={detail.deepLink} className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300">
-            <Link2 size={12} /> Open module: {detail.module}
+            <Link2 size={12} /> Open {detail.scoreId === "enterprise" ? "Enterprise Capability" : "module"}: {detail.module}
           </a>
 
           {/* Report Export */}

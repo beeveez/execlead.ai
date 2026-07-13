@@ -194,16 +194,101 @@ export const SCORE_REGISTRY = {
     target: 100,
     owner: "Enterprise Engineering",
     deepLink: "/trust-center",
-    module: "Enterprise Trust Center™",
-    getScore: (s) => s.enterprise?.enterpriseScore ?? 0,
-    getContributions: (s) => {
-      const items = s.enterprise?.items || [];
-      if (items.length === 0) return [{ id: "overall", label: "Enterprise Readiness", weight: 1, score: s.enterprise?.enterpriseScore ?? 0, owner: "Enterprise Engineering", deepLink: "/trust-center", category: "Enterprise", dependencies: ["Enterprise Trust Center™"] }];
-      const w = 1 / items.length;
-      return items.map((item) => ({
-        id: item.id, label: item.label, weight: w, score: item.status === "implemented" ? 100 : item.status === "in_progress" ? 50 : 0,
-        owner: "Enterprise Engineering", deepLink: item.route || "/enterprise", category: "Enterprise", dependencies: ["Enterprise Trust Center™"],
-      }));
+    module: "Enterprise Capability Suite™",
+    pointsBased: true,
+    getScore: () => 0,
+    getContributions: () => {
+      const COMPLETED = [
+        { id: "trust_center", label: "Trust Center™", maxPoints: 12, deepLink: "/trust-center", owner: "Enterprise Engineering", category: "Enterprise Capability", dependencies: ["Trust Center Data", "Compliance Frameworks"] },
+        { id: "security", label: "Security Operations™", maxPoints: 12, deepLink: "/security", owner: "Security Engineering", category: "Enterprise Capability", dependencies: ["RLS Registry™", "Zero Trust Engine™"] },
+        { id: "organizations", label: "Organization Management™", maxPoints: 12, deepLink: "/enterprise", owner: "Enterprise Engineering", category: "Enterprise Capability", dependencies: ["Multi-Tenant RLS", "Org Hierarchy"] },
+        { id: "sso", label: "SSO Identity™", maxPoints: 12, deepLink: "/sso", owner: "Identity Engineering", category: "Enterprise Capability", dependencies: ["SSO Config", "Identity Providers"] },
+        { id: "billing", label: "Enterprise Billing™", maxPoints: 12, deepLink: "/billing", owner: "Billing Engineering", category: "Enterprise Capability", dependencies: ["Subscription Engine", "Stripe Connect"] },
+        { id: "reporting", label: "Enterprise Reporting™", maxPoints: 12, deepLink: "/analytics", owner: "Analytics Engineering", category: "Enterprise Capability", dependencies: ["Enterprise Report Engine™", "Report Registry"] },
+        { id: "audit", label: "Audit & Compliance™", maxPoints: 12, deepLink: "/developer/audit-logs", owner: "Security Engineering", category: "Enterprise Capability", dependencies: ["Audit Logs", "Compliance Frameworks"] },
+      ];
+      const completed = COMPLETED.map((c) => ({ ...c, earnedPoints: c.maxPoints }));
+      const scim = {
+        id: "scim", label: "SCIM™ Provisioning", maxPoints: 8, earnedPoints: 0,
+        deepLink: "/enterprise/identity", owner: "Identity Engineering", category: "Enterprise Capability",
+        dependencies: ["Identity Provider Connectors", "Enterprise Identity™", "SCIM 2.0 Spec"],
+        engineeringTasks: [
+          "Implement SCIM 2.0 /Users endpoint (GET, POST, PUT, PATCH, DELETE)",
+          "Implement SCIM 2.0 /Groups endpoint with membership sync",
+          "Add automated deprovisioning workflow with grace period",
+          "Integrate with Identity Provider connectors (Entra ID, Okta, Google Workspace)",
+          "Add SCIM sync event logging to IdentitySyncEvent entity",
+        ],
+        risks: [
+          { description: "No automated user lifecycle — enterprise customers must manually provision/deprovision users", severity: "high", mitigation: "Ship SCIM 2.0 endpoints in Sprint 4" },
+          { description: "Manual provisioning errors cause security gaps for enterprise tenants", severity: "medium", mitigation: "Automate via SCIM with full audit trail" },
+          { description: "Enterprise SSO deals may require SCIM as a contract prerequisite", severity: "high", mitigation: "Prioritize SCIM in Sprint 4 release candidate" },
+        ],
+        timeline: [
+          { milestone: "SCIM 2.0 spec implementation", target: "Sprint 4", status: "pending" },
+          { milestone: "Identity Provider connector integration", target: "Sprint 4", status: "pending" },
+          { milestone: "Beta with pilot enterprise customer", target: "Sprint 5", status: "pending" },
+          { milestone: "General Availability", target: "Sprint 6", status: "pending" },
+        ],
+        evidence: [
+          "SCIM 2.0 endpoints not yet implemented (route /enterprise/identity exists, SCIM tab is placeholder)",
+          "IdentitySyncEvent entity schema defined and ready for sync events",
+          "IdentityProvider entity supports scim_enabled flag (currently false on all providers)",
+          "Enterprise Identity page exists at /enterprise/identity with SCIMProvisioning component stub",
+        ],
+      };
+      const procurement = {
+        id: "procurement", label: "Enterprise Procurement™", maxPoints: 8, earnedPoints: 0,
+        deepLink: "/developer/deployments", owner: "Enterprise Product Engineering", category: "Enterprise Capability",
+        dependencies: ["CPQ Engine™", "Enterprise Portal™", "Vendor Due Diligence™"],
+        engineeringTasks: [
+          "Build vendor onboarding portal with self-service registration",
+          "Implement procurement workflow with multi-step approval chain",
+          "Add procurement request tracking and status visibility",
+          "Integrate with CPQ quote-to-contract flow",
+          "Add procurement analytics to Enterprise Reporting™",
+        ],
+        risks: [
+          { description: "No self-service procurement — enterprise sales require manual quote-to-contract", severity: "high", mitigation: "Build procurement workflow in Sprint 4" },
+          { description: "Vendor Due Diligence page exists but no procurement workflow connects to it", severity: "medium", mitigation: "Integrate procurement with VDD module" },
+          { description: "Enterprise deals blocked without procurement automation", severity: "high", mitigation: "Prioritize in Sprint 4 release" },
+        ],
+        timeline: [
+          { milestone: "Procurement workflow design", target: "Sprint 4", status: "pending" },
+          { milestone: "Vendor portal implementation", target: "Sprint 4", status: "pending" },
+          { milestone: "CPQ integration", target: "Sprint 5", status: "pending" },
+          { milestone: "General Availability", target: "Sprint 6", status: "pending" },
+        ],
+        evidence: [
+          "Vendor Due Diligence page exists at /vendor-due-diligence (informational only, no workflow)",
+          "CPQ Engine and Enterprise Portal exist but no procurement workflow connects them",
+          "RequestTracking entity exists for procurement request tracking (not yet wired)",
+          "No vendor self-service portal yet — all procurement is manual",
+        ],
+      };
+      return [...completed, scim, procurement];
+    },
+    getSubCapabilities: (snapshot, contributionId) => {
+      switch (contributionId) {
+        case "scim":
+          return [
+            { label: "SCIM 2.0 /Users Endpoint", status: "pending", detail: "CRUD operations for user provisioning not yet implemented" },
+            { label: "SCIM 2.0 /Groups Endpoint", status: "pending", detail: "Group membership sync not yet implemented" },
+            { label: "Deprovisioning Workflow", status: "pending", detail: "Automated deprovisioning with grace period not yet built" },
+            { label: "Identity Provider Connectors", status: "in_progress", detail: "Entra ID, Okta, Google connectors partially built" },
+            { label: "SCIM Sync Event Logging", status: "pending", detail: "IdentitySyncEvent schema ready, no events recorded yet" },
+          ];
+        case "procurement":
+          return [
+            { label: "Vendor Onboarding Portal", status: "pending", detail: "Self-service vendor registration not yet built" },
+            { label: "Procurement Workflow", status: "pending", detail: "Multi-step approval chain not yet implemented" },
+            { label: "Request Tracking Integration", status: "in_progress", detail: "RequestTracking entity exists, not yet wired to procurement" },
+            { label: "CPQ Integration", status: "pending", detail: "Quote-to-contract flow not yet connected" },
+            { label: "Procurement Analytics", status: "pending", detail: "No procurement metrics in Enterprise Reporting™" },
+          ];
+        default:
+          return [];
+      }
     },
   },
   launch: {
@@ -400,18 +485,18 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
     } else if (gap > 0) {
       blockingIssues.push({ title: `${contribution.label} below target`, priority: "P1", status: "Open", description: `Earned ${earnedPoints}/${maxPoints} points — a ${gap}-point gap to close.`, evidence: [`Earned: ${earnedPoints}/${maxPoints}`, `Gap: ${gap} pts`] });
     }
-    const engineeringTasks = gap > maxPoints * 0.5
+    const engineeringTasks = contribution.engineeringTasks || (gap > maxPoints * 0.5
       ? [`Investigate root causes for ${contribution.label} underperformance (${earnedPoints}/${maxPoints})`, `Implement remediation plan for ${contribution.label}`, `Re-run ${def.module} to verify improvement`]
       : gap > 0
         ? [`Improve ${contribution.label} from ${earnedPoints} to ${maxPoints} points`, `Re-run ${def.module} to verify`]
-        : [`${contribution.label} is at target — maintain current posture`];
+        : [`${contribution.label} is at target — maintain current posture`]);
     const effortHours = gap > maxPoints * 0.5 ? 16 : gap > maxPoints * 0.25 ? 8 : gap > 0 ? 4 : 0;
     const days = Math.ceil(effortHours / 8);
     const projectedCompletion = gap > 0 ? new Date(Date.now() + days * 86400000).toLocaleDateString() : "At target";
     const subCapabilities = typeof def.getSubCapabilities === "function"
       ? safe(() => def.getSubCapabilities(snapshot, contributionId), [])
       : [];
-    const evidence = [
+    const autoEvidence = [
       `Earned points: ${earnedPoints}/${maxPoints}`,
       `Percentage: ${pct}%`,
       `Gap: ${gap} points`,
@@ -423,6 +508,7 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
       contribution.trend ? `Trend: ${contribution.trend}` : null,
       contribution.program ? `Program: ${contribution.program}` : null,
     ].filter(Boolean);
+    const evidence = contribution.evidence ? [...autoEvidence, "", ...contribution.evidence] : autoEvidence;
     return {
       ...contribution, scoreLabel: explanation.label, scoreId, pointsBased: true,
       target: maxPoints, gap, earnedPoints, maxPoints,
@@ -432,6 +518,7 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
       evidence, module: def.module, projectedCompletion,
       subCapabilities, trend: contribution.trend, sourceTarget: contribution.sourceTarget,
       sourceEvidence: contribution.sourceEvidence, program: contribution.program,
+      risks: contribution.risks || [], timeline: contribution.timeline || [],
     };
   }
 
@@ -490,6 +577,15 @@ export function buildWhyNot100Context(scoreId, snapshot) {
   if (exp.pointsBased) {
     exp.contributions.forEach((c) => {
       lines.push(`- ${c.label}: ${c.earnedPoints}/${c.maxPoints} pts (gap: ${c.gap} pts) [${c.category}]`);
+      if (c.engineeringTasks && c.engineingTasks.length > 0) {
+        lines.push(`  Engineering tasks: ${c.engineeringTasks.join("; ")}`);
+      }
+      if (c.risks && c.risks.length > 0) {
+        lines.push(`  Risks: ${c.risks.map(r => `${r.description} [${r.severity}]`).join("; ")}`);
+      }
+      if (c.timeline && c.timeline.length > 0) {
+        lines.push(`  Timeline: ${c.timeline.map(t => `${t.milestone} → ${t.target} (${t.status})`).join("; ")}`);
+      }
     });
     const totalEarned = round1(exp.contributions.reduce((s, c) => s + c.earnedPoints, 0));
     const totalMax = exp.contributions.reduce((s, c) => s + c.maxPoints, 0);

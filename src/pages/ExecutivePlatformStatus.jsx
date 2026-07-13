@@ -96,7 +96,7 @@ export default function ExecutivePlatformStatus() {
 
       {/* Section 5 & 8 side by side on large screens */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EnterpriseReadiness enterprise={snapshot.enterprise} />
+        <EnterpriseReadiness snapshot={snapshot} user={user} />
         <LaunchReadiness launch={launch} />
       </div>
 

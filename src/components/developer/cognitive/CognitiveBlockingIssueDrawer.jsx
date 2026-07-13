@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   X, AlertOctagon, ChevronRight, User, Clock, Target,
   Calendar, GitBranch, FileWarning, Activity, TrendingDown,
+  Loader2, CheckCircle2, RefreshCw,
 } from "lucide-react";
 
 const PRIORITY_STYLE = {
@@ -46,7 +47,7 @@ function projectedDateFor(hours) {
  *
  * Derived from a Cognitive Excellence Engine™ pillar object.
  */
-export default function CognitiveBlockingIssueDrawer({ pillar, onClose }) {
+export default function CognitiveBlockingIssueDrawer({ pillar, onClose, onRerun }) {
   const issue = useMemo(() => {
     const weight = pillar.weight || 10;
     const earned = Math.round((pillar.score * weight) / 100);
@@ -72,11 +73,27 @@ export default function CognitiveBlockingIssueDrawer({ pillar, onClose }) {
 
   const style = PRIORITY_STYLE[issue.priority] || PRIORITY_STYLE.P2;
 
-  const engineeringTasks = [
-    `Investigate root causes for ${pillar.label} underperformance (${issue.earned}/${issue.weight})`,
-    `Implement remediation plan for ${pillar.label}`,
-    `Re-run Cognitive Excellence Engine™ to verify improvement`,
+  const [taskStatus, setTaskStatus] = useState({});
+  const [rerunState, setRerunState] = useState("idle");
+  const [refreshedPillar, setRefreshedPillar] = useState(null);
+
+  const tasks = [
+    { id: "investigate", label: `Investigate root causes for ${pillar.label} underperformance (${issue.earned}/${issue.weight})`, type: "check" },
+    { id: "remediate", label: `Implement remediation plan for ${pillar.label}`, type: "check" },
+    { id: "rerun", label: `Re-run Cognitive Excellence Engine™ to verify improvement`, type: "action" },
   ];
+
+  const toggleTask = (id) => setTaskStatus((s) => ({ ...s, [id]: s[id] === "done" ? "open" : "done" }));
+
+  const handleRerun = () => {
+    if (rerunState === "verifying") return;
+    setRerunState("verifying");
+    setTimeout(() => {
+      const result = onRerun?.();
+      if (result) setRefreshedPillar(result);
+      setRerunState("verified");
+    }, 600);
+  };
 
   const evidence = [
     `Earned points: ${issue.earned}/${issue.weight}`,
@@ -145,11 +162,52 @@ export default function CognitiveBlockingIssueDrawer({ pillar, onClose }) {
               <ChevronRight size={12} className="text-indigo-400" />
               <h3 className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Engineering Tasks</h3>
             </div>
-            <ul className="space-y-1.5">
-              {engineeringTasks.map((task, i) => (
-                <li key={i} className="flex items-start gap-2 text-[11px] text-white/70">
-                  <ChevronRight size={11} className="text-indigo-400/60 mt-0.5 shrink-0" />
-                  <span>{task}</span>
+            <ul className="space-y-2">
+              {tasks.map((task) => (
+                <li key={task.id}>
+                  {task.type === "check" ? (
+                    <button
+                      onClick={() => toggleTask(task.id)}
+                      className="flex items-start gap-2 text-[11px] text-left w-full group"
+                    >
+                      <div className={`mt-0.5 shrink-0 w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${taskStatus[task.id] === "done" ? "bg-emerald-500/20 border-emerald-500/40" : "border-white/20 group-hover:border-white/40"}`}>
+                        {taskStatus[task.id] === "done" && <CheckCircle2 size={9} className="text-emerald-400" />}
+                      </div>
+                      <span className={taskStatus[task.id] === "done" ? "line-through text-white/30" : "text-white/70"}>{task.label}</span>
+                    </button>
+                  ) : (
+                    <div>
+                      <button
+                        onClick={handleRerun}
+                        disabled={rerunState === "verifying"}
+                        className="flex items-start gap-2 text-[11px] text-left w-full group disabled:cursor-wait"
+                      >
+                        {rerunState === "verifying" ? (
+                          <Loader2 size={11} className="text-indigo-400 animate-spin mt-0.5 shrink-0" />
+                        ) : rerunState === "verified" ? (
+                          <CheckCircle2 size={11} className="text-emerald-400 mt-0.5 shrink-0" />
+                        ) : (
+                          <RefreshCw size={11} className="text-indigo-400/60 mt-0.5 shrink-0 group-hover:text-indigo-400 transition-colors" />
+                        )}
+                        <span className={rerunState === "verified" ? "text-emerald-400" : rerunState === "verifying" ? "text-white/50" : "text-white/70 group-hover:text-white"}>
+                          {rerunState === "verifying"
+                            ? "Re-running Cognitive Excellence Engine™…"
+                            : rerunState === "verified"
+                              ? "Verified — Cognitive Excellence Engine™ re-run complete"
+                              : task.label}
+                        </span>
+                      </button>
+                      {rerunState === "verified" && refreshedPillar && (
+                        <div className="ml-[22px] mt-1 text-[10px] text-white/40">
+                          Refreshed score: <span className="text-white/70 font-medium">{refreshedPillar.score}/100</span>
+                          {" — "}
+                          {refreshedPillar.score >= refreshedPillar.target
+                            ? <span className="text-emerald-400">Target met ✓</span>
+                            : <span className="text-amber-400">{refreshedPillar.target - refreshedPillar.score} pts remaining</span>}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

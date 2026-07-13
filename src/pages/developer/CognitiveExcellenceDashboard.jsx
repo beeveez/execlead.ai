@@ -26,6 +26,16 @@ export default function CognitiveExcellenceDashboard() {
   const capabilityChain = useMemo(() => getCapabilityChain(), []);
   const [activePillar, setActivePillar] = useState(null);
 
+  const handleRerun = () => {
+    const fresh = computeCognitiveScore(runtime);
+    const updated = fresh.pillars.find((p) => p.id === activePillar?.id);
+    if (updated) {
+      setActivePillar(updated);
+      return updated;
+    }
+    return activePillar;
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -128,7 +138,7 @@ export default function CognitiveExcellenceDashboard() {
 
       {/* Blocking Issue Drawer */}
       {activePillar && (
-        <CognitiveBlockingIssueDrawer pillar={activePillar} onClose={() => setActivePillar(null)} />
+        <CognitiveBlockingIssueDrawer pillar={activePillar} onClose={() => setActivePillar(null)} onRerun={handleRerun} />
       )}
     </div>
   );

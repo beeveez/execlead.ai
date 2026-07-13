@@ -8,6 +8,7 @@ import {
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import { buildMetadataReport } from "@/lib/reports/metadataReportBuilder";
 import MetadataScorecard from "./metadata/MetadataScorecard";
+import MetadataRegistryBreakdown from "./metadata/MetadataRegistryBreakdown";
 import MetadataMissingRegistry from "./metadata/MetadataMissingRegistry";
 import MetadataEngineeringTasks from "./metadata/MetadataEngineeringTasks";
 import MetadataDependencies from "./metadata/MetadataDependencies";
@@ -202,6 +203,9 @@ export default function PlatformMetadataCompletion() {
           <GateItem label="Platform State Synchronized" passed={true} value="Synced" onClick={handleRecompute} />
         </div>
       </div>
+
+      {/* ── Registry Breakdown™ — Prioritized Engineering Roadmap ── */}
+      <MetadataRegistryBreakdown report={report} />
 
       {/* ── Missing Metadata Registry™ ── */}
       <MetadataMissingRegistry report={report} />

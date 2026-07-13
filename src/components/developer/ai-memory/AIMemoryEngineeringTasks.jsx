@@ -9,7 +9,8 @@ const PRIORITY_STYLE = {
 
 export default function AIMemoryEngineeringTasks({ tasks, onInspect, onOverride }) {
   const toggleStatus = (t) => {
-    const next = t.status === "Open" ? "In Progress" : t.status === "In Progress" ? "Done" : "Open";
+    if (t.status === "Done" || t.status === "Resolved") { onOverride(t.id, { status: "Open" }); return; }
+    const next = t.status === "Open" ? "In Progress" : "Done";
     onOverride(t.id, { status: next });
   };
 
@@ -51,17 +52,17 @@ export default function AIMemoryEngineeringTasks({ tasks, onInspect, onOverride 
                   className="border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition-colors group"
                 >
                   <td className="py-2.5 px-2 max-w-[200px]">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleStatus(t); }}
-                      className="flex items-start gap-2 text-left w-full"
-                    >
-                      {t.status === "Done"
-                        ? <CheckSquare size={12} className="text-emerald-400 mt-0.5 shrink-0" />
-                        : <Square size={12} className="text-white/30 mt-0.5 shrink-0" />}
-                      <span className={t.status === "Done" ? "line-through text-white/30" : "text-white/80 font-medium"}>
-                        {t.task}
-                      </span>
-                    </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleStatus(t); }}
+                    className="flex items-start gap-2 text-left w-full"
+                  >
+                    {t.status === "Done" || t.status === "Resolved"
+                      ? <CheckSquare size={12} className="text-emerald-400 mt-0.5 shrink-0" />
+                      : <Square size={12} className="text-white/30 mt-0.5 shrink-0" />}
+                    <span className={t.status === "Done" || t.status === "Resolved" ? "line-through text-white/30" : "text-white/80 font-medium"}>
+                      {t.task}
+                    </span>
+                  </button>
                   </td>
                   <td className="text-center py-2 px-1">
                     <span className={`text-[9px] px-1.5 py-0.5 rounded border ${ps.bg} ${ps.border}`} style={{ color: ps.color }}>
@@ -81,7 +82,7 @@ export default function AIMemoryEngineeringTasks({ tasks, onInspect, onOverride 
                   </td>
                   <td className="text-center py-2 px-1">
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                      t.status === "Done" ? "bg-emerald-500/10 text-emerald-400" :
+                      t.status === "Done" || t.status === "Resolved" ? "bg-emerald-500/10 text-emerald-400" :
                       t.status === "In Progress" ? "bg-amber-500/10 text-amber-400" :
                       "bg-white/5 text-white/40"
                     }`}>{t.status}</span>

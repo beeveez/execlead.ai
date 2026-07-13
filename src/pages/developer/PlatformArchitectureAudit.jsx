@@ -8,6 +8,7 @@ import {
   PLATFORM_LAUNCH_MODES, CURRENT_PLATFORM_MODE, getCurrentPlatformMode,
   usePlatformLaunchMode,
 } from "@/lib/launchMode";
+import MarketingClaimsValidator from "@/components/governance/MarketingClaimsValidator";
 
 const DEPENDENCY_GRAPH = [
   { level: "Pricing Page", file: "src/pages/Pricing.jsx", status: "single" },
@@ -205,6 +206,9 @@ export default function PlatformArchitectureAudit() {
           ))}
         </div>
       </div>
+
+      {/* Marketing Claims Validator */}
+      <MarketingClaimsValidator />
 
       {/* Footer */}
       <div className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-xl p-4">

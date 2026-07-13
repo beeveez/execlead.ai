@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import {
   ArrowRight, Brain, Swords, MessageSquare, GraduationCap, BarChart3,
-  Building2, BookOpen, Shield, Zap, Target, TrendingUp, Crown, Check
+  Building2, BookOpen, Shield, Zap, Target, TrendingUp, Crown, Check,
+  Compass, Settings, KeyRound, ShieldCheck, FileText, Rocket, Play
 } from "lucide-react";
 import { LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
@@ -27,6 +28,19 @@ const FEATURES = [
   { icon: BookOpen, title: "Career Advisor", desc: "Personalized roadmap with certs, books, and promotion readiness." },
   { icon: Building2, title: "Company Intelligence", desc: "126+ global organizations with executive-grade intelligence." },
   { icon: BarChart3, title: "Leadership Analytics", desc: "Radar charts, trends, and heat maps tracking your executive growth." },
+];
+
+const DIFFERENTIATORS = [
+  { icon: Brain, label: "AI Executive Coaching™" },
+  { icon: Play, label: "Executive Simulations™" },
+  { icon: Compass, label: "Leadership Journey™" },
+  { icon: Target, label: "Executive Readiness™" },
+  { icon: Settings, label: "Enterprise Administration™" },
+  { icon: Building2, label: "Organization Management™" },
+  { icon: KeyRound, label: "Enterprise Identity™" },
+  { icon: ShieldCheck, label: "Guardian™ Governance" },
+  { icon: BarChart3, label: "Executive Analytics™" },
+  { icon: FileText, label: "Enterprise Reporting™" },
 ];
 
 // Pricing is sourced from the centralized pricing catalog via usePricingCatalog hook
@@ -315,12 +329,55 @@ export default function Landing() {
 
       {/* Organizational Value */}
       <section className="py-20 px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Organizations Choose EXECLEAD.AI</h2>
-          <p className="text-xl md:text-2xl font-semibold text-indigo-400 mb-6">Invest in Leaders, Not Just Software.</p>
-          <p className="text-white/40 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Every subscription is an investment in developing stronger leaders, building internal executive pipelines, and improving organizational capability—not just purchasing another software tool.
-          </p>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Organizations Are Exploring EXECLEAD.AI</h2>
+            <p className="text-xl md:text-2xl font-semibold text-indigo-400 mb-6">Built to Develop Leaders, Not Just Deliver Software.</p>
+            <div className="text-left space-y-4 max-w-3xl mx-auto">
+              <p className="text-white/50 text-base md:text-lg leading-relaxed">
+                Organizations today need more than online courses or isolated executive coaching.
+              </p>
+              <p className="text-white/50 text-base md:text-lg leading-relaxed">
+                EXECLEAD.AI is being built as the world's first AI Executive Leadership Operating System, designed to help professionals, managers, executives, and enterprises develop leadership capability through AI coaching, executive simulations, assessments, analytics, and enterprise intelligence.
+              </p>
+              <p className="text-white/50 text-base md:text-lg leading-relaxed">
+                During our Founding Private Beta™, we are partnering with executive professionals and organizations to validate the platform, refine the experience, and prepare for General Availability.
+              </p>
+            </div>
+          </div>
+
+          {/* Capability Differentiators */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-12">
+            {DIFFERENTIATORS.map((cap, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04 }}
+                className="flex flex-col items-center gap-2 bg-white/[0.02] border border-white/5 rounded-xl p-4 text-center"
+              >
+                <cap.icon size={18} className="text-indigo-400" />
+                <span className="text-white/60 text-xs font-medium leading-tight">{cap.label}</span>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Founding Private Beta Notice */}
+          <div className="max-w-2xl mx-auto bg-amber-500/[0.04] border border-amber-500/15 rounded-2xl p-6 flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+              <Rocket size={18} className="text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-amber-400 font-semibold text-sm mb-1">🚀 Founding Private Beta™</h3>
+              <p className="text-white/50 text-sm leading-relaxed">
+                EXECLEAD.AI is currently available through an invitation-only beta program.
+              </p>
+              <p className="text-white/40 text-sm leading-relaxed mt-2">
+                We are working with a limited group of executive professionals and organizations to validate the platform before General Availability.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

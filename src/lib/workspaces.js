@@ -12,7 +12,7 @@ import {
   Users, Shield, DollarSign, Receipt, Lock, KeyRound, Code2,
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
-  Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet,
+  Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
   BookOpen, Star, Sparkles, Target, Gauge, Radar,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
@@ -91,6 +91,7 @@ export const WORKSPACE_NAV = {
       { path: "/enterprise/organizations", label: "Organization Management™", icon: Building2 },
       { path: "/enterprise/admin", label: "Enterprise Administration™", icon: Shield },
       { path: "/enterprise/identity", label: "Enterprise Identity™", icon: Fingerprint },
+      { path: "/enterprise/procurement", label: "Enterprise Procurement™", icon: ShoppingCart },
       { path: "/enterprise-intelligence", label: "Intelligence", icon: TrendingUp },
       { path: "/organization/users", label: "Users", icon: Users },
       { path: "/succession-planning", label: "Teams", icon: Users, feature: "succession_planning" },
@@ -204,6 +205,7 @@ const ROUTE_WORKSPACE = {
   "/enterprise": ["enterprise"], "/enterprise/organizations": ["enterprise"],
   "/enterprise/admin": ["enterprise"],
   "/enterprise/identity": ["enterprise"],
+  "/enterprise/procurement": ["enterprise"],
   "/hr-dashboard": ["enterprise"],
   "/succession-planning": ["enterprise"], "/promotion-readiness": ["enterprise"],
   "/learning-assignments": ["enterprise"], "/organization/users": ["enterprise"],

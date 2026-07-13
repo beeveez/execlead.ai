@@ -266,6 +266,7 @@ export const RLS_REGISTRY = [
   { name: "CPQQuote", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + admin/finance" },
   { name: "CPQApprovalWorkflow", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
   { name: "LessonProgress", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "READ: owner + assigned manager_id/coach_id + admin (role-aware, not broad org); UPDATE: admin/system only — owner annotations (notes/bookmark/reflection/feedback) via backend service role, system fields (completion/xp/score/cert/competency) via Learning Engine™/Quiz Engine™; DELETE: super_admin only (soft-delete via is_archived)" },
+  { name: "ProcurementRequest", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org read + org admin/dev; approval chain governs approve/reject mutations; delete: admin only" },
 
   // ── Public Catalog (registered 2026-07-13) ──
   { name: "Company", classification: "public", scope: "—", status: "protected", sensitive: false, rule: "public read + admin CUD" },

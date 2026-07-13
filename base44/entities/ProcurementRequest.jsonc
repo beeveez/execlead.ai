@@ -1,0 +1,272 @@
+{
+  "name": "ProcurementRequest",
+  "type": "object",
+  "properties": {
+    "request_number": {
+      "type": "string",
+      "description": "Auto-generated PR-YYYY-XXXX"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "justification": {
+      "type": "string",
+      "description": "Business justification for procurement"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "department_id": {
+      "type": "string"
+    },
+    "department_name": {
+      "type": "string"
+    },
+    "business_unit_id": {
+      "type": "string"
+    },
+    "business_unit_name": {
+      "type": "string"
+    },
+    "cost_center": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "it_equipment",
+        "software",
+        "services",
+        "consulting",
+        "facilities",
+        "travel",
+        "marketing",
+        "office_supplies",
+        "other"
+      ]
+    },
+    "vendor_name": {
+      "type": "string"
+    },
+    "vendor_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "budget_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "budget_validated": {
+      "type": "boolean",
+      "default": false
+    },
+    "budget_validation_note": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_approval",
+        "approved",
+        "rejected",
+        "fulfilled",
+        "cancelled",
+        "withdrawn"
+      ],
+      "default": "draft"
+    },
+    "approval_chain_json": {
+      "type": "string",
+      "description": "JSON array of approval steps with role, status, approver, acted_at, note"
+    },
+    "current_approval_step": {
+      "type": "number",
+      "default": 0
+    },
+    "sla_deadline": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sla_status": {
+      "type": "string",
+      "enum": [
+        "on_track",
+        "at_risk",
+        "breached",
+        "n_a"
+      ],
+      "default": "on_track"
+    },
+    "requested_by_id": {
+      "type": "string"
+    },
+    "requested_by_name": {
+      "type": "string"
+    },
+    "approved_by_id": {
+      "type": "string"
+    },
+    "approved_by_name": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_by_id": {
+      "type": "string"
+    },
+    "rejected_by_name": {
+      "type": "string"
+    },
+    "rejected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejected_reason": {
+      "type": "string"
+    },
+    "fulfilled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timeline_json": {
+      "type": "string",
+      "description": "JSON array of timeline events {type, description, user_id, user_name, timestamp}"
+    },
+    "attachments_json": {
+      "type": "string",
+      "description": "JSON array of file URLs"
+    },
+    "cpq_quote_id": {
+      "type": "string",
+      "description": "Linked CPQ quote ID for quote-to-contract flow"
+    },
+    "cpq_quote_number": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_number",
+    "title",
+    "category",
+    "organization_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.organization_id": "{{user.data.organization_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

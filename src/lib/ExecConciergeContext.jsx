@@ -13,6 +13,12 @@ import {
   buildExecPrompt,
 } from "@/lib/execConciergeConfig";
 import { resolveWorkspacePersona } from "@/lib/execWorkspacePersonas";
+import {
+  extractPreferences,
+  loadPreferences,
+  savePreferences,
+  clearPreferences,
+} from "@/lib/preferenceLearning";
 
 const ExecConciergeContext = createContext(null);
 
@@ -35,6 +41,7 @@ export function useExecConcierge() {
       workspacePersona: null,
       activeWorkspace: null,
       contextSwitchAt: null,
+      learnedPreferences: null,
     };
   }
   return ctx;
@@ -90,6 +97,7 @@ export function ExecConciergeProvider({ children }) {
   const [userContext, setUserContext] = useState(null);
   const [hasGreeted, setHasGreeted] = useState(false);
   const [contextSwitchAt, setContextSwitchAt] = useState(null);
+  const [learnedPreferences, setLearnedPreferences] = useState(null);
   const userContextRef = useRef(null);
   const greetedWorkspaceRef = useRef(null);
 
@@ -134,6 +142,7 @@ export function ExecConciergeProvider({ children }) {
     greetedWorkspaceRef.current = null;
     userContextRef.current = null;
     setUserContext(null);
+    setLearnedPreferences(loadPreferences(user?.id, activeWorkspace));
   }, [user?.id, activeWorkspace]);
 
   // Persist messages whenever they change (per-workspace)
@@ -264,6 +273,17 @@ export function ExecConciergeProvider({ children }) {
           },
         });
         setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+
+        // Preference Learning™ — extract signals from the updated conversation
+        const updatedConversation = [...newMessages, { role: "assistant", content: response }];
+        const extracted = extractPreferences(updatedConversation);
+        if (extracted.signals.length > 0 || extracted.topics.length > 0) {
+          const merged = savePreferences(user?.id, activeWorkspace, {
+            ...extracted,
+            newMessageCount: 2,
+          });
+          setLearnedPreferences(merged);
+        }
       } catch {
         setMessages((prev) => [
           ...prev,
@@ -283,6 +303,8 @@ export function ExecConciergeProvider({ children }) {
     setMessages([]);
     setHasGreeted(false);
     userContextRef.current = null;
+    clearPreferences(user?.id, activeWorkspace);
+    setLearnedPreferences(null);
     localStorage.removeItem(storageKey("exec_greeted", user, activeWorkspace));
     localStorage.removeItem(storageKey("exec_messages", user, activeWorkspace));
   }, [user, activeWorkspace]);
@@ -304,6 +326,7 @@ export function ExecConciergeProvider({ children }) {
     workspacePersona,
     activeWorkspace,
     contextSwitchAt,
+    learnedPreferences,
   };
 
   return (

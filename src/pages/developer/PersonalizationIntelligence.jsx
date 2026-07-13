@@ -14,6 +14,7 @@ export default function PersonalizationIntelligence() {
     personaResolved: !!concierge.workspacePersona,
     pageContextResolved: !!concierge.pageContext,
     conversationLength: concierge.messages?.length || 0,
+    learnedPreferences: concierge.learnedPreferences,
   }), [concierge]);
 
   return (

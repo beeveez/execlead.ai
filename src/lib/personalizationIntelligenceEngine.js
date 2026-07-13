@@ -13,6 +13,10 @@ export function computePersonalizationIntelligence(runtime = {}) {
   const personaResolved = runtime.personaResolved;
   const pageContextResolved = runtime.pageContextResolved;
   const conversationLength = runtime.conversationLength || 0;
+  const learnedPreferences = runtime.learnedPreferences;
+  const hasSignals = (learnedPreferences?.signals?.length || 0) > 0;
+  const hasTopics = (learnedPreferences?.topics?.length || 0) > 0;
+  const prefMsgCount = learnedPreferences?.messageCount || 0;
 
   // ── 6 Contributing Dimensions (2 pts each = 12 total) ──
   const dimensions = [
@@ -94,17 +98,21 @@ export function computePersonalizationIntelligence(runtime = {}) {
     {
       id: "preference_learning",
       label: "Preference Learning™",
-      score: conversationLength > 5 ? 1 : 0,
+      score: hasSignals && hasTopics ? 2 : hasSignals || hasTopics ? 1 : 0,
       target: 2,
-      gap: conversationLength > 5 ? 1 : 2,
-      potentialGain: conversationLength > 5 ? 1 : 2,
+      gap: hasSignals && hasTopics ? 0 : hasSignals || hasTopics ? 1 : 2,
+      potentialGain: hasSignals && hasTopics ? 0 : hasSignals || hasTopics ? 1 : 2,
       description: "EXEC™ learns user preferences from conversation history and adjusts future responses.",
       sourceFile: "src/lib/ExecConciergeContext.jsx",
       deepLink: "/developer/cognitive/personalization",
-      evidence: conversationLength > 5
-        ? `${conversationLength} messages in conversation — preference learning can extract patterns`
-        : "Insufficient conversation history for preference learning",
-      status: conversationLength > 5 ? "Partial" : "Not Implemented",
+      evidence: hasSignals && hasTopics
+        ? `${learnedPreferences.signals.length} preference signals + ${learnedPreferences.topics.length} topics learned across ${prefMsgCount} messages — EXEC™ adapts responses`
+        : hasSignals || hasTopics
+          ? `Partial preferences learned — ${learnedPreferences.signals.length} signals, ${learnedPreferences.topics.length} topics across ${prefMsgCount} messages`
+          : conversationLength > 0
+            ? `${conversationLength} messages in conversation — preference learning active, extracting patterns on next exchange`
+            : "No conversation yet — preference learning service ready, awaiting first interaction",
+      status: hasSignals && hasTopics ? "Operational" : hasSignals || hasTopics ? "Partial" : "Ready",
     },
   ];
 

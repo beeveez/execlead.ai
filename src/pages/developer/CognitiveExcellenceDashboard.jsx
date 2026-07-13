@@ -19,6 +19,7 @@ export default function CognitiveExcellenceDashboard() {
     personaResolved: !!concierge.workspacePersona,
     pageContextResolved: !!concierge.pageContext,
     conversationLength: concierge.messages?.length || 0,
+    learnedPreferences: concierge.learnedPreferences,
   }), [concierge]);
 
   const cognitive = useMemo(() => computeCognitiveScore(runtime), [runtime]);

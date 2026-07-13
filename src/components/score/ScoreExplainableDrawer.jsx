@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { X, Target, TrendingUp, ChevronRight, Sparkles, Loader2, Calculator, Clock, Gauge, GitBranch, Link2 } from "lucide-react";
+import { X, Target, TrendingUp, ChevronRight, Sparkles, Loader2, Calculator, Clock, Gauge, GitBranch, Link2, CheckCircle2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { base44 } from "@/api/base44Client";
 import { computeScoreExplanation, buildWhyNot100Context } from "@/lib/scoreExplainableEngine";
@@ -163,6 +163,12 @@ Answer concisely in markdown. Explain exactly which contributions are below targ
               <span className="text-[10px] text-white/30 uppercase tracking-wider">{explanation.pointsBased ? `Total: ${explanation.completedPoints}/${explanation.target} pts` : "Total Remaining Gap"}</span>
               <span className="text-sm font-bold text-amber-400">{explanation.pointsBased ? `${explanation.remaining} pts remaining` : `${explanation.remaining}%`}</span>
             </div>
+            {explanation.pointsBased && (
+              <div className="flex items-center justify-center gap-1.5 mt-1.5">
+                <CheckCircle2 size={10} className="text-emerald-400" />
+                <span className="text-[10px] text-emerald-400/70">{explanation.completedPoints} + {explanation.remaining} = 100 · Reconciled</span>
+              </div>
+            )}
           </div>
 
           {/* Why not 100%? */}

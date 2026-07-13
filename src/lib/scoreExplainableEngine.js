@@ -58,17 +58,89 @@ export const SCORE_REGISTRY = {
     owner: "AI Engineering",
     deepLink: "/developer/cognitive",
     module: "Cognitive Excellence Engine™",
-    getScore: (s) => s.cognitive?.overall ?? s.aiIntelligence?.cognitiveScore ?? 0,
+    pointsBased: true,
+    getScore: () => 0,
     getContributions: (s) => {
-      const ai = s.aiIntelligence || {};
-      return [
-        { id: "leadership_dna", label: "Leadership DNA™", weight: 0.20, score: getProductScore(s, "leadership_dna"), owner: "AI Engineering", deepLink: "/leadership-dna", category: "Intelligence", dependencies: ["Leadership DNA™ Module"] },
-        { id: "evidence", label: "Evidence Traceability™", weight: 0.20, score: ai.evidenceCoverage ?? 0, owner: "AI Engineering", deepLink: "/developer/cognitive", category: "Cognitive", dependencies: ["Cognitive Excellence Engine™"] },
-        { id: "recommendations", label: "Recommendation Engine™", weight: 0.20, score: ai.recommendationQuality ?? 0, owner: "AI Engineering", deepLink: "/developer/cognitive", category: "Cognitive", dependencies: ["Cognitive Excellence Engine™"] },
-        { id: "executive_simulator", label: "Executive Simulator™", weight: 0.15, score: getProductScore(s, "simulator"), owner: "AI Engineering", deepLink: "/simulator", category: "Intelligence", dependencies: ["Simulator™ Module"] },
-        { id: "coaching", label: "Coaching Personalization™", weight: 0.15, score: ai.reasoningQuality ?? 0, owner: "AI Engineering", deepLink: "/coach", category: "Cognitive", dependencies: ["Cognitive Excellence Engine™"] },
-        { id: "confidence", label: "Confidence Calibration™", weight: 0.10, score: ai.execConfidence ?? 0, owner: "AI Engineering", deepLink: "/developer/cognitive", category: "Cognitive", dependencies: ["Cognitive Excellence Engine™"] },
-      ];
+      const pillars = s.cognitive?.pillars || [];
+      if (pillars.length === 0) {
+        return [{ id: "overall", label: "EXEC™ Intelligence™", maxPoints: 100, earnedPoints: 0, owner: "AI Engineering", deepLink: "/developer/cognitive", category: "Cognitive Pillar", dependencies: ["Cognitive Excellence Engine™"] }];
+      }
+      return pillars.map((p) => ({
+        id: p.id,
+        label: p.label,
+        maxPoints: p.weight,
+        earnedPoints: round1((clamp(p.score) / 100) * p.weight),
+        owner: p.program || "AI Engineering",
+        deepLink: "/developer/cognitive",
+        category: "Cognitive Pillar",
+        dependencies: ["Cognitive Excellence Engine™"],
+        sourceScore: clamp(p.score),
+        sourceTarget: p.target ?? 100,
+        trend: p.trend || "—",
+        sourceEvidence: p.evidence || "",
+        program: p.program || "",
+      }));
+    },
+    getSubCapabilities: (snapshot, contributionId) => {
+      const m = snapshot?.cognitive?.metrics || {};
+      switch (contributionId) {
+        case "reasoning":
+          return [
+            { label: "Prompt Structure (WHY → WHAT → WHICH)", status: "active", detail: "EXEC™ Prompt enforces structured reasoning chain" },
+            { label: "Confidence Display", status: "active", detail: "Confidence scores (0–100) shown alongside outputs" },
+            { label: "Action + Outcome Tracking", status: "active", detail: "Recommendations include actionable next steps" },
+          ];
+        case "evidence":
+          return [
+            { label: "Capability Chains Complete", status: (m.completeCapabilities ?? 0) === (m.totalCapabilities ?? 0) && m.totalCapabilities > 0 ? "complete" : "in_progress", detail: `${m.completeCapabilities ?? 0}/${m.totalCapabilities ?? 0} capabilities have complete evidence chains` },
+            { label: "Knowledge Packs Linked", status: "active", detail: `${m.totalPacks ?? 0} packs registered in Knowledge Pack Engine™` },
+            { label: "Frameworks Traced", status: "active", detail: `${m.frameworkCount ?? 0} frameworks in hierarchy` },
+          ];
+        case "personalization":
+          return [
+            { label: "User Context Resolution", status: "active", detail: "Profile, reputation, journey, workspace resolved" },
+            { label: "Workspace Adaptation", status: "active", detail: "Recommendations adapt to active workspace" },
+            { label: "Page Context Awareness", status: "active", detail: "Current page influences recommendation scope" },
+          ];
+        case "coaching":
+          return [
+            { label: "Persona Expertise Areas", status: "active", detail: "Expertise defined across workspace personas" },
+            { label: "Personalized Greetings", status: "active", detail: "Each persona has customized greeting function" },
+            { label: "Quick Actions", status: "active", detail: "Actionable shortcuts configured per persona" },
+          ];
+        case "transparency":
+          return [
+            { label: "Framework Traceability", status: "active", detail: "Every recommendation traces to a framework" },
+            { label: "Evidence Source Citation", status: "active", detail: "Sources cited in AI responses" },
+            { label: "Decision Audit Trail", status: "active", detail: "AI reasoning path is visible to user" },
+          ];
+        case "memory":
+          return [
+            { label: "Per-Workspace Memory", status: "active", detail: "Conversation context preserved per workspace" },
+            { label: "Conversation Persistence", status: "active", detail: "Context retained across messages" },
+            { label: "Long-Term Context Retention", status: "pending", detail: "Cross-session memory optimization pending" },
+          ];
+        case "recommendations":
+          return [
+            { label: "Workspace-Aware Filtering", status: "active", detail: "Recommendations filtered by active workspace" },
+            { label: "Page Context Adaptation", status: "active", detail: "Current page shapes recommendation set" },
+            { label: "Profile Matching", status: "active", detail: "User profile influences suggestions" },
+          ];
+        case "simulation":
+          return [
+            { label: "Structured Executive Summary", status: "pending", detail: "Not yet generated from simulation results" },
+            { label: "Behavioral Analysis", status: "pending", detail: "Not yet produced from simulation data" },
+            { label: "Learning Plan Generation", status: "pending", detail: "Not yet produced from simulation outcomes" },
+          ];
+        case "knowledge":
+          return [
+            { label: "Dynamic Persona Resolution", status: (m.dynamicPersonas ?? 0) === (m.totalPersonas ?? 0) && m.totalPersonas > 0 ? "complete" : "in_progress", detail: `${m.dynamicPersonas ?? 0}/${m.totalPersonas ?? 0} personas resolve dynamically` },
+            { label: "Knowledge Pack Utilization", status: "active", detail: `${m.activePacks ?? 0}/${m.totalPacks ?? 0} packs active` },
+            { label: "Fallback Reduction", status: (m.fallbackCount ?? 0) === 0 ? "complete" : "in_progress", detail: `${m.fallbackCount ?? 0} personas using hardcoded fallback` },
+          ];
+        default:
+          return [];
+      }
     },
   },
   stability: {
@@ -336,6 +408,9 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
     const effortHours = gap > maxPoints * 0.5 ? 16 : gap > maxPoints * 0.25 ? 8 : gap > 0 ? 4 : 0;
     const days = Math.ceil(effortHours / 8);
     const projectedCompletion = gap > 0 ? new Date(Date.now() + days * 86400000).toLocaleDateString() : "At target";
+    const subCapabilities = typeof def.getSubCapabilities === "function"
+      ? safe(() => def.getSubCapabilities(snapshot, contributionId), [])
+      : [];
     const evidence = [
       `Earned points: ${earnedPoints}/${maxPoints}`,
       `Percentage: ${pct}%`,
@@ -344,7 +419,10 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
       `Source module: ${def.module}`,
       `Owner: ${contribution.owner}`,
       contribution.sourceScore !== undefined ? `Underlying score: ${contribution.sourceScore}/100` : `Stage status: ${contribution.stageStatus || "not_run"}`,
-    ];
+      contribution.sourceTarget !== undefined ? `Pillar target: ${contribution.sourceTarget}/100` : null,
+      contribution.trend ? `Trend: ${contribution.trend}` : null,
+      contribution.program ? `Program: ${contribution.program}` : null,
+    ].filter(Boolean);
     return {
       ...contribution, scoreLabel: explanation.label, scoreId, pointsBased: true,
       target: maxPoints, gap, earnedPoints, maxPoints,
@@ -352,6 +430,8 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
       estimatedEffort: effortHours > 0 ? `${effortHours} hours` : "None — at target",
       effortHours, owner: contribution.owner, deepLink: contribution.deepLink,
       evidence, module: def.module, projectedCompletion,
+      subCapabilities, trend: contribution.trend, sourceTarget: contribution.sourceTarget,
+      sourceEvidence: contribution.sourceEvidence, program: contribution.program,
     };
   }
 

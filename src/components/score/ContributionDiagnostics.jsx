@@ -127,6 +127,55 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
             </div>
           </div>
 
+          {/* Trend + Source Evidence (points-based only) */}
+          {detail.pointsBased && (detail.trend || detail.sourceEvidence) && (
+            <div className="grid grid-cols-1 gap-3">
+              {detail.trend && (
+                <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <TrendingUp size={11} className="text-white/40" />
+                    <span className="text-[10px] text-white/30 uppercase">Trend</span>
+                  </div>
+                  <div className="text-xs text-white/70">{detail.trend}</div>
+                </div>
+              )}
+              {detail.sourceEvidence && (
+                <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <FileText size={11} className="text-white/40" />
+                    <span className="text-[10px] text-white/30 uppercase">Source Evidence</span>
+                  </div>
+                  <div className="text-xs text-white/60 leading-relaxed">{detail.sourceEvidence}</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Sub-Capability Breakdown */}
+          {detail.subCapabilities && detail.subCapabilities.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <GitBranch size={13} className="text-indigo-400" />
+                <span className="text-xs font-medium text-white/70 uppercase tracking-wider">Sub-Capability Breakdown</span>
+              </div>
+              <div className="space-y-1.5">
+                {detail.subCapabilities.map((sc, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2">
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded shrink-0 mt-0.5 ${
+                      sc.status === "complete" || sc.status === "active" ? "bg-emerald-500/10 text-emerald-400" :
+                      sc.status === "in_progress" ? "bg-amber-500/10 text-amber-400" :
+                      "bg-white/5 text-white/40"
+                    }`}>{sc.status}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-white/70">{sc.label}</div>
+                      <div className="text-[10px] text-white/40 mt-0.5">{sc.detail}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Dependencies */}
           <div>
             <div className="flex items-center gap-2 mb-2">

@@ -185,6 +185,10 @@ import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import ExecAdmin from '@/pages/ExecAdmin';
 import Feedback from '@/pages/Feedback';
+import BetaApply from '@/pages/BetaApply';
+import BetaProgramCenter from '@/pages/BetaProgramCenter';
+import FeedbackWidget from '@/components/beta/FeedbackWidget';
+import BetaBanner from '@/components/beta/BetaBanner';
 import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
@@ -232,6 +236,7 @@ const AuthenticatedApp = () => {
       <Route path="/founders-wall" element={<FoundersWall />} />
       <Route path="/verify/:verificationId" element={<CertificateVerify />} />
       <Route path="/u/:username" element={<PublicProfile />} />
+      <Route path="/beta" element={<BetaApply />} />
 
       {/* Protected */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
@@ -389,6 +394,7 @@ const AuthenticatedApp = () => {
           <Route path="/exec-admin" element={<ExecAdmin />} />
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/beta-program" element={<BetaProgramCenter />} />
         </Route>
         </Route>
       </Route>
@@ -417,6 +423,7 @@ function App() {
               <ExecConciergeProvider>
                 <AuthenticatedApp />
                 <ExecConcierge />
+                <FeedbackWidget />
               </ExecConciergeProvider>
             </RepairWorkflowProvider>
           </Router>

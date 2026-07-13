@@ -1,0 +1,225 @@
+{
+  "name": "BetaApplication",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Applicant full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Applicant email \u2014 used for invitation"
+    },
+    "company": {
+      "type": "string",
+      "description": "Current company"
+    },
+    "current_role": {
+      "type": "string",
+      "description": "Current job title"
+    },
+    "years_of_experience": {
+      "type": "number",
+      "description": "Total years of professional experience"
+    },
+    "leadership_level": {
+      "type": "string",
+      "enum": [
+        "c_suite",
+        "vp",
+        "director",
+        "manager",
+        "team_lead",
+        "individual_contributor",
+        "founder",
+        "board_member"
+      ],
+      "description": "Leadership level in organization"
+    },
+    "linkedin_url": {
+      "type": "string",
+      "description": "LinkedIn profile URL (optional)"
+    },
+    "why_join": {
+      "type": "string",
+      "description": "Why the applicant wants to join the beta program"
+    },
+    "how_heard": {
+      "type": "string",
+      "enum": [
+        "linkedin",
+        "twitter",
+        "referral",
+        "search_engine",
+        "event",
+        "blog",
+        "other"
+      ],
+      "description": "How the applicant heard about EXECLEAD.AI"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "waitlisted",
+        "rejected",
+        "invited",
+        "activated",
+        "withdrawn"
+      ],
+      "default": "pending",
+      "description": "Application review status"
+    },
+    "beta_tier": {
+      "type": "string",
+      "enum": [
+        "founding_beta",
+        "private_beta",
+        "exec_beta",
+        "enterprise_beta",
+        "commercial_beta"
+      ],
+      "default": "founding_beta",
+      "description": "Beta feature flag tier assigned to this applicant"
+    },
+    "beta_stage": {
+      "type": "string",
+      "enum": [
+        "founding_private_beta",
+        "early_access",
+        "open_beta",
+        "general_availability"
+      ],
+      "default": "founding_private_beta",
+      "description": "Beta release stage when this application was submitted"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Internal admin review notes"
+    },
+    "invitation_sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Linked user account ID once activated"
+    },
+    "nps_score": {
+      "type": "number",
+      "description": "Net Promoter Score from beta feedback (0-10)"
+    },
+    "feedback_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of feedback submissions"
+    },
+    "bug_report_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of bug reports submitted"
+    },
+    "feature_request_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of feature requests submitted"
+    },
+    "is_active_beta_user": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this user is currently active in the beta program"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

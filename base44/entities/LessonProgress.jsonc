@@ -2,6 +2,18 @@
   "name": "LessonProgress",
   "type": "object",
   "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization this learning record belongs to"
+    },
+    "manager_id": {
+      "type": "string",
+      "description": "Assigned manager (role-aware read access)"
+    },
+    "coach_id": {
+      "type": "string",
+      "description": "Assigned executive coach (role-aware read access)"
+    },
     "lesson_id": {
       "type": "string"
     },
@@ -26,7 +38,16 @@
       "default": false
     },
     "notes": {
-      "type": "string"
+      "type": "string",
+      "description": "Owner-editable personal notes"
+    },
+    "reflection": {
+      "type": "string",
+      "description": "Owner-editable reflection journal"
+    },
+    "feedback": {
+      "type": "string",
+      "description": "Owner-editable lesson feedback"
     },
     "quiz_score": {
       "type": "number",
@@ -35,6 +56,38 @@
     "time_spent_minutes": {
       "type": "number",
       "default": 0
+    },
+    "xp_earned": {
+      "type": "number",
+      "default": 0,
+      "description": "XP \u2014 system-controlled, not owner-editable"
+    },
+    "certification_earned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Certification flag \u2014 system-controlled"
+    },
+    "competency_gain": {
+      "type": "number",
+      "default": 0,
+      "description": "Competency improvement \u2014 system-controlled"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Completion % \u2014 system-controlled"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Soft-delete flag \u2014 platform admin only"
+    },
+    "archived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "archived_by_id": {
+      "type": "string"
     }
   },
   "required": [
@@ -47,13 +100,69 @@
       "created_by_id": "{{user.id}}"
     },
     "read": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.manager_id": "{{user.id}}"
+        },
+        {
+          "data.coach_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
     },
     "update": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "super_admin"
+      }
     }
   }
 }

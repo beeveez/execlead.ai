@@ -139,6 +139,17 @@ export const HOW_HEARD_OPTIONS = {
 export const CURRENT_BETA_STAGE = "founding_private_beta";
 
 /**
+ * Beta Metrics Mode — global configuration for public-facing beta counters.
+ *   "live"  — Fetch actual BetaApplication records from the database.
+ *             If no records exist, counters are replaced with non-numeric
+ *             launch status indicators (no fabricated numbers shown).
+ *   "demo"  — Show clearly labeled sample/preview values for staging or
+ *             demo environments. A "Preview Data" badge is displayed above
+ *             the counters so values are never mistaken for live metrics.
+ */
+export const BETA_METRICS_MODE = "live";
+
+/**
  * Get the current beta stage configuration.
  */
 export function getCurrentBetaStage() {

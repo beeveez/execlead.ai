@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Rocket, Shield, Clock, CheckCircle2, ArrowRight } from "lucide-react";
-import { getBetaProgramStats } from "@/lib/betaProgramEngine";
+import { Rocket, Shield, Clock, CheckCircle2, ArrowRight, Eye } from "lucide-react";
+import { getBetaProgramStats, BETA_METRICS_MODE } from "@/lib/betaProgramEngine";
 import { getCurrentPlatformMode } from "@/lib/launchMode";
 
 const DEMO_STATS = { total: 247, pending: 38, approved: 12, seatsRemaining: 88 };
 
+const STATUS_INDICATORS = [
+  { label: "Program Status", value: "Applications Open", isText: true },
+  { label: "Access", value: "Invitation Only", isText: true },
+  { label: "Availability", value: "Limited Seats", isText: true },
+  { label: "Stage", value: "Founding Beta™", isText: true },
+];
+
 export default function BetaHero({ onApply }) {
   const mode = getCurrentPlatformMode();
   const [stats, setStats] = useState(null);
-  const [usingDemo, setUsingDemo] = useState(false);
+  const [hasLiveData, setHasLiveData] = useState(false);
+
+  const isDemoMode = BETA_METRICS_MODE === "demo";
 
   useEffect(() => {
+    if (isDemoMode) return;
     getBetaProgramStats()
       .then((s) => {
-        if (s.total === 0) {
-          setStats(DEMO_STATS);
-          setUsingDemo(true);
-        } else {
+        if (s.total > 0) {
+          setHasLiveData(true);
           setStats({
             total: s.total,
             pending: s.pending,
@@ -26,18 +34,31 @@ export default function BetaHero({ onApply }) {
           });
         }
       })
-      .catch(() => {
-        setStats(DEMO_STATS);
-        setUsingDemo(true);
-      });
-  }, []);
+      .catch(() => {});
+  }, [isDemoMode]);
 
-  const counters = [
-    { label: "Applications Received", value: stats?.total ?? "—" },
-    { label: "Under Review", value: stats?.pending ?? "—" },
-    { label: "Beta Members Approved", value: stats?.approved ?? "—" },
-    { label: "Seats Remaining", value: stats?.seatsRemaining ?? "—" },
+  const liveCounters = [
+    { label: "Applications Received", value: stats?.total ?? "—", isText: false },
+    { label: "Under Review", value: stats?.pending ?? "—", isText: false },
+    { label: "Beta Members Approved", value: stats?.approved ?? "—", isText: false },
+    { label: "Seats Remaining", value: stats?.seatsRemaining ?? "—", isText: false },
   ];
+
+  const demoCounters = [
+    { label: "Applications Received", value: DEMO_STATS.total, isText: false },
+    { label: "Under Review", value: DEMO_STATS.pending, isText: false },
+    { label: "Beta Members Approved", value: DEMO_STATS.approved, isText: false },
+    { label: "Seats Remaining", value: DEMO_STATS.seatsRemaining, isText: false },
+  ];
+
+  const counters = isDemoMode
+    ? demoCounters
+    : hasLiveData
+      ? liveCounters
+      : STATUS_INDICATORS;
+
+  const showPreviewLabel = isDemoMode;
+  const useMutedValues = isDemoMode;
 
   const statusBadges = [
     { label: mode.buildLabel || `Release Candidate ${mode.version}`, icon: CheckCircle2 },
@@ -71,20 +92,22 @@ export default function BetaHero({ onApply }) {
         ))}
       </div>
 
+      {showPreviewLabel && (
+        <div className="inline-flex items-center gap-1.5 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-3 py-1 mb-3 uppercase tracking-wider font-semibold">
+          <Eye size={10} /> Preview Data — Not Live Metrics
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto mb-6">
         {counters.map((c, i) => (
           <div key={i} className="bg-white/[0.03] border border-white/5 rounded-xl p-4">
-            <div className="text-2xl md:text-3xl font-bold text-amber-200 tabular-nums">{c.value}</div>
+            <div className={`${c.isText ? "text-sm md:text-base font-semibold" : "text-2xl md:text-3xl font-bold tabular-nums"} ${useMutedValues ? "text-white/40" : "text-amber-200"}`}>
+              {c.value}
+            </div>
             <div className="text-white/30 text-[10px] uppercase tracking-wider mt-1">{c.label}</div>
           </div>
         ))}
       </div>
-
-      {usingDemo && (
-        <div className="inline-flex items-center gap-1.5 text-[10px] text-white/30 bg-white/[0.02] border border-white/5 rounded-full px-2.5 py-1 mb-8">
-          Sample Data — live counters activate with real applications
-        </div>
-      )}
 
       <motion.button
         whileHover={{ scale: 1.03 }}

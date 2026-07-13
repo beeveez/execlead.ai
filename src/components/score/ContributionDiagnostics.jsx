@@ -3,11 +3,30 @@ import { X, AlertTriangle, Wrench, GitBranch, Clock, User, Link2, FileText, Chec
 import { computeContributionDetail } from "@/lib/scoreExplainableEngine";
 import { buildPlatformValidationReport } from "@/lib/reports/platformValidationReport";
 import ReportToolbar from "@/components/reports/ReportToolbar";
+import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
 
 export default function ContributionDiagnostics({ scoreId, contributionId, snapshot, user, onClose }) {
   const detail = useMemo(() => computeContributionDetail(scoreId, contributionId, snapshot), [scoreId, contributionId, snapshot]);
+  const { openRepairWorkflow } = useRepairWorkflow();
 
   if (!detail) return null;
+
+  const handleRepair = (issue, i) => {
+    openRepairWorkflow(
+      {
+        ...issue,
+        id: `${scoreId}-${contributionId}-B${i}`,
+        owner: detail.owner,
+        estimatedEffort: detail.estimatedEffort,
+        gap: detail.gap,
+        deepLink: detail.deepLink,
+        dependencies: detail.dependencies,
+        engineeringTasks: detail.engineeringTasks,
+        module: detail.module,
+      },
+      { source: detail.label }
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex justify-end">
@@ -102,6 +121,12 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
                         ))}
                       </ul>
                     )}
+                    <button
+                      onClick={() => handleRepair(issue, i)}
+                      className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors mt-2"
+                    >
+                      <Wrench size={10} /> Repair
+                    </button>
                   </div>
                 ))}
               </div>

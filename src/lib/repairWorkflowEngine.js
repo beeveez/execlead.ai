@@ -112,26 +112,33 @@ export function normalizeFinding(raw, source = "unknown") {
     };
   }
 
-  // AI Memory / generic finding (already has the right shape)
+  // AI Memory / generic finding (handles blockers, contribution diagnostics, etc.)
+  const evidenceStr = Array.isArray(raw.evidence) ? raw.evidence.filter(Boolean).join("\n") : (raw.evidence || raw.detail || "");
+  const severity = raw.severity || (raw.priority === "P0" ? "Critical" : raw.priority === "P1" ? "High" : raw.priority === "P2" ? "Medium" : "medium");
+  const estimatedHours = raw.estimatedHours
+    || (raw.estimatedEffort ? parseInt(String(raw.estimatedEffort).match(/\d+/)?.[0] || "2") : null)
+    || Math.ceil((parseInt(raw.estimated_fix_time) || 30) / 60)
+    || 2;
+
   return {
     id: raw.id || `finding-${Date.now()}`,
     issue: raw.issue || raw.title || raw.name || "Unknown issue",
-    rootCause: raw.rootCause || raw.evidence || raw.detail || raw.issue || "Root cause not yet determined.",
-    currentState: raw.currentState || raw.currentValue || "Current state not specified",
-    targetState: raw.targetState || raw.targetValue || "Target state not specified",
-    evidence: raw.evidence || raw.detail || "",
-    sourceFiles: raw.sourceFiles || (raw.sourceFile ? [raw.sourceFile] : []),
-    dependencies: raw.dependencies || (raw.dimensionId ? [raw.dimensionId] : []),
-    engineeringTasks: raw.engineeringTasks || (raw.repairAction ? [{ task: raw.repairAction, status: "open" }] : []),
-    estimatedHours: raw.estimatedHours || Math.ceil((parseInt(raw.estimated_fix_time) || 30) / 60) || 2,
-    potentialScoreGain: raw.potentialScoreGain || 0,
-    risk: raw.risk || (raw.severity === "Critical" ? "high" : raw.severity === "High" ? "medium" : "low"),
-    riskNote: raw.riskNote || `Severity: ${raw.severity || "medium"}`,
+    rootCause: raw.rootCause || raw.description || evidenceStr || raw.issue || "Root cause not yet determined.",
+    currentState: raw.currentState || raw.currentValue || (raw.score != null ? `Score: ${raw.score}/${raw.target || 100}` : "Current state not specified"),
+    targetState: raw.targetState || raw.targetValue || (raw.target ? `Target: ${raw.target}` : "Target state not specified"),
+    evidence: evidenceStr,
+    sourceFiles: raw.sourceFiles || (raw.sourceFile ? [raw.sourceFile] : (raw.deepLink ? [raw.deepLink] : [])),
+    dependencies: raw.dependencies || (raw.dimensionId ? [raw.dimensionId] : (raw.category ? [raw.category] : [])),
+    engineeringTasks: raw.engineeringTasks || (raw.repairAction || raw.recommendedFix ? [{ task: raw.repairAction || raw.recommendedFix, status: "open" }] : []),
+    estimatedHours,
+    potentialScoreGain: raw.potentialScoreGain || raw.gap || 0,
+    risk: raw.risk || (severity === "Critical" ? "high" : severity === "High" ? "medium" : "low"),
+    riskNote: raw.riskNote || `Severity: ${severity}${raw.priority ? ` (${raw.priority})` : ""}`,
     owner: raw.owner || "Engineering Team",
-    severity: raw.severity || "medium",
+    severity,
     autoRepairable: raw.autoRepairable ?? raw.autoRepair ?? !!raw.auto_repairable,
-    repairAction: raw.repairAction || raw.repair_patch || "Manual investigation required",
-    verificationEngine: raw.verificationEngine || "Diagnostics Engine",
+    repairAction: raw.repairAction || raw.recommendedFix || raw.repair_patch || "Manual investigation required",
+    verificationEngine: raw.verificationEngine || raw.module || "Diagnostics Engine",
     source: source || raw.category || "unknown",
     deepLink: raw.deepLink,
     raw,

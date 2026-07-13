@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronRight, AlertCircle, User, Clock, Wrench, ListChecks, FileWarning } from "lucide-react";
+import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
 
 const PRIORITY_STYLE = {
   P0: { color: "#ef4444", bg: "bg-red-500/10 border-red-500/20", label: "P0 — Critical" },
@@ -21,6 +22,7 @@ function DetailRow({ icon: Icon, label, value, color }) {
 
 export default function StreamBlockerDetail({ blocker }) {
   const [expanded, setExpanded] = useState(false);
+  const { openRepairWorkflow } = useRepairWorkflow();
   const style = PRIORITY_STYLE[blocker.priority] || PRIORITY_STYLE.P2;
 
   return (
@@ -62,6 +64,12 @@ export default function StreamBlockerDetail({ blocker }) {
               </ul>
             </div>
           )}
+          <button
+            onClick={(e) => { e.stopPropagation(); openRepairWorkflow(blocker, { source: `${blocker.category || "Stream"} Intelligence™` }); }}
+            className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors mt-2"
+          >
+            <Wrench size={10} /> Repair
+          </button>
         </div>
       )}
     </div>

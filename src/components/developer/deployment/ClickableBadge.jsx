@@ -9,13 +9,19 @@ const TONES = {
   info: "bg-blue-500/5 border-blue-500/20 text-blue-400/70 hover:text-blue-400 hover:border-blue-500/30",
 };
 
+function formatBadgeValue(val) {
+  if (Array.isArray(val)) return val.length;
+  if (val !== null && typeof val === "object") return Object.keys(val).length;
+  return String(val);
+}
+
 export default function ClickableBadge({ label, value, onClick, tone = "default" }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onClick?.(); }}
       className={`text-xs border rounded px-2 py-0.5 font-mono transition-colors flex items-center gap-1 group cursor-pointer ${TONES[tone]}`}
     >
-      {label}: {String(value)}
+      {label}: {formatBadgeValue(value)}
       <ChevronRight size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   );

@@ -73,6 +73,28 @@ export const FEATURE_REGISTRY = {
   sso: { routePath: "/sso", navLabel: "SSO & Identity", navEnabled: false, module: "Enterprise" },
   ai_usage_dashboard: { routePath: "/ai-usage", navLabel: "AI Usage", navEnabled: false, module: "Analytics" },
   admin_console: { routePath: "/admin", navLabel: "Admin", navEnabled: true, module: "Enterprise" },
+  ai_command_center: { routePath: "/ai-command-center", navLabel: "AI Command Center", navEnabled: false, module: "Platform" },
+  executive_coach: { routePath: "/coach", navLabel: "Coach", navEnabled: true, module: "Coaching" },
+  billing_access: { routePath: "/billing", navLabel: "Billing", navEnabled: false, module: "Account" },
+  security_access: { routePath: "/security", navLabel: "Security", navEnabled: false, module: "Account" },
+  connected_accounts: { routePath: "/connected-accounts", navLabel: "Connected Accounts", navEnabled: false, module: "Account" },
+  network_access: { routePath: "/network", navLabel: "Network", navEnabled: true, module: "Network" },
+  founder_portal: { routePath: "/founder", navLabel: "Founder Portal", navEnabled: false, module: "Platform" },
+  ambassador_program: { routePath: "/referrals", navLabel: "Referrals", navEnabled: false, module: "Platform" },
+  wallet_access: { routePath: "/wallet", navLabel: "Wallet", navEnabled: false, module: "Platform" },
+  identity_verification: { routePath: "/identity-verification", navLabel: "Identity Verification", navEnabled: false, module: "Account" },
+  developer_access: { routePath: "/developer", navLabel: "Developer Console", navEnabled: false, module: "Developer" },
+  subscription_management: { routePath: "/pricing-admin", navLabel: "Pricing Admin", navEnabled: false, module: "Enterprise" },
+  feature_flag_management: { routePath: "/feature-management", navLabel: "Feature Management", navEnabled: false, module: "Enterprise" },
+  revenue_dashboard: { routePath: "/billing-admin", navLabel: "Billing Admin", navEnabled: false, module: "Enterprise" },
+  payment_providers: { routePath: "/payment-settings", navLabel: "Payment Settings", navEnabled: false, module: "Enterprise" },
+  enterprise_management: { routePath: "/enterprise/organizations", navLabel: "Enterprise Management", navEnabled: false, module: "Enterprise" },
+  cpq_access: { routePath: "/cpq", navLabel: "CPQ Wizard", navEnabled: false, module: "Enterprise" },
+  company_administration: { routePath: "/company-admin", navLabel: "Company Admin", navEnabled: false, module: "Enterprise" },
+  email_center: { routePath: "/email-settings", navLabel: "Email Settings", navEnabled: false, module: "Enterprise" },
+  membership_administration: { routePath: "/membership-admin", navLabel: "Membership Admin", navEnabled: false, module: "Enterprise" },
+  elim_management: { routePath: "/elim", navLabel: "ELIM Management", navEnabled: false, module: "Enterprise" },
+  exec_console: { routePath: "/exec-admin", navLabel: "EXEC Admin", navEnabled: false, module: "Enterprise" },
 };
 
 export function normalizeFeature(f) {
@@ -170,7 +192,33 @@ export const DEFAULT_FEATURES = [
   { id: "google_workspace", name: "Google Workspace", description: "Google Workspace SSO integration", category: "Enterprise", icon: "KeyRound", minimumPlan: "enterprise", isEnabled: true, sortOrder: 70 },
   { id: "quarterly_business_reviews", name: "Quarterly Business Reviews", description: "Regular QBR sessions with your success team", category: "Enterprise", icon: "Calendar", minimumPlan: "enterprise", isEnabled: true, sortOrder: 71 },
   { id: "priority_support", name: "Priority Support", description: "Priority response support channel", category: "Enterprise", icon: "Headset", minimumPlan: "enterprise", isEnabled: true, sortOrder: 72 },
-  { id: "enterprise_sla", name: "Enterprise SLA", description: "Service level agreement with uptime guarantees", category: "Enterprise", icon: "Shield", minimumPlan: "enterprise", isEnabled: true, sortOrder: 73 }
+  { id: "enterprise_sla", name: "Enterprise SLA", description: "Service level agreement with uptime guarantees", category: "Enterprise", icon: "Shield", minimumPlan: "enterprise", isEnabled: true, sortOrder: 73 },
+
+  // Platform & account features — available to all authenticated users
+  { id: "ai_command_center", name: "AI Command Center", description: "Centralized AI operations and model management", category: "Platform", icon: "Cpu", minimumPlan: "free", isEnabled: true, sortOrder: 75 },
+  { id: "executive_coach", name: "Executive Coach", description: "AI-powered executive coaching conversations", category: "Coaching", icon: "MessageSquare", minimumPlan: "free", isEnabled: true, sortOrder: 76 },
+  { id: "billing_access", name: "Billing Access", description: "View and manage subscription billing", category: "Account", icon: "CreditCard", minimumPlan: "free", isEnabled: true, sortOrder: 77 },
+  { id: "security_access", name: "Security Center", description: "Security settings and session management", category: "Account", icon: "Shield", minimumPlan: "free", isEnabled: true, sortOrder: 78 },
+  { id: "connected_accounts", name: "Connected Accounts", description: "Manage OAuth and third-party account connections", category: "Account", icon: "Link", minimumPlan: "free", isEnabled: true, sortOrder: 79 },
+  { id: "network_access", name: "Executive Network", description: "Peer networking, discussions, and mentorship", category: "Network", icon: "Users", minimumPlan: "free", isEnabled: true, sortOrder: 80 },
+  { id: "founder_portal", name: "Founder Portal", description: "Founding member portal with benefits and rewards", category: "Platform", icon: "Crown", minimumPlan: "free", isEnabled: true, sortOrder: 81 },
+  { id: "ambassador_program", name: "Ambassador Program", description: "Referral dashboard and commission tracking", category: "Platform", icon: "Gift", minimumPlan: "free", isEnabled: true, sortOrder: 82 },
+  { id: "wallet_access", name: "Executive Wallet", description: "Wallet balance and withdrawal management", category: "Platform", icon: "Wallet", minimumPlan: "free", isEnabled: true, sortOrder: 83 },
+  { id: "identity_verification", name: "Identity Verification", description: "Government ID verification and trust framework", category: "Account", icon: "BadgeCheck", minimumPlan: "free", isEnabled: true, sortOrder: 84 },
+
+  // Enterprise & administration features
+  { id: "developer_access", name: "Developer Console", description: "Platform diagnostics, governance, and developer tools", category: "Developer", icon: "Terminal", minimumPlan: "enterprise", isEnabled: true, sortOrder: 90 },
+  { id: "subscription_management", name: "Subscription Management", description: "Manage pricing plans and subscription tiers", category: "Enterprise", icon: "CreditCard", minimumPlan: "enterprise", isEnabled: true, sortOrder: 91 },
+  { id: "feature_flag_management", name: "Feature Flag Management", description: "Toggle and configure platform feature flags", category: "Enterprise", icon: "ToggleRight", minimumPlan: "enterprise", isEnabled: true, sortOrder: 92 },
+  { id: "revenue_dashboard", name: "Revenue Dashboard", description: "Billing admin dashboard with revenue analytics", category: "Enterprise", icon: "DollarSign", minimumPlan: "enterprise", isEnabled: true, sortOrder: 93 },
+  { id: "payment_providers", name: "Payment Providers", description: "Configure Stripe and payment integration settings", category: "Enterprise", icon: "CreditCard", minimumPlan: "enterprise", isEnabled: true, sortOrder: 94 },
+  { id: "enterprise_management", name: "Enterprise Management", description: "Organization, identity, and procurement administration", category: "Enterprise", icon: "Building2", minimumPlan: "enterprise", isEnabled: true, sortOrder: 95 },
+  { id: "cpq_access", name: "CPQ Engine", description: "Configure-Price-Quote wizard and quote management", category: "Enterprise", icon: "FileText", minimumPlan: "enterprise", isEnabled: true, sortOrder: 96 },
+  { id: "company_administration", name: "Company Administration", description: "Company data management and logo administration", category: "Enterprise", icon: "Building2", minimumPlan: "enterprise", isEnabled: true, sortOrder: 97 },
+  { id: "email_center", name: "Email Center", description: "Email provider configuration and delivery analytics", category: "Enterprise", icon: "Mail", minimumPlan: "enterprise", isEnabled: true, sortOrder: 98 },
+  { id: "membership_administration", name: "Membership Administration", description: "Membership program management and enrollment", category: "Enterprise", icon: "CardMembership", minimumPlan: "enterprise", isEnabled: true, sortOrder: 99 },
+  { id: "elim_management", name: "ELIM Management", description: "Executive Leadership Intelligence Model management center", category: "Enterprise", icon: "Brain", minimumPlan: "enterprise", isEnabled: true, sortOrder: 100 },
+  { id: "exec_console", name: "EXEC Console", description: "Executive administration console and platform operations", category: "Enterprise", icon: "Settings", minimumPlan: "enterprise", isEnabled: true, sortOrder: 101 }
 ];
 
 export function getFeaturesForPlan(planId) {

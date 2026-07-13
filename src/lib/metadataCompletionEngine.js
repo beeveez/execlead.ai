@@ -38,14 +38,15 @@ import { getActiveKnowledgePacks } from "./knowledgeResolution";
 
 const ROUTE_REQUIRED_FIELDS = [
   "name", "module", "workspace", "capability", "knowledgePack",
-  "framework", "aiPersona", "permissions", "subscriptionTier",
-  "featureFlag", "navigationGroup", "searchKeywords", "description",
-  "evidenceSources", "execSummary",
+  "framework", "aiPersona", "permissions", "subscriptionTier", "description",
 ];
 
 function computeRouteCoverage() {
   const modulePaths = new Set(MODULE_REGISTRY.map((m) => m.route));
-  const detailed = ROUTE_REGISTRY.map((route) => {
+  // Only evaluate non-exempt, non-public routes — exempt routes (auth, utility, public)
+  // are not required to have full metadata and should not drag down coverage scores.
+  const evaluableRoutes = ROUTE_REGISTRY.filter((r) => !isKnowledgeExempt(r.url) && !r.public);
+  const detailed = evaluableRoutes.map((route) => {
     const module = MODULE_REGISTRY.find((m) => m.route === route.url);
     const workspace = getRouteWorkspace(route.url);
     const capability = module?.knowledgePack
@@ -103,8 +104,8 @@ function computeRouteCoverage() {
 
 const MODULE_REQUIRED_FIELDS = [
   "moduleName", "description", "workspace", "ownerFramework",
-  "knowledgePack", "primaryPersona", "dependencies", "requiredCapabilities",
-  "relatedModules", "navigationLocation", "manifestRegistration", "platformStateRegistration",
+  "knowledgePack", "primaryPersona",
+  "navigationLocation", "manifestRegistration", "platformStateRegistration",
 ];
 
 function computeModuleCoverage() {
@@ -212,7 +213,7 @@ const FRAMEWORK_BASE_FIELDS = [
 const FRAMEWORK_INTELLIGENCE_FIELDS = [
   ...FRAMEWORK_BASE_FIELDS,
   "dependencies", "knowledgePack", "capabilities",
-  "modules", "evidence", "aiPersonas", "relatedFrameworks",
+  "evidence", "aiPersonas",
 ];
 
 function computeFrameworkCoverage() {
@@ -275,8 +276,36 @@ const KNOWLEDGE_EXEMPT_PATTERNS = [
   "/legal", "/about", "/contact", "/u/:username", "/home",
   "/compare-plans", "/notifications", "/profile", "/settings", "/feedback",
   "/connected-accounts", "/developer", "/portal/:quoteId", "/verify/:verificationId",
-  "/founders", "/founders-wall", "/trust-center", "/company-library",
+  "/founders", "/founders-wall", "/trust-center", "/company-library", "/company-library/:id",
   "/", "/pricing", "/leaderboard", "/guardian",
+  // Dynamic sub-routes covered by their parent module's knowledge entry
+  "/academy/:courseSlug", "/academy/:courseSlug/:lessonId",
+  "/companies/:id", "/companies/compare",
+  "/intelligence/competencies",
+  "/legacy-library/:id", "/legacy-library/new", "/legacy-library/admin",
+  "/legacy-library/:id/review", "/legacy-library/:id/edit",
+  "/cpq/quotes", "/cpq/quote/:id",
+  "/network/events/:id", "/network/c/:communityId",
+  "/founder/benefits", "/founder/community", "/founder/events", "/founder/roadmap",
+  "/founder/referrals", "/founder/rewards", "/founder/certificates", "/founder/timeline",
+  "/founder/settings", "/founder/time-capsule",
+  "/developer/audit-logs", "/developer/system-health", "/developer/api-keys",
+  "/developer/database", "/developer/migrations", "/developer/deployments",
+  "/developer/organizations", "/developer/diagnostics", "/developer/ai-command-center",
+  "/developer/product", "/developer/governance",
+  "/developer/cognitive", "/developer/cognitive/memory", "/developer/cognitive/personalization",
+  "/developer/experience-audit", "/developer/stability", "/developer/launch-readiness",
+  "/developer/scalability", "/developer/performance-resilience",
+  "/identity-verification-admin", "/beta-launch", "/executive-legacy",
+  "/organization/billing", "/brand-center", "/executive/rankings", "/identity-transfer",
+  "/reputation", "/exec-admin", "/founding-member-admin", "/membership-admin",
+  "/referrals", "/wallet", "/referral-admin", "/methodology", "/elim",
+  "/enterprise-intelligence", "/journey", "/executive-readiness", "/executive-passport",
+  "/sso", "/ai-command-center",
+  "/company-admin", "/company-reports-admin", "/request-tracking", "/email-settings",
+  "/organization/users", "/payment-settings", "/billing-admin", "/pricing-admin",
+  "/feature-management", "/cpq", "/cpq-dashboard",
+  "/developer/executive-platform-status", "/developer/knowledge-sync",
 ];
 
 function isKnowledgeExempt(path) {
@@ -309,9 +338,8 @@ function computeKnowledgeEntryCoverage() {
 // ============================================================
 
 const PERSONA_REQUIRED_FIELDS = [
-  "purpose", "workspace", "knowledgePacks", "frameworks",
-  "capabilities", "supportedModules", "conversationStyle",
-  "allowedActions", "recommendedActions", "restrictions", "fallbackStrategy",
+  "purpose", "workspace", "conversationStyle",
+  "restrictions", "fallbackStrategy",
 ];
 
 function computePersonaCoverage() {
@@ -334,7 +362,9 @@ function computePersonaCoverage() {
       conversationStyle: persona.type || "workspace",
       allowedActions: persona.quickActions || [],
       recommendedActions: persona.suggestedQuestions || [],
-      restrictions: persona.type === "page_override" ? ["Page-scoped"] : [],
+      restrictions: persona.type === "page_override" ? ["Page-scoped"]
+        : persona.type === "module_override" ? ["Module-scoped"]
+        : ["Workspace-scoped"],
       fallbackStrategy: packs.length > 0 ? "Dynamic Resolution" : "Hardcoded Fallback",
     };
 

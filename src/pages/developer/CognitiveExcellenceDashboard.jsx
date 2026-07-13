@@ -16,6 +16,7 @@ export default function CognitiveExcellenceDashboard() {
   const runtime = useMemo(() => ({
     hasMemory: (concierge.messages?.length || 0) > 0,
     hasUserContext: !!concierge.userContext,
+    hasExecutiveMemory: !!concierge.hasExecutiveMemory,
     personaResolved: !!concierge.workspacePersona,
     pageContextResolved: !!concierge.pageContext,
     conversationLength: concierge.messages?.length || 0,

@@ -34,15 +34,17 @@ export function computeAIMemoryIntelligence(runtime = {}) {
     {
       id: "executive_memory",
       label: "Executive Memory™",
-      score: 0,
+      score: runtime.hasExecutiveMemory ? 2 : 0,
       target: 2,
-      gap: 2,
-      potentialGain: 2,
+      gap: runtime.hasExecutiveMemory ? 0 : 2,
+      potentialGain: runtime.hasExecutiveMemory ? 0 : 2,
       description: "Cross-session executive memory — user preferences, goals, and history persist across conversations.",
       sourceFile: "base44/entities/ExecutiveMemory.jsonc",
       deepLink: "/developer/cognitive",
-      evidence: "ExecutiveMemory entity exists but no records — cross-session recall not yet operational",
-      status: "Not Implemented",
+      evidence: runtime.hasExecutiveMemory
+        ? "ExecutiveMemory record loaded — cross-session preferences, goals, and history persist across conversations"
+        : "ExecutiveMemory entity exists but no records — cross-session recall not yet operational",
+      status: runtime.hasExecutiveMemory ? "Operational" : "Not Implemented",
     },
     {
       id: "knowledge_sync",
@@ -73,15 +75,17 @@ export function computeAIMemoryIntelligence(runtime = {}) {
     {
       id: "long_term_recall",
       label: "Long-Term Recall™",
-      score: 0,
+      score: runtime.hasExecutiveMemory ? 1 : 0,
       target: 2,
-      gap: 2,
-      potentialGain: 2,
+      gap: runtime.hasExecutiveMemory ? 1 : 2,
+      potentialGain: runtime.hasExecutiveMemory ? 1 : 2,
       description: "Long-term memory consolidation — important insights and decisions persisted for future sessions.",
       sourceFile: "src/lib/execKnowledgeBase.js",
       deepLink: "/developer/cognitive",
-      evidence: "Long-term recall system not yet implemented — no memory consolidation pipeline",
-      status: "Not Implemented",
+      evidence: runtime.hasExecutiveMemory
+        ? "ExecutiveMemory persistence active — long-term recall partially operational, consolidation pipeline pending"
+        : "Long-term recall system not yet implemented — no memory consolidation pipeline",
+      status: runtime.hasExecutiveMemory ? "Partial" : "Not Implemented",
     },
   ];
 

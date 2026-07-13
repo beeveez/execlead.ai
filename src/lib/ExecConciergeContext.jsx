@@ -42,6 +42,8 @@ export function useExecConcierge() {
       activeWorkspace: null,
       contextSwitchAt: null,
       learnedPreferences: null,
+      executiveMemory: null,
+      hasExecutiveMemory: false,
     };
   }
   return ctx;
@@ -98,6 +100,7 @@ export function ExecConciergeProvider({ children }) {
   const [hasGreeted, setHasGreeted] = useState(false);
   const [contextSwitchAt, setContextSwitchAt] = useState(null);
   const [learnedPreferences, setLearnedPreferences] = useState(null);
+  const [executiveMemory, setExecutiveMemory] = useState(null);
   const userContextRef = useRef(null);
   const greetedWorkspaceRef = useRef(null);
 
@@ -168,12 +171,50 @@ export function ExecConciergeProvider({ children }) {
     }
   }, [user?.id]);
 
+  // Load cross-session Executive Memory™ — persists user preferences, goals, and
+  // history across conversations via the ExecutiveMemory entity. Recall survives
+  // session/browser restarts, unlike localStorage conversation state.
+  const loadExecutiveMemory = useCallback(async (userId) => {
+    if (!userId) return null;
+    try {
+      const records = await base44.entities.ExecutiveMemory.filter({ user_id: userId }, "-updated_date", 1);
+      if (records && records.length > 0) {
+        setExecutiveMemory(records[0]);
+        return records[0];
+      }
+    } catch {
+      // entity not yet available — cross-session memory is best-effort
+    }
+    return null;
+  }, []);
+
+  const saveExecutiveMemory = useCallback(
+    async (updates) => {
+      if (!user?.id) return;
+      try {
+        if (executiveMemory?.id) {
+          const updated = await base44.entities.ExecutiveMemory.update(executiveMemory.id, updates);
+          setExecutiveMemory(updated);
+        } else {
+          const created = await base44.entities.ExecutiveMemory.create({ user_id: user.id, ...updates });
+          setExecutiveMemory(created);
+        }
+      } catch {
+        // silent — memory persistence is best-effort and must not block the conversation
+      }
+    },
+    [user?.id, executiveMemory]
+  );
+
   // Proactively resolve user context on authentication — the Personalization™
   // diagnostics and recommendation engines read this before the concierge drawer
   // is ever opened, so we cannot defer it to initConversation().
   useEffect(() => {
-    if (user?.id) fetchUserContext();
-  }, [user?.id, fetchUserContext]);
+    if (user?.id) {
+      fetchUserContext();
+      loadExecutiveMemory(user.id);
+    }
+  }, [user?.id, fetchUserContext, loadExecutiveMemory]);
 
   const initConversation = useCallback(async () => {
     if (user) {
@@ -284,6 +325,16 @@ export function ExecConciergeProvider({ children }) {
           });
           setLearnedPreferences(merged);
         }
+        // Persist cross-session Executive Memory™ — preferences and context
+        // survive browser restarts and device switches.
+        saveExecutiveMemory({
+          preferences_json: JSON.stringify({
+            topics: extracted.topics,
+            signals: extracted.signals,
+            ...learnedPreferences,
+          }),
+          last_context_gathered_at: new Date().toISOString(),
+        });
       } catch {
         setMessages((prev) => [
           ...prev,
@@ -327,6 +378,8 @@ export function ExecConciergeProvider({ children }) {
     activeWorkspace,
     contextSwitchAt,
     learnedPreferences,
+    executiveMemory,
+    hasExecutiveMemory: !!executiveMemory,
   };
 
   return (

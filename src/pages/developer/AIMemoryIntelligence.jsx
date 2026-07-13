@@ -10,6 +10,7 @@ export default function AIMemoryIntelligence() {
   const runtime = useMemo(() => ({
     hasMemory: (concierge.messages?.length || 0) > 0,
     hasUserContext: !!concierge.userContext,
+    hasExecutiveMemory: !!concierge.hasExecutiveMemory,
     personaResolved: !!concierge.workspacePersona,
     pageContextResolved: !!concierge.pageContext,
     conversationLength: concierge.messages?.length || 0,

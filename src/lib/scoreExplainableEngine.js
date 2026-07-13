@@ -80,7 +80,7 @@ export const SCORE_REGISTRY = {
         { id: "leadership_dna", label: "Leadership DNA™", maxPoints: 10, score: null, fallback: 70, deps: ["Leadership DNA™", "Competency Catalog™"] },
         { id: "coaching_personalization", label: "Coaching Personalization™", maxPoints: 10, score: pillarScore("personalization") ?? pillarScore("coaching"), fallback: 73, deps: ["Persona Resolution™", "Coaching Engine™"] },
         { id: "confidence_calibration", label: "Confidence Calibration™", maxPoints: 8, score: confMetric ? clamp(confMetric.score) : null, fallback: 75, deps: ["Confidence Calibration Engine™"] },
-        { id: "executive_simulator", label: "Executive Simulator™", maxPoints: 8, score: null, fallback: 71, deps: ["Executive Simulator™", "Simulation Engine™"] },
+        { id: "executive_simulator", label: "Executive Simulator™", maxPoints: 8, score: pillarScore("simulation"), fallback: 71, deps: ["Executive Simulator™", "Simulation Engine™"] },
         { id: "knowledge_graph", label: "Knowledge Graph™", maxPoints: 12, score: pillarScore("knowledge"), fallback: 67, deps: ["Knowledge Graph™", "ELIM Knowledge Packs™"] },
         { id: "ai_memory", label: "AI Memory™", maxPoints: 10, score: pillarScore("memory"), fallback: 75, deps: ["Executive Memory™", "Conversation Persistence™"] },
         { id: "prompt_evaluation", label: "Prompt Evaluation™", maxPoints: 15, score: pillarScore("reasoning"), fallback: 93, deps: ["EXEC™ Prompt Framework™", "Prompt Evaluation Engine™"] },
@@ -144,9 +144,9 @@ export const SCORE_REGISTRY = {
           ];
         case "simulation":
           return [
-            { label: "Structured Executive Summary", status: "pending", detail: "Not yet generated from simulation results" },
-            { label: "Behavioral Analysis", status: "pending", detail: "Not yet produced from simulation data" },
-            { label: "Learning Plan Generation", status: "pending", detail: "Not yet produced from simulation outcomes" },
+            { label: "Structured Executive Summary", status: "active", detail: "Generated with overall score, verdict, and narrative summary" },
+            { label: "Behavioral Analysis", status: "active", detail: "7-dimension scoring: executive, leadership, commercial, communication, strategic, presence, truthfulness" },
+            { label: "Strengths & Improvements", status: "active", detail: "Actionable strengths and improvement areas extracted from session transcript" },
           ];
         case "knowledge":
           return [

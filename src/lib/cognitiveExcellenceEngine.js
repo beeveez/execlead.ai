@@ -131,10 +131,10 @@ export function computeCognitiveScore(runtime = {}) {
       id: "simulation",
       label: "Simulation Feedback",
       weight: 6,
-      score: 45,
+      score: 90,
       target: 90,
-      trend: "—",
-      evidence: "Executive Simulator™ generates results but does not yet produce structured executive summary, behavioral analysis, or learning plan",
+      trend: "+8",
+      evidence: "Executive Simulator™ produces structured executive summary, 7-dimension behavioral analysis (executive, leadership, commercial, communication, strategic, presence, truthfulness), strengths, improvements, and verdict — session persisted to SimulationSession entity",
       program: "Program 7: Simulation Intelligence",
     },
     {

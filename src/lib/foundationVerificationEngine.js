@@ -112,6 +112,7 @@ const EXEMPT_PATTERNS = [
   "/legacy-library", "/network", "/network/directory", "/network/discussions",
   "/network/circles", "/network/mentorship", "/network/careers",
   "/network/partnerships", "/network/founding-lounge", "/partner-portal",
+  "/beta-program",
 ];
 
 function isExempt(path) {

@@ -629,6 +629,7 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/legacy-library", "/network", "/network/directory", "/network/discussions",
   "/network/circles", "/network/mentorship", "/network/careers",
   "/network/partnerships", "/network/founding-lounge", "/partner-portal",
+  "/beta-program",
   // Developer cognitive excellence sub-routes — covered by parent /developer module
   "/developer/cognitive", "/developer/cognitive/memory", "/developer/cognitive/personalization",
 ];

@@ -1,5 +1,6 @@
 import React from "react";
-import { X, ExternalLink, Wrench, ShieldCheck } from "lucide-react";
+import { X, ExternalLink, Wrench } from "lucide-react";
+import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
 
 function FieldRow({ label, value }) {
   return (
@@ -11,8 +12,67 @@ function FieldRow({ label, value }) {
 }
 
 export default function AIMemoryDetailPanel({ item, onClose }) {
+  const { openRepairWorkflow } = useRepairWorkflow();
   const typeLabel = item.itemType ? item.itemType.charAt(0).toUpperCase() + item.itemType.slice(1) : "Detail";
   const title = item.label || item.issue || item.task || "Detail";
+
+  const buildFinding = () => {
+    if (item.itemType === "dimension") {
+      return {
+        id: `dim-${item.id}`,
+        title: `${item.label} below target (${item.score}/${item.target})`,
+        description: item.description,
+        evidence: [item.evidence],
+        sourceFile: item.sourceFile,
+        deepLink: item.deepLink,
+        score: item.score,
+        target: item.target,
+        gap: item.gap,
+        potentialScoreGain: item.potentialGain,
+        owner: "AI Engineering",
+        priority: item.score === 0 ? "P0" : "P1",
+        repairAction: `Implement ${item.label} — close ${item.gap}-point gap to reach target (${item.target})`,
+        estimatedEffort: item.score === 0 ? "4 hours" : "2 hours",
+        category: item.itemType,
+      };
+    }
+    if (item.itemType === "failure") {
+      return {
+        ...item,
+        id: item.id,
+        title: item.issue,
+        description: item.evidence,
+        evidence: [item.evidence],
+        sourceFile: item.sourceFile,
+        deepLink: item.deepLink,
+        priority: item.severity === "Critical" ? "P0" : "P1",
+      };
+    }
+    if (item.itemType === "task") {
+      return {
+        id: `task-${item.id}`,
+        title: item.task,
+        description: item.task,
+        evidence: [`Priority: ${item.priority}`, `Dependencies: ${item.dependencies.join(", ")}`],
+        sourceFile: item.sourceFile,
+        deepLink: item.deepLink,
+        owner: item.owner,
+        estimatedHours: item.estimatedHours,
+        potentialScoreGain: item.potentialScoreGain,
+        priority: item.priority === "Critical" ? "P0" : item.priority === "High" ? "P1" : "P2",
+        repairAction: item.task,
+        autoRepairable: item.autoRepair,
+        dependencies: item.dependencies,
+        category: "Engineering Task",
+      };
+    }
+    return null;
+  };
+
+  const handleRepair = () => {
+    const finding = buildFinding();
+    if (finding) openRepairWorkflow(finding, { source: `${typeLabel} Diagnostics` });
+  };
 
   const fields = [];
   if (item.itemType === "dimension") {
@@ -74,14 +134,14 @@ export default function AIMemoryDetailPanel({ item, onClose }) {
             <FieldRow key={label} label={label} value={value} />
           ))}
 
-          {/* Action buttons for failures and tasks */}
-          {(item.itemType === "failure" || item.itemType === "task") && (
-            <div className="flex items-center gap-2 pt-2">
-              <button className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-colors">
+          {/* Repair button — available for dimensions, failures, and tasks */}
+          {(item.itemType === "dimension" || item.itemType === "failure" || item.itemType === "task") && (
+            <div className="pt-2">
+              <button
+                onClick={handleRepair}
+                className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 transition-colors w-full justify-center"
+              >
                 <Wrench size={12} /> Repair
-              </button>
-              <button className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors">
-                <ShieldCheck size={12} /> Verify
               </button>
             </div>
           )}

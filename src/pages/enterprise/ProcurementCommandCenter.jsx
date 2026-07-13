@@ -36,26 +36,25 @@ export default function ProcurementCommandCenter() {
   const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
   const [selectedOrgId, setSelectedOrgId] = useState(null);
 
-  useEffect(() => { loadData(); }, []);
-
   const loadData = async () => {
     setLoading(true);
     try {
-      const [reqs, orgs, depts] = await Promise.all([
-        base44.entities.ProcurementRequest.list("-created_date", 500),
-        base44.entities.Organization.list("-created_date", 200),
-        base44.entities.Department.list("-created_date", 500),
-      ]);
+      const reqs = await base44.entities.ProcurementRequest.list("-created_date", 500);
       setRequests(reqs);
+    } catch (e) { console.error("Procurement requests load failed:", e); }
+    try {
+      const orgs = await base44.entities.Organization.list("-created_date", 200);
       setOrganizations(orgs);
-      setDepartments(depts);
       if (orgs.length > 0) setSelectedOrgId(orgs[0].id);
-    } catch (e) {
-      console.error("Failed to load procurement data:", e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error("Organizations load failed:", e); }
+    try {
+      const depts = await base44.entities.Department.list("-created_date", 500);
+      setDepartments(depts);
+    } catch (e) { console.error("Departments load failed:", e); }
+    setLoading(false);
   };
+
+  useEffect(() => { loadData(); }, []);
 
   const selectedOrg = organizations.find((o) => o.id === selectedOrgId);
   const filteredRequests = useMemo(() => {

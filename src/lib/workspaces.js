@@ -145,6 +145,9 @@ export const WORKSPACE_NAV = {
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
       { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
       { path: "/developer/experience-audit", label: "Platform Autonomic Experience Engine™", icon: ClipboardCheck },
+      { path: "/developer/cognitive", label: "Cognitive Excellence Engine™", icon: Brain },
+      { path: "/developer/cognitive/memory", label: "AI Memory Intelligence™", icon: Brain },
+      { path: "/developer/cognitive/personalization", label: "Personalization Intelligence™", icon: UserCircle },
       { path: "/trust-center", label: "Trust Center™", icon: ShieldCheck },
     ]},
     { label: "Engineering", items: [
@@ -217,6 +220,8 @@ const ROUTE_WORKSPACE = {
   "/ai-command-center": ["executive"],
   "/developer/ai-command-center": ["developer"],
   "/developer": ["developer"], "/developer/executive-platform-status": ["developer"],
+  "/developer/cognitive": ["developer"], "/developer/cognitive/memory": ["developer"],
+  "/developer/cognitive/personalization": ["developer"],
   "/developer/knowledge-sync": ["developer"],
   "/feature-management": ["developer"], "/guardian": ["developer"],
   "/trust-center": ["developer"],

@@ -35,6 +35,10 @@
         "system"
       ],
       "default": "dark"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "The organization this user belongs to. Used for Row-Level Security (RLS) on org-scoped entities. Empty for individual executive users not tied to an enterprise organization."
     }
   },
   "required": [

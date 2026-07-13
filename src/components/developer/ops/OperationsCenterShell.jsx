@@ -47,6 +47,7 @@ import FoundationCertificationDashboard from "@/components/developer/foundation/
 import PlatformIntelligenceCenter from "@/components/developer/pii/PlatformIntelligenceCenter";
 import FeatureGovernanceRuleCard from "@/components/developer/FeatureGovernanceRuleCard";
 import FoundationCompletionDirectiveCard from "@/components/developer/FoundationCompletionDirectiveCard";
+import GovernanceIntelligence from "@/components/developer/governance/GovernanceIntelligence";
 
 const WORKSPACES = [
   {
@@ -86,17 +87,11 @@ const WORKSPACES = [
     name: "Platform Governance",
     icon: ShieldCheck,
     color: "indigo",
-    description: "Governance pipeline & manifest",
+    description: "Governance Intelligence™ workspace",
     render: (ctx) => (
       <WorkspaceContainer>
         <GovernanceCertificationBanner certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} onRefresh={() => ctx.runPipeline("manual")} />
-        <GovernancePipelineStatus certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} />
-        <GovernanceCertificateCard certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} onRefresh={() => ctx.runPipeline("manual")} />
-        <FoundationCompletionDirectiveCard />
-        <FeatureGovernanceRuleCard />
-        <PlatformManifestDashboard />
-        <RegistrySynchronization />
-        <ContextValidation />
+        <GovernanceIntelligence ctx={ctx} />
       </WorkspaceContainer>
     ),
   },

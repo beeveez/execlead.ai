@@ -61,7 +61,7 @@ export async function generatePDF(reportDef) {
     reportDef, C, TONE_COLOR, safe, sanitize,
     y: 0,
     putText(text, x, py, opts) {
-      this.doc.text(sanitize(text), x, py, opts);
+      doc.text(sanitize(text), x, py, opts);
     },
     ensureSpace(h) {
       if (this.y + h > this.ph - this.bottomMargin) {

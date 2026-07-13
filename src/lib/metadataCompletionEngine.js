@@ -483,3 +483,225 @@ export function computeMetadataCompletion() {
     buildNumber: PLATFORM_METADATA.buildNumber,
   };
 }
+
+// ============================================================
+// METADATA GOVERNANCE CENTER™ — Rich drill-down data builders
+// ============================================================
+
+const FIELD_PRIORITY = {
+  module: { priority: "P1", severity: "high", hours: 0.5 },
+  workspace: { priority: "P1", severity: "high", hours: 0.5 },
+  capability: { priority: "P1", severity: "high", hours: 1 },
+  knowledgePack: { priority: "P1", severity: "high", hours: 1 },
+  framework: { priority: "P1", severity: "high", hours: 1 },
+  aiPersona: { priority: "P2", severity: "medium", hours: 0.5 },
+  permissions: { priority: "P1", severity: "high", hours: 0.5 },
+  subscriptionTier: { priority: "P2", severity: "medium", hours: 0.25 },
+  featureFlag: { priority: "P2", severity: "medium", hours: 0.25 },
+  navigationGroup: { priority: "P2", severity: "low", hours: 0.25 },
+  searchKeywords: { priority: "P3", severity: "low", hours: 0.25, autoRepair: true },
+  description: { priority: "P2", severity: "medium", hours: 0.5 },
+  evidenceSources: { priority: "P2", severity: "medium", hours: 0.5 },
+  execSummary: { priority: "P3", severity: "low", hours: 0.5, autoRepair: true },
+  ownerFramework: { priority: "P1", severity: "high", hours: 0.5 },
+  primaryPersona: { priority: "P2", severity: "medium", hours: 0.5 },
+  dependencies: { priority: "P2", severity: "medium", hours: 1 },
+  requiredCapabilities: { priority: "P2", severity: "medium", hours: 1 },
+  relatedModules: { priority: "P3", severity: "low", hours: 0.5 },
+  navigationLocation: { priority: "P2", severity: "medium", hours: 0.25 },
+  purpose: { priority: "P1", severity: "high", hours: 0.5 },
+  knowledgePacks: { priority: "P1", severity: "high", hours: 1 },
+  frameworks: { priority: "P1", severity: "high", hours: 1 },
+  capabilities: { priority: "P2", severity: "medium", hours: 1 },
+  supportedModules: { priority: "P2", severity: "medium", hours: 0.5 },
+  conversationStyle: { priority: "P3", severity: "low", hours: 0.25 },
+  allowedActions: { priority: "P2", severity: "medium", hours: 0.5 },
+  recommendedActions: { priority: "P3", severity: "low", hours: 0.25 },
+  restrictions: { priority: "P3", severity: "low", hours: 0.25 },
+  fallbackStrategy: { priority: "P2", severity: "medium", hours: 0.5 },
+};
+
+function fieldMeta(field) {
+  return FIELD_PRIORITY[field] || { priority: "P2", severity: "medium", hours: 0.5 };
+}
+
+export function buildMissingEntriesTable(report) {
+  const entries = [];
+
+  report.routeCoverage.detailed.forEach((r) => {
+    r.missingFields.forEach((field) => {
+      const fm = fieldMeta(field);
+      entries.push({
+        id: `route-${r.route}-${field}`,
+        entity: r.route,
+        name: r.name,
+        type: "Route",
+        field,
+        workspace: r.metadata.workspace || "—",
+        module: r.metadata.module || "—",
+        priority: fm.priority,
+        severity: fm.severity,
+        owner: "Platform Engineering",
+        dependencies: ["Platform Manifest™", "Route Registry™"],
+        estimatedFixTime: `${fm.hours}h`,
+        status: "open",
+        deepLink: r.route,
+        evidence: [`Route: ${r.route}`, `Missing field: ${field}`, `Complete: ${r.complete}`],
+        repairAction: `Add ${field} metadata to route ${r.route} in Route Registry™`,
+        autoRepair: !!fm.autoRepair,
+      });
+    });
+  });
+
+  report.moduleCoverage.detailed.forEach((m) => {
+    m.missingFields.forEach((field) => {
+      const fm = fieldMeta(field);
+      entries.push({
+        id: `module-${m.moduleId}-${field}`,
+        entity: m.moduleName,
+        name: m.moduleName,
+        type: "Module",
+        field,
+        workspace: m.metadata.workspace || "—",
+        module: m.moduleName,
+        priority: fm.priority,
+        severity: fm.severity,
+        owner: "Platform Engineering",
+        dependencies: ["Module Registry™", "Platform Manifest™"],
+        estimatedFixTime: `${fm.hours}h`,
+        status: "open",
+        deepLink: "/developer",
+        evidence: [`Module: ${m.moduleName}`, `Missing field: ${field}`],
+        repairAction: `Add ${field} metadata to module ${m.moduleName} in Module Registry™`,
+        autoRepair: !!fm.autoRepair,
+      });
+    });
+  });
+
+  report.personaCoverage.detailed.forEach((p) => {
+    p.missingFields.forEach((field) => {
+      const fm = fieldMeta(field);
+      entries.push({
+        id: `persona-${p.personaId}-${field}`,
+        entity: p.personaName,
+        name: p.personaName,
+        type: "Persona",
+        field,
+        workspace: p.metadata.workspace || "all",
+        module: "—",
+        priority: fm.priority,
+        severity: fm.severity,
+        owner: "AI Engineering",
+        dependencies: ["AI Persona Registry™", "Knowledge Pack Registry™"],
+        estimatedFixTime: `${fm.hours}h`,
+        status: "open",
+        deepLink: "/developer",
+        evidence: [`Persona: ${p.personaName}`, `Missing field: ${field}`],
+        repairAction: `Add ${field} metadata to persona ${p.personaName} in AI Persona Registry™`,
+        autoRepair: !!fm.autoRepair,
+      });
+    });
+  });
+
+  report.knowledgeCoverage.missingRoutes.forEach((r) => {
+    entries.push({
+      id: `knowledge-${r.url}`,
+      entity: r.url,
+      name: r.name,
+      type: "Knowledge Entry",
+      field: "knowledgeEntry",
+      workspace: "—",
+      module: "—",
+      priority: "P2",
+      severity: "medium",
+      owner: "AI Engineering",
+      dependencies: ["EXEC™ Knowledge Index™", "ELIM Knowledge Packs™"],
+      estimatedFixTime: "0.5h",
+      status: "open",
+      deepLink: r.url,
+      evidence: [`Route: ${r.url}`, `No EXEC™ Knowledge Index entry`],
+      repairAction: `Create EXEC™ Knowledge Index entry for route ${r.url}`,
+      autoRepair: true,
+    });
+  });
+
+  return entries.sort((a, b) => {
+    const order = { P1: 0, P2: 1, P3: 2 };
+    return (order[a.priority] ?? 3) - (order[b.priority] ?? 3);
+  });
+}
+
+export function buildOrphanRegistry(report) {
+  const orphanRoutes = ROUTE_REGISTRY.filter(
+    (r) => !MODULE_REGISTRY.find((m) => m.route === r.url) && !isKnowledgeExempt(r.url)
+  ).map((r) => ({
+    id: `orphan-route-${r.url}`,
+    name: r.url,
+    category: "Orphan Route",
+    type: "Route",
+    missingModule: true,
+    missingRoute: false,
+    missingKnowledgePack: !EXEC_KNOWLEDGE_INDEX.find((e) => e.path === r.url),
+    missingFramework: true,
+    owner: "Platform Engineering",
+    estimatedFix: "1h",
+    priority: "P1",
+    autoRepair: false,
+    detail: `Route ${r.url} has no registered module in Module Registry™`,
+    deepLink: r.url,
+  }));
+
+  const orphanCapabilities = CAPABILITY_REGISTRY.filter((c) => !c.knowledgePack).map((c) => ({
+    id: `orphan-cap-${c.capabilityId}`,
+    name: c.name,
+    category: "Orphan Capability",
+    type: "Capability",
+    missingModule: true,
+    missingRoute: true,
+    missingKnowledgePack: true,
+    missingFramework: !c.framework,
+    owner: "AI Engineering",
+    estimatedFix: "2h",
+    priority: "P1",
+    autoRepair: false,
+    detail: `Capability ${c.name} has no Knowledge Pack assignment`,
+    deepLink: "/developer",
+  }));
+
+  const unregisteredPersonas = AI_PERSONA_REGISTRY.filter((p) => !p.knowledgePacks || p.knowledgePacks.length === 0).map((p) => ({
+    id: `orphan-persona-${p.personaId}`,
+    name: p.name,
+    category: "Unregistered Persona",
+    type: "Persona",
+    missingModule: true,
+    missingRoute: true,
+    missingKnowledgePack: true,
+    missingFramework: true,
+    owner: "AI Engineering",
+    estimatedFix: "2h",
+    priority: "P1",
+    autoRepair: false,
+    detail: `Persona ${p.name} has no registered Knowledge Packs`,
+    deepLink: "/developer",
+  }));
+
+  const duplicateRoutes = ROUTE_REGISTRY.filter((r) => r.duplicate).map((r) => ({
+    id: `dup-route-${r.url}`,
+    name: r.url,
+    category: "Duplicate Route",
+    type: "Route",
+    missingModule: false,
+    missingRoute: false,
+    missingKnowledgePack: false,
+    missingFramework: false,
+    owner: "Platform Engineering",
+    estimatedFix: "0.5h",
+    priority: "P2",
+    autoRepair: true,
+    detail: `Duplicate route registration: ${r.url}`,
+    deepLink: "/developer",
+  }));
+
+  const all = [...orphanRoutes, ...orphanCapabilities, ...unregisteredPersonas, ...duplicateRoutes];
+  return { orphanRoutes, orphanCapabilities, unregisteredPersonas, duplicateRoutes, all };
+}

@@ -1,128 +1,178 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { computeMetadataCompletion } from "@/lib/metadataCompletionEngine";
 import {
-  CheckCircle2, AlertCircle, TrendingUp, Search, Brain,
-  Database, Layers, Network, Zap, Package, Gauge, FileText,
-  Settings, ShieldCheck,
+  CheckCircle2, AlertCircle, Search, Brain,
+  Database, Layers, Network, Zap, Package, Gauge,
+  Settings, ShieldCheck, ChevronRight, RotateCcw,
 } from "lucide-react";
+import ReportToolbar from "@/components/reports/ReportToolbar";
+import { buildMetadataReport } from "@/lib/reports/metadataReportBuilder";
+import MetadataCopilot from "./metadata/MetadataCopilot";
+import RegistryDrawer from "./metadata/RegistryDrawer";
+import MissingEntriesDrawer from "./metadata/MissingEntriesDrawer";
+import OrphanRegistryDrawer from "./metadata/OrphanRegistryDrawer";
+import ScoreAnalysisDrawer from "./metadata/ScoreAnalysisDrawer";
+
+const REGISTRY_CARDS = [
+  { id: "routes", label: "Routes™", icon: Network, color: "indigo" },
+  { id: "modules", label: "Modules™", icon: Layers, color: "purple" },
+  { id: "capabilities", label: "Capabilities™", icon: Zap, color: "amber" },
+  { id: "frameworks", label: "Frameworks™", icon: Brain, color: "cyan" },
+  { id: "personas", label: "Personas™", icon: Network, color: "pink" },
+  { id: "knowledge", label: "Knowledge™", icon: Package, color: "emerald" },
+  { id: "manifest", label: "Manifest™", icon: Database, color: "blue" },
+];
+
+const COLORS = {
+  indigo: "text-indigo-400", purple: "text-purple-400", amber: "text-amber-400",
+  cyan: "text-cyan-400", pink: "text-pink-400", emerald: "text-emerald-400", blue: "text-blue-400",
+};
 
 export default function PlatformMetadataCompletion() {
-  const report = useMemo(() => computeMetadataCompletion(), []);
+  const [recomputeKey, setRecomputeKey] = useState(0);
+  const [activeRegistry, setActiveRegistry] = useState(null);
+  const [showMissing, setShowMissing] = useState(false);
+  const [showOrphans, setShowOrphans] = useState(false);
+  const [activeScore, setActiveScore] = useState(null);
 
-  const allComplete = report.overallCoverage === 100 &&
-    report.totalMissingEntries === 0 &&
-    report.totalOrphanRecords === 0 &&
-    report.unknownConfigurations === 0;
+  const report = useMemo(() => computeMetadataCompletion(), [recomputeKey]);
+
+  const allComplete = report.overallCoverage === 100 && report.totalMissingEntries === 0 && report.totalOrphanRecords === 0 && report.unknownConfigurations === 0;
+
+  const getCoverage = (id) => {
+    switch (id) {
+      case "routes": return { pct: report.routeCoverage.pct, detail: `${report.routeCoverage.complete}/${report.routeCoverage.total}` };
+      case "modules": return { pct: report.moduleCoverage.pct, detail: `${report.moduleCoverage.complete}/${report.moduleCoverage.total}` };
+      case "capabilities": return { pct: report.capabilityCoverage.pct, detail: `${report.capabilityCoverage.complete}/${report.capabilityCoverage.total}` };
+      case "frameworks": return { pct: report.frameworkCoverage.pct, detail: `${report.frameworkCoverage.complete}/${report.frameworkCoverage.total}` };
+      case "personas": return { pct: report.personaCoverage.pct, detail: `${report.personaCoverage.complete}/${report.personaCoverage.total}` };
+      case "knowledge": return { pct: report.knowledgeCoverage.pct, detail: `${report.knowledgeCoverage.covered}/${report.knowledgeCoverage.total}` };
+      case "manifest": return { pct: report.manifestValidation.errors === 0 ? 100 : Math.max(0, 100 - report.manifestValidation.errors * 10), detail: `${report.manifestValidation.totalFindings} findings` };
+      default: return { pct: 0, detail: "—" };
+    }
+  };
+
+  const handleRecompute = () => setRecomputeKey((k) => k + 1);
 
   return (
     <div className="space-y-5">
-      {/* Overall Status Banner */}
-      <div className={`flex items-center gap-4 p-5 rounded-xl border ${
-        allComplete
-          ? "bg-emerald-500/5 border-emerald-500/10"
-          : "bg-amber-500/5 border-amber-500/10"
-      }`}>
-        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${
-          allComplete ? "bg-emerald-500/10" : "bg-amber-500/10"
+      {/* Toolbar: PDF Export + Recompute */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <ReportToolbar reportBuilder={buildMetadataReport} filenamePrefix="Metadata-Governance" supportCSV={true} />
+        <button onClick={handleRecompute} className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg px-3 py-1.5 text-xs transition-colors">
+          <RotateCcw size={12} /> Recompute Score
+        </button>
+      </div>
+
+      {/* Overall Status Banner — clickable */}
+      <button onClick={() => setActiveScore("governance")}
+        className={`w-full flex items-center gap-4 p-5 rounded-xl border text-left transition-colors hover:bg-white/[0.02] ${
+          allComplete ? "bg-emerald-500/5 border-emerald-500/10" : "bg-amber-500/5 border-amber-500/10"
         }`}>
-          {allComplete ? (
-            <CheckCircle2 size={24} className="text-emerald-400" />
-          ) : (
-            <AlertCircle size={24} className="text-amber-400" />
-          )}
+        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${allComplete ? "bg-emerald-500/10" : "bg-amber-500/10"}`}>
+          {allComplete ? <CheckCircle2 size={24} className="text-emerald-400" /> : <AlertCircle size={24} className="text-amber-400" />}
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-bold text-white">Platform Metadata Completion™</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-bold text-white">Platform Metadata Completion™</h3>
+            <ChevronRight size={12} className="text-white/30" />
+          </div>
           <p className="text-white/40 text-xs mt-0.5">
-            {allComplete
-              ? "All platform assets fully registered, interconnected, discoverable, and explainable."
-              : `${report.totalMissingEntries} missing entries · ${report.totalOrphanRecords} orphan records · ${report.unknownConfigurations} unknown configs`}
+            {allComplete ? "All platform assets fully registered, interconnected, discoverable, and explainable."
+              : `${report.totalMissingEntries} missing entries · ${report.totalOrphanRecords} orphan records · ${report.unknownConfigurations} unknown configs · Click to open Governance Analysis™`}
           </p>
         </div>
         <div className="text-right">
           <div className="text-[10px] text-white/30 uppercase tracking-wider">Overall Coverage</div>
-          <div className={`text-3xl font-bold ${allComplete ? "text-emerald-400" : "text-amber-400"}`}>
-            {report.overallCoverage}%
-          </div>
+          <div className={`text-3xl font-bold ${allComplete ? "text-emerald-400" : "text-amber-400"}`}>{report.overallCoverage}%</div>
         </div>
-      </div>
+      </button>
 
-      {/* Coverage Score Cards */}
+      {/* Coverage Score Cards — each clickable → Registry Drawer */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
-        <CoverageCard label="Routes" value={report.routeCoverage.pct} icon={Network} color="indigo" detail={`${report.routeCoverage.complete}/${report.routeCoverage.total}`} />
-        <CoverageCard label="Modules" value={report.moduleCoverage.pct} icon={Layers} color="purple" detail={`${report.moduleCoverage.complete}/${report.moduleCoverage.total}`} />
-        <CoverageCard label="Capabilities" value={report.capabilityCoverage.pct} icon={Zap} color="amber" detail={`${report.capabilityCoverage.complete}/${report.capabilityCoverage.total}`} />
-        <CoverageCard label="Frameworks" value={report.frameworkCoverage.pct} icon={Brain} color="cyan" detail={`${report.frameworkCoverage.complete}/${report.frameworkCoverage.total}`} />
-        <CoverageCard label="Personas" value={report.personaCoverage.pct} icon={Network} color="pink" detail={`${report.personaCoverage.complete}/${report.personaCoverage.total}`} />
-        <CoverageCard label="Knowledge" value={report.knowledgeCoverage.pct} icon={Package} color="emerald" detail={`${report.knowledgeCoverage.covered}/${report.knowledgeCoverage.total}`} />
-        <CoverageCard label="Manifest" value={report.manifestValidation.errors === 0 ? 100 : Math.max(0, 100 - report.manifestValidation.errors * 10)} icon={Database} color="blue" detail={`${report.manifestValidation.totalFindings} findings`} />
+        {REGISTRY_CARDS.map((card) => {
+          const cov = getCoverage(card.id);
+          return (
+            <button key={card.id} onClick={() => setActiveRegistry(card.id)}
+              className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-center hover:bg-white/[0.04] hover:border-white/10 transition-all group">
+              <div className="flex items-center gap-1.5 mb-2 justify-center">
+                <card.icon size={12} className={COLORS[card.color]} />
+                <span className="text-[9px] text-white/30 uppercase tracking-wider">{card.label}</span>
+              </div>
+              <div className="relative w-12 h-12 mx-auto mb-1">
+                <svg width="48" height="48" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+                  <circle cx="24" cy="24" r="20" fill="none" stroke={cov.pct === 100 ? "#10b981" : cov.pct >= 75 ? "#f59e0b" : "#ef4444"} strokeWidth="3"
+                    strokeDasharray={`${2 * Math.PI * 20 * (cov.pct / 100)} ${2 * Math.PI * 20}`} strokeLinecap="round" transform="rotate(-90 24 24)" />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">{cov.pct}%</span>
+                </div>
+              </div>
+              <div className="text-[9px] text-white/30">{cov.detail}</div>
+              <div className="flex items-center justify-center gap-0.5 mt-1 text-[8px] text-white/20 group-hover:text-indigo-400 transition-colors">
+                Open Registry <ChevronRight size={8} />
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Governance Metrics */}
+      {/* Governance Metrics — each KPI clickable */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Missing Entries" value={report.totalMissingEntries} icon={AlertCircle} color={report.totalMissingEntries === 0 ? "emerald" : "amber"} />
-        <MetricCard label="Unknown Configs" value={report.unknownConfigurations} icon={Settings} color={report.unknownConfigurations === 0 ? "emerald" : "amber"} />
-        <MetricCard label="Orphan Records" value={report.totalOrphanRecords} icon={AlertCircle} color={report.totalOrphanRecords === 0 ? "emerald" : "amber"} />
-        <MetricCard label="Active KPacks" value={report.activeKnowledgePacks} icon={Package} color="emerald" />
+        <KpiCard label="Missing Entries" value={report.totalMissingEntries} icon={AlertCircle} onClick={() => setShowMissing(true)} alert={report.totalMissingEntries > 0} />
+        <KpiCard label="Unknown Configs" value={report.unknownConfigurations} icon={Settings} onClick={() => setShowMissing(true)} alert={report.unknownConfigurations > 0} />
+        <KpiCard label="Orphan Records" value={report.totalOrphanRecords} icon={AlertCircle} onClick={() => setShowOrphans(true)} alert={report.totalOrphanRecords > 0} />
+        <KpiCard label="Active KPacks" value={report.activeKnowledgePacks} icon={Package} onClick={() => setActiveRegistry("knowledge")} alert={false} />
       </div>
 
-      {/* EXEC™ Scores */}
+      {/* EXEC™ Scores — each clickable → Score Analysis Drawer */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ScoreCard
-          label="EXEC™ Explainability Score"
-          value={report.explainabilityScore}
-          icon={Brain}
-          color="indigo"
-          description="% of platform assets EXEC™ can explain"
-        />
-        <ScoreCard
-          label="Platform Discoverability Score"
-          value={report.discoverabilityScore}
-          icon={Search}
-          color="cyan"
-          description="% of platform assets that are discoverable"
-        />
-        <ScoreCard
-          label="Platform Governance Score"
-          value={report.platformGovernanceScore}
-          icon={Gauge}
-          color="emerald"
-          description="Overall platform governance health"
-        />
+        <ScoreCard label="EXEC™ Explainability™" value={report.explainabilityScore} icon={Brain} color="indigo" description="% of platform assets EXEC™ can explain" onClick={() => setActiveScore("explainability")} />
+        <ScoreCard label="Platform Discoverability™" value={report.discoverabilityScore} icon={Search} color="cyan" description="% of platform assets that are discoverable" onClick={() => setActiveScore("discoverability")} />
+        <ScoreCard label="Platform Governance™" value={report.platformGovernanceScore} icon={Gauge} color="emerald" description="Overall platform governance health" onClick={() => setActiveScore("governance")} />
       </div>
 
-      {/* Missing Knowledge Entries */}
+      {/* Missing Knowledge Entries — clickable rows */}
       {report.knowledgeCoverage.missingRoutes.length > 0 && (
         <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
+          <button onClick={() => setActiveRegistry("knowledge")} className="flex items-center gap-2 mb-3 w-full text-left">
             <AlertCircle size={14} className="text-amber-400" />
             <h4 className="text-xs font-medium text-white/80 uppercase tracking-wider">Missing Knowledge Entries</h4>
-            <span className="text-[10px] text-white/30 ml-auto">{report.knowledgeCoverage.missingRoutes.length} routes</span>
-          </div>
+            <span className="text-[10px] text-white/30 ml-auto">{report.knowledgeCoverage.missingRoutes.length} routes · Click to open Knowledge Pack Registry™</span>
+            <ChevronRight size={12} className="text-white/30" />
+          </button>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-            {report.knowledgeCoverage.missingRoutes.map((r) => (
-              <div key={r.url} className="flex items-center gap-2 px-2 py-1 rounded bg-white/[0.02] text-xs">
+            {report.knowledgeCoverage.missingRoutes.slice(0, 10).map((r) => (
+              <button key={r.url} onClick={() => setActiveRegistry("knowledge")} className="flex items-center gap-2 px-2 py-1 rounded bg-white/[0.02] text-xs hover:bg-white/[0.04] transition-colors text-left">
                 <AlertCircle size={10} className="text-amber-400 flex-shrink-0" />
                 <span className="text-white/50 font-mono truncate">{r.url}</span>
                 <span className="text-white/30 ml-auto truncate">{r.name}</span>
-              </div>
+              </button>
             ))}
+            {report.knowledgeCoverage.missingRoutes.length > 10 && (
+              <button onClick={() => setActiveRegistry("knowledge")} className="text-[10px] text-indigo-400 hover:text-indigo-300 px-2 py-1 text-left">
+                +{report.knowledgeCoverage.missingRoutes.length - 10} more… Open Knowledge Pack Registry™
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* Orphan Records */}
+      {/* Orphan Records — each category clickable */}
       {report.totalOrphanRecords > 0 && (
         <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-3">
+          <button onClick={() => setShowOrphans(true)} className="flex items-center gap-2 mb-3 w-full text-left">
             <AlertCircle size={14} className="text-red-400" />
             <h4 className="text-xs font-medium text-white/80 uppercase tracking-wider">Orphan Records</h4>
-          </div>
+            <span className="text-[10px] text-white/30 ml-auto">Click to open Orphan Registry™</span>
+            <ChevronRight size={12} className="text-white/30" />
+          </button>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <OrphanItem label="Orphan Routes" value={report.manifestValidation.orphanRoutes} />
-            <OrphanItem label="Orphan Capabilities" value={report.manifestValidation.orphanCapabilities} />
-            <OrphanItem label="Unregistered Personas" value={report.manifestValidation.unregisteredPersonas} />
-            <OrphanItem label="Duplicate Routes" value={report.manifestValidation.duplicateRoutes} />
+            <OrphanItem label="Orphan Routes" value={report.manifestValidation.orphanRoutes} onClick={() => setShowOrphans(true)} />
+            <OrphanItem label="Orphan Capabilities" value={report.manifestValidation.orphanCapabilities} onClick={() => setShowOrphans(true)} />
+            <OrphanItem label="Unregistered Personas" value={report.manifestValidation.unregisteredPersonas} onClick={() => setShowOrphans(true)} />
+            <OrphanItem label="Duplicate Routes" value={report.manifestValidation.duplicateRoutes} onClick={() => setShowOrphans(true)} />
           </div>
         </div>
       )}
@@ -135,7 +185,7 @@ export default function PlatformMetadataCompletion() {
           {report.configurationStatus.consolidated ? (
             <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded ml-auto">Consolidated</span>
           ) : (
-            <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded ml-auto">Needs Attention</span>
+            <button onClick={() => setShowMissing(true)} className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded ml-auto hover:bg-amber-500/20 transition-colors">Needs Attention</button>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -153,116 +203,90 @@ export default function PlatformMetadataCompletion() {
           <h4 className="text-xs font-medium text-white/80 uppercase tracking-wider">Quality Gates</h4>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <GateItem label="Platform Metadata Coverage = 100%" passed={report.overallCoverage === 100} value={`${report.overallCoverage}%`} />
-          <GateItem label="Route Metadata Coverage = 100%" passed={report.routeCoverage.pct === 100} value={`${report.routeCoverage.pct}%`} />
-          <GateItem label="Module Metadata Coverage = 100%" passed={report.moduleCoverage.pct === 100} value={`${report.moduleCoverage.pct}%`} />
-          <GateItem label="Capability Metadata Coverage = 100%" passed={report.capabilityCoverage.pct === 100} value={`${report.capabilityCoverage.pct}%`} />
-          <GateItem label="Framework Metadata Coverage = 100%" passed={report.frameworkCoverage.pct === 100} value={`${report.frameworkCoverage.pct}%`} />
-          <GateItem label="Persona Metadata Coverage = 100%" passed={report.personaCoverage.pct === 100} value={`${report.personaCoverage.pct}%`} />
-          <GateItem label="Knowledge Entry Coverage = 100%" passed={report.knowledgeCoverage.pct === 100} value={`${report.knowledgeCoverage.pct}%`} />
-          <GateItem label="No Missing Registrations" passed={report.totalMissingEntries === 0} value={`${report.totalMissingEntries} remaining`} />
-          <GateItem label="No Orphaned Routes" passed={report.manifestValidation.orphanRoutes === 0} value={`${report.manifestValidation.orphanRoutes} orphaned`} />
-          <GateItem label="No Unknown Config Versions" passed={report.unknownConfigurations === 0} value={`${report.unknownConfigurations} unknown`} />
-          <GateItem label="Knowledge Packs Active > 0" passed={report.activeKnowledgePacks > 0} value={`${report.activeKnowledgePacks} active`} />
-          <GateItem label="Platform State Synchronized" passed={true} value="Synced" />
+          <GateItem label="Platform Metadata Coverage = 100%" passed={report.overallCoverage === 100} value={`${report.overallCoverage}%`} onClick={() => setActiveScore("governance")} />
+          <GateItem label="Route Metadata Coverage = 100%" passed={report.routeCoverage.pct === 100} value={`${report.routeCoverage.pct}%`} onClick={() => setActiveRegistry("routes")} />
+          <GateItem label="Module Metadata Coverage = 100%" passed={report.moduleCoverage.pct === 100} value={`${report.moduleCoverage.pct}%`} onClick={() => setActiveRegistry("modules")} />
+          <GateItem label="Capability Metadata Coverage = 100%" passed={report.capabilityCoverage.pct === 100} value={`${report.capabilityCoverage.pct}%`} onClick={() => setActiveRegistry("capabilities")} />
+          <GateItem label="Framework Metadata Coverage = 100%" passed={report.frameworkCoverage.pct === 100} value={`${report.frameworkCoverage.pct}%`} onClick={() => setActiveRegistry("frameworks")} />
+          <GateItem label="Persona Metadata Coverage = 100%" passed={report.personaCoverage.pct === 100} value={`${report.personaCoverage.pct}%`} onClick={() => setActiveRegistry("personas")} />
+          <GateItem label="Knowledge Entry Coverage = 100%" passed={report.knowledgeCoverage.pct === 100} value={`${report.knowledgeCoverage.pct}%`} onClick={() => setActiveRegistry("knowledge")} />
+          <GateItem label="No Missing Registrations" passed={report.totalMissingEntries === 0} value={`${report.totalMissingEntries} remaining`} onClick={() => setShowMissing(true)} />
+          <GateItem label="No Orphaned Routes" passed={report.manifestValidation.orphanRoutes === 0} value={`${report.manifestValidation.orphanRoutes} orphaned`} onClick={() => setShowOrphans(true)} />
+          <GateItem label="No Unknown Config Versions" passed={report.unknownConfigurations === 0} value={`${report.unknownConfigurations} unknown`} onClick={() => setShowMissing(true)} />
+          <GateItem label="Knowledge Packs Active > 0" passed={report.activeKnowledgePacks > 0} value={`${report.activeKnowledgePacks} active`} onClick={() => setActiveRegistry("knowledge")} />
+          <GateItem label="Platform State Synchronized" passed={true} value="Synced" onClick={handleRecompute} />
         </div>
       </div>
+
+      {/* Ask EXEC™ Copilot */}
+      <MetadataCopilot report={report} />
+
+      {/* Drawers */}
+      {activeRegistry && <RegistryDrawer registryType={activeRegistry} report={report} onClose={() => setActiveRegistry(null)} icon={REGISTRY_CARDS.find((c) => c.id === activeRegistry)?.icon || Database} />}
+      {showMissing && <MissingEntriesDrawer report={report} onClose={() => setShowMissing(false)} />}
+      {showOrphans && <OrphanRegistryDrawer report={report} onClose={() => setShowOrphans(false)} />}
+      {activeScore && <ScoreAnalysisDrawer scoreId={activeScore} report={report} onClose={() => setActiveScore(null)} />}
     </div>
   );
 }
 
-function CoverageCard({ label, value, icon: Icon, color, detail }) {
-  const colors = {
-    indigo: "text-indigo-400", purple: "text-purple-400", amber: "text-amber-400",
-    cyan: "text-cyan-400", pink: "text-pink-400", emerald: "text-emerald-400",
-    blue: "text-blue-400",
-  };
-  const ringColor = value === 100 ? "#10b981" : value >= 75 ? "#f59e0b" : "#ef4444";
+function KpiCard({ label, value, icon: Icon, onClick, alert }) {
   return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Icon size={12} className={colors[color]} />
-        <span className="text-[9px] text-white/30 uppercase tracking-wider">{label}</span>
-      </div>
-      <div className="relative w-12 h-12 mx-auto mb-1">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
-          <circle cx="24" cy="24" r="20" fill="none" stroke={ringColor} strokeWidth="3"
-            strokeDasharray={`${2 * Math.PI * 20 * (value / 100)} ${2 * Math.PI * 20}`}
-            strokeLinecap="round" transform="rotate(-90 24 24)" />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-bold text-white">{value}%</span>
-        </div>
-      </div>
-      <div className="text-[9px] text-white/30 text-center">{detail}</div>
-    </div>
-  );
-}
-
-function MetricCard({ label, value, icon: Icon, color }) {
-  const colors = {
-    emerald: "text-emerald-400", amber: "text-amber-400", red: "text-red-400",
-  };
-  return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 flex items-center gap-2">
-      <Icon size={16} className={colors[color]} />
-      <div>
+    <button onClick={onClick} className="bg-white/[0.02] border border-white/5 rounded-lg p-3 flex items-center gap-2 hover:bg-white/[0.04] transition-colors text-left group">
+      <Icon size={16} className={alert ? "text-amber-400" : "text-emerald-400"} />
+      <div className="flex-1">
         <div className="text-white font-bold text-lg">{value}</div>
         <div className="text-white/30 text-[10px]">{label}</div>
       </div>
-    </div>
+      <ChevronRight size={12} className="text-white/20 group-hover:text-indigo-400 transition-colors" />
+    </button>
   );
 }
 
-function ScoreCard({ label, value, icon: Icon, color, description }) {
-  const colors = {
-    indigo: "text-indigo-400", cyan: "text-cyan-400", emerald: "text-emerald-400",
-  };
+function ScoreCard({ label, value, icon: Icon, color, description, onClick }) {
   const ringColor = value === 100 ? "#10b981" : value >= 75 ? "#f59e0b" : "#ef4444";
+  const colorClass = COLORS[color] || "text-indigo-400";
   return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex items-center gap-4">
+    <button onClick={onClick} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex items-center gap-4 hover:bg-white/[0.04] hover:border-white/10 transition-all group text-left">
       <div className="relative w-16 h-16 flex-shrink-0">
         <svg width="64" height="64" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
           <circle cx="32" cy="32" r="26" fill="none" stroke={ringColor} strokeWidth="4"
-            strokeDasharray={`${2 * Math.PI * 26 * (value / 100)} ${2 * Math.PI * 26}`}
-            strokeLinecap="round" transform="rotate(-90 32 32)" />
+            strokeDasharray={`${2 * Math.PI * 26 * (value / 100)} ${2 * Math.PI * 26}`} strokeLinecap="round" transform="rotate(-90 32 32)" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-base font-bold text-white">{value}%</span>
         </div>
       </div>
-      <div>
+      <div className="flex-1">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <Icon size={12} className={colors[color]} />
+          <Icon size={12} className={colorClass} />
           <span className="text-xs text-white/80 font-medium">{label}</span>
         </div>
         <p className="text-[10px] text-white/30">{description}</p>
+        <div className="flex items-center gap-0.5 mt-1 text-[9px] text-white/20 group-hover:text-indigo-400 transition-colors">
+          Open Analysis <ChevronRight size={8} />
+        </div>
       </div>
-    </div>
+    </button>
   );
 }
 
-function OrphanItem({ label, value }) {
+function OrphanItem({ label, value, onClick }) {
   return (
-    <div className={`px-3 py-2 rounded-lg border text-center ${value > 0 ? "bg-red-500/5 border-red-500/10" : "bg-emerald-500/5 border-emerald-500/10"}`}>
+    <button onClick={onClick} className={`px-3 py-2 rounded-lg border text-center transition-colors hover:bg-white/[0.04] ${value > 0 ? "bg-red-500/5 border-red-500/10" : "bg-emerald-500/5 border-emerald-500/10"}`}>
       <div className={`text-xl font-bold ${value > 0 ? "text-red-400" : "text-emerald-400"}`}>{value}</div>
       <div className="text-white/30 text-[10px]">{label}</div>
-    </div>
+    </button>
   );
 }
 
-function GateItem({ label, passed, value }) {
+function GateItem({ label, passed, value, onClick }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5">
-      {passed ? (
-        <CheckCircle2 size={12} className="text-emerald-400 flex-shrink-0" />
-      ) : (
-        <AlertCircle size={12} className="text-amber-400 flex-shrink-0" />
-      )}
+    <button onClick={onClick} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors text-left">
+      {passed ? <CheckCircle2 size={12} className="text-emerald-400 flex-shrink-0" /> : <AlertCircle size={12} className="text-amber-400 flex-shrink-0" />}
       <span className="text-xs text-white/60 flex-1">{label}</span>
       <span className={`text-[10px] font-medium ${passed ? "text-emerald-400" : "text-amber-400"}`}>{value}</span>
-    </div>
+    </button>
   );
 }

@@ -17,6 +17,10 @@ export const REPORT_TYPES = {
   procurement: { id: "procurement", label: "Procurement Report", filename: "Procurement-Report" },
   security: { id: "security", label: "Security Report", filename: "Security-Report" },
   customer: { id: "customer", label: "Customer Report", filename: "Customer-Report" },
+  architecture: { id: "architecture", label: "Architecture PDF", filename: "Architecture-Report" },
+  governance: { id: "governance", label: "Governance PDF", filename: "Governance-Report" },
+  metadata_completion: { id: "metadata_completion", label: "Metadata Completion Report", filename: "Metadata-Completion-Report" },
+  platform_readiness: { id: "platform_readiness", label: "Platform Readiness Report", filename: "Platform-Readiness-Report" },
 };
 
 // The canonical section order — every report builder should follow this
@@ -46,6 +50,10 @@ const SECTIONS_BY_TYPE = {
   procurement: ["exec_summary", "snapshots", "procurement", "architecture", "verification"],
   security: ["exec_summary", "snapshots", "findings", "risk_matrix", "procurement", "verification"],
   customer: ["exec_summary", "snapshots", "procurement", "verification"],
+  architecture: ["exec_summary", "snapshots", "architecture", "appendix", "verification"],
+  governance: ["exec_summary", "snapshots", "findings", "risk_matrix", "verification"],
+  metadata_completion: ["exec_summary", "snapshots", "findings", "metrics", "verification"],
+  platform_readiness: ["exec_summary", "snapshots", "metrics", "findings", "verification"],
 };
 
 export function filterSections(reportDef) {

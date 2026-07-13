@@ -26,6 +26,7 @@ import {
 import { computeDeploymentReadiness } from "./deploymentReadinessEngine";
 import { dispatch } from "./platformEventBus";
 import { PLATFORM_METADATA } from "./platformManifest";
+import { runSecurityRegressionSuite } from "./securityRegressionSuite";
 
 export const DEPLOYMENT_PIPELINE_STAGES = [
   { id: "build", name: "Build", description: "Compile and bundle platform assets" },
@@ -34,6 +35,7 @@ export const DEPLOYMENT_PIPELINE_STAGES = [
   { id: "knowledge_sync", name: "EXEC™ Knowledge Synchronization™", description: "Discover and register all platform assets into 10 registries" },
   { id: "intelligence_refresh", name: "EXEC™ Intelligence Refresh™", description: "Rebuild intelligence caches, capability graph, and platform graph" },
   { id: "deployment_verification", name: "Deployment Verification™", description: "Verify all readiness checks pass" },
+  { id: "security_regression", name: "Security Regression Suite™", description: "500 automated security tests — blocks deployment on failure" },
   { id: "production_ready", name: "Production Ready", description: "Platform is live, certified, and EXEC™ is self-aware" },
 ];
 
@@ -150,11 +152,38 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
     setStage("deployment_verification", "failed", { error: e.message });
   }
 
-  // ── 7. Production Ready ──
+  // ── 7. Security Regression Suite™ ──
+  setStage("security_regression", "running");
+  await delay(200);
+  try {
+    const securityResults = runSecurityRegressionSuite();
+    const securityBlocked = securityResults.blocked;
+    setStage("security_regression", securityBlocked ? "failed" : "completed", {
+      total: securityResults.total,
+      passed: securityResults.passed,
+      failed: securityResults.failed,
+      blocked: securityBlocked,
+      criticalFailures: securityResults.criticalFailures,
+      categories: securityResults.categories,
+    });
+    dispatch("SecurityRegressionCompleted", {
+      source: "deployment_pipeline",
+      passed: securityResults.passed,
+      failed: securityResults.failed,
+      blocked: securityBlocked,
+    });
+  } catch (e) {
+    setStage("security_regression", "failed", { error: e.message });
+  }
+
+  // ── 8. Production Ready ──
   await delay(150);
-  const productionReady = results.deployment_verification?.status === "completed";
+  const verificationPassed = results.deployment_verification?.status === "completed";
+  const securityPassed = results.security_regression?.status === "completed";
+  const productionReady = verificationPassed && securityPassed;
   setStage("production_ready", productionReady ? "completed" : "failed", {
     productionReady,
+    securityBlocked: !securityPassed,
     platformVersion: PLATFORM_METADATA.platformVersion,
   });
   dispatch("DeploymentCompleted", { source: "deployment_pipeline", productionReady });
@@ -162,6 +191,7 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
   return {
     stages: results,
     productionReady,
+    securityBlocked: !securityPassed,
     duration: Date.now() - startTime,
     timestamp: new Date().toISOString(),
     pipelineVersion: "1.0",

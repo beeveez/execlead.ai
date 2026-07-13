@@ -1,23 +1,26 @@
 import React, { useMemo, useState } from "react";
 import {
-  ShieldCheck, Database, CheckCircle2, AlertTriangle, XCircle,
-  Building2, User, Server, Globe, Lock, Search,
+  ShieldCheck, Database, CheckCircle2, AlertTriangle, XCircle, HelpCircle,
+  Building2, User, Server, Globe, Lock, Search, Radar,
 } from "lucide-react";
 import {
-  RLS_REGISTRY, RLS_STATUS, SECURITY_CLASSIFICATIONS,
-  computeRLSScores, getEntitiesByClassification,
+  RLS_STATUS, SECURITY_CLASSIFICATIONS,
+  computeRLSScores,
 } from "@/lib/rlsRegistry";
+import { discoverAllEntities, computeDiscoveryMetrics } from "@/lib/entityDiscovery";
 
 const STATUS_ICON = {
   protected: CheckCircle2,
   partial: AlertTriangle,
   open: XCircle,
+  unverified: HelpCircle,
 };
 
 const STATUS_COLOR = {
   protected: "#10b981",
   partial: "#f59e0b",
   open: "#ef4444",
+  unverified: "#6366f1",
 };
 
 const CLASS_ICON = {
@@ -62,18 +65,20 @@ function IsolationBadge({ pass, label }) {
 
 export default function RLSRegistry() {
   const scores = useMemo(() => computeRLSScores(), []);
+  const discovery = useMemo(() => computeDiscoveryMetrics(), []);
+  const allEntities = useMemo(() => discoverAllEntities(), []);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
-    return RLS_REGISTRY.filter((e) => {
+    return allEntities.filter((e) => {
       if (filter !== "all" && e.classification !== filter) return false;
       if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [filter, search]);
+  }, [allEntities, filter, search]);
 
-  const launchReady = scores.blocker === "NONE";
+  const launchReady = scores.blocker === "NONE" && discovery.unverified === 0;
 
   return (
     <div className="space-y-4">
@@ -117,6 +122,50 @@ export default function RLSRegistry() {
         </div>
       </div>
 
+      {/* Entity Discovery™ banner */}
+      <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 text-indigo-400 text-xs font-medium uppercase tracking-wider mb-3">
+          <Radar size={14} /> Entity Discovery™ — Automatic Entity Coverage
+        </div>
+        <div className="flex items-center gap-6 flex-wrap">
+          <div>
+            <div className="text-2xl font-bold text-white">{discovery.discovered}</div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Discovered</div>
+          </div>
+          <div className="h-8 w-px bg-white/10" />
+          <div>
+            <div className="text-2xl font-bold text-white">{discovery.classified}</div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Classified</div>
+          </div>
+          <div className="h-8 w-px bg-white/10" />
+          <div>
+            <div className="text-2xl font-bold text-white">{discovery.audited}</div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Audited</div>
+          </div>
+          <div className="h-8 w-px bg-white/10" />
+          <div>
+            <div className="text-2xl font-bold" style={{ color: discovery.coverage === 100 ? "#10b981" : discovery.coverage >= 50 ? "#f59e0b" : "#ef4444" }}>
+              {discovery.protected}
+            </div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Protected</div>
+          </div>
+          <div className="h-8 w-px bg-white/10" />
+          <div>
+            <div className="text-2xl font-bold" style={{ color: discovery.unverified === 0 ? "#10b981" : "#6366f1" }}>
+              {discovery.unverified}
+            </div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Unverified</div>
+          </div>
+          <div className="h-8 w-px bg-white/10" />
+          <div>
+            <div className="text-2xl font-bold" style={{ color: discovery.coverage === 100 ? "#10b981" : discovery.coverage >= 50 ? "#f59e0b" : "#ef4444" }}>
+              {discovery.coverage}%
+            </div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Coverage</div>
+          </div>
+        </div>
+      </div>
+
       {/* Isolation badges */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <IsolationBadge pass={scores.orgIsolation} label="Organization Isolation" />
@@ -128,8 +177,8 @@ export default function RLSRegistry() {
       {/* Classification breakdown */}
       <div className="grid sm:grid-cols-4 gap-3">
         {Object.values(SECURITY_CLASSIFICATIONS).map((cls) => {
-          const entities = getEntitiesByClassification(cls.id);
-          const protected_ = entities.filter((e) => e.status === "protected").length;
+          const entities = allEntities.filter((e) => e.classification === cls.id);
+          const protectedCount = entities.filter((e) => e.status === "protected").length;
           const Icon = CLASS_ICON[cls.id];
           return (
             <div key={cls.id} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
@@ -137,7 +186,7 @@ export default function RLSRegistry() {
                 <Icon size={14} />
                 <span className="text-xs font-medium uppercase tracking-wider">{cls.label}</span>
               </div>
-              <div className="text-2xl font-bold text-white">{protected_}/{entities.length}</div>
+              <div className="text-2xl font-bold text-white">{protectedCount}/{entities.length}</div>
               <div className="text-[10px] text-white/40 mt-1">{cls.description}</div>
             </div>
           );
@@ -148,10 +197,10 @@ export default function RLSRegistry() {
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1 bg-white/[0.02] border border-white/5 rounded-lg p-1">
           <button onClick={() => setFilter("all")} className={`px-3 py-1 rounded text-xs font-medium ${filter === "all" ? "bg-violet-500/15 text-violet-300" : "text-white/40 hover:text-white/70"}`}>
-            All ({scores.total})
+            All ({allEntities.length})
           </button>
           {Object.values(SECURITY_CLASSIFICATIONS).map((cls) => {
-            const count = getEntitiesByClassification(cls.id).length;
+            const count = allEntities.filter((e) => e.classification === cls.id).length;
             return (
               <button key={cls.id} onClick={() => setFilter(cls.id)} className={`px-3 py-1 rounded text-xs font-medium ${filter === cls.id ? "bg-violet-500/15 text-violet-300" : "text-white/40 hover:text-white/70"}`}>
                 {cls.label} ({count})
@@ -191,7 +240,7 @@ export default function RLSRegistry() {
                 const StatusIcon = STATUS_ICON[entity.status];
                 const statusColor = STATUS_COLOR[entity.status];
                 const classColor = CLASS_COLOR[entity.classification];
-                const opStatus = entity.status === "protected" ? "✓" : entity.status === "partial" ? "◐" : "✗";
+                const opStatus = entity.status === "protected" ? "✓" : entity.status === "partial" ? "◐" : entity.status === "unverified" ? "?" : "✗";
                 return (
                   <tr key={entity.name} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
                     <td className="px-4 py-3">
@@ -243,6 +292,7 @@ export default function RLSRegistry() {
         <span className="flex items-center gap-1"><CheckCircle2 size={12} style={{ color: "#10b981" }} /> Protected — least-privilege CRUD</span>
         <span className="flex items-center gap-1"><AlertTriangle size={12} style={{ color: "#f59e0b" }} /> Partial — read restricted, mutations open</span>
         <span className="flex items-center gap-1"><XCircle size={12} style={{ color: "#ef4444" }} /> No RLS — empty {} block</span>
+        <span className="flex items-center gap-1"><HelpCircle size={12} style={{ color: "#6366f1" }} /> Unverified — discovered, RLS not yet confirmed</span>
         <span className="flex items-center gap-1"><Lock size={11} className="text-amber-400" /> Sensitive data</span>
       </div>
     </div>

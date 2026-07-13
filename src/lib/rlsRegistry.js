@@ -49,6 +49,7 @@ export const RLS_STATUS = {
   protected: { id: "protected", label: "Protected", tone: "emerald" },
   partial: { id: "partial", label: "Partial", tone: "amber" },
   open: { id: "open", label: "No RLS", tone: "red" },
+  unverified: { id: "unverified", label: "Unverified", tone: "indigo" },
 };
 
 // ── Entity Registry (audited 2026-07-13) ──
@@ -168,3 +169,8 @@ export function getEntitiesByClassification(classification) {
 export function getEntitiesByStatus(status) {
   return RLS_REGISTRY.filter((e) => e.status === status);
 }
+
+// ── Entity Discovery™ Re-exports ──
+// Auto-discovers ALL entities in the platform, not just the 30
+// manually audited ones. Ensures 100% coverage of the security surface.
+export { discoverAllEntities, computeDiscoveryMetrics } from "./entityDiscovery";

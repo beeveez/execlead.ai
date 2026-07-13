@@ -9,6 +9,7 @@ import KnowledgeSyncDiagnostics from "./stages/KnowledgeSyncDiagnostics";
 import IntelligenceRefreshDiagnostics from "./stages/IntelligenceRefreshDiagnostics";
 import DeploymentVerificationDiagnostics from "./stages/DeploymentVerificationDiagnostics";
 import ProductionCertificationDiagnostics from "./stages/ProductionCertificationDiagnostics";
+import SecurityRegressionDiagnostics from "./stages/SecurityRegressionDiagnostics";
 
 const STAGE_COMPONENTS = {
   build: BuildDiagnostics,
@@ -17,6 +18,7 @@ const STAGE_COMPONENTS = {
   knowledge_sync: KnowledgeSyncDiagnostics,
   intelligence_refresh: IntelligenceRefreshDiagnostics,
   deployment_verification: DeploymentVerificationDiagnostics,
+  security_regression: SecurityRegressionDiagnostics,
   production_ready: ProductionCertificationDiagnostics,
 };
 

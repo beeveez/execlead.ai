@@ -209,6 +209,8 @@ export function drawCoverPage(ctx) {
   // Score summary panel
   if (scores.overallScore != null || scores.certificationStatus) {
     ctx.y = my;
+    // If we're too close to the bottom, just skip the score cards on cover (they repeat on page 3)
+    if (ctx.y + 80 > ph - 60) return;
     ctx.ensureSpace(80);
     doc.setFont("Roboto", "bold");
     doc.setFontSize(10);
@@ -534,11 +536,14 @@ function renderFindings(ctx, section) {
     // Severity bar
     doc.setFillColor(...tone);
     doc.roundedRect(M, ctx.y, 4, cardH - 10, 2, 2, "F");
-    // ID + severity + priority
+    // ID + severity + priority — strip raw JSON from finding IDs
+    const rawId = safe(f.id || f.code, "FINDING");
+    const cleanId = rawId.includes("{") ? rawId.split(":").slice(0, 2).join(":").toUpperCase() : rawId.toUpperCase();
+    const displayId = cleanId.length > 50 ? cleanId.slice(0, 48) + "..." : cleanId;
     doc.setFont("Roboto", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(...tone);
-    putText(`${safe(f.id || f.code, "FINDING").toUpperCase()}  |  ${severity.toUpperCase()}  |  Priority: ${safe(f.priority, "—")}`, M + 12, ctx.y + 14);
+    putText(`${displayId}  |  ${severity.toUpperCase()}  |  Priority: ${safe(f.priority, "—")}`, M + 12, ctx.y + 14);
     // Category + affected
     doc.setFont("Roboto", "normal");
     doc.setFontSize(7);
@@ -1001,7 +1006,8 @@ function renderVerification(ctx, section) {
     { label: "Integrity Hash", value: data.integrityHash || simpleHash(JSON.stringify(reportDef).slice(0, 500)) },
   ];
 
-  const boxH = 120;
+  const boxRows = Math.ceil(fields.length / 2);
+  const boxH = 18 + boxRows * 24 + 10;
   ctx.ensureSpace(boxH + 10);
   doc.setFillColor(...C.dark);
   doc.roundedRect(M, ctx.y, contentW, boxH, 6, 6, "F");

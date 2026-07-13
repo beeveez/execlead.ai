@@ -280,7 +280,7 @@ export async function buildPlatformValidationReport(reportType = "full", user = 
         `Route Coverage: ${coverage?.routeCoverage ?? "—"}%`,
       ],
     },
-    { name: "Framework Versions", count: assets.counts.frameworks, items: assets.frameworks.map((f) => `${f.name} v${f.version} (${f.source})`) },
+    { name: "Framework Versions", count: assets.counts.frameworks, items: assets.frameworks.map((f) => `${f.name}${f.version && f.version !== "undefined" ? ` v${f.version}` : ""} (${f.source})`) },
     { name: "Knowledge Packs", count: registries.knowledgePack.count, items: registries.knowledgePack.items.map((p) => `${p.name} [${p.status}]`) },
     { name: "Registered Modules", count: assets.counts.modules, items: assets.modules.map((m) => `${m.id} - ${m.name}`) },
     { name: "Registered Routes", count: assets.counts.routes, items: assets.routes.slice(0, 40).map((r) => `${r.path} (${r.name})`) },

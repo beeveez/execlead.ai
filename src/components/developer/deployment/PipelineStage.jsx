@@ -45,6 +45,11 @@ const BADGE_TONES = {
   certified: "success",
   phase: "info",
   ready: "success",
+  recommendation: "success",
+  rc1Passed: "success",
+  securityPassed: "success",
+  hardeningPassed: "success",
+  guardianPending: "warning",
 };
 
 export default function PipelineStage({ stage, index, state, isLast, onStageClick, onBadgeClick }) {

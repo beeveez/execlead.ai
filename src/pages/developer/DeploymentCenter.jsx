@@ -7,6 +7,8 @@ import { runDeploymentPipeline, DEPLOYMENT_PIPELINE_STAGES } from "@/lib/deploym
 import PipelineStage from "@/components/developer/deployment/PipelineStage";
 import DiagnosticsDrawer from "@/components/developer/deployment/DiagnosticsDrawer";
 import ReleaseCandidateDashboard from "@/components/developer/deployment/ReleaseCandidateDashboard";
+import ExecutiveReleaseReview from "@/components/developer/deployment/ExecutiveReleaseReview";
+import ReleaseRoadmap from "@/components/developer/deployment/ReleaseRoadmap";
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import { buildPlatformValidationReport } from "@/lib/reports/platformValidationReport";
 
@@ -140,6 +142,12 @@ export default function DeploymentCenter() {
 
       {/* Release Candidate Dashboard™ */}
       <ReleaseCandidateDashboard pipelineResult={result} user={user} />
+
+      {/* Executive Release Review™ */}
+      <ExecutiveReleaseReview pipelineResult={result} />
+
+      {/* Phase 2 Roadmap */}
+      <ReleaseRoadmap sprint4Ready={result?.stages?.sprint_4?.data?.ready || false} />
 
       {/* Pipeline */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">

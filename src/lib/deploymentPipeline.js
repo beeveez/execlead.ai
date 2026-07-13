@@ -32,6 +32,7 @@ export const DEPLOYMENT_PIPELINE_STAGES = [
   { id: "security_hardening", name: "Security Hardening", description: "Guardian™ consistency scan and auto-repair" },
   { id: "security_verification", name: "Security Verification", description: "Security Regression Suite™ — 1,000 tests across 20 categories" },
   { id: "rc1", name: "Release Candidate 1 (RC1)", description: "Build, platform validation, knowledge sync, and deployment verification" },
+  { id: "executive_release_review", name: "Executive Release Review™", description: "Executive decision gate — would you deploy to a Fortune 500 customer tomorrow?" },
   { id: "production_certification", name: "Production Certification™", description: "Formal evidence package certifying release readiness" },
   { id: "sprint_4", name: "Sprint 4", description: "Enterprise Procurement™ — gated on Production Certification™" },
 ];
@@ -158,26 +159,51 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
     setStage("rc1", "failed", { error: e.message });
   }
 
-  // ── 4. Production Certification™ ──
+  // ── 4. Executive Release Review™ ──
   await delay(150);
   const hardeningPassed = results.security_hardening?.status === "completed" || results.security_hardening?.status === "warning";
   const verificationPassed = results.security_verification?.status === "completed";
   const verificationWarning = results.security_verification?.status === "warning";
   const rc1Passed = results.rc1?.status === "completed";
 
-  const hasWarnings =
-    verificationWarning ||
-    (governanceCert?.warnings ?? 0) > 0 ||
-    (results.security_hardening?.data?.pending ?? 0) > 0;
+  const criticalFailures = securityResults?.criticalFailures ?? 0;
+  const warningFailures = securityResults?.warningFailures ?? 0;
+  const guardianPending = results.security_hardening?.data?.pending ?? 0;
+  const governanceWarnings = governanceCert?.warnings ?? 0;
+  const governanceFailures = governanceCert?.failures ?? 0;
 
-  let finalDecision = "BLOCKED";
-  if (verificationPassed && rc1Passed && hardeningPassed && !hasWarnings) {
-    finalDecision = "GO";
-  } else if ((verificationPassed || verificationWarning) && rc1Passed && hardeningPassed) {
-    finalDecision = "CONDITIONAL_GO";
-  }
+  const reviewHasWarnings = verificationWarning || governanceWarnings > 0 || guardianPending > 0 || warningFailures > 0;
+  const reviewHasFailures = !rc1Passed || !verificationPassed || governanceFailures > 0 || criticalFailures > 0;
 
-  const productionReady = finalDecision === "GO";
+  const reviewRecommendation = reviewHasFailures
+    ? "BLOCK_RELEASE"
+    : reviewHasWarnings
+      ? "DELAY_RELEASE"
+      : "APPROVE_RC1";
+
+  const reviewApproved = reviewRecommendation === "APPROVE_RC1";
+  setStage("executive_release_review", reviewApproved ? "completed" : (reviewRecommendation === "DELAY_RELEASE" ? "warning" : "failed"), {
+    recommendation: reviewRecommendation,
+    rc1Passed,
+    securityPassed: verificationPassed,
+    hardeningPassed,
+    criticalFailures,
+    warningFailures,
+    guardianPending,
+    governanceFailures,
+    governanceWarnings,
+    healthScore: readiness?.summary?.healthScore ?? 0,
+  });
+
+  // ── 5. Production Certification™ ──
+  await delay(150);
+  const productionReady = reviewApproved;
+  const finalDecision = reviewRecommendation === "APPROVE_RC1"
+    ? "GO"
+    : reviewRecommendation === "DELAY_RELEASE"
+      ? "CONDITIONAL_GO"
+      : "BLOCKED";
+
   setStage("production_certification", productionReady ? "completed" : "failed", {
     certified: productionReady,
     finalDecision,
@@ -188,10 +214,11 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
     securityPassed: verificationPassed,
     rc1Passed,
     hardeningPassed,
+    reviewRecommendation,
   });
   dispatch("DeploymentCompleted", { source: "deployment_pipeline", productionReady, finalDecision });
 
-  // ── 5. Sprint 4 (next phase — gated) ──
+  // ── 6. Sprint 4 (next phase — gated) ──
   const sprint4Ready = productionReady;
   setStage("sprint_4", sprint4Ready ? "completed" : "pending", {
     phase: "Enterprise Procurement™",

@@ -15,6 +15,7 @@ const STAGE_COMPONENTS = {
   security_hardening: GuardianDiagnostics,
   security_verification: SecurityRegressionDiagnostics,
   rc1: PlatformValidationDiagnostics,
+  executive_release_review: ProductionCertificationDiagnostics,
   production_certification: ProductionCertificationDiagnostics,
   sprint_4: ProductionCertificationDiagnostics,
 };

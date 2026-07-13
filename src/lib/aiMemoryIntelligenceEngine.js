@@ -75,17 +75,19 @@ export function computeAIMemoryIntelligence(runtime = {}) {
     {
       id: "long_term_recall",
       label: "Long-Term Recall™",
-      score: runtime.hasExecutiveMemory ? 1 : 0,
+      score: runtime.hasLongTermRecall ? 2 : (runtime.hasExecutiveMemory ? 1 : 0),
       target: 2,
-      gap: runtime.hasExecutiveMemory ? 1 : 2,
-      potentialGain: runtime.hasExecutiveMemory ? 1 : 2,
+      gap: runtime.hasLongTermRecall ? 0 : (runtime.hasExecutiveMemory ? 1 : 2),
+      potentialGain: runtime.hasLongTermRecall ? 0 : (runtime.hasExecutiveMemory ? 1 : 2),
       description: "Long-term memory consolidation — important insights and decisions persisted for future sessions.",
-      sourceFile: "src/lib/execKnowledgeBase.js",
+      sourceFile: "src/lib/executiveMemoryEngine.js",
       deepLink: "/developer/cognitive",
-      evidence: runtime.hasExecutiveMemory
-        ? "ExecutiveMemory persistence active — long-term recall partially operational, consolidation pipeline pending"
+      evidence: runtime.hasLongTermRecall
+        ? "Long-term recall operational — goals, aspirations, and achievements consolidated from conversations and persisted across sessions"
+        : runtime.hasExecutiveMemory
+        ? "ExecutiveMemory persistence active — consolidation pipeline ready, awaiting first conversation with goal/aspiration signals"
         : "Long-term recall system not yet implemented — no memory consolidation pipeline",
-      status: runtime.hasExecutiveMemory ? "Partial" : "Not Implemented",
+      status: runtime.hasLongTermRecall ? "Operational" : (runtime.hasExecutiveMemory ? "Partial" : "Not Implemented"),
     },
   ];
 

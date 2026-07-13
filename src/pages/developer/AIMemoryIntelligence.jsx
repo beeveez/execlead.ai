@@ -11,6 +11,7 @@ export default function AIMemoryIntelligence() {
     hasMemory: (concierge.messages?.length || 0) > 0,
     hasUserContext: !!concierge.userContext,
     hasExecutiveMemory: !!concierge.hasExecutiveMemory,
+    hasLongTermRecall: !!concierge.hasLongTermRecall,
     personaResolved: !!concierge.workspacePersona,
     pageContextResolved: !!concierge.pageContext,
     conversationLength: concierge.messages?.length || 0,

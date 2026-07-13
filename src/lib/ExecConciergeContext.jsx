@@ -19,6 +19,11 @@ import {
   savePreferences,
   clearPreferences,
 } from "@/lib/preferenceLearning";
+import {
+  extractLongTermMemory,
+  mergeLongTermMemory,
+  hasLongTermRecall,
+} from "@/lib/executiveMemoryEngine";
 
 const ExecConciergeContext = createContext(null);
 
@@ -44,6 +49,7 @@ export function useExecConcierge() {
       learnedPreferences: null,
       executiveMemory: null,
       hasExecutiveMemory: false,
+      hasLongTermRecall: false,
     };
   }
   return ctx;
@@ -327,14 +333,23 @@ export function ExecConciergeProvider({ children }) {
         }
         // Persist cross-session Executive Memory™ — preferences and context
         // survive browser restarts and device switches.
-        saveExecutiveMemory({
+        const memUpdates = {
           preferences_json: JSON.stringify({
             topics: extracted.topics,
             signals: extracted.signals,
             ...learnedPreferences,
           }),
           last_context_gathered_at: new Date().toISOString(),
-        });
+        };
+        saveExecutiveMemory(memUpdates);
+
+        // Long-Term Memory Consolidation™ — extract goals, aspirations, and
+        // achievements from the conversation and merge into persistent memory.
+        const ltMemory = extractLongTermMemory(updatedConversation);
+        if (ltMemory.goals.length > 0 || ltMemory.aspirations.length > 0 || ltMemory.achievements.length > 0) {
+          const merged = mergeLongTermMemory(executiveMemory, ltMemory);
+          saveExecutiveMemory(merged);
+        }
       } catch {
         setMessages((prev) => [
           ...prev,
@@ -380,6 +395,7 @@ export function ExecConciergeProvider({ children }) {
     learnedPreferences,
     executiveMemory,
     hasExecutiveMemory: !!executiveMemory,
+    hasLongTermRecall: hasLongTermRecall(executiveMemory),
   };
 
   return (

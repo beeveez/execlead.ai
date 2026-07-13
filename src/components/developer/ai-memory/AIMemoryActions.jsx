@@ -4,6 +4,9 @@ import {
   Ticket, Loader2, Zap,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
+
+const REPAIR_ACTIONS = ["auto_repair", "generate_patch", "verify", "rollback", "assign_owner"];
 
 const ACTIONS = [
   { id: "open_source", label: "Open Source", icon: Code, async: false },
@@ -18,10 +21,22 @@ const ACTIONS = [
 
 export default function AIMemoryActions({ intelligence, onRecompute, capability = { shortName: "AI Memory" } }) {
   const { toast } = useToast();
+  const { openRepairWorkflow } = useRepairWorkflow();
   const [loading, setLoading] = useState(null);
 
   const handleAction = (action) => {
     if (loading) return;
+
+    // Repair-related actions — open the unified Repair Workflow™ for the first failure
+    if (REPAIR_ACTIONS.includes(action.id)) {
+      const firstFailure = intelligence.failures?.[0];
+      if (firstFailure) {
+        openRepairWorkflow(firstFailure, { source: capability.name || "AI Memory" });
+      } else {
+        toast({ title: "No failures", description: "No repairable failures detected." });
+      }
+      return;
+    }
 
     if (action.id === "open_source") {
       toast({
@@ -59,22 +74,6 @@ export default function AIMemoryActions({ intelligence, onRecompute, capability 
       return;
     }
 
-    // Async actions: generate_patch, auto_repair, verify
-    setLoading(action.id);
-    setTimeout(() => {
-      setLoading(null);
-      if (action.id === "generate_patch") {
-        toast({ title: "Patch generated", description: `${intelligence.failures.length} repair patches prepared for review.` });
-      } else if (action.id === "auto_repair") {
-        const autoRepairable = intelligence.tasks.filter((t) => t.autoRepair).length;
-        toast({ title: "Auto repair complete", description: `${autoRepairable} task(s) auto-repaired. Verify to confirm.` });
-      } else if (action.id === "verify") {
-        toast({
-          title: "Verification complete",
-          description: `Score: ${intelligence.score}/${intelligence.target} — ${intelligence.remainingGap} pts remaining.`,
-        });
-      }
-    }, 1200);
   };
 
   return (

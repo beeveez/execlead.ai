@@ -18,6 +18,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionRoutingManager from '@/components/SessionRoutingManager';
 import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
 import ExecConcierge from '@/components/concierge/ExecConcierge';
+import { RepairWorkflowProvider } from '@/components/developer/repair/RepairWorkflowProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 import Login from '@/pages/Login';
@@ -412,10 +413,12 @@ function App() {
           <Router>
             <ScrollToTop />
             <RouteTracker />
-            <ExecConciergeProvider>
-              <AuthenticatedApp />
-              <ExecConcierge />
-            </ExecConciergeProvider>
+            <RepairWorkflowProvider>
+              <ExecConciergeProvider>
+                <AuthenticatedApp />
+                <ExecConcierge />
+              </ExecConciergeProvider>
+            </RepairWorkflowProvider>
           </Router>
           <Toaster />
         </ErrorBoundary>

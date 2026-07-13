@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Search, AlertOctagon, Wrench, ShieldCheck, ChevronRight, Loader2 } from "lucide-react";
+import { Search, AlertOctagon, Wrench, ShieldCheck, ChevronRight } from "lucide-react";
+import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
 
 const SEVERITY_STYLE = {
   Critical: { color: "#ef4444", bg: "bg-red-500/10", border: "border-red-500/20" },
@@ -12,7 +13,7 @@ export default function AIMemoryFailureRegistry({ failures, onInspect, onOverrid
   const [search, setSearch] = useState("");
   const [sevFilter, setSevFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [repairing, setRepairing] = useState(null);
+  const { openRepairWorkflow } = useRepairWorkflow();
 
   const filtered = useMemo(() => {
     return failures.filter((f) => {
@@ -22,14 +23,6 @@ export default function AIMemoryFailureRegistry({ failures, onInspect, onOverrid
       return true;
     });
   }, [failures, search, sevFilter, statusFilter]);
-
-  const handleRepair = (f) => {
-    setRepairing(f.id);
-    setTimeout(() => {
-      onOverride(f.id, { status: "Repairing" });
-      setRepairing(null);
-    }, 1000);
-  };
 
   const handleVerify = (f) => {
     onOverride(f.id, { status: "Verified" });
@@ -124,11 +117,11 @@ export default function AIMemoryFailureRegistry({ failures, onInspect, onOverrid
                   </td>
                   <td className="text-center py-2 px-1">
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleRepair(f); }}
-                      disabled={repairing === f.id || f.status === "Verified"}
+                      onClick={(e) => { e.stopPropagation(); openRepairWorkflow(f, { source: "AI Memory Intelligence™" }); }}
+                      disabled={f.status === "Verified"}
                       className="inline-flex items-center gap-1 text-[9px] px-2 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      {repairing === f.id ? <Loader2 size={10} className="animate-spin" /> : <Wrench size={10} />}
+                      <Wrench size={10} />
                       Repair
                     </button>
                   </td>

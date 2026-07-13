@@ -7,6 +7,7 @@ import { Settings as SettingsIcon, Save, Loader2, User, Sliders } from "lucide-r
 import { motion } from "framer-motion";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import AppearanceSection from "@/components/settings/AppearanceSection";
+import MobileSelect from "@/components/ui/mobile-select";
 import DangerZone from "@/components/account/DangerZone";
 
 export default function Settings() {
@@ -82,17 +83,23 @@ export default function Settings() {
           </div>
           <div>
             <label className={labelClass}>Country</label>
-            <select value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} className={inputClass}>
-              <option value="" className="bg-[#0d0d14]">Select country</option>
-              {COUNTRIES.map(c => <option key={c} value={c} className="bg-[#0d0d14]">{c}</option>)}
-            </select>
+            <MobileSelect
+              value={form.country}
+              onChange={e => setForm(f => ({ ...f, country: e.target.value }))}
+              placeholder="Select country"
+              options={COUNTRIES.map(c => ({ value: c, label: c }))}
+              className={inputClass}
+            />
           </div>
           <div>
             <label className={labelClass}>Industry</label>
-            <select value={form.industry} onChange={e => setForm(f => ({ ...f, industry: e.target.value }))} className={inputClass}>
-              <option value="" className="bg-[#0d0d14]">Select industry</option>
-              {INDUSTRIES.map(c => <option key={c} value={c} className="bg-[#0d0d14]">{c}</option>)}
-            </select>
+            <MobileSelect
+              value={form.industry}
+              onChange={e => setForm(f => ({ ...f, industry: e.target.value }))}
+              placeholder="Select industry"
+              options={INDUSTRIES.map(c => ({ value: c, label: c }))}
+              className={inputClass}
+            />
           </div>
           <div>
             <label className={labelClass}>Years of Experience</label>
@@ -115,15 +122,23 @@ export default function Settings() {
           </div>
           <div>
             <label className={labelClass}>Target Company</label>
-            <select value={form.target_company} onChange={e => setForm(f => ({ ...f, target_company: e.target.value }))} className={inputClass}>
-              {COMPANIES.map(c => <option key={c} value={c} className="bg-[#0d0d14]">{c}</option>)}
-            </select>
+            <MobileSelect
+              value={form.target_company}
+              onChange={e => setForm(f => ({ ...f, target_company: e.target.value }))}
+              placeholder="Select company"
+              options={COMPANIES.map(c => ({ value: c, label: c }))}
+              className={inputClass}
+            />
           </div>
           <div>
             <label className={labelClass}>Target Role</label>
-            <select value={form.target_role} onChange={e => setForm(f => ({ ...f, target_role: e.target.value }))} className={inputClass}>
-              {CAREER_PATHS.map(r => <option key={r} value={r} className="bg-[#0d0d14]">{r}</option>)}
-            </select>
+            <MobileSelect
+              value={form.target_role}
+              onChange={e => setForm(f => ({ ...f, target_role: e.target.value }))}
+              placeholder="Select role"
+              options={CAREER_PATHS.map(r => ({ value: r, label: r }))}
+              className={inputClass}
+            />
           </div>
         </div>
         <div>
@@ -140,10 +155,13 @@ export default function Settings() {
         </div>
         <div>
           <label className={labelClass}>Preferred Learning Style</label>
-          <select value={form.preferred_learning_style} onChange={e => setForm(f => ({ ...f, preferred_learning_style: e.target.value }))} className={inputClass}>
-            <option value="" className="bg-[#0d0d14]">Select style</option>
-            {LEARNING_STYLES.map(s => <option key={s} value={s} className="bg-[#0d0d14]">{s}</option>)}
-          </select>
+          <MobileSelect
+            value={form.preferred_learning_style}
+            onChange={e => setForm(f => ({ ...f, preferred_learning_style: e.target.value }))}
+            placeholder="Select style"
+            options={LEARNING_STYLES.map(s => ({ value: s, label: s }))}
+            className={inputClass}
+          />
         </div>
       </motion.div>
 

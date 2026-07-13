@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, GraduationCap, MessageSquare, Users, UserCircle } from "lucide-react";
+import { Home, LayoutDashboard, GraduationCap, Users, UserCircle } from "lucide-react";
 
 const NAV_ITEMS = [
-  { path: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { path: "/home", label: "Home", icon: Home },
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/academy", label: "Academy", icon: GraduationCap },
-  { path: "/coach", label: "Coach", icon: MessageSquare },
   { path: "/network", label: "Network", icon: Users },
   { path: "/profile", label: "Profile", icon: UserCircle },
 ];
@@ -30,7 +30,7 @@ export default function MobileBottomNav() {
               key={item.path}
               to={item.path}
               aria-label={item.label}
-              className={`relative flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 px-3 min-h-[44px] rounded-lg transition-colors ${
                 active ? "text-indigo-400" : "text-white/40 hover:text-white/70"
               }`}
             >

@@ -391,3 +391,11 @@ header, nav, aside, button,
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* ============================================================
+   Native-like mobile: Minimum tap target size (44px)
+   ============================================================ */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+}

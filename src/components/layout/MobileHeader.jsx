@@ -5,9 +5,10 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
+import Logo from "@/components/layout/Logo";
 
 // Bottom-nav tab roots — these are NOT "deep" pages (no Back button).
-const BOTTOM_NAV_PATHS = ["/dashboard", "/academy", "/coach", "/network", "/profile"];
+const BOTTOM_NAV_PATHS = ["/home", "/dashboard", "/academy", "/network", "/profile"];
 
 const ROUTE_TITLES = {
   "/dashboard": "Home",
@@ -117,27 +118,31 @@ export default function MobileHeader({ mobileOpen, setMobileOpen }) {
 
   return (
     <header
-      className="mobile-header lg:hidden fixed top-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-white/5"
+      className="mobile-header md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-white/5"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-1 min-w-0 flex-1">
-          {isDeepPage && (
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center w-8 h-8 -ml-1 text-white/70 hover:text-white transition-colors flex-shrink-0"
-              aria-label="Go back"
-            >
-              <ChevronLeft size={22} />
-            </button>
+          {isDeepPage ? (
+            <>
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center justify-center w-11 h-11 -ml-1 text-white/70 hover:text-white transition-colors flex-shrink-0"
+                aria-label="Go back"
+              >
+                <ChevronLeft size={22} />
+              </button>
+              <h1 className="text-base font-semibold text-white truncate">{title}</h1>
+            </>
+          ) : (
+            <Logo size="sm" showAiTag={false} />
           )}
-          <h1 className="text-base font-semibold text-white truncate">{title}</h1>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <WorkspaceSwitcher compact />
           <Link
             to={activeWorkspace === "enterprise" ? "/organization/billing" : "/billing"}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 min-h-[44px]"
           >
             {loadingSub ? (
               <span className="text-xs text-white/20">···</span>
@@ -152,13 +157,13 @@ export default function MobileHeader({ mobileOpen, setMobileOpen }) {
               </>
             )}
           </Link>
-          <Link to="/brand-center" className="text-white/60 p-1.5">
+          <Link to="/brand-center" className="text-white/60 p-2 tap-target flex items-center justify-center">
             <Crown size={18} className="text-amber-400" />
           </Link>
           <ShareButton variant="icon" shareType="landing" iconSize={16} />
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="text-white/60 p-1"
+            className="text-white/60 p-2 tap-target flex items-center justify-center"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}

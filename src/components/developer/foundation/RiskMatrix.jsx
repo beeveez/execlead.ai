@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShieldAlert, ChevronRight, TrendingDown, Eye, AlertOctagon, Layers } from "lucide-react";
+import { ShieldAlert, ChevronRight, TrendingDown, Eye, AlertOctagon, Layers, GitBranch, Clock } from "lucide-react";
 import { computeRiskMatrix } from "@/lib/foundationCertificationEngine";
 import MetadataDrawer from "../metadata/MetadataDrawer";
 import ReportToolbar from "@/components/reports/ReportToolbar";
@@ -11,6 +11,8 @@ const RISK_ICONS = {
   visibility_gap: Eye,
   discoverability_gap: Eye,
   high_severity_backlog: Layers,
+  dependency_cascading: GitBranch,
+  certification_latency: Clock,
 };
 
 const SEVERITY_STYLES = {
@@ -107,6 +109,66 @@ export default function RiskMatrix({ cert }) {
                 ))}
               </div>
             </div>
+
+            {activeRisk.affectedComponents && (
+              <div>
+                <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Affected Components ({activeRisk.affectedComponents.length})</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeRisk.affectedComponents.map((c) => <span key={c} className="text-[10px] bg-white/5 text-white/60 rounded px-2 py-0.5 border border-white/5">{c}</span>)}
+                </div>
+              </div>
+            )}
+
+            {activeRisk.affectedReleases && (
+              <div>
+                <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Affected Releases</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeRisk.affectedReleases.map((r) => <span key={r} className="text-[10px] bg-red-500/5 text-red-400 rounded px-2 py-0.5 border border-red-500/10">{r}</span>)}
+                </div>
+              </div>
+            )}
+
+            {activeRisk.affectedPipelines && (
+              <div>
+                <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Affected Pipelines</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeRisk.affectedPipelines.map((p) => <span key={p} className="text-[10px] bg-amber-500/5 text-amber-400 rounded px-2 py-0.5 border border-amber-500/10">{p}</span>)}
+                </div>
+              </div>
+            )}
+
+            {activeRisk.blockedReleases && activeRisk.blockedReleases.length > 0 && (
+              <div>
+                <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Blocked Releases</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeRisk.blockedReleases.map((r) => <span key={r} className="text-[10px] bg-red-500/10 text-red-400 rounded px-2 py-0.5 border border-red-500/20">{r}</span>)}
+                </div>
+              </div>
+            )}
+
+            {activeRisk.remainingRequirements && activeRisk.remainingRequirements.length > 0 && (
+              <div>
+                <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Remaining Requirements</h4>
+                <div className="space-y-1">
+                  {activeRisk.remainingRequirements.map((r, i) => <div key={i} className="text-[11px] text-white/60 bg-white/[0.02] border border-white/5 rounded px-2 py-1 font-mono">{r}</div>)}
+                </div>
+              </div>
+            )}
+
+            {activeRisk.evidence && (
+              <div>
+                <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Evidence</h4>
+                <div className="space-y-1">
+                  {activeRisk.evidence.map((e, i) => <div key={i} className="text-[11px] text-white/50 bg-white/[0.02] border border-white/5 rounded px-2 py-1 font-mono">{e}</div>)}
+                </div>
+              </div>
+            )}
+
+            {activeRisk.riskLevel && (
+              <div className="grid grid-cols-2 gap-3">
+                <DetailStat label="Risk Level" value={activeRisk.riskLevel} />
+              </div>
+            )}
           </div>
         </MetadataDrawer>
       )}

@@ -139,8 +139,10 @@ export default function EngineeringTaskRegistry({ cert, onOpenTask }) {
               <th className="text-left py-2 px-2 font-medium">Sev</th>
               <th className="text-left py-2 px-2 font-medium">Pri</th>
               <th className="text-right py-2 px-2 font-medium">Est.</th>
-              <th className="text-right py-2 px-2 font-medium text-emerald-400/60">Score Gain</th>
+              <th className="text-right py-2 px-2 font-medium text-emerald-400/60">Gain</th>
               <th className="text-right py-2 px-2 font-medium text-violet-400/60">Potential</th>
+              <th className="text-center py-2 px-2 font-medium text-amber-400/60">ROI</th>
+              <th className="text-center py-2 px-2 font-medium text-blue-400/60">Diff</th>
               <th className="text-center py-2 px-2 font-medium">Action</th>
             </tr>
           </thead>
@@ -159,6 +161,8 @@ export default function EngineeringTaskRegistry({ cert, onOpenTask }) {
                 <td className="py-2 px-2 text-right text-white/50 whitespace-nowrap">{fmtMinutes(t.estimatedMinutes)}</td>
                 <td className="py-2 px-2 text-right"><span className="text-emerald-400 font-bold font-mono">+{t.scoreGain}%</span></td>
                 <td className="py-2 px-2 text-right"><span className="text-violet-400 font-mono">{t.potentialScoreGain}%</span></td>
+                <td className="py-2 px-2 text-center"><span className={`text-[9px] px-1.5 py-0.5 rounded ${t.roi === "High ROI" ? "bg-emerald-500/10 text-emerald-400" : t.roi === "Medium ROI" ? "bg-amber-500/10 text-amber-400" : "bg-white/5 text-white/40"}`}>{t.roi}</span></td>
+                <td className="py-2 px-2 text-center"><span className={`text-[9px] px-1.5 py-0.5 rounded ${t.difficulty === "Hard" ? "bg-red-500/10 text-red-400" : t.difficulty === "Medium" ? "bg-amber-500/10 text-amber-400" : "bg-blue-500/10 text-blue-400"}`}>{t.difficulty}</span></td>
                 <td className="py-2 px-2 text-center">
                   <span className="inline-flex items-center gap-0.5 text-[9px] text-indigo-400 group-hover:text-indigo-300">
                     Open <ChevronRight size={9} />

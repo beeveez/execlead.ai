@@ -1,92 +1,65 @@
 import React, { useState } from "react";
-import { Boxes, GitBranch, ShieldCheck, Flag, ChevronRight, ExternalLink, FileText } from "lucide-react";
+import { Boxes, GitBranch, ShieldCheck, Flag, ChevronRight, ExternalLink, Award, Target, Layers } from "lucide-react";
 import MetadataDrawer from "../metadata/MetadataDrawer";
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import { buildFoundationReport } from "@/lib/reports/foundationReportBuilder";
 
-const DEPENDENCIES = [
-  {
-    id: "platform_manifest",
-    label: "Platform Manifest™",
-    icon: Boxes,
-    description: "The single source of truth for all routes, modules, capabilities, frameworks, and personas.",
-    diagnosticsDeepLink: "/developer/governance",
-    diagnosticLabel: "Manifest Diagnostics™",
-    metrics: ["Route Coverage", "Module Registration", "Orphan Detection", "Duplicate Detection"],
-    status: "healthy",
-    version: "v2.0",
-    sourceFile: "src/lib/platformManifest.js",
-  },
-  {
-    id: "capability_registry",
-    label: "Capability Registry™",
-    icon: GitBranch,
-    description: "Maps every AI capability to its knowledge pack, framework, persona, and workspace.",
-    diagnosticsDeepLink: "/developer/governance",
-    diagnosticLabel: "Registry Diagnostics™",
-    metrics: ["Capability Chains", "Knowledge Pack Links", "Persona Mapping", "Framework Tracing"],
-    status: "healthy",
-    version: "v1.0",
-    sourceFile: "src/lib/platformManifest.js",
-  },
-  {
-    id: "foundation_verification",
-    label: "Foundation Verification Engine™",
-    icon: ShieldCheck,
-    description: "10-phase verification engine that validates every architectural component operates as one platform.",
-    diagnosticsDeepLink: "/developer/diagnostics",
-    diagnosticLabel: "Verification Dashboard™",
-    metrics: ["Architecture Health", "Runtime Consistency", "Knowledge Resolution", "Discoverability", "Config Consistency"],
-    status: cert => cert.foundationScore >= 95 ? "healthy" : "warning",
-    version: "v2.0",
-    sourceFile: "src/lib/foundationVerificationEngine.js",
-  },
-  {
-    id: "feature_flag_registry",
-    label: "Feature Flag Registry™",
-    icon: Flag,
-    description: "Controls feature visibility across plans, workspaces, and deployment stages.",
-    diagnosticsDeepLink: "/feature-management",
-    diagnosticLabel: "Flag Diagnostics™",
-    metrics: ["Flag Coverage", "Plan Mapping", "Workspace Gating", "Consistency Check"],
-    status: "healthy",
-    version: "v1.0",
-    sourceFile: "src/lib/platformManifest.js",
-  },
+const GRAPH_NODES = [
+  { id: "foundation_cert", label: "Foundation Certification™", icon: Award, color: "indigo", deepLink: "/developer/foundation-certification", description: "The formal architectural acceptance score — current live telemetry from the Foundation Verification Engine™.", sourceFile: "src/lib/foundationCertificationEngine.js" },
+  { id: "cert_metrics", label: "Certification Metrics™", icon: Target, color: "emerald", deepLink: "/developer/fiagnostics", description: "7 weighted metrics: Architecture Health, Runtime Consistency, Knowledge Resolution, Platform Discoverability, Metadata Coverage, Configuration Consistency, Enterprise Readiness.", sourceFile: "src/lib/foundationVerificationEngine.js" },
+  { id: "platform_manifest", label: "Platform Manifest™", icon: Boxes, color: "cyan", deepLink: "/developer/governance", description: "Single source of truth for all routes, modules, capabilities, frameworks, and personas.", sourceFile: "src/lib/platformManifest.js" },
+  { id: "capability_registry", label: "Capability Registry™", icon: GitBranch, color: "violet", deepLink: "/developer/governance", description: "Maps every AI capability to its knowledge pack, framework, persona, and workspace.", sourceFile: "src/lib/platformManifest.js" },
+  { id: "feature_flag_registry", label: "Feature Flag Registry™", icon: Flag, color: "amber", deepLink: "/feature-management", description: "Controls feature visibility across plans, workspaces, and deployment stages.", sourceFile: "src/lib/platformManifest.js" },
+  { id: "foundation_verification", label: "Foundation Verification Engine™", icon: ShieldCheck, color: "blue", deepLink: "/developer/diagnostics", description: "10-phase verification engine that validates every architectural component operates as one unified platform.", sourceFile: "src/lib/foundationVerificationEngine.js" },
+  { id: "affected_modules", label: "Affected Modules™", icon: Layers, color: "red", deepLink: "/developer/diagnostics", description: "Modules with unresolved certification issues — live count from the verification engine.", sourceFile: "src/lib/foundationVerificationEngine.js" },
 ];
+
+const COLOR_MAP = {
+  indigo: { border: "border-indigo-500/20", bg: "bg-indigo-500/5", text: "text-indigo-400", dot: "bg-indigo-400" },
+  emerald: { border: "border-emerald-500/20", bg: "bg-emerald-500/5", text: "text-emerald-400", dot: "bg-emerald-400" },
+  cyan: { border: "border-cyan-500/20", bg: "bg-cyan-500/5", text: "text-cyan-400", dot: "bg-cyan-400" },
+  violet: { border: "border-violet-500/20", bg: "bg-violet-500/5", text: "text-violet-400", dot: "bg-violet-400" },
+  amber: { border: "border-amber-500/20", bg: "bg-amber-500/5", text: "text-amber-400", dot: "bg-amber-400" },
+  blue: { border: "border-blue-500/20", bg: "bg-blue-500/5", text: "text-blue-400", dot: "bg-blue-400" },
+  red: { border: "border-red-500/20", bg: "bg-red-500/5", text: "text-red-400", dot: "bg-red-400" },
+};
 
 export default function DependencyChain({ cert }) {
   const [active, setActive] = useState(null);
+  const c = COLOR_MAP;
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
       <div className="flex items-center gap-2 mb-4">
         <GitBranch size={16} className="text-indigo-400" />
-        <h3 className="text-sm font-bold text-white">Dependency Chain™ — Click any dependency for diagnostics</h3>
+        <h3 className="text-sm font-bold text-white">Dependency Graph™ — Click any node for diagnostics</h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        {DEPENDENCIES.map((dep) => {
-          const status = typeof dep.status === "function" ? dep.status(cert) : dep.status;
-          const Icon = dep.icon;
+      {/* Vertical tree */}
+      <div className="flex flex-col items-center">
+        {GRAPH_NODES.map((node, i) => {
+          const colors = c[node.color];
+          const Icon = node.icon;
+          const isLast = i === GRAPH_NODES.length - 1;
           return (
-            <button
-              key={dep.id}
-              onClick={() => setActive(dep)}
-              className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-left hover:bg-white/[0.04] hover:border-indigo-500/20 transition-all group"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <Icon size={16} className={status === "healthy" ? "text-emerald-400" : "text-amber-400"} />
-                <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${status === "healthy" ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}>
-                  {dep.version}
-                </span>
-              </div>
-              <div className="text-xs text-white/80 font-medium mb-1 group-hover:text-indigo-300 transition-colors">{dep.label}</div>
-              <div className="text-[10px] text-white/40 line-clamp-2">{dep.description}</div>
-              <div className="flex items-center gap-1 mt-2 text-[10px] text-indigo-400 group-hover:text-indigo-300">
-                {dep.diagnosticLabel} <ChevronRight size={10} />
-              </div>
-            </button>
+            <React.Fragment key={node.id}>
+              <button
+                onClick={() => setActive(node)}
+                className={`relative flex items-center gap-3 ${colors.bg} ${colors.border} border rounded-xl px-4 py-3 w-full max-w-md transition-all hover:scale-[1.01] group`}
+              >
+                <div className={`w-9 h-9 rounded-lg ${colors.bg} border ${colors.border} flex items-center justify-center shrink-0`}>
+                  <Icon size={16} className={colors.text} />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <div className={`text-sm font-bold ${colors.text} group-hover:opacity-90`}>{node.label}</div>
+                  <div className="text-[10px] text-white/30 truncate">{node.description}</div>
+                </div>
+                <ChevronRight size={14} className={`${colors.text} opacity-50 group-hover:opacity-100 shrink-0`} />
+              </button>
+              {!isLast && (
+                <div className="w-px h-6 bg-gradient-to-b from-white/10 to-white/5" />
+              )}
+            </React.Fragment>
           );
         })}
       </div>
@@ -94,7 +67,7 @@ export default function DependencyChain({ cert }) {
       {active && (
         <MetadataDrawer
           title={active.label}
-          subtitle={`${active.diagnosticLabel} · Dependency Diagnostics`}
+          subtitle="Dependency Diagnostics™ — Drill-Down"
           icon={active.icon}
           onClose={() => setActive(null)}
           maxWidth="max-w-lg"
@@ -104,31 +77,12 @@ export default function DependencyChain({ cert }) {
             <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
               <p className="text-xs text-white/60">{active.description}</p>
             </div>
-
             <div className="grid grid-cols-2 gap-3">
-              <DetailStat label="Version" value={active.version} />
-              <DetailStat label="Status" value={typeof active.status === "function" ? active.status(cert) : active.status} />
               <DetailStat label="Source File" value={active.sourceFile} />
-              <DetailStat label="Diagnostic" value={active.diagnosticLabel} />
+              <DetailStat label="Deep Link" value={active.deepLink} />
             </div>
-
-            <div>
-              <h4 className="text-[10px] font-medium text-white/50 uppercase tracking-wider mb-2">Metrics Tracked</h4>
-              <div className="space-y-1">
-                {active.metrics.map((m) => (
-                  <div key={m} className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span className="text-xs text-white/60">{m}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <a
-              href={active.diagnosticsDeepLink}
-              className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/5 border border-indigo-500/15 rounded-lg px-3 py-2 w-fit"
-            >
-              <ExternalLink size={12} /> Open {active.diagnosticLabel}
+            <a href={active.deepLink} className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/5 border border-indigo-500/15 rounded-lg px-3 py-2 w-fit">
+              <ExternalLink size={12} /> Open Diagnostics
             </a>
           </div>
         </MetadataDrawer>

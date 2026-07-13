@@ -18,6 +18,8 @@ import FailureRegistry from "./FailureRegistry";
 import DependencyChain from "./DependencyChain";
 import RiskMatrix from "./RiskMatrix";
 import TopActionWorkspaces from "./TopActionWorkspaces";
+import EngineeringSummary from "./EngineeringSummary";
+import ExecCopilot from "./ExecCopilot";
 
 export default function FoundationCertificationDashboard() {
   const [recomputeKey, setRecomputeKey] = useState(0);
@@ -96,6 +98,24 @@ export default function FoundationCertificationDashboard() {
               <span className="text-[10px] text-white/40">·</span>
               <span className="text-[10px] text-white/40">Progress: {stage.pipelineProgress}</span>
             </div>
+
+            {/* Three-tier progress: Current → Certification Threshold → Production Excellence */}
+            <div className="mt-4 max-w-md">
+              <div className="flex items-center justify-between mb-1.5 text-[10px]">
+                <span className="text-indigo-400 font-medium">Current: {score}%</span>
+                <span className="text-emerald-400 font-medium">Certification: {cert.requiredThreshold}%</span>
+                <span className="text-amber-400 font-medium">Production: 100%</span>
+              </div>
+              <div className="relative h-2.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="absolute h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${score}%` }} />
+                <div className="absolute h-full w-0.5 bg-emerald-400" style={{ left: `${cert.requiredThreshold}%` }} />
+                <div className="absolute h-full w-0.5 bg-amber-400" style={{ left: "99%" }} />
+              </div>
+              <div className="flex items-center justify-between mt-1 text-[9px] text-white/30">
+                <span>{Math.max(0, cert.requiredThreshold - score)} pts to certification</span>
+                <span>{Math.max(0, 100 - score)} pts to production excellence</span>
+              </div>
+            </div>
           </div>
         </div>
       </button>
@@ -146,6 +166,9 @@ export default function FoundationCertificationDashboard() {
         ))}
       </div>
 
+      {/* ── Engineering Summary™ — structured executive summary ── */}
+      <EngineeringSummary cert={cert} />
+
       {/* ── Execution Stream Status™ (replaces Sprint 2 BLOCKED banner) ── */}
       <ExecutionStreamStatus cert={cert} onOpenDiagnostics={() => setActiveMetric("foundationScore")} />
 
@@ -189,6 +212,9 @@ export default function FoundationCertificationDashboard() {
           <div className="ml-auto flex items-center gap-1"><GitMerge size={12} /> Pipeline: {stage.pipelineProgress}</div>
         </div>
       </div>
+
+      {/* ── EXEC Copilot — live telemetry intelligence ── */}
+      <ExecCopilot cert={cert} />
 
       {/* ── Report ── */}
       <FoundationCertificationReport cert={cert} />

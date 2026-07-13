@@ -350,6 +350,10 @@ export function computeEngineeringTaskRegistry(cert) {
     const sevWeight = SEVERITY_WEIGHTS[issue.severity] || 1;
     const weightSum = metricKey ? weightSumsPerMetric[metricKey] : sevWeight;
     const scoreGain = weightSum > 0 ? Math.round((totalMetricGain * (sevWeight / weightSum)) * 100) / 100 : 0;
+    const estMin = parseMinutes(issue);
+    const roiValue = estMin > 0 ? scoreGain / (estMin / 60) : 0;
+    const roi = roiValue >= 0.3 ? "High ROI" : roiValue >= 0.1 ? "Medium ROI" : "Low ROI";
+    const difficulty = issue.severity === "Critical" ? "Hard" : issue.severity === "High" ? "Medium" : "Easy";
 
     return {
       id: `task-${idx}`,
@@ -361,7 +365,7 @@ export function computeEngineeringTaskRegistry(cert) {
       severity: issue.severity,
       priority: SEVERITY_PRIORITY[issue.severity] || "P3",
       owner: "Platform Engineering",
-      estimatedMinutes: parseMinutes(issue),
+      estimatedMinutes: estMin,
       estimatedHours: parseHours(issue),
       dependencies: metric ? [metric.label] : ["General"],
       status: "open",
@@ -373,6 +377,8 @@ export function computeEngineeringTaskRegistry(cert) {
       metricKey,
       metricLabel: metric ? metric.label : "General",
       scoreGain,
+      roi,
+      difficulty,
       phase: issue.phase,
       rawIssue: issue,
     };
@@ -408,30 +414,58 @@ export function computeEngineeringTaskRegistry(cert) {
 
 export function computeFailureRegistry(cert) {
   const issues = cert.verification.issues;
+  const metricByKey = {};
+  cert.metrics.forEach((m) => { metricByKey[m.key] = m; });
+  const pToM = {};
+  Object.entries(METRIC_PHASE_MAP).forEach(([key, phases]) => { phases.forEach((p) => { pToM[p] = key; }); });
+  const wSums = {};
+  cert.metrics.forEach((m) => { wSums[m.key] = 0; });
+  issues.forEach((issue) => { const mk = pToM[issue.phase]; if (mk) wSums[mk] += SEVERITY_WEIGHTS[issue.severity] || 1; });
+
   const groups = {};
 
   issues.forEach((issue) => {
     const key = issue.component || "Unknown";
+    const desc = (issue.description || "").toLowerCase();
     if (!groups[key]) {
       groups[key] = {
-        module: key,
-        failures: [],
-        count: 0,
-        critical: 0,
-        high: 0,
-        metricKey: phaseToMetricKey(issue.phase),
+        module: key, failures: [], count: 0, critical: 0, high: 0, metricKey: pToM[issue.phase],
+        failedChecks: 0, missingRegistry: 0, missingFeatureFlag: 0, missingCapabilityMapping: 0,
+        missingManifestEntry: 0, missingMetadata: 0, maxSeverity: "Low", estimatedFixMinutes: 0, potentialScoreGain: 0,
       };
     }
-    groups[key].failures.push(issue);
-    groups[key].count++;
-    if (issue.severity === "Critical") groups[key].critical++;
-    if (issue.severity === "High") groups[key].high++;
+    const g = groups[key];
+    g.failures.push(issue);
+    g.count++;
+    g.failedChecks++;
+    if (issue.severity === "Critical") { g.critical++; g.maxSeverity = "Critical"; }
+    else if (issue.severity === "High" && g.maxSeverity !== "Critical") { g.high++; g.maxSeverity = "High"; }
+    if (desc.includes("not registered") || desc.includes("not integrated") || desc.includes("registration")) g.missingRegistry++;
+    if (desc.includes("flag") || desc.includes("featureflag")) g.missingFeatureFlag++;
+    if (desc.includes("capability") || desc.includes("chain")) g.missingCapabilityMapping++;
+    if (desc.includes("manifest") || issue.category === "manifest") g.missingManifestEntry++;
+    if (issue.category === "metadata" || desc.includes("metadata")) g.missingMetadata++;
+    const mk = pToM[issue.phase];
+    const metric = mk ? metricByKey[mk] : null;
+    const metricValue = metric ? metric.value : 50;
+    const totalMetricGain = (100 - metricValue) / 7;
+    const sevWeight = SEVERITY_WEIGHTS[issue.severity] || 1;
+    const weightSum = mk ? wSums[mk] : sevWeight;
+    g.potentialScoreGain += weightSum > 0 ? Math.round((totalMetricGain * (sevWeight / weightSum)) * 100) / 100 : 0;
+    const m = (issue.estimatedRepairTime || "").match(/(\d+)/);
+    g.estimatedFixMinutes += m ? parseInt(m[1]) * 60 : 30;
   });
 
   return Object.values(groups)
     .sort((a, b) => b.count - a.count)
     .map((g) => ({
       ...g,
+      potentialScoreGain: Math.round(g.potentialScoreGain * 100) / 100,
+      priority: g.maxSeverity === "Critical" ? "P0" : g.maxSeverity === "High" ? "P1" : "P2",
+      validationStatus: "Failed",
+      repairStatus: "Open",
+      verificationStatus: "Pending",
+      owner: "Platform Engineering",
       failures: g.failures.map((f) => ({
         ...f,
         expectedValue: "Registered / Configured",
@@ -544,7 +578,68 @@ export function computeRiskMatrix(cert) {
     });
   }
 
+  risks.push({
+    id: "dependency_cascading",
+    label: "Dependency Cascading™",
+    severity: criticalCount > 0 ? "critical" : "high",
+    description: `${cert.blockingDomains.length} blocking domains cascade across ${new Set(issues.map((i) => i.component)).size} modules — unresolved dependencies propagate downstream`,
+    affectedComponents: [...new Set(issues.map((i) => i.component))].slice(0, 15),
+    affectedReleases: ["RC1™", "Executive Release Review™", "Production Certification™"],
+    riskLevel: criticalCount > 0 ? "Critical" : "High",
+    mitigation: "Resolve root-cause dependencies first — Platform Manifest™ → Capability Registry™ → Feature Flag Registry™",
+    owner: "Platform Engineering",
+    evidence: cert.blockingDomains.map((d) => `${d.label}: ${d.count} issues (${d.critical}C, ${d.high}H)`),
+    scoreImpact: remainingGap,
+  });
+
+  risks.push({
+    id: "certification_latency",
+    label: "Certification Latency™",
+    severity: remainingGap > 5 ? "high" : "medium",
+    description: `Foundation Certification at ${cert.foundationScore}% — ${remainingGap} points below ${cert.requiredThreshold}% threshold. ${cert.remainingTasks} tasks remain at ${cert.estimatedCompletion} estimated effort.`,
+    affectedPipelines: ["Security Hardening™", "Security Verification™", "RC1™", "Executive Release Review™"],
+    blockedReleases: remainingGap > 0 ? ["Production Certification™", "Execution Stream 4™ — Enterprise Procurement™"] : [],
+    remainingRequirements: cert.metrics.filter((m) => !m.passed).map((m) => `${m.label}: ${m.value}/${m.threshold}%`),
+    timeline: cert.estimatedCompletion,
+    owner: "Platform Engineering",
+    scoreImpact: remainingGap,
+  });
+
   return risks;
+}
+
+// ============================================================
+// ENGINEERING SUMMARY™ — Structured Executive Summary
+// ============================================================
+
+export function computeEngineeringSummary(cert) {
+  const stage = computeReleaseStage();
+  const registry = computeEngineeringTaskRegistry(cert);
+  const remainingGap = Math.max(0, cert.requiredThreshold - cert.foundationScore);
+  const productionGap = Math.max(0, 100 - cert.foundationScore);
+  const trend = getTrend("fc_summary_score_prev", cert.foundationScore);
+  const confidence = cert.foundationScore >= 90 ? "High" : cert.foundationScore >= 75 ? "Medium" : "Low";
+
+  return {
+    currentScore: cert.foundationScore,
+    certificationTarget: cert.requiredThreshold,
+    productionTarget: 100,
+    remainingPoints: remainingGap,
+    productionRemainingPoints: productionGap,
+    remainingTasks: cert.remainingTasks,
+    estimatedHours: registry.totalHours,
+    trend,
+    confidence,
+    blockingDomains: cert.blockingDomains.map((d) => d.label),
+    blockingDomainCount: cert.blockingDomains.length,
+    lastVerification: new Date().toLocaleString(),
+    nextVerification: "On next platform commit",
+    engineeringOwner: "Platform Engineering",
+    releaseCandidateStatus: stage.releaseStatus || "—",
+    executionStage: stage.currentStage,
+    totalScoreGain: registry.totalScoreGain,
+    maxPotentialScore: registry.maxPotentialScore,
+  };
 }
 
 export function computeMetricDiagnostics(cert, metricKey) {

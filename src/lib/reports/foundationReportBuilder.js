@@ -1,4 +1,4 @@
-import { computeFoundationCertification, computeMetricDiagnostics, computeEngineeringTaskRegistry, computeFailureRegistry, computeRiskMatrix } from "@/lib/foundationCertificationEngine";
+import { computeFoundationCertification, computeMetricDiagnostics, computeEngineeringTaskRegistry, computeFailureRegistry, computeRiskMatrix, computeEngineeringSummary } from "@/lib/foundationCertificationEngine";
 import { computeReleaseStage } from "@/lib/releaseStageEngine";
 import { buildReportId } from "../enterpriseReportEngine";
 import { PLATFORM_METADATA } from "@/lib/platformManifest";
@@ -10,6 +10,7 @@ export async function buildFoundationReport(reportType = "architecture") {
   const taskRegistry = computeEngineeringTaskRegistry(cert);
   const failureRegistry = computeFailureRegistry(cert);
   const riskMatrix = computeRiskMatrix(cert);
+  const engSummary = computeEngineeringSummary(cert);
 
   return {
     reportId: buildReportId("foundation"),
@@ -49,12 +50,18 @@ export async function buildFoundationReport(reportType = "architecture") {
           headline: `${cert.foundationScore}/${cert.requiredThreshold} Foundation Score`,
           status: cert.certified ? "pass" : "warn",
           keyMetrics: [
-            { label: "Foundation Score", value: `${cert.foundationScore}` },
-            { label: "Required", value: `${cert.requiredThreshold}` },
-            { label: "Remaining", value: `${Math.max(0, cert.requiredThreshold - cert.foundationScore)} pts` },
-            { label: "Blocking Domains", value: cert.blockingDomains.length },
-            { label: "Remaining Tasks", value: cert.remainingTasks },
-            { label: "Est. Completion", value: cert.estimatedCompletion },
+            { label: "Current Score", value: `${engSummary.currentScore}%` },
+            { label: "Certification Target", value: `${engSummary.certificationTarget}%` },
+            { label: "Production Target", value: `${engSummary.productionTarget}%` },
+            { label: "Remaining Points", value: `${engSummary.remainingPoints} pts` },
+            { label: "Remaining Tasks", value: engSummary.remainingTasks },
+            { label: "Estimated Hours", value: `${engSummary.estimatedHours}h` },
+            { label: "Trend", value: engSummary.trend.label },
+            { label: "Confidence", value: engSummary.confidence },
+            { label: "Blocking Domains", value: engSummary.blockingDomainCount },
+            { label: "RC Status", value: engSummary.releaseCandidateStatus },
+            { label: "Total Score Gain", value: `+${engSummary.totalScoreGain}%` },
+            { label: "Max Potential", value: `${engSummary.maxPotentialScore}%` },
           ],
         },
       },

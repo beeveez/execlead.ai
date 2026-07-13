@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { X, AlertTriangle, Wrench, GitBranch, Clock, User, Link2, FileText, CheckCircle2 } from "lucide-react";
+import { X, AlertTriangle, Wrench, GitBranch, Clock, User, Link2, FileText, CheckCircle2, CalendarClock, TrendingUp } from "lucide-react";
 import { computeContributionDetail } from "@/lib/scoreExplainableEngine";
 import { buildPlatformValidationReport } from "@/lib/reports/platformValidationReport";
 import ReportToolbar from "@/components/reports/ReportToolbar";
@@ -28,12 +28,12 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
           <div className="flex items-center gap-6 mt-3">
             <div>
               <div className="text-[10px] text-white/30 uppercase tracking-wider">Current</div>
-              <div className="text-xl font-bold text-white">{detail.score}%</div>
+              <div className="text-xl font-bold text-white">{detail.pointsBased ? `${detail.earnedPoints}/${detail.maxPoints}` : `${detail.score}%`}</div>
             </div>
             <div className="h-8 w-px bg-white/10" />
             <div>
               <div className="text-[10px] text-white/30 uppercase tracking-wider">Target</div>
-              <div className="text-xl font-bold text-white/70">100%</div>
+              <div className="text-xl font-bold text-white/70">{detail.pointsBased ? `${detail.maxPoints} pts` : "100%"}</div>
             </div>
             <div className="h-8 w-px bg-white/10" />
             <div>
@@ -110,6 +110,20 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
                 <span className="text-[10px] text-white/30 uppercase">Est. Effort</span>
               </div>
               <div className="text-xs text-white/70">{detail.estimatedEffort}</div>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingUp size={11} className="text-white/40" />
+                <span className="text-[10px] text-white/30 uppercase">Remaining Pts</span>
+              </div>
+              <div className="text-xs text-white/70">{detail.gap > 0 ? `${detail.gap} pts` : "✓ At target"}</div>
+            </div>
+            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <CalendarClock size={11} className="text-white/40" />
+                <span className="text-[10px] text-white/30 uppercase">Projected</span>
+              </div>
+              <div className="text-xs text-white/70">{detail.projectedCompletion}</div>
             </div>
           </div>
 

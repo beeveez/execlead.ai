@@ -35,7 +35,7 @@ Answer concisely in markdown. Explain exactly which contributions are below targ
     }
   };
 
-  const maxGap = Math.max(...explanation.contributions.map((c) => c.gapContribution), 1);
+  const maxGap = Math.max(...explanation.contributions.map((c) => explanation.pointsBased ? c.gap : c.gapContribution), 1);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -141,18 +141,18 @@ Answer concisely in markdown. Explain exactly which contributions are below targ
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-white/70 font-medium truncate group-hover:text-indigo-300 transition-colors">{c.label}</span>
-                      <span className="text-xs font-mono text-white/60">{c.score}/100</span>
+                      <span className="text-xs font-mono text-white/60">{explanation.pointsBased ? `${c.earnedPoints}/${c.maxPoints}` : `${c.score}/100`}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all"
                           style={{
-                            width: `${(c.gapContribution / maxGap) * 100}%`,
-                            backgroundColor: c.gap > 20 ? "#ef4444" : c.gap > 10 ? "#f59e0b" : "#3b82f6",
+                            width: `${((explanation.pointsBased ? c.gap : c.gapContribution) / maxGap) * 100}%`,
+                            backgroundColor: (explanation.pointsBased ? c.gap > c.maxPoints * 0.5 : c.gap > 20) ? "#ef4444" : (explanation.pointsBased ? c.gap > 0 : c.gap > 10) ? "#f59e0b" : "#3b82f6",
                           }}
                         />
                       </div>
-                      <span className="text-[10px] font-mono text-white/40 w-10 text-right">{c.gapContribution}%</span>
+                      <span className="text-[10px] font-mono text-white/40 w-10 text-right">{explanation.pointsBased ? `${c.gap} pts` : `${c.gapContribution}%`}</span>
                     </div>
                   </div>
                   <ChevronRight size={14} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -160,8 +160,8 @@ Answer concisely in markdown. Explain exactly which contributions are below targ
               ))}
             </div>
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-              <span className="text-[10px] text-white/30 uppercase tracking-wider">Total Remaining Gap</span>
-              <span className="text-sm font-bold text-amber-400">{explanation.remaining}%</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider">{explanation.pointsBased ? `Total: ${explanation.completedPoints}/${explanation.target} pts` : "Total Remaining Gap"}</span>
+              <span className="text-sm font-bold text-amber-400">{explanation.pointsBased ? `${explanation.remaining} pts remaining` : `${explanation.remaining}%`}</span>
             </div>
           </div>
 

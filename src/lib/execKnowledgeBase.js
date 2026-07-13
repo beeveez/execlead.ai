@@ -1120,6 +1120,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     keyFeatures: ["Proposal review", "Contract acceptance", "Activation flow", "Payment setup", "Document download"],
     findIt: "Accessed via portal link in enterprise quote emails.",
   },
+  {
+    id: "enterprise_procurement",
+    name: "Enterprise Procurement™",
+    aliases: ["procurement", "enterprise procurement", "procurement request", "purchase request", "pr command center", "procurement approval", "procurement workflow", "procurement sla", "procurement copilot"],
+    path: "/enterprise/procurement",
+    category: "Enterprise",
+    icon: Building2,
+    description: "Enterprise Procurement Command Center — submit, track, approve, and govern procurement requests with multi-step approval chains, SLA tracking, budget validation, and AI-powered procurement intelligence.",
+    purpose: "Streamline and govern enterprise procurement from intake to fulfillment with full audit trail and SLA compliance.",
+    keyFeatures: ["Intake Wizard", "Multi-step Approval Chains", "SLA Tracking™", "Budget Validation", "Procurement Dashboard", "Procurement Copilot™", "Vendor Management", "Category Breakdown"],
+    findIt: "Enterprise Workspace → Procurement.",
+  },
 ];
 
 /**

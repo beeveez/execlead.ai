@@ -188,12 +188,14 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
                 <p className="text-white/40 text-xs">No blockers — stream is clear. Click a blocker to expand its full detail.</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                <p className="text-[10px] text-white/30 mb-1">Click any blocker to view owner, priority, evidence, recommended fix, and estimated effort.</p>
-                {intel.blockers.map((b) => (
-                  <StreamBlockerDetail key={b.id} blocker={b} />
-                ))}
-              </div>
+              <>
+                <p className="text-[10px] text-white/30 mb-3">Click any blocker to view owner, priority, evidence, recommended fix, and estimated effort.</p>
+                <div className="space-y-2">
+                  {intel.blockers.map((b) => (
+                    <StreamBlockerDetail key={b.id} blocker={b} />
+                  ))}
+                </div>
+              </>
             )}
           </div>
 

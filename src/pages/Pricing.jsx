@@ -50,14 +50,23 @@ export default function Pricing() {
         <div className="max-w-4xl mx-auto text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full mb-6">
             <Sparkles size={14} className="text-indigo-400" />
-            <span className="text-white/50 text-xs font-medium">The Executive Leadership Operating System</span>
+            <span className="text-white/50 text-xs font-medium">The Executive Leadership Operating System™</span>
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-            Choose Your <span className="text-indigo-400">Leadership Journey</span>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+            Choose the Membership That Matches <span className="text-indigo-400">Your Leadership Journey</span>
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
-            From your first management role to the executive suite — select the membership that matches where you are today and upgrade as your leadership journey evolves.
+            Whether you're an aspiring manager, an experienced executive, or an enterprise transforming leadership at scale, EXECLEAD.AI provides a membership aligned to your leadership journey.
             </motion.p>
+          {isBeta && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="inline-flex flex-col gap-1 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl mt-2">
+              <span className="text-amber-400 text-sm font-semibold flex items-center gap-1.5">
+                <Rocket size={14} /> Founding Private Beta™
+              </span>
+              <span className="text-white/40 text-xs">Membership plans shown represent planned General Availability pricing.</span>
+              <span className="text-white/40 text-xs">Current platform access is by application and invitation only.</span>
+            </motion.div>
+          )}
         </div>
       </section>
 

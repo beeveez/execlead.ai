@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Rocket, Users, Shield, Zap } from "lucide-react";
+import { ChevronRight, Rocket, Users, Shield, Zap, Sparkles } from "lucide-react";
 import BetaApplicationForm from "@/components/beta/BetaApplicationForm";
 import { getCurrentBetaStage, BETA_TIERS } from "@/lib/betaProgramEngine";
 
@@ -20,6 +20,9 @@ export default function BetaApply() {
             <ChevronRight size={10} />
             <span className="text-amber-400">Private Beta</span>
           </nav>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-400 mb-4">
+            <Sparkles size={12} /> The Executive Leadership Operating System™
+          </div>
           <div className="flex items-center gap-2 text-amber-400 text-xs uppercase tracking-widest mb-3">
             <Rocket size={14} /> {stage.label}
           </div>

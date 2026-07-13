@@ -3,6 +3,7 @@ import { usePlatformState } from "@/lib/PlatformStateContext";
 import { useGuardian } from "@/lib/GuardianContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import { useAuth } from "@/lib/AuthContext";
+import { useExecConcierge } from "@/lib/ExecConciergeContext";
 import { computeFounderSnapshot } from "@/lib/founderMissionControl";
 import ScoreRing from "@/components/founder-mc/ScoreRing";
 import PlatformOverview from "@/components/founder-mc/PlatformOverview";
@@ -25,8 +26,19 @@ export default function ExecutivePlatformStatus() {
   const guardian = useGuardian();
   const { canAccessDeveloper } = useDeveloper();
   const { user } = useAuth();
+  const concierge = useExecConcierge();
 
-  const snapshot = useMemo(() => computeFounderSnapshot(state, guardian), [state, guardian]);
+  const snapshot = useMemo(() => {
+    const runtime = {
+      hasMemory: (concierge.messages?.length || 0) > 0,
+      hasUserContext: !!concierge.userContext,
+      personaResolved: !!concierge.workspacePersona,
+      pageContextResolved: !!concierge.pageContext,
+      conversationLength: concierge.messages?.length || 0,
+      learnedPreferences: concierge.learnedPreferences,
+    };
+    return computeFounderSnapshot(state, guardian, runtime);
+  }, [state, guardian, concierge.userContext, concierge.messages, concierge.workspacePersona, concierge.pageContext, concierge.learnedPreferences]);
   const [heroExplain, setHeroExplain] = useState(false);
 
   if (!canAccessDeveloper) {

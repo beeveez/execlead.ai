@@ -269,12 +269,12 @@ function buildRoadmap(streams) {
 // ============================================================
 // MAIN — computeFounderSnapshot
 // ============================================================
-export function computeFounderSnapshot(state, guardian) {
+export function computeFounderSnapshot(state, guardian, runtime = {}) {
   // ── Source engines (all live, all wrapped in safe()) ──
   const deployment = safe(() => computeDeploymentReadiness(), { summary: { healthScore: 100, ready: true, canDeploy: true, passed: 0, warned: 0, failed: 0 } });
   const missionControl = safe(() => computeMissionControl(state, guardian, deployment.summary), { domains: [], ribbon: [], summary: { overallMaturity: 1, overallHealth: 100, totalIssues: 0, maturityLabel: "Initial" } });
   const launchReadiness = safe(() => computeLaunchReadiness(), { phases: [], successCriteria: [], launchReady: false, launchReadinessScore: 0 });
-  const cognitive = safe(() => computeCognitiveScore({}), { overall: 0, tier: "—", pillars: [], supportingMetrics: [], metrics: {} });
+  const cognitive = safe(() => computeCognitiveScore(runtime), { overall: 0, tier: "—", pillars: [], supportingMetrics: [], metrics: {} });
   const stability = safe(() => computeStabilityScore({ platformState: state, guardian, certificate: {} }), { overall: 100, tier: "Stable", categories: [], metrics: {} });
   const experienceAudit = safe(() => runPlatformExperienceAudit(), { score: 0, tier: { label: "—", color: "#64748b" }, findings: [], dimensions: [], summary: {} });
   const piq = safe(() => computePlatformIntelligence(), { piqScore: 0, domains: [], maturity: {}, estGain: 0, versions: {}, buildNumber: "" });

@@ -1,7 +1,7 @@
 /**
  * EXECLEAD.AI — FOUNDATION VERIFICATION ENGINE™
  * ============================================================
- * Sprint 1.3 — Foundation Verification Sprint™
+ * Foundation Verification — Universal Explainable Metrics™
  *
  * Validates that every architectural component built during the
  * Foundation Integration Program™ operates as one unified platform.
@@ -591,7 +591,7 @@ function phase10EnterpriseReadiness() {
   checks.forEach((c) => {
     if (!c.passed) {
       addIssue(10, "High", c.name, `Enterprise readiness check failed: ${c.name}.`,
-        `Address the ${c.name} readiness gap before Sprint 2.`);
+        `Address the ${c.name} readiness gap before next execution stream.`);
     }
   });
 
@@ -727,6 +727,6 @@ export function computeFoundationVerification() {
       config: CONFIG_VERSION,
     },
     buildNumber: PLATFORM_METADATA.buildNumber,
-    sprintVersion: "1.0",
+    executionStream: "Foundation Verification",
   };
 }

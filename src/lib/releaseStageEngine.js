@@ -11,7 +11,7 @@
  *   3. Release Candidate™ (RC1)
  *   4. Executive Release Review™
  *   5. Production Certification™
- *   6. Sprint 4 – Enterprise Procurement™
+ *   6. Execution Stream 4™ — Enterprise Procurement™
  */
 
 const PIPELINE_STORAGE_KEY = "deployment_pipeline_result";
@@ -22,7 +22,7 @@ const STAGE_LABELS = [
   { id: "rc1", label: "Release Candidate™ (RC1)" },
   { id: "executive_release_review", label: "Executive Release Review™" },
   { id: "production_certification", label: "Production Certification™" },
-  { id: "sprint_4", label: "Sprint 4 – Enterprise Procurement™" },
+  { id: "sprint_4", label: "Execution Stream 4™ — Enterprise Procurement™" },
 ];
 
 export function getPipelineResult() {
@@ -63,10 +63,10 @@ export function computeReleaseStage() {
       releaseStatus: "—",
       sprint4Active: false,
       sprints: [
-        { id: 1, label: "Sprint 1", status: "Complete" },
-        { id: 2, label: "Sprint 2", status: "Complete" },
-        { id: 3, label: "Sprint 3", status: "Complete" },
-        { id: 4, label: "Sprint 4", status: "Locked" },
+        { id: 1, label: "Security Hardening™", status: "Complete" },
+        { id: 2, label: "Security Verification™", status: "Complete" },
+        { id: 3, label: "RC1™", status: "Complete" },
+        { id: 4, label: "Execution Stream 4™", status: "Locked" },
       ],
     };
   }
@@ -113,10 +113,10 @@ export function computeReleaseStage() {
     releaseStatus,
     sprint4Active,
     sprints: [
-      { id: 1, label: "Sprint 1", status: "Complete" },
-      { id: 2, label: "Sprint 2", status: "Complete" },
-      { id: 3, label: "Sprint 3", status: "Complete" },
-      { id: 4, label: "Sprint 4", status: sprint4Active ? "Active" : "Locked" },
+      { id: 1, label: "Security Hardening™", status: "Complete" },
+      { id: 2, label: "Security Verification™", status: "Complete" },
+      { id: 3, label: "RC1™", status: "Complete" },
+      { id: 4, label: "Execution Stream 4™", status: sprint4Active ? "Active" : "Locked" },
     ],
   };
 }

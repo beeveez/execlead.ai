@@ -32,7 +32,7 @@ const SEVERITY_COLORS = {
  * severity, estimated repair time, auto-repair availability,
  * manual review flag, and a deep link.
  */
-export default function CategorizedArchitecturalGate({ cert }) {
+export default function CategorizedArchitecturalGate({ cert, onIssueClick }) {
   const [expandedCat, setExpandedCat] = useState(null);
   const [expandedIssue, setExpandedIssue] = useState(null);
 
@@ -126,12 +126,22 @@ export default function CategorizedArchitecturalGate({ cert }) {
                         label="Manual Review"
                         value={issue.manualReviewRequired ? "Required" : "Not Required"}
                       />
-                      <a
-                        href={issue.deepLink}
-                        className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300"
-                      >
-                        <ExternalLink size={10} /> Deep Link to Diagnostics
-                      </a>
+                      <div className="flex items-center gap-3">
+                        <a
+                          href={issue.deepLink}
+                          className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300"
+                        >
+                          <ExternalLink size={10} /> Deep Link
+                        </a>
+                        {onIssueClick && (
+                          <button
+                            onClick={() => onIssueClick(issue)}
+                            className="flex items-center gap-1 text-[10px] text-indigo-400 hover:text-indigo-300 font-medium"
+                          >
+                            <ChevronRight size={10} /> Drill Down →
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

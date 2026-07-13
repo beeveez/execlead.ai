@@ -123,6 +123,7 @@ export function hasLongTermRecall(executiveMemory) {
     parseArray(executiveMemory.aspirations_json).length > 0 ||
     parseArray(executiveMemory.achievements_json).length > 0 ||
     parseArray(executiveMemory.notes_json).length > 0 ||
-    !!executiveMemory.executive_summary
+    !!executiveMemory.executive_summary ||
+    !!executiveMemory.preferences_json
   );
 }

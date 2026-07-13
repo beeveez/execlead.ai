@@ -91,7 +91,7 @@ export function computeAIMemoryIntelligence(runtime = {}) {
       sourceFile: "src/lib/executiveMemoryEngine.js",
       deepLink: "/developer/cognitive",
       evidence: runtime.hasLongTermRecall
-        ? "Long-term recall operational — goals, aspirations, and achievements consolidated from conversations and persisted across sessions"
+        ? "Long-term recall operational — preferences, goals, and achievements consolidated from conversations and persisted across sessions for future recall"
         : runtime.hasExecutiveMemory
         ? "ExecutiveMemory persistence active — consolidation pipeline ready, awaiting first conversation with goal/aspiration signals"
         : "Long-term recall system not yet implemented — no memory consolidation pipeline",

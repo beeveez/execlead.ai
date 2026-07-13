@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { label: "Learning", href: "/#paths" },
   { label: "Pricing", href: "/pricing", route: "/pricing" },
   { label: "Leaderboard", href: "/leaderboard", route: "/leaderboard" },
+  { label: "Beta", href: "/beta", route: "/beta" },
 ];
 
 export default function MarketingNav() {

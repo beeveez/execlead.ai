@@ -78,8 +78,8 @@ export const RLS_REGISTRY = [
   { name: "ExecutiveAffiliation", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "UserProfile", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + same-org + admin" },
   { name: "Subscription", classification: "user", scope: "owner_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
-  { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "partial", sensitive: false, rule: "read-only; CUD open" },
-  { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "partial", sensitive: false, rule: "read-only; CUD open" },
+  { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin/finance" },
+  { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + org admin" },
 
   // ── Organization-Scoped ──
   { name: "Department", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
@@ -96,6 +96,58 @@ export const RLS_REGISTRY = [
   { name: "PlatformStateEvent", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "SelfHealingEvent", classification: "platform", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin/dev" },
   { name: "GovernanceCertificate", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+
+  // ── User-Scoped (registered 2026-07-13) ──
+  { name: "ExecutiveReputation", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "ExecutiveMemory", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "ExecutiveInterest", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "MentorProfile", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "UserMembership", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "Referral", classification: "user", scope: "referrer_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
+  { name: "ReferralEvent", classification: "user", scope: "referrer_user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "ResumeVersion", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "LeadershipDNA", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "ExecutiveLegacy", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "IdentityVersion", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "CouncilSession", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "Certificate", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "CompanyReport", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "CompanyRequest", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "FeatureSubscription", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+
+  // ── Organization-Scoped (registered 2026-07-13) ──
+  { name: "SuccessionPlan", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + org admin" },
+  { name: "CPQQuote", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + admin/finance" },
+  { name: "CPQApprovalWorkflow", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
+
+  // ── Public Catalog (registered 2026-07-13) ──
+  { name: "Company", classification: "public", scope: "—", status: "protected", sensitive: false, rule: "public read + admin CUD" },
+  { name: "CompanyVersion", classification: "public", scope: "—", status: "protected", sensitive: false, rule: "public read + admin CUD" },
+
+  // ── Platform-Scoped (registered 2026-07-13) ──
+  { name: "SSOConfig", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "PaymentSettings", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev/finance only" },
+  { name: "EmailSettings", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "PricingPlan", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "MembershipProgram", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQModule", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQSeatTier", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQDiscountRule", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQCurrency", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQTaxRule", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQAIPackage", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CPQSupportPackage", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "ReferralSettings", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "ReferralReward", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "Coupon", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "GuardianActivity", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "CompanyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "FoundingMemberAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "LegacyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "ReputationAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "EmailEvent", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "EnterpriseReport", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "Purchase", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
 ];
 
 // ── Score Computation ──

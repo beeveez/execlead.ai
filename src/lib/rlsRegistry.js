@@ -78,8 +78,8 @@ export const RLS_REGISTRY = [
   { name: "ExecutiveAffiliation", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "UserProfile", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + same-org + admin" },
   { name: "Subscription", classification: "user", scope: "owner_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
-  { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin/finance" },
-  { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + org admin" },
+  { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/finance read; no update/delete" },
+  { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + org admin + platform admin + security officer; delete: platform admin only" },
 
   // ── Organization-Scoped ──
   { name: "Department", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
@@ -144,9 +144,11 @@ export const RLS_REGISTRY = [
   { name: "CompanyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "FoundingMemberAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "LegacyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
-  { name: "ReputationAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "ReputationAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin read; no update/delete" },
   { name: "EmailEvent", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "EnterpriseReport", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "ReportEvidence", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev read; platform admin update/delete" },
+  { name: "ScheduledReport", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev read; platform admin delete" },
   { name: "Purchase", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
 ];
 

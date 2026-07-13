@@ -16,12 +16,12 @@ export default function SelfHealingActions({ item }) {
           <Wrench size={12} className="text-white/30" />
           <span className="text-[10px] text-white/40">Manual fix required — no auto-repair available for this field.</span>
         </div>
-        <p className="text-[10px] text-white/30 mt-1.5 pl-5">{item.repairAction || `Manually add ${item.field} to ${item.entity}.`}</p>
+        <p className="text-[10px] text-white/30 mt-1.5 pl-5">{item.repairAction || `Manually add ${item.field || item.category || "metadata"} to ${item.entity || item.name || "registry"}.`}</p>
       </div>
     );
   }
 
-  const patch = item.repairAction || `Auto-generate ${item.field} metadata for ${item.entity}`;
+  const patch = item.repairAction || `Auto-generate ${item.field || item.category || "metadata"} metadata for ${item.entity || item.name || "this item"}`;
   const run = (next, msg) => { setBusy(true); setTimeout(() => { setStep(next); setBusy(false); toast({ title: "Self-Healing", description: msg }); }, 600); };
 
   return (
@@ -58,7 +58,7 @@ export default function SelfHealingActions({ item }) {
         <div className="space-y-2">
           <div className="bg-[#0a0a0f] border border-white/5 rounded p-2 font-mono text-[10px] text-white/60">
             <div className="text-white/30 mb-1">// Diff preview</div>
-            <div className="text-emerald-400">+ {item.field}: "auto-generated"</div>
+            <div className="text-emerald-400">+ {item.field || item.category || "metadata"}: "auto-generated"</div>
           </div>
           <button onClick={() => run("applied", "Fix applied — recompute to verify")} disabled={busy}
             className="w-full flex items-center justify-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/20 text-emerald-300 rounded-lg px-3 py-1.5 text-xs transition-colors disabled:opacity-50">

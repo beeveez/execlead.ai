@@ -1,31 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { Crown, Clock, ArrowRight, Check, Sparkles, Users } from "lucide-react";
-import {
-  useFoundingMemberCountdown,
-  FOUNDING_MEMBER_TERMS,
-} from "@/lib/foundingMember";
-import { useSubscription } from "@/lib/SubscriptionContext";
-import FoundingMemberCountdown from "./FoundingMemberCountdown";
-import FoundingMemberBenefits from "./FoundingMemberBenefits";
+import { Rocket, ArrowRight, Tag, Shield, Settings, BarChart3, Link as LinkIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { usePricingCatalog } from "@/hooks/usePricingCatalog";
+import BetaHero from "./beta/BetaHero";
+import BetaBenefits from "./beta/BetaBenefits";
+import ApplicationFlow from "./beta/ApplicationFlow";
 import FoundingMemberValueCalc from "./FoundingMemberValueCalc";
-import FoundingMemberCelebration from "./FoundingMemberCelebration";
+import FoundingTimeline from "./beta/FoundingTimeline";
+import BetaSpotlight from "./beta/BetaSpotlight";
+import BetaFAQ from "./beta/BetaFAQ";
 
 export default function FoundingMemberSection() {
-  const { expired } = useFoundingMemberCountdown();
-  const [showCelebration, setShowCelebration] = useState(false);
-  const { membership } = useSubscription();
+  const { plans, getPrice } = usePricingCatalog();
+  const paidPlans = plans.filter((p) => p.monthlyPrice > 0 && !p.enterpriseOnly);
 
-  if (expired) return null;
-
-  const alreadyMember = membership?.type === "founding_member";
-
-  const handleJoin = () => {
-    if (alreadyMember) {
-      setShowCelebration(true);
-    } else {
-      window.location.href = "/billing?founding=1";
-    }
+  const scrollToApply = () => {
+    document.getElementById("beta-apply")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -40,103 +31,87 @@ export default function FoundingMemberSection() {
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative space-y-16 md:space-y-20">
-        {/* Header + Countdown */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/30 rounded-full mb-6 gold-glow"
-            >
-              <Crown size={14} className="text-amber-400" />
-              <span className="text-amber-300 text-xs font-semibold uppercase tracking-wider">
-                Limited Time · Founding Member
-              </span>
-            </motion.div>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-5 tracking-tight">
-              Become a Founding Member
-            </h2>
-            <p className="text-white/50 text-base leading-relaxed mb-4 max-w-md">
-              Join the inaugural cohort of EXECLEAD.AI leaders and receive exclusive lifetime
-              benefits reserved only for our earliest supporters.
-            </p>
-            <p className="text-amber-400/60 text-base leading-relaxed max-w-md">
-              Once the Founding Member Program closes, it will never be offered again.
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-2 text-amber-400 mb-6">
-              <Clock size={16} />
-              <span className="text-xs font-semibold uppercase tracking-wider">Program Closes In</span>
-            </div>
-            <FoundingMemberCountdown />
-          </div>
-        </div>
-
-        {/* Benefits */}
-        <FoundingMemberBenefits />
-
-        {/* Why Join */}
-        <div className="bg-amber-500/[0.04] border border-amber-500/15 rounded-2xl p-8 md:p-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
-              <Sparkles size={18} className="text-amber-400" />
-            </div>
-            <h3 className="text-white font-semibold text-lg">Why Become a Founding Member?</h3>
-          </div>
-          <p className="text-white/50 text-base leading-relaxed max-w-3xl">
-            You're not simply purchasing a subscription. You're joining the first generation of
-            leaders helping shape the future of AI-powered executive leadership development. Your
-            early support helps build a platform designed to empower professionals and organizations
-            worldwide.
-          </p>
-        </div>
-
-        {/* Value Calculator */}
+        <BetaHero onApply={scrollToApply} />
+        <BetaBenefits />
+        <ApplicationFlow />
         <FoundingMemberValueCalc />
 
-        {/* Limited Availability */}
-        <div className="flex items-center gap-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/20 rounded-2xl p-6">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
-            <Users size={20} className="text-amber-400" />
+        {/* Future GA Pricing */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Tag size={16} className="text-amber-400" />
+            <h3 className="text-white font-semibold text-lg">Pricing</h3>
+            <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] text-amber-400 font-medium uppercase tracking-wider">
+              Future GA Pricing
+            </span>
           </div>
-          <p className="text-amber-100/70 text-base">
-            Founding Membership is limited. Available only during the launch period or until all
-            available memberships have been claimed.{" "}
-            <span className="text-amber-300 font-medium">This opportunity will never return.</span>
+          <p className="text-white/40 text-sm mb-6 max-w-2xl">
+            Pricing shown reflects future General Availability positioning. Current beta participants
+            are not charged during the Founding Private Beta™ unless explicitly stated.
           </p>
-        </div>
-
-        {/* Terms */}
-        <div className="grid md:grid-cols-2 gap-3">
-          {FOUNDING_MEMBER_TERMS.map((term, i) => (
-            <div key={i} className="flex items-start gap-2.5 text-base text-white/40">
-              <Check size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
-              {term}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {paidPlans.map((plan) => (
+              <div key={plan.id} className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                <div className="text-2xl mb-1">{plan.icon}</div>
+                <h4 className="text-white font-semibold text-sm mb-1">{plan.name}</h4>
+                <div className="text-amber-300 font-bold text-lg mb-3">${getPrice(plan)}<span className="text-white/30 text-xs font-normal">/mo</span></div>
+                <button onClick={scrollToApply} className="w-full text-xs bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 font-medium py-2 rounded-lg transition-colors">
+                  Apply for Private Beta™
+                </button>
+              </div>
+            ))}
+            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+              <div className="text-2xl mb-1">🏢</div>
+              <h4 className="text-white font-semibold text-sm mb-1">Enterprise</h4>
+              <div className="text-white/50 font-bold text-lg mb-3">Custom</div>
+              <Link to="/beta?tier=enterprise_beta" className="block text-center text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 font-medium py-2 rounded-lg transition-colors">
+                Request Enterprise Beta™
+              </Link>
             </div>
-          ))}
+          </div>
+          <div className="text-center mt-5">
+            <button onClick={scrollToApply} className="inline-flex items-center gap-1 text-sm text-amber-400 hover:text-amber-300 transition-colors">
+              View Membership Benefits <ArrowRight size={14} />
+            </button>
+          </div>
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <motion.button
-            whileHover={{ scale: 1.03, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleJoin}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold px-8 py-4 rounded-xl transition-all gold-glow shadow-lg shadow-amber-500/20"
-          >
-            <Crown size={18} /> {alreadyMember ? "View My Benefits" : "Become a Founding Member"}{" "}
-            <ArrowRight size={16} />
-          </motion.button>
-          <a
-            href="#benefits"
-            className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-foreground font-medium px-6 py-4 rounded-xl transition-colors text-sm border border-border"
-          >
-            View Membership Benefits
-          </a>
+        <FoundingTimeline />
+        <BetaSpotlight />
+        <BetaFAQ />
+
+        {/* Administration & Reporting */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Settings size={14} className="text-white/40" />
+              <h4 className="text-white/60 text-xs font-semibold uppercase tracking-wider">Administration</h4>
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed mb-2">
+              Applications are stored in the BetaApplication entity and managed through the Beta Program Center™.
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {["Applied", "Review", "Approve", "Waitlist", "Reject", "Invite", "Activate"].map((s) => (
+                <span key={s} className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-white/40">{s}</span>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <BarChart3 size={14} className="text-white/40" />
+              <h4 className="text-white/60 text-xs font-semibold uppercase tracking-wider">Reporting</h4>
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed mb-2">
+              Executive Beta Reports with geographic, leadership-level, and company distribution analytics.
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {["PDF", "CSV", "Excel"].map((f) => (
+                <span key={f} className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-white/40">{f}</span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
-      <FoundingMemberCelebration open={showCelebration} onClose={() => setShowCelebration(false)} />
     </motion.div>
   );
 }

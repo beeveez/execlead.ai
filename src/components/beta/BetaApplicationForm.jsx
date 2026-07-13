@@ -3,16 +3,14 @@ import { Rocket, Loader2, CheckCircle2, Mail } from "lucide-react";
 import { submitBetaApplication, LEADERSHIP_LEVELS, HOW_HEARD_OPTIONS } from "@/lib/betaProgramEngine";
 
 const CAPABILITY_OPTIONS = [
-  { id: "executive_coaching", label: "Executive Coaching™" },
-  { id: "interview_preparation", label: "Interview Preparation™" },
-  { id: "enterprise_leadership", label: "Enterprise Leadership™" },
-  { id: "ai_executive_companion", label: "AI Executive Companion™" },
-  { id: "enterprise_administration", label: "Enterprise Administration™" },
-  { id: "commercial_platform", label: "Commercial Platform™" },
-  { id: "organizations", label: "Organizations™" },
-  { id: "reports", label: "Reports™" },
-  { id: "guardian", label: "Guardian™" },
+  { id: "enterprise", label: "Enterprise" },
+  { id: "leadership", label: "Leadership" },
+  { id: "interview", label: "Interview" },
+  { id: "coaching", label: "Coaching" },
+  { id: "commercial_platform", label: "Commercial Platform" },
   { id: "exec", label: "EXEC™" },
+  { id: "guardian", label: "Guardian™" },
+  { id: "organization_management", label: "Organization Management™" },
 ];
 
 const TEAM_SIZE_OPTIONS = {
@@ -160,7 +158,7 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
       </div>
 
       <div>
-        <label className={labelClass}>Which capabilities interest you most?</label>
+        <label className={labelClass}>Primary goals (select all that apply)</label>
         <div className="grid grid-cols-2 gap-2 mt-1">
           {CAPABILITY_OPTIONS.map((cap) => (
             <label

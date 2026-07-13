@@ -29,8 +29,12 @@ export default function FoundingMemberValueCalc() {
         <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
           <Calculator size={18} className="text-amber-400" />
         </div>
-        <h3 className="text-foreground font-semibold text-lg">Value Calculator</h3>
+        <h3 className="text-foreground font-semibold text-lg">Founding Member Value™</h3>
       </div>
+      <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-3xl">
+        This calculator estimates the projected commercial value once EXECLEAD.AI reaches General Availability.
+        Current beta participants are not charged during the Founding Private Beta unless explicitly stated.
+      </p>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-1/3">
           <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2.5 block">

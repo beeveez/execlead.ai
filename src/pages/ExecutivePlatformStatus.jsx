@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { usePlatformState } from "@/lib/PlatformStateContext";
 import { useGuardian } from "@/lib/GuardianContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
@@ -16,6 +16,8 @@ import LaunchReadiness from "@/components/founder-mc/LaunchReadiness";
 import FounderKPIs from "@/components/founder-mc/FounderKPIs";
 import Roadmap from "@/components/founder-mc/Roadmap";
 import ExecCopilot from "@/components/founder-mc/ExecCopilot";
+import ExplainableScoresSection from "@/components/score/ExplainableScoresSection";
+import ScoreExplainableDrawer from "@/components/score/ScoreExplainableDrawer";
 import { Shield, Trophy } from "lucide-react";
 
 export default function ExecutivePlatformStatus() {
@@ -25,6 +27,7 @@ export default function ExecutivePlatformStatus() {
   const { user } = useAuth();
 
   const snapshot = useMemo(() => computeFounderSnapshot(state, guardian), [state, guardian]);
+  const [heroExplain, setHeroExplain] = useState(false);
 
   if (!canAccessDeveloper) {
     return (
@@ -52,7 +55,9 @@ export default function ExecutivePlatformStatus() {
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Hero Header */}
       <div className="bg-gradient-to-br from-indigo-500/10 via-white/[0.02] to-transparent border border-indigo-500/10 rounded-2xl p-6 flex items-center gap-6 flex-wrap">
-        <ScoreRing score={overview.platformHealth} size={90} label="Health" />
+        <button type="button" onClick={() => setHeroExplain(true)} className="cursor-pointer hover:opacity-80 transition-opacity" title="Click to explain Platform Health™">
+          <ScoreRing score={overview.platformHealth} size={90} label="Health" />
+        </button>
         <div className="flex-1 min-w-[200px]">
           <div className="flex items-center gap-2 mb-1">
             <Trophy size={18} className="text-amber-400" />
@@ -79,6 +84,9 @@ export default function ExecutivePlatformStatus() {
 
       {/* Section 2: Executive Stream Intelligence™ */}
       <StreamProgress streams={snapshot.streams} snapshot={snapshot} user={user} />
+
+      {/* Section 2b: Explainable Platform Scores™ */}
+      <ExplainableScoresSection snapshot={snapshot} user={user} />
 
       {/* Section 3: Engineering Health */}
       <EngineeringHealth engineering={snapshot.engineering} />
@@ -113,6 +121,11 @@ export default function ExecutivePlatformStatus() {
           Executive Platform Status™ — the single source of truth for Engineering, Architecture, Product, AI, Enterprise, Launch, and Strategy.
         </p>
       </div>
+
+      {/* Hero Score Explainable Drawer */}
+      {heroExplain && (
+        <ScoreExplainableDrawer scoreId="platform_health" snapshot={snapshot} user={user} onClose={() => setHeroExplain(false)} />
+      )}
     </div>
   );
 }

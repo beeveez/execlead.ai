@@ -53,11 +53,11 @@ export default function Pricing() {
             <span className="text-white/50 text-xs font-medium">The Executive Leadership Operating System</span>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-            Invest in <span className="text-indigo-400">Leaders</span>,<br />Not Just Software
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
-            You're not buying a tool. You're investing in the development of executive leaders and the future capability of your organization.
-          </motion.p>
+            Choose Your <span className="text-indigo-400">Leadership Journey</span>
+            </motion.h1>
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
+            From your first management role to the executive suite — select the membership that matches where you are today and upgrade as your leadership journey evolves.
+            </motion.p>
         </div>
       </section>
 
@@ -115,7 +115,8 @@ export default function Pricing() {
               <Building2 size={14} className="text-emerald-400" />
               <span className="text-emerald-400 text-xs font-medium">Target Outcomes</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Expected Business Outcomes</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-2">Expected Business Outcomes</h2>
+            <p className="text-xl font-semibold text-indigo-400 mb-3">Invest in Leaders, Not Just Software.</p>
             <p className="text-white/40 max-w-2xl mx-auto text-lg">Target outcomes for organizations investing in leadership transformation. These represent product goals — not yet measured results.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><EnterpriseValue /></Suspense>

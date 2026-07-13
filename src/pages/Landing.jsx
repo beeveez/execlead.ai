@@ -109,10 +109,10 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="text-lg md:text-2xl font-medium text-white/60 max-w-2xl mx-auto mb-4"
-          >
-            One Leadership Journey. One AI Platform.
-          </motion.p>
+            className="text-lg md:text-xl font-medium text-white/60 max-w-3xl mx-auto mb-4 leading-relaxed"
+            >
+            The world's first AI Executive Leadership Operating System that helps professionals, managers, and organizations develop executive leaders through AI coaching, simulations, assessments, and enterprise intelligence.
+            </motion.p>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -120,7 +120,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-base md:text-lg text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Whether you're a student, aspiring leader, manager, executive, founder, or enterprise organization, EXECLEAD.AI grows with you throughout your leadership journey.
+            One Leadership Journey. One AI Platform.
           </motion.p>
 
           <motion.div
@@ -363,6 +363,17 @@ export default function Landing() {
           <div className="text-center mt-10">
             <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Compare all features <ArrowRight size={14} /></Link>
           </div>
+        </div>
+      </section>
+
+      {/* Organizational Value */}
+      <section className="py-20 px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Organizations Choose EXECLEAD.AI</h2>
+          <p className="text-xl md:text-2xl font-semibold text-indigo-400 mb-6">Invest in Leaders, Not Just Software.</p>
+          <p className="text-white/40 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Every subscription is an investment in developing stronger leaders, building internal executive pipelines, and improving organizational capability—not just purchasing another software tool.
+          </p>
         </div>
       </section>
 

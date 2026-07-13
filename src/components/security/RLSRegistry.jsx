@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from "react";
 import {
   ShieldCheck, Database, CheckCircle2, AlertTriangle, XCircle, HelpCircle,
-  Building2, User, Server, Globe, Lock, Search, Radar,
+  Building2, User, Server, Globe, Lock, Search, Radar, Target, Clock,
 } from "lucide-react";
 import {
   RLS_STATUS, SECURITY_CLASSIFICATIONS,
   computeRLSScores,
 } from "@/lib/rlsRegistry";
-import { discoverAllEntities, computeDiscoveryMetrics } from "@/lib/entityDiscovery";
+import { discoverAllEntities, computeDiscoveryMetrics, computeRiskBasedCoverage, computeSecurityDebt } from "@/lib/entityDiscovery";
 
 const STATUS_ICON = {
   protected: CheckCircle2,
@@ -63,9 +63,36 @@ function IsolationBadge({ pass, label }) {
   );
 }
 
+function CoverageRow({ label, data, warning }) {
+  const color = warning ? "#6366f1" : data.coverage === 100 ? "#10b981" : "#f59e0b";
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-white/60 w-32 shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all" style={{ width: `${data.coverage}%`, background: color }} />
+      </div>
+      <span className="text-xs font-mono w-12 text-right" style={{ color }}>
+        {data.protected}/{data.total}
+      </span>
+      <span className="text-xs font-bold w-10 text-right" style={{ color }}>{data.coverage}%</span>
+    </div>
+  );
+}
+
+function DebtCard({ label, value, color }) {
+  return (
+    <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-center">
+      <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">{label}</div>
+      <div className="text-xl font-bold" style={{ color }}>{value}</div>
+    </div>
+  );
+}
+
 export default function RLSRegistry() {
   const scores = useMemo(() => computeRLSScores(), []);
   const discovery = useMemo(() => computeDiscoveryMetrics(), []);
+  const riskCoverage = useMemo(() => computeRiskBasedCoverage(), []);
+  const securityDebt = useMemo(() => computeSecurityDebt(), []);
   const allEntities = useMemo(() => discoverAllEntities(), []);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -78,7 +105,7 @@ export default function RLSRegistry() {
     });
   }, [allEntities, filter, search]);
 
-  const launchReady = scores.blocker === "NONE" && discovery.unverified === 0;
+  const launchReady = !riskCoverage.deploymentBlocked;
 
   return (
     <div className="space-y-4">
@@ -116,7 +143,7 @@ export default function RLSRegistry() {
           <div className="ml-auto">
             <div className="text-xs text-white/40 uppercase tracking-wider mb-1">Production Blocker</div>
             <div className="text-lg font-bold" style={{ color: launchReady ? "#10b981" : "#ef4444" }}>
-              {launchReady ? "✅ NONE" : "🔴 " + scores.blocker}
+              {launchReady ? "✅ NONE" : `🔴 ${riskCoverage.criticalUnverified} critical unverified`}
             </div>
           </div>
         </div>
@@ -151,18 +178,81 @@ export default function RLSRegistry() {
           </div>
           <div className="h-8 w-px bg-white/10" />
           <div>
-            <div className="text-2xl font-bold" style={{ color: discovery.unverified === 0 ? "#10b981" : "#6366f1" }}>
-              {discovery.unverified}
+            <div className="text-2xl font-bold" style={{ color: discovery.awaitingReview === 0 ? "#10b981" : "#6366f1" }}>
+              {discovery.awaitingReview}
             </div>
-            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Unverified</div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Awaiting Review</div>
           </div>
           <div className="h-8 w-px bg-white/10" />
           <div>
-            <div className="text-2xl font-bold" style={{ color: discovery.coverage === 100 ? "#10b981" : discovery.coverage >= 50 ? "#f59e0b" : "#ef4444" }}>
-              {discovery.coverage}%
+            <div className="text-2xl font-bold" style={{ color: riskCoverage.criticalCoverage === 100 ? "#10b981" : riskCoverage.criticalCoverage >= 50 ? "#f59e0b" : "#ef4444" }}>
+              {riskCoverage.criticalCoverage}%
             </div>
-            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Coverage</div>
+            <div className="text-white/40 text-[10px] mt-0.5 uppercase tracking-wider">Critical Cov™</div>
           </div>
+        </div>
+      </div>
+
+      {/* Risk-Based Coverage™ */}
+      <div className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium uppercase tracking-wider mb-4">
+          <Target size={14} /> Risk-Based Coverage™
+        </div>
+        <div className="grid sm:grid-cols-2 gap-6">
+          {/* Critical Coverage */}
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-3">Critical Coverage™ (Deployment Gate)</div>
+            <div className="space-y-2.5">
+              <CoverageRow label="Platform Entities" data={riskCoverage.platform} />
+              <CoverageRow label="Organization Entities" data={riskCoverage.organization} />
+              <CoverageRow label="User Entities" data={riskCoverage.user} />
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
+              <span className="text-xs text-white/60">Critical Coverage</span>
+              <span className="text-lg font-bold" style={{ color: riskCoverage.criticalCoverage === 100 ? "#10b981" : "#f59e0b" }}>
+                {riskCoverage.criticalCoverage}%
+              </span>
+            </div>
+          </div>
+          {/* Public + Overall */}
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-3">Public & Overall</div>
+            <div className="space-y-2.5">
+              <CoverageRow label="Public Entities" data={riskCoverage.public} warning />
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-white/60">Overall Coverage</span>
+                <span className="text-lg font-bold text-white/80">{riskCoverage.overallCoverage}%</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-white/60">Deploy Gate</span>
+                <span className="text-sm font-bold" style={{ color: riskCoverage.deploymentBlocked ? "#ef4444" : "#10b981" }}>
+                  {riskCoverage.deploymentBlocked ? `🔴 BLOCKED (${riskCoverage.criticalUnverified} critical)` : "✅ PASS"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Security Technical Debt™ */}
+      <div className="bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/10 rounded-xl p-5">
+        <div className="flex items-center gap-2 text-amber-400 text-xs font-medium uppercase tracking-wider mb-4">
+          <AlertTriangle size={14} /> Security Technical Debt™
+        </div>
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          <DebtCard label="Critical" value={securityDebt.critical} color="#ef4444" />
+          <DebtCard label="High" value={securityDebt.high} color="#f59e0b" />
+          <DebtCard label="Medium" value={securityDebt.medium} color="#eab308" />
+          <DebtCard label="Low" value={securityDebt.low} color="#6366f1" />
+        </div>
+        <div className="flex items-center justify-between pt-3 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <Clock size={14} className="text-white/40" />
+            <span className="text-xs text-white/60">Estimated Effort to Clear Debt</span>
+          </div>
+          <span className="text-lg font-bold text-white">{securityDebt.effortHours} hours</span>
         </div>
       </div>
 
@@ -278,6 +368,9 @@ export default function RLSRegistry() {
                           {RLS_STATUS[entity.status].label}
                         </span>
                       </div>
+                      {entity.reviewStatus === "awaiting_review" && (
+                        <div className="text-[9px] text-indigo-400/70 mt-0.5">{entity.confidence}% conf.</div>
+                      )}
                     </td>
                   </tr>
                 );
@@ -293,6 +386,7 @@ export default function RLSRegistry() {
         <span className="flex items-center gap-1"><AlertTriangle size={12} style={{ color: "#f59e0b" }} /> Partial — read restricted, mutations open</span>
         <span className="flex items-center gap-1"><XCircle size={12} style={{ color: "#ef4444" }} /> No RLS — empty {} block</span>
         <span className="flex items-center gap-1"><HelpCircle size={12} style={{ color: "#6366f1" }} /> Unverified — discovered, RLS not yet confirmed</span>
+        <span className="flex items-center gap-1"><Clock size={11} className="text-indigo-400" /> Awaiting Review — heuristic classification, needs human confirmation</span>
         <span className="flex items-center gap-1"><Lock size={11} className="text-amber-400" /> Sensitive data</span>
       </div>
     </div>

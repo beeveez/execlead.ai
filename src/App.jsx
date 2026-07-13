@@ -140,6 +140,7 @@ import DeploymentCenter from '@/pages/developer/DeploymentCenter';
 import ReportRegistry from '@/pages/developer/ReportRegistry';
 import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import EnterpriseAdmin from '@/pages/enterprise/EnterpriseAdmin';
+import EnterpriseIdentity from '@/pages/enterprise/EnterpriseIdentity';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import Diagnostics from '@/pages/developer/Diagnostics';
 import DiagnosticsAlias from '@/pages/developer/Diagnostics';
@@ -343,6 +344,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
           <Route path="/enterprise/organizations" element={<OrganizationManagement />} />
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />
+          <Route path="/enterprise/identity" element={<EnterpriseIdentity />} />
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/developer/diagnostics" element={<Diagnostics />} />
           <Route path="/developer/governance" element={<DiagnosticsAlias />} />

@@ -1,0 +1,105 @@
+{
+  "name": "IdentitySyncEvent",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "IdentityProvider ID"
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "provider_type": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "sync_start",
+        "sync_complete",
+        "sync_error",
+        "sync_warning",
+        "provisioning_create",
+        "provisioning_update",
+        "provisioning_disable",
+        "provisioning_delete",
+        "group_sync",
+        "role_sync",
+        "license_sync",
+        "auth_failure",
+        "group_conflict",
+        "identity_drift",
+        "role_drift",
+        "license_drift"
+      ],
+      "description": "Type of identity sync event"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "warning",
+        "pending",
+        "info"
+      ],
+      "default": "info"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "error",
+        "critical"
+      ],
+      "default": "info"
+    },
+    "message": {
+      "type": "string",
+      "description": "Event message"
+    },
+    "affected_users": {
+      "type": "number",
+      "default": 0
+    },
+    "affected_groups": {
+      "type": "number",
+      "default": 0
+    },
+    "details_json": {
+      "type": "string",
+      "description": "Additional structured details"
+    },
+    "triggered_by": {
+      "type": "string",
+      "enum": [
+        "system",
+        "admin",
+        "scheduled",
+        "guardian"
+      ],
+      "default": "system"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_type",
+    "provider_name",
+    "event_type"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

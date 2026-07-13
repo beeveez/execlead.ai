@@ -1,0 +1,190 @@
+{
+  "name": "IdentityProvider",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization this IdP belongs to"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "microsoft_entra_id",
+        "azure_ad",
+        "google_workspace",
+        "okta",
+        "auth0",
+        "ping_identity",
+        "jumpcloud",
+        "onelogin",
+        "custom_saml",
+        "custom_oidc"
+      ],
+      "description": "Identity provider type"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "major",
+        "custom"
+      ],
+      "default": "major"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "disconnected",
+        "error",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Provider tenant/domain ID"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Verified domain"
+    },
+    "protocols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supported protocols (SAML, OIDC, SCIM)"
+    },
+    "users_synced": {
+      "type": "number",
+      "default": 0
+    },
+    "groups_synced": {
+      "type": "number",
+      "default": 0
+    },
+    "roles_synced": {
+      "type": "number",
+      "default": 0
+    },
+    "license_assignments": {
+      "type": "number",
+      "default": 0
+    },
+    "last_sync": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "next_sync": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sync_interval_min": {
+      "type": "number",
+      "default": 15
+    },
+    "health_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Provider health 0-100"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "warning",
+        "critical",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "scim_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "sso_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "provisioning_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "auto_create_users": {
+      "type": "boolean",
+      "default": true
+    },
+    "auto_update_users": {
+      "type": "boolean",
+      "default": true
+    },
+    "auto_disable_users": {
+      "type": "boolean",
+      "default": true
+    },
+    "auto_delete_users": {
+      "type": "boolean",
+      "default": false
+    },
+    "department_sync": {
+      "type": "boolean",
+      "default": true
+    },
+    "manager_sync": {
+      "type": "boolean",
+      "default": true
+    },
+    "role_sync": {
+      "type": "boolean",
+      "default": true
+    },
+    "workspace_sync": {
+      "type": "boolean",
+      "default": false
+    },
+    "license_sync": {
+      "type": "boolean",
+      "default": false
+    },
+    "sync_errors": {
+      "type": "number",
+      "default": 0
+    },
+    "sync_warnings": {
+      "type": "number",
+      "default": 0
+    },
+    "pending_provisioning": {
+      "type": "number",
+      "default": 0
+    },
+    "pending_deprovisioning": {
+      "type": "number",
+      "default": 0
+    },
+    "config_json": {
+      "type": "string",
+      "description": "Provider connection configuration JSON"
+    },
+    "connected_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_type",
+    "provider_name"
+  ],
+  "rls": {
+    "create": {},
+    "read": {},
+    "update": {},
+    "delete": {}
+  }
+}

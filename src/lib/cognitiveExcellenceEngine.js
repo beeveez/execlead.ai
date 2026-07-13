@@ -51,6 +51,20 @@ export function computeCognitiveScore(runtime = {}) {
     ((personasWithExpertise + personasWithGreetings + personasWithQuickActions) / (workspacePersonaList.length * 3)) * 100
   );
 
+  // ── Recommendation Quality: evidence coverage + framework traceability + reasoning chains ──
+  const capabilitiesWithEvidence = CAPABILITY_REGISTRY.filter((c) => c.evidenceSource).length;
+  const capabilitiesWithFramework = CAPABILITY_REGISTRY.filter((c) => c.framework).length;
+  const capabilitiesWithPersona = CAPABILITY_REGISTRY.filter((c) => c.aiPersona).length;
+  const evidenceCoverage = totalCapabilities > 0 ? Math.round((capabilitiesWithEvidence / totalCapabilities) * 100) : 0;
+  const frameworkTraceability = totalCapabilities > 0 ? Math.round((capabilitiesWithFramework / totalCapabilities) * 100) : 0;
+  const personaBacking = totalCapabilities > 0 ? Math.round((capabilitiesWithPersona / totalCapabilities) * 100) : 0;
+  // EXEC Prompt v2 enforces the 6-element reasoning chain (WHY, WHAT, WHICH, Confidence, Action, Outcome)
+  const reasoningChainScore = 90;
+  const contextScore = runtime.personaResolved && runtime.pageContextResolved ? 95 : 60;
+  const recommendationScore = Math.round(
+    evidenceCoverage * 0.35 + frameworkTraceability * 0.25 + reasoningChainScore * 0.25 + contextScore * 0.15
+  );
+
   // ── 9 Primary Pillars (weighted to 100) ──
   const pillars = [
     {
@@ -121,10 +135,10 @@ export function computeCognitiveScore(runtime = {}) {
       id: "recommendations",
       label: "Recommendation Quality",
       weight: 10,
-      score: 80,
+      score: recommendationScore,
       target: 95,
-      trend: "+4",
-      evidence: "Workspace-aware recommendation engine — recommendations adapt based on active workspace, page context, and user profile",
+      trend: recommendationScore >= 90 ? "+" + (recommendationScore - 80) : "—",
+      evidence: `${capabilitiesWithEvidence}/${totalCapabilities} capabilities have evidence sources, ${capabilitiesWithFramework} linked to frameworks, ${capabilitiesWithPersona} backed by AI personas — EXEC™ Prompt v${EXEC_PROMPT_VERSION} enforces WHY/WHAT/WHICH/Confidence/Action/Outcome reasoning chain${contextScore >= 90 ? ", workspace context resolved" : ", context pending"}`,
       program: "Program 6: Personalization",
     },
     {
@@ -207,6 +221,9 @@ export function computeCognitiveScore(runtime = {}) {
       personaCount,
       knowledgeVersion: EXEC_KNOWLEDGE_VERSION,
       promptVersion: EXEC_PROMPT_VERSION,
+      recommendationScore,
+      evidenceCoverage,
+      frameworkTraceability,
     },
   };
 }
@@ -217,7 +234,7 @@ export function computeCognitiveScore(runtime = {}) {
 export const COGNITIVE_TARGETS = [
   { metric: "Evidence-backed Responses", target: "95%", current: (m) => m.completeCapabilities > 0 ? Math.round((m.completeCapabilities / m.totalCapabilities) * 100) : 0, unit: "%" },
   { metric: "Framework Traceability", target: "100%", current: () => 100, unit: "%" },
-  { metric: "Explainable Recommendations", target: "100%", current: () => 90, unit: "%" },
+  { metric: "Explainable Recommendations", target: "100%", current: (m) => m.recommendationScore || 0, unit: "%" },
   { metric: "Dynamic Persona Resolution", target: "100%", current: (m) => m.totalPersonas > 0 ? Math.round((m.dynamicPersonas / m.totalPersonas) * 100) : 0, unit: "%" },
   { metric: "Knowledge Packs Active", target: "100%", current: (m) => m.totalPacks > 0 ? Math.round((m.activePacks / m.totalPacks) * 100) : 0, unit: "%" },
 ];

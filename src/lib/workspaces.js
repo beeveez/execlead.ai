@@ -88,6 +88,7 @@ export const WORKSPACE_NAV = {
   enterprise: [
     { label: "Organization", items: [
       { path: "/enterprise", label: "Enterprise Dashboard", icon: LayoutDashboard, feature: "team_dashboard" },
+      { path: "/enterprise/organizations", label: "Organization Management™", icon: Building2 },
       { path: "/enterprise-intelligence", label: "Intelligence", icon: TrendingUp },
       { path: "/organization/users", label: "Users", icon: Users },
       { path: "/succession-planning", label: "Teams", icon: Users, feature: "succession_planning" },
@@ -196,7 +197,8 @@ const ROUTE_WORKSPACE = {
   "/notifications": ["executive"], "/compare-plans": ["executive"],
   "/brand-center": ["executive"], "/executive/rankings": ["executive"], "/reputation": ["executive"],
   "/connected-accounts": ["executive"],
-  "/enterprise": ["enterprise"], "/hr-dashboard": ["enterprise"],
+  "/enterprise": ["enterprise"], "/enterprise/organizations": ["enterprise"],
+  "/hr-dashboard": ["enterprise"],
   "/succession-planning": ["enterprise"], "/promotion-readiness": ["enterprise"],
   "/learning-assignments": ["enterprise"], "/organization/users": ["enterprise"],
   "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer", "platform"],

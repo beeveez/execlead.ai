@@ -7,12 +7,27 @@ export default function Roadmap({ roadmap }) {
     <SectionCard title="Roadmap" subtitle="Stream progression and next actions" icon={Map} accent="amber">
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Current Stream</div>
-          <div className="text-sm font-medium text-white">{roadmap.currentStream}</div>
+          <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Current Release Stage™</div>
+          <div className="text-sm font-medium text-white">{roadmap.releaseStage}</div>
         </div>
         <div>
-          <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Current Sprint</div>
-          <div className="text-sm font-medium text-white">{roadmap.currentSprint}</div>
+          <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Pipeline Progress</div>
+          <div className="text-sm font-medium text-white">{roadmap.pipelineProgress}</div>
+        </div>
+      </div>
+      <div className="mb-4">
+        <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1.5">Sprint Tracker</div>
+        <div className="flex flex-wrap gap-1.5">
+          {roadmap.sprints.map((s) => (
+            <span key={s.id} className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full ${
+              s.status === "Complete" ? "bg-emerald-500/10 text-emerald-400" :
+              s.status === "Active" ? "bg-indigo-500/10 text-indigo-400" :
+              "bg-white/5 text-white/30"
+            }`}>
+              {s.status === "Complete" ? <CheckCircle2 size={9} /> : null}
+              {s.label} — {s.status}
+            </span>
+          ))}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4 mb-4">

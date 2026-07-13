@@ -23,6 +23,7 @@ import { PLATFORM_SECURITY, COMPLIANCE_FRAMEWORKS, STATUS_CONFIG } from "./trust
 import { computeDeploymentReadiness } from "./deploymentReadinessEngine";
 import { computePlatformIntelligence } from "./platformIntelligenceEngine";
 import { routeExists } from "./routeRegistry";
+import { computeReleaseStage } from "./releaseStageEngine";
 
 const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
 const safe = (fn, fallback) => { try { return fn(); } catch { return fallback; } };
@@ -61,11 +62,18 @@ function buildOverview(state, readinessLevel, deployment, launchReadiness) {
   const health = state.health?.overall ?? 100;
   const readiness = state.readiness?.overall ?? 100;
   const currentStream = STREAMS.find((s) => s.completion < 100) || STREAMS[STREAMS.length - 1];
+  const releaseStage = computeReleaseStage();
   return {
     platformHealth: health,
     overallReadiness: readiness,
     executionStream: currentStream?.name || "Launch Preparation™",
-    sprint: "Sprint 2.0",
+    releaseStage: releaseStage.currentStage,
+    releaseStageId: releaseStage.currentStageId,
+    currentMilestone: releaseStage.currentMilestone,
+    nextMilestone: releaseStage.nextMilestone,
+    pipelineProgress: releaseStage.pipelineProgress,
+    releaseStatus: releaseStage.releaseStatus,
+    sprint4Active: releaseStage.sprint4Active,
     version: PLATFORM_METADATA.platformVersion,
     buildNumber: PLATFORM_METADATA.buildNumber,
     deploymentStatus: deployment?.summary?.ready ? "Ready" : deployment?.summary?.canDeploy ? "Deployable" : "Blocked",
@@ -240,6 +248,7 @@ function buildRoadmap(streams) {
   const current = streams.find((s) => s.completion < 100) || streams[streams.length - 1];
   const futureIdx = streams.indexOf(current) + 1;
   const future = streams.slice(futureIdx);
+  const releaseStage = computeReleaseStage();
   const recommendedAction = current.completion < 60
     ? `Focus on ${current.name} — resolve blockers to advance`
     : current.completion < 90
@@ -247,7 +256,9 @@ function buildRoadmap(streams) {
       : `Finalize ${current.name} and advance to the next stream`;
   return {
     currentStream: current.name,
-    currentSprint: "Sprint 2.0",
+    releaseStage: releaseStage.currentStage,
+    sprints: releaseStage.sprints,
+    pipelineProgress: releaseStage.pipelineProgress,
     completedMilestones: completed.map((s) => s.name),
     nextMilestone: current.nextMilestone,
     futureStreams: future.map((s) => s.name),

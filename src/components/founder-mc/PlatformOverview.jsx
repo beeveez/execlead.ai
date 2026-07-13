@@ -23,7 +23,11 @@ export default function PlatformOverview({ overview }) {
         <Metric label="Platform Health" value={`${overview.platformHealth}/100`} icon={Activity} accent={healthColor} />
         <Metric label="Overall Readiness" value={`${overview.overallReadiness}%`} icon={Activity} accent={overview.overallReadiness >= 90 ? "green" : "amber"} />
         <Metric label="Execution Stream" value={overview.executionStream} icon={GitBranch} accent="indigo" />
-        <Metric label="Current Sprint" value={overview.sprint} icon={GitBranch} accent="blue" />
+        <Metric label="Current Release Stage™" value={overview.releaseStage} icon={GitBranch} accent="blue" />
+        <Metric label="Current Milestone" value={overview.currentMilestone} icon={GitBranch} accent="indigo" />
+        <Metric label="Next Milestone" value={overview.nextMilestone} icon={Rocket} accent="blue" />
+        <Metric label="Pipeline Progress" value={overview.pipelineProgress} icon={Activity} accent="indigo" />
+        <Metric label="Release Status" value={overview.releaseStatus} icon={Rocket} accent={overview.releaseStatus === "GO" ? "green" : overview.releaseStatus === "CONDITIONAL GO" ? "amber" : overview.releaseStatus === "BLOCKED" ? "red" : "blue"} />
         <Metric label="Version" value={`v${overview.version}`} icon={Server} accent="indigo" />
         <Metric label="Build Number" value={overview.buildNumber} icon={Server} accent="blue" />
         <Metric label="Deployment" value={overview.deploymentStatus} icon={Rocket} accent={overview.deploymentStatus === "Ready" ? "green" : overview.deploymentStatus === "Blocked" ? "red" : "amber"} />

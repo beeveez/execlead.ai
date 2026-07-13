@@ -228,7 +228,7 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
       : "Blocked pending Production Certification™.",
   });
 
-  return {
+  const pipelineResult = {
     stages: results,
     productionReady,
     finalDecision,
@@ -237,4 +237,10 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
     pipelineVersion: "2.0",
     platformVersion: PLATFORM_METADATA.platformVersion,
   };
+
+  try {
+    localStorage.setItem("deployment_pipeline_result", JSON.stringify(pipelineResult));
+  } catch {}
+
+  return pipelineResult;
 }

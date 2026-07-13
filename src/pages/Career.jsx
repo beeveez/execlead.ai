@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import { callAI } from "@/lib/ai";
 import { getFlatSkills } from "@/lib/resume";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Career() {
   const [profile, setProfile] = useState(null);
@@ -12,15 +13,16 @@ export default function Career() {
   const [advice, setAdvice] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const load = async () => {
+    const profiles = await base44.entities.UserProfile.list();
+    if (profiles.length > 0) setProfile(profiles[0]);
+    const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
+    if (resumes.length > 0) {
+      try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      const profiles = await base44.entities.UserProfile.list();
-      if (profiles.length > 0) setProfile(profiles[0]);
-      const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
-      if (resumes.length > 0) {
-        try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
-      }
-    };
     load();
   }, []);
 
@@ -96,6 +98,7 @@ Be specific to ${profile?.target_company || "the IT services industry"}. Practic
   }, [profile]);
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -136,5 +139,6 @@ Be specific to ${profile?.target_company || "the IT services industry"}. Practic
         </motion.div>
       ) : null}
     </div>
+    </PullToRefresh>
   );
 }

@@ -1,11 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, GraduationCap, MessageSquare, UserCircle } from "lucide-react";
+import { LayoutDashboard, GraduationCap, MessageSquare, Users, UserCircle } from "lucide-react";
 
 const NAV_ITEMS = [
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/dashboard", label: "Home", icon: LayoutDashboard },
   { path: "/academy", label: "Academy", icon: GraduationCap },
   { path: "/coach", label: "Coach", icon: MessageSquare },
+  { path: "/network", label: "Network", icon: Users },
   { path: "/profile", label: "Profile", icon: UserCircle },
 ];
 

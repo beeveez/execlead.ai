@@ -13,6 +13,7 @@ import { LogOut, ChevronRight } from "lucide-react";
 import DebugPanel from "@/components/developer/DebugPanel";
 import MobileHeader from "@/components/layout/MobileHeader";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import PageTransition from "@/components/PageTransition";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 import SimulationBanner from "@/components/developer/SimulationBanner";
@@ -119,7 +120,7 @@ export default function AppLayout() {
       }
 
       {/* Main Content — every page is role-enforced via RoleRoute */}
-      <main className="flex-1 lg:ml-64 pt-[calc(3.5rem_+_env(safe-area-inset-top))] lg:pt-0 pb-24 md:pb-0 min-h-screen">
+      <main className="flex-1 lg:ml-64 pt-[calc(3.5rem_+_env(safe-area-inset-top))] lg:pt-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 min-h-screen">
         <ImpersonationBanner />
         <SimulationBanner />
         <GracePeriodBanner />
@@ -127,7 +128,7 @@ export default function AppLayout() {
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <RoleRoute>
             <WorkspaceGuard>
-              <Outlet />
+              <PageTransition />
             </WorkspaceGuard>
           </RoleRoute>
         </div>

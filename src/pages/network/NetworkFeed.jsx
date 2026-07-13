@@ -4,6 +4,7 @@ import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
 import { Loader2, Send, Rss } from "lucide-react";
 import PostCard from "@/components/network/PostCard";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function NetworkFeed() {
   const { user } = useAuth();
@@ -55,6 +56,7 @@ export default function NetworkFeed() {
   };
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
@@ -117,5 +119,6 @@ export default function NetworkFeed() {
         ))
       )}
     </div>
+    </PullToRefresh>
   );
 }

@@ -49,6 +49,8 @@
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 28% 86%;
     --sidebar-ring: 221 83% 53%;
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     color-scheme: light;
   }
 
@@ -108,6 +110,13 @@
     @apply bg-background text-foreground font-body;
   }
 }
+
+/* ============================================================
+   Safe Area Insets — iOS/Android WebView notch & home indicator
+   ============================================================ */
+.safe-area-top { padding-top: env(safe-area-inset-top); }
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-area-pad { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 
 /* ============================================================
    Form input utility class — shared across enterprise forms

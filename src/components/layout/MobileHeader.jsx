@@ -7,7 +7,7 @@ import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
 
 // Bottom-nav tab roots — these are NOT "deep" pages (no Back button).
-const BOTTOM_NAV_PATHS = ["/dashboard", "/academy", "/coach", "/profile"];
+const BOTTOM_NAV_PATHS = ["/dashboard", "/academy", "/coach", "/network", "/profile"];
 
 const ROUTE_TITLES = {
   "/dashboard": "Home",

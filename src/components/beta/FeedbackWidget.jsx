@@ -43,7 +43,7 @@ export default function FeedbackWidget() {
 
   if (!open) {
     return (
-      <div className="fixed bottom-5 right-5 z-40 flex flex-col gap-2">
+      <div className="fixed right-5 z-40 flex flex-col gap-2" style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
         <button
           onClick={() => setOpen(true)}
           className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 transition-colors"
@@ -55,7 +55,7 @@ export default function FeedbackWidget() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 w-80">
+    <div className="fixed right-5 z-40 w-80" style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
       <div className="bg-[#0d0d14] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">

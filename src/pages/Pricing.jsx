@@ -8,7 +8,7 @@ import PricingTiers from "@/components/pricing/PricingTiers";
 import PaymentTrust from "@/components/billing/PaymentTrust";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
-import { useLaunchMode } from "@/lib/launchMode";
+import { useLaunchMode, usePlatformLaunchMode } from "@/lib/launchMode";
 
 // Below-the-fold sections are lazy-loaded so the hero + pricing tiers
 // render immediately without waiting for their code or API calls.
@@ -34,6 +34,7 @@ export default function Pricing() {
   const [authed, setAuthed] = useState(false);
   const { plans, cycle, setCycle, getPrice } = usePricingCatalog();
   const { betaBillingMode, launchMode } = useLaunchMode();
+  const { mode, isBeta } = usePlatformLaunchMode();
 
   useEffect(() => {
     captureReferralCode();
@@ -70,13 +71,13 @@ export default function Pricing() {
             </div>
           </div>
           {/* Beta Billing banner — shown when payment provider is not connected */}
-          {betaBillingMode && (
-            <div className="max-w-3xl mx-auto mb-8 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-start gap-3">
-              <Rocket size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
+          {isBeta && (
+            <div className="max-w-3xl mx-auto mb-8 bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5 flex items-start gap-3">
+              <Rocket size={20} className="text-purple-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-amber-400 font-semibold text-sm mb-1">🚀 Founding Private Beta™ — Invitation Only</h3>
+                <h3 className="text-purple-400 font-semibold text-sm mb-1">🟣 {mode.label} ({mode.buildLabel || mode.version})</h3>
                 <p className="text-white/50 text-sm leading-relaxed">
-                  Pricing shown reflects planned General Availability subscriptions. <span className="text-amber-400 font-medium">Current access is invitation-only.</span> Apply for the Founding Private Beta™ to get early access — you'll be invited to activate your subscription when the platform reaches General Availability.
+                  EXECLEAD.AI is currently in Founding Private Beta (Release Candidate 1). Pricing shown represents planned General Availability subscriptions. <span className="text-purple-400 font-medium">Current access is invitation-only.</span>
                 </p>
               </div>
             </div>

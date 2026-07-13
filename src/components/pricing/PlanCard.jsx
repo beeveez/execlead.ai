@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Sparkles, Trophy } from "lucide-react";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { PLAN_CONTENT } from "@/lib/pricingContent";
 import { getPlanCta, getCurrentPlatformMode } from "@/lib/launchMode";
 import FounderPriceBadge from "./FounderPriceBadge";
@@ -53,7 +53,7 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
       {/* Beta Badge */}
       {betaActive && (
         <div className="absolute -top-3 left-4 bg-purple-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap flex items-center gap-1" title="Pricing shown reflects planned General Availability subscriptions. Current access is invitation-only.">
-          🟣 {platformMode.label}
+          🟣 {platformMode.label} · Invitation Only
         </div>
       )}
 
@@ -204,7 +204,7 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
             </div>
           ) : betaActive ? (
             <Link
-              to={authed ? "/dashboard" : betaLink}
+              to={betaLink}
               className={`flex items-center justify-center gap-1.5 w-full py-3 rounded-xl text-sm font-semibold transition-colors ${
                 isCustom
                   ? "bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -233,13 +233,6 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
                 </a>
               </div>
             </div>
-          ) : betaMode && !isFree ? (
-            <button
-              onClick={() => onReserve?.(plan)}
-              className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white text-sm font-semibold transition-colors"
-            >
-              Reserve My Spot <Trophy size={14} />
-            </button>
           ) : (
             <Link
               to={authed ? "/billing" : "/register?redirect=/dashboard"}

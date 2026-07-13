@@ -12,6 +12,7 @@ import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenc
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { captureReferralAttribution } from "@/lib/referralEngine";
+import { usePlatformLaunchMode, getPlanCta, getBetaTierLink } from "@/lib/launchMode";
 import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
 import FoundersWallCTA from "@/components/founding/FoundersWallCTA";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
@@ -41,6 +42,7 @@ const FAQS = [
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
   const { plans: pricingPlans, cycle, setCycle, getPrice } = usePricingCatalog();
+  const { isBeta } = usePlatformLaunchMode();
 
   useEffect(() => {
     const check = async () => {
@@ -344,7 +346,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Link
-                  to={plan.customPricing ? (authed ? "/cpq" : "/register?redirect=/dashboard") : (authed ? "/billing" : "/register?redirect=/dashboard")}
+                  to={isBeta ? getBetaTierLink(plan.id) : plan.customPricing ? (authed ? "/cpq" : "/register?redirect=/dashboard") : (authed ? "/billing" : "/register?redirect=/dashboard")}
                   className={`block text-center font-medium py-3 rounded-xl transition-colors ${
                     plan.customPricing
                       ? "bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -353,7 +355,7 @@ export default function Landing() {
                         : "bg-white/5 hover:bg-white/10 text-white/70"
                   }`}
                 >
-                  {plan.customPricing ? "Configure Proposal" : plan.buttonText}
+                  {isBeta ? (plan.customPricing ? "Request Enterprise Beta™" : getPlanCta(plan.id)) : (plan.customPricing ? "Configure Proposal" : plan.buttonText)}
                 </Link>
               </motion.div>
             ))}

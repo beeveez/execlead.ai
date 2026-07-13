@@ -151,6 +151,20 @@ export function isApplicationRequired() {
   return mode.registrationMode === "application" || mode.registrationMode === "invite_code";
 }
 
+export function isPaymentEnabled() {
+  return getCurrentPlatformMode().id === "general_availability";
+}
+
+export function getBetaTierLink(planId) {
+  const tierMap = {
+    free: "founding_beta",
+    professional: "founding_beta",
+    executive: "exec_beta",
+    enterprise: "enterprise_beta",
+  };
+  return `/beta?tier=${tierMap[planId] || "founding_beta"}`;
+}
+
 /**
  * Get the CTA label for a plan, respecting the current launch mode.
  */
@@ -301,6 +315,7 @@ export function usePlatformLaunchMode() {
     isBeta: mode.isBeta,
     isApplicationRequired: isApplicationRequired(),
     isRegistrationOpen: isRegistrationOpen(),
+    isPaymentEnabled: isPaymentEnabled(),
     showPricing: mode.showPricing,
     ctaLabels: mode.ctaLabels || {},
   };

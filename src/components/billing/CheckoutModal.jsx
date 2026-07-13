@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { X, Loader2, Check, Lock, CreditCard, Sparkles } from "lucide-react";
 import { createNotification } from "@/lib/notifications";
 import { calculatePlanPrice } from "@/lib/founderPricingEngine";
+import { isPaymentEnabled, getCurrentPlatformMode } from "@/lib/launchMode";
 
 export default function CheckoutModal({ plan, cycle: initialCycle, profile, membership = null, isFoundingPurchase = false, onClose, onSuccess }) {
   const { getPrice, cycle, setCycle } = usePricingCatalog(initialCycle);
@@ -167,6 +168,25 @@ export default function CheckoutModal({ plan, cycle: initialCycle, profile, memb
           <p className="text-white/40 text-sm mb-6">Configure your custom enterprise proposal with our data-driven CPQ engine — seats, modules, AI packages, services, multi-year contracts, and multi-currency.</p>
           <Link to="/cpq" onClick={onClose} className="block w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">Configure Proposal</Link>
           <button onClick={onClose} className="mt-3 text-white/30 hover:text-white/60 text-sm">Cancel</button>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  if (!isPaymentEnabled()) {
+    const platformMode = getCurrentPlatformMode();
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#0d0d14] border border-white/10 rounded-2xl max-w-md w-full p-8 text-center" onClick={(e) => e.stopPropagation()}>
+          <Lock size={32} className="text-white/30 mx-auto mb-3" />
+          <h3 className="text-white font-bold text-lg mb-2">Payment Processing Unavailable</h3>
+          <p className="text-white/40 text-sm leading-relaxed mb-4">
+            Payment processing will become available when EXECLEAD.AI reaches General Availability.
+          </p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg text-xs text-purple-400 font-medium">
+            🟣 {platformMode.label} — {platformMode.version}
+          </div>
+          <button onClick={onClose} className="mt-4 text-white/30 hover:text-white/60 text-sm">Close</button>
         </motion.div>
       </motion.div>
     );

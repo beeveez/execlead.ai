@@ -7,7 +7,13 @@ import {
 } from "lucide-react";
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import { buildMetadataReport } from "@/lib/reports/metadataReportBuilder";
-import MetadataCopilot from "./metadata/MetadataCopilot";
+import MetadataScorecard from "./metadata/MetadataScorecard";
+import MetadataMissingRegistry from "./metadata/MetadataMissingRegistry";
+import MetadataEngineeringTasks from "./metadata/MetadataEngineeringTasks";
+import MetadataDependencies from "./metadata/MetadataDependencies";
+import MetadataRiskAnalysis from "./metadata/MetadataRiskAnalysis";
+import MetadataTopActions from "./metadata/MetadataTopActions";
+import MetadataExecCopilot from "./metadata/MetadataExecCopilot";
 import RegistryDrawer from "./metadata/RegistryDrawer";
 import MissingEntriesDrawer from "./metadata/MissingEntriesDrawer";
 import OrphanRegistryDrawer from "./metadata/OrphanRegistryDrawer";
@@ -64,29 +70,8 @@ export default function PlatformMetadataCompletion() {
         </button>
       </div>
 
-      {/* Overall Status Banner — clickable */}
-      <button onClick={() => setActiveScore("governance")}
-        className={`w-full flex items-center gap-4 p-5 rounded-xl border text-left transition-colors hover:bg-white/[0.02] ${
-          allComplete ? "bg-emerald-500/5 border-emerald-500/10" : "bg-amber-500/5 border-amber-500/10"
-        }`}>
-        <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${allComplete ? "bg-emerald-500/10" : "bg-amber-500/10"}`}>
-          {allComplete ? <CheckCircle2 size={24} className="text-emerald-400" /> : <AlertCircle size={24} className="text-amber-400" />}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-white">Platform Metadata Completion™</h3>
-            <ChevronRight size={12} className="text-white/30" />
-          </div>
-          <p className="text-white/40 text-xs mt-0.5">
-            {allComplete ? "All platform assets fully registered, interconnected, discoverable, and explainable."
-              : `${report.totalMissingEntries} missing entries · ${report.totalOrphanRecords} orphan records · ${report.unknownConfigurations} unknown configs · Click to open Governance Analysis™`}
-          </p>
-        </div>
-        <div className="text-right">
-          <div className="text-[10px] text-white/30 uppercase tracking-wider">Overall Coverage</div>
-          <div className={`text-3xl font-bold ${allComplete ? "text-emerald-400" : "text-amber-400"}`}>{report.overallCoverage}%</div>
-        </div>
-      </button>
+      {/* ── Live Scorecard™ ── */}
+      <MetadataScorecard report={report} />
 
       {/* Coverage Score Cards — each clickable → Registry Drawer */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
@@ -218,8 +203,23 @@ export default function PlatformMetadataCompletion() {
         </div>
       </div>
 
-      {/* Ask EXEC™ Copilot */}
-      <MetadataCopilot report={report} />
+      {/* ── Missing Metadata Registry™ ── */}
+      <MetadataMissingRegistry report={report} />
+
+      {/* ── Engineering Tasks™ ── */}
+      <MetadataEngineeringTasks report={report} />
+
+      {/* ── Dependencies™ ── */}
+      <MetadataDependencies report={report} />
+
+      {/* ── Risk Analysis™ ── */}
+      <MetadataRiskAnalysis report={report} />
+
+      {/* ── Top Actions™ ── */}
+      <MetadataTopActions report={report} />
+
+      {/* ── EXEC™ Copilot — Metadata Intelligence™ ── */}
+      <MetadataExecCopilot report={report} />
 
       {/* Drawers */}
       {activeRegistry && <RegistryDrawer registryType={activeRegistry} report={report} onClose={() => setActiveRegistry(null)} icon={REGISTRY_CARDS.find((c) => c.id === activeRegistry)?.icon || Database} />}

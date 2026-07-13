@@ -4,6 +4,7 @@
  * Consumed by <ReportToolbar reportBuilder={buildMetadataReport} />
  */
 import { computeMetadataCompletion, buildMissingEntriesTable, buildOrphanRegistry } from "@/lib/metadataCompletionEngine";
+import { computeMetadataScorecard, computeMetadataEngineeringTasks, computeMetadataRiskMatrix, computeMetadataDependencies } from "@/lib/metadataIntelligenceEngine";
 import { buildReportId } from "./enterpriseReportEngine";
 import { PLATFORM_METADATA } from "@/lib/platformManifest";
 
@@ -11,6 +12,10 @@ export async function buildMetadataReport(reportType = "metadata_completion") {
   const report = computeMetadataCompletion();
   const missingEntries = buildMissingEntriesTable(report);
   const orphans = buildOrphanRegistry(report);
+  const scorecard = computeMetadataScorecard(report);
+  const tasks = computeMetadataEngineeringTasks(report);
+  const risks = computeMetadataRiskMatrix(report);
+  const deps = computeMetadataDependencies(report);
 
   return {
     reportId: buildReportId("metadata"),
@@ -46,12 +51,20 @@ export async function buildMetadataReport(reportType = "metadata_completion") {
           headline: `${report.overallCoverage}% Metadata Coverage`,
           status: report.overallCoverage === 100 ? "pass" : "warn",
           keyMetrics: [
-            { label: "Overall Coverage", value: `${report.overallCoverage}%` },
-            { label: "Missing Entries", value: report.totalMissingEntries },
-            { label: "Orphan Records", value: report.totalOrphanRecords },
-            { label: "Explainability", value: `${report.explainabilityScore}%` },
-            { label: "Discoverability", value: `${report.discoverabilityScore}%` },
-            { label: "Governance", value: `${report.platformGovernanceScore}%` },
+            { label: "Current Coverage", value: `${scorecard.currentCoverage}%` },
+            { label: "Target", value: `${scorecard.target}%` },
+            { label: "Remaining", value: `${scorecard.remaining}%` },
+            { label: "Registered Assets", value: scorecard.registeredAssets },
+            { label: "Discovered Assets", value: scorecard.discoveredAssets },
+            { label: "Missing Metadata", value: scorecard.missingMetadata },
+            { label: "Missing Registries", value: scorecard.missingRegistries },
+            { label: "Missing Manifest", value: scorecard.missingManifestEntries },
+            { label: "Missing Relationships", value: scorecard.missingRelationships },
+            { label: "Confidence", value: scorecard.confidence },
+            { label: "Trend", value: scorecard.trend.label },
+            { label: "Total Score Gain", value: `+${tasks.totalScoreGain}%` },
+            { label: "Max Potential", value: `${tasks.maxPotentialScore}%` },
+            { label: "Engineering Hours", value: `${tasks.totalHours}h` },
           ],
         },
       },
@@ -111,6 +124,73 @@ export async function buildMetadataReport(reportType = "metadata_completion") {
             { label: "Platform Discoverability", value: report.discoverabilityScore, target: 100, unit: "%" },
             { label: "Platform Governance", value: report.platformGovernanceScore, target: 100, unit: "%" },
             { label: "Overall Coverage", value: report.overallCoverage, target: 100, unit: "%" },
+          ],
+        },
+      },
+      {
+        id: "engineering_tasks",
+        type: "findings",
+        title: "Engineering Tasks — Potential Score Gain",
+        data: {
+          title: "Metadata Engineering Tasks",
+          findings: tasks.tasks.slice(0, 100).map((t) => ({
+            id: t.id,
+            severity: t.severity,
+            title: `${t.task} — +${t.scoreGain}% (${t.roi}, ${t.difficulty})`,
+            detail: `${t.category} · ${t.workspace} · ${t.estimatedHours}h · Owner: ${t.owner} · Auto-repair: ${t.autoRepair ? "Yes" : "No"}`,
+            category: t.category,
+            owner: t.owner,
+            status: t.verification,
+          })),
+        },
+      },
+      {
+        id: "risk_matrix",
+        type: "findings",
+        title: "Risk Matrix",
+        data: {
+          title: "Metadata Risk Analysis",
+          findings: risks.map((r) => ({
+            id: r.id,
+            severity: r.severity,
+            title: `${r.label} — ${r.description}`,
+            detail: `Mitigation: ${r.mitigation || r.repairRecommendation} · Owner: ${r.owner} · Score Impact: -${r.scoreImpact}`,
+            category: "Risk",
+            owner: r.owner,
+            status: "open",
+          })),
+        },
+      },
+      {
+        id: "dependencies",
+        type: "findings",
+        title: "Dependencies",
+        data: {
+          title: "Metadata Dependency Diagnostics",
+          findings: deps.map((d) => ({
+            id: d.id,
+            severity: d.errors > 0 ? "high" : d.warnings > 0 ? "medium" : "low",
+            title: `${d.label} — ${d.currentStatus}`,
+            detail: `Errors: ${d.errors} · Warnings: ${d.warnings} · Affected: ${d.affectedAssets} · ${d.description}`,
+            category: "Dependency",
+            owner: "Platform Engineering",
+            status: d.currentStatus === "Operational" ? "pass" : "open",
+          })),
+        },
+      },
+      {
+        id: "recommendations",
+        type: "executive_summary",
+        title: "Recommendations",
+        data: {
+          summary: `Close ${tasks.totalTasks} engineering tasks to raise Metadata Coverage from ${scorecard.currentCoverage}% to ${tasks.maxPotentialScore}%. Top 5 fixes yield +${Math.round(tasks.tasks.slice(0, 5).reduce((s, t) => s + t.scoreGain, 0) * 100) / 100}%. Estimated effort: ${tasks.totalHours}h. Completion timeline: ${scorecard.estimatedCompletion}.`,
+          headline: `+${tasks.totalScoreGain}% available from ${tasks.totalTasks} tasks`,
+          status: "warn",
+          keyMetrics: [
+            { label: "Total Tasks", value: tasks.totalTasks },
+            { label: "Total Score Gain", value: `+${tasks.totalScoreGain}%` },
+            { label: "Max Potential", value: `${tasks.maxPotentialScore}%` },
+            { label: "Effort", value: `${tasks.totalHours}h` },
           ],
         },
       },

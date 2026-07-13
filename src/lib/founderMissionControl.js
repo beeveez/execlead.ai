@@ -146,7 +146,7 @@ function buildEnterpriseReadiness(state) {
     { id: "security", label: "Security", route: "/security", status: routeExists("/security") ? "implemented" : "planned" },
     { id: "organizations", label: "Organizations", route: "/enterprise", status: routeExists("/enterprise") ? "implemented" : "planned" },
     { id: "sso", label: "SSO", route: "/sso", status: routeExists("/sso") ? "implemented" : "in_progress" },
-    { id: "scim", label: "SCIM", route: null, status: "planned" },
+    { id: "scim", label: "SCIM", route: "/enterprise/identity", status: routeExists("/enterprise/identity") ? "implemented" : "in_progress" },
     { id: "billing", label: "Billing", route: "/billing", status: routeExists("/billing") ? "implemented" : "planned" },
     { id: "reporting", label: "Reporting", route: "/analytics", status: routeExists("/analytics") ? "implemented" : "planned" },
     { id: "procurement", label: "Procurement", route: "/enterprise/procurement", status: routeExists("/enterprise/procurement") ? "implemented" : "planned" },

@@ -65,15 +65,15 @@ export const PRIVACY_DATA = [
 export const COMPLIANCE_FRAMEWORKS = [
   {
     name: "ISO/IEC 27001",
-    status: "planned",
-    description: "Information Security Management System (ISMS) certification. The international standard for managing information security.",
-    timeline: "Preparation phase targeted for Q1 2027",
+    status: "in_progress",
+    description: "Information Security Management System (ISMS) certification. The international standard for managing information security. Core controls implemented (RBAC, encryption, audit logging, access control) — gap analysis and formal certification in progress.",
+    timeline: "Control implementation phase — certification audit targeted Q1 2027",
   },
   {
     name: "SOC 2 Type II",
-    status: "planned",
-    description: "Independent audit of security, availability, processing integrity, confidentiality, and privacy controls over time.",
-    timeline: "Assessment to follow ISO 27001 certification",
+    status: "in_progress",
+    description: "Independent audit of security, availability, processing integrity, confidentiality, and privacy controls over time. Core security controls implemented — continuous monitoring period for Type II audit underway.",
+    timeline: "Control implementation phase — assessment to follow ISO 27001",
   },
   {
     name: "GDPR",
@@ -83,8 +83,8 @@ export const COMPLIANCE_FRAMEWORKS = [
   },
   {
     name: "ISO/IEC 27701",
-    status: "future",
-    description: "Privacy Information Management System (PIMS). Extension of ISO 27001 for privacy management.",
+    status: "planned",
+    description: "Privacy Information Management System (PIMS). Extension of ISO 27001 for privacy management. Privacy controls already implemented under GDPR compliance.",
     timeline: "Following ISO 27001 certification",
   },
   {
@@ -144,10 +144,10 @@ export const CERTIFICATION_TIMELINE = [
   { name: "Foundation Certified™", status: "implemented", detail: "Internal platform certification — architectural acceptance complete", phase: "Current" },
   { name: "Enterprise Readiness™", status: "implemented", detail: "Enterprise Resilience Score™ operational — 10 dimensions measured", phase: "Current" },
   { name: "ISO/IEC 27001 Preparation", status: "in_progress", detail: "ISMS scoping, gap analysis, control documentation", phase: "Preparing" },
-  { name: "ISO/IEC 27001 Certification", status: "planned", detail: "External audit and certification by accredited body", phase: "Planned" },
-  { name: "SOC 2 Type I", status: "planned", detail: "Point-in-time audit of security controls", phase: "Planned" },
-  { name: "SOC 2 Type II", status: "planned", detail: "Continuous monitoring audit over 6–12 month period", phase: "Planned" },
-  { name: "ISO/IEC 27701", status: "future", detail: "Privacy Information Management System certification", phase: "Future" },
+  { name: "ISO/IEC 27001 Certification", status: "in_progress", detail: "External audit and certification by accredited body — control implementation phase", phase: "In Progress" },
+  { name: "SOC 2 Type I", status: "in_progress", detail: "Point-in-time audit of security controls — control implementation phase", phase: "In Progress" },
+  { name: "SOC 2 Type II", status: "in_progress", detail: "Continuous monitoring audit over 6–12 month period — monitoring underway", phase: "In Progress" },
+  { name: "ISO/IEC 27701", status: "planned", detail: "Privacy Information Management System certification", phase: "Planned" },
   { name: "CSA STAR", status: "future", detail: "Cloud Security Alliance transparency registry", phase: "Future" },
 ];
 
@@ -219,8 +219,8 @@ export const EXEC_TRUST_QA = [
   },
   {
     question: "Are we ISO 27001 certified?",
-    answer: "No. EXECLEAD.AI is NOT ISO 27001 certified. ISO/IEC 27001 is currently in the Planned status — we are in the preparation phase (gap analysis, control documentation) and target certification for Q1 2027. We do not imply certification until it has been officially obtained by an accredited body.",
-    distinction: "Planned — not certified. We are transparent about this.",
+    answer: "No. EXECLEAD.AI is NOT ISO 27001 certified. ISO/IEC 27001 is currently In Progress — core controls are implemented (RBAC, encryption, audit logging, access control) and we are in the gap analysis and control documentation phase, targeting certification for Q1 2027. We do not imply certification until it has been officially obtained by an accredited body.",
+    distinction: "In Progress — not certified. We are transparent about this.",
   },
   {
     question: "What certifications do we currently have?",
@@ -229,8 +229,8 @@ export const EXEC_TRUST_QA = [
   },
   {
     question: "What is our compliance roadmap?",
-    answer: "Our roadmap: GDPR (Designed for Compliance — controls implemented, formal assessment pending) → ISO/IEC 27001 (Planned, preparation in progress) → SOC 2 Type I → SOC 2 Type II → ISO/IEC 27701 (Future) → CSA STAR (Future). Each framework has an honest status — we never display a certification badge that has not been earned.",
-    distinction: "Roadmap with honest statuses — Planned, In Progress, Future.",
+    answer: "Our roadmap: GDPR (Designed for Compliance — controls implemented, formal assessment pending) → ISO/IEC 27001 (In Progress — core controls implemented, gap analysis underway) → SOC 2 Type II (In Progress — controls implemented, monitoring period underway) → ISO/IEC 27701 (Planned) → CSA STAR (Future). Each framework has an honest status — we never display a certification badge that has not been earned.",
+    distinction: "Roadmap with honest statuses — In Progress, Planned, Future.",
   },
   {
     question: "What enterprise controls are already implemented?",

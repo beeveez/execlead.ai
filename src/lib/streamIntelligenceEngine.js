@@ -202,7 +202,7 @@ function deriveBlockers(streamId, source, owner) {
         );
       }
     });
-    const nonCompliant = (raw.complianceFrameworks || []).filter((c) => c.status !== "compliant" && c.status !== "certified");
+    const nonCompliant = (raw.complianceFrameworks || []).filter((c) => c.status !== "compliant" && c.status !== "certified" && c.status !== "in_progress");
     nonCompliant.slice(0, 3).forEach((c) => {
       add(
         `Compliance framework "${c.name}" at ${c.status}`,

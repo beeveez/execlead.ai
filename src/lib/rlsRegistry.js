@@ -75,8 +75,8 @@ export const RLS_REGISTRY = [
   { name: "ExecutiveCompetency", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "JourneyEvent", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "ExecutiveAffiliation", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
-  { name: "UserProfile", classification: "user", scope: "user_id", status: "open", sensitive: true, rule: "— (PII exposed)" },
-  { name: "Subscription", classification: "user", scope: "owner_user_id", status: "open", sensitive: true, rule: "— (payment IDs exposed)" },
+  { name: "UserProfile", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + same-org + admin" },
+  { name: "Subscription", classification: "user", scope: "owner_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
   { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "partial", sensitive: false, rule: "read-only; CUD open" },
   { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "partial", sensitive: false, rule: "read-only; CUD open" },
 
@@ -84,9 +84,9 @@ export const RLS_REGISTRY = [
   { name: "Department", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
   { name: "Team", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
   { name: "IdentitySyncEvent", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + admin" },
-  { name: "Organization", classification: "organization", scope: "organization_id", status: "open", sensitive: true, rule: "— (contracts exposed)" },
-  { name: "OrgMembership", classification: "organization", scope: "organization_id", status: "open", sensitive: true, rule: "— (member lists exposed)" },
-  { name: "IdentityProvider", classification: "organization", scope: "organization_id", status: "open", sensitive: true, rule: "— (config_json exposed)" },
+  { name: "Organization", classification: "organization", scope: "id", status: "protected", sensitive: true, rule: "org member + platform admin" },
+  { name: "OrgMembership", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + org admin" },
+  { name: "IdentityProvider", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + org admin" },
 
   // ── Platform-Scoped ──
   { name: "SecurityEvent", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
@@ -94,7 +94,7 @@ export const RLS_REGISTRY = [
   { name: "BillingEvent", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev/finance only" },
   { name: "PlatformStateEvent", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "SelfHealingEvent", classification: "platform", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin/dev" },
-  { name: "GovernanceCertificate", classification: "platform", scope: "—", status: "open", sensitive: true, rule: "— (findings exposed)" },
+  { name: "GovernanceCertificate", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
 ];
 
 // ── Score Computation ──

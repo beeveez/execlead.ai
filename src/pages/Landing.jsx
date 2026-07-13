@@ -15,6 +15,7 @@ import { captureReferralAttribution } from "@/lib/referralEngine";
 import { usePlatformLaunchMode, getPlanCta, getBetaTierLink } from "@/lib/launchMode";
 import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
 import FoundersWallCTA from "@/components/founding/FoundersWallCTA";
+import PricingTiers from "@/components/pricing/PricingTiers";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 
 const FEATURES = [
@@ -305,61 +306,7 @@ export default function Landing() {
             <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
             <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pricingPlans.map((plan, i) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`rounded-2xl p-8 ${
-                  plan.recommended
-                    ? "bg-gradient-to-b from-indigo-500/10 to-transparent border-2 border-indigo-500/30 relative"
-                    : "bg-white/[0.02] border border-white/5"
-                }`}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-                    {plan.badge}
-                  </div>
-                )}
-                <div className="text-2xl mb-2">{plan.icon}</div>
-                <h3 className="text-white font-semibold text-lg mb-1">{plan.name}</h3>
-                <p className="text-white/40 text-xs mb-4">{plan.description}</p>
-                <div className="flex items-baseline gap-1 mb-6">
-                  {plan.customPricing ? (
-                    <span className="text-2xl font-bold text-white">Custom Pricing</span>
-                  ) : (
-                    <>
-                      <span className="text-3xl font-bold text-white">${getPrice(plan)}</span>
-                      <span className="text-white/30 text-sm">/ {cycle === "monthly" ? "mo" : "yr"}</span>
-                    </>
-                  )}
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((f, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-white/50">
-                      <Check size={16} className="text-indigo-400 mt-0.5 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to={isBeta ? getBetaTierLink(plan.id) : plan.customPricing ? (authed ? "/cpq" : "/register?redirect=/dashboard") : (authed ? "/billing" : "/register?redirect=/dashboard")}
-                  className={`block text-center font-medium py-3 rounded-xl transition-colors ${
-                    plan.customPricing
-                      ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                      : plan.recommended
-                        ? "bg-indigo-500 hover:bg-indigo-600 text-white"
-                        : "bg-white/5 hover:bg-white/10 text-white/70"
-                  }`}
-                >
-                  {isBeta ? (plan.customPricing ? "Request Enterprise Beta™" : getPlanCta(plan.id)) : (plan.customPricing ? "Configure Proposal" : plan.buttonText)}
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+          <PricingTiers plans={pricingPlans} cycle={cycle} getPrice={getPrice} authed={authed} />
           <div className="text-center mt-10">
             <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Compare all features <ArrowRight size={14} /></Link>
           </div>

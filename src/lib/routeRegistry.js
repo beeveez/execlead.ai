@@ -106,6 +106,7 @@ const APP_ROUTES = [
   { path: "/executive/rankings", component: "ExecutiveRankings", feature: "basic_dashboard" },
   { path: "/brand-center", component: "ExecutiveBrandCenter", feature: "basic_dashboard" },
   { path: "/feedback", component: "Feedback" },
+  { path: "/beta-program", component: "BetaProgramCenter", name: "Beta Program Center™" },
   { path: "/trust-center", component: "TrustCenter", public: true },
   { path: "/guardian", component: "Guardian", feature: null, public: false },
   // Routes registered from App.jsx layout routes and feature pages

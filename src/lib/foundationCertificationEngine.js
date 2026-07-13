@@ -306,6 +306,247 @@ function parseHours(issue) {
   return match ? parseInt(match[1]) : 0.5;
 }
 
+// ============================================================
+// ENGINEERING TASK REGISTRY™ — Score Gain Prioritization
+// Every task has a computed score gain so engineering can
+// prioritize by impact, not just by task count.
+// ============================================================
+
+const SEVERITY_WEIGHTS = { Critical: 3, High: 2, Medium: 1, Low: 0.5 };
+const SEVERITY_PRIORITY = { Critical: "P0", High: "P1", Medium: "P2", Low: "P3" };
+
+function parseMinutes(issue) {
+  const match = (issue.estimatedRepairTime || "").match(/(\d+)/);
+  const hours = match ? parseInt(match[1]) : 0.5;
+  return hours * 60;
+}
+
+export function computeEngineeringTaskRegistry(cert) {
+  const issues = cert.verification.issues;
+  const metricByKey = {};
+  cert.metrics.forEach((m) => { metricByKey[m.key] = m; });
+  const phaseToMetric = {};
+  Object.entries(METRIC_PHASE_MAP).forEach(([key, phases]) => {
+    phases.forEach((p) => { phaseToMetric[p] = key; });
+  });
+
+  // Count issues + sum severity weights per metric
+  const issuesPerMetric = {};
+  const weightSumsPerMetric = {};
+  cert.metrics.forEach((m) => { issuesPerMetric[m.key] = 0; weightSumsPerMetric[m.key] = 0; });
+  issues.forEach((issue) => {
+    const mk = phaseToMetric[issue.phase];
+    if (mk) {
+      issuesPerMetric[mk]++;
+      weightSumsPerMetric[mk] += SEVERITY_WEIGHTS[issue.severity] || 1;
+    }
+  });
+
+  const tasks = issues.map((issue, idx) => {
+    const metricKey = phaseToMetric[issue.phase];
+    const metric = metricKey ? metricByKey[metricKey] : null;
+    const metricValue = metric ? metric.value : 50;
+    const totalMetricGain = (100 - metricValue) / 7; // gain if metric reaches 100%
+    const sevWeight = SEVERITY_WEIGHTS[issue.severity] || 1;
+    const weightSum = metricKey ? weightSumsPerMetric[metricKey] : sevWeight;
+    const scoreGain = weightSum > 0 ? Math.round((totalMetricGain * (sevWeight / weightSum)) * 100) / 100 : 0;
+
+    return {
+      id: `task-${idx}`,
+      task: issue.remediation || issue.description,
+      component: issue.component,
+      category: issue.categoryLabel || "General",
+      categoryKey: issue.category || "metadata",
+      module: issue.component,
+      severity: issue.severity,
+      priority: SEVERITY_PRIORITY[issue.severity] || "P3",
+      owner: "Platform Engineering",
+      estimatedMinutes: parseMinutes(issue),
+      estimatedHours: parseHours(issue),
+      dependencies: metric ? [metric.label] : ["General"],
+      status: "open",
+      evidence: issue.description,
+      repairAction: issue.remediation || issue.description,
+      sourceFile: "src/lib/foundationVerificationEngine.js",
+      deepLink: issue.deepLink || "/developer/diagnostics",
+      autoRepair: issue.autoRepairAvailable,
+      metricKey,
+      metricLabel: metric ? metric.label : "General",
+      scoreGain,
+      phase: issue.phase,
+      rawIssue: issue,
+    };
+  });
+
+  // Sort: highest score gain first (impact-based prioritization)
+  tasks.sort((a, b) => b.scoreGain - a.scoreGain || SEVERITY_WEIGHTS[b.severity] - SEVERITY_WEIGHTS[a.severity]);
+
+  // Cumulative potential score gain
+  let cumulative = 0;
+  tasks.forEach((t) => {
+    cumulative += t.scoreGain;
+    t.potentialScoreGain = Math.round(cumulative * 100) / 100;
+  });
+
+  const totalScoreGain = Math.round(tasks.reduce((s, t) => s + t.scoreGain, 0) * 100) / 100;
+  const totalMinutes = tasks.reduce((s, t) => s + t.estimatedMinutes, 0);
+
+  return {
+    tasks,
+    totalTasks: tasks.length,
+    totalScoreGain,
+    totalMinutes,
+    totalHours: Math.round((totalMinutes / 60) * 10) / 10,
+    maxPotentialScore: Math.min(100, cert.foundationScore + totalScoreGain),
+    currentScore: cert.foundationScore,
+  };
+}
+
+// ============================================================
+// FAILURE REGISTRY™ — Grouped failure points per module
+// ============================================================
+
+export function computeFailureRegistry(cert) {
+  const issues = cert.verification.issues;
+  const groups = {};
+
+  issues.forEach((issue) => {
+    const key = issue.component || "Unknown";
+    if (!groups[key]) {
+      groups[key] = {
+        module: key,
+        failures: [],
+        count: 0,
+        critical: 0,
+        high: 0,
+        metricKey: phaseToMetricKey(issue.phase),
+      };
+    }
+    groups[key].failures.push(issue);
+    groups[key].count++;
+    if (issue.severity === "Critical") groups[key].critical++;
+    if (issue.severity === "High") groups[key].high++;
+  });
+
+  return Object.values(groups)
+    .sort((a, b) => b.count - a.count)
+    .map((g) => ({
+      ...g,
+      failures: g.failures.map((f) => ({
+        ...f,
+        expectedValue: "Registered / Configured",
+        currentValue: f.description.includes("not") ? "Missing" : "Misconfigured",
+        repairPatch: f.remediation,
+        evidence: f.description,
+        owner: "Platform Engineering",
+      })),
+    }));
+}
+
+function phaseToMetricKey(phase) {
+  for (const [key, phases] of Object.entries(METRIC_PHASE_MAP)) {
+    if (phases.includes(phase)) return key;
+  }
+  return null;
+}
+
+// ============================================================
+// RISK MATRIX™ — Clickable risks with affected modules
+// ============================================================
+
+export function computeRiskMatrix(cert) {
+  const issues = cert.verification.issues;
+  const criticalCount = issues.filter((i) => i.severity === "Critical").length;
+  const highCount = issues.filter((i) => i.severity === "High").length;
+  const remainingGap = Math.max(0, cert.requiredThreshold - cert.foundationScore);
+
+  const risks = [];
+
+  if (remainingGap > 0) {
+    risks.push({
+      id: "operational_stagnation",
+      label: "Operational Stagnation™",
+      severity: remainingGap > 10 ? "critical" : "high",
+      description: `${remainingGap} points below certification threshold (${cert.foundationScore}/${cert.requiredThreshold})`,
+      affectedModules: [...new Set(issues.map((i) => i.component))].slice(0, 10),
+      affectedFeatures: cert.blockingDomains.map((d) => d.label),
+      estimatedImpact: `${remainingGap}% gap blocks next execution stream`,
+      mitigation: `Close ${cert.remainingTasks} tasks to reach ${cert.requiredThreshold}%`,
+      timeline: `${cert.estimatedCompletion} est.`,
+      owner: "Platform Engineering",
+      scoreImpact: remainingGap,
+    });
+  }
+
+  if (criticalCount > 0) {
+    risks.push({
+      id: "critical_blockers",
+      label: "Critical Blockers™",
+      severity: "critical",
+      description: `${criticalCount} critical issue(s) preventing certification`,
+      affectedModules: issues.filter((i) => i.severity === "Critical").map((i) => i.component),
+      affectedFeatures: issues.filter((i) => i.severity === "Critical").map((i) => i.categoryLabel || "General"),
+      estimatedImpact: "Certification impossible until resolved",
+      mitigation: "Resolve all critical issues immediately",
+      timeline: "Immediate",
+      owner: "Platform Engineering",
+      scoreImpact: criticalCount * 2,
+    });
+  }
+
+  const metadataIssues = issues.filter((i) => (i.category || "metadata") === "metadata");
+  if (metadataIssues.length > 0) {
+    risks.push({
+      id: "visibility_gap",
+      label: "Visibility Gap™",
+      severity: metadataIssues.length > 5 ? "high" : "medium",
+      description: `${metadataIssues.length} metadata gaps — EXEC™ cannot fully explain or navigate all assets`,
+      affectedModules: metadataIssues.map((i) => i.component),
+      affectedFeatures: ["EXEC™ Knowledge Index™", "Module Registry™", "Route Registry™"],
+      estimatedImpact: "Discoverability and AI explanation degraded",
+      mitigation: "Complete metadata for all registered modules",
+      timeline: `${metadataIssues.length * 15} min est.`,
+      owner: "Platform Engineering",
+      scoreImpact: metadataIssues.length,
+    });
+  }
+
+  const discoverabilityIssues = issues.filter((i) => i.category === "discoverability");
+  if (discoverabilityIssues.length > 0) {
+    risks.push({
+      id: "discoverability_gap",
+      label: "Discoverability Gap™",
+      severity: "medium",
+      description: `${discoverabilityIssues.length} discoverability gaps — routes/modules not fully registered`,
+      affectedModules: discoverabilityIssues.map((i) => i.component),
+      affectedFeatures: ["Route Registry™", "Module Registry™"],
+      estimatedImpact: "EXEC™ cannot navigate or recommend affected assets",
+      mitigation: "Register all routes and modules in Platform Manifest™",
+      timeline: `${discoverabilityIssues.length * 15} min est.`,
+      owner: "Platform Engineering",
+      scoreImpact: discoverabilityIssues.length,
+    });
+  }
+
+  if (highCount > 0) {
+    risks.push({
+      id: "high_severity_backlog",
+      label: "High Severity Backlog™",
+      severity: "high",
+      description: `${highCount} high-severity issues require focused engineering effort`,
+      affectedModules: issues.filter((i) => i.severity === "High").map((i) => i.component),
+      affectedFeatures: cert.blockingDomains.map((d) => d.label),
+      estimatedImpact: "Delays certification by estimated engineering hours",
+      mitigation: "Prioritize high-severity tasks by score gain",
+      timeline: `${highCount * 30} min est.`,
+      owner: "Platform Engineering",
+      scoreImpact: highCount,
+    });
+  }
+
+  return risks;
+}
+
 export function computeMetricDiagnostics(cert, metricKey) {
   if (metricKey === "foundationScore" || metricKey === "certificationScore") {
     const currentScore = cert.foundationScore;

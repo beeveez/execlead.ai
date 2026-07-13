@@ -13,6 +13,11 @@ import FoundationCertificationReport from "./FoundationCertificationReport";
 import FoundationMetricDiagnostics from "./FoundationMetricDiagnostics";
 import ExecutionStreamStatus from "./ExecutionStreamStatus";
 import BlockerDrillDown from "./BlockerDrillDown";
+import EngineeringTaskRegistry from "./EngineeringTaskRegistry";
+import FailureRegistry from "./FailureRegistry";
+import DependencyChain from "./DependencyChain";
+import RiskMatrix from "./RiskMatrix";
+import TopActionWorkspaces from "./TopActionWorkspaces";
 
 export default function FoundationCertificationDashboard() {
   const [recomputeKey, setRecomputeKey] = useState(0);
@@ -146,6 +151,21 @@ export default function FoundationCertificationDashboard() {
 
       {/* ── Categorized Architectural Gate — with clickable blockers ── */}
       <CategorizedArchitecturalGate cert={cert} onIssueClick={(issue) => setActiveBlocker(issue)} />
+
+      {/* ── Engineering Task Registry™ — Score Gain prioritization ── */}
+      <EngineeringTaskRegistry cert={cert} />
+
+      {/* ── Failure Registry™ — clickable failure points per module ── */}
+      <FailureRegistry cert={cert} />
+
+      {/* ── Dependency Chain™ — clickable dependencies → diagnostics ── */}
+      <DependencyChain cert={cert} />
+
+      {/* ── Risk Matrix™ — clickable risks with impact analysis ── */}
+      <RiskMatrix cert={cert} />
+
+      {/* ── Top Action Workspaces™ — interactive remediation ── */}
+      <TopActionWorkspaces cert={cert} />
 
       {/* ── Certification Metadata — dynamic stage, no hardcoded sprints ── */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">

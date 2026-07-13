@@ -52,6 +52,150 @@ export const RLS_STATUS = {
   unverified: { id: "unverified", label: "Unverified", tone: "indigo" },
 };
 
+// ── Entity Security Classification™ ──
+// Data-sensitivity classification for each entity, independent of access scope.
+// Inherits default security controls based on classification rather than
+// requiring manual rules each time. Visible in the RLS Registry™ tab.
+export const ENTITY_SECURITY_CLASSIFICATIONS = {
+  pii: {
+    id: "pii",
+    label: "PII",
+    icon: "🔴",
+    description: "Contains personally identifiable information",
+    tone: "red",
+    defaultControls: "Owner-scoped read; admin-only mutations; encryption at rest",
+  },
+  financial: {
+    id: "financial",
+    label: "Financial",
+    icon: "🔴",
+    description: "Contains financial, billing, or wallet data",
+    tone: "red",
+    defaultControls: "Owner + admin/finance read; admin/finance mutations; PCI-aware",
+  },
+  tenant_boundary: {
+    id: "tenant_boundary",
+    label: "Tenant Boundary",
+    icon: "🔴",
+    description: "Defines multi-tenant isolation boundaries",
+    tone: "red",
+    defaultControls: "Same-org read; platform admin mutations; cross-tenant denied",
+  },
+  identity_infrastructure: {
+    id: "identity_infrastructure",
+    label: "Identity Infrastructure",
+    icon: "🔴",
+    description: "Identity, SSO, provisioning, and access infrastructure",
+    tone: "red",
+    defaultControls: "Admin/dev only; secrets encrypted; security officer oversight",
+  },
+  governance: {
+    id: "governance",
+    label: "Governance",
+    icon: "🟠",
+    description: "Governance, compliance, and certification records",
+    tone: "amber",
+    defaultControls: "Admin/dev read; platform admin mutations; audit trail required",
+  },
+  confidential: {
+    id: "confidential",
+    label: "Confidential",
+    icon: "🟠",
+    description: "Confidential business intelligence and reports",
+    tone: "amber",
+    defaultControls: "Admin/dev read; platform admin mutations; document-level visibility",
+  },
+  immutable_audit: {
+    id: "immutable_audit",
+    label: "Immutable Audit",
+    icon: "🔴",
+    description: "Append-only audit log — update/delete prohibited",
+    tone: "red",
+    defaultControls: "System create; authorized read; update NEVER; delete NEVER; corrections via new entry",
+  },
+  internal: {
+    id: "internal",
+    label: "Internal",
+    icon: "🟡",
+    description: "Internal platform configuration and catalog",
+    tone: "yellow",
+    defaultControls: "Admin/dev read; admin mutations; platform admin delete",
+  },
+  public_catalog: {
+    id: "public_catalog",
+    label: "Public",
+    icon: "🟢",
+    description: "Public catalog data — readable by all authenticated users",
+    tone: "green",
+    defaultControls: "Public read; admin CUD; no PII in public fields",
+  },
+};
+
+// ── Entity → Security Classification Map ──
+// Explicit assignments override the auto-classification heuristic.
+const ENTITY_SECURITY_CLASS_MAP = {
+  // Financial
+  ExecutiveWallet: "financial",
+  Invoice: "financial",
+  WithdrawalRequest: "financial",
+  WalletTransaction: "financial",
+  Subscription: "financial",
+  ReferralTransaction: "financial",
+  Referral: "financial",
+  BillingEvent: "financial",
+  PaymentSettings: "financial",
+  CPQQuote: "financial",
+  Purchase: "financial",
+  // Tenant Boundary
+  Organization: "tenant_boundary",
+  // Identity Infrastructure
+  IdentityProvider: "identity_infrastructure",
+  IdentitySyncEvent: "identity_infrastructure",
+  SSOConfig: "identity_infrastructure",
+  EmailSettings: "identity_infrastructure",
+  ExecutiveIdentityTransfer: "identity_infrastructure",
+  // Governance
+  GovernanceCertificate: "governance",
+  GuardianActivity: "governance",
+  // Confidential
+  SuccessionPlan: "confidential",
+  EnterpriseReport: "confidential",
+  ReportEvidence: "confidential",
+  // Immutable Audit
+  ReputationAuditLog: "immutable_audit",
+  SubscriptionAuditLog: "immutable_audit",
+  CompanyAuditLog: "immutable_audit",
+  FoundingMemberAuditLog: "immutable_audit",
+  LegacyAuditLog: "immutable_audit",
+  // Public Catalog
+  Company: "public_catalog",
+  CompanyVersion: "public_catalog",
+};
+
+/**
+ * Resolve the Entity Security Classification™ for a given entity name.
+ * Falls back to auto-classification based on the RLS classification:
+ *   user → pii, organization → internal, platform → internal, public → public_catalog
+ */
+export function getEntitySecurityClass(entityName) {
+  if (ENTITY_SECURITY_CLASS_MAP[entityName]) {
+    return ENTITY_SECURITY_CLASS_MAP[entityName];
+  }
+  const entry = RLS_REGISTRY.find((e) => e.name === entityName);
+  if (!entry) return "internal";
+  if (entry.classification === "user") return "pii";
+  if (entry.classification === "public") return "public_catalog";
+  return "internal";
+}
+
+/**
+ * Get the full classification metadata for an entity.
+ */
+export function getEntitySecurityClassMeta(entityName) {
+  const classId = getEntitySecurityClass(entityName);
+  return ENTITY_SECURITY_CLASSIFICATIONS[classId] || ENTITY_SECURITY_CLASSIFICATIONS.internal;
+}
+
 // ── Entity Registry (audited 2026-07-13) ──
 // Each entry declares: classification, scope field, read/update/delete status,
 // sensitivity, and a human-readable rule summary.
@@ -141,9 +285,9 @@ export const RLS_REGISTRY = [
   { name: "ReferralReward", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "Coupon", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "GuardianActivity", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
-  { name: "CompanyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
-  { name: "FoundingMemberAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
-  { name: "LegacyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "CompanyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "immutable append-only; admin/dev read; no update/delete" },
+  { name: "FoundingMemberAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "immutable append-only; admin/dev read; no update/delete" },
+  { name: "LegacyAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/dev read; no update/delete" },
   { name: "ReputationAuditLog", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin read; no update/delete" },
   { name: "EmailEvent", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
   { name: "EnterpriseReport", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },

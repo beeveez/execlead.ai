@@ -129,7 +129,7 @@ export default function TrustCenter() {
             )}
 
             {section === "status" && (
-              <SectionWrapper title="Live Platform Status™" description="Real-time operational status derived from live platform telemetry. Values marked 'Not Yet Measured' have no telemetry available.">
+              <SectionWrapper title="Live Platform Status™" description="Real-time operational status from the Platform Telemetry Service™ — the authoritative source shared across all dashboards. Every metric is explainable, traceable, and actionable.">
                 <LivePlatformStatus platformState={platformState} certificate={certificate} guardian={guardian} />
               </SectionWrapper>
             )}

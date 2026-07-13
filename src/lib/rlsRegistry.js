@@ -265,7 +265,7 @@ export const RLS_REGISTRY = [
   { name: "SuccessionPlan", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + org admin" },
   { name: "CPQQuote", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + admin/finance" },
   { name: "CPQApprovalWorkflow", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
-  { name: "LessonProgress", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + owner + admin" },
+  { name: "LessonProgress", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "owner + assigned manager/coach + admin (role-aware, not broad org); delete: super_admin only (soft-delete preferred)" },
 
   // ── Public Catalog (registered 2026-07-13) ──
   { name: "Company", classification: "public", scope: "—", status: "protected", sensitive: false, rule: "public read + admin CUD" },

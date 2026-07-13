@@ -250,6 +250,8 @@ export const RLS_REGISTRY = [
   { name: "Referral", classification: "user", scope: "referrer_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
   { name: "ReferralEvent", classification: "user", scope: "referrer_user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "ResumeVersion", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "CareerResume", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "SimulationSession", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
   { name: "LeadershipDNA", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "ExecutiveLegacy", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "IdentityVersion", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
@@ -263,6 +265,7 @@ export const RLS_REGISTRY = [
   { name: "SuccessionPlan", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + org admin" },
   { name: "CPQQuote", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + admin/finance" },
   { name: "CPQApprovalWorkflow", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
+  { name: "LessonProgress", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + owner + admin" },
 
   // ── Public Catalog (registered 2026-07-13) ──
   { name: "Company", classification: "public", scope: "—", status: "protected", sensitive: false, rule: "public read + admin CUD" },

@@ -112,10 +112,10 @@ export default function Pricing() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full mb-4">
               <Building2 size={14} className="text-emerald-400" />
-              <span className="text-emerald-400 text-xs font-medium">Enterprise Outcomes</span>
+              <span className="text-emerald-400 text-xs font-medium">Target Outcomes</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">What You Achieve</h2>
-            <p className="text-white/40 max-w-2xl mx-auto text-lg">Not features. Business outcomes. This is what organizations gain when they invest in leadership transformation.</p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Expected Business Outcomes</h2>
+            <p className="text-white/40 max-w-2xl mx-auto text-lg">Target outcomes for organizations investing in leadership transformation. These represent product goals — not yet measured results.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><EnterpriseValue /></Suspense>
         </div>
@@ -149,10 +149,10 @@ export default function Pricing() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4">
               <Calculator size={14} className="text-indigo-400" />
-              <span className="text-indigo-400 text-xs font-medium">ROI Calculator</span>
+              <span className="text-indigo-400 text-xs font-medium">Illustrative Example</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Measure Your Return</h2>
-            <p className="text-white/40 max-w-2xl mx-auto text-lg">See how leadership development translates to measurable business impact — reduced coaching costs, lower turnover, stronger internal mobility, and productivity gains.</p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">ROI Illustration</h2>
+            <p className="text-white/40 max-w-2xl mx-auto text-lg">Illustrative example showing how leadership development could translate to business impact. Figures are estimates based on industry assumptions, not measured results.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><RoiCalculator /></Suspense>
         </div>
@@ -177,8 +177,8 @@ export default function Pricing() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Leadership Success Stories</h2>
-            <p className="text-white/40 max-w-2xl mx-auto text-lg">Organizations across industries trust EXECLEAD.AI to develop their next generation of leaders.</p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Beta Program Overview</h2>
+            <p className="text-white/40 max-w-2xl mx-auto text-lg">EXECLEAD.AI is being built for organizations across industries. Here's an overview of the founding beta program.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><SocialProof /></Suspense>
         </div>
@@ -215,7 +215,7 @@ export default function Pricing() {
               <span className="text-white/50 text-xs font-medium">Trust & Security</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Enterprise-Grade Trust</h2>
-            <p className="text-white/40 max-w-2xl mx-auto text-lg">Your data is protected with the same standards trusted by the world's largest organizations.</p>
+            <p className="text-white/40 max-w-2xl mx-auto text-lg">Our security architecture is designed to meet enterprise-grade standards as the platform matures toward General Availability.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><TrustBadges /></Suspense>
         </div>

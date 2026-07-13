@@ -48,6 +48,7 @@ import PlatformIntelligenceCenter from "@/components/developer/pii/PlatformIntel
 import FeatureGovernanceRuleCard from "@/components/developer/FeatureGovernanceRuleCard";
 import FoundationCompletionDirectiveCard from "@/components/developer/FoundationCompletionDirectiveCard";
 import GovernanceIntelligence from "@/components/developer/governance/GovernanceIntelligence";
+import ClaimsEvidenceChecklist from "@/components/developer/governance/ClaimsEvidenceChecklist";
 
 const WORKSPACES = [
   {
@@ -92,6 +93,7 @@ const WORKSPACES = [
       <WorkspaceContainer>
         <GovernanceCertificationBanner certificate={ctx.certificate} pipelineRunning={ctx.pipelineRunning} onRefresh={() => ctx.runPipeline("manual")} />
         <GovernanceIntelligence ctx={ctx} />
+        <ClaimsEvidenceChecklist />
       </WorkspaceContainer>
     ),
   },

@@ -1,23 +1,22 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Quote, Star, Building2, TrendingUp, Award } from "lucide-react";
+import { Sparkles, MessageSquare, Target } from "lucide-react";
 
-const TESTIMONIALS = [
-  { quote: "EXECLEAD.AI transformed how we develop leaders. Our internal promotion rate increased by 40% in the first year.", author: "VP of People Operations", company: "Global Technology Services", metric: "40% promotion increase", icon: TrendingUp },
-  { quote: "We replaced $200K in external executive coaching with a platform that reaches every manager in our organization.", author: "Chief Human Resources Officer", company: "Financial Services Enterprise", metric: "$200K coaching savings", icon: Award },
-  { quote: "The succession planning capabilities gave us visibility into leadership gaps we didn't even know we had.", author: "Director of Talent Development", company: "Healthcare Network", metric: "12 critical gaps identified", icon: Building2 },
+const TARGET_INDUSTRIES = [
+  "Technology", "Finance", "Healthcare", "Government", "Consulting",
+  "Banking", "Telecommunications", "Energy", "Education", "Manufacturing",
+  "Retail", "Media",
 ];
-
-const INDUSTRIES = ["Technology", "Finance", "Healthcare", "Government", "Consulting", "Banking", "Telecommunications", "Energy", "Education", "Manufacturing", "Retail", "Media"];
 
 export default function SocialProof() {
   return (
     <div className="space-y-12">
-      {/* Industry badges */}
+      {/* Target Industries — Product Vision */}
       <div>
-        <p className="text-center text-white/30 text-xs uppercase tracking-widest mb-6">Trusted Across Industries</p>
+        <p className="text-center text-white/30 text-xs uppercase tracking-widest mb-2">Target Industries</p>
+        <p className="text-center text-white/20 text-xs mb-6">Product Vision — industries EXECLEAD.AI is being built to serve</p>
         <div className="flex flex-wrap justify-center gap-3">
-          {INDUSTRIES.map((industry, i) => (
+          {TARGET_INDUSTRIES.map((industry, i) => (
             <motion.span
               key={industry}
               initial={{ opacity: 0, y: 10 }}
@@ -32,41 +31,38 @@ export default function SocialProof() {
         </div>
       </div>
 
-      {/* Testimonials */}
-      <div className="grid md:grid-cols-3 gap-5">
-        {TESTIMONIALS.map((t, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col"
-          >
-            <Quote size={24} className="text-indigo-400/30 mb-3" />
-            <p className="text-white/60 text-sm leading-relaxed flex-1">"{t.quote}"</p>
-            <div className="mt-4 pt-4 border-t border-white/5">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                  <t.icon size={14} className="text-indigo-400" />
-                </div>
-                <span className="text-emerald-400 text-xs font-semibold">{t.metric}</span>
-              </div>
-              <p className="text-white/70 text-xs font-medium">{t.author}</p>
-              <p className="text-white/30 text-xs">{t.company}</p>
-            </div>
-          </motion.div>
-        ))}
+      {/* Founding Beta Member Spotlight — Coming Soon */}
+      <div className="bg-gradient-to-br from-indigo-500/[0.06] to-transparent border border-indigo-500/15 rounded-2xl p-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+        >
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4">
+            <Sparkles size={20} className="text-indigo-400" />
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-2">Founding Beta Member Spotlight™</h3>
+          <p className="text-white/40 text-sm leading-relaxed max-w-md mx-auto mb-4">
+            As our founding members activate and begin their leadership journeys, their stories will be featured here.
+          </p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white/40">
+            <MessageSquare size={12} />
+            Coming Soon — Real Member Stories
+          </div>
+        </motion.div>
       </div>
 
-      {/* Analyst recognition placeholder */}
+      {/* Future Analyst Engagement */}
       <div className="bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-transparent border border-white/5 rounded-2xl p-8 text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
-          <Star size={18} className="text-amber-400" />
-          <span className="text-white/40 text-xs uppercase tracking-widest">Analyst Recognition</span>
+          <Target size={18} className="text-amber-400" />
+          <span className="text-white/40 text-xs uppercase tracking-widest">Future Analyst Engagement</span>
         </div>
-        <p className="text-white/50 text-sm max-w-xl mx-auto">Recognized by leading industry analysts as a category-defining platform for executive leadership development.</p>
-        <p className="text-white/20 text-xs mt-3">Gartner · Forrester · IDC · Josh Bersin</p>
+        <p className="text-white/50 text-sm max-w-xl mx-auto">
+          EXECLEAD.AI plans to engage with leading industry analysts as the platform matures toward General Availability.
+          Analyst recognition will be displayed here once formally received.
+        </p>
+        <p className="text-white/20 text-xs mt-3">Future Roadmap — No analyst endorsements have been received or verified</p>
       </div>
     </div>
   );

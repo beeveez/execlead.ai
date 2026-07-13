@@ -293,8 +293,11 @@ export default function Landing() {
       <section id="pricing" className="py-20 md:py-32 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-white/40 max-w-2xl mx-auto">Start free. Upgrade when you're ready to go all-in on your leadership journey.</p>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold">Pricing</h2>
+              <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] text-amber-400 font-medium uppercase tracking-wider">Future GA Pricing</span>
+            </div>
+            <p className="text-white/40 max-w-2xl mx-auto">Pricing reflects future General Availability. Current access is invitation-only through the Founding Private Beta™.</p>
           </div>
           <div className="flex items-center justify-center gap-3 mb-12">
             <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
@@ -400,12 +403,12 @@ export default function Landing() {
             className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 rounded-3xl p-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Grow Your Leadership?</h2>
-            <p className="text-white/40 mb-8 max-w-xl mx-auto">Join thousands of professionals growing from their first leadership role to the executive suite.</p>
+            <p className="text-white/40 mb-8 max-w-xl mx-auto">Join the Founding Private Beta™ and help shape the future of executive leadership development.</p>
             <Link
-              to="/register?redirect=/dashboard"
-              className="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors"
+              to="/beta"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors"
             >
-              Start Free <ArrowRight size={18} />
+              Apply for Private Beta™ <ArrowRight size={18} />
             </Link>
           </motion.div>
         </div>

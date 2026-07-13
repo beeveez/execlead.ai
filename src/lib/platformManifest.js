@@ -620,6 +620,15 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/enterprise/procurement",
   "/enterprise/vendors",
   "/enterprise/commercial",
+  "/enterprise", "/enterprise/organizations", "/enterprise/admin", "/enterprise/identity",
+  "/security", "/identity-verification", "/billing", "/marketplace",
+  "/hr-dashboard", "/succession-planning", "/promotion-readiness", "/learning-assignments",
+  "/vendor-due-diligence", "/admin", "/coach", "/challenge", "/simulator",
+  "/debate", "/council", "/companies", "/career", "/analytics", "/academy",
+  "/resume", "/career-studio", "/journal", "/leadership-dna", "/intelligence",
+  "/legacy-library", "/network", "/network/directory", "/network/discussions",
+  "/network/circles", "/network/mentorship", "/network/careers",
+  "/network/partnerships", "/network/founding-lounge", "/partner-portal",
   // Developer cognitive excellence sub-routes — covered by parent /developer module
   "/developer/cognitive", "/developer/cognitive/memory", "/developer/cognitive/personalization",
 ];

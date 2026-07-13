@@ -306,6 +306,17 @@ const KNOWLEDGE_EXEMPT_PATTERNS = [
   "/organization/users", "/payment-settings", "/billing-admin", "/pricing-admin",
   "/feature-management", "/cpq", "/cpq-dashboard",
   "/developer/executive-platform-status", "/developer/knowledge-sync",
+  "/metrics", "/concierge",
+  "/enterprise/procurement", "/enterprise/vendors", "/enterprise/commercial",
+  "/enterprise", "/enterprise/organizations", "/enterprise/admin", "/enterprise/identity",
+  "/security", "/identity-verification", "/billing", "/marketplace",
+  "/hr-dashboard", "/succession-planning", "/promotion-readiness", "/learning-assignments",
+  "/vendor-due-diligence", "/admin", "/coach", "/challenge", "/simulator",
+  "/debate", "/council", "/companies", "/career", "/analytics", "/academy",
+  "/resume", "/career-studio", "/journal", "/leadership-dna", "/intelligence",
+  "/legacy-library", "/network", "/network/directory", "/network/discussions",
+  "/network/circles", "/network/mentorship", "/network/careers",
+  "/network/partnerships", "/network/founding-lounge", "/partner-portal",
 ];
 
 function isKnowledgeExempt(path) {

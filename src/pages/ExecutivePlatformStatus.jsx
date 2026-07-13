@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { usePlatformState } from "@/lib/PlatformStateContext";
 import { useGuardian } from "@/lib/GuardianContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
+import { useAuth } from "@/lib/AuthContext";
 import { computeFounderSnapshot } from "@/lib/founderMissionControl";
 import ScoreRing from "@/components/founder-mc/ScoreRing";
 import PlatformOverview from "@/components/founder-mc/PlatformOverview";
@@ -21,6 +22,7 @@ export default function ExecutivePlatformStatus() {
   const state = usePlatformState();
   const guardian = useGuardian();
   const { canAccessDeveloper } = useDeveloper();
+  const { user } = useAuth();
 
   const snapshot = useMemo(() => computeFounderSnapshot(state, guardian), [state, guardian]);
 
@@ -75,8 +77,8 @@ export default function ExecutivePlatformStatus() {
       {/* Section 1: Platform Overview */}
       <PlatformOverview overview={overview} />
 
-      {/* Section 2: Stream Progress */}
-      <StreamProgress streams={snapshot.streams} />
+      {/* Section 2: Executive Stream Intelligence™ */}
+      <StreamProgress streams={snapshot.streams} snapshot={snapshot} user={user} />
 
       {/* Section 3: Engineering Health */}
       <EngineeringHealth engineering={snapshot.engineering} />

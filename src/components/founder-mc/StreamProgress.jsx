@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import SectionCard from "./SectionCard";
-import { TrendingUp } from "lucide-react";
+import StreamIntelligenceDrawer from "./StreamIntelligenceDrawer";
+import { ChevronRight, Activity } from "lucide-react";
 
 const STATUS_COLORS = { healthy: "#10b981", attention: "#f59e0b", blocked: "#ef4444" };
 
-function StreamRow({ stream }) {
+function StreamRow({ stream, onClick }) {
   const color = STATUS_COLORS[stream.status];
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0 text-left group hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors"
+    >
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm text-white font-medium truncate">{stream.name}</span>
+          <span className="text-sm text-white font-medium truncate group-hover:text-indigo-300 transition-colors">{stream.name}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ color, backgroundColor: `${color}1a` }}>
             {stream.status === "healthy" ? "Healthy" : stream.status === "attention" ? "Attention" : "Blocked"}
           </span>
@@ -27,16 +31,38 @@ function StreamRow({ stream }) {
           <span>Est. {stream.estimatedEffort}</span>
         </div>
       </div>
-    </div>
+      <ChevronRight size={14} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+    </button>
   );
 }
 
-export default function StreamProgress({ streams }) {
+export default function StreamProgress({ streams, snapshot, user }) {
+  const [activeStream, setActiveStream] = useState(null);
+
   return (
-    <SectionCard title="Stream Progress" subtitle="All execution streams" icon={TrendingUp} accent="cyan">
-      <div className="space-y-0">
-        {streams.map((s) => <StreamRow key={s.id} stream={s} />)}
-      </div>
-    </SectionCard>
+    <>
+      <SectionCard
+        title="Executive Stream Intelligence™"
+        subtitle="Click any stream for full diagnostics, blockers, trends, and EXEC™ analysis"
+        icon={Activity}
+        accent="cyan"
+        action={<span className="text-[10px] text-white/30 hidden sm:inline">Primary Operational Control Center</span>}
+      >
+        <div className="space-y-0">
+          {streams.map((s) => (
+            <StreamRow key={s.id} stream={s} onClick={() => setActiveStream(s.id)} />
+          ))}
+        </div>
+      </SectionCard>
+
+      {activeStream && (
+        <StreamIntelligenceDrawer
+          streamId={activeStream}
+          snapshot={snapshot}
+          user={user}
+          onClose={() => setActiveStream(null)}
+        />
+      )}
+    </>
   );
 }

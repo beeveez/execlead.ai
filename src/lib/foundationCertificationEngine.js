@@ -357,7 +357,7 @@ export function computeEngineeringTaskRegistry(cert) {
 
     return {
       id: `task-${idx}`,
-      task: issue.remediation || issue.description,
+      task: `${issue.component}: ${issue.remediation || issue.description}`,
       component: issue.component,
       category: issue.categoryLabel || "General",
       categoryKey: issue.category || "metadata",
@@ -666,7 +666,7 @@ export function computeMetricDiagnostics(cert, metricKey) {
       currentScore, target, remainingGap, isScore: true,
       contribution: { weight: 1, maxPoints, earnedPoints, gapPoints, formula: "Average of 7 certification metrics" },
       contributions,
-      engineeringTasks: issues.length > 0 ? issues.slice(0, 20).map((i) => i.remediation || i.description) : ["Foundation at target — maintain posture"],
+      engineeringTasks: issues.length > 0 ? issues.slice(0, 20).map((i) => `${i.component}: ${i.remediation || i.description}`) : ["Foundation at target — maintain posture"],
       dependencies: ["All 7 Certification Metrics™", "Platform Manifest™", "Foundation Verification Engine™"],
       evidence: issues.length > 0 ? issues.slice(0, 15).map((i) => `${i.severity}: ${i.component} — ${i.description}`) : ["All thresholds met"],
       owner: "Platform Engineering",
@@ -693,7 +693,7 @@ export function computeMetricDiagnostics(cert, metricKey) {
       metricKey, label: "Remaining Tasks™",
       currentScore: count, target: 0, remainingGap: count, isCount: true,
       contribution: { weight: 0, maxPoints: 0, earnedPoints: 0, gapPoints: count, formula: "Count of unresolved certification issues" },
-      engineeringTasks: issues.slice(0, 20).map((i) => i.remediation || i.description),
+      engineeringTasks: issues.slice(0, 20).map((i) => `${i.component}: ${i.remediation || i.description}`),
       dependencies: ["All Certification Metrics™"],
       evidence: issues.slice(0, 15).map((i) => `${i.severity}: ${i.component} — ${i.description}`),
       owner: "Platform Engineering",
@@ -767,7 +767,7 @@ export function computeMetricDiagnostics(cert, metricKey) {
 
   const issues = phases.length > 0 ? verification.issues.filter((i) => phases.includes(i.phase)) : [];
   const engineeringTasks = issues.length > 0
-    ? issues.map((i) => i.remediation || i.description)
+    ? issues.map((i) => `${i.component}: ${i.remediation || i.description}`)
     : [`${metric.label} is at target — maintain current posture`];
   const evidence = issues.length > 0
     ? issues.map((i) => `${i.severity}: ${i.component} — ${i.description}`)

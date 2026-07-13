@@ -109,6 +109,8 @@ export function ExecConciergeProvider({ children }) {
   const [executiveMemory, setExecutiveMemory] = useState(null);
   const userContextRef = useRef(null);
   const greetedWorkspaceRef = useRef(null);
+  const executiveMemoryRef = useRef(null);
+  const learnedPreferencesRef = useRef(null);
 
   // Track current page context
   useEffect(() => {
@@ -154,6 +156,15 @@ export function ExecConciergeProvider({ children }) {
     setLearnedPreferences(loadPreferences(user?.id, activeWorkspace));
   }, [user?.id, activeWorkspace]);
 
+  // Keep refs in sync with state — prevents stale closures in sendMessage
+  useEffect(() => {
+    executiveMemoryRef.current = executiveMemory;
+  }, [executiveMemory]);
+
+  useEffect(() => {
+    learnedPreferencesRef.current = learnedPreferences;
+  }, [learnedPreferences]);
+
   // Persist messages whenever they change (per-workspace)
   useEffect(() => {
     localStorage.setItem(storageKey("exec_messages", user, activeWorkspace), JSON.stringify(messages));
@@ -185,6 +196,7 @@ export function ExecConciergeProvider({ children }) {
     try {
       const records = await base44.entities.ExecutiveMemory.filter({ user_id: userId }, "-updated_date", 1);
       if (records && records.length > 0) {
+        executiveMemoryRef.current = records[0];
         setExecutiveMemory(records[0]);
         return records[0];
       }
@@ -198,18 +210,21 @@ export function ExecConciergeProvider({ children }) {
     async (updates) => {
       if (!user?.id) return;
       try {
-        if (executiveMemory?.id) {
-          const updated = await base44.entities.ExecutiveMemory.update(executiveMemory.id, updates);
+        const current = executiveMemoryRef.current;
+        if (current?.id) {
+          const updated = await base44.entities.ExecutiveMemory.update(current.id, updates);
+          executiveMemoryRef.current = updated;
           setExecutiveMemory(updated);
         } else {
           const created = await base44.entities.ExecutiveMemory.create({ user_id: user.id, ...updates });
+          executiveMemoryRef.current = created;
           setExecutiveMemory(created);
         }
       } catch {
         // silent — memory persistence is best-effort and must not block the conversation
       }
     },
-    [user?.id, executiveMemory]
+    [user?.id]
   );
 
   // Proactively resolve user context on authentication — the Personalization™
@@ -331,25 +346,25 @@ export function ExecConciergeProvider({ children }) {
           });
           setLearnedPreferences(merged);
         }
-        // Persist cross-session Executive Memory™ — preferences and context
-        // survive browser restarts and device switches.
+        // Persist cross-session Executive Memory™ — preferences AND long-term
+        // memory consolidated in a single save to avoid race conditions.
         const memUpdates = {
           preferences_json: JSON.stringify({
             topics: extracted.topics,
             signals: extracted.signals,
-            ...learnedPreferences,
+            ...learnedPreferencesRef.current,
           }),
           last_context_gathered_at: new Date().toISOString(),
         };
-        saveExecutiveMemory(memUpdates);
 
         // Long-Term Memory Consolidation™ — extract goals, aspirations, and
         // achievements from the conversation and merge into persistent memory.
         const ltMemory = extractLongTermMemory(updatedConversation);
         if (ltMemory.goals.length > 0 || ltMemory.aspirations.length > 0 || ltMemory.achievements.length > 0) {
-          const merged = mergeLongTermMemory(executiveMemory, ltMemory);
-          saveExecutiveMemory(merged);
+          const merged = mergeLongTermMemory(executiveMemoryRef.current, ltMemory);
+          Object.assign(memUpdates, merged);
         }
+        saveExecutiveMemory(memUpdates);
       } catch {
         setMessages((prev) => [
           ...prev,
@@ -362,7 +377,7 @@ export function ExecConciergeProvider({ children }) {
       }
       setLoading(false);
     },
-    [messages, loading, user, location.pathname, userContext, workspacePersona]
+    [messages, loading, user, location.pathname, userContext, workspacePersona, saveExecutiveMemory]
     );
 
   const clearConversation = useCallback(() => {

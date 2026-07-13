@@ -65,16 +65,22 @@ export function computeCognitiveScore(runtime = {}) {
     evidenceCoverage * 0.35 + frameworkTraceability * 0.25 + reasoningChainScore * 0.25 + personaBacking * 0.15
   );
 
+  // ── Reasoning Quality: prompt structure + evidence backing + framework guidance + capability completeness ──
+  const capabilityCompleteness = totalCapabilities > 0 ? Math.round((completeCapabilities / totalCapabilities) * 100) : 0;
+  const reasoningScore = Math.round(
+    reasoningChainScore * 0.30 + evidenceCoverage * 0.30 + frameworkTraceability * 0.25 + capabilityCompleteness * 0.15
+  );
+
   // ── 9 Primary Pillars (weighted to 100) ──
   const pillars = [
     {
       id: "reasoning",
       label: "Reasoning Quality",
       weight: 15,
-      score: 82,
+      score: reasoningScore,
       target: 95,
-      trend: "+3",
-      evidence: `EXEC™ Prompt v${EXEC_PROMPT_VERSION} — structured prompts enforce WHY, WHAT evidence, WHICH framework, Confidence, Action, Outcome`,
+      trend: reasoningScore >= 95 ? "+" + (reasoningScore - 82) : "—",
+      evidence: `EXEC™ Prompt v${EXEC_PROMPT_VERSION} enforces 6-element chain (WHY/WHAT/WHICH/Confidence/Action/Outcome) — ${capabilitiesWithEvidence}/${totalCapabilities} capabilities have evidence, ${capabilitiesWithFramework} linked to frameworks, ${completeCapabilities}/${totalCapabilities} have complete chains`,
       program: "Program 1: Executive Reasoning",
     },
     {
@@ -222,8 +228,10 @@ export function computeCognitiveScore(runtime = {}) {
       knowledgeVersion: EXEC_KNOWLEDGE_VERSION,
       promptVersion: EXEC_PROMPT_VERSION,
       recommendationScore,
+      reasoningScore,
       evidenceCoverage,
       frameworkTraceability,
+      capabilityCompleteness,
     },
   };
 }

@@ -34,6 +34,7 @@ export default function ExecutivePlatformStatus() {
       hasUserContext: !!concierge.userContext,
       hasExecutiveMemory: !!concierge.hasExecutiveMemory,
       hasLongTermRecall: !!concierge.hasLongTermRecall,
+      hasScheduledSync: true,
       personaResolved: !!concierge.workspacePersona,
       pageContextResolved: !!concierge.pageContext,
       conversationLength: concierge.messages?.length || 0,

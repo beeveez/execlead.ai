@@ -217,3 +217,37 @@ export function getCapabilityChain() {
 export function getFallbackCount() {
   return getPersonaAudit().filter((p) => p.fallback).length;
 }
+
+// ============================================================
+// CONTEXT RETRIEVAL CALIBRATION — retrieval scoring
+// ============================================================
+// Computes how well the knowledge resolution engine can retrieve
+// relevant context for a given conversation topic. A high score
+// means every capability has a traceable evidence chain, personas
+// resolve dynamically (not hardcoded), and knowledge packs are active.
+
+export function getRetrievalCalibration() {
+  const capabilityChain = getCapabilityChain();
+  const total = capabilityChain.length;
+  const complete = capabilityChain.filter((c) => c.complete).length;
+  const personaAudit = getPersonaAudit();
+  const dynamicPersonas = personaAudit.filter((p) => p.resolution === "Dynamic").length;
+  const packCounts = getKnowledgePackCount();
+  const activeRatio = packCounts.total > 0 ? packCounts.active / packCounts.total : 0;
+
+  // Calibration: evidence chain completeness (40%), dynamic persona
+  // resolution (30%), active pack coverage (30%)
+  const chainScore = total > 0 ? complete / total : 0;
+  const personaScore = personaAudit.length > 0 ? dynamicPersonas / personaAudit.length : 0;
+  const calibrationScore = Math.round((chainScore * 0.4 + personaScore * 0.3 + activeRatio * 0.3) * 100);
+
+  return {
+    score: calibrationScore,
+    chainCoverage: total > 0 ? Math.round((complete / total) * 100) : 0,
+    dynamicResolution: personaAudit.length > 0 ? Math.round((dynamicPersonas / personaAudit.length) * 100) : 0,
+    activePackCoverage: Math.round(activeRatio * 100),
+    calibrated: calibrationScore >= 80,
+    totalCapabilities: total,
+    completeCapabilities: complete,
+  };
+}

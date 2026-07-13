@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   ShieldCheck, Eye, Lock, Activity, Key, AlertTriangle,
   FileText, Code, Brain, Shield, Monitor, AlertCircle, Smartphone,
-  Users, Settings, ArrowRight,
+  Users, Settings, ArrowRight, Database,
 } from "lucide-react";
 import { SECURITY_META } from "@/lib/securityArchitecture";
 import SecurityOverview from "@/components/security/SecurityOverview";
@@ -20,9 +20,11 @@ import RiskIntelligence from "@/components/security/RiskIntelligence";
 import DeviceManagement from "@/components/security/DeviceManagement";
 import RBACManager from "@/components/security/RBACManager";
 import SecurityPolicies from "@/components/security/SecurityPolicies";
+import RLSRegistry from "@/components/security/RLSRegistry";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: Eye },
+  { id: "rls", label: "RLS Registry", icon: Database },
   { id: "identity", label: "Identity Protection", icon: ShieldCheck },
   { id: "threats", label: "Threat Detection", icon: AlertTriangle },
   { id: "access", label: "Access Control", icon: Lock },
@@ -82,6 +84,7 @@ export default function SecurityCenter() {
 
       {/* Content */}
       {tab === "overview" && <SecurityOverview />}
+      {tab === "rls" && <RLSRegistry />}
       {tab === "identity" && <IdentityProtection />}
       {tab === "threats" && <ThreatDetection />}
       {tab === "access" && <AccessControl />}

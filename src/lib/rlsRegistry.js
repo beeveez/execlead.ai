@@ -1,0 +1,170 @@
+/**
+ * EXECLEAD.AI — RLS Policy Registry™
+ * ============================================================
+ * Standardized 4-class security model for every entity in the platform.
+ * Eliminates ad-hoc RLS policies by classifying each entity into exactly
+ * one security class, then auditing its read/update/delete rules.
+ *
+ * Security Classification Matrix™
+ * ─────────────────────────────────────────────
+ * Public            │ Anyone read        │ Admin CUD
+ * User-scoped       │ Owner read         │ Owner/System CUD
+ * Organization-scoped │ Same-org read     │ Org Admin/System CUD
+ * Platform-scoped   │ Platform Admin read │ Platform Service CUD
+ *
+ * This module is the single source of truth for the RLS Registry™ tab
+ * in the Security Operations Center.
+ */
+
+// ── The Four Standard Security Classifications ──
+export const SECURITY_CLASSIFICATIONS = {
+  public: {
+    id: "public",
+    label: "Public",
+    description: "Anyone can read; admin-only mutations",
+    tone: "blue",
+  },
+  user: {
+    id: "user",
+    label: "User-Scoped",
+    description: "Owner can read their own records; admin/system mutate",
+    tone: "emerald",
+  },
+  organization: {
+    id: "organization",
+    label: "Organization-Scoped",
+    description: "Same-organization users can read; org admin/system mutate",
+    tone: "violet",
+  },
+  platform: {
+    id: "platform",
+    label: "Platform-Scoped",
+    description: "Platform Admin / Developer / Service Role only",
+    tone: "amber",
+  },
+};
+
+// ── RLS Health Status ──
+export const RLS_STATUS = {
+  protected: { id: "protected", label: "Protected", tone: "emerald" },
+  partial: { id: "partial", label: "Partial", tone: "amber" },
+  open: { id: "open", label: "No RLS", tone: "red" },
+};
+
+// ── Entity Registry (audited 2026-07-13) ──
+// Each entry declares: classification, scope field, read/update/delete status,
+// sensitivity, and a human-readable rule summary.
+//
+// status legend:
+//   protected — all 4 operations (CRUD) have least-privilege rules
+//   partial   — read is restricted but create/update/delete are open
+//   open      — empty {} RLS block (no restrictions on any operation)
+export const RLS_REGISTRY = [
+  // ── User-Scoped ──
+  { name: "ExecutiveWallet", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "SecuritySession", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "Invoice", classification: "user", scope: "owner_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
+  { name: "WithdrawalRequest", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
+  { name: "WalletTransaction", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
+  { name: "IdentityVerification", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "TrustedDevice", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "AccountDeletionRequest", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "ReferralTransaction", classification: "user", scope: "referrer_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
+  { name: "NetworkConnection", classification: "user", scope: "requester_id/recipient_id", status: "protected", sensitive: false, rule: "party + admin" },
+  { name: "VerificationLog", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "ExecutiveCompetency", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "JourneyEvent", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "ExecutiveAffiliation", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "UserProfile", classification: "user", scope: "user_id", status: "open", sensitive: true, rule: "— (PII exposed)" },
+  { name: "Subscription", classification: "user", scope: "owner_user_id", status: "open", sensitive: true, rule: "— (payment IDs exposed)" },
+  { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "partial", sensitive: false, rule: "read-only; CUD open" },
+  { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "partial", sensitive: false, rule: "read-only; CUD open" },
+
+  // ── Organization-Scoped ──
+  { name: "Department", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
+  { name: "Team", classification: "organization", scope: "organization_id", status: "protected", sensitive: false, rule: "same-org + admin" },
+  { name: "IdentitySyncEvent", classification: "organization", scope: "organization_id", status: "protected", sensitive: true, rule: "same-org + admin" },
+  { name: "Organization", classification: "organization", scope: "organization_id", status: "open", sensitive: true, rule: "— (contracts exposed)" },
+  { name: "OrgMembership", classification: "organization", scope: "organization_id", status: "open", sensitive: true, rule: "— (member lists exposed)" },
+  { name: "IdentityProvider", classification: "organization", scope: "organization_id", status: "open", sensitive: true, rule: "— (config_json exposed)" },
+
+  // ── Platform-Scoped ──
+  { name: "SecurityEvent", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "SecurityIncident", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev only" },
+  { name: "BillingEvent", classification: "platform", scope: "—", status: "protected", sensitive: true, rule: "admin/dev/finance only" },
+  { name: "PlatformStateEvent", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only" },
+  { name: "SelfHealingEvent", classification: "platform", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin/dev" },
+  { name: "GovernanceCertificate", classification: "platform", scope: "—", status: "open", sensitive: true, rule: "— (findings exposed)" },
+];
+
+// ── Score Computation ──
+export function computeRLSScores() {
+  const total = RLS_REGISTRY.length;
+  const protected_ = RLS_REGISTRY.filter((e) => e.status === "protected").length;
+  const partial = RLS_REGISTRY.filter((e) => e.status === "partial").length;
+  const open = RLS_REGISTRY.filter((e) => e.status === "open").length;
+
+  const orgEntities = RLS_REGISTRY.filter((e) => e.classification === "organization");
+  const userEntities = RLS_REGISTRY.filter((e) => e.classification === "user");
+  const platformEntities = RLS_REGISTRY.filter((e) => e.classification === "platform");
+
+  const orgProtected = orgEntities.filter((e) => e.status === "protected").length;
+  const userProtected = userEntities.filter((e) => e.status === "protected").length;
+  const platformProtected = platformEntities.filter((e) => e.status === "protected").length;
+
+  const orgIsolation = orgEntities.length > 0 && orgProtected === orgEntities.length;
+  const userIsolation = userEntities.length > 0 && userProtected === userEntities.length;
+  const platformIsolation = platformEntities.length > 0 && platformProtected === platformEntities.length;
+
+  // RLS Coverage: protected entities / total
+  const rlsCoverage = Math.round((protected_ / total) * 100);
+
+  // Tenant Isolation Score: weighted by classification criticality
+  // Organization isolation is the foundation of multi-tenancy (60% weight)
+  // User isolation protects personal data (40% weight)
+  const orgScore = orgEntities.length > 0 ? (orgProtected / orgEntities.length) * 60 : 60;
+  const userScore = userEntities.length > 0 ? (userProtected / userEntities.length) * 40 : 40;
+  const tenantIsolationScore = Math.round(orgScore + userScore);
+
+  // Security Score: org (35%) + user (25%) + platform (20%) + coverage (20%)
+  const secOrg = orgEntities.length > 0 ? (orgProtected / orgEntities.length) * 35 : 35;
+  const secUser = userEntities.length > 0 ? (userProtected / userEntities.length) * 25 : 25;
+  const secPlatform = platformEntities.length > 0 ? (platformProtected / platformEntities.length) * 20 : 20;
+  const secCoverage = (protected_ / total) * 20;
+  const securityScore = Math.round(secOrg + secUser + secPlatform + secCoverage);
+
+  // Cross-tenant test simulation: would a user in Org A see Org B data?
+  const crossTenantTests = orgIsolation && userIsolation;
+
+  // Production blocker
+  const openSensitive = RLS_REGISTRY.filter((e) => e.status === "open" && e.sensitive).length;
+  const blocker = openSensitive === 0 && partial === 0 ? "NONE" : `${openSensitive} sensitive + ${partial} partial`;
+
+  return {
+    total,
+    protected: protected_,
+    partial,
+    open,
+    orgIsolation,
+    userIsolation,
+    platformIsolation,
+    crossTenantTests,
+    rlsCoverage,
+    tenantIsolationScore,
+    securityScore,
+    blocker,
+    breakdown: {
+      organization: { total: orgEntities.length, protected: orgProtected, open: orgEntities.length - orgProtected },
+      user: { total: userEntities.length, protected: userProtected, open: userEntities.length - userProtected },
+      platform: { total: platformEntities.length, protected: platformProtected, open: platformEntities.length - platformProtected },
+    },
+  };
+}
+
+export function getEntitiesByClassification(classification) {
+  return RLS_REGISTRY.filter((e) => e.classification === classification);
+}
+
+export function getEntitiesByStatus(status) {
+  return RLS_REGISTRY.filter((e) => e.status === status);
+}

@@ -25,7 +25,17 @@ ${context}
 
 FOUNDER QUESTION: Why is ${explanation.label} not 100%?
 
-Answer concisely in markdown. Use the EXACT scoring formula from the telemetry above to explain the gap. For each metric below target, cite its current score, raw gap, mitigation %, and effective penalty. Never invoke "hidden weighting", "reconciliation discrepancy", "unexplained variance", or "active mitigation weighting" — every point must be traceable to a named metric with a specific number. End with the top 3 actions to reach 100%. Every claim must reference a number from the telemetry above.`;
+Answer concisely in markdown. You MUST include every one of these sections, all derived exclusively from the telemetry above:
+1. **Current Score** — the exact current score
+2. **Remaining Score** — the exact remaining points
+3. **Remaining Capabilities** — every capability below target, each with its current score, raw gap, mitigation %, effective gap, and weight
+4. **Remaining Engineering Hours** — total estimated hours to close all gaps
+5. **Estimated Completion** — projected completion date
+6. **Risks** — named risks per capability
+7. **Owner** — the owner of each remaining capability
+8. **Evidence** — the evidence backing each gap
+
+NEVER use these phrases unless they are a first-class measured metric: "systemic overhead", "integration latency", "reconciliation discrepancy", "hidden weighting", "unknown penalty", "baseline adjustment", "active mitigation weighting", "unexplained variance". Every point deducted MUST trace to a named capability with a specific number. End with the top 3 actions to reach 100%. Every claim must reference a number from the telemetry above.`;
       const res = await base44.integrations.Core.InvokeLLM({ prompt, model: "automatic" });
       setWhyNotResponse(typeof res === "string" ? res : JSON.stringify(res));
     } catch (e) {

@@ -159,6 +159,13 @@ export function ExecConciergeProvider({ children }) {
     }
   }, [user?.id]);
 
+  // Proactively resolve user context on authentication — the Personalization™
+  // diagnostics and recommendation engines read this before the concierge drawer
+  // is ever opened, so we cannot defer it to initConversation().
+  useEffect(() => {
+    if (user?.id) fetchUserContext();
+  }, [user?.id, fetchUserContext]);
+
   const initConversation = useCallback(async () => {
     if (user) {
       setLoading(true);

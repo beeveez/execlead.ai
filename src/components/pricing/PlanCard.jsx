@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Sparkles, Trophy } from "lucide-react";
 import { PLAN_CONTENT } from "@/lib/pricingContent";
+import { getPlanCta, getCurrentPlatformMode } from "@/lib/launchMode";
 import FounderPriceBadge from "./FounderPriceBadge";
 
 const fmt = (n) => {
@@ -30,6 +31,10 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
 
   const showFounderPricing = founderPricing.applied && !isCustom && !isFree;
   const showFounderCard = showFounderPricing || (isCustom && founderPricing.isFounder);
+  const platformMode = getCurrentPlatformMode();
+  const betaActive = platformMode.isBeta;
+  const betaCta = betaActive ? getPlanCta(plan.id) : content.cta;
+  const betaLink = betaActive ? `/beta?tier=${plan.id === "free" ? "founding_beta" : plan.id === "professional" ? "founding_beta" : plan.id === "executive" ? "exec_beta" : "enterprise_beta"}` : null;
 
   return (
     <motion.div
@@ -45,6 +50,13 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
             : content.ring
       }`}
     >
+      {/* Beta Badge */}
+      {betaActive && (
+        <div className="absolute -top-3 left-4 bg-purple-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap flex items-center gap-1" title="Pricing shown reflects planned General Availability subscriptions. Current access is invitation-only.">
+          🟣 {platformMode.label}
+        </div>
+      )}
+
       {/* Badges */}
       {showFounderPricing && (
         <div className="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
@@ -186,7 +198,28 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
 
         {/* CTA */}
         <div className="mt-5">
-          {isCustom ? (
+          {isCurrentPlan ? (
+            <div className="flex items-center justify-center w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
+              <Check size={16} className="mr-1.5" /> Active Plan
+            </div>
+          ) : betaActive ? (
+            <Link
+              to={authed ? "/dashboard" : betaLink}
+              className={`flex items-center justify-center gap-1.5 w-full py-3 rounded-xl text-sm font-semibold transition-colors ${
+                isCustom
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  : isExecutive
+                    ? "bg-purple-500 hover:bg-purple-600 text-white"
+                    : isFree
+                      ? "bg-amber-500 hover:bg-amber-600 text-white"
+                      : plan.id === "professional"
+                        ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                        : "bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
+              }`}
+            >
+              {betaCta} <ArrowRight size={14} />
+            </Link>
+          ) : isCustom ? (
             <div className="space-y-2">
               <Link to={authed ? "/cpq" : "/register?redirect=/dashboard"} className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-colors">
                 {content.cta} <ArrowRight size={14} />
@@ -199,10 +232,6 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
                   Talk to Sales
                 </a>
               </div>
-            </div>
-          ) : isCurrentPlan ? (
-            <div className="flex items-center justify-center w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
-              <Check size={16} className="mr-1.5" /> Active Plan
             </div>
           ) : betaMode && !isFree ? (
             <button

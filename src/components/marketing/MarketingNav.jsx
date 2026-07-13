@@ -60,7 +60,7 @@ export default function MarketingNav() {
           ) : (
             <>
               <Link to={buildSignInUrl(location.pathname + location.search)} className="hidden sm:inline text-sm text-white/50 hover:text-white transition-colors">Sign In</Link>
-              <Link to="/register?redirect=/dashboard" className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Start Free</Link>
+              <Link to="/beta" className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Apply for Beta</Link>
             </>
           )}
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white/60 p-1">

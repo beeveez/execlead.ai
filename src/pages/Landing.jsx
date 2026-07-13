@@ -84,10 +84,10 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-xs text-white/50 mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-xs text-amber-400 mb-8"
           >
-            <Zap size={12} className="text-indigo-400" />
-            The world's first AI Executive Leadership Operating System
+            <Zap size={12} />
+            🚀 Founding Private Beta™ — Invitation Only
           </motion.div>
 
           <motion.h1
@@ -127,17 +127,34 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link
-              to={authed ? "/home" : "/register?redirect=/dashboard"}
-              className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
-            >
-              {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />
-            </Link>
+            {authed ? (
+              <Link
+                to="/home"
+                className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              >
+                Go to Dashboard <ArrowRight size={18} />
+              </Link>
+            ) : (
+              <Link
+                to="/beta"
+                className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              >
+                Apply for Private Beta™ <ArrowRight size={18} />
+              </Link>
+            )}
+            {!authed && (
+              <Link
+                to="/beta?tier=enterprise_beta"
+                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              >
+                Request Enterprise Beta™
+              </Link>
+            )}
             <a
               href="#features"
               className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
-              Explore Platform
+              Learn More™
             </a>
           </motion.div>
 

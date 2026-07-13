@@ -1,19 +1,183 @@
 import { base44 } from "@/api/base44Client";
 
 // ============================================================
-// EXECLEAD.AI — Launch Mode & Beta Billing Strategy
+// EXECLEAD.AI — Platform Launch Mode™
 // ------------------------------------------------------------
-// Allows the platform to launch publicly even when no live
-// payment gateway is connected. Three launch modes:
+// Controls the platform's public-facing behavior based on the
+// current release stage. Each mode changes CTAs, registration
+// gating, and messaging automatically — no UI rebuild needed
+// when transitioning to General Availability.
 //
-//   development  — internal testing, simulated payments
-//   public_beta  — public registrations, no payment processing,
-//                  founding member reservations instead
-//   production   — live payment providers, recurring billing
+// Platform Launch Modes:
+//   internal_development  — internal testing
+//   developer_preview     — limited developer access
+//   founding_private_beta — invitation-only beta (ACTIVE)
+//   early_access          — invite code registration
+//   open_beta             — public registration with waitlist
+//   general_availability  — open to everyone, paid subscriptions
 //
-// When the payment provider is NOT connected, Beta Billing Mode
-// is automatically enabled: premium plans stay visible, but
-// "Subscribe" buttons become "Reserve My Founding Membership".
+// Payment Launch Modes (legacy, still used for billing behavior):
+//   development  — simulated payments
+//   public_beta  — no payment processing
+//   production   — live payment providers
+// ============================================================
+
+export const PLATFORM_LAUNCH_MODES = {
+  internal_development: {
+    id: "internal_development",
+    label: "Internal Development",
+    description: "Internal testing — not publicly accessible.",
+    color: "#94a3b8",
+    icon: "🧪",
+    version: "Dev",
+    registrationMode: "closed",
+    isBeta: true,
+    showPricing: false,
+  },
+  developer_preview: {
+    id: "developer_preview",
+    label: "Developer Preview",
+    description: "Limited developer access for feedback and testing.",
+    color: "#a855f7",
+    icon: "🔬",
+    version: "Preview",
+    registrationMode: "invite_code",
+    isBeta: true,
+    showPricing: false,
+  },
+  founding_private_beta: {
+    id: "founding_private_beta",
+    label: "Founding Private Beta™",
+    description: "Invitation-only beta. Application required.",
+    color: "#f59e0b",
+    icon: "🚀",
+    version: "RC1",
+    buildLabel: "Release Candidate 1",
+    registrationMode: "application",
+    isBeta: true,
+    showPricing: true,
+    ctaLabels: {
+      free: "Apply for Private Beta™",
+      professional: "Join Founding Beta™",
+      executive: "Join Executive Beta™",
+      enterprise: "Request Enterprise Beta™",
+      primary: "Apply for Private Beta™",
+      secondary: "Request Enterprise Beta™",
+      learnMore: "Learn More™",
+    },
+  },
+  early_access: {
+    id: "early_access",
+    label: "Early Access",
+    description: "Invite code registration. Expanding access.",
+    color: "#6366f1",
+    icon: "✨",
+    version: "RC2",
+    registrationMode: "invite_code",
+    isBeta: true,
+    showPricing: true,
+    ctaLabels: {
+      free: "Join Early Access",
+      professional: "Join Founding Beta™",
+      executive: "Join Executive Beta™",
+      enterprise: "Request Enterprise Beta™",
+      primary: "Join Early Access",
+      secondary: "Request Enterprise Beta™",
+      learnMore: "Learn More™",
+    },
+  },
+  open_beta: {
+    id: "open_beta",
+    label: "Open Beta",
+    description: "Public registration open. Waitlist if capacity exceeded.",
+    color: "#06b6d4",
+    icon: "🌐",
+    version: "Beta",
+    registrationMode: "public_waitlist",
+    isBeta: true,
+    showPricing: true,
+    ctaLabels: {
+      free: "Join Beta",
+      professional: "Start Free Trial",
+      executive: "Start Free Trial",
+      enterprise: "Request Enterprise Beta™",
+      primary: "Join Beta",
+      secondary: "Contact Sales",
+      learnMore: "Learn More™",
+    },
+  },
+  general_availability: {
+    id: "general_availability",
+    label: "General Availability",
+    description: "Open to everyone. Paid subscriptions active.",
+    color: "#10b981",
+    icon: "✅",
+    version: "GA",
+    registrationMode: "open",
+    isBeta: false,
+    showPricing: true,
+    ctaLabels: {
+      free: "Start Free",
+      professional: "Start 14-Day Trial",
+      executive: "Start 14-Day Trial",
+      enterprise: "Configure Proposal",
+      primary: "Start Free",
+      secondary: "Contact Sales",
+      learnMore: "Learn More",
+    },
+  },
+};
+
+/**
+ * Current Platform Launch Mode.
+ * Change this single value to transition the entire platform.
+ */
+export const CURRENT_PLATFORM_MODE = "founding_private_beta";
+
+export function getCurrentPlatformMode() {
+  return PLATFORM_LAUNCH_MODES[CURRENT_PLATFORM_MODE] || PLATFORM_LAUNCH_MODES.founding_private_beta;
+}
+
+export function isBetaMode() {
+  return getCurrentPlatformMode().isBeta;
+}
+
+export function isRegistrationOpen() {
+  return getCurrentPlatformMode().registrationMode === "open";
+}
+
+export function isApplicationRequired() {
+  const mode = getCurrentPlatformMode();
+  return mode.registrationMode === "application" || mode.registrationMode === "invite_code";
+}
+
+/**
+ * Get the CTA label for a plan, respecting the current launch mode.
+ */
+export function getPlanCta(planId) {
+  const mode = getCurrentPlatformMode();
+  if (mode.ctaLabels && mode.ctaLabels[planId]) {
+    return mode.ctaLabels[planId];
+  }
+  // GA fallback
+  const gaLabels = PLATFORM_LAUNCH_MODES.general_availability.ctaLabels;
+  return gaLabels[planId] || "Start Free";
+}
+
+export function getPrimaryCta() {
+  return getCurrentPlatformMode().ctaLabels?.primary || "Start Free";
+}
+
+export function getSecondaryCta() {
+  return getCurrentPlatformMode().ctaLabels?.secondary || "Contact Sales";
+}
+
+export function getLearnMoreCta() {
+  return getCurrentPlatformMode().ctaLabels?.learnMore || "Learn More";
+}
+
+// ============================================================
+// Legacy Payment Launch Mode (billing behavior)
 // ============================================================
 
 export const LAUNCH_MODES = {
@@ -47,22 +211,14 @@ export const PROVIDER_STATUSES = {
   live: { id: "live", label: "Live", color: "#10b981", betaBilling: false },
 };
 
-/**
- * Maps the raw PaymentSettings.status to a provider status.
- * disconnected/error → not_connected, pending → test_mode, connected → live.
- */
 function mapProviderStatus(settings) {
   if (!settings) return "not_connected";
   if (settings.status === "connected") return "live";
   if (settings.status === "pending") return "test_mode";
   if (settings.status === "error") return "not_connected";
-  return "not_connected"; // disconnected
+  return "not_connected";
 }
 
-/**
- * Derives the launch mode from the provider status, unless an
- * explicit override is set on PaymentSettings.launch_mode.
- */
 export function deriveLaunchMode(providerStatusId, explicitMode) {
   if (explicitMode && explicitMode !== "auto") return explicitMode;
   if (providerStatusId === "live") return "production";
@@ -72,7 +228,7 @@ export function deriveLaunchMode(providerStatusId, explicitMode) {
 
 let cachedSettings = null;
 let cacheExpiry = 0;
-const CACHE_TTL = 30000; // 30 seconds
+const CACHE_TTL = 30000;
 
 function computeState(settings) {
   const providerStatusId = mapProviderStatus(settings);
@@ -89,10 +245,6 @@ function computeState(settings) {
   };
 }
 
-/**
- * Returns the full launch state, derived from PaymentSettings.
- * Cached for 30s to avoid repeated API calls.
- */
 export async function getLaunchState() {
   const now = Date.now();
   if (cachedSettings && now < cacheExpiry) {
@@ -104,8 +256,6 @@ export async function getLaunchState() {
     cacheExpiry = now + CACHE_TTL;
     return computeState(cachedSettings);
   } catch (e) {
-    // Default to beta billing mode if settings can't be loaded —
-    // this ensures the platform never blocks on a missing config.
     return computeState(null);
   }
 }
@@ -116,7 +266,7 @@ export function clearLaunchStateCache() {
 }
 
 // ============================================================
-// React hook for components
+// React hooks
 // ============================================================
 import { useState, useEffect } from "react";
 
@@ -138,4 +288,20 @@ export function useLaunchMode() {
   }, []);
 
   return state;
+}
+
+/**
+ * Hook for the Platform Launch Mode™ system.
+ * Returns the current platform mode config + helper flags.
+ */
+export function usePlatformLaunchMode() {
+  const mode = getCurrentPlatformMode();
+  return {
+    mode,
+    isBeta: mode.isBeta,
+    isApplicationRequired: isApplicationRequired(),
+    isRegistrationOpen: isRegistrationOpen(),
+    showPricing: mode.showPricing,
+    ctaLabels: mode.ctaLabels || {},
+  };
 }

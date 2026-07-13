@@ -3,7 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import MarketingNav from "./MarketingNav";
 import MarketingFooter from "./MarketingFooter";
-import EarlyAccessBanner from "./EarlyAccessBanner";
+import BetaBanner from "@/components/beta/BetaBanner";
 
 /**
  * MarketingLayout — persistent shell for all public marketing pages.
@@ -19,7 +19,7 @@ export default function MarketingLayout({ children }) {
   const location = useLocation();
   return (
     <div className="min-h-screen bg-[#08080d] text-white overflow-x-hidden">
-      <EarlyAccessBanner />
+      <BetaBanner />
       <MarketingNav />
       <main>
         <motion.div

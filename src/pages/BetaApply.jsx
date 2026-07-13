@@ -2,10 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Rocket, Users, Shield, Zap } from "lucide-react";
 import BetaApplicationForm from "@/components/beta/BetaApplicationForm";
-import { getCurrentBetaStage } from "@/lib/betaProgramEngine";
+import { getCurrentBetaStage, BETA_TIERS } from "@/lib/betaProgramEngine";
 
 export default function BetaApply() {
   const stage = getCurrentBetaStage();
+  const urlParams = new URLSearchParams(window.location.search);
+  const tierParam = urlParams.get("tier");
+  const tier = BETA_TIERS[tierParam] || BETA_TIERS.founding_beta;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -44,7 +47,7 @@ export default function BetaApply() {
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8">
           <h2 className="text-lg font-bold text-white mb-1">Beta Application</h2>
           <p className="text-sm text-white/40 mb-6">Fill out the form below. Our team reviews each application personally.</p>
-          <BetaApplicationForm />
+          <BetaApplicationForm defaultTier={tierParam || "founding_beta"} />
         </div>
       </div>
     </div>

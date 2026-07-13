@@ -74,9 +74,9 @@ export default function Pricing() {
             <div className="max-w-3xl mx-auto mb-8 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-start gap-3">
               <Rocket size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-amber-400 font-semibold text-sm mb-1">{launchMode?.label} — Founding Membership Sales Opening Soon</h3>
+                <h3 className="text-amber-400 font-semibold text-sm mb-1">🚀 Founding Private Beta™ — Invitation Only</h3>
                 <p className="text-white/50 text-sm leading-relaxed">
-                  EXECLEAD.AI is currently in Public Beta. Premium plans are visible but payments aren't live yet. <span className="text-amber-400 font-medium">Reserve your Founding Membership today</span> — you'll be invited to activate your subscription when payments go live.
+                  Pricing shown reflects planned General Availability subscriptions. <span className="text-amber-400 font-medium">Current access is invitation-only.</span> Apply for the Founding Private Beta™ to get early access — you'll be invited to activate your subscription when the platform reaches General Availability.
                 </p>
               </div>
             </div>
@@ -238,15 +238,21 @@ export default function Pricing() {
       {/* Final CTA */}
       <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-emerald-500/5 border border-white/10 rounded-3xl p-12 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Begin Your Leadership Journey</h2>
-            <p className="text-white/40 mb-8 max-w-xl mx-auto text-lg">Start free today. Upgrade when you're ready to go all-in on your executive development. Enterprise solutions for organizations of any size.</p>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-amber-500/10 via-indigo-500/5 to-emerald-500/5 border border-white/10 rounded-3xl p-12 text-center">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Join the Founding Private Beta™</h2>
+            <p className="text-white/40 mb-8 max-w-xl mx-auto text-lg">Become one of the first executive professionals shaping the world's first AI Executive Leadership Operating System. Invitation-only — apply today.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to={authed ? "/dashboard" : "/register?redirect=/dashboard"} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
-                {authed ? "Go to Dashboard" : "Start Free"} <ArrowRight size={18} />
-              </Link>
-              <Link to="/cpq" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">
-                Configure Proposal <ArrowRight size={18} />
+              {authed ? (
+                <Link to="/dashboard" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
+                  Go to Dashboard <ArrowRight size={18} />
+                </Link>
+              ) : (
+                <Link to="/beta" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">
+                  Apply for Private Beta™ <ArrowRight size={18} />
+                </Link>
+              )}
+              <Link to="/beta?tier=enterprise_beta" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl transition-colors">
+                Request Enterprise Beta™ <ArrowRight size={18} />
               </Link>
             </div>
           </motion.div>

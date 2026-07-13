@@ -36,6 +36,23 @@
       ],
       "description": "Leadership level in organization"
     },
+    "country": {
+      "type": "string",
+      "description": "Applicant country of residence"
+    },
+    "team_size": {
+      "type": "string",
+      "enum": [
+        "solo",
+        "1_10",
+        "11_50",
+        "51_200",
+        "201_500",
+        "501_1000",
+        "1000_plus"
+      ],
+      "description": "Size of team the applicant leads or works in"
+    },
     "linkedin_url": {
       "type": "string",
       "description": "LinkedIn profile URL (optional)"
@@ -43,6 +60,10 @@
     "why_join": {
       "type": "string",
       "description": "Why the applicant wants to join the beta program"
+    },
+    "interested_capabilities": {
+      "type": "string",
+      "description": "JSON array of capability strings the applicant is interested in"
     },
     "how_heard": {
       "type": "string",

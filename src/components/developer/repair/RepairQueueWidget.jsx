@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Wrench, Zap, ShieldCheck, FileText, Loader2, X, Filter, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useDeveloper } from "@/lib/DeveloperContext";
 import { useToast } from "@/components/ui/use-toast";
 import {
   getRepairQueueStats, getRegisteredFindings, getRepairState,
@@ -22,6 +23,7 @@ const FILTERS = [
 
 export default function RepairQueueWidget() {
   const { user } = useAuth();
+  const { canAccessDeveloper } = useDeveloper();
   const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
   const [stats, setStats] = useState({ pending: 0, running: 0, completed: 0, failed: 0, total: 0 });
@@ -46,7 +48,7 @@ export default function RepairQueueWidget() {
     return () => clearInterval(interval);
   }, [expanded]);
 
-  if (stats.total === 0) return null;
+  if (stats.total === 0 || !canAccessDeveloper) return null;
 
   const filteredFindings = findings.filter(f => {
     const state = getRepairState(f.id);
@@ -92,6 +94,8 @@ export default function RepairQueueWidget() {
       {!expanded ? (
         <button
           onClick={() => setExpanded(true)}
+          title="Repair Queue — developer tool for governance findings"
+          aria-label="Open repair queue"
           className="flex items-center gap-2 bg-[#0d0d14] border border-white/10 rounded-xl px-3 py-2 shadow-lg hover:border-amber-500/30 transition-colors group"
         >
           <Wrench size={14} className="text-amber-400" />

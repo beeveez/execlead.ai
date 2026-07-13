@@ -9,6 +9,7 @@ import {
   usePlatformLaunchMode,
 } from "@/lib/launchMode";
 import MarketingClaimsValidator from "@/components/governance/MarketingClaimsValidator";
+import FloatingUIInventory from "@/components/governance/FloatingUIInventory";
 
 const DEPENDENCY_GRAPH = [
   { level: "Pricing Page", file: "src/pages/Pricing.jsx", status: "single" },
@@ -206,6 +207,9 @@ export default function PlatformArchitectureAudit() {
           ))}
         </div>
       </div>
+
+      {/* Floating UI Inventory */}
+      <FloatingUIInventory />
 
       {/* Marketing Claims Validator */}
       <MarketingClaimsValidator />

@@ -137,6 +137,7 @@ export default function ExecConcierge() {
             onClick={open}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30 flex items-center justify-center"
             aria-label="Open EXEC AI Assistant"
+            title="EXEC™ AI Concierge — Ask anything about your leadership journey"
           >
             <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-20" />
             <Sparkles size={24} className="text-white relative z-10" />

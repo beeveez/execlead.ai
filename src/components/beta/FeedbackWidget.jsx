@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MessageSquare, Bug, Lightbulb, X, Loader2, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 
 const FEEDBACK_TYPES = {
   feedback: { id: "feedback", label: "Send Feedback", icon: MessageSquare, color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/20" },
@@ -16,6 +17,9 @@ export default function FeedbackWidget() {
   const [page, setPage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  if (!user) return null;
 
   const handleSubmit = async () => {
     if (!description.trim()) return;
@@ -43,9 +47,11 @@ export default function FeedbackWidget() {
 
   if (!open) {
     return (
-      <div className="fixed right-5 z-40 flex flex-col gap-2" style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
+      <div className="fixed right-6 z-40 flex flex-col gap-2" style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom))" }}>
         <button
           onClick={() => setOpen(true)}
+          title="Send feedback, report bugs, or suggest features"
+          aria-label="Open feedback center"
           className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 transition-colors"
         >
           <MessageSquare size={14} /> Feedback
@@ -55,7 +61,7 @@ export default function FeedbackWidget() {
   }
 
   return (
-    <div className="fixed right-5 z-40 w-80" style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
+    <div className="fixed right-6 z-40 w-80" style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom))" }}>
       <div className="bg-[#0d0d14] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">

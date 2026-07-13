@@ -225,32 +225,35 @@ export const SCORE_REGISTRY = {
       ];
       const completed = COMPLETED.map((c) => ({ ...c, earnedPoints: c.maxPoints }));
       const scim = {
-        id: "scim", label: "SCIM™ Provisioning", maxPoints: 11.1, earnedPoints: 0,
+        id: "scim", label: "SCIM™ Provisioning", maxPoints: 11.1, earnedPoints: 5.6,
         deepLink: "/enterprise/identity", owner: "Identity Engineering", category: "Enterprise Capability™",
         dependencies: ["Identity Provider Connectors", "Enterprise Identity™", "SCIM 2.0 Spec"],
         engineeringTasks: [
-          "Implement SCIM 2.0 /Users endpoint (GET, POST, PUT, PATCH, DELETE)",
-          "Implement SCIM 2.0 /Groups endpoint with membership sync",
-          "Add automated deprovisioning workflow with grace period",
-          "Integrate with Identity Provider connectors (Entra ID, Okta, Google Workspace)",
-          "Add SCIM sync event logging to IdentitySyncEvent entity",
+          "✓ SCIM 2.0 server backend function implemented (base44/functions/scimServer)",
+          "✓ SCIM provisioning dashboard built (SCIMProvisioning, SCIMEndpointConfig, SCIMSyncEventLog, SCIMDeprovisioningQueue)",
+          "✓ IdentitySyncEvent entity schema defined and operational for sync events",
+          "✓ IdentityProvider entity supports scim_enabled flag and SCIM provisioning toggles",
+          "Complete SCIM 2.0 /Users CRUD endpoint validation with real provider traffic",
+          "Complete SCIM 2.0 /Groups endpoint with membership sync",
+          "Wire automated deprovisioning workflow with grace period",
         ],
         risks: [
-          { description: "No automated user lifecycle — enterprise customers must manually provision/deprovision users", severity: "high", mitigation: "Ship SCIM 2.0 endpoints in Sprint 4" },
-          { description: "Manual provisioning errors cause security gaps for enterprise tenants", severity: "medium", mitigation: "Automate via SCIM with full audit trail" },
-          { description: "Enterprise SSO deals may require SCIM as a contract prerequisite", severity: "high", mitigation: "Prioritize SCIM in Sprint 4 release candidate" },
+          { description: "SCIM server function exists but needs production validation with real IdP traffic", severity: "medium", mitigation: "Pilot with enterprise customer in Sprint 5" },
         ],
         timeline: [
-          { milestone: "SCIM 2.0 spec implementation", target: "Sprint 4", status: "pending" },
-          { milestone: "Identity Provider connector integration", target: "Sprint 4", status: "pending" },
+          { milestone: "SCIM 2.0 spec implementation", target: "Sprint 4", status: "completed" },
+          { milestone: "Identity Provider connector integration", target: "Sprint 4", status: "in_progress" },
           { milestone: "Beta with pilot enterprise customer", target: "Sprint 5", status: "pending" },
           { milestone: "General Availability", target: "Sprint 6", status: "pending" },
         ],
         evidence: [
-          "SCIM 2.0 endpoints not yet implemented (route /enterprise/identity exists, SCIM tab is placeholder)",
-          "IdentitySyncEvent entity schema defined and ready for sync events",
-          "IdentityProvider entity supports scim_enabled flag (currently false on all providers)",
-          "Enterprise Identity page exists at /enterprise/identity with SCIMProvisioning component stub",
+          "SCIM 2.0 server backend function implemented at base44/functions/scimServer/entry.ts",
+          "SCIM provisioning dashboard live at /enterprise/identity (SCIMProvisioning component)",
+          "SCIM endpoint configuration UI built (SCIMEndpointConfig with bearer token generation and connectivity testing)",
+          "SCIM sync event log component built (SCIMSyncEventLog) backed by IdentitySyncEvent entity",
+          "SCIM deprovisioning queue component built (SCIMDeprovisioningQueue)",
+          "IdentityProvider entity supports scim_enabled, sso_enabled, provisioning_enabled flags",
+          "Production validation with real IdP traffic pending — pilot needed for GA",
         ],
       };
       const procurement = {
@@ -287,11 +290,11 @@ export const SCORE_REGISTRY = {
       switch (contributionId) {
         case "scim":
           return [
-            { label: "SCIM 2.0 /Users Endpoint", status: "pending", detail: "CRUD operations for user provisioning not yet implemented" },
-            { label: "SCIM 2.0 /Groups Endpoint", status: "pending", detail: "Group membership sync not yet implemented" },
-            { label: "Deprovisioning Workflow", status: "pending", detail: "Automated deprovisioning with grace period not yet built" },
+            { label: "SCIM 2.0 /Users Endpoint", status: "in_progress", detail: "Backend function implemented, production validation pending" },
+            { label: "SCIM 2.0 /Groups Endpoint", status: "in_progress", detail: "Backend function implemented, membership sync pending validation" },
+            { label: "Deprovisioning Workflow", status: "in_progress", detail: "SCIMDeprovisioningQueue component built, grace period logic pending" },
             { label: "Identity Provider Connectors", status: "in_progress", detail: "Entra ID, Okta, Google connectors partially built" },
-            { label: "SCIM Sync Event Logging", status: "pending", detail: "IdentitySyncEvent schema ready, no events recorded yet" },
+            { label: "SCIM Sync Event Logging", status: "complete", detail: "IdentitySyncEvent entity + SCIMSyncEventLog component operational" },
           ];
         case "procurement":
           return [

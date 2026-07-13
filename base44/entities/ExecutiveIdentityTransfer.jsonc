@@ -173,6 +173,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "security_officer"
+          }
         }
       ]
     },
@@ -201,6 +206,16 @@
         },
         {
           "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "security_officer"
+          }
+        },
+        {
+          "user_condition": {
             "role": "developer"
           }
         }
@@ -221,6 +236,11 @@
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "security_officer"
           }
         }
       ]

@@ -181,7 +181,7 @@ export default function BillingAdmin() {
       {/* Active Subscriptions */}
       <div>
         <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Active Subscriptions</h3>
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-white/5">
               <tr className="text-left text-xs text-white/30 uppercase tracking-wider">
@@ -264,7 +264,7 @@ export default function BillingAdmin() {
       {failedInvoices.length > 0 && (
         <div>
           <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Payment Issues</h3>
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
+          <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="border-b border-white/5">
                 <tr className="text-left text-xs text-white/30 uppercase tracking-wider">

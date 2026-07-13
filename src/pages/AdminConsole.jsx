@@ -113,7 +113,7 @@ export default function AdminConsole() {
       {/* Users */}
       <div>
         <h3 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">User Management</h3>
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-white/5"><tr className="text-left text-xs text-white/30 uppercase tracking-wider"><th className="px-4 py-3">Name</th><th className="px-4 py-3">Target Role</th><th className="px-4 py-3">Plan</th><th className="px-4 py-3">XP</th><th className="px-4 py-3">Status</th></tr></thead>
             <tbody>

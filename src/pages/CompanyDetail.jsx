@@ -20,6 +20,7 @@ import DataQualityBadge from "@/components/companies/DataQualityBadge";
 import TransparencyPanel from "@/components/companies/TransparencyPanel";
 import ClaimCompanyModal from "@/components/companies/ClaimCompanyModal";
 import ReportCompanyModal from "@/components/companies/ReportCompanyModal";
+import SubHeader from "@/components/layout/SubHeader";
 
 function parseJson(json, fallback) {
   try { return JSON.parse(json) || fallback; } catch { return fallback; }
@@ -89,9 +90,7 @@ export default function CompanyDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <button onClick={() => navigate(isPublic ? "/company-library" : "/companies")} className="flex items-center gap-2 text-white/40 hover:text-white/70 text-sm transition-colors">
-        <ArrowLeft size={14} /> Back to Library
-      </button>
+      <SubHeader title={company.name} backTo={isPublic ? "/company-library" : "/companies"} />
 
       {/* Header */}
       <div className="bg-gradient-to-br from-violet-500/10 to-indigo-500/5 border border-violet-500/10 rounded-xl p-6">

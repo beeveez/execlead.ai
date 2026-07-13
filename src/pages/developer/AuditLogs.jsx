@@ -23,7 +23,7 @@ export default function AuditLogs() {
         </div>
         <h1 className="text-2xl font-bold text-white">Audit Logs</h1>
       </div>
-      <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
+      <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-white/[0.02] text-white/40 text-xs uppercase tracking-wider">
             <tr>

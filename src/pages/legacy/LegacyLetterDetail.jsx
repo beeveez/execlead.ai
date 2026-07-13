@@ -12,6 +12,7 @@ import {
   BadgeCheck, Crown, BookOpen, Lightbulb, Target, Quote, HelpCircle,
   Sparkles, Send, ListChecks, Award, PenLine, Trash2
 } from "lucide-react";
+import SubHeader from "@/components/layout/SubHeader";
 
 export default function LegacyLetterDetail() {
   const { id } = useParams();
@@ -133,30 +134,31 @@ export default function LegacyLetterDetail() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <Link to="/legacy-library" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm">
-          <ArrowLeft size={16} /> Back to Library
-        </Link>
-        <div className="flex items-center gap-3">
-          {canEdit && (
-            <Link
-              to={`/legacy-library/${id}/edit`}
-              className="flex items-center gap-1.5 text-white/30 hover:text-indigo-400 text-sm transition-colors"
-            >
-              <PenLine size={14} /> Edit
-            </Link>
-          )}
-          {canManage && (
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
-            >
-              {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
-            </button>
-          )}
-        </div>
-      </div>
+      <SubHeader
+        title={letter.title}
+        backTo="/legacy-library"
+        actions={
+          <>
+            {canEdit && (
+              <Link
+                to={`/legacy-library/${id}/edit`}
+                className="flex items-center gap-1.5 text-white/30 hover:text-indigo-400 text-sm transition-colors"
+              >
+                <PenLine size={14} /> Edit
+              </Link>
+            )}
+            {canManage && (
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
+              >
+                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete
+              </button>
+            )}
+          </>
+        }
+      />
 
       {/* Header */}
       <div className="mb-6">

@@ -11,6 +11,7 @@ import RegistrationPanel from "@/components/events/RegistrationPanel";
 import AddToCalendar from "@/components/events/AddToCalendar";
 import SpeakerCard from "@/components/events/SpeakerCard";
 import AgendaTimeline from "@/components/events/AgendaTimeline";
+import SubHeader from "@/components/layout/SubHeader";
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -133,9 +134,7 @@ export default function EventDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
-      <Link to="/network/events" className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/60 transition-colors">
-        <ArrowLeft size={13} /> Back to Events
-      </Link>
+      <SubHeader title={event.title} backTo="/network/events" />
 
       {/* Hero */}
       <div className={`relative h-48 sm:h-64 rounded-2xl overflow-hidden bg-gradient-to-br ${colors.gradient}`}>

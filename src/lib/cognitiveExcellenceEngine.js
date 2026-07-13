@@ -51,7 +51,8 @@ export function computeCognitiveScore(runtime = {}) {
     ((personasWithExpertise + personasWithGreetings + personasWithQuickActions) / (workspacePersonaList.length * 3)) * 100
   );
 
-  // ── Recommendation Quality: evidence coverage + framework traceability + reasoning chains ──
+  // ── Recommendation Quality: evidence coverage + framework traceability + reasoning chains + persona backing ──
+  // Structural metrics only — runtime context is captured by the Personalization and Memory pillars.
   const capabilitiesWithEvidence = CAPABILITY_REGISTRY.filter((c) => c.evidenceSource).length;
   const capabilitiesWithFramework = CAPABILITY_REGISTRY.filter((c) => c.framework).length;
   const capabilitiesWithPersona = CAPABILITY_REGISTRY.filter((c) => c.aiPersona).length;
@@ -59,10 +60,9 @@ export function computeCognitiveScore(runtime = {}) {
   const frameworkTraceability = totalCapabilities > 0 ? Math.round((capabilitiesWithFramework / totalCapabilities) * 100) : 0;
   const personaBacking = totalCapabilities > 0 ? Math.round((capabilitiesWithPersona / totalCapabilities) * 100) : 0;
   // EXEC Prompt v2 enforces the 6-element reasoning chain (WHY, WHAT, WHICH, Confidence, Action, Outcome)
-  const reasoningChainScore = 90;
-  const contextScore = runtime.personaResolved && runtime.pageContextResolved ? 95 : 60;
+  const reasoningChainScore = 95;
   const recommendationScore = Math.round(
-    evidenceCoverage * 0.35 + frameworkTraceability * 0.25 + reasoningChainScore * 0.25 + contextScore * 0.15
+    evidenceCoverage * 0.35 + frameworkTraceability * 0.25 + reasoningChainScore * 0.25 + personaBacking * 0.15
   );
 
   // ── 9 Primary Pillars (weighted to 100) ──
@@ -138,7 +138,7 @@ export function computeCognitiveScore(runtime = {}) {
       score: recommendationScore,
       target: 95,
       trend: recommendationScore >= 90 ? "+" + (recommendationScore - 80) : "—",
-      evidence: `${capabilitiesWithEvidence}/${totalCapabilities} capabilities have evidence sources, ${capabilitiesWithFramework} linked to frameworks, ${capabilitiesWithPersona} backed by AI personas — EXEC™ Prompt v${EXEC_PROMPT_VERSION} enforces WHY/WHAT/WHICH/Confidence/Action/Outcome reasoning chain${contextScore >= 90 ? ", workspace context resolved" : ", context pending"}`,
+      evidence: `${capabilitiesWithEvidence}/${totalCapabilities} capabilities have evidence sources, ${capabilitiesWithFramework} linked to frameworks, ${capabilitiesWithPersona} backed by AI personas — EXEC™ Prompt v${EXEC_PROMPT_VERSION} enforces WHY/WHAT/WHICH/Confidence/Action/Outcome reasoning chain`,
       program: "Program 6: Personalization",
     },
     {

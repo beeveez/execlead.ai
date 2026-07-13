@@ -12,6 +12,8 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
   if (!detail) return null;
 
   const handleRepair = (issue, i) => {
+    const currentVal = detail.current ?? detail.score ?? null;
+    const targetVal = detail.target ?? 100;
     openRepairWorkflow(
       {
         ...issue,
@@ -23,6 +25,8 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
         dependencies: detail.dependencies,
         engineeringTasks: detail.engineeringTasks,
         module: detail.module,
+        currentState: currentVal != null ? `${currentVal}/${targetVal} (${detail.pointsBased ? `${detail.earnedPoints}/${detail.maxPoints} pts` : `${currentVal}%`})` : issue.description,
+        targetState: `${targetVal}${detail.pointsBased ? " pts" : "%"}`,
       },
       { source: detail.label }
     );

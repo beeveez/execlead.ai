@@ -30,6 +30,21 @@ const BADGE_TONES = {
   total: "default",
   healthScore: "default",
   canDeploy: "success",
+  governanceScore: "default",
+  governanceFailures: "error",
+  governanceWarnings: "warning",
+  governanceCertified: "success",
+  criticalFailures: "error",
+  warningFailures: "warning",
+  syncFindings: "warning",
+  syncErrors: "error",
+  readinessPassed: "success",
+  readinessTotal: "default",
+  finalDecision: "success",
+  rcVersion: "default",
+  certified: "success",
+  phase: "info",
+  ready: "success",
 };
 
 export default function PipelineStage({ stage, index, state, isLast, onStageClick, onBadgeClick }) {

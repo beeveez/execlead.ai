@@ -1,19 +1,19 @@
 /**
- * EXECLEAD.AI — Deployment Pipeline™
+ * EXECLEAD.AI — Deployment Pipeline™ v2.0
  * ============================================================
- * The automated deployment pipeline that runs whenever a developer
- * clicks Publish. Chains platform validation, Guardian™, knowledge
- * synchronization, and intelligence refresh into a single
- * self-updating sequence — making EXEC™ a self-aware intelligence
- * layer that never needs manual retraining after deployments.
+ * Refactored from an 8-stage build pipeline into a 4-milestone
+ * Release Candidate flow:
  *
- *   1. Build
- *   2. Platform Validation™        (16-stage governance certification)
- *   3. Guardian™                    (consistency scan + auto-repair)
- *   4. EXEC™ Knowledge Synchronization™  (discover + register all assets)
- *   5. EXEC™ Intelligence Refresh™       (rebuild caches + graphs)
- *   6. Deployment Verification™    (readiness checks)
- *   7. Production Ready
+ *   1. Security Hardening        (Guardian™ scan + auto-repair)
+ *   2. Security Verification     (Security Regression Suite™ + RLS audit)
+ *   3. Release Candidate 1 (RC1) (Build + validation + knowledge sync + readiness)
+ *   4. Production Certification™ (Formal evidence package)
+ *   5. Sprint 4                  (Next phase — gated on certification)
+ *
+ * RC1 is an internal engineering milestone.
+ * Production Certification™ is the formal evidence package that says
+ * the release is ready. Sprint 4 (Enterprise Procurement™) begins only
+ * after certification passes.
  */
 import { runGovernancePipeline } from "./governancePipeline";
 import { runGuardianScan } from "./guardianEngine";
@@ -29,30 +29,32 @@ import { PLATFORM_METADATA } from "./platformManifest";
 import { runSecurityRegressionSuite } from "./securityRegressionSuite";
 
 export const DEPLOYMENT_PIPELINE_STAGES = [
-  { id: "build", name: "Build", description: "Compile and bundle platform assets" },
-  { id: "platform_validation", name: "Platform Validation™", description: "16-stage governance certification" },
-  { id: "guardian", name: "Guardian™", description: "Consistency scan and auto-repair" },
-  { id: "knowledge_sync", name: "EXEC™ Knowledge Synchronization™", description: "Discover and register all platform assets into 10 registries" },
-  { id: "intelligence_refresh", name: "EXEC™ Intelligence Refresh™", description: "Rebuild intelligence caches, capability graph, and platform graph" },
-  { id: "deployment_verification", name: "Deployment Verification™", description: "Verify all readiness checks pass" },
-  { id: "security_regression", name: "Security Regression Suite™", description: "500 automated security tests — blocks deployment on failure" },
-  { id: "production_ready", name: "Production Ready", description: "Platform is live, certified, and EXEC™ is self-aware" },
+  { id: "security_hardening", name: "Security Hardening", description: "Guardian™ consistency scan and auto-repair" },
+  { id: "security_verification", name: "Security Verification", description: "Security Regression Suite™ — 1,000 tests across 20 categories" },
+  { id: "rc1", name: "Release Candidate 1 (RC1)", description: "Build, platform validation, knowledge sync, and deployment verification" },
+  { id: "production_certification", name: "Production Certification™", description: "Formal evidence package certifying release readiness" },
+  { id: "sprint_4", name: "Sprint 4", description: "Enterprise Procurement™ — gated on Production Certification™" },
 ];
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Runs the full deployment pipeline sequentially.
+ * Runs the full RC pipeline sequentially.
  * @param {Object} options
  * @param {Function} options.onStageChange - Called with { id, status, data } on each stage transition.
  * @param {string} options.userId - Current user ID (for Guardian audit logging).
- * @returns {Promise<Object>} Pipeline result with all stage statuses.
+ * @returns {Promise<Object>} Pipeline result with all stage statuses and final decision.
  */
 export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
   const startTime = Date.now();
   const results = {};
   let syncAssets = null;
   let syncRegistries = null;
+  let syncValidation = null;
+  let governanceCert = null;
+  let securityResults = null;
+  let readiness = null;
+  let intelligence = null;
 
   const setStage = (id, status, data = {}) => {
     const entry = { id, status, data, timestamp: new Date().toISOString() };
@@ -60,111 +62,41 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
     onStageChange?.(entry);
   };
 
-  // ── 1. Build ──
-  setStage("build", "running");
-  dispatch("DeploymentStarted", { source: "deployment_pipeline" });
-  await delay(200);
-  setStage("build", "completed", {
-    version: PLATFORM_METADATA.platformVersion,
-    buildNumber: PLATFORM_METADATA.buildNumber,
-  });
-
-  // ── 2. Platform Validation™ ──
-  setStage("platform_validation", "running");
-  await delay(150);
-  try {
-    const cert = runGovernancePipeline("deployment", 0);
-    const validationStatus = cert.failures > 0 ? "failed" : (cert.certified ? "completed" : "warning");
-    setStage("platform_validation", validationStatus, {
-      score: cert.overallGovernanceScore,
-      certified: cert.certified,
-      failures: cert.failures,
-      warnings: cert.warnings,
-    });
-  } catch (e) {
-    setStage("platform_validation", "failed", { error: e.message });
-  }
-
-  // ── 3. Guardian™ ──
-  setStage("guardian", "running");
+  // ── 1. Security Hardening ──
+  setStage("security_hardening", "running");
   dispatch("GuardianStarted", { source: "deployment_pipeline" });
   await delay(150);
   try {
     const guardianResult = await runGuardianScan({ trigger: "deployment", userId, autoResolve: true });
     dispatch("GuardianCompleted", { source: "deployment_pipeline", scanId: guardianResult.scanId });
-    setStage("guardian", "completed", {
+    const guardianPending = guardianResult.pending?.length ?? 0;
+    setStage("security_hardening", guardianPending > 0 ? "warning" : "completed", {
       repaired: guardianResult.issuesFixed,
-      pending: guardianResult.pending?.length ?? 0,
+      pending: guardianPending,
       alerts: guardianResult.alertsCount,
       rolledBack: guardianResult.rolledBack,
     });
   } catch (e) {
     dispatch("GuardianCompleted", { source: "deployment_pipeline", error: e.message });
-    setStage("guardian", "warning", { error: e.message });
+    setStage("security_hardening", "warning", { error: e.message });
   }
 
-  // ── 4. EXEC™ Knowledge Synchronization™ ──
-  setStage("knowledge_sync", "running");
-  await delay(150);
-  try {
-    syncAssets = discoverPlatformAssets();
-    const validation = validateKnowledgeSync(syncAssets);
-    syncRegistries = buildRegistries(syncAssets, validation);
-    dispatch("KnowledgeSyncCompleted", { source: "deployment_pipeline", assets: syncAssets.counts });
-    setStage("knowledge_sync", "completed", {
-      assets: syncAssets.counts,
-      registries: Object.keys(syncRegistries).length,
-      findings: validation.findings.length,
-      errors: validation.errors.length,
-    });
-  } catch (e) {
-    setStage("knowledge_sync", "failed", { error: e.message });
-  }
-
-  // ── 5. EXEC™ Intelligence Refresh™ ──
-  setStage("intelligence_refresh", "running");
-  await delay(150);
-  try {
-    if (!syncAssets || !syncRegistries) throw new Error("Knowledge sync did not produce assets");
-    const intelligence = refreshIntelligenceCaches(syncAssets, syncRegistries);
-    dispatch("IntelligenceRefreshCompleted", { source: "deployment_pipeline" });
-    setStage("intelligence_refresh", "completed", {
-      caches: Object.keys(intelligence).length,
-      capabilityGraphNodes: intelligence.capabilityGraph?.nodes ?? 0,
-      platformGraphNodes: intelligence.platformGraph?.nodes ?? 0,
-    });
-  } catch (e) {
-    setStage("intelligence_refresh", "failed", { error: e.message });
-  }
-
-  // ── 6. Deployment Verification™ ──
-  setStage("deployment_verification", "running");
-  await delay(150);
-  try {
-    const readiness = computeDeploymentReadiness();
-    setStage("deployment_verification", readiness.summary.canDeploy ? "completed" : "failed", {
-      passed: readiness.summary.passed,
-      total: readiness.summary.total,
-      healthScore: readiness.summary.healthScore,
-      canDeploy: readiness.summary.canDeploy,
-    });
-  } catch (e) {
-    setStage("deployment_verification", "failed", { error: e.message });
-  }
-
-  // ── 7. Security Regression Suite™ ──
-  setStage("security_regression", "running");
+  // ── 2. Security Verification ──
+  setStage("security_verification", "running");
   await delay(200);
   try {
-    const securityResults = runSecurityRegressionSuite();
+    securityResults = runSecurityRegressionSuite();
     const securityBlocked = securityResults.blocked;
-    setStage("security_regression", securityBlocked ? "failed" : "completed", {
+    const hasWarnings = (securityResults.warningFailures ?? 0) > 0;
+    const verificationStatus = securityBlocked ? "failed" : (hasWarnings ? "warning" : "completed");
+    setStage("security_verification", verificationStatus, {
       total: securityResults.total,
       passed: securityResults.passed,
       failed: securityResults.failed,
       blocked: securityBlocked,
       criticalFailures: securityResults.criticalFailures,
-      categories: securityResults.categories,
+      warningFailures: securityResults.warningFailures ?? 0,
+      categories: securityResults.categories?.length ?? 0,
     });
     dispatch("SecurityRegressionCompleted", {
       source: "deployment_pipeline",
@@ -173,28 +105,109 @@ export async function runDeploymentPipeline({ onStageChange, userId } = {}) {
       blocked: securityBlocked,
     });
   } catch (e) {
-    setStage("security_regression", "failed", { error: e.message });
+    setStage("security_verification", "failed", { error: e.message });
+    securityResults = { blocked: true, total: 0, passed: 0, failed: 0, criticalFailures: 1, warningFailures: 0 };
   }
 
-  // ── 8. Production Ready ──
+  // ── 3. Release Candidate 1 (RC1) ──
+  setStage("rc1", "running");
+  dispatch("DeploymentStarted", { source: "deployment_pipeline" });
+  await delay(250);
+  try {
+    // Build
+    const buildVersion = PLATFORM_METADATA.platformVersion;
+    const buildNumber = PLATFORM_METADATA.buildNumber;
+
+    // Platform Validation™
+    governanceCert = runGovernancePipeline("deployment", 0);
+
+    // EXEC™ Knowledge Synchronization™
+    syncAssets = discoverPlatformAssets();
+    syncValidation = validateKnowledgeSync(syncAssets);
+    syncRegistries = buildRegistries(syncAssets, syncValidation);
+    dispatch("KnowledgeSyncCompleted", { source: "deployment_pipeline", assets: syncAssets.counts });
+
+    // EXEC™ Intelligence Refresh™
+    intelligence = refreshIntelligenceCaches(syncAssets, syncRegistries);
+    dispatch("IntelligenceRefreshCompleted", { source: "deployment_pipeline" });
+
+    // Deployment Verification™
+    readiness = computeDeploymentReadiness();
+
+    const rc1Passed = governanceCert.failures === 0 && readiness.summary.canDeploy;
+    setStage("rc1", rc1Passed ? "completed" : "failed", {
+      version: buildVersion,
+      buildNumber,
+      governanceScore: governanceCert.overallGovernanceScore,
+      certified: governanceCert.certified,
+      governanceFailures: governanceCert.failures,
+      governanceWarnings: governanceCert.warnings,
+      assets: syncAssets.counts,
+      registries: Object.keys(syncRegistries).length,
+      syncFindings: syncValidation.findings.length,
+      syncErrors: syncValidation.errors.length,
+      intelligenceCaches: Object.keys(intelligence).length,
+      capabilityGraphNodes: intelligence.capabilityGraph?.nodes ?? 0,
+      platformGraphNodes: intelligence.platformGraph?.nodes ?? 0,
+      readinessPassed: readiness.summary.passed,
+      readinessTotal: readiness.summary.total,
+      healthScore: readiness.summary.healthScore,
+      canDeploy: readiness.summary.canDeploy,
+    });
+  } catch (e) {
+    setStage("rc1", "failed", { error: e.message });
+  }
+
+  // ── 4. Production Certification™ ──
   await delay(150);
-  const verificationPassed = results.deployment_verification?.status === "completed";
-  const securityPassed = results.security_regression?.status === "completed";
-  const productionReady = verificationPassed && securityPassed;
-  setStage("production_ready", productionReady ? "completed" : "failed", {
-    productionReady,
-    securityBlocked: !securityPassed,
+  const hardeningPassed = results.security_hardening?.status === "completed" || results.security_hardening?.status === "warning";
+  const verificationPassed = results.security_verification?.status === "completed";
+  const verificationWarning = results.security_verification?.status === "warning";
+  const rc1Passed = results.rc1?.status === "completed";
+
+  const hasWarnings =
+    verificationWarning ||
+    (governanceCert?.warnings ?? 0) > 0 ||
+    (results.security_hardening?.data?.pending ?? 0) > 0;
+
+  let finalDecision = "BLOCKED";
+  if (verificationPassed && rc1Passed && hardeningPassed && !hasWarnings) {
+    finalDecision = "GO";
+  } else if ((verificationPassed || verificationWarning) && rc1Passed && hardeningPassed) {
+    finalDecision = "CONDITIONAL_GO";
+  }
+
+  const productionReady = finalDecision === "GO";
+  setStage("production_certification", productionReady ? "completed" : "failed", {
+    certified: productionReady,
+    finalDecision,
+    rcVersion: "RC1",
+    buildNumber: PLATFORM_METADATA.buildNumber,
     platformVersion: PLATFORM_METADATA.platformVersion,
+    governanceScore: governanceCert?.overallGovernanceScore ?? 0,
+    securityPassed: verificationPassed,
+    rc1Passed,
+    hardeningPassed,
   });
-  dispatch("DeploymentCompleted", { source: "deployment_pipeline", productionReady });
+  dispatch("DeploymentCompleted", { source: "deployment_pipeline", productionReady, finalDecision });
+
+  // ── 5. Sprint 4 (next phase — gated) ──
+  const sprint4Ready = productionReady;
+  setStage("sprint_4", sprint4Ready ? "completed" : "pending", {
+    phase: "Enterprise Procurement™",
+    ready: sprint4Ready,
+    note: sprint4Ready
+      ? "Certification complete — Sprint 4 cleared to begin."
+      : "Blocked pending Production Certification™.",
+  });
 
   return {
     stages: results,
     productionReady,
-    securityBlocked: !securityPassed,
+    finalDecision,
     duration: Date.now() - startTime,
     timestamp: new Date().toISOString(),
-    pipelineVersion: "1.0",
+    pipelineVersion: "2.0",
     platformVersion: PLATFORM_METADATA.platformVersion,
   };
 }

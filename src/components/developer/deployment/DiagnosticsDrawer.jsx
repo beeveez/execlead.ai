@@ -12,14 +12,11 @@ import ProductionCertificationDiagnostics from "./stages/ProductionCertification
 import SecurityRegressionDiagnostics from "./stages/SecurityRegressionDiagnostics";
 
 const STAGE_COMPONENTS = {
-  build: BuildDiagnostics,
-  platform_validation: PlatformValidationDiagnostics,
-  guardian: GuardianDiagnostics,
-  knowledge_sync: KnowledgeSyncDiagnostics,
-  intelligence_refresh: IntelligenceRefreshDiagnostics,
-  deployment_verification: DeploymentVerificationDiagnostics,
-  security_regression: SecurityRegressionDiagnostics,
-  production_ready: ProductionCertificationDiagnostics,
+  security_hardening: GuardianDiagnostics,
+  security_verification: SecurityRegressionDiagnostics,
+  rc1: PlatformValidationDiagnostics,
+  production_certification: ProductionCertificationDiagnostics,
+  sprint_4: ProductionCertificationDiagnostics,
 };
 
 const FILTER_OPTIONS = [

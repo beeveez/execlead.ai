@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Rocket, ArrowRight, Tag, Shield, Settings, BarChart3, Link as LinkIcon } from "lucide-react";
+import { Rocket, ArrowRight, Tag, Shield, Settings, BarChart3, KeyRound, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import BetaHero from "./beta/BetaHero";
@@ -32,6 +32,33 @@ export default function FoundingMemberSection() {
 
       <div className="relative space-y-16 md:space-y-20">
         <BetaHero onApply={scrollToApply} />
+
+        {/* Access vs Membership Distinction */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-white/[0.03] border border-amber-500/15 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-2">
+              <KeyRound size={16} className="text-amber-400" />
+              <h3 className="text-white font-semibold text-sm">Access</h3>
+              <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-[9px] text-amber-400 font-medium uppercase tracking-wider">Beta</span>
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed">
+              Granted through the Founding Private Beta™ application and approval process.
+              Access is temporary during the beta period and subject to continued participation.
+            </p>
+          </div>
+          <div className="bg-white/[0.03] border border-indigo-500/15 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Crown size={16} className="text-indigo-400" />
+              <h3 className="text-white font-semibold text-sm">Membership</h3>
+              <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-[9px] text-indigo-400 font-medium uppercase tracking-wider">Long-term</span>
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed">
+              The long-term status and benefits a user receives once accepted — and further
+              enriched when EXECLEAD.AI reaches General Availability. Membership is permanent.
+            </p>
+          </div>
+        </div>
+
         <BetaBenefits />
         <ApplicationFlow />
         <FoundingMemberValueCalc />

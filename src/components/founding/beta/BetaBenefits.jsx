@@ -28,7 +28,7 @@ export default function BetaBenefits() {
           <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
             <Zap size={16} className="text-amber-400" />
           </div>
-          <h3 className="text-white font-semibold text-lg">Immediate Beta Benefits</h3>
+          <h3 className="text-white font-semibold text-lg">Beta Access — Immediate</h3>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {BETA_BENEFITS.map((b, i) => (
@@ -54,7 +54,7 @@ export default function BetaBenefits() {
           <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center">
             <Crown size={16} className="text-indigo-400" />
           </div>
-          <h3 className="text-white font-semibold text-lg">General Availability Benefits</h3>
+          <h3 className="text-white font-semibold text-lg">Founding Membership — General Availability</h3>
           <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-[10px] text-indigo-400 font-medium uppercase tracking-wider">
             Post-GA
           </span>

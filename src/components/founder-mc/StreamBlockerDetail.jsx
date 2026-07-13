@@ -43,7 +43,7 @@ export default function StreamBlockerDetail({ blocker }) {
       </button>
 
       {expanded && (
-        <div className="px-3 pb-3 pt-1 border-t border-white/5">
+        <div className="px-3 pb-4 pt-2 border-t border-white/5">
           <DetailRow icon={User} label="Engineering Owner" value={blocker.owner} />
           <DetailRow icon={AlertCircle} label="Priority" value={style.label} color={style.color} />
           <DetailRow icon={ListChecks} label="Status" value={blocker.status} />

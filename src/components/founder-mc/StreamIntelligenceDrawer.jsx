@@ -190,7 +190,7 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
             ) : (
               <>
                 <p className="text-[10px] text-white/30 mb-3">Click any blocker to view owner, priority, evidence, recommended fix, and estimated effort.</p>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {intel.blockers.map((b) => (
                     <StreamBlockerDetail key={b.id} blocker={b} />
                   ))}

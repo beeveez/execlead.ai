@@ -101,7 +101,7 @@ export const DIGITAL_SIGNATURE_FIELDS = [
   'Acceptance Version', 'Digital Signature Hash'
 ];
 
-export const VISION_TEXT = `EXECLEAD.AI should become the world's most trusted executive leadership community.
+export const VISION_TEXT = `EXECLEAD.AI aspires to be a trusted executive leadership community.
 
 Members should immediately recognize that this is not a traditional social platform but a professional environment where executive reputation, integrity, and respectful leadership are expected at all times.
 
@@ -111,7 +111,7 @@ export const RENEWAL_TEXT = `If Community Standards change significantly, member
 
 export const APPEALS_TEXT = `Members may appeal moderation decisions. Appeals are reviewed by Platform Administrators. All actions are recorded in the Audit Log.`;
 
-export const OBJECTIVE_TEXT = `Establish EXECLEAD.AI as the world's most professional executive leadership community by requiring every member to agree to an Executive Code of Conduct before participating in discussions, commenting, publishing, mentoring, networking, or community activities.
+export const OBJECTIVE_TEXT = `Establish EXECLEAD.AI as a professional executive leadership community by requiring every member to agree to an Executive Code of Conduct before participating in discussions, commenting, publishing, mentoring, networking, or community activities.
 
 Unlike traditional social media, EXECLEAD.AI is built on professionalism, respect, accountability, integrity, and leadership.
 

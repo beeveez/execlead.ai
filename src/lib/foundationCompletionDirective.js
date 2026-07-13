@@ -115,7 +115,7 @@ export const FOUNDATION_GOVERNANCE_SERVICES = [
 // ── Product Vision evolution ──
 export const PRODUCT_VISION = {
   from: "An AI platform with many modules",
-  to: "The world's most trusted Executive Intelligence Operating System",
+  to: "A trusted Executive Intelligence Operating System",
   everyRelease: ["More intelligent", "More explainable", "More personalized", "More predictive", "More trustworthy"],
 };
 

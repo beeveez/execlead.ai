@@ -126,7 +126,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="text-lg md:text-xl font-medium text-white/60 max-w-3xl mx-auto mb-4 leading-relaxed"
             >
-            The world's first AI Executive Leadership Operating System that helps professionals, managers, and organizations develop executive leaders through AI coaching, simulations, assessments, and enterprise intelligence.
+            An AI Executive Leadership Operating System designed to help professionals, managers, and organizations develop leadership capability through AI coaching, executive simulations, assessments, analytics, and enterprise intelligence.
             </motion.p>
 
           <motion.p
@@ -338,7 +338,7 @@ export default function Landing() {
                 Organizations today need more than online courses or isolated executive coaching.
               </p>
               <p className="text-white/50 text-base md:text-lg leading-relaxed">
-                EXECLEAD.AI is being built as the world's first AI Executive Leadership Operating System, designed to help professionals, managers, executives, and enterprises develop leadership capability through AI coaching, executive simulations, assessments, analytics, and enterprise intelligence.
+                EXECLEAD.AI is an AI Executive Leadership Operating System designed to help professionals, managers, executives, and organizations develop leadership capability through AI coaching, executive simulations, assessments, analytics, enterprise intelligence, and governance.
               </p>
               <p className="text-white/50 text-base md:text-lg leading-relaxed">
                 During our Founding Private Beta™, we are partnering with executive professionals and organizations to validate the platform, refine the experience, and prepare for General Availability.
@@ -378,6 +378,23 @@ export default function Landing() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Vision */}
+      <section className="py-20 px-6 lg:px-8 bg-white/[0.01]">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-400 mb-6">
+            <Compass size={12} />
+            Vision™
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Vision</h2>
+          <p className="text-white/50 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+            Our vision is to establish the AI Executive Leadership Operating System category and become one of the world's most trusted platforms for executive leadership development.
+          </p>
+          <p className="text-white/30 text-sm mt-4 max-w-xl mx-auto">
+            We are building toward this vision through continuous innovation, partnership with executive professionals, and a commitment to governance, trust, and measurable leadership outcomes.
+          </p>
         </div>
       </section>
 

@@ -47,6 +47,22 @@ export const BANNED_TERMS = [
   { term: "used by", category: "social_proof", note: "Adoption claim — requires verified usage data" },
   { term: "recognized by", category: "endorsement", note: "Endorsement claim — requires verified recognition" },
   { term: "customers achieved", category: "outcome_claim", note: "Customer outcome claim — requires verified case studies" },
+  // Superlative claims — require verified evidence and Executive Trust Framework™ approval
+  { term: "world's first", category: "superlative", note: "Superlative claim — requires verified evidence" },
+  { term: "the first platform", category: "superlative", note: "Priority claim — requires verified evidence" },
+  { term: "only platform", category: "superlative", note: "Exclusivity claim — requires verified evidence" },
+  { term: "only solution", category: "superlative", note: "Exclusivity claim — requires verified evidence" },
+  { term: "industry-leading", category: "superlative", note: "Leadership claim — requires verified evidence" },
+  { term: "best platform", category: "superlative", note: "Superlative claim — requires verified evidence" },
+  { term: "number one", category: "superlative", note: "Ranking claim — requires verified evidence" },
+  { term: "leading platform", category: "superlative", note: "Leadership claim — requires verified evidence" },
+  { term: "most trusted", category: "superlative", note: "Trust claim — requires verified evidence" },
+  { term: "most comprehensive", category: "superlative", note: "Comprehensiveness claim — requires verified evidence" },
+  { term: "revolutionary", category: "superlative", note: "Revolutionary claim — requires verified evidence" },
+  { term: "unmatched", category: "superlative", note: "Unmatched claim — requires verified evidence" },
+  { term: "unrivaled", category: "superlative", note: "Unrivaled claim — requires verified evidence" },
+  { term: "largest", category: "superlative", note: "Scale claim — requires verified evidence" },
+  { term: "fastest", category: "superlative", note: "Speed claim — requires verified evidence" },
 ];
 
 function splitSentences(text) {
@@ -57,7 +73,12 @@ function splitSentences(text) {
 function classifyStatement(text) {
   const lower = text.toLowerCase();
 
-  // Check for banned terms
+  // Vision/aspiration statements are exempt from banned-term checks
+  if (lower.includes("our vision") || lower.includes("we believe") || lower.includes("our goal") || lower.includes("our focus") || lower.includes("we aspire") || lower.includes("should become") || lower.includes("aspires to be")) {
+    return { classification: CLASSIFICATIONS.VISION, severity: "ok" };
+  }
+
+  // Check for banned terms (non-vision statements only)
   const violation = BANNED_TERMS.find((b) => lower.includes(b.term));
   if (violation) {
     return {
@@ -68,13 +89,10 @@ function classifyStatement(text) {
   }
 
   // Classify based on language patterns
-  if (lower.includes("vision") || lower.includes("we believe") || lower.includes("our goal") || lower.includes("our focus")) {
-    return { classification: CLASSIFICATIONS.VISION, severity: "ok" };
-  }
   if (lower.includes("roadmap") || lower.includes("upcoming") || lower.includes("future") || lower.includes("will be") || lower.includes("prepare for")) {
     return { classification: CLASSIFICATIONS.ROADMAP, severity: "ok" };
   }
-  // Default to Product Capability for descriptive statements
+
   return { classification: CLASSIFICATIONS.PRODUCT_CAPABILITY, severity: "ok" };
 }
 
@@ -109,13 +127,19 @@ export const MARKETING_SECTIONS = [
     id: "organizational_value",
     name: "Why Organizations Are Exploring EXECLEAD.AI",
     page: "Landing.jsx",
-    copy: `Organizations today need more than online courses or isolated executive coaching. EXECLEAD.AI is being built as the world's first AI Executive Leadership Operating System, designed to help professionals, managers, executives, and enterprises develop leadership capability through AI coaching, executive simulations, assessments, analytics, and enterprise intelligence. During our Founding Private Beta, we are partnering with executive professionals and organizations to validate the platform, refine the experience, and prepare for General Availability.`,
+    copy: `Organizations today need more than online courses or isolated executive coaching. EXECLEAD.AI is an AI Executive Leadership Operating System designed to help professionals, managers, executives, and organizations develop leadership capability through AI coaching, executive simulations, assessments, analytics, enterprise intelligence, and governance. During our Founding Private Beta, we are partnering with executive professionals and organizations to validate the platform, refine the experience, and prepare for General Availability.`,
   },
   {
     id: "hero",
     name: "Landing Hero",
     page: "Landing.jsx",
-    copy: `Become the Executive Every Company Wants to Hire. The world's first AI Executive Leadership Operating System that helps professionals, managers, and organizations develop executive leaders through AI coaching, simulations, assessments, and enterprise intelligence. One Leadership Journey. One AI Platform.`,
+    copy: `Become the Executive Every Company Wants to Hire. An AI Executive Leadership Operating System designed to help professionals, managers, and organizations develop leadership capability through AI coaching, executive simulations, assessments, analytics, and enterprise intelligence. One Leadership Journey. One AI Platform.`,
+  },
+  {
+    id: "vision",
+    name: "Our Vision",
+    page: "Landing.jsx",
+    copy: `Our vision is to establish the AI Executive Leadership Operating System category and become one of the world's most trusted platforms for executive leadership development. We are building toward this vision through continuous innovation, partnership with executive professionals, and a commitment to governance, trust, and measurable leadership outcomes.`,
   },
   {
     id: "pricing_hero",

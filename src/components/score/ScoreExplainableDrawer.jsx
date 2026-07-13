@@ -25,7 +25,7 @@ ${context}
 
 FOUNDER QUESTION: Why is ${explanation.label} not 100%?
 
-Answer concisely in markdown. Explain exactly which contributions are below target and how many points each contributes to the remaining gap. Cite specific scores, weights, and effort estimates from the telemetry. End with the top 3 actions to reach 100%. Do not use generic language — every claim must reference a number from the telemetry above.`;
+Answer concisely in markdown. Use the EXACT scoring formula from the telemetry above to explain the gap. For each metric below target, cite its current score, raw gap, mitigation %, and effective penalty. Never invoke "hidden weighting", "reconciliation discrepancy", "unexplained variance", or "active mitigation weighting" — every point must be traceable to a named metric with a specific number. End with the top 3 actions to reach 100%. Every claim must reference a number from the telemetry above.`;
       const res = await base44.integrations.Core.InvokeLLM({ prompt, model: "automatic" });
       setWhyNotResponse(typeof res === "string" ? res : JSON.stringify(res));
     } catch (e) {
@@ -131,34 +131,51 @@ Answer concisely in markdown. Explain exactly which contributions are below targ
               <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider">Contribution Breakdown™</h3>
               <span className="text-[10px] text-white/30 ml-auto">Click any contribution for diagnostics</span>
             </div>
-            <div className="space-y-2">
-              {explanation.contributions.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setActiveContribution(c.id)}
-                  className="w-full flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2.5 text-left hover:bg-white/[0.04] transition-colors group"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-white/70 font-medium truncate group-hover:text-indigo-300 transition-colors">{c.label}</span>
-                      <span className="text-xs font-mono text-white/60">{explanation.pointsBased ? `${c.earnedPoints}/${c.maxPoints}` : `${c.score}/100`}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all"
-                          style={{
-                            width: `${((explanation.pointsBased ? c.gap : c.gapContribution) / maxGap) * 100}%`,
-                            backgroundColor: (explanation.pointsBased ? c.gap > c.maxPoints * 0.5 : c.gap > 20) ? "#ef4444" : (explanation.pointsBased ? c.gap > 0 : c.gap > 10) ? "#f59e0b" : "#3b82f6",
-                          }}
-                        />
+            {explanation.penaltyBased ? (
+              <div className="space-y-1">
+                <div className="grid grid-cols-[1fr_45px_45px_50px_50px] gap-1 px-2 pb-1 text-[9px] text-white/30 uppercase tracking-wider">
+                  <span>Metric</span><span className="text-right">Current</span><span className="text-right">Raw Gap</span><span className="text-right">Mitigation</span><span className="text-right">Penalty</span>
+                </div>
+                {explanation.contributions.map((c) => (
+                  <button key={c.id} onClick={() => setActiveContribution(c.id)} className="w-full grid grid-cols-[1fr_45px_45px_50px_50px] gap-1 items-center bg-white/[0.02] border border-white/5 rounded-lg px-2 py-2 text-left hover:bg-white/[0.04] transition-colors group">
+                    <span className="text-xs text-white/70 font-medium truncate group-hover:text-indigo-300 transition-colors">{c.label}</span>
+                    <span className="text-xs font-mono text-white/60 text-right">{c.current}%</span>
+                    <span className="text-xs font-mono text-white/50 text-right">{c.rawGap}</span>
+                    <span className="text-xs font-mono text-cyan-400 text-right">{c.mitigation}%</span>
+                    <span className={`text-xs font-mono text-right ${c.effectivePenalty > 0 ? "text-amber-400" : "text-emerald-400"}`}>{c.effectivePenalty > 0 ? c.effectivePenalty : "✓"}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {explanation.contributions.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setActiveContribution(c.id)}
+                    className="w-full flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2.5 text-left hover:bg-white/[0.04] transition-colors group"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-white/70 font-medium truncate group-hover:text-indigo-300 transition-colors">{c.label}</span>
+                        <span className="text-xs font-mono text-white/60">{explanation.pointsBased ? `${c.earnedPoints}/${c.maxPoints}` : `${c.score}/100`}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-white/40 w-10 text-right">{explanation.pointsBased ? `${c.gap} pts` : `${c.gapContribution}%`}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${((explanation.pointsBased ? c.gap : c.gapContribution) / maxGap) * 100}%`,
+                              backgroundColor: (explanation.pointsBased ? c.gap > c.maxPoints * 0.5 : c.gap > 20) ? "#ef4444" : (explanation.pointsBased ? c.gap > 0 : c.gap > 10) ? "#f59e0b" : "#3b82f6",
+                            }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-mono text-white/40 w-10 text-right">{explanation.pointsBased ? `${c.gap} pts` : `${c.gapContribution}%`}</span>
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight size={14} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
-                </button>
-              ))}
-            </div>
+                    <ChevronRight size={14} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
               <span className="text-[10px] text-white/30 uppercase tracking-wider">{explanation.pointsBased ? `Total: ${explanation.completedPoints}/${explanation.target} pts` : "Total Remaining Gap"}</span>
               <span className="text-sm font-bold text-amber-400">{explanation.pointsBased ? `${explanation.remaining} pts remaining` : `${explanation.remaining}%`}</span>
@@ -167,6 +184,12 @@ Answer concisely in markdown. Explain exactly which contributions are below targ
               <div className="flex items-center justify-center gap-1.5 mt-1.5">
                 <CheckCircle2 size={10} className="text-emerald-400" />
                 <span className="text-[10px] text-emerald-400/70">{explanation.completedPoints} + {explanation.remaining} = 100 · Reconciled</span>
+              </div>
+            )}
+            {explanation.penaltyBased && (
+              <div className="flex items-center justify-center gap-1.5 mt-1.5">
+                <CheckCircle2 size={10} className="text-emerald-400" />
+                <span className="text-[10px] text-emerald-400/70">100 − {explanation.remainingPoints} = {explanation.currentScore} · Reconciled</span>
               </div>
             )}
           </div>

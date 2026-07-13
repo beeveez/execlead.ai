@@ -25,22 +25,51 @@ export default function ContributionDiagnostics({ scoreId, contributionId, snaps
               <X size={18} />
             </button>
           </div>
-          <div className="flex items-center gap-6 mt-3">
-            <div>
-              <div className="text-[10px] text-white/30 uppercase tracking-wider">Current</div>
-              <div className="text-xl font-bold text-white">{detail.pointsBased ? `${detail.earnedPoints}/${detail.maxPoints}` : `${detail.score}%`}</div>
+          {detail.penaltyBased ? (
+            <div className="flex items-center gap-4 mt-3 flex-wrap">
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Current</div>
+                <div className="text-xl font-bold text-white">{detail.current}%</div>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Target</div>
+                <div className="text-xl font-bold text-white/70">{detail.target}%</div>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Raw Gap</div>
+                <div className="text-xl font-bold text-amber-400">{detail.rawGap}</div>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Mitigation</div>
+                <div className="text-xl font-bold text-cyan-400">{detail.mitigation}%</div>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Effective Penalty</div>
+                <div className="text-xl font-bold" style={{ color: detail.effectivePenalty > 0 ? "#f59e0b" : "#10b981" }}>{detail.effectivePenalty > 0 ? `${detail.effectivePenalty} pts` : "✓"}</div>
+              </div>
             </div>
-            <div className="h-8 w-px bg-white/10" />
-            <div>
-              <div className="text-[10px] text-white/30 uppercase tracking-wider">Target</div>
-              <div className="text-xl font-bold text-white/70">{detail.pointsBased ? `${detail.maxPoints} pts` : "100%"}</div>
+          ) : (
+            <div className="flex items-center gap-6 mt-3">
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Current</div>
+                <div className="text-xl font-bold text-white">{detail.pointsBased ? `${detail.earnedPoints}/${detail.maxPoints}` : `${detail.score}%`}</div>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Target</div>
+                <div className="text-xl font-bold text-white/70">{detail.pointsBased ? `${detail.maxPoints} pts` : "100%"}</div>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Gap</div>
+                <div className="text-xl font-bold" style={{ color: detail.gap > 0 ? "#f59e0b" : "#10b981" }}>{detail.gap > 0 ? `${detail.gap} pts` : "✓"}</div>
+              </div>
             </div>
-            <div className="h-8 w-px bg-white/10" />
-            <div>
-              <div className="text-[10px] text-white/30 uppercase tracking-wider">Gap</div>
-              <div className="text-xl font-bold" style={{ color: detail.gap > 0 ? "#f59e0b" : "#10b981" }}>{detail.gap > 0 ? `${detail.gap} pts` : "✓"}</div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Content */}

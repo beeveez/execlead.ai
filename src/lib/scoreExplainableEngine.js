@@ -297,18 +297,56 @@ export const SCORE_REGISTRY = {
     owner: "Release Engineering",
     deepLink: "/developer/launch-readiness",
     module: "Launch Readiness Engine™",
-    getScore: (s) => s.launchReadiness?.launchReadinessScore ?? 0,
+    penaltyBased: true,
+    getScore: () => 0,
     getContributions: (s) => {
       const phases = s.launchReadiness?.phases || [];
-      if (phases.length === 0) return [{ id: "overall", label: "Launch Readiness", weight: 1, score: s.launchReadiness?.launchReadinessScore ?? 0, owner: "Release Engineering", deepLink: "/developer/launch-readiness", category: "Launch", dependencies: ["Launch Readiness Engine™"] }];
-      const w = 1 / phases.length;
+      if (phases.length === 0) {
+        return [{ id: "overall", label: "Launch Readiness", weight: 100, current: 0, mitigation: 0,
+          owner: "Release Engineering", deepLink: "/developer/launch-readiness", category: "Launch Phase",
+          dependencies: ["Launch Readiness Engine™"] }];
+      }
+      const weightPerPhase = 100 / phases.length;
       return phases.map((phase) => {
         const reqs = phase.requirements || [];
-        const passed = reqs.filter((r) => r.passed).length;
-        const score = reqs.length > 0 ? clamp((passed / reqs.length) * 100) : phase.passed ? 100 : 0;
+        const passedReqs = reqs.filter((r) => r.passed).length;
+        const totalReqs = reqs.length;
+        const phaseTarget = phase.target || 100;
+        const current = clamp(phase.score ?? 0);
+        const mitigation = totalReqs > 0 ? clamp((passedReqs / totalReqs) * 100) : clamp(current);
+        const failedReqs = reqs.filter((r) => !r.passed);
         return {
-          id: phase.id || phase.name, label: phase.name || "Phase", weight: w, score,
-          owner: "Release Engineering", deepLink: phase.deepLink || "/developer/launch-readiness", category: "Launch", dependencies: ["Launch Readiness Engine™"],
+          id: phase.id || phase.name,
+          label: phase.name || "Phase",
+          weight: weightPerPhase,
+          current,
+          mitigation,
+          phaseTarget,
+          owner: "Release Engineering",
+          deepLink: phase.deepLink || "/developer/launch-readiness",
+          category: "Launch Phase",
+          dependencies: ["Launch Readiness Engine™"],
+          passedReqs, totalReqs,
+          blockers: phase.totalBlockers || 0,
+          engineeringTasks: phase.passed
+            ? [`${phase.name} is at target — maintain current posture`]
+            : [
+                ...failedReqs.map((r) => `Complete: ${r.label} (${r.detail || "pending"})`),
+                `Reach ${phaseTarget}% target for ${phase.name}`,
+                `Re-run Launch Readiness Engine™ to verify`,
+              ],
+          risks: phase.passed ? [] : [
+            { description: `${phase.name} below target (${current}%/${phaseTarget}%)`, severity: current < 50 ? "high" : "medium", mitigation: `Complete ${totalReqs - passedReqs} remaining requirement(s)` },
+          ],
+          timeline: [
+            { milestone: `${phase.name} at target`, target: phase.passed ? "Complete" : "Sprint 4", status: phase.passed ? "complete" : "pending" },
+          ],
+          evidence: [
+            `Phase score: ${current}%`,
+            `Target: ${phaseTarget}%`,
+            `Requirements: ${passedReqs}/${totalReqs} passed`,
+            ...(phase.totalBlockers ? [`${phase.totalBlockers} blocker(s)`] : []),
+          ],
         };
       });
     },
@@ -406,9 +444,25 @@ export function computeScoreExplanation(scoreId, snapshot) {
   }
 
   const pointsBased = def.pointsBased === true;
+  const penaltyBased = def.penaltyBased === true;
   let contributions, currentScore, formula, completedPoints, remainingPoints;
 
-  if (pointsBased) {
+  if (penaltyBased) {
+    contributions = rawContributions.map((c) => {
+      const weight = c.weight ?? 0;
+      const current = clamp(c.current ?? 0);
+      const mitigation = clamp(c.mitigation ?? 0);
+      const rawGap = round1((weight * (100 - current)) / 100);
+      const effectivePenalty = round1(rawGap * (1 - mitigation / 100));
+      return { ...c, weight, current, mitigation, rawGap, effectivePenalty };
+    });
+    const totalEffectivePenalty = round1(contributions.reduce((s, c) => s + c.effectivePenalty, 0));
+    currentScore = clamp(100 - totalEffectivePenalty);
+    formula = `${def.label} = 100 − Σ(Effective Penalties) = 100 − ${totalEffectivePenalty} = ${currentScore}`;
+    completedPoints = currentScore;
+    remainingPoints = totalEffectivePenalty;
+    contributions.sort((a, b) => b.effectivePenalty - a.effectivePenalty);
+  } else if (pointsBased) {
     contributions = rawContributions.map((c) => {
       const maxPoints = c.maxPoints ?? 0;
       const earnedPoints = Math.max(0, Math.min(maxPoints, round1(Number(c.earnedPoints) || 0)));
@@ -439,9 +493,9 @@ export function computeScoreExplanation(scoreId, snapshot) {
   const remaining = round1(Math.max(0, target - currentScore));
 
   const effortHours = contributions.reduce((sum, c) => {
-    const gapVal = pointsBased ? c.gap : c.gapContribution;
+    const gapVal = penaltyBased ? c.effectivePenalty : pointsBased ? c.gap : c.gapContribution;
     if (gapVal <= 0) return sum;
-    const big = pointsBased ? 5 : 20;
+    const big = penaltyBased ? 10 : pointsBased ? 5 : 20;
     return sum + (gapVal > big ? 16 : gapVal > big / 2 ? 8 : gapVal > 1 ? 4 : 2);
   }, 0);
 
@@ -463,7 +517,7 @@ export function computeScoreExplanation(scoreId, snapshot) {
     target, currentScore, remaining, contributions, formula,
     completedPoints, remainingPoints, projectedCompletion,
     engineeringEffort: effortHours > 0 ? `${effortHours} hours` : "None — at target",
-    effortHours, confidence, confidenceDetail, pointsBased,
+    effortHours, confidence, confidenceDetail, pointsBased, penaltyBased,
   };
 }
 
@@ -475,6 +529,45 @@ export function computeContributionDetail(scoreId, contributionId, snapshot) {
 
   const def = SCORE_REGISTRY[scoreId];
   const pointsBased = explanation.pointsBased;
+  const penaltyBased = explanation.penaltyBased;
+
+  if (penaltyBased) {
+    const { weight, current, mitigation, rawGap, effectivePenalty } = contribution;
+    const phaseTarget = contribution.phaseTarget || 100;
+    const blockingIssues = [];
+    if (effectivePenalty > weight * 0.5) {
+      blockingIssues.push({ title: `${contribution.label} critically below target`, priority: "P0", status: "Blocking", description: `Current ${current}%, effective penalty ${effectivePenalty} pts after ${mitigation}% mitigation.`, evidence: [`Current: ${current}%`, `Target: ${phaseTarget}%`, `Raw Gap: ${rawGap}`, `Mitigation: ${mitigation}%`, `Effective Penalty: ${effectivePenalty} pts`] });
+    } else if (effectivePenalty > 0) {
+      blockingIssues.push({ title: `${contribution.label} below target`, priority: "P1", status: "Open", description: `Effective penalty ${effectivePenalty} pts after ${mitigation}% mitigation.`, evidence: [`Current: ${current}%`, `Raw Gap: ${rawGap}`, `Mitigation: ${mitigation}%`, `Effective Penalty: ${effectivePenalty} pts`] });
+    }
+    const engineeringTasks = contribution.engineeringTasks || (effectivePenalty > 0
+      ? [`Close ${rawGap}-point raw gap in ${contribution.label}`, `Verify mitigation coverage (${mitigation}%)`, `Re-run ${def.module} to verify`]
+      : [`${contribution.label} is at target — maintain current posture`]);
+    const effortHours = effectivePenalty > weight * 0.5 ? 16 : effectivePenalty > weight * 0.25 ? 8 : effectivePenalty > 0 ? 4 : 0;
+    const days = Math.ceil(effortHours / 8);
+    const projectedCompletion = effectivePenalty > 0 ? new Date(Date.now() + days * 86400000).toLocaleDateString() : "At target";
+    const subCapabilities = typeof def.getSubCapabilities === "function" ? safe(() => def.getSubCapabilities(snapshot, contributionId), []) : [];
+    const autoEvidence = [
+      `Current Score: ${current}%`,
+      `Target: ${phaseTarget}%`,
+      `Raw Gap: ${rawGap} pts`,
+      `Mitigation: ${mitigation}%`,
+      `Effective Penalty: ${effectivePenalty} pts`,
+      `Weight: ${weight} pts (max penalty)`,
+      `Formula: Effective Penalty = Raw Gap × (1 − Mitigation %)`,
+      `Owner: ${contribution.owner}`,
+    ];
+    const evidence = contribution.evidence ? [...autoEvidence, "", ...contribution.evidence] : autoEvidence;
+    return {
+      ...contribution, scoreLabel: explanation.label, scoreId, penaltyBased: true,
+      target: phaseTarget, current, rawGap, mitigation, effectivePenalty, weight,
+      blockingIssues, engineeringTasks, dependencies: contribution.dependencies || [],
+      estimatedEffort: effortHours > 0 ? `${effortHours} hours` : "None — at target",
+      effortHours, owner: contribution.owner, deepLink: contribution.deepLink,
+      evidence, module: def.module, projectedCompletion,
+      subCapabilities, risks: contribution.risks || [], timeline: contribution.timeline || [],
+    };
+  }
 
   if (pointsBased) {
     const { maxPoints, earnedPoints, gap } = contribution;
@@ -572,12 +665,35 @@ export function buildWhyNot100Context(scoreId, snapshot) {
     `Confidence: ${exp.confidence} (${exp.confidenceDetail})`,
     `Projected Completion: ${exp.projectedCompletion}`,
     ``,
-    `CONTRIBUTION BREAKDOWN${exp.pointsBased ? " (points-based)" : ""}:`,
+    `CONTRIBUTION BREAKDOWN${exp.penaltyBased ? " (penalty-based)" : exp.pointsBased ? " (points-based)" : ""}:`,
   ];
-  if (exp.pointsBased) {
+  if (exp.penaltyBased) {
+    lines.push(`PENALTY FORMULA: Displayed Score = 100 − Σ(Effective Penalties)`);
+    lines.push(`Where: Effective Penalty = Raw Gap × (1 − Mitigation %)`);
+    lines.push(`       Raw Gap = Weight × (100 − Current) / 100`);
+    lines.push(``);
+    exp.contributions.forEach((c) => {
+      lines.push(`- ${c.label}: current ${c.current}%, weight ${c.weight}, raw gap ${c.rawGap}, mitigation ${c.mitigation}%, effective penalty ${c.effectivePenalty} pts [${c.category}]`);
+      if (c.engineeringTasks && c.engineeringTasks.length > 0) {
+        lines.push(`  Engineering tasks: ${c.engineeringTasks.join("; ")}`);
+      }
+      if (c.risks && c.risks.length > 0) {
+        lines.push(`  Risks: ${c.risks.map(r => `${r.description} [${r.severity}]`).join("; ")}`);
+      }
+      if (c.timeline && c.timeline.length > 0) {
+        lines.push(`  Timeline: ${c.timeline.map(t => `${t.milestone} → ${t.target} (${t.status})`).join("; ")}`);
+      }
+    });
+    const totalPenalty = round1(exp.contributions.reduce((s, c) => s + c.effectivePenalty, 0));
+    lines.push(``);
+    lines.push(`RECONCILIATION:`);
+    lines.push(`Σ(Effective Penalties) = ${totalPenalty}`);
+    lines.push(`100 − ${totalPenalty} = ${exp.currentScore} (displayed score)`);
+    lines.push(`Reconciliation: 100 − ${totalPenalty} = ${exp.currentScore} ✓`);
+  } else if (exp.pointsBased) {
     exp.contributions.forEach((c) => {
       lines.push(`- ${c.label}: ${c.earnedPoints}/${c.maxPoints} pts (gap: ${c.gap} pts) [${c.category}]`);
-      if (c.engineeringTasks && c.engineingTasks.length > 0) {
+      if (c.engineeringTasks && c.engineeringTasks.length > 0) {
         lines.push(`  Engineering tasks: ${c.engineeringTasks.join("; ")}`);
       }
       if (c.risks && c.risks.length > 0) {

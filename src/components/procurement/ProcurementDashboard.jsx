@@ -21,7 +21,7 @@ export default function ProcurementDashboard({ requests, onNewRequest, onSelectR
   const categoryBreakdown = useMemo(() => computeCategoryBreakdown(requests), [requests]);
   const slaSummary = useMemo(() => computeSLASummary(requests), [requests]);
   const recent = useMemo(
-    () => [...requests].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 5),
+    () => [...(requests || [])].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 5),
     [requests]
   );
 

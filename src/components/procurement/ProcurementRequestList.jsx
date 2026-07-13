@@ -12,7 +12,7 @@ export default function ProcurementRequestList({ requests, onSelectRequest, onNe
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   const filtered = useMemo(() => {
-    let result = [...requests].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    let result = [...(requests || [])].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     if (pendingOnly) result = result.filter((r) => r.status === "pending_approval");
     if (search) {
       const q = search.toLowerCase();

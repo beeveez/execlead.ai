@@ -40,16 +40,17 @@ export default function ProcurementCommandCenter() {
     setLoading(true);
     try {
       const reqs = await base44.entities.ProcurementRequest.list("-created_date", 500);
-      setRequests(reqs);
+      setRequests(Array.isArray(reqs) ? reqs : []);
     } catch (e) { console.error("Procurement requests load failed:", e); }
     try {
       const orgs = await base44.entities.Organization.list("-created_date", 200);
-      setOrganizations(orgs);
-      if (orgs.length > 0) setSelectedOrgId(orgs[0].id);
+      const orgArr = Array.isArray(orgs) ? orgs : [];
+      setOrganizations(orgArr);
+      if (orgArr.length > 0) setSelectedOrgId(orgArr[0].id);
     } catch (e) { console.error("Organizations load failed:", e); }
     try {
       const depts = await base44.entities.Department.list("-created_date", 500);
-      setDepartments(depts);
+      setDepartments(Array.isArray(depts) ? depts : []);
     } catch (e) { console.error("Departments load failed:", e); }
     setLoading(false);
   };
@@ -58,8 +59,8 @@ export default function ProcurementCommandCenter() {
 
   const selectedOrg = organizations.find((o) => o.id === selectedOrgId);
   const filteredRequests = useMemo(() => {
-    if (!selectedOrgId) return requests;
-    return requests.filter((r) => r.organization_id === selectedOrgId);
+    if (!selectedOrgId) return requests || [];
+    return (requests || []).filter((r) => r.organization_id === selectedOrgId);
   }, [requests, selectedOrgId]);
 
   const handleCreateRequest = async (formData) => {

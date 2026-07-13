@@ -4,9 +4,9 @@ import { computeSLASummary, formatCurrency, getPriorityBadge, getSLABadgeClass, 
 
 export default function ProcurementSLATracking({ requests, onSelectRequest }) {
   const slaSummary = useMemo(() => computeSLASummary(requests), [requests]);
-  const atRisk = useMemo(() => requests.filter((r) => r.sla_status === "at_risk" && ["draft", "pending_approval"].includes(r.status))
+  const atRisk = useMemo(() => (requests || []).filter((r) => r.sla_status === "at_risk" && ["draft", "pending_approval"].includes(r.status))
     .sort((a, b) => new Date(a.sla_deadline) - new Date(b.sla_deadline)), [requests]);
-  const breached = useMemo(() => requests.filter((r) => r.sla_status === "breached" && ["draft", "pending_approval"].includes(r.status))
+  const breached = useMemo(() => (requests || []).filter((r) => r.sla_status === "breached" && ["draft", "pending_approval"].includes(r.status))
     .sort((a, b) => new Date(a.sla_deadline) - new Date(b.sla_deadline)), [requests]);
 
   const complianceRate = slaSummary.total > 0 ? Math.round(((slaSummary.total - slaSummary.breached) / slaSummary.total) * 100) : 100;

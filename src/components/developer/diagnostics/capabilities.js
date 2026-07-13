@@ -1,5 +1,6 @@
-import { Brain } from "lucide-react";
+import { Brain, UserCircle } from "lucide-react";
 import { computeAIMemoryIntelligence } from "@/lib/aiMemoryIntelligenceEngine";
+import { computePersonalizationIntelligence } from "@/lib/personalizationIntelligenceEngine";
 
 /**
  * Universal Diagnostics Workspace™ — Capability Descriptors
@@ -33,7 +34,22 @@ export const AI_MEMORY_CAPABILITY = {
   ],
 };
 
-export const CAPABILITIES = [AI_MEMORY_CAPABILITY];
+export const PERSONALIZATION_CAPABILITY = {
+  id: "personalization",
+  name: "Personalization Intelligence™",
+  shortName: "Personalization",
+  icon: UserCircle,
+  color: "indigo",
+  category: "Cognitive Excellence Engine™",
+  computeIntelligence: computePersonalizationIntelligence,
+  deepLink: "/developer/cognitive/personalization",
+  breadcrumbs: [
+    { label: "Developer Console", path: "/developer" },
+    { label: "Cognitive Excellence Engine™", path: "/developer/cognitive" },
+  ],
+};
+
+export const CAPABILITIES = [AI_MEMORY_CAPABILITY, PERSONALIZATION_CAPABILITY];
 
 export function getCapability(id) {
   return CAPABILITIES.find((c) => c.id === id);

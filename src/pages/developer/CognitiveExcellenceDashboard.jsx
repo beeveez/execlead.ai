@@ -32,6 +32,10 @@ export default function CognitiveExcellenceDashboard() {
       navigate("/developer/cognitive/memory");
       return;
     }
+    if (pillar.id === "personalization") {
+      navigate("/developer/cognitive/personalization");
+      return;
+    }
     setActivePillar(pillar);
   };
 

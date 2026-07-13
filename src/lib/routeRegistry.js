@@ -81,6 +81,7 @@ const APP_ROUTES = [
   { path: "/developer/experience-audit", component: "PlatformExperienceAudit", name: "Platform Autonomic Experience Engine™", feature: "developer_access" },
   { path: "/developer/cognitive", component: "CognitiveExcellenceDashboard", name: "Cognitive Excellence Engine™", feature: "developer_access" },
   { path: "/developer/cognitive/memory", component: "AIMemoryIntelligence", name: "AI Memory Intelligence™", feature: "developer_access" },
+  { path: "/developer/cognitive/personalization", component: "PersonalizationIntelligence", name: "Personalization Intelligence™", feature: "developer_access" },
   { path: "/cpq", component: "CPQWizard", feature: "cpq_access" },
   { path: "/cpq-dashboard", component: "CPQDashboard", feature: "cpq_access" },
   { path: "/company-admin", component: "CompanyAdmin", feature: "company_administration" },

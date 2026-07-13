@@ -3,6 +3,7 @@ import { Boxes, GitBranch, ShieldCheck, Flag, ChevronRight, ExternalLink, Award,
 import MetadataDrawer from "../metadata/MetadataDrawer";
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import { buildFoundationReport } from "@/lib/reports/foundationReportBuilder";
+import AffectedModulesDrillDown from "./AffectedModulesDrillDown";
 
 const GRAPH_NODES = [
   { id: "foundation_cert", label: "Foundation Certification™", icon: Award, color: "indigo", deepLink: "/developer/foundation-certification", description: "The formal architectural acceptance score — current live telemetry from the Foundation Verification Engine™.", sourceFile: "src/lib/foundationCertificationEngine.js" },
@@ -64,7 +65,11 @@ export default function DependencyChain({ cert }) {
         })}
       </div>
 
-      {active && (
+      {active && active.id === "affected_modules" && (
+        <AffectedModulesDrillDown onClose={() => setActive(null)} />
+      )}
+
+      {active && active.id !== "affected_modules" && (
         <MetadataDrawer
           title={active.label}
           subtitle="Dependency Diagnostics™ — Drill-Down"

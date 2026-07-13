@@ -205,10 +205,14 @@ function computeCapabilityCoverage() {
 // PHASE 4 — FRAMEWORK METADATA COVERAGE
 // ============================================================
 
-const FRAMEWORK_REQUIRED_FIELDS = [
-  "purpose", "dependencies", "knowledgePack", "capabilities",
-  "modules", "evidence", "executiveOutcomes", "aiPersonas",
-  "relatedFrameworks", "manifestRegistration",
+const FRAMEWORK_BASE_FIELDS = [
+  "purpose", "executiveOutcomes", "manifestRegistration",
+];
+
+const FRAMEWORK_INTELLIGENCE_FIELDS = [
+  ...FRAMEWORK_BASE_FIELDS,
+  "dependencies", "knowledgePack", "capabilities",
+  "modules", "evidence", "aiPersonas", "relatedFrameworks",
 ];
 
 function computeFrameworkCoverage() {
@@ -241,7 +245,9 @@ function computeFrameworkCoverage() {
       manifestRegistration: true,
     };
 
-    const missingFields = FRAMEWORK_REQUIRED_FIELDS.filter((f) => !metadata[f] || (Array.isArray(metadata[f]) && metadata[f].length === 0));
+    // Intelligence frameworks require full chain; methodology/platform frameworks only need base fields
+    const requiredFields = fw.type === "intelligence" ? FRAMEWORK_INTELLIGENCE_FIELDS : FRAMEWORK_BASE_FIELDS;
+    const missingFields = requiredFields.filter((f) => !metadata[f] || (Array.isArray(metadata[f]) && metadata[f].length === 0));
     return {
       frameworkId: fw.frameworkId,
       frameworkName: fw.name,

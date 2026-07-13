@@ -2,20 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { Brain, Send, Loader2, Sparkles, User } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-const SUGGESTED_QUESTIONS = [
-  "Why is AI Memory only 3/10?",
-  "Show all failing validations.",
-  "Which engineering task has highest impact?",
-  "Generate remediation sprint.",
-  "Estimate remaining effort.",
-  "Generate executive report.",
-];
-
-function buildContext(intel) {
+function buildContext(capability, intel) {
   return `You are EXEC™, the AI diagnostics copilot for EXECLEAD.AI.
 Answer using ONLY the following live telemetry data. Be concise and actionable.
 
-AI Memory Intelligence™ Telemetry:
+${capability.name} Telemetry:
 - Current Score: ${intel.score}/${intel.target} (${intel.percentage}%)
 - Remaining Gap: ${intel.remainingGap} points
 - Potential Score Gain: +${intel.potentialScoreGain}
@@ -33,7 +24,7 @@ Engineering Tasks:
 ${intel.tasks.map((t) => `- [${t.priority}] ${t.task} — Hours: ${t.estimatedHours}, Gain: +${t.potentialScoreGain}, Owner: ${t.owner}, Auto Repair: ${t.autoRepair ? "Yes" : "No"}, Status: ${t.status}`).join("\n")}`;
 }
 
-export default function AIMemoryExecCopilot({ intelligence }) {
+export default function AIMemoryExecCopilot({ intelligence, capability = { name: "AI Memory Intelligence™", shortName: "AI Memory" } }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,6 +36,15 @@ export default function AIMemoryExecCopilot({ intelligence }) {
     }
   }, [messages, loading]);
 
+  const questions = [
+    `Why is ${capability.shortName} only ${intelligence.score}/${intelligence.target}?`,
+    "Show all failing validations.",
+    "Which engineering task has highest impact?",
+    "Generate remediation sprint.",
+    "Estimate remaining effort.",
+    "Generate executive report.",
+  ];
+
   const ask = async (question) => {
     if (loading) return;
     const q = question || input.trim();
@@ -54,7 +54,7 @@ export default function AIMemoryExecCopilot({ intelligence }) {
     setMessages((m) => [...m, { role: "user", content: q }]);
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `${buildContext(intelligence)}\n\nQuestion: ${q}\n\nAnswer concisely using only the telemetry above:`,
+        prompt: `${buildContext(capability, intelligence)}\n\nQuestion: ${q}\n\nAnswer concisely using only the telemetry above:`,
       });
       const answer = typeof res === "string"
         ? res
@@ -81,7 +81,7 @@ export default function AIMemoryExecCopilot({ intelligence }) {
 
       {/* Suggested questions */}
       <div className="flex flex-wrap gap-1.5 mb-3">
-        {SUGGESTED_QUESTIONS.map((q) => (
+        {questions.map((q) => (
           <button
             key={q}
             onClick={() => ask(q)}
@@ -126,7 +126,7 @@ export default function AIMemoryExecCopilot({ intelligence }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && ask()}
-          placeholder="Ask EXEC™ about AI Memory…"
+          placeholder={`Ask EXEC™ about ${capability.shortName}…`}
           disabled={loading}
           className="flex-1 bg-white/[0.02] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white/70 placeholder:text-white/30 focus:outline-none focus:border-violet-500/40 disabled:opacity-50"
         />

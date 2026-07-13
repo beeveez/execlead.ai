@@ -44,7 +44,7 @@ function downloadFile(filename, content, mimeType = "text/plain") {
   URL.revokeObjectURL(url);
 }
 
-export default function AIMemoryHeader({ intelligence, onRecompute }) {
+export default function AIMemoryHeader({ intelligence, onRecompute, capability = { id: "ai-memory", shortName: "AI Memory" } }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(null);
   const pct = intelligence.percentage;
@@ -62,11 +62,11 @@ export default function AIMemoryHeader({ intelligence, onRecompute }) {
             `"${f.issue}","${f.severity}","${f.category}","${f.currentValue}","${f.targetValue}","${f.potentialScoreGain}","${f.estimatedHours}","${f.owner}","${f.status}"`
           ),
         ];
-        downloadFile("ai-memory-failure-registry.csv", rows.join("\n"), "text/csv");
+        downloadFile(`${capability.id}-failure-registry.csv`, rows.join("\n"), "text/csv");
       } else if (reportType.id === "excel") {
-        downloadFile("ai-memory-intelligence.xls", JSON.stringify(intelligence, null, 2), "application/vnd.ms-excel");
+        downloadFile(`${capability.id}-intelligence.xls`, JSON.stringify(intelligence, null, 2), "application/vnd.ms-excel");
       } else {
-        downloadFile(`ai-memory-${reportType.id}.json`, JSON.stringify(intelligence, null, 2), "application/json");
+        downloadFile(`${capability.id}-${reportType.id}.json`, JSON.stringify(intelligence, null, 2), "application/json");
       }
       toast({ title: "Report ready", description: `${reportType.label} exported successfully.` });
       setLoading(null);
@@ -90,7 +90,7 @@ export default function AIMemoryHeader({ intelligence, onRecompute }) {
             <text x="50" y="62" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="10">/ {intelligence.target}</text>
           </svg>
           <div>
-            <div className="text-[10px] text-white/30 uppercase tracking-wider">AI Memory™ Score</div>
+            <div className="text-[10px] text-white/30 uppercase tracking-wider">{capability.shortName}™ Score</div>
             <div className="text-2xl font-bold text-white">{intelligence.score}/{intelligence.target}</div>
             <div className="text-[10px] mt-1" style={{ color: ringColor }}>{pct}% of target</div>
           </div>

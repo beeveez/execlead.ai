@@ -16,7 +16,7 @@ const ACTIONS = [
   { id: "create_ticket", label: "Create Ticket", icon: Ticket, async: false },
 ];
 
-export default function AIMemoryActions({ intelligence, onRecompute }) {
+export default function AIMemoryActions({ intelligence, onRecompute, capability = { shortName: "AI Memory" } }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(null);
 
@@ -32,19 +32,19 @@ export default function AIMemoryActions({ intelligence, onRecompute }) {
     }
 
     if (action.id === "rollback") {
-      toast({ title: "Rollback initiated", description: "AI Memory state rolled back to last verified snapshot." });
+      toast({ title: "Rollback initiated", description: `${capability.shortName} state rolled back to last verified snapshot.` });
       return;
     }
 
     if (action.id === "assign_owner") {
-      toast({ title: "Owner assigned", description: "Engineering Team assigned to all open AI Memory tasks." });
+      toast({ title: "Owner assigned", description: `Engineering Team assigned to all open ${capability.shortName} tasks.` });
       return;
     }
 
     if (action.id === "create_ticket") {
       toast({
         title: "Engineering ticket created",
-        description: `Ticket created for ${intelligence.failures.length} AI Memory failures — ${intelligence.remainingGap} pts gap.`,
+        description: `Ticket created for ${intelligence.failures.length} ${capability.shortName} failures — ${intelligence.remainingGap} pts gap.`,
       });
       return;
     }
@@ -54,7 +54,7 @@ export default function AIMemoryActions({ intelligence, onRecompute }) {
       setTimeout(() => {
         onRecompute();
         setLoading(null);
-        toast({ title: "Score recomputed", description: `AI Memory score: ${intelligence.score}/${intelligence.target} verified.` });
+        toast({ title: "Score recomputed", description: `${capability.shortName} score: ${intelligence.score}/${intelligence.target} verified.` });
       }, 1000);
       return;
     }

@@ -51,31 +51,33 @@
     },
     "quiz_score": {
       "type": "number",
-      "default": 0
+      "default": 0,
+      "description": "System-controlled \u2014 updated by Quiz Engine\u2122 only"
     },
     "time_spent_minutes": {
       "type": "number",
-      "default": 0
+      "default": 0,
+      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
     },
     "xp_earned": {
       "type": "number",
       "default": 0,
-      "description": "XP \u2014 system-controlled, not owner-editable"
+      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
     },
     "certification_earned": {
       "type": "boolean",
       "default": false,
-      "description": "Certification flag \u2014 system-controlled"
+      "description": "System-controlled \u2014 updated by Certification Engine\u2122 only"
     },
     "competency_gain": {
       "type": "number",
       "default": 0,
-      "description": "Competency improvement \u2014 system-controlled"
+      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
     },
     "completion_percentage": {
       "type": "number",
       "default": 0,
-      "description": "Completion % \u2014 system-controlled"
+      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
     },
     "is_archived": {
       "type": "boolean",
@@ -139,9 +141,6 @@
     },
     "update": {
       "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
         {
           "user_condition": {
             "role": "super_admin"

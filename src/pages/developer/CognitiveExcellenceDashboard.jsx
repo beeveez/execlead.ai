@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Brain, Target, CheckCircle2, AlertCircle } from "lucide-react";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
@@ -8,6 +8,7 @@ import CognitiveScoreHero from "@/components/developer/cognitive/CognitiveScoreH
 import CognitivePillars from "@/components/developer/cognitive/CognitivePillars";
 import PersonaResolutionTable from "@/components/developer/cognitive/PersonaResolutionTable";
 import CapabilityChainTable from "@/components/developer/cognitive/CapabilityChainTable";
+import CognitiveBlockingIssueDrawer from "@/components/developer/cognitive/CognitiveBlockingIssueDrawer";
 
 export default function CognitiveExcellenceDashboard() {
   const concierge = useExecConcierge();
@@ -23,6 +24,7 @@ export default function CognitiveExcellenceDashboard() {
   const cognitive = useMemo(() => computeCognitiveScore(runtime), [runtime]);
   const personaAudit = useMemo(() => getPersonaAudit(), []);
   const capabilityChain = useMemo(() => getCapabilityChain(), []);
+  const [activePillar, setActivePillar] = useState(null);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -47,7 +49,7 @@ export default function CognitiveExcellenceDashboard() {
       />
 
       {/* Cognitive Pillars */}
-      <CognitivePillars pillars={cognitive.pillars} supportingMetrics={cognitive.supportingMetrics} />
+      <CognitivePillars pillars={cognitive.pillars} supportingMetrics={cognitive.supportingMetrics} onPillarClick={setActivePillar} />
 
       {/* Persona Resolution + Capability Chain */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -123,6 +125,11 @@ export default function CognitiveExcellenceDashboard() {
           </div>
         )}
       </div>
+
+      {/* Blocking Issue Drawer */}
+      {activePillar && (
+        <CognitiveBlockingIssueDrawer pillar={activePillar} onClose={() => setActivePillar(null)} />
+      )}
     </div>
   );
 }

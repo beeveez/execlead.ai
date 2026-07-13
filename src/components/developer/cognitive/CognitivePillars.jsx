@@ -1,5 +1,5 @@
 import React from "react";
-import { TrendingUp, Target } from "lucide-react";
+import { TrendingUp, Target, ChevronRight } from "lucide-react";
 
 function scoreColor(score) {
   if (score >= 90) return "#10b981";
@@ -8,7 +8,7 @@ function scoreColor(score) {
   return "#ef4444";
 }
 
-export default function CognitivePillars({ pillars, supportingMetrics = [] }) {
+export default function CognitivePillars({ pillars, supportingMetrics = [], onPillarClick }) {
   return (
     <div className="space-y-6">
       <div>
@@ -17,8 +17,13 @@ export default function CognitivePillars({ pillars, supportingMetrics = [] }) {
           {pillars.map((p) => {
             const color = scoreColor(p.score);
             const gap = p.target - p.score;
+            const below = gap > 0;
             return (
-              <div key={p.id} className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+              <div
+                key={p.id}
+                onClick={below && onPillarClick ? () => onPillarClick(p) : undefined}
+                className={`bg-white/[0.02] border border-white/5 rounded-xl p-4 ${below && onPillarClick ? "cursor-pointer hover:bg-white/[0.04] hover:border-white/10 transition-colors" : ""}`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-white/70">{p.label}</span>
                   <div className="flex items-center gap-1">
@@ -41,7 +46,14 @@ export default function CognitivePillars({ pillars, supportingMetrics = [] }) {
                   </div>
                 </div>
                 <p className="text-[10px] text-white/40 leading-relaxed">{p.evidence}</p>
-                <div className="text-[9px] text-indigo-400/60 mt-2">{p.program}</div>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-[9px] text-indigo-400/60">{p.program}</span>
+                  {below && onPillarClick && (
+                    <span className="flex items-center gap-0.5 text-[9px] text-white/30 hover:text-indigo-300 transition-colors">
+                      Blocking issue <ChevronRight size={10} />
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}

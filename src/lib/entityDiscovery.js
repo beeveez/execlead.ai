@@ -14,8 +14,6 @@
  */
 import { RLS_REGISTRY } from "./rlsRegistry";
 
-const AUDITED_NAMES = new Set(RLS_REGISTRY.map((e) => e.name));
-
 const DISCOVERED_ENTITY_NAMES = [
   // ── Enterprise & Identity ──
   "Organization", "OrgMembership", "IdentityProvider", "IdentityVersion",

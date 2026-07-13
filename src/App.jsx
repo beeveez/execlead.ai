@@ -137,6 +137,7 @@ import ApiKeys from '@/pages/developer/ApiKeys';
 import DatabaseTools from '@/pages/developer/DatabaseTools';
 import MigrationHistory from '@/pages/developer/MigrationHistory';
 import DeploymentCenter from '@/pages/developer/DeploymentCenter';
+import SecurityIntelligenceCenter from '@/pages/developer/SecurityIntelligenceCenter';
 import ReportRegistry from '@/pages/developer/ReportRegistry';
 import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import EnterpriseAdmin from '@/pages/enterprise/EnterpriseAdmin';
@@ -343,6 +344,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/database" element={<DatabaseTools />} />
           <Route path="/developer/migrations" element={<MigrationHistory />} />
           <Route path="/developer/deployments" element={<DeploymentCenter />} />
+          <Route path="/developer/security-intelligence" element={<SecurityIntelligenceCenter />} />
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
           <Route path="/enterprise/organizations" element={<OrganizationManagement />} />
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />

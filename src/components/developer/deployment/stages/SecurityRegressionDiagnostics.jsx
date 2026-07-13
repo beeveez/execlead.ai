@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { AlertTriangle, XCircle, CheckCircle2, Loader2, Clock, ShieldAlert } from "lucide-react";
+import { AlertTriangle, XCircle, CheckCircle2, Loader2, Clock, ShieldAlert, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import { runSecurityRegressionSuite } from "@/lib/securityRegressionSuite";
 
 export default function SecurityRegressionDiagnostics({ query, initialFilter }) {
@@ -21,6 +22,11 @@ export default function SecurityRegressionDiagnostics({ query, initialFilter }) 
 
   return (
     <div className="space-y-4">
+      {/* Link to full Security Intelligence Center */}
+      <Link to="/developer/security-intelligence" className="flex items-center gap-1.5 text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors mb-2">
+        <ExternalLink size={11} /> Open Security Intelligence Center™ — full interactive diagnostics, test registry, failure registry, and EXEC™ copilot
+      </Link>
+
       {/* Summary — Risk-Based Deploy Gate */}
       <div className="grid grid-cols-4 gap-3">
         <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">

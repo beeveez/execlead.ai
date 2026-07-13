@@ -143,6 +143,8 @@ import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import EnterpriseAdmin from '@/pages/enterprise/EnterpriseAdmin';
 import EnterpriseIdentity from '@/pages/enterprise/EnterpriseIdentity';
 import ProcurementCommandCenter from '@/pages/enterprise/ProcurementCommandCenter';
+import VendorManagement from '@/pages/vendor/VendorManagement';
+import CommercialIntelligence from '@/pages/commercial/CommercialIntelligence';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import Diagnostics from '@/pages/developer/Diagnostics';
 import DiagnosticsAlias from '@/pages/developer/Diagnostics';
@@ -351,6 +353,8 @@ const AuthenticatedApp = () => {
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />
           <Route path="/enterprise/identity" element={<EnterpriseIdentity />} />
           <Route path="/enterprise/procurement" element={<ProcurementCommandCenter />} />
+          <Route path="/enterprise/vendors" element={<VendorManagement />} />
+          <Route path="/enterprise/commercial" element={<CommercialIntelligence />} />
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/developer/diagnostics" element={<Diagnostics />} />
           <Route path="/developer/governance" element={<DiagnosticsAlias />} />

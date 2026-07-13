@@ -1,0 +1,299 @@
+{
+  "name": "Vendor",
+  "type": "object",
+  "properties": {
+    "vendor_name": {
+      "type": "string",
+      "description": "Legal vendor name"
+    },
+    "vendor_type": {
+      "type": "string",
+      "enum": [
+        "supplier",
+        "service_provider",
+        "consultant",
+        "contractor",
+        "technology",
+        "reseller",
+        "distributor"
+      ],
+      "default": "supplier"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "it_equipment",
+        "software",
+        "services",
+        "consulting",
+        "facilities",
+        "travel",
+        "marketing",
+        "office_supplies",
+        "other"
+      ]
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "onboarding",
+        "suspended",
+        "blacklisted"
+      ],
+      "default": "onboarding"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "tax_id": {
+      "type": "string"
+    },
+    "payment_terms": {
+      "type": "string",
+      "default": "Net 30"
+    },
+    "contract_value": {
+      "type": "number",
+      "default": 0
+    },
+    "contract_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "contract_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "risk_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Vendor risk score 0-100 (higher = more risk)"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "pending",
+        "non_compliant"
+      ],
+      "default": "pending"
+    },
+    "security_assessment_status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "pending",
+        "failed",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "security_assessment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "trust_center_integrated": {
+      "type": "boolean",
+      "default": false
+    },
+    "performance_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall performance score 0-100"
+    },
+    "performance_tier": {
+      "type": "string",
+      "enum": [
+        "preferred",
+        "approved",
+        "conditional",
+        "restricted"
+      ],
+      "default": "approved"
+    },
+    "total_spend": {
+      "type": "number",
+      "default": 0
+    },
+    "total_contracts": {
+      "type": "number",
+      "default": 0
+    },
+    "active_contracts": {
+      "type": "number",
+      "default": 0
+    },
+    "onboarding_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "onboarding_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "documents_pending",
+        "background_check",
+        "completed",
+        "rejected"
+      ],
+      "default": "not_started"
+    },
+    "scorecard_json": {
+      "type": "string",
+      "description": "JSON object with quality, delivery, cost, service, innovation scores"
+    },
+    "risk_flags_json": {
+      "type": "string",
+      "description": "JSON array of risk flag strings"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_name",
+    "vendor_type",
+    "organization_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.organization_id": "{{user.data.organization_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

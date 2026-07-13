@@ -199,10 +199,10 @@ export default function ProcurementCommandCenter() {
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-            <ShoppingCart size={12} className="text-indigo-400" /> Enterprise Procurement™
+            <ShoppingCart size={12} className="text-indigo-400" /> Enterprise Commercial Platform™
           </div>
           <h1 className="text-2xl font-bold text-white">Enterprise Procurement™</h1>
-          <p className="text-white/40 text-sm mt-1">Command center for procurement requests, approval workflows, SLA tracking, and procurement governance.</p>
+          <p className="text-white/40 text-sm mt-1">Command center for procurement requests, approval workflows, SLA tracking, and procurement governance — part of the Enterprise Commercial Platform™.</p>
         </div>
         <button onClick={() => setShowWizard(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors">
           <Plus size={16} /> New Request

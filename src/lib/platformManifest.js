@@ -618,6 +618,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/organization/users", "/payment-settings", "/billing-admin", "/pricing-admin",
   "/feature-management", "/cpq", "/cpq-dashboard",
   "/enterprise/procurement",
+  "/enterprise/vendors",
+  "/enterprise/commercial",
   // Developer cognitive excellence sub-routes — covered by parent /developer module
   "/developer/cognitive", "/developer/cognitive/memory", "/developer/cognitive/personalization",
 ];

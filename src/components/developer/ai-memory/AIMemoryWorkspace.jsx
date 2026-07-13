@@ -11,7 +11,7 @@ import AIMemoryExecCopilot from "./AIMemoryExecCopilot";
 import AIMemoryActions from "./AIMemoryActions";
 import AIMemoryDetailPanel from "./AIMemoryDetailPanel";
 
-export default function AIMemoryWorkspace({ pillar, runtime, onClose, onRerun }) {
+export default function AIMemoryWorkspace({ pillar, runtime, onClose, onRerun, fullPage = false }) {
   const [recomputeKey, setRecomputeKey] = useState(0);
   const intelligence = useMemo(
     () => computeAIMemoryIntelligence(runtime),
@@ -32,6 +32,57 @@ export default function AIMemoryWorkspace({ pillar, runtime, onClose, onRerun })
   const tasks = intelligence.tasks.map((t) => ({ ...t, ...taskOverrides[t.id] }));
   const failures = intelligence.failures.map((f) => ({ ...f, ...failureOverrides[f.id] }));
 
+  const renderContent = () => (
+    <>
+      <AIMemoryHeader intelligence={intelligence} onRecompute={handleRecompute} />
+
+      <AIMemoryScoreBreakdown dimensions={intelligence.dimensions} onInspect={handleInspect} />
+
+      <AIMemoryFailureRegistry
+        failures={failures}
+        onInspect={handleInspect}
+        onOverride={(id, patch) => setFailureOverrides((s) => ({ ...s, [id]: patch }))}
+      />
+
+      <AIMemoryEngineeringTasks
+        tasks={tasks}
+        onInspect={handleInspect}
+        onOverride={(id, patch) => setTaskOverrides((s) => ({ ...s, [id]: patch }))}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AIMemoryDependencyGraph chain={intelligence.dependencyChain} onInspect={handleInspect} />
+        <AIMemoryEvidence items={intelligence.evidenceItems} onInspect={handleInspect} />
+      </div>
+
+      <AIMemoryExecCopilot intelligence={intelligence} />
+
+      <AIMemoryActions intelligence={intelligence} onRecompute={handleRecompute} />
+    </>
+  );
+
+  // Full-page mode — rendered inside the routed AIMemoryIntelligence page
+  if (fullPage) {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+            <Brain size={14} className="text-violet-400" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white">AI Memory Intelligence™</h2>
+            <p className="text-[10px] text-white/40">Universal Explainable Metrics™ — Standard Diagnostics Experience</p>
+          </div>
+        </div>
+        {renderContent()}
+        {activeDetail && (
+          <AIMemoryDetailPanel item={activeDetail} onClose={() => setActiveDetail(null)} />
+        )}
+      </div>
+    );
+  }
+
+  // Modal mode — embedded from drawers and inline diagnostics
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
@@ -55,30 +106,7 @@ export default function AIMemoryWorkspace({ pillar, runtime, onClose, onRerun })
 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-          <AIMemoryHeader intelligence={intelligence} onRecompute={handleRecompute} />
-
-          <AIMemoryScoreBreakdown dimensions={intelligence.dimensions} onInspect={handleInspect} />
-
-          <AIMemoryFailureRegistry
-            failures={failures}
-            onInspect={handleInspect}
-            onOverride={(id, patch) => setFailureOverrides((s) => ({ ...s, [id]: patch }))}
-          />
-
-          <AIMemoryEngineeringTasks
-            tasks={tasks}
-            onInspect={handleInspect}
-            onOverride={(id, patch) => setTaskOverrides((s) => ({ ...s, [id]: patch }))}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <AIMemoryDependencyGraph chain={intelligence.dependencyChain} onInspect={handleInspect} />
-            <AIMemoryEvidence items={intelligence.evidenceItems} onInspect={handleInspect} />
-          </div>
-
-          <AIMemoryExecCopilot intelligence={intelligence} />
-
-          <AIMemoryActions intelligence={intelligence} onRecompute={handleRecompute} />
+          {renderContent()}
         </div>
 
         {/* Inline detail panel */}

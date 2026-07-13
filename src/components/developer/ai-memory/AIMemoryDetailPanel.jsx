@@ -54,7 +54,7 @@ export default function AIMemoryDetailPanel({ item, onClose }) {
   if (item.deepLink) fields.push(["Deep Link", item.deepLink]);
 
   return (
-    <div className="absolute inset-0 z-10 flex justify-end">
+    <div className="fixed inset-0 z-[60] flex justify-end">
       <div className="absolute inset-0 bg-black/40 animate-fade-in" onClick={onClose} />
       <div className="relative w-full max-w-md bg-[#0d0d14] border-l border-white/10 flex flex-col animate-fade-in">
         {/* Header */}

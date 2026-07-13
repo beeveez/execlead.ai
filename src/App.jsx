@@ -148,6 +148,7 @@ import ExecKnowledgeSync from '@/pages/developer/ExecKnowledgeSync';
 import LaunchReadiness from '@/pages/developer/LaunchReadiness';
 import PlatformStabilityDashboard from '@/pages/developer/PlatformStabilityDashboard';
 import CognitiveExcellenceDashboard from '@/pages/developer/CognitiveExcellenceDashboard';
+import AIMemoryIntelligence from '@/pages/developer/AIMemoryIntelligence';
 import ScalabilityAssessment from '@/pages/developer/ScalabilityAssessment';
 import PerformanceResilience from '@/pages/developer/PerformanceResilience';
 import PlatformExperienceAudit from '@/pages/developer/PlatformExperienceAudit';
@@ -352,6 +353,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/developer/stability" element={<PlatformStabilityDashboard />} />
           <Route path="/developer/cognitive" element={<CognitiveExcellenceDashboard />} />
+          <Route path="/developer/cognitive/memory" element={<AIMemoryIntelligence />} />
           <Route path="/developer/scalability" element={<ScalabilityAssessment />} />
           <Route path="/developer/performance-resilience" element={<PerformanceResilience />} />
           <Route path="/developer/experience-audit" element={<PlatformExperienceAudit />} />

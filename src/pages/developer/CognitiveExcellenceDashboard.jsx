@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Brain, Target, CheckCircle2, AlertCircle } from "lucide-react";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 import { computeCognitiveScore, COGNITIVE_TARGETS } from "@/lib/cognitiveExcellenceEngine";
@@ -9,7 +9,6 @@ import CognitivePillars from "@/components/developer/cognitive/CognitivePillars"
 import PersonaResolutionTable from "@/components/developer/cognitive/PersonaResolutionTable";
 import CapabilityChainTable from "@/components/developer/cognitive/CapabilityChainTable";
 import CognitiveBlockingIssueDrawer from "@/components/developer/cognitive/CognitiveBlockingIssueDrawer";
-import AIMemoryWorkspace from "@/components/developer/ai-memory/AIMemoryWorkspace";
 
 export default function CognitiveExcellenceDashboard() {
   const concierge = useExecConcierge();
@@ -26,6 +25,15 @@ export default function CognitiveExcellenceDashboard() {
   const personaAudit = useMemo(() => getPersonaAudit(), []);
   const capabilityChain = useMemo(() => getCapabilityChain(), []);
   const [activePillar, setActivePillar] = useState(null);
+  const navigate = useNavigate();
+
+  const handlePillarClick = (pillar) => {
+    if (pillar.id === "memory") {
+      navigate("/developer/cognitive/memory");
+      return;
+    }
+    setActivePillar(pillar);
+  };
 
   const handleRerun = () => {
     const fresh = computeCognitiveScore(runtime);
@@ -60,7 +68,7 @@ export default function CognitiveExcellenceDashboard() {
       />
 
       {/* Cognitive Pillars */}
-      <CognitivePillars pillars={cognitive.pillars} supportingMetrics={cognitive.supportingMetrics} onPillarClick={setActivePillar} />
+      <CognitivePillars pillars={cognitive.pillars} supportingMetrics={cognitive.supportingMetrics} onPillarClick={handlePillarClick} />
 
       {/* Persona Resolution + Capability Chain */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -137,13 +145,8 @@ export default function CognitiveExcellenceDashboard() {
         )}
       </div>
 
-      {/* AI Memory — full interactive workspace */}
-      {activePillar && activePillar.id === "memory" && (
-        <AIMemoryWorkspace pillar={activePillar} runtime={runtime} onClose={() => setActivePillar(null)} onRerun={handleRerun} />
-      )}
-
-      {/* Other pillars — standard blocking issue drawer */}
-      {activePillar && activePillar.id !== "memory" && (
+      {/* Pillar drill-down — standard blocking issue drawer */}
+      {activePillar && (
         <CognitiveBlockingIssueDrawer pillar={activePillar} onClose={() => setActivePillar(null)} onRerun={handleRerun} />
       )}
     </div>

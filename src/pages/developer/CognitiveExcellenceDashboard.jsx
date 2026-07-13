@@ -9,6 +9,7 @@ import CognitivePillars from "@/components/developer/cognitive/CognitivePillars"
 import PersonaResolutionTable from "@/components/developer/cognitive/PersonaResolutionTable";
 import CapabilityChainTable from "@/components/developer/cognitive/CapabilityChainTable";
 import CognitiveBlockingIssueDrawer from "@/components/developer/cognitive/CognitiveBlockingIssueDrawer";
+import AIMemoryWorkspace from "@/components/developer/ai-memory/AIMemoryWorkspace";
 
 export default function CognitiveExcellenceDashboard() {
   const concierge = useExecConcierge();
@@ -136,8 +137,13 @@ export default function CognitiveExcellenceDashboard() {
         )}
       </div>
 
-      {/* Blocking Issue Drawer */}
-      {activePillar && (
+      {/* AI Memory — full interactive workspace */}
+      {activePillar && activePillar.id === "memory" && (
+        <AIMemoryWorkspace pillar={activePillar} runtime={runtime} onClose={() => setActivePillar(null)} onRerun={handleRerun} />
+      )}
+
+      {/* Other pillars — standard blocking issue drawer */}
+      {activePillar && activePillar.id !== "memory" && (
         <CognitiveBlockingIssueDrawer pillar={activePillar} onClose={() => setActivePillar(null)} onRerun={handleRerun} />
       )}
     </div>

@@ -16,61 +16,8 @@
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { ChevronRight, ShieldCheck } from "lucide-react";
-import { WORKSPACE_NAV, WORKSPACES, WORKSPACE_HOME } from "@/lib/workspaces";
+import { getBreadcrumbTrail } from "@/lib/navigationRegistry";
 import { useUniversalRouter } from "@/lib/universalRouter";
-
-function getBreadcrumbTrail(pathname) {
-  // Exact match first
-  for (const [wsId, groups] of Object.entries(WORKSPACE_NAV)) {
-    for (const group of groups) {
-      for (const item of group.items) {
-        if (item.path === pathname) {
-          return buildTrail(wsId, group, item, pathname);
-        }
-      }
-    }
-  }
-  // Prefix match (e.g. /academy/lesson-1 matches /academy)
-  for (const [wsId, groups] of Object.entries(WORKSPACE_NAV)) {
-    for (const group of groups) {
-      for (const item of group.items) {
-        if (pathname.startsWith(item.path + "/")) {
-          return buildTrail(wsId, group, item, pathname);
-        }
-      }
-    }
-  }
-  return null;
-}
-
-function buildTrail(wsId, group, item, currentPath) {
-  const ws = WORKSPACES[wsId];
-  const wsHome = WORKSPACE_HOME[wsId] || "/";
-  // Section crumb links to first sibling that isn't the current page.
-  // null only when the group has no other items (single-item group = current page).
-  const groupTarget = group.items.find((i) => i.path !== currentPath);
-  return [
-    {
-      label: ws?.label || wsId,
-      path: wsHome,
-      workspace: wsId,
-      icon: ws?.icon,
-      isCurrent: false,
-    },
-    {
-      label: group.label,
-      path: groupTarget?.path || null,
-      workspace: wsId,
-      isCurrent: false,
-    },
-    {
-      label: item.label,
-      path: item.path,
-      workspace: wsId,
-      isCurrent: true,
-    },
-  ];
-}
 
 export default function GlobalBreadcrumbs({ className }) {
   const location = useLocation();

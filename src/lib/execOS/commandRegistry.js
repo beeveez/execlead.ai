@@ -1,54 +1,42 @@
 /**
  * EXEC™ Operating System™ — Command Registry
  * ============================================================
- * Builds a searchable index of all navigable pages, modules,
- * and commands across every workspace. Powers the Universal
- * Command Palette™ (Ctrl+K) and Universal Search™.
+ * Builds a searchable index of all navigable pages and commands.
+ * Consumes the Navigation Registry™ (single source of truth).
+ * Powers the Universal Command Palette™ (Ctrl+K) and Universal Search™.
  */
 
-import { WORKSPACE_NAV, WORKSPACES } from "../workspaces";
+import { getNavigationRegistry } from "../navigationRegistry";
 import { getRecent } from "./workspaceHistory";
 import { Search, Printer, Moon, Keyboard, LogOut, FileDown } from "lucide-react";
 
 let _index = null;
 
 function buildIndex() {
-  const index = [];
-  const seen = new Set();
-
-  Object.entries(WORKSPACE_NAV).forEach(([wsId, groups]) => {
-    const ws = WORKSPACES[wsId];
-    groups.forEach((group) => {
-      group.items.forEach((item) => {
-        if (seen.has(item.path)) return;
-        seen.add(item.path);
-        index.push({
-          type: "navigation",
-          id: item.path,
-          title: item.label,
-          path: item.path,
-          workspace: wsId,
-          workspaceLabel: ws?.label || wsId,
-          workspaceColor: ws?.color || "#6366f1",
-          category: group.label,
-          icon: item.icon,
-          feature: item.feature,
-        });
-      });
-    });
-  });
+  const navEntries = getNavigationRegistry().map((entry) => ({
+    type: "navigation",
+    id: entry.id,
+    title: entry.title,
+    path: entry.route,
+    workspace: entry.workspace,
+    workspaceLabel: entry.workspaceLabel,
+    workspaceColor: entry.workspaceColor,
+    category: entry.section,
+    icon: entry.icon,
+    feature: entry.featureFlag,
+  }));
 
   // Global commands (not tied to a specific page)
-  index.push(
+  const commands = [
     { type: "command", id: "cmd:search", title: "Search Everything", subtitle: "Universal search across the platform", action: "search", category: "Actions", icon: Search },
     { type: "command", id: "cmd:print", title: "Print Page", subtitle: "Print or save current page as PDF", action: "print", category: "Actions", icon: Printer },
     { type: "command", id: "cmd:export-pdf", title: "Export PDF Report", subtitle: "Generate executive report from current page", action: "export-pdf", category: "Actions", icon: FileDown },
     { type: "command", id: "cmd:toggle-theme", title: "Toggle Theme", subtitle: "Switch between light and dark mode", action: "toggle-theme", category: "Appearance", icon: Moon },
     { type: "command", id: "cmd:shortcuts", title: "Keyboard Shortcuts", subtitle: "View all keyboard shortcuts", action: "shortcuts", category: "Help", icon: Keyboard },
     { type: "command", id: "cmd:signout", title: "Sign Out", subtitle: "Sign out of EXECLEAD.AI", action: "signout", category: "Account", icon: LogOut },
-  );
+  ];
 
-  return index;
+  return [...navEntries, ...commands];
 }
 
 export function getCommandIndex() {

@@ -1,0 +1,155 @@
+{
+  "name": "SystemIncident",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Incident title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed incident description"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "investigating",
+        "identified",
+        "monitoring",
+        "resolved"
+      ],
+      "default": "investigating",
+      "description": "Current incident lifecycle stage"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "minor",
+        "major",
+        "critical"
+      ],
+      "default": "minor",
+      "description": "Incident severity level"
+    },
+    "impact_level": {
+      "type": "string",
+      "enum": [
+        "none",
+        "degraded",
+        "partial_outage",
+        "full_outage"
+      ],
+      "default": "degraded",
+      "description": "User-facing impact level"
+    },
+    "affected_components": {
+      "type": "string",
+      "description": "JSON array of affected component IDs"
+    },
+    "updates_json": {
+      "type": "string",
+      "description": "JSON array of {timestamp, status, message, author_name}"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the incident started"
+    },
+    "identified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "monitoring_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "post_incident_report": {
+      "type": "string",
+      "description": "Post-incident analysis and root cause"
+    },
+    "declared_by_id": {
+      "type": "string"
+    },
+    "declared_by_name": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this incident is currently active"
+    }
+  },
+  "required": [
+    "title",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

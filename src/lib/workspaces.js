@@ -144,6 +144,7 @@ export const WORKSPACE_NAV = {
       { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
     ]},
     { label: "Observability", items: [
+      { path: "/system-status", label: "System Status Center™", icon: Activity },
       { path: "/exec-observability", label: "Observability Platform™", icon: Activity },
     ]},
     { label: "Commercial", items: [
@@ -247,6 +248,7 @@ const ROUTE_WORKSPACE = {
   "/release-readiness": ["operations", "developer"],
   "/feature-flags": ["operations", "developer"],
   "/exec-observability": ["operations"],
+  "/system-status": ["operations"],
   "/exec-os": ["operations", "developer"],
   "/legacy-library/admin": ["operations"],
   "/feedback": ["executive", "enterprise", "operations"], "/challenge": ["executive"],

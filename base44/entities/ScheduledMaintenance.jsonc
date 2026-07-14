@@ -1,0 +1,129 @@
+{
+  "name": "ScheduledMaintenance",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Maintenance window title"
+    },
+    "description": {
+      "type": "string",
+      "description": "What maintenance is being performed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "scheduled",
+      "description": "Maintenance lifecycle status"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled start time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expected end time"
+    },
+    "affected_components": {
+      "type": "string",
+      "description": "JSON array of affected component IDs"
+    },
+    "impact_level": {
+      "type": "string",
+      "enum": [
+        "none",
+        "degraded",
+        "partial_outage"
+      ],
+      "default": "degraded",
+      "description": "Expected user impact"
+    },
+    "declared_by_id": {
+      "type": "string"
+    },
+    "declared_by_name": {
+      "type": "string"
+    },
+    "is_upcoming": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this maintenance is in the future"
+    }
+  },
+  "required": [
+    "title",
+    "start_time"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -653,6 +653,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/release-readiness",
   // Feature Flag Center™
   "/feature-flags",
+  // System Status Center™
+  "/system-status",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { DOC_CATEGORIES } from "@/lib/developerPortalEngine";
+import { isImmutableEntity } from "@/lib/entityGovernancePolicy";
+import { Lock } from "lucide-react";
 
 const STORAGE_KEY = "developer_portal_expanded_categories";
 
@@ -133,11 +135,14 @@ export default function DocSidebar({
                           <button
                             key={`entity-${name}`}
                             onClick={() => onSelectDoc({ id: `entity-${name}`, title: name, category: cat.id, isEntity: true })}
-                            className={`w-full text-left px-3 py-1.5 pl-7 text-xs truncate transition-colors ${
+                            className={`w-full text-left px-3 py-1.5 pl-7 text-xs truncate transition-colors flex items-center gap-1.5 ${
                               selectedDoc?.id === `entity-${name}` ? "text-indigo-300 bg-indigo-500/5" : "text-white/40 hover:text-white/60 hover:bg-white/[0.02]"
                             }`}
                           >
-                            {name}
+                            {isImmutableEntity(name) && (
+                              <Lock size={9} className="text-red-400 shrink-0" />
+                            )}
+                            <span className="truncate">{name}</span>
                           </button>
                         ))
                       )

@@ -12,7 +12,9 @@ import ProposalCard from "@/components/architecture-governance/ProposalCard";
 import ProposalForm from "@/components/architecture-governance/ProposalForm";
 import ProposalDetail from "@/components/architecture-governance/ProposalDetail";
 import ReviewPanel from "@/components/architecture-governance/ReviewPanel";
-import { Plus, Gavel, Search, Building2 } from "lucide-react";
+import GovernanceViolations from "@/components/architecture-governance/GovernanceViolations";
+import { Plus, Gavel, Search, Building2, ShieldAlert } from "lucide-react";
+import { computeGovernanceMetrics } from "@/lib/entityGovernancePolicy";
 
 const STATUSES = Object.entries(STATUS_META);
 const TYPES = Object.entries(PROPOSAL_TYPE_META);
@@ -93,6 +95,8 @@ export default function ArchitectureGovernanceBoard() {
     };
   }, [proposals]);
 
+  const govMetrics = useMemo(() => computeGovernanceMetrics(), []);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -127,6 +131,19 @@ export default function ArchitectureGovernanceBoard() {
           </div>
         ))}
       </div>
+
+      {/* Entity Governance Policy™ — Immutability Violations */}
+      {govMetrics.violationCount > 0 && (
+        <div className="bg-red-500/5 border border-red-500/15 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <ShieldAlert size={14} className="text-red-400" />
+            <span className="text-xs uppercase tracking-widest text-red-400 font-medium">
+              {govMetrics.violationCount} Governance Violation{govMetrics.violationCount !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <GovernanceViolations />
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">

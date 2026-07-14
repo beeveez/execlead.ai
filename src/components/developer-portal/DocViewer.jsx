@@ -3,9 +3,16 @@ import ReactMarkdown from "react-markdown";
 import DependencyGraph from "./DependencyGraph";
 import RelationshipPanel from "./RelationshipPanel";
 import { createEntityDoc } from "@/lib/developerPortalEngine";
-import { Database, User, Clock, Link2, Box } from "lucide-react";
+import { getGovernancePolicy, GOVERNANCE_TIERS } from "@/lib/entityGovernancePolicy";
+import { Database, User, Clock, Link2, Box, Lock, ShieldCheck, Settings } from "lucide-react";
 
 export default function DocViewer({ doc, entitySchema, loadingSchema }) {
+  const govPolicy = doc.isEntity ? getGovernancePolicy(doc.title) : null;
+  const tierIcon = govPolicy
+    ? govPolicy.immutable ? Lock : govPolicy.tier === "configuration" ? Settings : ShieldCheck
+    : null;
+  const GovIcon = tierIcon;
+
   // Entity docs — fetch schema dynamically
   if (doc.isEntity) {
     if (loadingSchema) return <LoadingState />;
@@ -16,8 +23,51 @@ export default function DocViewer({ doc, entitySchema, loadingSchema }) {
   return (
     <div className="max-w-3xl">
       {/* Title */}
-      <h1 className="text-2xl font-bold text-white mb-1">{doc.title}</h1>
+      <div className="flex items-center gap-2 mb-1">
+        <h1 className="text-2xl font-bold text-white">{doc.title}</h1>
+        {govPolicy && GovIcon && (
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full"
+            style={{ color: govPolicy.color, backgroundColor: `${govPolicy.color}1a` }}
+          >
+            <GovIcon size={10} /> {govPolicy.tierLabel}
+          </span>
+        )}
+      </div>
       <p className="text-white/40 text-sm mb-4">{doc.overview}</p>
+
+      {/* Governance Policy Panel */}
+      {govPolicy && (
+        <div
+          className="rounded-xl p-4 mb-6 border"
+          style={{ backgroundColor: `${govPolicy.color}08`, borderColor: `${govPolicy.color}22` }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            {GovIcon && <GovIcon size={13} style={{ color: govPolicy.color }} />}
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: govPolicy.color }}>
+              Entity Governance Policy™
+            </span>
+          </div>
+          <p className="text-xs text-white/50 mb-3">{govPolicy.tierDescription}</p>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(govPolicy.permissions).map(([perm, allowed]) => {
+              const isAllowed = allowed === true;
+              const isConditional = allowed === "conditional";
+              const color = isAllowed ? "#10b981" : isConditional ? "#f59e0b" : "#ef4444";
+              const label = isConditional ? `${perm} (conditional)` : `${perm}`;
+              return (
+                <span
+                  key={perm}
+                  className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded"
+                  style={{ color, backgroundColor: `${color}1a` }}
+                >
+                  {isAllowed || isConditional ? "✓" : "✗"} {label}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Metadata grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">

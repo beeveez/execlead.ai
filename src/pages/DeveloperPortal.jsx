@@ -86,10 +86,9 @@ export default function DeveloperPortal() {
         <DocSidebar
           docs={docs}
           entityNames={entityNames}
-          activeCategory={activeCategory}
           selectedDoc={selectedDoc}
           onSelectDoc={handleSelectDoc}
-          onSelectCategory={(catId) => {
+          onCategoryToggle={(catId) => {
             setActiveCategory(catId);
             setSelectedDoc(null);
             setSearchQuery("");

@@ -1,0 +1,176 @@
+{
+  "name": "BetaInvitation",
+  "type": "object",
+  "properties": {
+    "invitation_code": {
+      "type": "string",
+      "description": "Unique invitation code"
+    },
+    "invitation_type": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "organization",
+        "referral"
+      ],
+      "default": "individual",
+      "description": "Type of invitation"
+    },
+    "email": {
+      "type": "string",
+      "description": "Recipient email"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "invited_by_id": {
+      "type": "string"
+    },
+    "invited_by_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "opened",
+        "accepted",
+        "expired",
+        "declined"
+      ],
+      "default": "pending",
+      "description": "Invitation lifecycle status"
+    },
+    "application_id": {
+      "type": "string",
+      "description": "Linked BetaApplication ID once accepted"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Target cohort for this invitation"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0
+    },
+    "usage_limit": {
+      "type": "number",
+      "default": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "invitation_code",
+    "invitation_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -645,6 +645,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/exec-observability",
   // EXEC™ Product Intelligence Platform™
   "/product-intelligence",
+  // Beta Operations Center™
+  "/beta-operations",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

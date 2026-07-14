@@ -176,7 +176,7 @@ export const WORKSPACE_NAV = {
     { label: "Roadmap", items: [
       { path: "/developer/product", label: "Product Management™", icon: Boxes },
       { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
-      { path: "/release-readiness", label: "Release Readiness™", icon: ClipboardCheck },
+      { path: "/release-readiness", label: "Release Readiness Command Center™", icon: ClipboardCheck },
       { path: "/feature-flags", label: "Feature Flag Center™", icon: Flag },
     ]},
   ],

@@ -13,11 +13,16 @@ export default function DrillBreadcrumb({ items }) {
         <React.Fragment key={i}>
           {i > 0 && <ChevronRight size={12} className="text-white/20" />}
           {item.to && i < items.length - 1 ? (
-            <Link to={item.to} className="text-white/40 hover:text-white/70 transition-colors">
+            <Link
+              to={item.to}
+              title={`Go to ${item.label}`}
+              aria-label={`Go to ${item.label}`}
+              className="text-white/40 hover:text-white/80 hover:underline underline-offset-2 decoration-white/30 focus:outline-none focus:ring-1 focus:ring-indigo-400/50 focus:rounded transition-colors"
+            >
               {item.label}
             </Link>
           ) : (
-            <span className="text-white/80 font-medium">{item.label}</span>
+            <span className="text-white/80 font-medium" aria-current="page">{item.label}</span>
           )}
         </React.Fragment>
       ))}

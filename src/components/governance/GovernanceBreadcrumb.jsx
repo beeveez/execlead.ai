@@ -13,7 +13,12 @@ export default function GovernanceBreadcrumb({ lastContext }) {
   return (
     <div className="flex items-center gap-2 text-xs px-1">
       <ShieldCheck size={14} className="text-indigo-400 flex-shrink-0" />
-      <Link to="/enterprise/governance" className="text-white/40 hover:text-white/70 transition-colors">
+      <Link
+        to="/enterprise/governance"
+        title="Go to Enterprise Governance"
+        aria-label="Go to Enterprise Governance"
+        className="text-white/40 hover:text-white/80 hover:underline underline-offset-2 decoration-white/30 focus:outline-none focus:ring-1 focus:ring-indigo-400/50 focus:rounded transition-colors"
+      >
         Enterprise Governance
       </Link>
       {lastContext && (

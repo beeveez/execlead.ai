@@ -145,6 +145,7 @@ import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import EnterpriseAdmin from '@/pages/enterprise/EnterpriseAdmin';
 import GovernanceCommandCenter from '@/pages/enterprise/GovernanceCommandCenter';
 import EnterpriseIdentity from '@/pages/enterprise/EnterpriseIdentity';
+import EnterpriseSecurity from '@/pages/enterprise/EnterpriseSecurity';
 import ProcurementCommandCenter from '@/pages/enterprise/ProcurementCommandCenter';
 import VendorManagement from '@/pages/vendor/VendorManagement';
 import CommercialIntelligence from '@/pages/commercial/CommercialIntelligence';
@@ -376,6 +377,7 @@ const AuthenticatedApp = () => {
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />
           <Route path="/enterprise/governance" element={<GovernanceCommandCenter />} />
           <Route path="/enterprise/identity" element={<EnterpriseIdentity />} />
+          <Route path="/enterprise/security" element={<EnterpriseSecurity />} />
           <Route path="/enterprise/procurement" element={<ProcurementCommandCenter />} />
           <Route path="/enterprise/vendors" element={<VendorManagement />} />
           <Route path="/enterprise/commercial" element={<CommercialIntelligence />} />

@@ -91,7 +91,7 @@ export const WORKSPACE_NAV = {
       { path: "/wallet", label: "Executive Wallet", icon: Wallet },
       { path: "/billing", label: "Billing", icon: CreditCard },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
-      { path: "/security", label: "Security Center", icon: ShieldCheck },
+      { path: "/security", label: "Account Security™", icon: ShieldCheck },
       { path: "/privacy-compliance", label: "Privacy & Compliance", icon: Lock },
       { path: "/identity-verification", label: "Identity Verification", icon: ShieldCheck },
       { path: "/feedback", label: "Feedback", icon: Lightbulb },
@@ -123,6 +123,7 @@ export const WORKSPACE_NAV = {
       { path: "/enterprise/governance", label: "Governance Command Center™", icon: ShieldCheck },
     ]},
     { label: "Trust", items: [
+      { path: "/enterprise/security", label: "Enterprise Security™", icon: ShieldCheck },
       { path: "/sso", label: "SSO & Identity", icon: KeyRound, feature: "sso" },
     ]},
     { label: "Administration", items: [
@@ -271,6 +272,7 @@ const ROUTE_WORKSPACE = {
   "/enterprise/admin": ["enterprise"],
   "/enterprise/governance": ["enterprise", "operations", "developer"],
   "/enterprise/identity": ["enterprise"],
+  "/enterprise/security": ["enterprise"],
   "/enterprise/procurement": ["enterprise"],
   "/enterprise/vendors": ["enterprise"],
   "/enterprise/commercial": ["enterprise", "operations"],

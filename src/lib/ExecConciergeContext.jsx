@@ -186,7 +186,7 @@ export function ExecConciergeProvider({ children }) {
       setUserContext(fallback);
       return fallback;
     }
-  }, [user?.id]);
+  }, [user?.id, activeWorkspace]);
 
   // Load cross-session Executive Memory™ — persists user preferences, goals, and
   // history across conversations via the ExecutiveMemory entity. Recall survives

@@ -25,7 +25,8 @@
  */
 
 import { WORKSPACE_NAV, WORKSPACES, WORKSPACE_HOME } from "./workspaces";
-import { ROUTE_ACCESS } from "./roles";
+import { ROUTE_ACCESS, normalizeRole } from "./roles";
+import { hasFeatureAccess } from "./featureCatalog";
 import {
   Home, CreditCard, Info, Mail, ShieldCheck, FileText, Trophy,
 } from "lucide-react";
@@ -174,6 +175,39 @@ export function getWorkspaceSections(wsId) {
     }
   });
   return sections;
+}
+
+/**
+ * Resolve grouped navigation for the sidebar, mobile nav, and
+ * any consumer that needs the section > items hierarchy.
+ * Returns the same shape as resolveWorkspaceNav but sourced
+ * exclusively from the Navigation Registry™.
+ *
+ * Shape: [{ label, items: [{ path, label, icon, feature }] }]
+ */
+export function resolveNavGroups(wsId, role, plan, profile, isSimulating = false) {
+  const entries = getNavEntriesByWorkspace(wsId);
+  if (entries.length === 0) return [];
+  const r = normalizeRole(role);
+  const sections = getWorkspaceSections(wsId);
+
+  return sections
+    .map((section) => {
+      const items = entries
+        .filter((e) => e.section === section)
+        .map((entry) => ({
+          path: entry.route,
+          label: entry.title,
+          icon: entry.icon,
+          feature: entry.featureFlag,
+        }))
+        .filter((item) => {
+          if (isSimulating && item.feature && !hasFeatureAccess(plan, item.feature)) return false;
+          return true;
+        });
+      return { label: section, items };
+    })
+    .filter((g) => g.items.length > 0);
 }
 
 /**

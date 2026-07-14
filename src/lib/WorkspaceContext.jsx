@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
-import { getAvailableWorkspaces, getDefaultWorkspace, resolveWorkspaceNav } from "@/lib/workspaces";
+import { getAvailableWorkspaces, getDefaultWorkspace } from "@/lib/workspaces";
+import { resolveNavGroups } from "@/lib/navigationRegistry";
 import { hasFeatureAccess } from "@/lib/featureCatalog";
 import { normalizeRole, getEffectiveRole as computeEffectiveRole } from "@/lib/roles";
 
@@ -68,15 +69,7 @@ export function WorkspaceProvider({ children }) {
 
   const navGroups = useMemo(() => {
     if (!activeWorkspace || !role) return [];
-    const groups = resolveWorkspaceNav(activeWorkspace, role, plan, profile);
-    if (!isSimulating) return groups;
-    // When simulating, filter nav by the simulated plan's feature access
-    return groups
-      .map(g => ({
-        ...g,
-        items: g.items.filter(item => !item.feature || hasFeatureAccess(plan, item.feature)),
-      }))
-      .filter(g => g.items.length > 0);
+    return resolveNavGroups(activeWorkspace, role, plan, profile, isSimulating);
   }, [activeWorkspace, role, plan, profile, isSimulating]);
 
   const value = {

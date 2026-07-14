@@ -223,13 +223,15 @@ function deriveBlockers(streamId, source, owner, moduleName) {
     (raw.phases || []).forEach((phase) => {
       if (!phase.passed) {
         (phase.requirements || []).filter((r) => !r.passed).slice(0, 4).forEach((req) => {
+          const detailStr = req.detail || "not met";
           add(
             `Launch phase "${phase.name}": ${req.label}`,
             "P0",
             "Launch Readiness",
-            req.detail || req.action || `Resolve requirement "${req.label}" in phase ${phase.name} to advance launch readiness.`,
+            `Navigate to ${phase.deepLink || "/developer/launch-readiness"} and resolve the "${req.label}" requirement in the ${phase.name} phase. Current status: ${detailStr}. Re-run the Launch Readiness Engine™ after remediation to verify the phase passes.`,
             "2–6 hours",
-            [`Phase: ${phase.name}`, req.detail ? `Detail: ${req.detail}` : ""].filter(Boolean)
+            [`Phase: ${phase.name}`, `Requirement: ${req.label}`, `Current: ${detailStr}`, phase.deepLink ? `Deep link: ${phase.deepLink}` : ""].filter(Boolean),
+            `${phase.name} — "${req.label}" requirement not satisfied. Current value: ${detailStr}.`
           );
         });
       }

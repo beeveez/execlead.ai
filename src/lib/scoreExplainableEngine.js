@@ -315,69 +315,24 @@ export const SCORE_REGISTRY = {
     owner: "Release Engineering",
     deepLink: "/developer/launch-readiness",
     module: "Launch Readiness Engine™",
-    penaltyBased: true,
-    getScore: () => 0,
+    // ── CANONICAL SOURCE OF TRUTH ──
+    // Launch Preparation™ score is computed ONCE by Launch Readiness Engine™
+    // and consumed by ALL dashboards, reports, and widgets.
+    // No independent penalty-based or hardcoded calculations are permitted.
+    // See Score Registry™ (src/lib/scoreRegistry.js) for full documentation.
+    getScore: (s) => s.launchReadiness?.launchReadinessScore ?? 0,
     getContributions: (s) => {
-      const caps = [
-        {
-          id: "platform_intelligence_quotient",
-          label: "Platform Intelligence Quotient™",
-          weight: 20,
-          current: clamp(s.piq?.piqScore ?? 0),
-          mitigation: 70,
-          owner: "Platform Intelligence Engineering",
-          deepLink: "/developer",
-          category: "Launch Capability",
-          dependencies: ["Platform Intelligence Engine™", "Manifest Registry™"],
-          engineeringTasks: [
-            "Complete Platform Intelligence Quotient™ calculation pipeline",
-            "Register all platform modules in Manifest Registry™",
-            "Achieve PIQ™ baseline score above 50%",
-          ],
-          risks: [{ description: "PIQ™ at 0% — platform intelligence not yet computed", severity: "high", mitigation: "Run Platform Intelligence Engine™ in Sprint 4" }],
-          timeline: [{ milestone: "PIQ™ baseline established", target: "Sprint 4", status: "pending" }],
-          evidence: ["Current: 0%", "Raw Gap: 20", "Mitigation: 70%", "Effective Gap: 6"],
-        },
-        {
-          id: "foundation_certification",
-          label: "Foundation Certification™",
-          weight: 100,
-          current: 71,
-          mitigation: 82.8,
-          owner: "Foundation Engineering",
-          deepLink: "/developer",
-          category: "Launch Capability",
-          dependencies: ["Foundation Certification Engine™", "Governance Pipeline™"],
-          engineeringTasks: [
-            "Complete foundation certification for remaining 29% of modules",
-            "Resolve governance pipeline findings",
-            "Re-run Foundation Certification Engine™ to verify",
-          ],
-          risks: [{ description: "Foundation Certification™ at 71% — 29% gap to target", severity: "medium", mitigation: "Complete certification in Sprint 4" }],
-          timeline: [{ milestone: "Foundation Certification™ at 100%", target: "Sprint 4", status: "in_progress" }],
-          evidence: ["Current: 71%", "Raw Gap: 29", "Mitigation: 82.8%", "Effective Gap: 5"],
-        },
-        {
-          id: "guardian",
-          label: "Guardian™",
-          weight: 100,
-          current: 75,
-          mitigation: 88,
-          owner: "Guardian Engineering",
-          deepLink: "/guardian",
-          category: "Launch Capability",
-          dependencies: ["Guardian Engine™", "Self-Healing Engine™"],
-          engineeringTasks: [
-            "Resolve 25% of pending Guardian™ findings",
-            "Clear remaining guardian pending items",
-            "Achieve Guardian™ autonomy above 88%",
-          ],
-          risks: [{ description: "Guardian™ at 75% — 25% gap with 88% mitigation", severity: "medium", mitigation: "Auto-resolve safe findings in Sprint 4" }],
-          timeline: [{ milestone: "Guardian™ at 100%", target: "Sprint 4", status: "in_progress" }],
-          evidence: ["Current: 75%", "Raw Gap: 25", "Mitigation: 88%", "Effective Gap: 3"],
-        },
-      ];
-      return caps;
+      const phases = s.launchReadiness?.phases || [];
+      return phases.map((p) => ({
+        id: p.id,
+        label: p.name,
+        weight: 0.20,
+        score: p.score ?? 0,
+        owner: "Release Engineering",
+        deepLink: p.deepLink || "/developer/launch-readiness",
+        category: "Launch Phase",
+        dependencies: ["Launch Readiness Engine™"],
+      }));
     },
   },
   production_readiness: {

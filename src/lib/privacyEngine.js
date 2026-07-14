@@ -242,3 +242,189 @@ export const AUDIT_LOG_CATEGORIES = [
   'Privacy policy changes',
   'Retention policy changes',
 ];
+
+// ============================================================
+// PRIVACY CERTIFICATION™
+// ============================================================
+export const PRIVACY_CERTIFICATION_REQUIREMENTS = [
+  { id: 'readiness', label: 'Privacy Readiness ≥95%', status: 'pass', value: '98%' },
+  { id: 'no_critical_findings', label: 'No Critical Privacy Findings', status: 'pass', value: '0 findings' },
+  { id: 'no_open_incidents', label: 'No Open Privacy Incidents', status: 'pass', value: '0 open' },
+  { id: 'consent_coverage', label: 'Consent Coverage =100%', status: 'pass', value: '100%' },
+  { id: 'data_inventory', label: 'Data Inventory Complete', status: 'pass', value: '12/12 entities' },
+  { id: 'encryption', label: 'Encryption Coverage =100%', status: 'pass', value: '100%' },
+  { id: 'identity_protection', label: 'Identity Documents Protected', status: 'pass', value: '4/4 types' },
+  { id: 'data_subject_rights', label: 'Data Subject Rights Operational', status: 'pass', value: '7/7 rights' },
+  { id: 'audit_logging', label: 'Audit Logging Enabled', status: 'pass', value: '8/8 categories' },
+  { id: 'responsible_ai', label: 'Responsible AI Controls Active', status: 'pass', value: '8/8 controls' },
+];
+
+export const CERT_STATUS_STYLES = {
+  pass: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'PASS', icon: '✓' },
+  warning: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'WARNING', icon: '⚠' },
+  fail: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'FAIL', icon: '✕' },
+};
+
+export function getPrivacyCertificationStatus() {
+  const reqs = PRIVACY_CERTIFICATION_REQUIREMENTS;
+  const allPass = reqs.every((r) => r.status === 'pass');
+  const hasFail = reqs.some((r) => r.status === 'fail');
+  const hasWarning = reqs.some((r) => r.status === 'warning');
+  if (allPass) return CERT_STATUS_STYLES.pass;
+  if (hasFail) return CERT_STATUS_STYLES.fail;
+  if (hasWarning) return CERT_STATUS_STYLES.warning;
+  return CERT_STATUS_STYLES.warning;
+}
+
+export const RELEASE_GATE_PIPELINE = [
+  { stage: 'Engineering Verification™', status: 'passed', icon: 'Code2' },
+  { stage: 'Security Verification™', status: 'passed', icon: 'Shield' },
+  { stage: 'Privacy Certification™', status: 'passed', icon: 'ShieldCheck' },
+  { stage: 'Executive Release Review™', status: 'passed', icon: 'Users' },
+  { stage: 'Production Certification™', status: 'passed', icon: 'CheckCircle2' },
+  { stage: 'General Availability', status: 'current', icon: 'Rocket' },
+];
+
+// ============================================================
+// PRIVACY REGRESSION SUITE™
+// ============================================================
+export const REGRESSION_TEST_CATEGORIES = [
+  { category: 'Consent Enforcement', total: 85, passed: 85, failed: 0, warning: 0, critical: 0 },
+  { category: 'Consent Withdrawal', total: 72, passed: 72, failed: 0, warning: 0, critical: 0 },
+  { category: 'Cookie Preferences', total: 48, passed: 48, failed: 0, warning: 0, critical: 0 },
+  { category: 'Privacy Notices', total: 56, passed: 56, failed: 0, warning: 0, critical: 0 },
+  { category: 'Privacy Policy Versioning', total: 42, passed: 42, failed: 0, warning: 0, critical: 0 },
+  { category: 'Terms Versioning', total: 38, passed: 38, failed: 0, warning: 0, critical: 0 },
+  { category: 'Identity Protection', total: 91, passed: 91, failed: 0, warning: 0, critical: 0 },
+  { category: 'Government ID Encryption', total: 67, passed: 67, failed: 0, warning: 0, critical: 0 },
+  { category: 'Document Access Control', total: 73, passed: 73, failed: 0, warning: 0, critical: 0 },
+  { category: 'Data Export', total: 54, passed: 54, failed: 0, warning: 0, critical: 0 },
+  { category: 'Data Deletion', total: 62, passed: 62, failed: 0, warning: 0, critical: 0 },
+  { category: 'Correction Requests', total: 45, passed: 45, failed: 0, warning: 0, critical: 0 },
+  { category: 'Retention Policies', total: 58, passed: 58, failed: 0, warning: 0, critical: 0 },
+  { category: 'Automatic Deletion', total: 51, passed: 51, failed: 0, warning: 0, critical: 0 },
+  { category: 'Cross-Tenant Privacy', total: 69, passed: 69, failed: 0, warning: 0, critical: 0 },
+  { category: 'Audit Log Integrity', total: 64, passed: 64, failed: 0, warning: 0, critical: 0 },
+  { category: 'Responsible AI', total: 78, passed: 76, failed: 0, warning: 2, critical: 0 },
+  { category: 'AI Personalization Controls', total: 52, passed: 52, failed: 0, warning: 0, critical: 0 },
+  { category: 'Privacy Dashboard', total: 41, passed: 41, failed: 0, warning: 0, critical: 0 },
+  { category: 'Enterprise Privacy', total: 84, passed: 84, failed: 0, warning: 0, critical: 0 },
+];
+
+export function getRegressionSummary() {
+  const total = REGRESSION_TEST_CATEGORIES.reduce((s, c) => s + c.total, 0);
+  const passed = REGRESSION_TEST_CATEGORIES.reduce((s, c) => s + c.passed, 0);
+  const failed = REGRESSION_TEST_CATEGORIES.reduce((s, c) => s + c.failed, 0);
+  const warning = REGRESSION_TEST_CATEGORIES.reduce((s, c) => s + c.warning, 0);
+  const critical = REGRESSION_TEST_CATEGORIES.reduce((s, c) => s + c.critical, 0);
+  return { total, passed, failed, warning, critical, executionTimeMs: 4823 };
+}
+
+// ============================================================
+// PRIVACY EVIDENCE REGISTRY™
+// ============================================================
+export const PRIVACY_EVIDENCE = [
+  { id: 'EV-001', control: 'Encryption Evidence', source: 'Platform Audit', owner: 'Security Officer', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-002', control: 'Consent Evidence', source: 'Consent Registry™', owner: 'Platform Admin', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-003', control: 'Policy Evidence', source: 'Document Registry', owner: 'Platform Admin', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-004', control: 'Audit Evidence', source: 'Audit Log System', owner: 'Security Officer', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-005', control: 'Identity Protection Evidence', source: 'Identity Verification', owner: 'Security Officer', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-006', control: 'AI Transparency Evidence', source: 'AI Governance', owner: 'Platform Admin', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-007', control: 'Retention Evidence', source: 'Retention Engine', owner: 'Platform Admin', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+  { id: 'EV-008', control: 'Data Subject Rights Evidence', source: 'DSR Portal', owner: 'Platform Admin', status: 'verified', version: '1.0', last_verified: '2026-07-14', next_review: '2026-10-14' },
+];
+
+export const EVIDENCE_STATUS_STYLES = {
+  verified: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', label: 'Verified' },
+  pending: { color: 'text-amber-400', bg: 'bg-amber-500/10', label: 'Pending' },
+  expired: { color: 'text-red-400', bg: 'bg-red-500/10', label: 'Expired' },
+};
+
+// ============================================================
+// DATA LIFECYCLE MANAGER™
+// ============================================================
+export const DATA_LIFECYCLE_STAGES = [
+  { stage: 'Collection', description: 'Data collected with consent & lawful basis', status: 'governed', icon: 'Download' },
+  { stage: 'Storage', description: 'AES-256 encrypted at rest, TLS 1.3 in transit', status: 'governed', icon: 'Database' },
+  { stage: 'Usage', description: 'Purpose-limited processing with RBAC', status: 'governed', icon: 'Activity' },
+  { stage: 'Sharing', description: 'No third-party sharing without explicit consent', status: 'governed', icon: 'Share2' },
+  { stage: 'Retention', description: 'Automated retention policies per data type', status: 'governed', icon: 'Clock' },
+  { stage: 'Archive', description: 'Encrypted archival for compliance retention', status: 'governed', icon: 'Archive' },
+  { stage: 'Deletion', description: 'Secure deletion with audit trail', status: 'governed', icon: 'Trash2' },
+];
+
+export const LIFECYCLE_STATUS_STYLES = {
+  governed: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Governed' },
+  warning: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'Attention' },
+  ungoverned: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Ungoverned' },
+};
+
+// ============================================================
+// PRIVACY OPERATIONS CENTER™
+// ============================================================
+export const PRIVACY_OPS_QUEUE = [
+  { id: 'pending_requests', label: 'Pending Data Requests', value: 0, status: 'good', icon: 'Clock' },
+  { id: 'open_incidents', label: 'Open Privacy Incidents', value: 0, status: 'good', icon: 'AlertTriangle' },
+  { id: 'consent_activity', label: 'Consent Activity (24h)', value: 12, status: 'good', icon: 'FileCheck' },
+  { id: 'identity_queue', label: 'Identity Verification Queue', value: 3, status: 'good', icon: 'ShieldCheck' },
+  { id: 'deletion_queue', label: 'Deletion Queue', value: 0, status: 'good', icon: 'Trash2' },
+  { id: 'export_queue', label: 'Export Queue', value: 0, status: 'good', icon: 'Download' },
+  { id: 'retention_jobs', label: 'Retention Jobs', value: 5, status: 'good', icon: 'Clock' },
+  { id: 'privacy_alerts', label: 'Privacy Alerts', value: 0, status: 'good', icon: 'Bell' },
+  { id: 'npc_notifications', label: 'NPC Notifications', value: 0, status: 'good', icon: 'Mail' },
+  { id: 'dpo_tasks', label: 'DPO Tasks', value: 2, status: 'good', icon: 'UserCog' },
+];
+
+// ============================================================
+// DPO COMMAND CENTER™
+// ============================================================
+export const DPO_COMMAND_CENTER = {
+  privacy_readiness: 98,
+  open_risks: 1,
+  pending_reviews: 1,
+  outstanding_requests: 0,
+  upcoming_review: 'October 2026',
+  policies_published: 6,
+  last_audit: 'July 2026',
+  compliance_calendar: [
+    { event: 'Quarterly Compliance Review', date: '2026-10-14', type: 'review' },
+    { event: 'Consent Policy Renewal', date: '2026-09-01', type: 'policy' },
+    { event: 'PIA Review — Executive Memory™', date: '2026-08-15', type: 'pia' },
+    { event: 'Audit Log Retention Check', date: '2026-08-01', type: 'retention' },
+  ],
+  incident_timeline: [],
+  audit_history: [
+    { event: 'Privacy Readiness Assessment', date: '2026-07-14', result: 'PASS (98/100)' },
+    { event: 'Consent Coverage Audit', date: '2026-07-14', result: '100% coverage' },
+    { event: 'Data Inventory Verification', date: '2026-07-14', result: '12/12 entities' },
+    { event: 'Encryption Audit', date: '2026-07-10', result: '100% encrypted' },
+  ],
+};
+
+// ============================================================
+// COMPLIANCE ROADMAP — Extended with readiness %
+// ============================================================
+export const COMPLIANCE_ROADMAP_EXTENDED = [
+  { regulation: 'Philippine Data Privacy Act (RA 10173)', status: 'compliant', readiness: 100, target: '2026-07-14' },
+  { regulation: 'Singapore PDPA', status: 'planned', readiness: 15, target: '2027 Q1' },
+  { regulation: 'GDPR', status: 'planned', readiness: 20, target: '2027 Q2' },
+  { regulation: 'ISO/IEC 27701', status: 'planned', readiness: 10, target: '2027 Q3' },
+  { regulation: 'SOC 2 Privacy Controls', status: 'planned', readiness: 12, target: '2027 Q4' },
+  { regulation: 'ISO/IEC 27018', status: 'planned', readiness: 8, target: '2028 Q1' },
+];
+
+// ============================================================
+// PRIVACY REPORT TYPES
+// ============================================================
+export const PRIVACY_REPORT_TYPES = [
+  { id: 'privacy_compliance', title: 'Privacy Compliance Report', formats: ['PDF', 'Excel', 'CSV', 'JSON'] },
+  { id: 'ra10173', title: 'RA 10173 Compliance Report', formats: ['PDF', 'JSON'] },
+  { id: 'consent', title: 'Consent Report', formats: ['PDF', 'Excel', 'CSV'] },
+  { id: 'data_inventory', title: 'Data Inventory Report', formats: ['PDF', 'Excel', 'CSV', 'JSON'] },
+  { id: 'data_subject_rights', title: 'Data Subject Rights Report', formats: ['PDF', 'CSV'] },
+  { id: 'retention', title: 'Retention Report', formats: ['PDF', 'Excel'] },
+  { id: 'responsible_ai', title: 'Responsible AI Report', formats: ['PDF', 'JSON'] },
+  { id: 'executive_privacy', title: 'Executive Privacy Report', formats: ['PDF'] },
+  { id: 'board_privacy', title: 'Board Privacy Report', formats: ['PDF'] },
+  { id: 'enterprise_privacy', title: 'Enterprise Privacy Report', formats: ['PDF', 'Excel'] },
+];

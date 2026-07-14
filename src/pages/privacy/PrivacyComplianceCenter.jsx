@@ -2,10 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PrivacyScoreHero from "@/components/privacy/PrivacyScoreHero";
+import PrivacyCertification from "@/components/privacy/PrivacyCertification";
+import PrivacyRegressionSuite from "@/components/privacy/PrivacyRegressionSuite";
+import PrivacyOperationsCenter from "@/components/privacy/PrivacyOperationsCenter";
+import DPOCommandCenter from "@/components/privacy/DPOCommandCenter";
+import PrivacyEvidenceRegistry from "@/components/privacy/PrivacyEvidenceRegistry";
+import DataLifecycleManager from "@/components/privacy/DataLifecycleManager";
 import {
   ShieldCheck, Database, FileCheck, AlertTriangle, FileText, Brain, Map,
   Shield, UserCog, Eye, Download, Edit, Trash2, XCircle, Mail, Lock,
   CheckCircle2, Clock, ExternalLink, ScrollText, FileWarning, Activity,
+  Award, GitBranch,
 } from "lucide-react";
 import {
   DPO_INFO, PRIVACY_DASHBOARD_STATS, DATA_INVENTORY, CONSENT_TYPES,
@@ -26,6 +33,12 @@ const TABS = [
   { id: 'policies', label: 'Policies & Retention', icon: FileText },
   { id: 'responsible_ai', label: 'Responsible AI', icon: Brain },
   { id: 'roadmap', label: 'Roadmap', icon: Map },
+  { id: 'certification', label: 'Certification', icon: Award },
+  { id: 'regression', label: 'Regression Suite', icon: Activity },
+  { id: 'operations', label: 'Operations', icon: Shield },
+  { id: 'dpo', label: 'DPO Command Center', icon: UserCog },
+  { id: 'evidence', label: 'Evidence Registry', icon: FileCheck },
+  { id: 'lifecycle', label: 'Data Lifecycle', icon: GitBranch },
 ];
 
 const cardClass = "bg-white/[0.02] border border-white/10 rounded-2xl p-5";
@@ -77,6 +90,12 @@ export default function PrivacyComplianceCenter() {
         {tab === 'policies' && <PoliciesTab />}
         {tab === 'responsible_ai' && <ResponsibleAITab />}
         {tab === 'roadmap' && <RoadmapTab />}
+        {tab === 'certification' && <PrivacyCertification />}
+        {tab === 'regression' && <PrivacyRegressionSuite />}
+        {tab === 'operations' && <PrivacyOperationsCenter />}
+        {tab === 'dpo' && <DPOCommandCenter />}
+        {tab === 'evidence' && <PrivacyEvidenceRegistry />}
+        {tab === 'lifecycle' && <DataLifecycleManager />}
       </div>
     </div>
   );

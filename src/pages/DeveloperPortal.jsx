@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
+import { Share2 } from "lucide-react";
 import {
   DOC_CATEGORIES, generateAllDocs, searchDocs, createEntityDoc,
 } from "@/lib/developerPortalEngine";
@@ -7,6 +8,7 @@ import DocSidebar from "@/components/developer-portal/DocSidebar";
 import DocViewer from "@/components/developer-portal/DocViewer";
 import DocSearch from "@/components/developer-portal/DocSearch";
 import ExportToolbar from "@/components/developer-portal/ExportToolbar";
+import KnowledgeGraphView from "@/components/knowledge-graph/KnowledgeGraphView";
 
 export default function DeveloperPortal() {
   const docs = useMemo(() => generateAllDocs(), []);
@@ -16,6 +18,7 @@ export default function DeveloperPortal() {
   const [searchQuery, setSearchQuery] = useState("");
   const [entitySchema, setEntitySchema] = useState(null);
   const [loadingSchema, setLoadingSchema] = useState(false);
+  const [showGraph, setShowGraph] = useState(false);
 
   // Discover entity names at runtime
   useEffect(() => {
@@ -76,8 +79,18 @@ export default function DeveloperPortal() {
       {/* Toolbar */}
       <div className="flex items-center gap-3 mb-4">
         <DocSearch value={searchQuery} onChange={setSearchQuery} />
-        <div className="ml-auto">
-          <ExportToolbar doc={exportDoc} />
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => setShowGraph(!showGraph)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs transition-colors ${
+              showGraph
+                ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-300"
+                : "bg-white/5 border-white/10 text-white/50 hover:text-white/80"
+            }`}
+          >
+            <Share2 size={14} /> Knowledge Graph
+          </button>
+          {!showGraph && <ExportToolbar doc={exportDoc} />}
         </div>
       </div>
 
@@ -99,7 +112,9 @@ export default function DeveloperPortal() {
 
         {/* Content area */}
         <div className="flex-1 overflow-y-auto p-6">
-          {selectedDoc ? (
+          {showGraph ? (
+            <KnowledgeGraphView />
+          ) : selectedDoc ? (
             <DocViewer
               doc={selectedDoc}
               entitySchema={entitySchema}

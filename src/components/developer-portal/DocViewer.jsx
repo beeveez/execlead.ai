@@ -1,6 +1,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import DependencyGraph from "./DependencyGraph";
+import RelationshipPanel from "./RelationshipPanel";
 import { createEntityDoc } from "@/lib/developerPortalEngine";
 import { Database, User, Clock, Link2, Box } from "lucide-react";
 
@@ -49,6 +50,9 @@ export default function DocViewer({ doc, entitySchema, loadingSchema }) {
           </div>
         ))}
       </div>
+
+      {/* Knowledge Graph™ relationships */}
+      <RelationshipPanel doc={doc} />
 
       {/* Related components */}
       {doc.relatedComponents.length > 0 && (

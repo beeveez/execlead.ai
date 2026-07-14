@@ -14,13 +14,19 @@ import { UserX, Clock, Loader2, AlertTriangle, RefreshCw, X, Shield, Building2 }
  *
  * Toast notifications are reserved for user-initiated actions, not background page loads.
  */
-export default function OffboardingDashboard() {
+export default function OffboardingDashboard({ organizationId }) {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const fetchIdRef = useRef(0);
 
   const loadQueue = async () => {
+    // Client guard: do not issue the API request if there is no org context
+    if (!organizationId) {
+      setLoading(false);
+      setQueue([]);
+      return;
+    }
     const reqId = ++fetchIdRef.current;
     setLoading(true);
     setError(null);
@@ -32,14 +38,33 @@ export default function OffboardingDashboard() {
       setQueue(d.queue || []);
     } catch (e) {
       if (reqId !== fetchIdRef.current) return;
-      console.error(`[offboard-req-${reqId}] Failed to load offboarding queue:`, e);
-      setError(e.message || "Unable to load the offboarding queue.");
+      // Extract structured error message from server response
+      const serverMsg = e.response?.data?.error || e.response?.data?.details;
+      const status = e.response?.status;
+      console.error(`[offboard-req-${reqId}] Failed (HTTP ${status || 'unknown'}):`, serverMsg || e.message);
+      setError(serverMsg || e.message || "Unable to load the offboarding queue.");
     } finally {
       if (reqId === fetchIdRef.current) setLoading(false);
     }
   };
 
-  useEffect(() => { loadQueue(); }, []);
+  useEffect(() => { loadQueue(); }, [organizationId]);
+
+  // ── No organization context ──
+  if (!organizationId) {
+    return (
+      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <UserX size={16} className="text-amber-400" />
+          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">Offboarding Queue</h3>
+        </div>
+        <div className="text-center py-8">
+          <Building2 size={28} className="text-white/10 mx-auto mb-2" />
+          <p className="text-white/30 text-sm">Organization context unavailable.</p>
+        </div>
+      </div>
+    );
+  }
 
   // ── Loading ──
   if (loading) {

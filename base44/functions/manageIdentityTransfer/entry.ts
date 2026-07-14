@@ -264,15 +264,37 @@ Deno.serve(async (req) => {
 
     // ── ADMIN: Get offboarding queue ──
     if (action === 'get_offboarding_queue') {
+      const reqId = `offboard-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      console.log(`[${reqId}] get_offboarding_queue — user: ${user.id} (${user.email})`);
+
       const adminProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
       const adminProfile = adminProfiles[0];
-      if (!adminProfile?.organization_id) {
-        return Response.json({ error: 'You are not part of an organization.' }, { status: 400 });
+
+      if (!adminProfile) {
+        console.warn(`[${reqId}] No UserProfile found for user ${user.id}`);
+        return Response.json({
+          error: 'Missing organizationId',
+          details: 'No user profile found. Please complete your profile setup.'
+        }, { status: 400 });
       }
+
+      if (!adminProfile.organization_id) {
+        console.warn(`[${reqId}] User ${user.id} has no organization_id`);
+        return Response.json({
+          error: 'Missing organizationId',
+          details: 'You are not associated with an organization.'
+        }, { status: 400 });
+      }
+
+      console.log(`[${reqId}] organization_id: ${adminProfile.organization_id}, role: ${adminProfile.custom_role}`);
 
       const adminRole = (adminProfile.custom_role || '').toLowerCase();
       if (!['organization owner', 'enterprise admin'].includes(adminRole)) {
-        return Response.json({ error: 'Only organization admins can view the offboarding queue.' }, { status: 403 });
+        console.warn(`[${reqId}] User ${user.id} role "${adminRole}" is not admin`);
+        return Response.json({
+          error: 'Forbidden',
+          details: 'Only organization admins can view the offboarding queue.'
+        }, { status: 403 });
       }
 
       const transfers = await safeFilter(base44, 'ExecutiveIdentityTransfer',
@@ -285,6 +307,7 @@ Deno.serve(async (req) => {
         expired: daysBetween(t.grace_period_ends_at) === 0
       }));
 
+      console.log(`[${reqId}] Returning ${enriched.length} offboarding records`);
       return Response.json({ queue: enriched });
     }
 

@@ -165,7 +165,7 @@ export default function OrganizationUsers() {
       </div>
 
       {/* Offboarding Queue */}
-      <OffboardingDashboard />
+      <OffboardingDashboard organizationId={organizationId} />
 
       {/* Invite */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">

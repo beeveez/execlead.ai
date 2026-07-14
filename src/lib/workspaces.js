@@ -183,6 +183,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/report-registry", label: "Report Registry™", icon: FileText },
       { path: "/developer/form-lookup-registry", label: "Form Lookup Registry™", icon: ClipboardCheck },
       { path: "/developer/product", label: "Product Management™", icon: Boxes },
+      { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
     ]},
     { label: "Administration", items: [
       { path: "/payment-settings", label: "Payment Providers", icon: Lock },

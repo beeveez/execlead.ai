@@ -130,6 +130,17 @@ const APP_ROUTES = [
   { path: "/developer/diagnostics", component: "Diagnostics", feature: "developer_access" },
   { path: "/developer/knowledge-sync", component: "ExecKnowledgeSync", name: "EXEC™ Knowledge Synchronization™", feature: "developer_access" },
   { path: "/exec-admin", component: "ExecAdmin", feature: "exec_console" },
+  { path: "/privacy-compliance", component: "PrivacyComplianceCenter", name: "Privacy & Compliance Center™", feature: null },
+  { path: "/enterprise/governance", component: "GovernanceCommandCenter", name: "Enterprise Governance Command Center™", feature: null },
+  { path: "/developer/architecture-audit", component: "PlatformArchitectureAudit", name: "Architecture Audit™", feature: "developer_access" },
+  { path: "/developer/stability", component: "PlatformStabilityDashboard", name: "Platform Stability Dashboard™", feature: "developer_access" },
+  { path: "/developer/launch-readiness", component: "LaunchReadiness", name: "Launch Readiness™", feature: "developer_access" },
+  { path: "/developer/scalability", component: "ScalabilityAssessment", name: "Scalability Assessment™", feature: "developer_access" },
+  { path: "/developer/performance-resilience", component: "PerformanceResilience", name: "Performance & Resilience™", feature: "developer_access" },
+  { path: "/developer/report-registry", component: "ReportRegistry", name: "Report Registry™", feature: "developer_access" },
+  { path: "/developer/security-intelligence", component: "SecurityIntelligenceCenter", name: "Security Intelligence Center™", feature: "developer_access" },
+  { path: "/developer/form-lookup-registry", component: "FormLookupRegistry", name: "Form Lookup Registry™", feature: "developer_access" },
+  { path: "/developer/product", component: "ProductManagement", name: "Product Management™", feature: "developer_access" },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

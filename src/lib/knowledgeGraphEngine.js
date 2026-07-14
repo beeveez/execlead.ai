@@ -329,3 +329,97 @@ export function getGraphStats() {
   nodes.forEach(n => { byType[n.type] = (byType[n.type] || 0) + 1; });
   return { totalNodes: nodes.length, totalEdges: edges.length, byType };
 }
+
+// ============================================================
+// NEIGHBORHOOD EXPLORATION API
+// ============================================================
+
+/**
+ * Build a subgraph containing only the specified node IDs
+ * and edges between them.
+ */
+export function buildSubgraph(nodeIds) {
+  const { edges, nodeMap } = getKnowledgeGraph();
+  const idSet = nodeIds instanceof Set ? nodeIds : new Set(nodeIds);
+  const nodes = Array.from(idSet).map(id => nodeMap.get(id)).filter(Boolean);
+  const visibleEdges = edges.filter(e => idSet.has(e.from) && idSet.has(e.to));
+  return { nodes, edges: visibleEdges, nodeMap: new Map(nodes.map(n => [n.id, n])) };
+}
+
+/**
+ * Get the neighborhood of a root node up to a given depth.
+ * Returns a subgraph with the root and all nodes within `depth` hops.
+ */
+export function getNeighborhood(rootId, depth = 1) {
+  const { edges } = getKnowledgeGraph();
+  const visibleIds = new Set([rootId]);
+  let frontier = [rootId];
+  for (let d = 0; d < depth; d++) {
+    const next = [];
+    for (const id of frontier) {
+      edges.forEach(e => {
+        if (e.from === id && !visibleIds.has(e.to)) { visibleIds.add(e.to); next.push(e.to); }
+        else if (e.to === id && !visibleIds.has(e.from)) { visibleIds.add(e.from); next.push(e.from); }
+      });
+    }
+    frontier = next;
+  }
+  return buildSubgraph(visibleIds);
+}
+
+/**
+ * Expand the visible node set by one of:
+ *   "level"        — add all direct neighbors of currently visible nodes
+ *   "dependencies" — add nodes that visible nodes depend on (hierarchical edges)
+ *   "references"   — add nodes that reference or are referenced by visible nodes
+ *   "workspace"    — add all modules in the same workspace as the root
+ */
+export function expandNodes(currentIds, expandType) {
+  const { edges, nodeMap } = getKnowledgeGraph();
+  const current = currentIds instanceof Set ? currentIds : new Set(currentIds);
+  const added = new Set();
+
+  if (expandType === "workspace") {
+    const workspaces = new Set();
+    current.forEach(id => {
+      const node = nodeMap.get(id);
+      if (node?.data?.workspace) workspaces.add(node.data.workspace);
+      if (node?.type === "workspace") workspaces.add(node.id.replace("workspace:", ""));
+    });
+    nodeMap.forEach(node => {
+      if (node.data?.workspace && workspaces.has(node.data.workspace)) added.add(node.id);
+    });
+  } else {
+    const hierarchicalTypes = [RELATIONSHIPS.DEPENDS_ON, RELATIONSHIPS.POWERED_BY, RELATIONSHIPS.BELONGS_TO];
+    for (const id of current) {
+      edges.forEach(e => {
+        if (expandType === "level") {
+          if (e.from === id && !current.has(e.to)) added.add(e.to);
+          else if (e.to === id && !current.has(e.from)) added.add(e.from);
+        } else if (expandType === "dependencies") {
+          if (e.from === id && hierarchicalTypes.includes(e.type) && !current.has(e.to)) added.add(e.to);
+          if (e.to === id && hierarchicalTypes.includes(e.type) && !current.has(e.from)) added.add(e.from);
+        } else if (expandType === "references") {
+          if (e.from === id && e.type === RELATIONSHIPS.REFERENCES && !current.has(e.to)) added.add(e.to);
+          else if (e.to === id && e.type === RELATIONSHIPS.REFERENCES && !current.has(e.from)) added.add(e.from);
+        }
+      });
+    }
+  }
+
+  const allIds = new Set([...current, ...added]);
+  return { ...buildSubgraph(allIds), addedCount: added.size };
+}
+
+/**
+ * Check whether a node participates in a hierarchical structure
+ * (has incoming or outgoing Depends On / Powered By / Belongs To edges).
+ * Used to determine whether Tree layout is valid.
+ */
+export function hasHierarchicalStructure(rootId) {
+  const { edges } = getKnowledgeGraph();
+  const hierarchicalTypes = [RELATIONSHIPS.DEPENDS_ON, RELATIONSHIPS.POWERED_BY, RELATIONSHIPS.BELONGS_TO];
+  return edges.some(e =>
+    (e.from === rootId || e.to === rootId) && hierarchicalTypes.includes(e.type)
+  );
+}

@@ -1,43 +1,60 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import {
-  getKnowledgeGraph, applyFilters, getNode, getImpactCategorized,
-  shortestPath, getGraphStats,
+  getKnowledgeGraph, getNode, getImpactCategorized,
+  shortestPath, getGraphStats, getNeighborhood, expandNodes,
+  buildSubgraph, hasHierarchicalStructure,
 } from "@/lib/knowledgeGraphEngine";
 import { ForceSimulation } from "@/lib/forceSimulation";
 import KnowledgeGraphCanvas from "./KnowledgeGraphCanvas";
 import GraphInspector from "./GraphInspector";
 import GraphControls from "./GraphControls";
+import RootNodePicker from "./RootNodePicker";
 import { AlertTriangle, Route, X } from "lucide-react";
 
 export default function KnowledgeGraphView() {
+  const [rootId, setRootId] = useState(null);
+  const [visibleIds, setVisibleIds] = useState(new Set());
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [hoveredId, setHoveredId] = useState(null);
   const [pathMode, setPathMode] = useState(false);
   const [pathStart, setPathStart] = useState(null);
   const [pathResult, setPathResult] = useState(null);
   const [impactResult, setImpactResult] = useState(null);
-  const [filters, setFilters] = useState({ nodeType: "all", workspace: "all", relationship: "all", status: "all" });
-  const [layout, setLayout] = useState("force");
+  const [layout, setLayout] = useState("radial");
   const [contextMenu, setContextMenu] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const containerRef = useRef(null);
   const fitRef = useRef(null);
 
-  const graph = useMemo(() => getKnowledgeGraph(), []);
   const stats = useMemo(() => getGraphStats(), []);
-  const filteredGraph = useMemo(() => applyFilters(graph, filters), [graph, filters]);
-  const simulation = useMemo(() => new ForceSimulation(filteredGraph.nodes, filteredGraph.edges), [filteredGraph]);
 
-  // Apply layout
+  // Build the visible subgraph from the current visible node IDs
+  const subGraph = useMemo(() => {
+    if (visibleIds.size === 0) return { nodes: [], edges: [], nodeMap: new Map() };
+    return buildSubgraph(visibleIds);
+  }, [visibleIds]);
+
+  const simulation = useMemo(() => new ForceSimulation(subGraph.nodes, subGraph.edges), [subGraph]);
+
+  // Tree layout only available when the root has a true hierarchical structure
+  const treeAvailable = useMemo(() => rootId ? hasHierarchicalStructure(rootId) : false, [rootId]);
+
+  // Auto-disable tree if not available
   useEffect(() => {
+    if (layout === "tree" && !treeAvailable) setLayout("radial");
+  }, [layout, treeAvailable]);
+
+  // Apply layout when simulation or layout changes
+  useEffect(() => {
+    if (subGraph.nodes.length === 0) return;
     if (layout === "force") {
       simulation.nodes.forEach(n => { n.fx = null; n.fy = null; });
       simulation.reheat();
     } else {
       applyLayout(simulation, layout);
     }
-  }, [simulation, layout]);
+  }, [simulation, layout, subGraph]);
 
   // Fullscreen tracking
   useEffect(() => {
@@ -57,6 +74,43 @@ export default function KnowledgeGraphView() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [pathMode]);
+
+  // ── Root selection → load depth-1 neighborhood ──
+  const handleSelectRoot = useCallback((nodeId) => {
+    setRootId(nodeId);
+    const neighborhood = getNeighborhood(nodeId, 1);
+    setVisibleIds(new Set(neighborhood.nodes.map(n => n.id)));
+    setSelectedIds(new Set([nodeId]));
+    setImpactResult(null);
+    setPathResult(null);
+    // Default layout: workspace for workspace nodes, radial otherwise
+    const node = getNode(nodeId);
+    setLayout(node?.type === "workspace" ? "workspace" : "radial");
+  }, []);
+
+  // ── Expand the visible neighborhood ──
+  const handleExpand = useCallback((expandType) => {
+    setVisibleIds(prev => {
+      const result = expandNodes(prev, expandType);
+      return new Set(result.nodes.map(n => n.id));
+    });
+  }, []);
+
+  // ── Double-click a node to make it the new root ──
+  const handleDoubleClick = useCallback((nodeId) => {
+    handleSelectRoot(nodeId);
+  }, [handleSelectRoot]);
+
+  // ── Reset to root picker ──
+  const handleReset = useCallback(() => {
+    setRootId(null);
+    setVisibleIds(new Set());
+    setSelectedIds(new Set());
+    setImpactResult(null);
+    setPathResult(null);
+    setPathMode(false);
+    setPathStart(null);
+  }, []);
 
   const handleSelect = useCallback((nodeId, opts) => {
     if (pathMode && nodeId) {
@@ -96,7 +150,7 @@ export default function KnowledgeGraphView() {
 
   const handleExport = useCallback((type) => {
     if (type === "json") {
-      download("knowledge-graph.json", JSON.stringify({ nodes: filteredGraph.nodes, edges: filteredGraph.edges }, null, 2), "application/json");
+      download("knowledge-graph.json", JSON.stringify({ rootId, nodes: subGraph.nodes, edges: subGraph.edges }, null, 2), "application/json");
     } else if (type === "png") {
       const canvas = containerRef.current?.querySelector("canvas");
       if (canvas) {
@@ -108,7 +162,7 @@ export default function KnowledgeGraphView() {
     } else if (type === "svg") {
       exportSVG(simulation);
     }
-  }, [filteredGraph, simulation]);
+  }, [subGraph, simulation, rootId]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
@@ -117,18 +171,42 @@ export default function KnowledgeGraphView() {
 
   const selectedNode = selectedIds.size === 1 ? getNode([...selectedIds][0]) : null;
   const impactNodeIds = impactResult ? new Set(impactResult.nodes.map(n => n.id)) : null;
+  const rootNode = rootId ? getNode(rootId) : null;
+
+  // ── No root selected → show picker ──
+  if (!rootId) {
+    return (
+      <div ref={containerRef} className={`flex flex-col ${isFullscreen ? "h-screen bg-[#0a0a0f] p-4" : "h-[600px]"}`}>
+        <RootNodePicker onSelect={handleSelectRoot} stats={stats} />
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className={`flex flex-col ${isFullscreen ? "h-screen bg-[#0a0a0f] p-4" : "h-[600px]"}`}>
       <GraphControls
         layout={layout} onLayoutChange={setLayout}
-        filters={filters} onFilterChange={setFilters}
+        onExpand={handleExpand}
         onExport={handleExport} onFit={() => fitRef.current?.()}
         onTogglePath={() => { setPathMode(!pathMode); setPathStart(null); setPathResult(null); }}
         pathMode={pathMode}
         onToggleFullscreen={toggleFullscreen} isFullscreen={isFullscreen}
-        stats={stats}
+        onReset={handleReset}
+        treeAvailable={treeAvailable}
+        stats={{ ...stats, visibleNodes: subGraph.nodes.length }}
       />
+
+      {/* Root breadcrumb */}
+      {rootNode && (
+        <div className="mb-2 px-3 py-1.5 bg-white/[0.02] border border-white/5 rounded-lg text-[11px] text-white/40 flex items-center gap-2">
+          <span className="text-white/20">Root:</span>
+          <span className="text-white/70 font-medium">{rootNode.label}</span>
+          <span className="text-white/20">·</span>
+          <span>{subGraph.nodes.length} nodes visible</span>
+          <span className="text-white/20">·</span>
+          <span>Double-click any node to re-root</span>
+        </div>
+      )}
 
       {pathMode && (
         <div className="mb-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-[11px] text-indigo-300 flex items-center gap-2">
@@ -147,7 +225,7 @@ export default function KnowledgeGraphView() {
           impactNodeIds={impactNodeIds}
           onHover={setHoveredId}
           onSelect={handleSelect}
-          onDoubleClick={() => {}}
+          onDoubleClick={handleDoubleClick}
           onContextMenu={(id, x, y) => setContextMenu({ nodeId: id, x, y })}
           onFitRef={fitRef}
         />
@@ -165,10 +243,14 @@ export default function KnowledgeGraphView() {
       {contextMenu && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
-          <div className="fixed z-50 bg-[#0d0d14] border border-white/10 rounded-lg shadow-2xl py-1 min-w-[180px]"
+          <div className="fixed z-50 bg-[#0d0d14] border border-white/10 rounded-lg shadow-2xl py-1 min-w-[200px]"
             style={{ left: contextMenu.x, top: contextMenu.y }}>
             <button onClick={handleAnalyzeImpact} className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-white/60 hover:bg-white/5">
               <AlertTriangle size={12} className="text-amber-400" /> Analyze Impact
+            </button>
+            <button onClick={() => { handleDoubleClick(contextMenu.nodeId); setContextMenu(null); }}
+              className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-white/60 hover:bg-white/5">
+              <Route size={12} className="text-indigo-400" /> Set as Root
             </button>
             <button onClick={() => { setPathMode(true); setPathStart(contextMenu.nodeId); setContextMenu(null); }}
               className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-white/60 hover:bg-white/5">

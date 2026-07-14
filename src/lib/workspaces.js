@@ -132,6 +132,7 @@ export const WORKSPACE_NAV = {
       { path: "/identity-verification-admin", label: "Identity Reviews", icon: ShieldCheck },
       { path: "/beta-program", label: "Beta Program Center™", icon: Rocket },
       { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
+      { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
       { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
     ]},
@@ -186,6 +187,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/form-lookup-registry", label: "Form Lookup Registry™", icon: ClipboardCheck },
       { path: "/developer/product", label: "Product Management™", icon: Boxes },
       { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
+      { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
     ]},
     { label: "Administration", items: [
       { path: "/payment-settings", label: "Payment Providers", icon: Lock },
@@ -223,6 +225,7 @@ const ROUTE_WORKSPACE = {
   "/identity-verification-admin": ["platform", "developer"],
   "/beta-program": ["platform", "developer"],
   "/beta-operations": ["platform", "developer"],
+  "/customer-lifecycle": ["executive", "enterprise", "platform", "developer"],
   "/legacy-library/admin": ["platform", "developer"],
   "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
   "/leadership-dna": ["executive"],

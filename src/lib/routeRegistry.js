@@ -145,6 +145,7 @@ const APP_ROUTES = [
   { path: "/exec-observability", component: "ExecObservabilityPlatform", name: "EXEC™ Observability & Telemetry Platform™", feature: null },
   { path: "/product-intelligence", component: "ProductIntelligenceDashboard", name: "EXEC™ Product Intelligence Platform™", feature: null },
   { path: "/beta-operations", component: "BetaOperationsCenter", name: "Beta Operations Center™", feature: null },
+  { path: "/customer-lifecycle", component: "CustomerLifecycleManagement", name: "Customer Lifecycle Management™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

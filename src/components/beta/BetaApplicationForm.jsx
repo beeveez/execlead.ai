@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Rocket, Loader2, CheckCircle2, Mail } from "lucide-react";
-import { submitBetaApplication, LEADERSHIP_LEVELS, HOW_HEARD_OPTIONS } from "@/lib/betaProgramEngine";
+import { submitBetaApplication, LEADERSHIP_LEVELS, getHowHeardOptions } from "@/lib/betaProgramEngine";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const CAPABILITY_OPTIONS = [
   { id: "enterprise", label: "Enterprise" },
@@ -183,12 +184,16 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
 
       <div>
         <label className={labelClass}>How did you hear about EXECLEAD.AI?</label>
-        <select value={form.how_heard} onChange={update("how_heard")} className={inputClass}>
-          <option value="">Select source...</option>
-          {Object.entries(HOW_HEARD_OPTIONS).map(([key, label]) => (
-            <option key={key} value={key}>{label}</option>
-          ))}
-        </select>
+        <Select value={form.how_heard} onValueChange={(val) => setForm((f) => ({ ...f, how_heard: val }))}>
+          <SelectTrigger className={inputClass}>
+            <SelectValue placeholder="Select source..." />
+          </SelectTrigger>
+          <SelectContent>
+            {getHowHeardOptions().map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {error && (

@@ -70,10 +70,16 @@
       "enum": [
         "linkedin",
         "twitter",
-        "referral",
-        "search_engine",
-        "event",
-        "blog",
+        "facebook",
+        "instagram",
+        "youtube",
+        "reddit",
+        "google_search",
+        "friend_colleague",
+        "employer",
+        "conference_event",
+        "newsletter",
+        "ai_assistant",
         "other"
       ],
       "description": "How the applicant heard about EXECLEAD.AI"

@@ -124,12 +124,52 @@ export const LEADERSHIP_LEVELS = {
 export const HOW_HEARD_OPTIONS = {
   linkedin: "LinkedIn",
   twitter: "Twitter / X",
-  referral: "Referral from a colleague",
-  search_engine: "Search engine (Google, etc.)",
-  event: "Conference or event",
-  blog: "Blog or article",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  reddit: "Reddit",
+  google_search: "Google Search",
+  friend_colleague: "Friend / Colleague",
+  employer: "Employer",
+  conference_event: "Conference / Event",
+  newsletter: "Newsletter",
+  ai_assistant: "ChatGPT / AI Assistant",
   other: "Other",
 };
+
+/**
+ * Returns a clean, sorted array of { value, label } for the
+ * "How did you hear about EXECLEAD.AI?" dropdown.
+ *
+ * Pipeline:
+ *   1. Convert object → array
+ *   2. Filter out null / undefined / "" / whitespace-only labels
+ *   3. Remove duplicate labels (case-insensitive)
+ *   4. Sort alphabetically by label
+ *   5. Move "Other" to the end
+ */
+export function getHowHeardOptions() {
+  const entries = Object.entries(HOW_HEARD_OPTIONS)
+    .filter(([, label]) => typeof label === "string" && label.trim().length > 0)
+    .map(([value, label]) => ({ value, label: label.trim() }));
+
+  const seen = new Set();
+  const deduped = entries.filter((opt) => {
+    const key = opt.label.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const sorted = deduped
+    .filter((opt) => opt.value !== "other")
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const other = deduped.find((opt) => opt.value === "other");
+  if (other) sorted.push(other);
+
+  return sorted;
+}
 
 /**
  * Current beta stage — controlled by platform configuration.

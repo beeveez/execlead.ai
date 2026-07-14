@@ -17,6 +17,7 @@ import RouteTracker from './components/RouteTracker';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionRoutingManager from '@/components/SessionRoutingManager';
 import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
+import { TelemetryProvider } from '@/lib/TelemetryContext';
 import ExecConcierge from '@/components/concierge/ExecConcierge';
 import { RepairWorkflowProvider } from '@/components/developer/repair/RepairWorkflowProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -190,6 +191,7 @@ import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import ExecAdmin from '@/pages/ExecAdmin';
 import ExecOSDashboard from '@/pages/ExecOSDashboard';
 import Feedback from '@/pages/Feedback';
+import ExecObservabilityPlatform from '@/pages/ExecObservabilityPlatform';
 import BetaApply from '@/pages/BetaApply';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
@@ -407,6 +409,7 @@ const AuthenticatedApp = () => {
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/beta-program" element={<BetaProgramCenter />} />
+          <Route path="/exec-observability" element={<ExecObservabilityPlatform />} />
         </Route>
         </Route>
       </Route>
@@ -432,6 +435,7 @@ function App() {
             <ScrollToTop />
             <RouteTracker />
             <RepairWorkflowProvider>
+              <TelemetryProvider>
               <ExecConciergeProvider>
                 <AuthenticatedApp />
                 <ExecConcierge />
@@ -439,6 +443,7 @@ function App() {
                 <CommandPalette />
                 <KeyboardShortcuts />
               </ExecConciergeProvider>
+              </TelemetryProvider>
             </RepairWorkflowProvider>
           </Router>
           <Toaster />

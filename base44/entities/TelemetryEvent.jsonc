@@ -1,0 +1,123 @@
+{
+  "name": "TelemetryEvent",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "description": "Type of telemetry event (navigation, search, button_click, ai_session, repair, error, etc.)"
+    },
+    "event_category": {
+      "type": "string",
+      "enum": [
+        "navigation",
+        "search",
+        "workspace",
+        "interaction",
+        "repair",
+        "verification",
+        "export",
+        "ai",
+        "report",
+        "session",
+        "auth",
+        "error",
+        "warning",
+        "performance"
+      ],
+      "default": "interaction",
+      "description": "Category for grouping and filtering events"
+    },
+    "module": {
+      "type": "string",
+      "description": "Platform module where the event occurred"
+    },
+    "page_path": {
+      "type": "string",
+      "description": "URL path where the event occurred"
+    },
+    "workspace": {
+      "type": "string",
+      "description": "Active workspace when the event occurred"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Anonymous browser session identifier"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Duration of the event in milliseconds"
+    },
+    "properties_json": {
+      "type": "string",
+      "description": "Privacy-safe JSON properties (no PII, no passwords, max 2000 chars)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "warning",
+        "info"
+      ],
+      "default": "info"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser/device user agent (truncated)"
+    },
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the event was captured anonymously"
+    }
+  },
+  "required": [
+    "event_type"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

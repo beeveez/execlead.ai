@@ -641,6 +641,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/privacy-compliance", "/enterprise/governance",
   // EXEC™ Operating System™
   "/exec-os",
+  // EXEC™ Observability & Telemetry Platform™
+  "/exec-observability",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

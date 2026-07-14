@@ -142,6 +142,7 @@ const APP_ROUTES = [
   { path: "/developer/form-lookup-registry", component: "FormLookupRegistry", name: "Form Lookup Registry™", feature: "developer_access" },
   { path: "/developer/product", component: "ProductManagement", name: "Product Management™", feature: "developer_access" },
   { path: "/exec-os", component: "ExecOSDashboard", name: "EXEC™ Operating System™", feature: null },
+  { path: "/exec-observability", component: "ExecObservabilityPlatform", name: "EXEC™ Observability & Telemetry Platform™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

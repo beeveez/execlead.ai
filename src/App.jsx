@@ -159,6 +159,7 @@ import ScalabilityAssessment from '@/pages/developer/ScalabilityAssessment';
 import PerformanceResilience from '@/pages/developer/PerformanceResilience';
 import PlatformExperienceAudit from '@/pages/developer/PlatformExperienceAudit';
 import PlatformArchitectureAudit from '@/pages/developer/PlatformArchitectureAudit';
+import FormLookupRegistry from '@/pages/developer/FormLookupRegistry';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -375,6 +376,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/performance-resilience" element={<PerformanceResilience />} />
           <Route path="/developer/experience-audit" element={<PlatformExperienceAudit />} />
           <Route path="/developer/architecture-audit" element={<PlatformArchitectureAudit />} />
+          <Route path="/developer/form-lookup-registry" element={<FormLookupRegistry />} />
           <Route path="/cpq" element={<CPQWizard />} />
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />

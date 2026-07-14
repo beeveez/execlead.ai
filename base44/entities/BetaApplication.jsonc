@@ -25,14 +25,18 @@
     "leadership_level": {
       "type": "string",
       "enum": [
-        "c_suite",
-        "vp",
-        "director",
-        "manager",
-        "team_lead",
         "individual_contributor",
+        "team_lead",
+        "manager",
+        "senior_manager",
+        "director",
+        "senior_director",
+        "vp",
+        "svp",
+        "c_suite",
         "founder",
-        "board_member"
+        "consultant",
+        "other"
       ],
       "description": "Leadership level in organization"
     },
@@ -43,13 +47,15 @@
     "team_size": {
       "type": "string",
       "enum": [
-        "solo",
-        "1_10",
-        "11_50",
-        "51_200",
-        "201_500",
-        "501_1000",
-        "1000_plus"
+        "individual",
+        "1_5",
+        "6_10",
+        "11_25",
+        "26_50",
+        "51_100",
+        "101_250",
+        "251_500",
+        "500_plus"
       ],
       "description": "Size of team the applicant leads or works in"
     },
@@ -71,15 +77,15 @@
         "linkedin",
         "twitter",
         "facebook",
-        "instagram",
         "youtube",
         "reddit",
         "google_search",
+        "ai_assistant",
         "friend_colleague",
         "employer",
         "conference_event",
         "newsletter",
-        "ai_assistant",
+        "direct_invitation",
         "other"
       ],
       "description": "How the applicant heard about EXECLEAD.AI"

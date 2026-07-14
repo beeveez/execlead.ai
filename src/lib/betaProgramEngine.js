@@ -111,45 +111,61 @@ export const APPLICATION_STATUSES = {
 };
 
 export const LEADERSHIP_LEVELS = {
-  c_suite: "C-Suite (CEO, CFO, COO, CTO, etc.)",
-  vp: "Vice President",
-  director: "Director",
-  manager: "Manager",
-  team_lead: "Team Lead",
   individual_contributor: "Individual Contributor",
-  founder: "Founder / Entrepreneur",
-  board_member: "Board Member",
+  team_lead: "Team Lead / Supervisor",
+  manager: "Manager",
+  senior_manager: "Senior Manager",
+  director: "Director",
+  senior_director: "Senior Director",
+  vp: "Vice President",
+  svp: "Senior Vice President",
+  c_suite: "C-Level Executive",
+  founder: "Founder / Business Owner",
+  consultant: "Consultant",
+  other: "Other",
+};
+
+export const TEAM_SIZE_OPTIONS = {
+  individual: "Individual (No Direct Reports)",
+  "1_5": "1–5",
+  "6_10": "6–10",
+  "11_25": "11–25",
+  "26_50": "26–50",
+  "51_100": "51–100",
+  "101_250": "101–250",
+  "251_500": "251–500",
+  "500_plus": "500+",
 };
 
 export const HOW_HEARD_OPTIONS = {
   linkedin: "LinkedIn",
   twitter: "Twitter / X",
   facebook: "Facebook",
-  instagram: "Instagram",
   youtube: "YouTube",
   reddit: "Reddit",
   google_search: "Google Search",
-  friend_colleague: "Friend / Colleague",
+  ai_assistant: "ChatGPT / AI Assistant",
+  friend_colleague: "Friend or Colleague",
   employer: "Employer",
   conference_event: "Conference / Event",
   newsletter: "Newsletter",
-  ai_assistant: "ChatGPT / AI Assistant",
+  direct_invitation: "Direct Invitation",
   other: "Other",
 };
 
 /**
- * Returns a clean, sorted array of { value, label } for the
- * "How did you hear about EXECLEAD.AI?" dropdown.
+ * Sanitize a { key: label } options object into a clean array of
+ * { value, label } objects.
  *
  * Pipeline:
  *   1. Convert object → array
  *   2. Filter out null / undefined / "" / whitespace-only labels
  *   3. Remove duplicate labels (case-insensitive)
- *   4. Sort alphabetically by label
- *   5. Move "Other" to the end
+ *   4. Optionally sort alphabetically by label
+ *   5. Optionally move "Other" to the end
  */
-export function getHowHeardOptions() {
-  const entries = Object.entries(HOW_HEARD_OPTIONS)
+function sanitizeOptions(obj, { sort = false, otherLast = false } = {}) {
+  const entries = Object.entries(obj)
     .filter(([, label]) => typeof label === "string" && label.trim().length > 0)
     .map(([value, label]) => ({ value, label: label.trim() }));
 
@@ -161,14 +177,71 @@ export function getHowHeardOptions() {
     return true;
   });
 
-  const sorted = deduped
-    .filter((opt) => opt.value !== "other")
-    .sort((a, b) => a.label.localeCompare(b.label));
+  let result = deduped;
+  if (sort) {
+    result = deduped
+      .filter((opt) => opt.value !== "other")
+      .sort((a, b) => a.label.localeCompare(b.label));
+    const other = deduped.find((opt) => opt.value === "other");
+    if (other) result.push(other);
+  } else if (otherLast) {
+    result = deduped.filter((opt) => opt.value !== "other");
+    const other = deduped.find((opt) => opt.value === "other");
+    if (other) result.push(other);
+  }
 
-  const other = deduped.find((opt) => opt.value === "other");
-  if (other) sorted.push(other);
+  return result;
+}
 
-  return sorted;
+export function getLeadershipLevelOptions() {
+  return sanitizeOptions(LEADERSHIP_LEVELS, { otherLast: true });
+}
+
+export function getTeamSizeOptions() {
+  return sanitizeOptions(TEAM_SIZE_OPTIONS);
+}
+
+export function getHowHeardOptions() {
+  return sanitizeOptions(HOW_HEARD_OPTIONS, { sort: true, otherLast: true });
+}
+
+/**
+ * Form Lookup Registry™ — metadata for developer mode.
+ * Returns an array of lookup field descriptors with live validation.
+ */
+export function getFormLookupRegistry() {
+  const now = new Date().toISOString();
+  const fields = [
+    { field_name: "Leadership Level", data_source: "betaProgramEngine.LEADERSHIP_LEVELS", getter: getLeadershipLevelOptions, fallback_source: "Built-in defaults (no external dependency)" },
+    { field_name: "Team Size", data_source: "betaProgramEngine.TEAM_SIZE_OPTIONS", getter: getTeamSizeOptions, fallback_source: "Built-in defaults (no external dependency)" },
+    { field_name: "How did you hear about EXECLEAD.AI?", data_source: "betaProgramEngine.HOW_HEARD_OPTIONS", getter: getHowHeardOptions, fallback_source: "Built-in defaults (no external dependency)" },
+  ];
+
+  return fields.map(({ field_name, data_source, getter, fallback_source }) => {
+    let options = [];
+    let load_status = "loaded";
+    let validation_status = "passed";
+    try {
+      options = getter();
+      if (!Array.isArray(options) || options.length === 0) {
+        load_status = "empty";
+        validation_status = "failed";
+      }
+    } catch {
+      options = [];
+      load_status = "error";
+      validation_status = "failed";
+    }
+    return {
+      field_name,
+      data_source,
+      option_count: options.length,
+      load_status,
+      last_refresh: now,
+      fallback_source,
+      validation_status,
+    };
+  });
 }
 
 /**

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Rocket, Loader2, CheckCircle2, Mail } from "lucide-react";
-import { submitBetaApplication, LEADERSHIP_LEVELS, getHowHeardOptions } from "@/lib/betaProgramEngine";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { submitBetaApplication, getLeadershipLevelOptions, getTeamSizeOptions, getHowHeardOptions } from "@/lib/betaProgramEngine";
+import BetaSelectField from "@/components/beta/BetaSelectField";
 
 const CAPABILITY_OPTIONS = [
   { id: "enterprise", label: "Enterprise" },
@@ -13,16 +13,6 @@ const CAPABILITY_OPTIONS = [
   { id: "guardian", label: "Guardian™" },
   { id: "organization_management", label: "Organization Management™" },
 ];
-
-const TEAM_SIZE_OPTIONS = {
-  solo: "Solo / Individual",
-  "1_10": "1–10",
-  "11_50": "11–50",
-  "51_200": "51–200",
-  "201_500": "201–500",
-  "501_1000": "501–1,000",
-  "1000_plus": "1,000+",
-};
 
 export default function BetaApplicationForm({ onSuccess, defaultTier = "founding_beta" }) {
   const [submitting, setSubmitting] = useState(false);
@@ -122,13 +112,13 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
           <input type="number" min="0" max="50" value={form.years_of_experience} onChange={update("years_of_experience")} className={inputClass} placeholder="15" />
         </div>
         <div>
-          <label className={labelClass}>Leadership Level</label>
-          <select value={form.leadership_level} onChange={update("leadership_level")} className={inputClass}>
-            <option value="">Select level...</option>
-            {Object.entries(LEADERSHIP_LEVELS).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
-          </select>
+          <BetaSelectField
+            label="Leadership Level"
+            value={form.leadership_level}
+            onValueChange={(val) => setForm((f) => ({ ...f, leadership_level: val }))}
+            options={getLeadershipLevelOptions()}
+            placeholder="Select level..."
+          />
         </div>
       </div>
 
@@ -138,13 +128,13 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
           <input value={form.country} onChange={update("country")} className={inputClass} placeholder="United States" />
         </div>
         <div>
-          <label className={labelClass}>Team Size</label>
-          <select value={form.team_size} onChange={update("team_size")} className={inputClass}>
-            <option value="">Select size...</option>
-            {Object.entries(TEAM_SIZE_OPTIONS).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
-          </select>
+          <BetaSelectField
+            label="Team Size"
+            value={form.team_size}
+            onValueChange={(val) => setForm((f) => ({ ...f, team_size: val }))}
+            options={getTeamSizeOptions()}
+            placeholder="Select size..."
+          />
         </div>
       </div>
 
@@ -182,19 +172,13 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
         </div>
       </div>
 
-      <div>
-        <label className={labelClass}>How did you hear about EXECLEAD.AI?</label>
-        <Select value={form.how_heard} onValueChange={(val) => setForm((f) => ({ ...f, how_heard: val }))}>
-          <SelectTrigger className={inputClass}>
-            <SelectValue placeholder="Select source..." />
-          </SelectTrigger>
-          <SelectContent>
-            {getHowHeardOptions().map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <BetaSelectField
+        label="How did you hear about EXECLEAD.AI?"
+        value={form.how_heard}
+        onValueChange={(val) => setForm((f) => ({ ...f, how_heard: val }))}
+        options={getHowHeardOptions()}
+        placeholder="Select source..."
+      />
 
       {error && (
         <div className="text-xs text-red-400 bg-red-500/5 border border-red-500/15 rounded-lg px-3 py-2">

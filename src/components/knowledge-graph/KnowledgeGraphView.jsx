@@ -1,324 +1,298 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import {
-  getKnowledgeGraph, getNode, getDirectRelationships,
-  impactAnalysis, getKnowledgePath, searchNodes,
-  NODE_TYPES, NODE_COLORS, NODE_TYPE_LABELS, RELATIONSHIPS,
+  getKnowledgeGraph, applyFilters, getNode, getImpactCategorized,
+  shortestPath, getGraphStats,
 } from "@/lib/knowledgeGraphEngine";
-import { Search, AlertTriangle, ArrowRight, Box, Zap } from "lucide-react";
+import { ForceSimulation } from "@/lib/forceSimulation";
+import KnowledgeGraphCanvas from "./KnowledgeGraphCanvas";
+import GraphInspector from "./GraphInspector";
+import GraphControls from "./GraphControls";
+import { AlertTriangle, Route, X } from "lucide-react";
 
 export default function KnowledgeGraphView() {
-  const [selectedId, setSelectedId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showImpact, setShowImpact] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [hoveredId, setHoveredId] = useState(null);
+  const [pathMode, setPathMode] = useState(false);
+  const [pathStart, setPathStart] = useState(null);
+  const [pathResult, setPathResult] = useState(null);
+  const [impactResult, setImpactResult] = useState(null);
+  const [filters, setFilters] = useState({ nodeType: "all", workspace: "all", relationship: "all", status: "all" });
+  const [layout, setLayout] = useState("force");
+  const [contextMenu, setContextMenu] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const searchResults = useMemo(() => searchNodes(searchQuery), [searchQuery]);
-  const selectedNode = selectedId ? getNode(selectedId) : null;
-  const relationships = selectedId ? getDirectRelationships(selectedId) : [];
-  const impact = selectedId && showImpact ? impactAnalysis(selectedId) : [];
-  const knowledgePath = selectedId ? getKnowledgePath(selectedId) : [];
+  const containerRef = useRef(null);
+  const fitRef = useRef(null);
 
-  // Radial layout for related nodes
-  const cx = 320, cy = 260, r = 190;
-  const positioned = relationships.map((rel, i) => {
-    const angle = (i / Math.max(relationships.length, 1)) * 2 * Math.PI - Math.PI / 2;
-    return {
-      ...rel,
-      x: cx + r * Math.cos(angle),
-      y: cy + r * Math.sin(angle),
-    };
-  });
+  const graph = useMemo(() => getKnowledgeGraph(), []);
+  const stats = useMemo(() => getGraphStats(), []);
+  const filteredGraph = useMemo(() => applyFilters(graph, filters), [graph, filters]);
+  const simulation = useMemo(() => new ForceSimulation(filteredGraph.nodes, filteredGraph.edges), [filteredGraph]);
 
-  return (
-    <div className="flex flex-col lg:flex-row gap-4 h-full">
-      {/* Graph canvas */}
-      <div className="flex-1 flex flex-col">
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search modules, frameworks, workspaces… (e.g. 'Leadership DNA')"
-            className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-500/40"
-          />
-          {searchQuery && searchResults.length > 0 && (
-            <div className="absolute z-20 mt-1 w-full bg-[#0d0d14] border border-white/10 rounded-lg max-h-64 overflow-y-auto shadow-2xl">
-              {searchResults.map(n => (
-                <button
-                  key={n.id}
-                  onClick={() => { setSelectedId(n.id); setSearchQuery(""); }}
-                  className="w-full text-left px-3 py-2 hover:bg-white/5 flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: n.color }} />
-                  <span className="text-xs text-white/70">{n.label}</span>
-                  <span className="text-[9px] text-white/30 ml-auto">{NODE_TYPE_LABELS[n.type]}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+  // Apply layout
+  useEffect(() => {
+    if (layout === "force") {
+      simulation.nodes.forEach(n => { n.fx = null; n.fy = null; });
+      simulation.reheat();
+    } else {
+      applyLayout(simulation, layout);
+    }
+  }, [simulation, layout]);
 
-        {/* SVG graph */}
-        <div className="flex-1 bg-white/[0.02] border border-white/10 rounded-xl overflow-hidden flex items-center justify-center">
-          {selectedNode ? (
-            <svg viewBox="0 0 640 520" className="w-full h-full" style={{ maxHeight: "560px" }}>
-              <defs>
-                <marker id="kg-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                  <path d="M0,0 L6,3 L0,6 Z" fill="rgba(255,255,255,0.2)" />
-                </marker>
-              </defs>
-
-              {/* Edges */}
-              {positioned.map((rel, i) => (
-                <g key={i}>
-                  <line
-                    x1={cx} y1={cy}
-                    x2={rel.x} y2={rel.y}
-                    stroke={rel.direction === "incoming" ? "rgba(245,158,11,0.2)" : "rgba(99,102,241,0.2)"}
-                    strokeWidth="1.5"
-                    markerEnd="url(#kg-arrow)"
-                  />
-                  <text
-                    x={(cx + rel.x) / 2}
-                    y={(cy + rel.y) / 2 - 4}
-                    fill="rgba(255,255,255,0.25)"
-                    fontSize="8"
-                    textAnchor="middle"
-                  >
-                    {rel.type}
-                  </text>
-                </g>
-              ))}
-
-              {/* Center node */}
-              <g
-                onClick={() => setSelectedId(null)}
-                className="cursor-pointer"
-              >
-                <circle cx={cx} cy={cy} r="42" fill={selectedNode.color + "20"} stroke={selectedNode.color} strokeWidth="2" />
-                <text x={cx} y={cy - 2} textAnchor="middle" fill={selectedNode.color} fontSize="10" fontWeight="700">
-                  {truncate(selectedNode.label, 18)}
-                </text>
-                <text x={cx} y={cy + 12} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="8">
-                  {NODE_TYPE_LABELS[selectedNode.type]}
-                </text>
-              </g>
-
-              {/* Related nodes */}
-              {positioned.map((rel, i) => (
-                <g
-                  key={i}
-                  onClick={() => setSelectedId(rel.node.id)}
-                  className="cursor-pointer"
-                >
-                  <circle
-                    cx={rel.x} cy={rel.y}
-                    r="32"
-                    fill={rel.node.color + "12"}
-                    stroke={rel.node.color + "50"}
-                    strokeWidth="1"
-                    className="transition-all"
-                  />
-                  <text x={rel.x} y={rel.y - 2} textAnchor="middle" fill={rel.node.color} fontSize="9" fontWeight="600">
-                    {truncate(rel.node.label, 14)}
-                  </text>
-                  <text x={rel.x} y={rel.y + 10} textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="7">
-                    {NODE_TYPE_LABELS[rel.node.type]}
-                  </text>
-                </g>
-              ))}
-
-              {/* Impact overlay */}
-              {showImpact && impact.length > 0 && (
-                <text x={320} y={500} textAnchor="middle" fill="#f59e0b" fontSize="11" fontWeight="600">
-                  ⚠ {impact.length} node(s) would break — see Impact Analysis panel
-                </text>
-              )}
-            </svg>
-          ) : (
-            <EmptyState onSearch={setSearchQuery} />
-          )}
-        </div>
-      </div>
-
-      {/* Side panel */}
-      {selectedNode && (
-        <div className="w-full lg:w-80 flex-shrink-0 space-y-3 overflow-y-auto">
-          <NodeDetailsCard node={selectedNode} />
-          <RelationshipsCard relationships={relationships} onSelect={setSelectedId} />
-          <KnowledgePathCard path={knowledgePath} />
-          <ImpactCard
-            node={selectedNode}
-            impact={impact}
-            show={showImpact}
-            onToggle={() => setShowImpact(!showImpact)}
-            onSelect={setSelectedId}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function EmptyState({ onSearch }) {
-  const stats = useMemo(() => {
-    const g = getKnowledgeGraph();
-    return { nodes: g.nodes.length, edges: g.edges.length };
+  // Fullscreen tracking
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
-  return (
-    <div className="text-center py-12">
-      <Box size={48} className="text-white/10 mx-auto mb-4" />
-      <p className="text-white/40 text-sm mb-1">Search for a module, framework, or workspace</p>
-      <p className="text-white/20 text-xs">
-        {stats.nodes} nodes · {stats.edges} relationships in the Knowledge Graph™
-      </p>
-      <div className="flex flex-wrap gap-2 justify-center mt-4 max-w-xs mx-auto">
-        {["Leadership DNA", "Executive Trust", "EELM", "Developer Portal"].map(s => (
-          <button
-            key={s}
-            onClick={() => onSearch(s)}
-            className="text-[10px] px-2 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-white/70"
-          >
-            {s}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function NodeDetailsCard({ node }) {
+  // Escape key
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") {
+        setContextMenu(null);
+        if (pathMode) { setPathMode(false); setPathStart(null); }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [pathMode]);
+
+  const handleSelect = useCallback((nodeId, opts) => {
+    if (pathMode && nodeId) {
+      if (!pathStart) {
+        setPathStart(nodeId);
+      } else if (pathStart !== nodeId) {
+        const path = shortestPath(pathStart, nodeId);
+        setPathResult({ start: pathStart, end: nodeId, path });
+        setPathMode(false);
+        setPathStart(null);
+        setSelectedIds(new Set([nodeId]));
+      }
+      return;
+    }
+    if (nodeId === null) {
+      setSelectedIds(new Set());
+      setImpactResult(null);
+    } else if (opts?.shift) {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        if (next.has(nodeId)) next.delete(nodeId); else next.add(nodeId);
+        return next;
+      });
+    } else {
+      setSelectedIds(new Set([nodeId]));
+      setImpactResult(null);
+    }
+  }, [pathMode, pathStart]);
+
+  const handleAnalyzeImpact = useCallback(() => {
+    if (contextMenu?.nodeId) {
+      setImpactResult(getImpactCategorized(contextMenu.nodeId));
+      setSelectedIds(new Set([contextMenu.nodeId]));
+    }
+    setContextMenu(null);
+  }, [contextMenu]);
+
+  const handleExport = useCallback((type) => {
+    if (type === "json") {
+      download("knowledge-graph.json", JSON.stringify({ nodes: filteredGraph.nodes, edges: filteredGraph.edges }, null, 2), "application/json");
+    } else if (type === "png") {
+      const canvas = containerRef.current?.querySelector("canvas");
+      if (canvas) {
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = "knowledge-graph.png";
+        a.click();
+      }
+    } else if (type === "svg") {
+      exportSVG(simulation);
+    }
+  }, [filteredGraph, simulation]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  }, []);
+
+  const selectedNode = selectedIds.size === 1 ? getNode([...selectedIds][0]) : null;
+  const impactNodeIds = impactResult ? new Set(impactResult.nodes.map(n => n.id)) : null;
+
   return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="w-3 h-3 rounded-full" style={{ background: node.color }} />
-        <h3 className="text-sm font-bold text-white">{node.label}</h3>
-      </div>
-      <div className="text-[10px] uppercase tracking-widest text-white/30 mb-2">{NODE_TYPE_LABELS[node.type]}</div>
-      {node.data?.description && (
-        <p className="text-xs text-white/50 leading-relaxed">{node.data.description.substring(0, 160)}{node.data.description.length > 160 ? "…" : ""}</p>
+    <div ref={containerRef} className={`flex flex-col ${isFullscreen ? "h-screen bg-[#0a0a0f] p-4" : "h-[600px]"}`}>
+      <GraphControls
+        layout={layout} onLayoutChange={setLayout}
+        filters={filters} onFilterChange={setFilters}
+        onExport={handleExport} onFit={() => fitRef.current?.()}
+        onTogglePath={() => { setPathMode(!pathMode); setPathStart(null); setPathResult(null); }}
+        pathMode={pathMode}
+        onToggleFullscreen={toggleFullscreen} isFullscreen={isFullscreen}
+        stats={stats}
+      />
+
+      {pathMode && (
+        <div className="mb-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-[11px] text-indigo-300 flex items-center gap-2">
+          <Route size={12} />
+          {pathStart ? "Select end node…" : "Select start node…"}
+          <button onClick={() => { setPathMode(false); setPathStart(null); }} className="ml-auto"><X size={12} /></button>
+        </div>
       )}
-      {node.data?.owner && <Meta label="Owner" value={node.data.owner} />}
-      {node.data?.workspace && <Meta label="Workspace" value={node.data.workspace} />}
-      {node.data?.status && <Meta label="Status" value={node.data.status} />}
+
+      <div className="flex flex-1 overflow-hidden border border-white/10 rounded-xl">
+        <KnowledgeGraphCanvas
+          simulation={simulation}
+          selectedIds={selectedIds}
+          hoveredId={hoveredId}
+          pathNodeIds={pathResult?.path || []}
+          impactNodeIds={impactNodeIds}
+          onHover={setHoveredId}
+          onSelect={handleSelect}
+          onDoubleClick={() => {}}
+          onContextMenu={(id, x, y) => setContextMenu({ nodeId: id, x, y })}
+          onFitRef={fitRef}
+        />
+        {(selectedNode || impactResult || pathResult) && (
+          <GraphInspector
+            node={selectedNode}
+            impactResult={impactResult}
+            pathResult={pathResult}
+            onClose={() => { setSelectedIds(new Set()); setImpactResult(null); setPathResult(null); }}
+          />
+        )}
+      </div>
+
+      {/* Context menu */}
+      {contextMenu && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
+          <div className="fixed z-50 bg-[#0d0d14] border border-white/10 rounded-lg shadow-2xl py-1 min-w-[180px]"
+            style={{ left: contextMenu.x, top: contextMenu.y }}>
+            <button onClick={handleAnalyzeImpact} className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-white/60 hover:bg-white/5">
+              <AlertTriangle size={12} className="text-amber-400" /> Analyze Impact
+            </button>
+            <button onClick={() => { setPathMode(true); setPathStart(contextMenu.nodeId); setContextMenu(null); }}
+              className="flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs text-white/60 hover:bg-white/5">
+              <Route size={12} className="text-indigo-400" /> Start Path From Here
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-function Meta({ label, value }) {
-  return (
-    <div className="flex justify-between mt-2 text-[11px]">
-      <span className="text-white/30">{label}</span>
-      <span className="text-white/60">{value}</span>
-    </div>
-  );
-}
+// ============================================================
+// LAYOUTS
+// ============================================================
 
-function RelationshipsCard({ relationships, onSelect }) {
-  const grouped = useMemo(() => {
-    const g = {};
-    relationships.forEach(r => {
-      const key = r.type;
-      if (!g[key]) g[key] = [];
-      g[key].push(r);
+function applyLayout(sim, layout) {
+  const w = sim.width || 800, h = sim.height || 600;
+
+  if (layout === "hierarchical") {
+    const typeOrder = ["framework", "workspace", "module", "api", "entity", "service", "engine", "registry"];
+    const byLevel = {};
+    sim.nodes.forEach(n => {
+      const level = typeOrder.indexOf(n.type);
+      const l = level >= 0 ? level : 3;
+      if (!byLevel[l]) byLevel[l] = [];
+      byLevel[l].push(n);
     });
-    return g;
-  }, [relationships]);
-
-  return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
-      <h4 className="text-[10px] uppercase tracking-widest text-white/30 mb-3">
-        Relationships ({relationships.length})
-      </h4>
-      {Object.entries(grouped).map(([type, rels]) => (
-        <div key={type} className="mb-3">
-          <div className="text-[11px] text-white/40 mb-1">{type}</div>
-          {rels.map((r, i) => (
-            <button
-              key={i}
-              onClick={() => onSelect(r.node.id)}
-              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-indigo-300 py-0.5 w-full text-left"
-            >
-              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: r.node.color }} />
-              {r.direction === "incoming" ? "←" : "→"} {r.node.label}
-            </button>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+    Object.entries(byLevel).forEach(([level, nodes]) => {
+      const y = 50 + parseInt(level) * (h / (typeOrder.length + 1));
+      const spacing = w / (nodes.length + 1);
+      nodes.forEach((n, i) => { n.x = spacing * (i + 1); n.y = y; n.fx = n.x; n.fy = n.y; });
+    });
+  } else if (layout === "radial") {
+    const rings = { workspace: 0, framework: 120, module: 240, engine: 340, api: 340, entity: 340, service: 440, registry: 440 };
+    const byType = {};
+    sim.nodes.forEach(n => { if (!byType[n.type]) byType[n.type] = []; byType[n.type].push(n); });
+    const cx = w / 2, cy = h / 2;
+    Object.entries(byType).forEach(([type, nodes]) => {
+      const r = rings[type] || 300;
+      nodes.forEach((n, i) => {
+        const angle = (i / nodes.length) * 2 * Math.PI;
+        n.x = cx + r * Math.cos(angle); n.y = cy + r * Math.sin(angle);
+        n.fx = n.x; n.fy = n.y;
+      });
+    });
+  } else if (layout === "workspace") {
+    const positions = {
+      executive: { x: w * 0.25, y: h * 0.25 }, enterprise: { x: w * 0.75, y: h * 0.25 },
+      operations: { x: w * 0.25, y: h * 0.75 }, developer: { x: w * 0.75, y: h * 0.75 },
+    };
+    const byWs = {};
+    sim.nodes.forEach(n => {
+      const ws = n.data?.workspace || (n.type === "workspace" ? n.id.replace("workspace:", "") : "executive");
+      if (!byWs[ws]) byWs[ws] = [];
+      byWs[ws].push(n);
+    });
+    Object.entries(byWs).forEach(([ws, nodes]) => {
+      const pos = positions[ws] || positions.executive;
+      const r = 40 + Math.sqrt(nodes.length) * 15;
+      nodes.forEach((n, i) => {
+        const angle = (i / nodes.length) * 2 * Math.PI;
+        n.x = pos.x + r * Math.cos(angle); n.y = pos.y + r * Math.sin(angle);
+        n.fx = n.x; n.fy = n.y;
+      });
+    });
+  } else if (layout === "tree") {
+    const incoming = new Set();
+    sim.edges.forEach(e => { if (["Depends On", "Belongs To", "Powered By"].includes(e.type)) incoming.add(e.to); });
+    const roots = sim.nodes.filter(n => !incoming.has(n.id));
+    const levels = {}, queue = roots.map(n => ({ id: n.id, level: 0 })), visited = new Set();
+    while (queue.length > 0) {
+      const { id, level } = queue.shift();
+      if (visited.has(id)) continue;
+      visited.add(id);
+      levels[id] = Math.max(levels[id] || 0, level);
+      sim.edges.filter(e => e.from === id && ["Depends On", "Belongs To", "Powered By"].includes(e.type))
+        .forEach(e => queue.push({ id: e.to, level: level + 1 }));
+    }
+    sim.nodes.forEach(n => { if (levels[n.id] === undefined) levels[n.id] = 0; });
+    const maxLevel = Math.max(...Object.values(levels), 1);
+    const byLevel = {};
+    sim.nodes.forEach(n => { const l = levels[n.id]; if (!byLevel[l]) byLevel[l] = []; byLevel[l].push(n); });
+    Object.entries(byLevel).forEach(([level, nodes]) => {
+      const y = 50 + (parseInt(level) / maxLevel) * (h - 100);
+      const spacing = w / (nodes.length + 1);
+      nodes.forEach((n, i) => { n.x = spacing * (i + 1); n.y = y; n.fx = n.x; n.fy = n.y; });
+    });
+  }
 }
 
-function KnowledgePathCard({ path }) {
-  if (path.length < 2) return null;
-  const { nodeMap } = getKnowledgeGraph();
-  return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
-      <h4 className="text-[10px] uppercase tracking-widest text-white/30 mb-3">Knowledge Path</h4>
-      <div className="flex items-center gap-1 flex-wrap">
-        {path.map((id, i) => {
-          const node = nodeMap.get(id);
-          if (!node) return null;
-          return (
-            <React.Fragment key={i}>
-              {i > 0 && <ArrowRight size={10} className="text-white/20" />}
-              <span
-                className="text-[10px] px-2 py-0.5 rounded-full"
-                style={{ background: node.color + "15", color: node.color, border: `1px solid ${node.color}40` }}
-              >
-                {node.label}
-              </span>
-            </React.Fragment>
-          );
-        })}
-      </div>
-    </div>
-  );
+// ============================================================
+// EXPORT HELPERS
+// ============================================================
+
+function download(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
 }
 
-function ImpactCard({ node, impact, show, onToggle, onSelect }) {
-  return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
-      <button
-        onClick={onToggle}
-        className="flex items-center gap-2 w-full text-left"
-      >
-        <AlertTriangle size={14} className={show ? "text-amber-400" : "text-white/30"} />
-        <h4 className="text-[10px] uppercase tracking-widest text-white/30 flex-1">
-          Impact Analysis
-        </h4>
-        <span className={`text-[10px] ${impact.length > 0 ? "text-amber-400" : "text-emerald-400"}`}>
-          {show ? (impact.length > 0 ? `${impact.length} affected` : "No impact") : "Run"}
-        </span>
-      </button>
-      {show && impact.length > 0 && (
-        <div className="mt-3 space-y-1">
-          <p className="text-[10px] text-amber-400/70 mb-2">
-            Removing <span className="font-bold">{node.label}</span> would break:
-          </p>
-          {impact.map(n => (
-            <button
-              key={n.id}
-              onClick={() => onSelect(n.id)}
-              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-amber-400 py-0.5 w-full text-left"
-            >
-              <Zap size={10} className="text-amber-400/50" />
-              {n.label}
-              <span className="text-[8px] text-white/20 ml-auto">{NODE_TYPE_LABELS[n.type]}</span>
-            </button>
-          ))}
-        </div>
-      )}
-      {show && impact.length === 0 && (
-        <p className="text-[10px] text-emerald-400/70 mt-3">
-          ✓ No modules depend on this node. Safe to remove.
-        </p>
-      )}
-    </div>
-  );
+function exportSVG(sim) {
+  const bounds = sim.getBounds();
+  if (!isFinite(bounds.minX)) return;
+  const padding = 50;
+  const w = bounds.maxX - bounds.minX + padding * 2;
+  const h = bounds.maxY - bounds.minY + padding * 2;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${bounds.minX - padding} ${bounds.minY - padding} ${w} ${h}" style="background:#0a0a0f">`;
+  sim.edges.forEach(e => {
+    const a = sim.nodeMap.get(e.from), b = sim.nodeMap.get(e.to);
+    if (!a || !b) return;
+    svg += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  });
+  sim.nodes.forEach(n => {
+    const r = 6 + Math.min(n.degree * 0.8, 12);
+    svg += `<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${n.color}30" stroke="${n.color}" stroke-width="1.5"/>`;
+    svg += `<text x="${n.x}" y="${n.y + r + 12}" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10" font-family="sans-serif">${escapeXml(n.label)}</text>`;
+  });
+  svg += "</svg>";
+  download("knowledge-graph.svg", svg, "image/svg+xml");
 }
 
-function truncate(str, max) {
-  if (!str) return "";
-  return str.length > max ? str.substring(0, max - 1) + "…" : str;
+function escapeXml(str) {
+  return str.replace(/[<>&'"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[c]));
 }

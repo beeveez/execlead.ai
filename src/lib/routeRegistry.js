@@ -141,6 +141,7 @@ const APP_ROUTES = [
   { path: "/developer/security-intelligence", component: "SecurityIntelligenceCenter", name: "Security Intelligence Center™", feature: "developer_access" },
   { path: "/developer/form-lookup-registry", component: "FormLookupRegistry", name: "Form Lookup Registry™", feature: "developer_access" },
   { path: "/developer/product", component: "ProductManagement", name: "Product Management™", feature: "developer_access" },
+  { path: "/exec-os", component: "ExecOSDashboard", name: "EXEC™ Operating System™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

@@ -632,6 +632,17 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/beta-program",
   // Developer cognitive excellence sub-routes — covered by parent /developer module
   "/developer/cognitive", "/developer/cognitive/memory", "/developer/cognitive/personalization",
+  // Developer platform audit & governance routes — covered by parent /developer module
+  "/developer/executive-platform-status", "/developer/experience-audit", "/developer/knowledge-sync",
+  "/developer/architecture-audit", "/developer/stability", "/developer/launch-readiness",
+  "/developer/scalability", "/developer/performance-resilience", "/developer/report-registry",
+  "/developer/security-intelligence", "/developer/form-lookup-registry",
+  // Governance & compliance centers
+  "/privacy-compliance", "/enterprise/governance",
+  // EXEC™ Operating System™
+  "/exec-os",
+  // Routes covered by parent module knowledge entries
+  "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];
 
 function isRouteExempt(path) {

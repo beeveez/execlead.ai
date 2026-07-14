@@ -22,7 +22,7 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
   const isFree = plan.id === "free";
   const isCurrentPlan = currentPlanId === plan.id;
   const annualSavings = plan.monthlyPrice * 12 - plan.annualPrice;
-  const showAnnualSavings = cycle === "annual" && annualSavings > 0;
+  const showAnnualSavings = cycle === "annual" && annualSavings > 0 && !betaActive;
 
   // Founder savings — always based on monthly prices per the entitlement formula
   const monthlyCalc = calculatePrice(plan, "monthly");
@@ -50,10 +50,10 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
             : content.ring
       }`}
     >
-      {/* Beta Badge */}
+      {/* Future GA Pricing Badge */}
       {betaActive && (
-        <div className="absolute -top-3 left-4 bg-purple-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap flex items-center gap-1" title="Pricing shown reflects planned General Availability subscriptions. Current access is invitation-only.">
-          🟣 {platformMode.label} · Invitation Only
+        <div className="absolute -top-3 left-4 bg-purple-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md whitespace-nowrap flex items-center gap-1" title="Future GA Pricing — Not Available During Beta">
+          Future GA Pricing
         </div>
       )}
 
@@ -99,22 +99,20 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
               <FounderPriceBadge
                 regularPrice={monthlyCalc.originalPrice}
                 founderPrice={monthlyCalc.finalPrice}
-                monthlySavings={monthlySavings}
-                annualSavings={founderAnnualSavings}
                 isProtected={founderPricing.protected}
               />
               <div className="bg-amber-500/[0.04] border border-amber-500/10 rounded-lg p-2.5 space-y-1.5">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-white/40">Regular Price</span>
+                  <span className="text-white/40">Planned GA Price</span>
                   <span className="text-white/50 line-through">{fmt(monthlyCalc.originalPrice)}</span>
                 </div>
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-white/40">You Save</span>
-                  <span className="text-emerald-400 font-medium">{fmt(monthlySavings)}/month</span>
+                  <span className="text-amber-400">Illustrative Future Value</span>
+                  <span className="text-amber-400 font-medium">{fmt(monthlyCalc.finalPrice)}</span>
                 </div>
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-white/40">Annual Savings</span>
-                  <span className="text-emerald-400 font-medium">{fmt(founderAnnualSavings)}/year</span>
+                  <span className="text-white/40">Pricing Subject to Change</span>
+                  <span className="text-white/30 text-[10px]">✓ Yes</span>
                 </div>
               </div>
               {cycle === "annual" && (

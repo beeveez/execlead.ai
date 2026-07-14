@@ -5,6 +5,8 @@ import { base44 } from "@/api/base44Client";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck, Rocket } from "lucide-react";
 import PricingTiers from "@/components/pricing/PricingTiers";
+import BetaPricingBanner from "@/components/pricing/BetaPricingBanner";
+import FoundingBetaSection from "@/components/pricing/FoundingBetaSection";
 import PaymentTrust from "@/components/billing/PaymentTrust";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
@@ -53,7 +55,7 @@ export default function Pricing() {
             <span className="text-white/50 text-xs font-medium">The Executive Leadership Operating System™</span>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
-            Choose the Membership That Matches <span className="text-indigo-400">Your Leadership Journey</span>
+            Membership Tiers for <span className="text-indigo-400">Your Leadership Journey</span>
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
             Whether you're an aspiring manager, an experienced executive, or an enterprise transforming leadership at scale, EXECLEAD.AI provides a membership aligned to your leadership journey.
@@ -70,8 +72,23 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* Sticky Billing Toggle + Pricing Tiers */}
+      {/* Beta Pricing Banner */}
+      <BetaPricingBanner />
+
+      {/* SECTION A — Founding Private Beta™ */}
+      <FoundingBetaSection />
+
+      {/* SECTION B — Future General Availability Pricing™ */}
       <section className="pb-20 px-4">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-full text-xs text-purple-400 font-medium mb-4">
+            Future GA Pricing™ · Not Available During Beta
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">Future General Availability Pricing™</h2>
+          <p className="text-white/40 text-sm max-w-xl mx-auto">
+            Planned subscription tiers for when EXECLEAD.AI reaches General Availability. No purchases available during the beta program.
+          </p>
+        </div>
         <div className="max-w-6xl mx-auto">
           <div className="sticky top-16 z-30 -mx-4 px-4 py-3 bg-[#08080d]/90 backdrop-blur-xl border-y border-white/5 mb-10">
             <div className="flex items-center justify-center gap-3">
@@ -91,10 +108,6 @@ export default function Pricing() {
               </div>
             </div>
           )}
-          <div className="text-center mb-10">
-            <p className="text-xl md:text-2xl font-medium text-white/80 mb-2">One Leadership Journey. One AI Platform.</p>
-            <p className="text-white/40 text-sm max-w-xl mx-auto">Choose the membership that matches where you are today—and upgrade as your leadership journey evolves.</p>
-          </div>
           <PricingTiers plans={plans} cycle={cycle} getPrice={getPrice} authed={authed} />
           <div className="max-w-2xl mx-auto mt-8">
             <PaymentTrust />

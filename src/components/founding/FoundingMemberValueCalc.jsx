@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
-import {
-  getFoundingMemberPrice,
-  getFoundingMemberSavings,
-} from "@/lib/foundingMember";
-import { Calculator } from "lucide-react";
+import { getFoundingMemberPrice } from "@/lib/foundingMember";
+import { Calculator, Info } from "lucide-react";
 
 export default function FoundingMemberValueCalc() {
   const { plans, getPrice } = usePricingCatalog();
@@ -17,23 +14,23 @@ export default function FoundingMemberValueCalc() {
   const plan = paidPlans.find((p) => p.id === selectedId) || paidPlans[0];
   if (!plan) return null;
 
-  const regular = getPrice(plan);
-  const foundingPrice = getFoundingMemberPrice(regular);
-  const monthlySavings = getFoundingMemberSavings(regular);
-  const annualSavings = monthlySavings * 12;
-  const lifetimeSavings = annualSavings * 5;
+  const plannedGaPrice = getPrice(plan);
+  const illustrativeValue = getFoundingMemberPrice(plannedGaPrice);
 
   return (
     <div className="bg-card border border-border rounded-2xl p-8 md:p-10 shadow-sm">
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
           <Calculator size={18} className="text-amber-400" />
         </div>
-        <h3 className="text-foreground font-semibold text-lg">Founding Member Value™</h3>
+        <div>
+          <h3 className="text-foreground font-semibold text-lg">Future GA Pricing Preview™</h3>
+          <p className="text-amber-400/50 text-xs">Illustrative only — not available during beta</p>
+        </div>
       </div>
       <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-3xl">
-        This calculator estimates the projected commercial value once EXECLEAD.AI reaches General Availability.
-        Current beta participants are not charged during the Founding Private Beta unless explicitly stated.
+        This preview shows planned General Availability pricing for reference only. Current beta
+        participants are not charged during the Founding Private Beta™.
       </p>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-1/3">
@@ -52,37 +49,27 @@ export default function FoundingMemberValueCalc() {
             ))}
           </select>
         </div>
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Stat label="Regular Price" value={`$${regular.toFixed(2)}/mo`} />
-          <Stat label="Founding Price" value={`$${foundingPrice.toFixed(2)}/mo`} gold />
-          <Stat label="Monthly Savings" value={`$${monthlySavings.toFixed(2)}`} green />
-          <Stat label="Annual Savings" value={`$${annualSavings.toFixed(0)}`} green />
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Stat label="Planned GA Price" value={`$${plannedGaPrice.toFixed(2)}/mo`} />
+          <Stat label="Illustrative Future Value" value={`$${illustrativeValue.toFixed(2)}/mo`} gold />
         </div>
       </div>
-      <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
-        <span className="text-muted-foreground text-sm font-medium">Estimated Lifetime Savings (5 years)</span>
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={selectedId}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-            className="text-3xl font-bold gold-shimmer"
-          >
-            ${lifetimeSavings.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-          </motion.span>
-        </AnimatePresence>
+      <div className="mt-6 pt-6 border-t border-border flex items-start gap-2">
+        <Info size={16} className="text-amber-400/60 flex-shrink-0 mt-0.5" />
+        <p className="text-muted-foreground text-sm">
+          <span className="font-medium text-amber-400/80">Pricing Subject to Change.</span>{" "}
+          All figures are illustrative estimates for future General Availability. Actual pricing, plans, and features may differ at launch.
+        </p>
       </div>
     </div>
   );
 }
 
-function Stat({ label, value, gold, green }) {
+function Stat({ label, value, gold }) {
   return (
     <div className="bg-background rounded-xl p-4 border border-border">
       <div className="text-muted-foreground text-[11px] uppercase tracking-wider mb-1.5 font-medium">{label}</div>
-      <div className={`text-lg font-bold ${gold ? "gold-shimmer" : green ? "text-emerald-500" : "text-foreground"}`}>
+      <div className={`text-lg font-bold ${gold ? "gold-shimmer" : "text-foreground"}`}>
         {value}
       </div>
     </div>

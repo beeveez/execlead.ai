@@ -198,6 +198,7 @@ import CustomerLifecycleManagement from '@/pages/CustomerLifecycleManagement';
 import ReleaseReadiness from '@/pages/ReleaseReadiness';
 import FeatureFlagCenter from '@/pages/FeatureFlagCenter';
 import SystemStatusCenter from '@/pages/SystemStatusCenter';
+import ArchitectureGovernanceBoard from '@/pages/ArchitectureGovernanceBoard';
 import BetaApply from '@/pages/BetaApply';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
@@ -422,6 +423,7 @@ const AuthenticatedApp = () => {
           <Route path="/release-readiness" element={<ReleaseReadiness />} />
           <Route path="/feature-flags" element={<FeatureFlagCenter />} />
           <Route path="/system-status" element={<SystemStatusCenter />} />
+          <Route path="/architecture-governance" element={<ArchitectureGovernanceBoard />} />
         </Route>
         </Route>
       </Route>

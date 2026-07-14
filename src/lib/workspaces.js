@@ -182,6 +182,9 @@ export const WORKSPACE_NAV = {
     ]},
   ],
   developer: [
+    { label: "Architecture", items: [
+      { path: "/architecture-governance", label: "Architecture Governance Board™", icon: Building2 },
+    ]},
     { label: "Deployment", items: [
       { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
       { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
@@ -281,6 +284,7 @@ const ROUTE_WORKSPACE = {
   "/cpq": ["operations", "developer"], "/cpq-dashboard": ["operations", "developer"],
   "/admin": ["operations"],
   "/developer/organizations": ["operations", "developer"],
+  "/architecture-governance": ["developer"],
   "/developer/audit-logs": ["developer"],
   "/developer/system-health": ["developer"],
   "/developer/architecture-audit": ["developer"],

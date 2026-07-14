@@ -655,6 +655,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/feature-flags",
   // System Status Center™
   "/system-status",
+  // Architecture Governance Board™
+  "/architecture-governance",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

@@ -1,0 +1,278 @@
+{
+  "name": "ArchitectureProposal",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Proposal title"
+    },
+    "proposal_id": {
+      "type": "string",
+      "description": "Human-readable ID (AGB-YYYY-XXXX)"
+    },
+    "proposal_type": {
+      "type": "string",
+      "enum": [
+        "new_workspace",
+        "new_navigation_section",
+        "new_entity",
+        "new_platform_service",
+        "new_ai_engine",
+        "cross_workspace_integration",
+        "breaking_architectural_change"
+      ],
+      "description": "Category of structural change proposed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "approved_with_conditions",
+        "needs_revision",
+        "rejected",
+        "implemented",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Review lifecycle status"
+    },
+    "business_justification": {
+      "type": "string",
+      "description": "Why this change is needed"
+    },
+    "user_personas_affected": {
+      "type": "string",
+      "description": "JSON array of persona/role IDs affected"
+    },
+    "dependencies": {
+      "type": "string",
+      "description": "Dependencies that must exist before implementation"
+    },
+    "existing_capabilities_reviewed": {
+      "type": "string",
+      "description": "Existing capabilities reviewed before proposing"
+    },
+    "alternative_solutions": {
+      "type": "string",
+      "description": "Alternative solutions considered and why they were rejected"
+    },
+    "impact_navigation_registry": {
+      "type": "string",
+      "description": "Impact on Navigation Registry\u2122"
+    },
+    "impact_feature_flags": {
+      "type": "string",
+      "description": "Impact on Feature Flags"
+    },
+    "impact_security": {
+      "type": "string",
+      "description": "Impact on Security"
+    },
+    "impact_privacy": {
+      "type": "string",
+      "description": "Impact on Privacy"
+    },
+    "impact_release_readiness": {
+      "type": "string",
+      "description": "Impact on Release Readiness"
+    },
+    "estimated_maintenance_cost": {
+      "type": "string",
+      "description": "Estimated ongoing maintenance cost (hours/week, infra, etc.)"
+    },
+    "complexity_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Complexity (0-100)"
+    },
+    "reusability_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Reusability (0-100)"
+    },
+    "maintainability_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Maintainability (0-100)"
+    },
+    "scalability_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Scalability (0-100)"
+    },
+    "performance_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Performance (0-100)"
+    },
+    "security_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Security (0-100)"
+    },
+    "ux_consistency_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: UX Consistency (0-100)"
+    },
+    "technical_debt_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Architecture Impact Score\u2122 dimension: Technical Debt (0-100)"
+    },
+    "overall_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Computed Architecture Impact Score\u2122 (0-100)"
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approve",
+        "approve_with_conditions",
+        "needs_revision",
+        "reject"
+      ],
+      "default": "pending",
+      "description": "Board recommendation"
+    },
+    "recommendation_notes": {
+      "type": "string",
+      "description": "Board notes explaining the recommendation"
+    },
+    "conditions": {
+      "type": "string",
+      "description": "Conditions that must be met (when approved_with_conditions)"
+    },
+    "submitted_by_id": {
+      "type": "string"
+    },
+    "submitted_by_name": {
+      "type": "string"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "implemented_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this proposal is active (not archived)"
+    }
+  },
+  "required": [
+    "title",
+    "proposal_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

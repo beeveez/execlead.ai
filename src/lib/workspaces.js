@@ -83,7 +83,7 @@ export const WORKSPACE_NAV = {
     { label: "Network", items: [
       { path: "/network", label: "Executive Network", icon: Users },
     ]},
-    { label: "Account", items: [
+    { label: "My Account", items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
       { path: "/brand-center", label: "Executive Brand Center", icon: Sparkles },
       { path: "/founder", label: "Founder Portal", icon: Crown },

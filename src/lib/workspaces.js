@@ -149,6 +149,7 @@ export const WORKSPACE_NAV = {
     { label: "Workspace", items: [
       { path: "/exec-os", label: "EXEC™ Operating System™", icon: Sparkles },
       { path: "/exec-observability", label: "Observability Platform™", icon: Activity },
+      { path: "/product-intelligence", label: "Product Intelligence™", icon: BarChart3 },
       { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
       { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
       { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },

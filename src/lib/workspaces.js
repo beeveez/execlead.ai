@@ -81,6 +81,7 @@ export const WORKSPACE_NAV = {
       { path: "/billing", label: "Billing", icon: CreditCard },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
       { path: "/security", label: "Security Center", icon: ShieldCheck },
+      { path: "/privacy-compliance", label: "Privacy & Compliance", icon: Lock },
       { path: "/identity-verification", label: "Identity Verification", icon: ShieldCheck },
       { path: "/feedback", label: "Feedback", icon: Lightbulb },
     ]},
@@ -157,6 +158,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/cognitive/memory", label: "AI Memory Intelligence™", icon: Brain },
       { path: "/developer/cognitive/personalization", label: "Personalization Intelligence™", icon: UserCircle },
       { path: "/trust-center", label: "Trust Center™", icon: ShieldCheck },
+      { path: "/privacy-compliance", label: "Privacy & Compliance Center™", icon: Lock },
     ]},
     { label: "Engineering", items: [
       { path: "/developer/api-keys", label: "API Management", icon: KeyRound },
@@ -237,6 +239,7 @@ const ROUTE_WORKSPACE = {
   "/developer/knowledge-sync": ["developer"],
   "/feature-management": ["developer"], "/guardian": ["developer"],
   "/trust-center": ["developer"],
+  "/privacy-compliance": ["executive", "platform", "developer"],
   "/referrals": ["executive"], "/referral-admin": ["platform", "developer"],
   "/exec-admin": ["developer"],
 };

@@ -634,31 +634,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/developer/cognitive", "/developer/cognitive/memory", "/developer/cognitive/personalization",
   // Developer platform audit & governance routes — covered by parent /developer module
   "/developer/executive-platform-status", "/developer/experience-audit", "/developer/knowledge-sync",
-  "/developer/architecture-audit", "/developer/stability", "/developer/launch-readiness",
-  "/developer/scalability", "/developer/performance-resilience", "/developer/report-registry",
-  "/developer/security-intelligence", "/developer/form-lookup-registry",
-  // Governance & compliance centers
-  "/privacy-compliance", "/enterprise/governance",
-  // EXEC™ Operating System™
-  "/exec-os",
-  // EXEC™ Observability & Telemetry Platform™
-  "/exec-observability",
-  // EXEC™ Product Intelligence Platform™
-  "/product-intelligence",
-  // Beta Operations Center™
-  "/beta-operations",
-  // Customer Lifecycle Management™
-  "/customer-lifecycle",
-  // Release Readiness Command Center™
-  "/release-readiness",
-  // Feature Flag Center™
-  "/feature-flags",
-  // System Status Center™
-  "/system-status",
-  // Architecture Governance Board™
-  "/architecture-governance",
-  // Developer Portal™
-  "/developer-portal",
+  "/developer/stability", "/developer/launch-readiness",
+  "/developer/scalability", "/developer/performance-resilience",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

@@ -30,6 +30,7 @@ const APP_ROUTES = [
   { path: "/u/:username", component: "PublicProfile", public: true },
   { path: "/onboarding", component: "Onboarding" },
   { path: "/home", component: "WorkspaceHome" },
+  { path: "/section/:workspaceId/:section", component: "SectionHome", name: "Section Home" },
   { path: "/dashboard", component: "Dashboard", feature: "basic_dashboard" },
   { path: "/ai-command-center", component: "AICommandCenter", feature: "ai_command_center" },
   { path: "/developer/ai-command-center", component: "DeveloperAICommandCenter", feature: "developer_access" },

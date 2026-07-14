@@ -216,15 +216,37 @@ export function resolveNavGroups(wsId, role, plan, profile, isSimulating = false
  * Parent levels are clickable; the current page is not.
  */
 export function getBreadcrumbTrail(pathname) {
+  // Section home page: /section/:workspaceId/:section
+  const sectionMatch = pathname.match(/^\/section\/([^/]+)\/(.+)$/);
+  if (sectionMatch) {
+    const wsId = sectionMatch[1];
+    const sectionLabel = decodeURIComponent(sectionMatch[2]);
+    const ws = WORKSPACES[wsId];
+    const wsHome = WORKSPACE_HOME[wsId] || "/";
+    return [
+      {
+        label: ws?.label || wsId,
+        path: wsHome,
+        workspace: wsId,
+        icon: ws?.icon,
+        isCurrent: false,
+      },
+      {
+        label: sectionLabel,
+        path: pathname,
+        workspace: wsId,
+        isCurrent: true,
+      },
+    ];
+  }
+
   const entry = getNavEntryByPath(pathname);
   if (!entry || entry.workspace === "public") return null;
 
   const ws = WORKSPACES[entry.workspace];
   const wsHome = WORKSPACE_HOME[entry.workspace] || "/";
 
-  // Section crumb: first sibling in the same section that isn't the current page
-  const siblings = getNavEntriesBySection(entry.workspace, entry.section);
-  const sectionTarget = siblings.find((s) => s.route !== pathname);
+  const sectionPath = `/section/${entry.workspace}/${encodeURIComponent(entry.section)}`;
 
   const trail = [
     {
@@ -236,7 +258,7 @@ export function getBreadcrumbTrail(pathname) {
     },
     {
       label: entry.section,
-      path: sectionTarget?.route || wsHome,
+      path: sectionPath,
       workspace: entry.workspace,
       isCurrent: false,
     },

@@ -33,6 +33,7 @@ import { LandingSkeleton, PricingSkeleton, LeaderboardSkeleton } from '@/compone
 const Landing = lazy(() => import('@/pages/Landing'));
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
+import SectionHome from '@/pages/SectionHome';
 import Onboarding from '@/pages/Onboarding';
 import WorkspaceHome from '@/pages/WorkspaceHome';
 import Challenge from '@/pages/Challenge';
@@ -265,6 +266,7 @@ const AuthenticatedApp = () => {
         <Route path="/home" element={<WorkspaceHome />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/section/:workspaceId/:section" element={<SectionHome />} />
           <Route path="/ai-command-center" element={<AICommandCenter />} />
           <Route path="/developer/ai-command-center" element={<DeveloperAICommandCenter />} />
           <Route path="/challenge" element={<FeatureGate featureId="daily_executive_challenge"><Challenge /></FeatureGate>} />

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronRight, AlertCircle, User, Clock, Wrench, ListChecks, FileWarning } from "lucide-react";
+import { ChevronRight, AlertCircle, User, Clock, Wrench, ListChecks, FileWarning, GitBranch, CheckCircle2 } from "lucide-react";
 import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
 
 const PRIORITY_STYLE = {
@@ -20,10 +20,20 @@ function DetailRow({ icon: Icon, label, value, color }) {
   );
 }
 
-export default function StreamBlockerDetail({ blocker }) {
+export default function StreamBlockerDetail({ blocker, onRepaired, onVerified }) {
   const [expanded, setExpanded] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const { openRepairWorkflow } = useRepairWorkflow();
   const style = PRIORITY_STYLE[blocker.priority] || PRIORITY_STYLE.P2;
+
+  const handleVerify = (e) => {
+    e.stopPropagation();
+    setVerifying(true);
+    setTimeout(() => {
+      setVerifying(false);
+      onVerified?.(blocker);
+    }, 1500);
+  };
 
   return (
     <div className={`rounded-lg border ${expanded ? style.bg : "border-white/5 bg-white/[0.02]"} transition-colors`}>
@@ -50,12 +60,17 @@ export default function StreamBlockerDetail({ blocker }) {
           <DetailRow icon={AlertCircle} label="Priority" value={style.label} color={style.color} />
           <DetailRow icon={ListChecks} label="Status" value={blocker.status} />
           <DetailRow icon={Clock} label="Estimated Effort" value={blocker.estimatedEffort} />
-          <DetailRow icon={Wrench} label="Recommended Fix" value={blocker.recommendedFix} />
+          <DetailRow icon={Wrench} label="Recommended Repair" value={blocker.recommendedFix} />
+          <DetailRow icon={AlertCircle} label="Root Cause" value={blocker.rootCause || "Under investigation"} />
+          <DetailRow icon={Wrench} label="Affected Module" value={blocker.affectedModule || "Platform"} />
+          {blocker.dependencies && blocker.dependencies.length > 0 && (
+            <DetailRow icon={GitBranch} label="Dependencies" value={blocker.dependencies.join(", ")} />
+          )}
           {blocker.evidence.length > 0 && (
             <div className="py-1.5">
               <div className="flex items-center gap-2 mb-1">
                 <FileWarning size={13} className="text-white/40" />
-                <span className="text-[10px] text-white/30 uppercase tracking-wider">Evidence</span>
+                <span className="text-[10px] text-white/30 uppercase tracking-wider">Related Evidence</span>
               </div>
               <ul className="space-y-1">
                 {blocker.evidence.map((e, i) => (
@@ -64,12 +79,36 @@ export default function StreamBlockerDetail({ blocker }) {
               </ul>
             </div>
           )}
-          <button
-            onClick={(e) => { e.stopPropagation(); openRepairWorkflow(blocker, { source: `${blocker.category || "Stream"} Intelligence™` }); }}
-            className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors mt-2"
-          >
-            <Wrench size={10} /> Repair
-          </button>
+          {blocker.auditHistory && blocker.auditHistory.length > 0 && (
+            <div className="py-1.5">
+              <div className="flex items-center gap-2 mb-1">
+                <Clock size={13} className="text-white/40" />
+                <span className="text-[10px] text-white/30 uppercase tracking-wider">Audit History</span>
+              </div>
+              <ul className="space-y-1">
+                {blocker.auditHistory.map((h, i) => (
+                  <li key={i} className="text-[11px] text-white/40 bg-white/[0.02] rounded px-2 py-1">
+                    <span className="text-white/50">{h.action}</span> — {new Date(h.timestamp).toLocaleString()} <span className="text-white/30">by {h.by}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); openRepairWorkflow(blocker, { source: `${blocker.category || "Stream"} Intelligence™` }); onRepaired?.(blocker); }}
+              className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
+            >
+              <Wrench size={10} /> Repair
+            </button>
+            <button
+              onClick={handleVerify}
+              disabled={verifying}
+              className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+            >
+              <CheckCircle2 size={10} /> {verifying ? "Verifying..." : "Verify"}
+            </button>
+          </div>
         </div>
       )}
     </div>

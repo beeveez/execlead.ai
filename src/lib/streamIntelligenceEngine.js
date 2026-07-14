@@ -122,11 +122,11 @@ function getSource(streamId, snapshot) {
 }
 
 // ── Blocker derivation per stream ──
-function deriveBlockers(streamId, source, owner) {
+function deriveBlockers(streamId, source, owner, moduleName) {
   const blockers = [];
   const raw = source.raw || {};
   let idx = 1;
-  const add = (title, priority, category, fix, effort, evidence) =>
+  const add = (title, priority, category, fix, effort, evidence, rootCause) =>
     blockers.push({
       id: `${streamId}-B${String(idx++).padStart(2, "0")}`,
       title,
@@ -137,6 +137,12 @@ function deriveBlockers(streamId, source, owner) {
       evidence: evidence || [],
       recommendedFix: fix,
       estimatedEffort: effort,
+      rootCause: rootCause || (evidence && evidence[0]) || "Under investigation — analyze source data to determine root cause",
+      affectedModule: moduleName || "Platform",
+      dependencies: [],
+      auditHistory: [
+        { action: "identified", timestamp: new Date().toISOString(), by: "Stream Intelligence™ Engine", detail: title },
+      ],
     });
 
   if (streamId === "stability") {
@@ -269,6 +275,12 @@ function deriveDeepLinks(streamId, snapshot) {
       { label: "Cognitive Excellence Dashboard", route: "/developer/cognitive", status: "active" },
       { label: "EXEC™ Intelligence Center", route: "/intelligence", status: "active" },
       { label: "ELIM Management", route: "/elim", status: "active" },
+      { label: "Executive Memory™", route: "/developer/cognitive/memory", status: "active" },
+      { label: "Leadership DNA™", route: "/leadership-dna", status: "active" },
+      { label: "Recommendation Engine™", route: "/intelligence", status: "active" },
+      { label: "Confidence Calibration™", route: "/developer/cognitive", status: "active" },
+      { label: "Executive Simulator™", route: "/simulator", status: "active" },
+      { label: "Evidence Traceability™", route: "/developer/diagnostics", status: "active" },
     ],
     experience: [
       { label: "Experience Audit", route: "/developer/experience-audit", status: "active" },
@@ -297,7 +309,7 @@ export function computeStreamIntelligence(streamId, snapshot) {
   const targetScore = config.target;
   const gap = Math.max(0, targetScore - currentScore);
 
-  const blockers = deriveBlockers(streamId, source, config.owner);
+  const blockers = deriveBlockers(streamId, source, config.owner, config.module);
   const p0Count = blockers.filter((b) => b.priority === "P0").length;
 
   const history = getStreamHistory(streamId);
@@ -344,6 +356,41 @@ export function computeStreamIntelligence(streamId, snapshot) {
 
   const executiveSummary = `${config.name} is at ${currentScore}/${targetScore}% (${gap > 0 ? `${gap} points below target` : "at or above target"}). ${blockers.length} blocker(s) identified (${p0Count} P0). Trend is ${trend.direction} (${trend.delta >= 0 ? "+" : ""}${trend.delta} pts). ${gap <= 0 ? "Stream is on target." : `Estimated ${estimatedEffort} to close the gap.`}`;
 
+  // ── Confidence Level ──
+  const dataPoints = history.length;
+  const trendStability = dataPoints >= 10 ? 20 : dataPoints >= 5 ? 15 : dataPoints >= 1 ? 10 : 5;
+  const blockerPenalty = Math.min(30, blockers.length * 5);
+  const p0Penalty = p0Count * 10;
+  const trendBonus = trend.direction === "up" ? 10 : trend.direction === "stable" ? 5 : 0;
+  const confidenceLevel = Math.max(20, Math.min(100, 60 + trendStability + trendBonus - blockerPenalty - p0Penalty));
+
+  // ── Estimated Completion ──
+  const effortHoursNum = effortHours + (p0Count > 0 ? 4 : 0);
+  const workingDays = Math.ceil(effortHoursNum / 8);
+  const estimatedCompletion = gap <= 0
+    ? "Achieved"
+    : blockers.length === 0
+      ? "Monitoring"
+      : new Date(Date.now() + workingDays * 86400000).toLocaleDateString();
+
+  // ── Executive Impact ──
+  const p0Risk = p0Count > 0;
+  const executiveImpact = {
+    businessImpact: p0Risk ? "High" : gap > 0 ? "Medium" : "Low",
+    customerImpact: streamId === "experience" || streamId === "intelligence" ? (p0Risk ? "High" : "Medium") : "Low",
+    releaseImpact: p0Risk ? "Blocked" : gap > 5 ? "At Risk" : "On Track",
+    productionRisk: currentScore < 70 ? "Critical" : currentScore < 85 ? "Elevated" : "Low",
+  };
+
+  // ── Actionable Recommendations ──
+  const actionableRecommendations = recommendations.map((text, i) => ({
+    id: `${streamId}-R${String(i + 1).padStart(2, "0")}`,
+    text,
+    steps: ["Repair", "Execute Repair", "Verification", "Refresh Intelligence Score"],
+    blockerId: i < blockers.length ? blockers[i].id : null,
+    priority: i < blockers.length ? blockers[i].priority : "P2",
+  }));
+
   return {
     streamId,
     streamName: config.name,
@@ -373,6 +420,10 @@ export function computeStreamIntelligence(streamId, snapshot) {
       monthly: history.slice(-12),
       milestones: completedMilestones,
     },
+    confidenceLevel,
+    estimatedCompletion,
+    executiveImpact,
+    actionableRecommendations,
     sourceData: source.raw,
     computedAt: new Date().toISOString(),
   };

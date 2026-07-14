@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { X, Target, TrendingUp, AlertTriangle, Wrench, Link2, CheckCircle2, Clock, GitBranch, Activity, ChevronRight } from "lucide-react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { X, Target, TrendingUp, AlertTriangle, Wrench, Link2, CheckCircle2, Clock, GitBranch, Activity, ChevronRight, ShieldCheck, Zap, RefreshCw, FileText, Printer, Download } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { computeStreamIntelligence, persistStreamSnapshot } from "@/lib/streamIntelligenceEngine";
 import { buildStreamIntelligenceReport } from "@/lib/reports/streamIntelligenceReport";
@@ -33,6 +33,17 @@ function SectionLabel({ icon: Icon, children }) {
   );
 }
 
+function ImpactCard({ label, value }) {
+  const colors = { High: "#ef4444", Critical: "#ef4444", Blocked: "#ef4444", Medium: "#f59e0b", "At Risk": "#f59e0b", Elevated: "#f59e0b", Low: "#10b981", "On Track": "#10b981" };
+  const c = colors[value] || "#94a3b8";
+  return (
+    <div className="bg-white/[0.02] rounded-lg p-2.5 text-center">
+      <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">{label}</div>
+      <div className="text-sm font-bold" style={{ color: c }}>{value}</div>
+    </div>
+  );
+}
+
 function RiskBadge({ severity }) {
   const colors = { Critical: "#ef4444", High: "#f59e0b", Medium: "#3b82f6", Low: "#64748b" };
   const c = colors[severity] || colors.Medium;
@@ -43,11 +54,37 @@ function RiskBadge({ severity }) {
 
 export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onClose }) {
   const [trendRange, setTrendRange] = useState("30");
-  const intel = useMemo(() => computeStreamIntelligence(streamId, snapshot), [streamId, snapshot]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const intel = useMemo(() => computeStreamIntelligence(streamId, snapshot), [streamId, snapshot, refreshKey]);
 
   useEffect(() => {
     if (intel) persistStreamSnapshot(streamId, intel.currentScore);
   }, [streamId, intel]);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshKey((k) => k + 1);
+      setRefreshing(false);
+    }, 500);
+  }, []);
+
+  const handleRepaired = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshKey((k) => k + 1);
+      setRefreshing(false);
+    }, 500);
+  }, []);
+
+  const handleVerified = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshKey((k) => k + 1);
+      setRefreshing(false);
+    }, 500);
+  }, []);
 
   if (!intel) return null;
 
@@ -59,6 +96,19 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
   const trendColor = TREND_COLOR[intel.trend.direction];
 
   const reportBuilder = (reportType) => buildStreamIntelligenceReport(streamId, snapshot, reportType, user);
+
+  const handleReport = async (type) => {
+    try {
+      const report = await reportBuilder(type);
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${intel.streamName}-${type}-Report.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {}
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -104,7 +154,14 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
               <div className="text-[10px] text-white/30 uppercase tracking-wider">Trend</div>
               <div className="text-xl font-bold" style={{ color: trendColor }}>{intel.trend.delta >= 0 ? "+" : ""}{intel.trend.delta}</div>
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1.5 rounded-md bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw size={11} className={refreshing ? "animate-spin" : ""} /> Refresh Score
+              </button>
               <ReportToolbar reportBuilder={reportBuilder} filenamePrefix={`${intel.streamName}-Intelligence`} supportCSV={false} />
             </div>
           </div>
@@ -117,6 +174,50 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
             <SectionLabel icon={Activity}>Executive Summary</SectionLabel>
             <p className="text-sm text-white/70 leading-relaxed">{intel.executiveSummary}</p>
           </div>
+
+          {/* Explainable Executive Intelligence™ */}
+          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+            <SectionLabel icon={ShieldCheck}>Explainable Executive Intelligence™</SectionLabel>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="bg-white/[0.02] rounded-lg p-2.5">
+                <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Confidence Level</div>
+                <div className="text-lg font-bold" style={{ color: (intel.confidenceLevel || 60) >= 70 ? "#10b981" : (intel.confidenceLevel || 60) >= 40 ? "#f59e0b" : "#ef4444" }}>{intel.confidenceLevel || 60}%</div>
+              </div>
+              <div className="bg-white/[0.02] rounded-lg p-2.5">
+                <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Est. Completion</div>
+                <div className="text-sm font-bold text-white/70">{intel.estimatedCompletion || "—"}</div>
+              </div>
+              <div className="bg-white/[0.02] rounded-lg p-2.5">
+                <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Engineering Hours</div>
+                <div className="text-lg font-bold text-white/70">{intel.technicalDebt.hours}h</div>
+              </div>
+              <div className="bg-white/[0.02] rounded-lg p-2.5">
+                <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Blocking Issues</div>
+                <div className="text-lg font-bold" style={{ color: intel.blockers.length > 0 ? "#f59e0b" : "#10b981" }}>{intel.blockers.length}</div>
+              </div>
+              <div className="bg-white/[0.02] rounded-lg p-2.5">
+                <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Remaining Gap</div>
+                <div className="text-lg font-bold" style={{ color: intel.gap <= 0 ? "#10b981" : "#f59e0b" }}>{intel.gap <= 0 ? "✓" : `${intel.gap} pts`}</div>
+              </div>
+              <div className="bg-white/[0.02] rounded-lg p-2.5">
+                <div className="text-[10px] text-white/30 uppercase tracking-wider mb-0.5">Trend</div>
+                <div className="text-lg font-bold" style={{ color: trendColor }}>{intel.trend.delta >= 0 ? "+" : ""}{intel.trend.delta}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Executive Impact */}
+          {intel.executiveImpact && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+              <SectionLabel icon={Zap}>Executive Impact</SectionLabel>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <ImpactCard label="Business Impact" value={intel.executiveImpact.businessImpact} />
+                <ImpactCard label="Customer Impact" value={intel.executiveImpact.customerImpact} />
+                <ImpactCard label="Release Impact" value={intel.executiveImpact.releaseImpact} />
+                <ImpactCard label="Production Risk" value={intel.executiveImpact.productionRisk} />
+              </div>
+            </div>
+          )}
 
           {/* Score cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -192,7 +293,7 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
                 <p className="text-[10px] text-white/30 mb-3">Click any blocker to view owner, priority, evidence, recommended fix, and estimated effort.</p>
                 <div className="space-y-3">
                   {intel.blockers.map((b) => (
-                    <StreamBlockerDetail key={b.id} blocker={b} />
+                    <StreamBlockerDetail key={b.id} blocker={b} onRepaired={handleRepaired} onVerified={handleVerified} />
                   ))}
                 </div>
               </>
@@ -225,17 +326,40 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
             </div>
           </div>
 
-          {/* Engineering Recommendations */}
+          {/* Engineering Recommendations — Actionable */}
           <div>
-            <SectionLabel icon={Activity}>Engineering Recommendations</SectionLabel>
-            <ul className="space-y-1.5">
-              {intel.engineeringRecommendations.map((r, i) => (
-                <li key={i} className="text-xs text-white/70 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2 flex items-start gap-2">
-                  <ChevronRight size={12} className="text-indigo-400 mt-0.5 shrink-0" />
-                  <span>{r}</span>
-                </li>
+            <SectionLabel icon={Activity}>Engineering Recommendations — Actionable</SectionLabel>
+            <div className="space-y-2">
+              {(intel.actionableRecommendations || intel.engineeringRecommendations.map((r, i) => ({ id: `R${i}`, text: r, steps: ["Repair", "Execute Repair", "Verification", "Refresh Intelligence Score"], priority: "P2", blockerId: null }))).map((rec) => (
+                <div key={rec.id} className="bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2.5">
+                  <div className="flex items-start gap-2 mb-2">
+                    <ChevronRight size={12} className="text-indigo-400 mt-0.5 shrink-0" />
+                    <span className="text-xs text-white/70 flex-1">{rec.text}</span>
+                    {rec.priority && (
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{
+                        color: rec.priority === "P0" ? "#ef4444" : rec.priority === "P1" ? "#f59e0b" : "#3b82f6",
+                        backgroundColor: rec.priority === "P0" ? "#ef44441a" : rec.priority === "P1" ? "#f59e0b1a" : "#3b82f61a",
+                      }}>{rec.priority}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 ml-5 flex-wrap">
+                    {rec.steps.map((step, si) => (
+                      <React.Fragment key={si}>
+                        <span className="text-[9px] text-white/30 px-1.5 py-0.5 rounded bg-white/[0.02]">{step}</span>
+                        {si < rec.steps.length - 1 && <span className="text-white/20 text-[9px]">→</span>}
+                      </React.Fragment>
+                    ))}
+                    <button
+                      onClick={handleRefresh}
+                      disabled={refreshing}
+                      className="ml-auto inline-flex items-center gap-1 text-[9px] px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
+                    >
+                      <RefreshCw size={9} className={refreshing ? "animate-spin" : ""} /> Refresh Score
+                    </button>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           {/* Dependencies */}
@@ -264,6 +388,28 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
                   <Link2 size={11} className="text-indigo-400" /> {l.label}
                 </a>
               ))}
+            </div>
+          </div>
+
+          {/* Executive Report Generation */}
+          <div>
+            <SectionLabel icon={FileText}>Executive Report</SectionLabel>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                <Printer size={12} /> Print
+              </button>
+              <button onClick={() => handleReport("full")} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                <Download size={12} /> Export PDF
+              </button>
+              <button onClick={() => handleReport("board")} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                <FileText size={12} /> Board Summary
+              </button>
+              <button onClick={() => handleReport("executive_summary")} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                <FileText size={12} /> Technical Summary
+              </button>
+              <button onClick={() => handleReport("full_engineering")} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                <FileText size={12} /> Engineering Report
+              </button>
             </div>
           </div>
 

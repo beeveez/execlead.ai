@@ -7,8 +7,9 @@ import { getScopedNotifications, markNotificationRead } from "@/lib/notification
 import AccountMenu from "@/components/layout/AccountMenu";
 import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
-import { Bell, CreditCard, Crown, Sparkles, Activity } from "lucide-react";
+import { Bell, CreditCard, Crown, Sparkles } from "lucide-react";
 import ThemeToggle from "@/components/layout/ThemeToggle";
+import StatusHub from "@/components/layout/StatusHub";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 
 export default function TopBar() {
@@ -45,9 +46,7 @@ export default function TopBar() {
   return (
     <div className="hidden lg:flex items-center justify-end gap-3 px-8 py-2.5 border-b border-white/5">
       <WorkspaceSwitcher />
-      <Link to="/system-status" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60 hover:text-white/80" title="System Status Center™">
-        <Activity size={14} className="text-emerald-400" /> Status
-      </Link>
+      <StatusHub />
       <button onClick={openExec} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors text-xs text-amber-500 font-medium">
         <Sparkles size={14} /> EXEC™
       </button>

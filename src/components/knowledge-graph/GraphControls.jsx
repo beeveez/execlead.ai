@@ -64,9 +64,10 @@ export default function GraphControls({
 function FilterSelect({ value, onChange, label, options }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)}
-      className="bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 px-2 py-1.5 focus:outline-none focus:border-indigo-500/40">
-      <option value="all">All {label}</option>
-      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      className="bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/60 px-2 py-1.5 focus:outline-none focus:border-indigo-500/40"
+      style={{ colorScheme: "dark" }}>
+      <option value="all" className="bg-[#0d0d14] text-white">All {label}</option>
+      {options.map(o => <option key={o.value} value={o.value} className="bg-[#0d0d14] text-white">{o.label}</option>)}
     </select>
   );
 }

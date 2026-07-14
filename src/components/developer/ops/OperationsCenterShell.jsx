@@ -332,19 +332,6 @@ export default function OperationsCenterShell({ initialWorkspaceId = "mission-co
 
       {/* Main content */}
       <main className="flex-1 p-4 lg:p-6 overflow-x-hidden">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-5 text-xs">
-          <button
-            onClick={() => setActiveId("mission-control")}
-            className="text-white/40 hover:text-white/60 transition-colors"
-          >
-            Operations Center
-          </button>
-          <ChevronRight size={12} className="text-white/20" />
-          <span className="text-white/80 font-medium">{active.name}</span>
-          <span className="text-white/20 ml-2">— {active.description}</span>
-        </div>
-
         {/* Active workspace */}
         <div className="animate-fade-in">
           {active.render(ctx)}

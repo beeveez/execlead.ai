@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { getCommandIndex } from "@/lib/execOS/commandRegistry";
 import { getHistory, getRecent } from "@/lib/execOS/workspaceHistory";
-import GlobalBreadcrumbs from "@/components/exec-os/GlobalBreadcrumbs";
 import {
   ShieldCheck, Activity, Search, Clock, Keyboard, Zap,
   TrendingUp, ArrowRight, Command, Layers, Gauge, Globe,
@@ -83,17 +82,15 @@ export default function ExecOSDashboard() {
 
   return (
     <div className="space-y-6">
-      <GlobalBreadcrumbs />
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Command size={16} className="text-indigo-400" />
-            <span className="text-[10px] uppercase tracking-widest text-indigo-400 font-medium">EXEC™ Operating System™</span>
+            <Command size={14} className="text-white/25" />
+            <span className="text-[10px] uppercase tracking-widest text-white/30 font-medium">EXEC™ Operating System™</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Enterprise Platform Control Center</h1>
-          <p className="text-white/40 text-sm mt-1">One platform. One navigation. One experience.</p>
+          <h1 className="text-3xl font-bold text-white">Enterprise Platform Control Center</h1>
+          <p className="text-white/40 text-sm mt-1.5">One platform. One navigation. One experience.</p>
         </div>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("exec:command-palette"))}

@@ -6,6 +6,8 @@ import { buildStreamIntelligenceReport } from "@/lib/reports/streamIntelligenceR
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import StreamBlockerDetail from "./StreamBlockerDetail";
 import StreamCopilot from "./StreamCopilot";
+import { useRepairWorkflow } from "@/components/developer/repair/RepairWorkflowProvider";
+import { useUniversalRouter } from "@/lib/universalRouter";
 
 const TREND_COLOR = { up: "#10b981", down: "#ef4444", stable: "#3b82f6" };
 
@@ -56,6 +58,8 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
   const [trendRange, setTrendRange] = useState("30");
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const { openRepairWorkflow } = useRepairWorkflow();
+  const { navigateTo } = useUniversalRouter();
   const intel = useMemo(() => computeStreamIntelligence(streamId, snapshot), [streamId, snapshot, refreshKey]);
 
   useEffect(() => {
@@ -343,19 +347,43 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
                     )}
                   </div>
                   <div className="flex items-center gap-1 ml-5 flex-wrap">
-                    {rec.steps.map((step, si) => (
-                      <React.Fragment key={si}>
-                        <span className="text-[9px] text-white/30 px-1.5 py-0.5 rounded bg-white/[0.02]">{step}</span>
-                        {si < rec.steps.length - 1 && <span className="text-white/20 text-[9px]">→</span>}
-                      </React.Fragment>
-                    ))}
-                    <button
-                      onClick={handleRefresh}
-                      disabled={refreshing}
-                      className="ml-auto inline-flex items-center gap-1 text-[9px] px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
-                    >
-                      <RefreshCw size={9} className={refreshing ? "animate-spin" : ""} /> Refresh Score
-                    </button>
+                    {rec.steps.map((step, si) => {
+                      const isRepairStep = si <= 1;
+                      const isVerifyStep = si === 2;
+                      const isRefreshStep = si === rec.steps.length - 1;
+                      const linkedBlocker = rec.blockerId ? intel.blockers.find((b) => b.id === rec.blockerId) : null;
+                      const canRepair = !!linkedBlocker;
+                      const disabled = (isRepairStep && !canRepair) || refreshing;
+                      const handleClick = () => {
+                        if (isRepairStep && canRepair) {
+                          openRepairWorkflow(linkedBlocker, { source: intel.streamName });
+                          handleRepaired();
+                        } else if (isVerifyStep) {
+                          handleVerified();
+                        } else if (isRefreshStep) {
+                          handleRefresh();
+                        }
+                      };
+                      return (
+                        <React.Fragment key={si}>
+                          <button
+                            onClick={handleClick}
+                            disabled={disabled}
+                            className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${
+                              isRefreshStep
+                                ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20"
+                                : isRepairStep
+                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20"
+                                  : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                            }`}
+                          >
+                            {isRefreshStep && refreshing && <RefreshCw size={9} className="animate-spin" />}
+                            {step}
+                          </button>
+                          {si < rec.steps.length - 1 && <span className="text-white/20 text-[9px]">→</span>}
+                        </React.Fragment>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -384,9 +412,9 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
             <SectionLabel icon={Link2}>Affected Modules — Deep Links</SectionLabel>
             <div className="flex flex-wrap gap-2">
               {intel.deepLinks.map((l, i) => (
-                <a key={i} href={l.route} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+                <button key={i} onClick={() => { onClose(); navigateTo(l.route); }} className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
                   <Link2 size={11} className="text-indigo-400" /> {l.label}
-                </a>
+                </button>
               ))}
             </div>
           </div>

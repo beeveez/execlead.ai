@@ -236,7 +236,7 @@ export function getBreadcrumbTrail(pathname) {
     },
     {
       label: entry.section,
-      path: sectionTarget?.route || null,
+      path: sectionTarget?.route || wsHome,
       workspace: entry.workspace,
       isCurrent: false,
     },

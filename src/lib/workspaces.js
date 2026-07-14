@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -177,6 +177,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/product", label: "Product Management™", icon: Boxes },
       { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
       { path: "/release-readiness", label: "Release Readiness™", icon: ClipboardCheck },
+      { path: "/feature-flags", label: "Feature Flag Center™", icon: Flag },
     ]},
   ],
   developer: [
@@ -244,6 +245,7 @@ const ROUTE_WORKSPACE = {
   "/beta-operations": ["operations"],
   "/customer-lifecycle": ["operations"],
   "/release-readiness": ["operations", "developer"],
+  "/feature-flags": ["operations", "developer"],
   "/exec-observability": ["operations"],
   "/exec-os": ["operations", "developer"],
   "/legacy-library/admin": ["operations"],

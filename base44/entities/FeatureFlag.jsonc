@@ -1,0 +1,242 @@
+{
+  "name": "FeatureFlag",
+  "type": "object",
+  "properties": {
+    "flag_key": {
+      "type": "string",
+      "description": "Unique flag identifier (snake_case)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string",
+      "enum": [
+        "executive",
+        "enterprise",
+        "operations",
+        "developer",
+        "all"
+      ],
+      "default": "all",
+      "description": "Workspace this flag belongs to"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner responsible for this flag"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "enabled",
+        "disabled",
+        "hidden",
+        "internal",
+        "beta",
+        "experimental",
+        "deprecated",
+        "scheduled"
+      ],
+      "default": "disabled",
+      "description": "Current flag state"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "core_platform",
+        "executive",
+        "enterprise",
+        "ai_intelligence",
+        "security",
+        "billing",
+        "network",
+        "beta",
+        "experimental"
+      ],
+      "default": "core_platform"
+    },
+    "flag_type": {
+      "type": "string",
+      "enum": [
+        "global",
+        "workspace",
+        "organization",
+        "role",
+        "beta_cohort",
+        "user",
+        "environment"
+      ],
+      "default": "global",
+      "description": "Flag scope type"
+    },
+    "dependencies": {
+      "type": "string",
+      "description": "JSON array of flag keys this flag depends on"
+    },
+    "rollout_percentage": {
+      "type": "number",
+      "default": 100,
+      "description": "Percentage of targeted users who see the feature (0-100)"
+    },
+    "release_strategy": {
+      "type": "string",
+      "enum": [
+        "none",
+        "dark_launch",
+        "canary",
+        "progressive",
+        "percentage"
+      ],
+      "default": "none",
+      "description": "Release control strategy"
+    },
+    "targeting_rules": {
+      "type": "string",
+      "description": "JSON array of targeting rules [{dimension, values}]"
+    },
+    "kill_switch_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Emergency kill switch \u2014 instantly disables the feature for all users"
+    },
+    "scheduled_enable_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scheduled_disable_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "adoption_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of users who have adopted this feature"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total usage events"
+    },
+    "error_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of errors associated with this feature"
+    },
+    "rollout_success_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Rollout success rate percentage (0-100)"
+    },
+    "integrations": {
+      "type": "string",
+      "description": "JSON array of integration IDs"
+    }
+  },
+  "required": [
+    "flag_key",
+    "name",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

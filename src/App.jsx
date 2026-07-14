@@ -196,6 +196,7 @@ import ProductIntelligenceDashboard from '@/pages/ProductIntelligenceDashboard';
 import BetaOperationsCenter from '@/pages/BetaOperationsCenter';
 import CustomerLifecycleManagement from '@/pages/CustomerLifecycleManagement';
 import ReleaseReadiness from '@/pages/ReleaseReadiness';
+import FeatureFlagCenter from '@/pages/FeatureFlagCenter';
 import BetaApply from '@/pages/BetaApply';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
@@ -418,6 +419,7 @@ const AuthenticatedApp = () => {
           <Route path="/beta-operations" element={<BetaOperationsCenter />} />
           <Route path="/customer-lifecycle" element={<CustomerLifecycleManagement />} />
           <Route path="/release-readiness" element={<ReleaseReadiness />} />
+          <Route path="/feature-flags" element={<FeatureFlagCenter />} />
         </Route>
         </Route>
       </Route>

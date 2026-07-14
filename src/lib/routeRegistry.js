@@ -147,6 +147,7 @@ const APP_ROUTES = [
   { path: "/beta-operations", component: "BetaOperationsCenter", name: "Beta Operations Center™", feature: null },
   { path: "/customer-lifecycle", component: "CustomerLifecycleManagement", name: "Customer Lifecycle Management™", feature: null },
   { path: "/release-readiness", component: "ReleaseReadiness", name: "Release Readiness Command Center™", feature: null },
+  { path: "/feature-flags", component: "FeatureFlagCenter", name: "Feature Flag Center™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

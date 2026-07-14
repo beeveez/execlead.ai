@@ -1,0 +1,144 @@
+{
+  "name": "FeatureFlagAudit",
+  "type": "object",
+  "properties": {
+    "flag_key": {
+      "type": "string",
+      "description": "Flag key that was changed"
+    },
+    "flag_name": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "enabled",
+        "disabled",
+        "hidden",
+        "killed",
+        "unblocked",
+        "rollout_changed",
+        "targeting_changed",
+        "status_changed",
+        "strategy_changed"
+      ],
+      "description": "Audit action type"
+    },
+    "previous_state": {
+      "type": "string",
+      "description": "Previous flag status"
+    },
+    "new_state": {
+      "type": "string",
+      "description": "New flag status"
+    },
+    "previous_percentage": {
+      "type": "number"
+    },
+    "new_percentage": {
+      "type": "number"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for the change"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Who approved the change (if approval was required)"
+    },
+    "changed_by_id": {
+      "type": "string"
+    },
+    "changed_by_name": {
+      "type": "string"
+    },
+    "rollback_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this change can be rolled back"
+    },
+    "metadata_json": {
+      "type": "string",
+      "description": "Additional context as JSON"
+    }
+  },
+  "required": [
+    "flag_key",
+    "action"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

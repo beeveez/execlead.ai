@@ -1,0 +1,129 @@
+{
+  "name": "DataSubjectRequest",
+  "type": "object",
+  "properties": {
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "view_data",
+        "download_data",
+        "correct_data",
+        "delete_account",
+        "withdraw_consent",
+        "manage_personalization",
+        "manage_marketing"
+      ],
+      "description": "Type of data subject request (RA 10173 \u00a716 rights)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_review",
+        "completed",
+        "denied"
+      ],
+      "default": "pending",
+      "description": "Processing status of the request"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the requesting user"
+    },
+    "details": {
+      "type": "string",
+      "description": "Additional details or context for the request"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the request was submitted"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the request was fulfilled"
+    },
+    "reviewed_by_id": {
+      "type": "string"
+    },
+    "reviewed_by_name": {
+      "type": "string"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Internal review notes"
+    }
+  },
+  "required": [
+    "request_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

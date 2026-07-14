@@ -1,0 +1,121 @@
+{
+  "name": "ConsentRecord",
+  "type": "object",
+  "properties": {
+    "consent_type": {
+      "type": "string",
+      "enum": [
+        "marketing",
+        "ai_personalization",
+        "analytics",
+        "cookies",
+        "terms",
+        "privacy_policy"
+      ],
+      "description": "Type of consent recorded"
+    },
+    "consent_version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Version of the consent agreement at time of grant"
+    },
+    "granted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether consent is currently granted"
+    },
+    "date_granted": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When consent was granted"
+    },
+    "date_withdrawn": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When consent was withdrawn (if applicable)"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address at time of consent"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Purpose for which consent was given"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who granted consent"
+    }
+  },
+  "required": [
+    "consent_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

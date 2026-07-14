@@ -178,6 +178,7 @@ import FoundersWall from '@/pages/FoundersWall';
 import CertificateVerify from '@/pages/CertificateVerify';
 import Legal from '@/pages/Legal';
 import TrustCenter from '@/pages/TrustCenter';
+import PrivacyComplianceCenter from '@/pages/privacy/PrivacyComplianceCenter';
 import VendorDueDiligence from '@/pages/VendorDueDiligence';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
@@ -377,6 +378,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/experience-audit" element={<PlatformExperienceAudit />} />
           <Route path="/developer/architecture-audit" element={<PlatformArchitectureAudit />} />
           <Route path="/developer/form-lookup-registry" element={<FormLookupRegistry />} />
+          <Route path="/privacy-compliance" element={<PrivacyComplianceCenter />} />
           <Route path="/cpq" element={<CPQWizard />} />
           <Route path="/cpq-dashboard" element={<CPQDashboard />} />
           <Route path="/company-admin" element={<CompanyAdmin />} />

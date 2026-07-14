@@ -182,6 +182,9 @@ export const WORKSPACE_NAV = {
     ]},
   ],
   developer: [
+    { label: "Documentation", items: [
+      { path: "/developer-portal", label: "Developer Portal™", icon: FileText },
+    ]},
     { label: "Architecture", items: [
       { path: "/architecture-governance", label: "Architecture Governance Board™", icon: Building2 },
     ]},
@@ -285,6 +288,7 @@ const ROUTE_WORKSPACE = {
   "/admin": ["operations"],
   "/developer/organizations": ["operations", "developer"],
   "/architecture-governance": ["developer"],
+  "/developer-portal": ["developer"],
   "/developer/audit-logs": ["developer"],
   "/developer/system-health": ["developer"],
   "/developer/architecture-audit": ["developer"],

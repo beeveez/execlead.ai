@@ -153,6 +153,7 @@ const APP_ROUTES = [
   { path: "/feature-flags", component: "FeatureFlagCenter", name: "Feature Flag Center™", feature: null },
   { path: "/system-status", component: "SystemStatusCenter", name: "System Status Center™", feature: null },
   { path: "/architecture-governance", component: "ArchitectureGovernanceBoard", name: "Architecture Governance Board™", feature: null },
+  { path: "/developer-portal", component: "DeveloperPortal", name: "Developer Portal™", feature: "developer_access" },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

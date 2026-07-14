@@ -657,6 +657,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/system-status",
   // Architecture Governance Board™
   "/architecture-governance",
+  // Developer Portal™
+  "/developer-portal",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

@@ -49,7 +49,7 @@ export function extractPreferences(messages = []) {
     "we", "our", "you", "your", "it", "this", "that", "with", "about",
   ]);
   for (const text of userMessages) {
-    const words = text.toLowerCase().match(/[a-z]{4,}/g) || [];
+    const words = text.toLowerCase().match(/[a-z]{3,}/g) || [];
     for (const w of words) {
       if (!stopWords.has(w)) topicWords.add(w);
     }

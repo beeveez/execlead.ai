@@ -583,7 +583,7 @@ IMPORTANT LINKS:
 - Contact: /contact
 - About: /about`;
 
-export function buildExecPrompt(messages, user, pageContext, userContext, persona) {
+export function buildExecPrompt(messages, user, pageContext, userContext, persona, learnedPreferences) {
   let context = user
     ? `\n\nVISITOR CONTEXT: The user is logged in as ${user.full_name || "a registered user"}.`
     : `\n\nVISITOR CONTEXT: The visitor is not logged in (a public visitor). If they show interest, suggest creating a free account at /register or booking a demo at /contact.`;
@@ -613,6 +613,20 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
       context += ` Contextual assistance for this page: ${pageContext.prompt}`;
     }
     context += ` Tailor your response to the current page context when relevant.`;
+  }
+
+  // ── Preference Learning™ — adapt tone/format based on learned signals ──
+  if (learnedPreferences) {
+    const prefs = [];
+    if (learnedPreferences.signals?.length > 0) {
+      prefs.push(`Learned style preferences: ${learnedPreferences.signals.join(", ")}. Adjust your response format accordingly.`);
+    }
+    if (learnedPreferences.topics?.length > 0) {
+      prefs.push(`Topics the user is interested in: ${learnedPreferences.topics.join(", ")}. Prioritize these themes when relevant.`);
+    }
+    if (prefs.length > 0) {
+      context += `\n\nLEARNED PREFERENCES (from conversation history — adapt your response style):\n${prefs.join("\n")}`;
+    }
   }
 
   // ── Executive Runtime Profile™ — single canonical source of truth ──

@@ -318,7 +318,8 @@ export function ExecConciergeProvider({ children }) {
           user,
           matchPageContext(location.pathname),
           userContextRef.current || userContext,
-          workspacePersona
+          workspacePersona,
+          learnedPreferencesRef.current
         );
         const res = await callAI("exec_concierge", { prompt });
         const initialResponse =

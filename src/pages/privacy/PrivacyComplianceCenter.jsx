@@ -8,11 +8,19 @@ import PrivacyOperationsCenter from "@/components/privacy/PrivacyOperationsCente
 import DPOCommandCenter from "@/components/privacy/DPOCommandCenter";
 import PrivacyEvidenceRegistry from "@/components/privacy/PrivacyEvidenceRegistry";
 import DataLifecycleManager from "@/components/privacy/DataLifecycleManager";
+import ExplainablePrivacyScore from "@/components/privacy/ExplainablePrivacyScore";
+import PrivacyRiskHeatMap from "@/components/privacy/PrivacyRiskHeatMap";
+import DataFlowVisualizer from "@/components/privacy/DataFlowVisualizer";
+import AIDataUsageDashboard from "@/components/privacy/AIDataUsageDashboard";
+import PrivacyTimeline from "@/components/privacy/PrivacyTimeline";
+import PrivacyAuditHistory from "@/components/privacy/PrivacyAuditHistory";
+import NPCReadiness from "@/components/privacy/NPCReadiness";
+import ExecutiveTrustSummary from "@/components/privacy/ExecutiveTrustSummary";
 import {
   ShieldCheck, Database, FileCheck, AlertTriangle, FileText, Brain, Map,
   Shield, UserCog, Eye, Download, Edit, Trash2, XCircle, Mail, Lock,
   CheckCircle2, Clock, ExternalLink, ScrollText, FileWarning, Activity,
-  Award, GitBranch,
+  Award, GitBranch, Calendar, History, Flag, TrendingUp,
 } from "lucide-react";
 import {
   DPO_INFO, PRIVACY_DASHBOARD_STATS, DATA_INVENTORY, CONSENT_TYPES,
@@ -39,6 +47,13 @@ const TABS = [
   { id: 'dpo', label: 'DPO Command Center', icon: UserCog },
   { id: 'evidence', label: 'Evidence Registry', icon: FileCheck },
   { id: 'lifecycle', label: 'Data Lifecycle', icon: GitBranch },
+  { id: 'explainable', label: 'Explainable Score', icon: TrendingUp },
+  { id: 'risk_heatmap', label: 'Risk Heat Map', icon: AlertTriangle },
+  { id: 'data_flow', label: 'Data Flow', icon: Database },
+  { id: 'ai_usage', label: 'AI Data Usage', icon: Brain },
+  { id: 'audit_history', label: 'Audit History', icon: History },
+  { id: 'timeline', label: 'Timeline', icon: Calendar },
+  { id: 'npc', label: 'NPC Readiness', icon: Flag },
 ];
 
 const cardClass = "bg-white/[0.02] border border-white/10 rounded-2xl p-5";
@@ -66,6 +81,9 @@ export default function PrivacyComplianceCenter() {
             <p className="text-white/40 text-sm">Philippine Data Privacy Act (RA 10173) · Privacy by Design</p>
           </div>
         </div>
+
+        {/* Executive Trust Summary */}
+        <ExecutiveTrustSummary />
 
         {/* Tab Bar */}
         <div className="flex flex-wrap gap-1.5 border-b border-white/10 pb-3">
@@ -96,6 +114,13 @@ export default function PrivacyComplianceCenter() {
         {tab === 'dpo' && <DPOCommandCenter />}
         {tab === 'evidence' && <PrivacyEvidenceRegistry />}
         {tab === 'lifecycle' && <DataLifecycleManager />}
+        {tab === 'explainable' && <ExplainablePrivacyScore />}
+        {tab === 'risk_heatmap' && <PrivacyRiskHeatMap />}
+        {tab === 'data_flow' && <DataFlowVisualizer />}
+        {tab === 'ai_usage' && <AIDataUsageDashboard />}
+        {tab === 'audit_history' && <PrivacyAuditHistory />}
+        {tab === 'timeline' && <PrivacyTimeline />}
+        {tab === 'npc' && <NPCReadiness />}
       </div>
     </div>
   );

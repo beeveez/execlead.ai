@@ -142,6 +142,7 @@ import SecurityIntelligenceCenter from '@/pages/developer/SecurityIntelligenceCe
 import ReportRegistry from '@/pages/developer/ReportRegistry';
 import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import EnterpriseAdmin from '@/pages/enterprise/EnterpriseAdmin';
+import GovernanceCommandCenter from '@/pages/enterprise/GovernanceCommandCenter';
 import EnterpriseIdentity from '@/pages/enterprise/EnterpriseIdentity';
 import ProcurementCommandCenter from '@/pages/enterprise/ProcurementCommandCenter';
 import VendorManagement from '@/pages/vendor/VendorManagement';
@@ -360,6 +361,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
           <Route path="/enterprise/organizations" element={<OrganizationManagement />} />
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />
+          <Route path="/enterprise/governance" element={<GovernanceCommandCenter />} />
           <Route path="/enterprise/identity" element={<EnterpriseIdentity />} />
           <Route path="/enterprise/procurement" element={<ProcurementCommandCenter />} />
           <Route path="/enterprise/vendors" element={<VendorManagement />} />

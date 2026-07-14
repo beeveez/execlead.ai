@@ -428,3 +428,137 @@ export const PRIVACY_REPORT_TYPES = [
   { id: 'board_privacy', title: 'Board Privacy Report', formats: ['PDF'] },
   { id: 'enterprise_privacy', title: 'Enterprise Privacy Report', formats: ['PDF', 'Excel'] },
 ];
+
+// ============================================================
+// EXPLAINABLE PRIVACY SCORE™
+// ============================================================
+export const EXPLAINABLE_PRIVACY_CONTROLS = [
+  { id: 'consent', label: 'Consent Management', weight: 15, score: 100, contribution: 15.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Consent Registry™'] },
+  { id: 'data_inventory', label: 'Data Inventory', weight: 12, score: 100, contribution: 12.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Entity Registry'] },
+  { id: 'identity_protection', label: 'Identity Protection', weight: 15, score: 96, contribution: 14.4, gap: 0.6, eng_hours: 8, blocking: false, recommendations: ['Complete PIA for Executive Memory™'], dependencies: ['Identity Verification'] },
+  { id: 'encryption', label: 'Encryption Coverage', weight: 12, score: 100, contribution: 12.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Security Architecture'] },
+  { id: 'data_subject_rights', label: 'Data Subject Rights', weight: 10, score: 100, contribution: 10.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['DSR Portal'] },
+  { id: 'audit_logging', label: 'Audit Logging', weight: 10, score: 100, contribution: 10.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Audit System'] },
+  { id: 'responsible_ai', label: 'Responsible AI', weight: 10, score: 94, contribution: 9.4, gap: 0.6, eng_hours: 12, blocking: false, recommendations: ['Complete AI transparency documentation'], dependencies: ['AI Governance'] },
+  { id: 'retention', label: 'Retention Policies', weight: 8, score: 98, contribution: 7.84, gap: 0.16, eng_hours: 4, blocking: false, recommendations: ['Add retention policy for Executive Memory™'], dependencies: ['Retention Engine'] },
+  { id: 'npc_compliance', label: 'NPC Compliance', weight: 8, score: 98, contribution: 7.84, gap: 0.16, eng_hours: 4, blocking: false, recommendations: ['File NPC registration update'], dependencies: ['DPO Office'] },
+];
+
+export const PRIVACY_HISTORICAL_TREND = [
+  { month: 'Jan', score: 82 },
+  { month: 'Feb', score: 85 },
+  { month: 'Mar', score: 88 },
+  { month: 'Apr', score: 90 },
+  { month: 'May', score: 93 },
+  { month: 'Jun', score: 96 },
+  { month: 'Jul', score: 98 },
+];
+
+// ============================================================
+// PRIVACY RISK HEAT MAP™
+// ============================================================
+export const PRIVACY_RISK_CATEGORIES = [
+  { id: 'identity_docs', label: 'Identity Documents', risk: 'low', findings: 0 },
+  { id: 'personal_data', label: 'Personal Data', risk: 'low', findings: 0 },
+  { id: 'sensitive_info', label: 'Sensitive Personal Information', risk: 'low', findings: 0 },
+  { id: 'financial', label: 'Financial Information', risk: 'low', findings: 0 },
+  { id: 'ai_data', label: 'AI Data', risk: 'medium', findings: 1 },
+  { id: 'org_data', label: 'Organization Data', risk: 'low', findings: 0 },
+  { id: 'third_party', label: 'Third-party Integrations', risk: 'low', findings: 0 },
+  { id: 'retention', label: 'Retention', risk: 'low', findings: 0 },
+  { id: 'incident_response', label: 'Incident Response', risk: 'low', findings: 0 },
+];
+
+export const RISK_STYLES = {
+  low: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Low' },
+  medium: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'Medium' },
+  high: { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'High' },
+  critical: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Critical' },
+};
+
+// ============================================================
+// DATA FLOW VISUALIZER™
+// ============================================================
+export const DATA_FLOW_NODES = [
+  { id: 'user', label: 'User', description: 'Executive professional using the platform', collected: 'Name, email, role, company', purpose: 'Account creation & authentication', retention: 'Account lifetime', encryption: 'AES-256 at rest', access: 'User + Admin (RBAC)', lawful_basis: 'Contract performance' },
+  { id: 'consent', label: 'Consent', description: 'Explicit consent for data processing', collected: 'Consent preferences', purpose: 'Lawful basis for processing', retention: 'Proof of consent (6 years)', encryption: 'AES-256', access: 'DPO + User', lawful_basis: 'Consent' },
+  { id: 'auth', label: 'Authentication', description: 'Identity verification & session management', collected: 'Login credentials, session tokens', purpose: 'Secure access', retention: 'Session: 24h, Logs: 90 days', encryption: 'Bcrypt + TLS 1.3', access: 'Security Officer', lawful_basis: 'Legitimate interest' },
+  { id: 'profile', label: 'Profile', description: 'Executive profile & career data', collected: 'Career history, competencies', purpose: 'Personalization & coaching', retention: 'Account lifetime + 2 years', encryption: 'AES-256', access: 'User + Coach (RBAC)', lawful_basis: 'Contract performance' },
+  { id: 'ai_processing', label: 'AI Processing', description: 'AI-powered executive coaching & analysis', collected: 'Interaction data, assessments', purpose: 'Executive coaching & personalization', retention: 'Configurable (default 2 years)', encryption: 'AES-256', access: 'User + AI System', lawful_basis: 'Consent' },
+  { id: 'exec_memory', label: 'Executive Memory™', description: 'AI memory for personalized coaching', collected: 'Coaching preferences, patterns', purpose: 'Continuous personalization', retention: 'Configurable (PIA required)', encryption: 'AES-256', access: 'User + AI System', lawful_basis: 'Consent' },
+  { id: 'analytics', label: 'Analytics', description: 'Leadership analytics & insights', collected: 'Assessment scores, progress', purpose: 'Performance insights', retention: '2 years post-deletion', encryption: 'AES-256', access: 'User + Admin', lawful_basis: 'Legitimate interest' },
+  { id: 'retention', label: 'Retention', description: 'Automated retention enforcement', collected: 'Retention metadata', purpose: 'Compliance with data retention laws', retention: 'Per data type policy', encryption: 'AES-256', access: 'System + DPO', lawful_basis: 'Legal obligation' },
+  { id: 'deletion', label: 'Deletion', description: 'Secure data deletion with audit trail', collected: 'Deletion requests', purpose: 'Data subject rights (erasure)', retention: 'Deletion log: 6 years', encryption: 'AES-256', access: 'DPO + System', lawful_basis: 'Legal obligation' },
+];
+
+// ============================================================
+// AI DATA USAGE DASHBOARD™
+// ============================================================
+export const AI_DATA_USAGE = {
+  used_for: ['Executive Coaching', 'Personalization', 'Executive Memory™', 'Leadership Analytics'],
+  not_used_for: ['Selling Data', 'Advertising', 'Third-party Marketing'],
+  data_purposes: [
+    { data: 'Career History', why: 'Personalized coaching recommendations', retention: 'Account lifetime', deletion: 'Settings → Privacy → Delete', lawful_basis: 'Contract performance' },
+    { data: 'Assessment Results', why: 'Track leadership development progress', retention: '2 years', deletion: 'Settings → Privacy → Delete', lawful_basis: 'Consent' },
+    { data: 'AI Conversations', why: 'Executive Memory™ for coaching continuity', retention: 'Configurable (default 90 days)', deletion: 'Settings → AI → Clear Memory', lawful_basis: 'Consent' },
+    { data: 'Profile Information', why: 'Personalized executive briefings', retention: 'Account lifetime', deletion: 'Settings → Privacy → Delete', lawful_basis: 'Contract performance' },
+  ],
+};
+
+// ============================================================
+// PRIVACY TIMELINE™
+// ============================================================
+export const PRIVACY_TIMELINE_EVENTS = [
+  { date: '2026-01-15', event: 'Privacy Program Initiated', description: 'EXECLEAD.AI privacy program officially launched', type: 'milestone', status: 'completed' },
+  { date: '2026-01-20', event: 'DPO Assigned', description: 'Data Protection Officer formally appointed', type: 'milestone', status: 'completed' },
+  { date: '2026-02-01', event: 'Privacy Policy Published', description: 'Comprehensive privacy policy published (v1.0)', type: 'policy', status: 'completed' },
+  { date: '2026-02-15', event: 'Consent Registry Activated', description: 'Consent management system operational', type: 'milestone', status: 'completed' },
+  { date: '2026-03-01', event: 'Identity Protection Enabled', description: 'Government ID encryption and access controls active', type: 'milestone', status: 'completed' },
+  { date: '2026-04-15', event: 'Responsible AI Published', description: 'AI transparency and accountability framework published', type: 'policy', status: 'completed' },
+  { date: '2026-07-14', event: 'Privacy Certification Achieved', description: 'Privacy Certification™ v1.0 — PASS', type: 'certification', status: 'completed' },
+  { date: '2026-10-14', event: 'Next Quarterly Review', description: 'Quarterly compliance review and re-certification', type: 'review', status: 'upcoming' },
+  { date: '2027-01-14', event: 'Next Annual Audit', description: 'Annual privacy audit and certification renewal', type: 'audit', status: 'upcoming' },
+  { date: '2027-Q1', event: 'Singapore PDPA Readiness', description: 'Target: 15% → 50% readiness', type: 'future', status: 'upcoming' },
+];
+
+// ============================================================
+// PRIVACY AUDIT HISTORY™
+// ============================================================
+export const PRIVACY_AUDIT_HISTORY = [
+  { date: '2026-07-14', auditor: 'Internal DPO', version: 'v1.0', score: 98, findings: 2, resolved: 2, open: 0, certification: 'PASS', trend: 'up' },
+  { date: '2026-06-14', auditor: 'Internal DPO', version: 'v0.9', score: 96, findings: 4, resolved: 4, open: 0, certification: 'PASS', trend: 'up' },
+  { date: '2026-05-14', auditor: 'Internal DPO', version: 'v0.8', score: 93, findings: 6, resolved: 6, open: 0, certification: 'PASS', trend: 'up' },
+  { date: '2026-04-14', auditor: 'Internal DPO', version: 'v0.7', score: 90, findings: 8, resolved: 8, open: 0, certification: 'PASS', trend: 'up' },
+  { date: '2026-03-14', auditor: 'Internal DPO', version: 'v0.6', score: 88, findings: 10, resolved: 10, open: 0, certification: 'PASS', trend: 'up' },
+  { date: '2026-02-14', auditor: 'Internal DPO', version: 'v0.5', score: 85, findings: 12, resolved: 12, open: 0, certification: 'PASS', trend: 'up' },
+];
+
+// ============================================================
+// NPC READINESS™
+// ============================================================
+export const NPC_READINESS_CONTROLS = [
+  { id: 'privacy_notice', label: 'Privacy Notice', score: 100, status: 'compliant' },
+  { id: 'consent', label: 'Consent', score: 100, status: 'compliant' },
+  { id: 'data_inventory', label: 'Data Inventory', score: 100, status: 'compliant' },
+  { id: 'dpo', label: 'Data Protection Officer', score: 100, status: 'compliant' },
+  { id: 'incident_response', label: 'Incident Response', score: 100, status: 'compliant' },
+  { id: 'retention', label: 'Retention', score: 98, status: 'compliant' },
+  { id: 'data_subject_rights', label: 'Data Subject Rights', score: 100, status: 'compliant' },
+];
+
+export const NPC_OVERALL_READINESS = 98;
+export const NPC_TARGET_READINESS = 100;
+
+// ============================================================
+// EXECUTIVE TRUST SUMMARY™
+// ============================================================
+export const EXECUTIVE_TRUST_SUMMARY = {
+  privacy_readiness: 98,
+  security_score: 95,
+  responsible_ai: 92,
+  identity_protection: 96,
+  encryption: 100,
+  audit_status: 'Active',
+  certification_status: 'Certified',
+  summary: 'EXECLEAD.AI maintains enterprise-grade privacy and security controls aligned with the Philippine Data Privacy Act (RA 10173). All personal data is encrypted at rest and in transit, consent is managed through a formal registry, and data subject rights are fully operational. Responsible AI controls ensure transparency and accountability in all AI-powered features. These controls demonstrate to customers that their data is protected with the same rigor as enterprise security and compliance standards.',
+};

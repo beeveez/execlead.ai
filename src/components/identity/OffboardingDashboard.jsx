@@ -1,43 +1,80 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserX, Clock, Loader2, AlertTriangle, RefreshCw, X, Shield, Building2 } from "lucide-react";
 
 /**
  * OffboardingDashboard — admin view of members in offboarding grace period.
  *
- * Shows: member name, role, days remaining, trigger reason.
- * Allows admin to track who is transitioning and when grace periods expire.
+ * Standardized data loading pattern:
+ *   Loading  → spinner
+ *   Error    → inline error with Retry (no toast for background loads)
+ *   Empty    → friendly empty state
+ *   Loaded   → render queue
+ *
+ * Toast notifications are reserved for user-initiated actions, not background page loads.
  */
 export default function OffboardingDashboard() {
-  const { toast } = useToast();
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const fetchIdRef = useRef(0);
 
   const loadQueue = async () => {
+    const reqId = ++fetchIdRef.current;
     setLoading(true);
+    setError(null);
     try {
       const res = await base44.functions.invoke("manageIdentityTransfer", { action: "get_offboarding_queue" });
+      // Ignore stale responses from duplicate/aborted fetches (StrictMode, concurrent retries)
+      if (reqId !== fetchIdRef.current) return;
       const d = res.data || res;
       setQueue(d.queue || []);
-    } catch {
-      setQueue([]);
-      toast({ title: "Failed to load offboarding queue", variant: "destructive" });
+    } catch (e) {
+      if (reqId !== fetchIdRef.current) return;
+      console.error(`[offboard-req-${reqId}] Failed to load offboarding queue:`, e);
+      setError(e.message || "Unable to load the offboarding queue.");
+    } finally {
+      if (reqId === fetchIdRef.current) setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => { loadQueue(); }, []);
 
+  // ── Loading ──
   if (loading) {
     return (
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <UserX size={16} className="text-amber-400" />
+          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">Offboarding Queue</h3>
+        </div>
         <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-indigo-400" /></div>
       </div>
     );
   }
 
+  // ── Error ──
+  if (error) {
+    return (
+      <div className="bg-white/[0.02] border border-red-500/15 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <UserX size={16} className="text-amber-400" />
+          <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider">Offboarding Queue</h3>
+        </div>
+        <div className="text-center py-6">
+          <AlertTriangle size={28} className="text-red-400/60 mx-auto mb-2" />
+          <p className="text-white/40 text-sm mb-3">{error}</p>
+          <button onClick={loadQueue}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/60 hover:bg-white/10 transition-colors">
+            <RefreshCw size={12} /> Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Loaded (empty or with data) ──
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">

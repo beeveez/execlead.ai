@@ -24,7 +24,7 @@ export const WORKSPACE_CONTEXT_LABELS = {
   executive: "Executive Leadership Summary",
   developer: "Developer Operations Summary",
   enterprise: "Enterprise Operations Summary",
-  platform: "Platform Operations Summary",
+  operations: "Operations Summary",
 };
 
 export const WORKSPACE_CONTEXTS = {
@@ -81,21 +81,22 @@ export const WORKSPACE_CONTEXTS = {
       "Readiness Distribution", "High-Potential Talent",
     ],
   },
-  platform: {
-    id: "platform",
-    persona: "Platform Administrator™",
-    defaultSummary: "Platform Operations Summary",
+  operations: {
+    id: "operations",
+    persona: "Operations Director™",
+    defaultSummary: "Operations Summary",
     focus: [
-      "Subscription Management", "Payment Settings", "Pricing Plans",
-      "Feature Management", "Email Settings", "Membership Programs",
+      "Product Intelligence", "Beta Operations", "Customer Lifecycle Management",
+      "Observability", "Commercial Intelligence", "Growth Operations",
+      "Success Center", "Reports", "Roadmap",
     ],
     terminology: [
-      "Pricing Catalog", "Feature Flags", "Payment Provider",
-      "Membership Program", "CPQ",
+      "Customer Health Score", "Lifecycle Pipeline", "Conversion Funnel",
+      "Product Intelligence", "Beta Cohort", "Revenue Dashboard",
     ],
     kpis: [
-      "Active Subscriptions", "Revenue",
-      "Feature Adoption", "Email Delivery Rate",
+      "Customer Health", "Pipeline Conversion", "Beta Participation",
+      "Revenue", "Product Adoption",
     ],
   },
 };
@@ -154,7 +155,7 @@ RESPONSE VALIDATION — before EVERY response, verify:
 If any content in your draft response belongs to another workspace and the user did NOT explicitly request it: REMOVE IT before responding.
 
 SUCCESS CRITERIA:
-  • EXEC™ never mixes Executive, Developer, Enterprise, or Platform contexts.
+  • EXEC™ never mixes Executive, Developer, Enterprise, or Operations contexts.
   • Responses are always aligned with the active workspace unless the user explicitly requests a context switch.
   • The active workspace is the primary source of truth for summaries, recommendations, KPIs, terminology, and suggested actions.`;
 }

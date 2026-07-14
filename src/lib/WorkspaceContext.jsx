@@ -49,6 +49,8 @@ export function WorkspaceProvider({ children }) {
       setActiveWorkspaceState(saved);
       setWorkspaceChosen(true);
     } else {
+      // Clean up stale workspace (e.g., "platform" renamed to "operations")
+      if (saved) { try { localStorage.removeItem(STORAGE_KEY); } catch {} }
       const def = getDefaultWorkspace(availableWorkspaces, role);
       setActiveWorkspaceState(def);
       setWorkspaceChosen(false);

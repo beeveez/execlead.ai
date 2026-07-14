@@ -1,9 +1,10 @@
 /**
- * EXECLEAD.AI — Workspace & Access Architecture 3.0
+ * EXECLEAD.AI — Workspace & Access Architecture 4.0
  * ---------------------------------------------------
- * Separates Authentication, Subscription, Workspace, Role, and Permissions
- * into independent layers. The active workspace determines navigation;
- * the role determines authority; the subscription determines features.
+ * Four workspaces: Executive, Enterprise, Operations, Developer.
+ * Operations replaces the former Platform workspace, reorganized
+ * around product intelligence, customer lifecycle, observability,
+ * commercial, growth, success, reports, and roadmap.
  */
 import {
   LayoutDashboard, GraduationCap, MessageSquare, Brain, Scale,
@@ -13,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -22,14 +23,14 @@ import { normalizeRole } from "./roles";
 export const WORKSPACES = {
   executive: { id: "executive", label: "Executive", description: "Personal executive development", icon: Briefcase, color: "#6366f1", badge: "bg-indigo-500" },
   enterprise: { id: "enterprise", label: "Enterprise", description: "Organization workspace", icon: Building2, color: "#06b6d4", badge: "bg-cyan-500" },
-  platform: { id: "platform", label: "Platform", description: "Platform administration", icon: ShieldCheck, color: "#a855f7", badge: "bg-purple-500" },
+  operations: { id: "operations", label: "Operations", description: "Platform & business operations", icon: ShieldCheck, color: "#a855f7", badge: "bg-purple-500" },
   developer: { id: "developer", label: "Developer", description: "Engineering workspace", icon: Code2, color: "#10b981", badge: "bg-emerald-500" },
 };
 
 export const WORKSPACE_HOME = {
   executive: "/dashboard",
   enterprise: "/enterprise",
-  platform: "/billing-admin",
+  operations: "/product-intelligence",
   developer: "/developer/executive-platform-status",
 };
 
@@ -39,17 +40,6 @@ export const WORKSPACE_NAV = {
   executive: [
     { label: "Platform", items: [
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
-      { path: "/academy", label: "Academy", icon: GraduationCap, feature: "executive_academy" },
-      { path: "/coach", label: "Executive Coach", icon: MessageSquare },
-      { path: "/challenge", label: "Daily Challenge", icon: Target, feature: "daily_executive_challenge" },
-      { path: "/simulator", label: "Executive Simulator", icon: Brain, feature: "executive_simulator" },
-      { path: "/debate", label: "Executive Debate", icon: Scale, feature: "executive_debate" },
-      { path: "/council", label: "Executive Council", icon: Network, feature: "executive_council" },
-      { path: "/marketplace", label: "Marketplace", icon: Store, feature: "marketplace" },
-    ]},
-    { label: "Network", items: [
-      { path: "/network", label: "Executive Network", icon: Users },
     ]},
     { label: "Career", items: [
       { path: "/career", label: "Career Advisor", icon: Briefcase, feature: "career_advisor" },
@@ -58,20 +48,40 @@ export const WORKSPACE_NAV = {
       { path: "/companies", label: "Companies", icon: Building2, feature: "company_intelligence" },
       { path: "/journal", label: "Journal", icon: PenLine, feature: "executive_journal" },
     ]},
-    { label: "Insights", items: [
+    { label: "Learning", items: [
+      { path: "/academy", label: "Academy", icon: GraduationCap, feature: "executive_academy" },
+      { path: "/challenge", label: "Daily Challenge", icon: Target, feature: "daily_executive_challenge" },
+      { path: "/simulator", label: "Executive Simulator", icon: Brain, feature: "executive_simulator" },
+      { path: "/debate", label: "Executive Debate", icon: Scale, feature: "executive_debate" },
+      { path: "/council", label: "Executive Council", icon: Network, feature: "executive_council" },
+      { path: "/marketplace", label: "Marketplace", icon: Store, feature: "marketplace" },
+    ]},
+    { label: "Leadership", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
       { path: "/intelligence", label: "Intelligence Center", icon: Radar },
-      { path: "/methodology", label: "EELM™ Methodology", icon: Brain },
       { path: "/journey", label: "Intelligence Profile", icon: TrendingUp },
-      { path: "/executive-readiness", label: "Readiness", icon: Target },
-      { path: "/executive-passport", label: "Executive Passport", icon: Briefcase },
-      { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },
-      { path: "/product-intelligence", label: "Product Intelligence™", icon: BarChart3 },
-      { path: "/metrics", label: "Executive Metrics", icon: Gauge },
+      { path: "/methodology", label: "EELM™ Methodology", icon: Brain },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
       { path: "/executive-legacy", label: "Executive Legacy", icon: Award, feature: "executive_legacy" },
       { path: "/reputation", label: "Executive Reputation", icon: Star },
       { path: "/executive/rankings", label: "Executive Rankings", icon: Trophy },
+    ]},
+    { label: "AI Coach", items: [
+      { path: "/coach", label: "Executive Coach", icon: MessageSquare },
+      { path: "/ai-command-center", label: "AI Command Center", icon: Cpu },
+    ]},
+    { label: "Executive Readiness", items: [
+      { path: "/executive-readiness", label: "Readiness", icon: Target },
+    ]},
+    { label: "Passport", items: [
+      { path: "/executive-passport", label: "Executive Passport", icon: Briefcase },
+    ]},
+    { label: "Metrics", items: [
+      { path: "/metrics", label: "Executive Metrics", icon: Gauge },
+      { path: "/analytics", label: "Analytics", icon: BarChart3, feature: "leadership_analytics" },
+    ]},
+    { label: "Network", items: [
+      { path: "/network", label: "Executive Network", icon: Users },
     ]},
     { label: "Account", items: [
       { path: "/profile", label: "Profile", icon: UserCircle },
@@ -92,119 +102,125 @@ export const WORKSPACE_NAV = {
       { path: "/enterprise", label: "Enterprise Dashboard", icon: LayoutDashboard, feature: "team_dashboard" },
       { path: "/enterprise/organizations", label: "Organization Management™", icon: Building2 },
       { path: "/enterprise/admin", label: "Enterprise Administration™", icon: Shield },
-      { path: "/enterprise/governance", label: "Governance Command Center™", icon: ShieldCheck },
       { path: "/enterprise/identity", label: "Enterprise Identity™", icon: Fingerprint },
       { path: "/enterprise-intelligence", label: "Intelligence", icon: TrendingUp },
+      { path: "/companies", label: "Organization Intelligence", icon: Building2, feature: "company_intelligence" },
+    ]},
+    { label: "Users", items: [
       { path: "/organization/users", label: "Users", icon: Users },
+    ]},
+    { label: "Teams", items: [
       { path: "/succession-planning", label: "Teams", icon: Users, feature: "succession_planning" },
       { path: "/hr-dashboard", label: "Departments", icon: Users, feature: "hr_dashboard" },
       { path: "/learning-assignments", label: "Learning Assignments", icon: ClipboardCheck, feature: "learning_assignments" },
       { path: "/promotion-readiness", label: "Promotion Readiness", icon: TrendingUp, feature: "promotion_readiness" },
-      { path: "/sso", label: "SSO & Identity", icon: KeyRound, feature: "sso" },
     ]},
-    { label: "Commercial", items: [
+    { label: "Procurement", items: [
       { path: "/enterprise/procurement", label: "Enterprise Procurement™", icon: ShoppingCart },
       { path: "/enterprise/vendors", label: "Vendor Management™", icon: Store },
+    ]},
+    { label: "Governance", items: [
+      { path: "/enterprise/governance", label: "Governance Command Center™", icon: ShieldCheck },
+    ]},
+    { label: "Trust", items: [
+      { path: "/sso", label: "SSO & Identity", icon: KeyRound, feature: "sso" },
+    ]},
+    { label: "Administration", items: [
+      { path: "/organization/billing", label: "Organization Billing", icon: CreditCard },
+      { path: "/analytics", label: "Leadership Analytics", icon: BarChart3, feature: "leadership_analytics" },
+      { path: "/ai-usage", label: "Reports", icon: Cpu, feature: "ai_usage_dashboard" },
+      { path: "/settings", label: "Organization Settings", icon: SettingsIcon },
+    ]},
+  ],
+  operations: [
+    { label: "Product Intelligence", items: [
+      { path: "/product-intelligence", label: "Product Intelligence™", icon: BarChart3 },
+    ]},
+    { label: "Beta Operations", items: [
+      { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
+      { path: "/beta-program", label: "Beta Program Center™", icon: Rocket },
+    ]},
+    { label: "Customer Lifecycle", items: [
+      { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
+    ]},
+    { label: "Observability", items: [
+      { path: "/exec-observability", label: "Observability Platform™", icon: Activity },
+    ]},
+    { label: "Commercial", items: [
       { path: "/enterprise/commercial", label: "Commercial Intelligence™", icon: BarChart3 },
       { path: "/cpq", label: "CPQ™", icon: Calculator },
       { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
     ]},
-    { label: "Insights", items: [
-      { path: "/analytics", label: "Leadership Analytics", icon: BarChart3, feature: "leadership_analytics" },
-      { path: "/product-intelligence", label: "Product Intelligence™", icon: BarChart3 },
-      { path: "/companies", label: "Organization Intelligence", icon: Building2, feature: "company_intelligence" },
-      { path: "/ai-usage", label: "Reports", icon: Cpu, feature: "ai_usage_dashboard" },
-    ]},
-    { label: "Administration", items: [
-      { path: "/organization/billing", label: "Organization Billing", icon: CreditCard },
-      { path: "/settings", label: "Organization Settings", icon: SettingsIcon },
-    ]},
-  ],
-  platform: [
-    { label: "Management", items: [
-      { path: "/developer/organizations", label: "Organizations", icon: Network },
-      { path: "/company-admin", label: "Companies", icon: Database },
-      { path: "/marketplace", label: "Marketplace Management", icon: Store },
+    { label: "Growth", items: [
       { path: "/pricing-admin", label: "Subscription Management", icon: DollarSign },
       { path: "/membership-admin", label: "Membership Programs", icon: Award },
-      { path: "/elim", label: "ELIM™ Framework", icon: Brain },
       { path: "/referral-admin", label: "Referral Engine", icon: Gift },
-      { path: "/identity-verification-admin", label: "Identity Reviews", icon: ShieldCheck },
-      { path: "/beta-program", label: "Beta Program Center™", icon: Rocket },
-      { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
-      { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
-      { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
-      { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
+      { path: "/founding-member-admin", label: "Founding Members", icon: Star },
+      { path: "/elim", label: "ELIM™ Framework", icon: Brain },
+      { path: "/payment-settings", label: "Payment Providers", icon: Lock },
     ]},
-    { label: "Revenue", items: [
-      { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },
-      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
-      { path: "/cpq", label: "CPQ", icon: Calculator },
-    ]},
-    { label: "System", items: [
-      { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
-      { path: "/email-settings", label: "Email Center", icon: Mail },
-      { path: "/ai-usage", label: "Usage Analytics", icon: Cpu },
-      { path: "/developer/system-health", label: "System Reports", icon: Activity },
+    { label: "Success Center", items: [
       { path: "/admin", label: "User Support", icon: Shield },
+      { path: "/identity-verification-admin", label: "Identity Reviews", icon: ShieldCheck },
+      { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
+      { path: "/feedback", label: "Feedback", icon: Lightbulb },
+    ]},
+    { label: "Reports", items: [
+      { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },
+      { path: "/email-settings", label: "Email Center", icon: Mail },
+      { path: "/company-admin", label: "Company Admin", icon: Database },
+      { path: "/company-reports-admin", label: "Company Reports", icon: BarChart3 },
+      { path: "/request-tracking", label: "Request Tracking", icon: ClipboardCheck },
+      { path: "/developer/organizations", label: "Organizations", icon: Network },
+    ]},
+    { label: "Roadmap", items: [
+      { path: "/developer/product", label: "Product Management™", icon: Boxes },
+      { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
     ]},
   ],
   developer: [
-    { label: "Workspace", items: [
-      { path: "/exec-os", label: "EXEC™ Operating System™", icon: Sparkles },
-      { path: "/exec-observability", label: "Observability Platform™", icon: Activity },
-      { path: "/product-intelligence", label: "Product Intelligence™", icon: BarChart3 },
-      { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
-      { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
-      { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
-      { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
-      { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
-      { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
+    { label: "Deployment", items: [
       { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
-      { path: "/developer/experience-audit", label: "Platform Autonomic Experience Engine™", icon: ClipboardCheck },
-      { path: "/enterprise/governance", label: "Governance Command Center™", icon: ShieldCheck },
+      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
+    ]},
+    { label: "Architecture", items: [
+      { path: "/developer/architecture-audit", label: "Architecture Audit™", icon: Building2 },
+      { path: "/developer/scalability", label: "Scalability™", icon: TrendingUp },
+      { path: "/developer/performance-resilience", label: "Performance & Resilience™", icon: Gauge },
+    ]},
+    { label: "Registry", items: [
+      { path: "/developer/report-registry", label: "Report Registry™", icon: FileText },
+      { path: "/developer/form-lookup-registry", label: "Form Lookup Registry™", icon: ClipboardCheck },
+    ]},
+    { label: "APIs", items: [
+      { path: "/developer/api-keys", label: "API Management", icon: KeyRound },
+    ]},
+    { label: "Security", items: [
+      { path: "/developer/security-intelligence", label: "Security Intelligence™", icon: Shield },
+      { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
+    ]},
+    { label: "Privacy", items: [
+      { path: "/privacy-compliance", label: "Privacy & Compliance Center™", icon: Lock },
+    ]},
+    { label: "AI", items: [
       { path: "/developer/cognitive", label: "Cognitive Excellence Engine™", icon: Brain },
       { path: "/developer/cognitive/memory", label: "AI Memory Intelligence™", icon: Brain },
       { path: "/developer/cognitive/personalization", label: "Personalization Intelligence™", icon: UserCircle },
-      { path: "/trust-center", label: "Trust Center™", icon: ShieldCheck },
-      { path: "/privacy-compliance", label: "Privacy & Compliance Center™", icon: Lock },
-    ]},
-    { label: "Platform Audit", items: [
-      { path: "/developer/architecture-audit", label: "Architecture Audit™", icon: Building2 },
-      { path: "/developer/stability", label: "Platform Stability™", icon: Activity },
-      { path: "/developer/scalability", label: "Scalability™", icon: TrendingUp },
-      { path: "/developer/performance-resilience", label: "Performance & Resilience™", icon: Gauge },
-      { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
-      { path: "/developer/security-intelligence", label: "Security Intelligence™", icon: Shield },
-    ]},
-    { label: "Engineering", items: [
-      { path: "/developer/api-keys", label: "API Management", icon: KeyRound },
-      { path: "/developer/database", label: "Database Explorer", icon: Database },
-      { path: "/developer/system-health", label: "System Health", icon: Activity },
+      { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
+      { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
       { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
+    ]},
+    { label: "Platform Health", items: [
+      { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
+      { path: "/exec-os", label: "EXEC™ Operating System™", icon: Sparkles },
+      { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
+      { path: "/developer/system-health", label: "System Health", icon: Activity },
+      { path: "/developer/stability", label: "Platform Stability™", icon: Activity },
+      { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
+      { path: "/developer/experience-audit", label: "Platform Autonomic Experience Engine™", icon: ClipboardCheck },
       { path: "/feature-management", label: "Feature Flags", icon: Boxes },
-      { path: "/developer/report-registry", label: "Report Registry™", icon: FileText },
-      { path: "/developer/form-lookup-registry", label: "Form Lookup Registry™", icon: ClipboardCheck },
-      { path: "/developer/product", label: "Product Management™", icon: Boxes },
-      { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
-      { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
-    ]},
-    { label: "Administration", items: [
-      { path: "/payment-settings", label: "Payment Providers", icon: Lock },
-      { path: "/pricing-admin", label: "Pricing Engine", icon: DollarSign },
-      { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
-      { path: "/email-settings", label: "Email Templates", icon: Mail },
-      { path: "/company-admin", label: "Company Admin", icon: Database },
-      { path: "/elim", label: "ELIM™ Framework", icon: Brain },
-      { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
-      { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },
-    ]},
-    { label: "System", items: [
+      { path: "/developer/database", label: "Database Explorer", icon: Database },
       { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
-      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
-      { path: "/developer/organizations", label: "Organization Admin", icon: Network },
-      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
-      { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
     ]},
   ],
 };
@@ -214,68 +230,78 @@ export const WORKSPACE_NAV = {
 const ROUTE_WORKSPACE = {
   "/dashboard": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
   "/simulator": ["executive"], "/debate": ["executive"], "/council": ["executive"],
-  "/marketplace": ["executive", "platform"], "/network": ["executive"], "/career-studio": ["executive"],
+  "/marketplace": ["executive"], "/network": ["executive"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],
   "/analytics": ["executive", "enterprise"],
-  "/product-intelligence": ["executive", "enterprise", "developer"], "/journal": ["executive"],
+  "/product-intelligence": ["operations"], "/journal": ["executive"],
   "/profile": ["executive"], "/founder": ["executive"], "/billing": ["executive"], "/wallet": ["executive"],
   "/organization/billing": ["enterprise"],
   "/settings": ["executive", "enterprise"], "/security": ["executive", "enterprise"],
   "/identity-verification": ["executive", "enterprise"],
-  "/identity-verification-admin": ["platform", "developer"],
-  "/beta-program": ["platform", "developer"],
-  "/beta-operations": ["platform", "developer"],
-  "/customer-lifecycle": ["executive", "enterprise", "platform", "developer"],
-  "/legacy-library/admin": ["platform", "developer"],
-  "/feedback": ["executive", "enterprise"], "/challenge": ["executive"],
+  "/identity-verification-admin": ["operations"],
+  "/beta-program": ["operations"],
+  "/beta-operations": ["operations"],
+  "/customer-lifecycle": ["operations"],
+  "/exec-observability": ["operations"],
+  "/exec-os": ["operations", "developer"],
+  "/legacy-library/admin": ["operations"],
+  "/feedback": ["executive", "enterprise", "operations"], "/challenge": ["executive"],
   "/leadership-dna": ["executive"],
   "/intelligence": ["executive"], "/executive-legacy": ["executive"], "/journey": ["executive"],
   "/executive-readiness": ["executive"], "/executive-passport": ["executive"],
   "/enterprise-intelligence": ["enterprise"],
-  "/legacy-library": ["executive", "platform", "developer"],
+  "/legacy-library": ["executive"],
   "/career": ["executive"], "/metrics": ["executive"],
   "/notifications": ["executive"], "/compare-plans": ["executive"],
   "/brand-center": ["executive"], "/executive/rankings": ["executive"], "/reputation": ["executive"],
   "/connected-accounts": ["executive"],
   "/enterprise": ["enterprise"], "/enterprise/organizations": ["enterprise"],
   "/enterprise/admin": ["enterprise"],
-  "/enterprise/governance": ["enterprise", "platform", "developer"],
+  "/enterprise/governance": ["enterprise", "operations", "developer"],
   "/enterprise/identity": ["enterprise"],
   "/enterprise/procurement": ["enterprise"],
   "/enterprise/vendors": ["enterprise"],
-  "/enterprise/commercial": ["enterprise"],
+  "/enterprise/commercial": ["enterprise", "operations"],
   "/hr-dashboard": ["enterprise"],
   "/succession-planning": ["enterprise"], "/promotion-readiness": ["enterprise"],
   "/learning-assignments": ["enterprise"], "/organization/users": ["enterprise"],
-  "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer", "platform"],
-  "/pricing-admin": ["platform", "developer"], "/membership-admin": ["platform", "developer"], "/billing-admin": ["platform", "developer"],
-  "/elim": ["platform", "developer"],
-  "/methodology": ["executive", "platform", "developer"],
-  "/payment-settings": ["platform", "developer"], "/email-settings": ["platform", "developer"],
-  "/company-admin": ["platform", "developer"], "/cpq": ["platform", "developer"],
-  "/cpq-dashboard": ["platform", "developer"], "/admin": ["platform"],
-  "/developer/organizations": ["platform", "developer"],
-  "/developer/audit-logs": ["platform", "developer"],
-  "/developer/system-health": ["platform", "developer"],
-  "/developer/architecture-audit": ["platform", "developer"],
-  "/developer/stability": ["platform", "developer"],
-  "/developer/launch-readiness": ["platform", "developer"],
-  "/developer/scalability": ["platform", "developer"],
-  "/developer/performance-resilience": ["platform", "developer"],
-  "/developer/report-registry": ["platform", "developer"],
-  "/developer/security-intelligence": ["platform", "developer"],
-  "/developer/form-lookup-registry": ["platform", "developer"],
-  "/developer/product": ["platform", "developer"],
+  "/sso": ["enterprise"], "/ai-usage": ["enterprise", "developer", "operations"],
+  "/pricing-admin": ["operations"], "/membership-admin": ["operations"], "/billing-admin": ["operations"],
+  "/elim": ["operations"],
+  "/methodology": ["executive", "operations", "developer"],
+  "/payment-settings": ["operations"], "/email-settings": ["operations"],
+  "/company-admin": ["operations"], "/company-reports-admin": ["operations"],
+  "/request-tracking": ["operations"], "/founding-member-admin": ["operations"],
+  "/cpq": ["operations", "developer"], "/cpq-dashboard": ["operations", "developer"],
+  "/admin": ["operations"],
+  "/developer/organizations": ["operations", "developer"],
+  "/developer/audit-logs": ["developer"],
+  "/developer/system-health": ["developer"],
+  "/developer/architecture-audit": ["developer"],
+  "/developer/stability": ["developer"],
+  "/developer/launch-readiness": ["operations", "developer"],
+  "/developer/scalability": ["developer"],
+  "/developer/performance-resilience": ["developer"],
+  "/developer/report-registry": ["developer"],
+  "/developer/security-intelligence": ["developer"],
+  "/developer/form-lookup-registry": ["developer"],
+  "/developer/product": ["operations", "developer"],
   "/ai-command-center": ["executive"],
   "/developer/ai-command-center": ["developer"],
   "/developer": ["developer"], "/developer/executive-platform-status": ["developer"],
   "/developer/cognitive": ["developer"], "/developer/cognitive/memory": ["developer"],
   "/developer/cognitive/personalization": ["developer"],
   "/developer/knowledge-sync": ["developer"],
+  "/developer/diagnostics": ["developer"],
+  "/developer/experience-audit": ["developer"],
+  "/developer/deployments": ["developer"],
+  "/developer/migrations": ["developer"],
+  "/developer/api-keys": ["developer"],
+  "/developer/database": ["developer"],
   "/feature-management": ["developer"], "/guardian": ["developer"],
   "/trust-center": ["developer"],
-  "/privacy-compliance": ["executive", "platform", "developer"],
-  "/referrals": ["executive"], "/referral-admin": ["platform", "developer"],
+  "/privacy-compliance": ["developer", "operations"],
+  "/referrals": ["executive"], "/referral-admin": ["operations"],
   "/exec-admin": ["developer"],
 };
 
@@ -287,8 +313,9 @@ export function getRouteWorkspace(path) {
   if (path.startsWith("/network/")) return ["executive"];
   if (path.startsWith("/founder")) return ["executive"];
   if (path.startsWith("/intelligence")) return ["executive"];
-  if (path.startsWith("/cpq/")) return ["platform", "developer"];
+  if (path.startsWith("/cpq/")) return ["operations", "developer"];
   if (path.startsWith("/portal/")) return ["enterprise"];
+  if (path.startsWith("/legacy-library/")) return ["executive"];
   return null;
 }
 
@@ -296,7 +323,7 @@ export function getRouteWorkspace(path) {
 
 const EXECUTIVE_ROLES = ["customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin"];
 const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "super_admin"];
-const PLATFORM_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin"];
+const OPERATIONS_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin"];
 const DEVELOPER_ROLES = ["developer", "super_admin"];
 
 export function getAvailableWorkspaces(role, plan, profile, isImpersonating = false) {
@@ -304,7 +331,7 @@ export function getAvailableWorkspaces(role, plan, profile, isImpersonating = fa
   const available = [];
   if (EXECUTIVE_ROLES.includes(r)) available.push("executive");
   if (ENTERPRISE_ROLES.includes(r) || (!isImpersonating && profile?.organization_id) || plan === "enterprise") available.push("enterprise");
-  if (PLATFORM_ROLES.includes(r)) available.push("platform");
+  if (OPERATIONS_ROLES.includes(r)) available.push("operations");
   if (DEVELOPER_ROLES.includes(r)) available.push("developer");
   return available;
 }
@@ -312,9 +339,9 @@ export function getAvailableWorkspaces(role, plan, profile, isImpersonating = fa
 export function getDefaultWorkspace(available, role) {
   const r = normalizeRole(role);
   if (r === "developer" && available.includes("developer")) return "developer";
-  if (r === "security_admin" && available.includes("platform")) return "platform";
+  if (r === "security_admin" && available.includes("operations")) return "operations";
   if (r === "super_admin") return available[0] || "executive";
-  if (PLATFORM_ROLES.includes(r) && available.includes("platform")) return "platform";
+  if (OPERATIONS_ROLES.includes(r) && available.includes("operations")) return "operations";
   if (ENTERPRISE_ROLES.includes(r) && available.includes("enterprise")) return "enterprise";
   return available[0] || "executive";
 }

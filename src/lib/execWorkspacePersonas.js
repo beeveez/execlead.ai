@@ -266,73 +266,73 @@ You advise enterprise leaders on building leadership pipelines, developing talen
     ],
   },
 
-  // ── PLATFORM / BILLING ADMIN WORKSPACE ──
-  platform: {
-    id: "platform",
-    subtitle: "AI Platform Administrator",
-    tagline: "Platform Admin",
+  // ── OPERATIONS WORKSPACE ──
+  operations: {
+    id: "operations",
+    subtitle: "AI Operations Director",
+    tagline: "Operations Director",
     color: "#a855f7",
     expertise: [
-      "Subscription Management", "Payment Settings", "Pricing Plans",
-      "Feature Management", "Email Settings", "Membership Programs",
+      "Product Intelligence", "Beta Operations", "Customer Lifecycle",
+      "Observability", "Commercial Intelligence", "Growth Operations",
     ],
     greeting: (firstName) => {
       const name = firstName ? `, ${firstName}` : "";
       return `Welcome back${name}.
 
-**Platform Workspace** is active.
+**Operations Workspace** is active.
 
-I'm **EXEC™**, your **Platform Administrator™**.
+I'm **EXEC™**, your **Operations Director™**.
 
-I can help you manage subscriptions, pricing plans, payment settings, feature management, email configuration, and membership programs.
+I can help you with product intelligence, beta operations, customer lifecycle management, observability, commercial intelligence, growth, success, reports, and roadmap.
 
-What needs configuring today?`;
+What needs attention today?`;
     },
-    anonymousGreeting: `I'm **EXEC™**, operating as Platform Administrator.
+    anonymousGreeting: `I'm **EXEC™**, operating as Operations Director.
 
-Platform Workspace tools are available to authorized platform administrators for managing subscriptions, pricing, features, and system configuration.
+Operations Workspace tools cover product intelligence, beta operations, customer lifecycle, observability, commercial intelligence, growth operations, success center, reports, and roadmap.
 
 How can I help?`,
     quickActions: [
-      { label: "Pricing Plans", message: "Show me the current pricing plan configuration.", icon: DollarSign },
-      { label: "Feature Management", message: "What features are currently managed?", icon: Code2 },
-      { label: "Payment Settings", message: "How are payment settings configured?", icon: CreditCard },
-      { label: "Membership Programs", message: "What membership programs exist?", icon: Crown },
-      { label: "Email Settings", message: "How is email configured?", icon: MessageSquare },
+      { label: "Product Intelligence", message: "Give me a product intelligence overview.", icon: BarChart3 },
+      { label: "Beta Operations", message: "What's the beta operations status?", icon: Rocket },
+      { label: "Customer Lifecycle", message: "Show me the customer lifecycle pipeline.", icon: Users },
+      { label: "Observability", message: "What does the observability platform show?", icon: Activity },
+      { label: "Revenue", message: "Show me the revenue dashboard.", icon: Receipt },
       { label: "Ask Anything", message: "", icon: MessageCircle, focusOnly: true },
     ],
     tasks: [
+      { label: "Product Intelligence", path: "/product-intelligence", icon: BarChart3 },
+      { label: "Beta Operations", path: "/beta-operations", icon: Rocket },
+      { label: "Customer Lifecycle", path: "/customer-lifecycle", icon: Users },
+      { label: "Observability", path: "/exec-observability", icon: Activity },
+      { label: "Revenue Dashboard", path: "/billing-admin", icon: Receipt },
+      { label: "CPQ Dashboard", path: "/cpq-dashboard", icon: Calculator },
       { label: "Pricing Admin", path: "/pricing-admin", icon: DollarSign },
-      { label: "Feature Mgmt", path: "/feature-management", icon: Code2 },
-      { label: "Payment Settings", path: "/payment-settings", icon: CreditCard },
-      { label: "Billing Admin", path: "/billing-admin", icon: Receipt },
       { label: "Membership Admin", path: "/membership-admin", icon: Crown },
-      { label: "Email Settings", path: "/email-settings", icon: MessageSquare },
-      { label: "Founding Members", path: "/founding-member-admin", icon: Star },
       { label: "Product Mgmt", path: "/developer/product", icon: Sparkles },
       { label: "Organizations", path: "/developer/organizations", icon: Building2 },
-      { label: "CPQ Dashboard", path: "/cpq-dashboard", icon: Calculator },
     ],
     suggestedQuestions: [
-      "What's the current pricing plan configuration?",
-      "Which features are currently enabled?",
-      "How are payment settings configured?",
-      "What membership programs are active?",
-      "How is email delivery performing?",
+      "What's the product intelligence overview?",
+      "How is the beta program performing?",
+      "Show me the customer lifecycle pipeline.",
+      "What does the observability platform show?",
+      "How is revenue tracking?",
       "Are there any founding member pending activations?",
       "What organizations are on the platform?",
-      "How do I update pricing for a plan?",
+      "What's on the product roadmap?",
     ],
-    promptContext: `You are operating in the **Platform Workspace** — the platform administration environment. Your persona is **Platform Administrator**. Focus on:
-- Subscription Management, Payment Settings, Pricing Plans
-- Feature Management, Email Settings, Membership Programs
-- Founding Member Administration, Organization Management
-You help platform admins configure and operate the platform. Reference pricing catalogs, feature flags, payment providers, email providers, membership programs, and CPQ configuration. Provide precise operational guidance for administrative tasks.`,
+    promptContext: `You are operating in the **Operations Workspace** — the platform and business operations environment. Your persona is **Operations Director**. Focus on:
+- Product Intelligence, Beta Operations, Customer Lifecycle Management
+- Observability, Commercial Intelligence, Growth Operations
+- Success Center, Reports, Roadmap
+You help operations directors manage product intelligence, beta operations, customer lifecycle, observability, commercial operations, growth programs, success playbooks, reporting, and roadmap. Reference product metrics, customer health scores, lifecycle stages, pipeline conversion, and growth indicators.`,
     recommendations: () => [
-      { label: "Review Pricing Plans", path: "/pricing-admin", priority: "medium" },
-      { label: "Check Feature Flags", path: "/feature-management", priority: "medium" },
-      { label: "Review Email Settings", path: "/email-settings", priority: "low" },
-      { label: "Manage Membership Programs", path: "/membership-admin", priority: "low" },
+      { label: "Review Product Intelligence", path: "/product-intelligence", priority: "high" },
+      { label: "Check Customer Lifecycle", path: "/customer-lifecycle", priority: "high" },
+      { label: "Review Beta Operations", path: "/beta-operations", priority: "medium" },
+      { label: "Check Observability", path: "/exec-observability", priority: "medium" },
     ],
   },
 };

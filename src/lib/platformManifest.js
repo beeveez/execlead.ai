@@ -301,7 +301,7 @@ function deriveModulePersona(moduleId, category) {
   if (MODULE_TO_PERSONA[moduleId]) return MODULE_TO_PERSONA[moduleId];
   if (category === "Developer") return "developer";
   if (category === "Enterprise") return "enterprise";
-  if (category === "Administration") return "platform";
+  if (category === "Administration") return "operations";
   return "executive";
 }
 
@@ -509,8 +509,8 @@ export const CAPABILITY_REGISTRY = [
   { capabilityId: "can_manage_procurement", name: "Can Manage Procurement", status: "active", workspace: "enterprise", knowledgePack: "kp_eri", framework: "eri", evidenceSource: "enterprise_verification", dependencies: ["eri"], aiPersona: "enterprise" },
   { capabilityId: "can_track_journey", name: "Can Track Executive Journey", status: "active", workspace: "executive", knowledgePack: "kp_eecf", framework: "eecf", evidenceSource: "learning_progress", dependencies: ["eecf"], aiPersona: "journey_coach" },
   { capabilityId: "can_guide_journey", name: "Can Guide Executive Journey", status: "active", workspace: "executive", knowledgePack: "kp_eecf", framework: "eecf", evidenceSource: "behavioral", dependencies: ["eecf"], aiPersona: "journey_coach" },
-  { capabilityId: "can_manage_platform", name: "Can Manage Platform", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "platform" },
-  { capabilityId: "can_configure_platform", name: "Can Configure Platform", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "platform" },
+  { capabilityId: "can_manage_platform", name: "Can Manage Platform", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "operations" },
+  { capabilityId: "can_configure_platform", name: "Can Configure Platform", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "operations" },
   { capabilityId: "can_review_guardian", name: "Can Review Guardian Consistency", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "guardian_advisor" },
   { capabilityId: "can_resolve_guardian", name: "Can Resolve Guardian Findings", status: "active", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "behavioral", dependencies: [], aiPersona: "guardian_advisor" },
   { capabilityId: "can_execute_actions", name: "Can Execute Actions", status: "future", workspace: "all", knowledgePack: "kp_platform", framework: "ejf", evidenceSource: "ai_conversation", dependencies: [], aiPersona: "executive" },

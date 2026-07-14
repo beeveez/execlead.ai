@@ -649,6 +649,8 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/beta-operations",
   // Customer Lifecycle Management™
   "/customer-lifecycle",
+  // Release Readiness Command Center™
+  "/release-readiness",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
 ];

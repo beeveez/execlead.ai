@@ -176,6 +176,7 @@ export const WORKSPACE_NAV = {
     { label: "Roadmap", items: [
       { path: "/developer/product", label: "Product Management™", icon: Boxes },
       { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
+      { path: "/release-readiness", label: "Release Readiness™", icon: ClipboardCheck },
     ]},
   ],
   developer: [
@@ -242,6 +243,7 @@ const ROUTE_WORKSPACE = {
   "/beta-program": ["operations"],
   "/beta-operations": ["operations"],
   "/customer-lifecycle": ["operations"],
+  "/release-readiness": ["operations", "developer"],
   "/exec-observability": ["operations"],
   "/exec-os": ["operations", "developer"],
   "/legacy-library/admin": ["operations"],

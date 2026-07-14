@@ -146,6 +146,7 @@ const APP_ROUTES = [
   { path: "/product-intelligence", component: "ProductIntelligenceDashboard", name: "EXEC™ Product Intelligence Platform™", feature: null },
   { path: "/beta-operations", component: "BetaOperationsCenter", name: "Beta Operations Center™", feature: null },
   { path: "/customer-lifecycle", component: "CustomerLifecycleManagement", name: "Customer Lifecycle Management™", feature: null },
+  { path: "/release-readiness", component: "ReleaseReadiness", name: "Release Readiness Command Center™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

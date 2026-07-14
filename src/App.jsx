@@ -195,6 +195,7 @@ import ExecObservabilityPlatform from '@/pages/ExecObservabilityPlatform';
 import ProductIntelligenceDashboard from '@/pages/ProductIntelligenceDashboard';
 import BetaOperationsCenter from '@/pages/BetaOperationsCenter';
 import CustomerLifecycleManagement from '@/pages/CustomerLifecycleManagement';
+import ReleaseReadiness from '@/pages/ReleaseReadiness';
 import BetaApply from '@/pages/BetaApply';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
@@ -416,6 +417,7 @@ const AuthenticatedApp = () => {
           <Route path="/product-intelligence" element={<ProductIntelligenceDashboard />} />
           <Route path="/beta-operations" element={<BetaOperationsCenter />} />
           <Route path="/customer-lifecycle" element={<CustomerLifecycleManagement />} />
+          <Route path="/release-readiness" element={<ReleaseReadiness />} />
         </Route>
         </Route>
       </Route>

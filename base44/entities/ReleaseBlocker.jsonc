@@ -1,0 +1,196 @@
+{
+  "name": "ReleaseBlocker",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Blocker title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the blocker"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "platform_health",
+        "security",
+        "privacy",
+        "governance",
+        "foundation_cert",
+        "production_cert",
+        "observability",
+        "product_intelligence",
+        "customer_lifecycle",
+        "beta_operations",
+        "commercial",
+        "support",
+        "documentation",
+        "legal",
+        "performance",
+        "accessibility"
+      ],
+      "description": "Readiness domain this blocker belongs to"
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Owner responsible for resolving this blocker"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium",
+      "description": "Blocker severity level"
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Target resolution date"
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Evidence supporting this blocker (logs, links, findings)"
+    },
+    "dependencies": {
+      "type": "string",
+      "description": "Dependencies that must be resolved first"
+    },
+    "repair_action": {
+      "type": "string",
+      "description": "Repair action plan to resolve the blocker"
+    },
+    "verify_method": {
+      "type": "string",
+      "description": "How to verify the blocker is resolved"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "verified"
+      ],
+      "default": "open",
+      "description": "Blocker lifecycle status"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "description": "Notes on how the blocker was resolved"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "title",
+    "severity"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

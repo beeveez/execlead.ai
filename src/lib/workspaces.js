@@ -92,7 +92,7 @@ export const WORKSPACE_NAV = {
       { path: "/billing", label: "Billing", icon: CreditCard },
       { path: "/settings", label: "Settings", icon: SettingsIcon },
       { path: "/security", label: "Account Security™", icon: ShieldCheck },
-      { path: "/privacy-compliance", label: "Privacy & Compliance", icon: Lock },
+      { path: "/privacy-compliance", label: "Privacy & Compliance™", icon: Lock },
       { path: "/identity-verification", label: "Identity Verification", icon: ShieldCheck },
       { path: "/feedback", label: "Feedback", icon: Lightbulb },
     ]},
@@ -121,6 +121,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Governance", items: [
       { path: "/enterprise/governance", label: "Governance Command Center™", icon: ShieldCheck },
+      { path: "/enterprise/privacy", label: "Enterprise Privacy™", icon: Lock },
     ]},
     { label: "Trust", items: [
       { path: "/enterprise/security", label: "Enterprise Security™", icon: ShieldCheck },
@@ -210,7 +211,7 @@ export const WORKSPACE_NAV = {
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
     ]},
     { label: "Privacy", items: [
-      { path: "/privacy-compliance", label: "Privacy & Compliance Center™", icon: Lock },
+      { path: "/developer/privacy-compliance", label: "Platform Privacy & Compliance™", icon: Lock },
     ]},
     { label: "AI", items: [
       { path: "/developer/cognitive", label: "Cognitive Excellence Engine™", icon: Brain },
@@ -316,7 +317,9 @@ const ROUTE_WORKSPACE = {
   "/developer/database": ["developer"],
   "/feature-management": ["developer"], "/guardian": ["developer"],
   "/trust-center": ["developer"],
-  "/privacy-compliance": ["developer", "operations"],
+  "/privacy-compliance": ["executive"],
+  "/developer/privacy-compliance": ["developer"],
+  "/enterprise/privacy": ["enterprise"],
   "/referrals": ["executive"], "/referral-admin": ["operations"],
   "/exec-admin": ["developer"],
 };

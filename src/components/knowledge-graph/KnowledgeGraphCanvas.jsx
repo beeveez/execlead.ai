@@ -87,8 +87,14 @@ export default function KnowledgeGraphCanvas({
     try {
       // 2. COMPUTE LAYOUT — pre-run simulation ticks to settle positions
       simulation.reheat();
-      const preTick = Math.min(120, Math.max(60, simulation.nodes.length));
+      const preTick = Math.min(200, Math.max(80, simulation.nodes.length));
       for (let i = 0; i < preTick; i++) simulation.tick();
+
+      // Check stabilization — if force layout failed, fall back to radial
+      if (!simulation.hasStabilized()) {
+        simulation.applyRadialLayout();
+      }
+      simulation.stabilized = true;
 
       // 3. ZOOM TO FIT + 4. CENTER GRAPH
       fit();
@@ -294,7 +300,12 @@ function draw(ctx, canvas, sim, transform, state) {
     ctx.fill();
     ctx.stroke();
 
-    if (transform.k > 0.5 || isHovered || isSelected || inPath || isImpacted) {
+    // Progressive label rendering — prevents unreadable label pile-up
+    const largeGraph = sim.nodes.length > 200;
+    const zoomThreshold = largeGraph ? 1.0 : 0.5;
+    const showLabel = (isHovered || isSelected || inPath || isImpacted) ||
+      (sim.stabilized && transform.k > zoomThreshold && (!largeGraph || n.degree > 2));
+    if (showLabel) {
       ctx.fillStyle = (isHovered || isSelected || inPath) ? "rgba(255,255,255,0.85)" : highlighted ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.15)";
       ctx.font = `${isHovered || isSelected ? "bold " : ""}10px ui-sans-serif, system-ui`;
       ctx.textAlign = "center";

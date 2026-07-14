@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useWorkspace } from "@/lib/WorkspaceContext";
+import { useUniversalRouter } from "@/lib/universalRouter";
 import { getActiveIncidents, getUpcomingMaintenance, STATUS_META } from "@/lib/systemStatusEngine";
 import {
   Activity, RefreshCw, ArrowRight, Clock, Wrench,
@@ -36,8 +35,7 @@ export default function StatusHub() {
   const [maintenance, setMaintenance] = useState([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const { availableWorkspaces, setActiveWorkspace } = useWorkspace();
-  const navigate = useNavigate();
+  const { availableWorkspaces, navigateTo } = useUniversalRouter();
   const hasOpsAccess = availableWorkspaces.includes("operations");
 
   const loadStatus = useCallback(async () => {
@@ -87,9 +85,8 @@ export default function StatusHub() {
   const apiStatus = getComponentStatus("api_services");
   const billingStatus = "operational";
 
-  const handleViewOpsCenter = () => {
-    setActiveWorkspace("operations");
-    navigate("/system-status");
+  const handleOpenOperations = () => {
+    navigateTo("/system-status");
     setOpen(false);
   };
 
@@ -118,6 +115,9 @@ export default function StatusHub() {
               <button onClick={loadStatus} className="text-white/30 hover:text-white/60 cursor-pointer" title="Refresh">
                 <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
               </button>
+            </div>
+            <div className="px-4 pb-2">
+              <span className="text-[10px] uppercase tracking-widest text-white/20">Global Platform Service</span>
             </div>
 
             {loading ? (
@@ -187,13 +187,13 @@ export default function StatusHub() {
               </>
             )}
 
-            {/* View Operations Center — only for users with Operations access */}
+            {/* Open Operations Workspace — only for users with Operations access */}
             {hasOpsAccess && (
               <button
-                onClick={handleViewOpsCenter}
+                onClick={handleOpenOperations}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 border-t border-white/5 text-xs text-indigo-400 hover:text-indigo-300 hover:bg-white/5 transition-colors cursor-pointer"
               >
-                View Operations Center <ArrowRight size={12} />
+                Open Operations Workspace <ArrowRight size={12} />
               </button>
             )}
           </div>

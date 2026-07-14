@@ -188,11 +188,14 @@ import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import ExecAdmin from '@/pages/ExecAdmin';
+import ExecOSDashboard from '@/pages/ExecOSDashboard';
 import Feedback from '@/pages/Feedback';
 import BetaApply from '@/pages/BetaApply';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
 import BetaBanner from '@/components/beta/BetaBanner';
+import CommandPalette from '@/components/exec-os/CommandPalette';
+import KeyboardShortcuts from '@/components/exec-os/KeyboardShortcuts';
 import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
@@ -400,6 +403,7 @@ const AuthenticatedApp = () => {
           <Route path="/identity-transfer" element={<IdentityTransfer />} />
           <Route path="/brand-center" element={<ExecutiveBrandCenter />} />
           <Route path="/exec-admin" element={<ExecAdmin />} />
+          <Route path="/exec-os" element={<ExecOSDashboard />} />
           <Route path="/reputation" element={<Reputation />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/beta-program" element={<BetaProgramCenter />} />
@@ -432,6 +436,8 @@ function App() {
                 <AuthenticatedApp />
                 <ExecConcierge />
                 <FeedbackWidget />
+                <CommandPalette />
+                <KeyboardShortcuts />
               </ExecConciergeProvider>
             </RepairWorkflowProvider>
           </Router>

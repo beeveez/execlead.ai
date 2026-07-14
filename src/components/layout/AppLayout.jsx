@@ -13,6 +13,7 @@ import { LogOut, ChevronRight } from "lucide-react";
 import DebugPanel from "@/components/developer/DebugPanel";
 import MobileHeader from "@/components/layout/MobileHeader";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import GlobalBreadcrumbs from "@/components/exec-os/GlobalBreadcrumbs";
 import PageTransition from "@/components/PageTransition";
 import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
@@ -125,6 +126,9 @@ export default function AppLayout() {
         <SimulationBanner />
         <GracePeriodBanner />
         <TopBar />
+        <div className="px-4 md:px-8 pt-2 max-w-7xl mx-auto">
+          <GlobalBreadcrumbs />
+        </div>
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <RoleRoute>
             <WorkspaceGuard>

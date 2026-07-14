@@ -6,12 +6,15 @@ import {
   GOVERNANCE_TREND_STYLES, EXECUTIVE_ROLE_SUMMARIES,
 } from "@/lib/governanceCommandEngine";
 import GovernanceDomainCard from "@/components/governance/GovernanceDomainCard";
+import GovernanceBreadcrumb from "@/components/governance/GovernanceBreadcrumb";
+import { getGovernanceContext } from "@/lib/universalRouter";
 
 export default function GovernanceCommandCenter() {
   const score = getExecutiveGovernanceScore();
   const certifiedCount = GOVERNANCE_DOMAINS.filter((d) => d.certification === 'certified').length;
   const totalFindings = GOVERNANCE_DOMAINS.reduce((s, d) => s + d.open_findings, 0);
   const criticalIssues = GOVERNANCE_DOMAINS.reduce((s, d) => s + d.critical_issues, 0);
+  const lastVisited = getGovernanceContext();
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -26,6 +29,9 @@ export default function GovernanceCommandCenter() {
             <p className="text-white/40 text-sm">Single source of truth for governance and enterprise readiness</p>
           </div>
         </div>
+
+        {/* Breadcrumb / Context Bar */}
+        <GovernanceBreadcrumb lastContext={lastVisited} />
 
         {/* Executive Governance Score™ */}
         <div className="bg-gradient-to-br from-indigo-500/5 via-emerald-500/5 to-transparent border border-white/10 rounded-2xl p-8">

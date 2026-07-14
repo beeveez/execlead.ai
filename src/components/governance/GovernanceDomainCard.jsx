@@ -2,16 +2,27 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, TrendingUp, AlertTriangle, ShieldCheck } from "lucide-react";
 import { ICON_MAP, GOVERNANCE_TREND_STYLES, CERT_STYLES } from "@/lib/governanceCommandEngine";
+import { useUniversalRouter, storeGovernanceContext } from "@/lib/universalRouter";
 
 export default function GovernanceDomainCard({ domain }) {
   const Icon = ICON_MAP[domain.icon] || ShieldCheck;
   const trend = GOVERNANCE_TREND_STYLES[domain.trend] || GOVERNANCE_TREND_STYLES.stable;
   const cert = CERT_STYLES[domain.certification] || CERT_STYLES.pending;
   const scoreColor = domain.score >= 95 ? 'text-emerald-400' : domain.score >= 90 ? 'text-blue-400' : 'text-amber-400';
+  const { navigateTo } = useUniversalRouter();
+
+  const handleClick = (e) => {
+    // Allow Cmd/Ctrl+click and middle-click to open in new tab
+    if (e.metaKey || e.ctrlKey || e.button === 1) return;
+    e.preventDefault();
+    storeGovernanceContext(domain);
+    navigateTo(domain.route, { state: { fromGovernance: true, domainName: domain.name, domainId: domain.id } });
+  };
 
   return (
     <Link
       to={domain.route}
+      onClick={handleClick}
       className="block bg-white/[0.02] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/30 hover:bg-white/[0.04] transition-all group"
     >
       <div className="flex items-start justify-between mb-4">

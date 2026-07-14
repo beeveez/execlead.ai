@@ -638,6 +638,16 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/developer/scalability", "/developer/performance-resilience",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
+  // Newer platform administration & intelligence routes — covered by parent modules
+  "/section/:workspaceId/:section",
+  "/privacy-compliance", "/developer/privacy-compliance",
+  "/enterprise/privacy", "/enterprise/security", "/enterprise/governance",
+  "/developer/architecture-audit", "/developer/report-registry",
+  "/developer/security-intelligence", "/developer/form-lookup-registry",
+  "/exec-os", "/exec-observability", "/product-intelligence",
+  "/beta-operations", "/customer-lifecycle", "/release-readiness",
+  "/feature-flags", "/system-status", "/architecture-governance",
+  "/developer-portal", "/beta",
 ];
 
 function isRouteExempt(path) {

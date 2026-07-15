@@ -1,0 +1,205 @@
+{
+  "name": "AIOptimizationEvent",
+  "type": "object",
+  "properties": {
+    "request_text": {
+      "type": "string",
+      "description": "Original request text (truncated for storage)"
+    },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "static_information",
+        "database_query",
+        "analytics",
+        "dashboard",
+        "knowledge",
+        "configuration",
+        "navigation",
+        "company_intelligence",
+        "leadership_journey",
+        "executive_coaching",
+        "resume_analysis",
+        "interview_simulation",
+        "executive_debate",
+        "decision_intelligence",
+        "developer_assistance",
+        "enterprise_operations",
+        "billing",
+        "platform_governance",
+        "general_inquiry"
+      ],
+      "default": "general_inquiry",
+      "description": "Classified intent category from the Intent Router\u2122"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "database",
+        "cache",
+        "knowledge",
+        "ai"
+      ],
+      "description": "Where the response came from"
+    },
+    "workspace": {
+      "type": "string",
+      "description": "Workspace context (executive, enterprise, operations, developer)"
+    },
+    "module": {
+      "type": "string",
+      "description": "Originating module/feature"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who made the request"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "ai_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the Decision Engine\u2122 determined AI was needed"
+    },
+    "cache_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "knowledge_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "database_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "ai_invoked": {
+      "type": "boolean",
+      "default": false
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated AI cost in USD if invoked"
+    },
+    "estimated_cost_saved": {
+      "type": "number",
+      "default": 0,
+      "description": "Cost saved by routing to a non-AI source"
+    },
+    "response_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "model": {
+      "type": "string",
+      "description": "AI model used (or would have been used)"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "optimized",
+        "ai_served",
+        "cache_served",
+        "knowledge_served",
+        "database_served",
+        "error"
+      ],
+      "default": "optimized"
+    },
+    "optimization_reason": {
+      "type": "string",
+      "description": "Why this source was chosen"
+    },
+    "context_assembled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether workspace-aware context was built for AI"
+    },
+    "cache_key": {
+      "type": "string",
+      "description": "Cache key used (for cache hits)"
+    },
+    "token_estimate": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated tokens if AI were invoked"
+    },
+    "credits_saved": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated integration credits saved"
+    }
+  },
+  "required": [
+    "intent",
+    "source"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

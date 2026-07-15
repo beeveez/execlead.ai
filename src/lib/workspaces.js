@@ -230,6 +230,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Commercial", items: [
       { path: "/developer/commercial-governance", label: "Commercial Governance Center™", icon: Scale },
+      { path: "/developer/ai-optimization", label: "AI Optimization Layer™", icon: Brain },
       { path: "/developer/commercial-readiness", label: "Commercial Readiness™", icon: DollarSign },
       { path: "/developer/executive-product-board", label: "Executive Product Board™", icon: Building2 },
       { path: "/developer/intelligence-suite-simulator", label: "Intelligence Suite Simulator™", icon: Sparkles },
@@ -315,6 +316,7 @@ const ROUTE_WORKSPACE = {
   "/developer/report-registry": ["developer"],
   "/developer/security-intelligence": ["developer"],
   "/developer/form-lookup-registry": ["developer"],
+  "/developer/ai-optimization": ["developer"],
   "/developer/product": ["operations", "developer"],
   "/ai-command-center": ["executive"],
   "/developer/ai-command-center": ["developer"],

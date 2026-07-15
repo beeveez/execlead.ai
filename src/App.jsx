@@ -58,6 +58,7 @@ import Profile from '@/pages/Profile';
 import AdminConsole from '@/pages/AdminConsole';
 import ResumeIntelligence from '@/pages/ResumeIntelligence';
 import CareerStudio from '@/pages/CareerStudio';
+import ExecutivePortfolio from '@/pages/ExecutivePortfolio';
 import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
@@ -303,6 +304,7 @@ const AuthenticatedApp = () => {
           <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />
           <Route path="/resume" element={<FeatureGate featureId="resume_intelligence"><ResumeIntelligence /></FeatureGate>} />
           <Route path="/career-studio" element={<FeatureGate featureId="career_studio"><CareerStudio /></FeatureGate>} />
+          <Route path="/executive-portfolio" element={<ExecutivePortfolio />} />
           <Route path="/compare-plans" element={<ComparePlans />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/billing" element={<Billing />} />

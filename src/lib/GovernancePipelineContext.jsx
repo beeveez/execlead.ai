@@ -66,10 +66,10 @@ export function GovernancePipelineProvider({ children }) {
           status: s.status, score: s.score, summary: s.summary, duration: s.duration,
           findings: s.findings?.length || 0,
         }))),
-        findings_json: JSON.stringify(cert.findings.map((f) => ({
+        findings_json: JSON.stringify((cert.findings || []).slice(0, 50).map((f) => ({
           id: f.id, stageId: f.stageId, code: f.code,
           level: f.level, autoRepairable: f.autoRepairable,
-          message: f.message.slice(0, 200),
+          message: (f.message || "").slice(0, 200),
         }))),
         pipeline_version: cert.pipelineVersion,
         platform_version: cert.platformVersion,

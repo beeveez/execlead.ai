@@ -174,6 +174,7 @@ const APP_ROUTES = [
   { path: "/evidence-vault", component: "EvidenceVault", name: "Executive Evidence Vault™", feature: null },
   { path: "/digital-twin", component: "ExecutiveDigitalTwin", name: "Executive Digital Twin™", feature: null },
   { path: "/action-center", component: "ExecutiveActionCenter", name: "Executive Action Center™", feature: null },
+  { path: "/journey-orchestrator", component: "ExecutiveJourneyOrchestrator", name: "Executive Journey Orchestrator™", feature: null },
   { path: "/promotion-forecast", component: "PromotionForecast", name: "Promotion Forecast™", feature: null },
   { path: "/decision-intelligence", component: "ExecutiveDecisionIntelligence", name: "Executive Decision Intelligence™", feature: null },
 ];

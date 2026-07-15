@@ -143,6 +143,65 @@
       "type": "string",
       "description": "Organization name or verifier"
     },
+    "organization_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "organization_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "organization_verified_method": {
+      "type": "string",
+      "enum": [
+        "domain_verification",
+        "enterprise_admin",
+        "duns_lookup",
+        "manual_review"
+      ],
+      "default": "domain_verification"
+    },
+    "organization_verified_by": {
+      "type": "string"
+    },
+    "education_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "education_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "education_verified_method": {
+      "type": "string",
+      "enum": [
+        "credential_check",
+        "institution_verification",
+        "manual_review",
+        "third_party"
+      ],
+      "default": "credential_check"
+    },
+    "education_verified_by": {
+      "type": "string",
+      "description": "Institution name or verifier"
+    },
+    "executive_credentials_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "executive_credentials_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "executive_portfolio_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "executive_portfolio_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
     "resume_verified": {
       "type": "boolean",
       "default": false
@@ -207,6 +266,25 @@
         "okta"
       ],
       "default": "none"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low",
+      "description": "Current risk-based verification level"
+    },
+    "risk_flags_json": {
+      "type": "string",
+      "description": "JSON array of active risk flags"
+    },
+    "last_risk_assessment": {
+      "type": "string",
+      "format": "date-time"
     },
     "notes": {
       "type": "string"

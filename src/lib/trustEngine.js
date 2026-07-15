@@ -1,72 +1,36 @@
 /**
- * EXECLEAD.AI — Executive Trust Framework Engine
+ * EXECLEAD.AI — Executive Trust Framework Engine v2.0
  * ----------------------------------------------
  * Single source of truth for trust scoring, level calculation,
- * and verification status definitions.
+ * verification status definitions, and trust contribution weights.
  *
  * Every page that displays trust status MUST call calculateTrustScore()
  * and calculateTrustLevel(). Never hardcode trust values.
- *
- * Future providers (Stripe Identity, Persona, Onfido, Veriff, Sumsub,
- * LinkedIn, Microsoft Entra ID, Google Workspace, Okta) are supported
- * via the verification_provider field — no engine redesign needed.
  */
 
 export const TRUST_SCORE_WEIGHTS = {
-  email_verified: 10,
-  phone_verified: 10,
-  identity_verified: 30,
-  professional_verified: 20,
-  resume_verified: 10,
-  leadership_dna_complete: 10,
-  profile_published: 10,
-  verified_executive: 10,
+  email_verified: 8,
+  phone_verified: 8,
+  identity_verified: 20,
+  professional_verified: 15,
+  education_verified: 10,
+  organization_verified: 10,
+  resume_verified: 5,
+  leadership_dna_complete: 5,
+  executive_credentials_verified: 7,
+  executive_portfolio_verified: 7,
+  profile_published: 5,
+  verified_executive: 0,
 };
 
 export const MAX_TRUST_SCORE = 100;
 
 export const TRUST_LEVELS = [
-  {
-    level: 1,
-    name: "Email Verified",
-    icon: "Mail",
-    color: "#6366f1",
-    requirements: ["Email confirmation completed", "Active account"],
-    display: "✓ Email Verified",
-  },
-  {
-    level: 2,
-    name: "Phone Verified",
-    icon: "Phone",
-    color: "#06b6d4",
-    requirements: ["OTP verified", "Valid phone number"],
-    display: "✓ Phone Verified",
-  },
-  {
-    level: 3,
-    name: "Identity Verified",
-    icon: "ShieldCheck",
-    color: "#10b981",
-    requirements: ["Upload: Passport, Driver's License, National ID, or Government ID", "Manual, AI-assisted, or third-party verification"],
-    display: "✓ Identity Verified",
-    details: ["Verification Method", "Verification Date", "Verified By"],
-  },
-  {
-    level: 4,
-    name: "Professional Verified",
-    icon: "Briefcase",
-    color: "#f59e0b",
-    requirements: ["Corporate email verification", "Company invitation", "Enterprise Admin approval", "LinkedIn verification (future)"],
-    display: "✓ Professional Verified",
-  },
-  {
-    level: 5,
-    name: "Verified Executive",
-    icon: "Crown",
-    color: "#a855f7",
-    requirements: ["Identity Verified", "Professional Verified", "Profile Published", "Resume Verified", "Leadership DNA Complete"],
-    display: "🏆 Verified Executive",
-  },
+  { level: 1, name: "Email Verified", icon: "Mail", color: "#6366f1", requirements: ["Email confirmation completed", "Active account"], display: "✓ Email Verified" },
+  { level: 2, name: "Phone Verified", icon: "Phone", color: "#06b6d4", requirements: ["OTP verified", "Valid phone number"], display: "✓ Phone Verified" },
+  { level: 3, name: "Identity Verified", icon: "ShieldCheck", color: "#10b981", requirements: ["Upload: Passport, Driver's License, National ID, or Government ID", "Manual, AI-assisted, or third-party verification"], display: "✓ Identity Verified" },
+  { level: 4, name: "Professional Verified", icon: "Briefcase", color: "#f59e0b", requirements: ["Corporate email verification", "Company invitation", "Enterprise Admin approval", "LinkedIn verification (future)"], display: "✓ Professional Verified" },
+  { level: 5, name: "Verified Executive", icon: "Crown", color: "#a855f7", requirements: ["Identity Verified", "Professional Verified", "Profile Published", "Resume Verified", "Leadership DNA Complete"], display: "🏆 Verified Executive" },
 ];
 
 export const DOCUMENT_TYPES = [
@@ -103,6 +67,20 @@ export const PROFESSIONAL_METHODS = {
   linkedin: "LinkedIn Verification",
 };
 
+export const ORGANIZATION_METHODS = {
+  domain_verification: "Domain Verification",
+  enterprise_admin: "Enterprise Admin Approval",
+  duns_lookup: "D-U-N-S Number Lookup",
+  manual_review: "Manual Review",
+};
+
+export const EDUCATION_METHODS = {
+  credential_check: "Credential Check",
+  institution_verification: "Institution Verification",
+  manual_review: "Manual Review",
+  third_party: "Third-Party Verification",
+};
+
 export const VERIFICATION_PROVIDERS = [
   { id: "none", name: "Internal Review", status: "live" },
   { id: "stripe_identity", name: "Stripe Identity", status: "future" },
@@ -117,9 +95,23 @@ export const VERIFICATION_PROVIDERS = [
 ];
 
 /**
- * Calculate the trust score (0-100) from a verification record.
- * Each verified item adds its weighted points.
+ * Trust contribution definitions for display.
+ * Each item has: key, label, category, weight, icon, description.
  */
+export const TRUST_CONTRIBUTIONS = [
+  { key: "email_verified", label: "Email", category: "Contact", weight: TRUST_SCORE_WEIGHTS.email_verified, icon: "Mail", description: "Email confirmation completed" },
+  { key: "phone_verified", label: "Phone", category: "Contact", weight: TRUST_SCORE_WEIGHTS.phone_verified, icon: "Phone", description: "Phone number verified via OTP" },
+  { key: "identity_verified", label: "Identity", category: "Identity", weight: TRUST_SCORE_WEIGHTS.identity_verified, icon: "ShieldCheck", description: "Government ID verified" },
+  { key: "professional_verified", label: "Employment", category: "Professional", weight: TRUST_SCORE_WEIGHTS.professional_verified, icon: "Briefcase", description: "Employment verified" },
+  { key: "organization_verified", label: "Organization", category: "Professional", weight: TRUST_SCORE_WEIGHTS.organization_verified, icon: "Building2", description: "Organization verified" },
+  { key: "education_verified", label: "Education", category: "Professional", weight: TRUST_SCORE_WEIGHTS.education_verified, icon: "GraduationCap", description: "Education credentials verified" },
+  { key: "executive_credentials_verified", label: "Executive Credentials", category: "Executive", weight: TRUST_SCORE_WEIGHTS.executive_credentials_verified, icon: "Award", description: "Executive credentials verified" },
+  { key: "executive_portfolio_verified", label: "Executive Portfolio", category: "Executive", weight: TRUST_SCORE_WEIGHTS.executive_portfolio_verified, icon: "FolderCheck", description: "Executive portfolio verified" },
+  { key: "resume_verified", label: "Resume", category: "Executive", weight: TRUST_SCORE_WEIGHTS.resume_verified, icon: "FileText", description: "Resume verified" },
+  { key: "leadership_dna_complete", label: "Leadership DNA", category: "Executive", weight: TRUST_SCORE_WEIGHTS.leadership_dna_complete, icon: "Dna", description: "Leadership DNA assessment complete" },
+  { key: "profile_published", label: "Profile Published", category: "Executive", weight: TRUST_SCORE_WEIGHTS.profile_published, icon: "Globe", description: "Public profile published" },
+];
+
 export function calculateTrustScore(v) {
   if (!v) return 0;
   let score = 0;
@@ -127,18 +119,16 @@ export function calculateTrustScore(v) {
   if (v.phone_verified) score += TRUST_SCORE_WEIGHTS.phone_verified;
   if (v.identity_verified) score += TRUST_SCORE_WEIGHTS.identity_verified;
   if (v.professional_verified) score += TRUST_SCORE_WEIGHTS.professional_verified;
+  if (v.organization_verified) score += TRUST_SCORE_WEIGHTS.organization_verified;
+  if (v.education_verified) score += TRUST_SCORE_WEIGHTS.education_verified;
+  if (v.executive_credentials_verified) score += TRUST_SCORE_WEIGHTS.executive_credentials_verified;
+  if (v.executive_portfolio_verified) score += TRUST_SCORE_WEIGHTS.executive_portfolio_verified;
   if (v.resume_verified) score += TRUST_SCORE_WEIGHTS.resume_verified;
   if (v.leadership_dna_complete) score += TRUST_SCORE_WEIGHTS.leadership_dna_complete;
   if (v.profile_published) score += TRUST_SCORE_WEIGHTS.profile_published;
-  if (v.verified_executive) score += TRUST_SCORE_WEIGHTS.verified_executive;
-  return score;
+  return Math.min(score, MAX_TRUST_SCORE);
 }
 
-/**
- * Calculate the trust level (0-5) from a verification record.
- * Level 5 (Verified Executive) requires all lower levels plus
- * profile published, resume verified, and leadership DNA complete.
- */
 export function calculateTrustLevel(v) {
   if (!v) return 0;
   if (v.verified_executive) return 5;
@@ -149,10 +139,6 @@ export function calculateTrustLevel(v) {
   return 0;
 }
 
-/**
- * Check if a user meets all requirements for Verified Executive (Level 5).
- * Does NOT set the flag — just reports eligibility.
- */
 export function canGrantVerifiedExecutive(v) {
   if (!v) return false;
   return Boolean(
@@ -164,32 +150,48 @@ export function canGrantVerifiedExecutive(v) {
   );
 }
 
-/**
- * Return an ordered array of trust items for display in the Executive Trust Panel.
- * Each item includes: key, label, verified, date, method, verifiedBy, score.
- */
 export function getTrustItems(v) {
   if (!v) return [];
   return [
     { key: "email_verified", label: "Email Verified", verified: !!v.email_verified, date: v.email_verified_date, method: "Email confirmation", score: TRUST_SCORE_WEIGHTS.email_verified },
     { key: "phone_verified", label: "Phone Verified", verified: !!v.phone_verified, date: v.phone_verified_date, method: "OTP verification", score: TRUST_SCORE_WEIGHTS.phone_verified },
     { key: "identity_verified", label: "Identity Verified", verified: !!v.identity_verified, date: v.identity_verified_date, method: v.identity_verified_method ? VERIFICATION_METHODS[v.identity_verified_method] : null, verifiedBy: v.identity_verified_by, score: TRUST_SCORE_WEIGHTS.identity_verified },
+    { key: "professional_verified", label: "Employment Verified", verified: !!v.professional_verified, date: v.professional_verified_date, method: v.professional_verified_method ? PROFESSIONAL_METHODS[v.professional_verified_method] : null, verifiedBy: v.professional_verified_by, score: TRUST_SCORE_WEIGHTS.professional_verified },
+    { key: "organization_verified", label: "Organization Verified", verified: !!v.organization_verified, date: v.organization_verified_date, method: v.organization_verified_method ? ORGANIZATION_METHODS[v.organization_verified_method] : null, verifiedBy: v.organization_verified_by, score: TRUST_SCORE_WEIGHTS.organization_verified },
+    { key: "education_verified", label: "Education Verified", verified: !!v.education_verified, date: v.education_verified_date, method: v.education_verified_method ? EDUCATION_METHODS[v.education_verified_method] : null, verifiedBy: v.education_verified_by, score: TRUST_SCORE_WEIGHTS.education_verified },
+    { key: "executive_credentials_verified", label: "Executive Credentials Verified", verified: !!v.executive_credentials_verified, date: v.executive_credentials_verified_date, method: "Credential verification", score: TRUST_SCORE_WEIGHTS.executive_credentials_verified },
+    { key: "executive_portfolio_verified", label: "Executive Portfolio Verified", verified: !!v.executive_portfolio_verified, date: v.executive_portfolio_verified_date, method: "Portfolio verification", score: TRUST_SCORE_WEIGHTS.executive_portfolio_verified },
     { key: "resume_verified", label: "Resume Verified", verified: !!v.resume_verified, date: v.resume_verified_date, method: "Resume verification", score: TRUST_SCORE_WEIGHTS.resume_verified },
     { key: "leadership_dna_complete", label: "Leadership DNA Complete", verified: !!v.leadership_dna_complete, date: v.leadership_dna_date, method: "Leadership DNA assessment", score: TRUST_SCORE_WEIGHTS.leadership_dna_complete },
-    { key: "professional_verified", label: "Professional Verified", verified: !!v.professional_verified, date: v.professional_verified_date, method: v.professional_verified_method ? PROFESSIONAL_METHODS[v.professional_verified_method] : null, verifiedBy: v.professional_verified_by, score: TRUST_SCORE_WEIGHTS.professional_verified },
     { key: "profile_published", label: "Profile Published", verified: !!v.profile_published, date: v.profile_published_date, method: "Public profile", score: TRUST_SCORE_WEIGHTS.profile_published },
-    { key: "verified_executive", label: "Verified Executive Badge", verified: !!v.verified_executive, date: v.verified_executive_date, method: "Executive Trust Framework", score: TRUST_SCORE_WEIGHTS.verified_executive },
+    { key: "verified_executive", label: "Verified Executive Badge", verified: !!v.verified_executive, date: v.verified_executive_date, method: "Executive Trust Framework", score: 0 },
   ];
 }
 
-/**
- * Recalculate and return updated score, level, and verified_executive fields.
- * Call this after any verification field change, then persist the result.
- */
 export function recalculateTrust(v) {
   const updated = { ...v };
   updated.verified_executive = canGrantVerifiedExecutive(updated);
   updated.trust_score = calculateTrustScore(updated);
   updated.trust_level = calculateTrustLevel(updated);
   return updated;
+}
+
+/**
+ * Calculate verification completion percentage (0-100).
+ * Based on how many of the 8 core verification categories are complete.
+ */
+export function calculateVerificationCompletion(v) {
+  if (!v) return 0;
+  const categories = [
+    v.email_verified,
+    v.phone_verified,
+    v.identity_verified,
+    v.professional_verified,
+    v.organization_verified,
+    v.education_verified,
+    v.executive_credentials_verified,
+    v.executive_portfolio_verified,
+  ];
+  const completed = categories.filter(Boolean).length;
+  return Math.round((completed / categories.length) * 100);
 }

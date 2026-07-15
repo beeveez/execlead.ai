@@ -26,23 +26,45 @@
       "type": "string",
       "format": "date-time"
     },
+    "last_activity": {
+      "type": "string",
+      "description": "Description of last activity on this device"
+    },
     "operating_system": {
       "type": "string"
     },
     "browser": {
       "type": "string"
     },
-    "ip_address": {
+    "country": {
       "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "Masked IP address for privacy"
     },
     "status": {
       "type": "string",
       "enum": [
         "trusted",
         "blocked",
-        "pending"
+        "pending",
+        "revoked"
       ],
       "default": "pending"
+    },
+    "trust_status": {
+      "type": "string",
+      "enum": [
+        "trusted",
+        "untrusted",
+        "suspicious",
+        "revoked"
+      ],
+      "default": "untrusted"
     },
     "approved_by_id": {
       "type": "string"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, SkipForward, ArrowRight, Clock, Sparkles } from 'lucide-react';
+import { Check, SkipForward, ArrowRight, Clock, Sparkles, CalendarClock } from 'lucide-react';
 import { PRIORITY_COLORS } from '@/lib/executiveActionEngine';
 
 const TYPE_LABELS = {
@@ -8,7 +8,7 @@ const TYPE_LABELS = {
   reflection: "Reflection", practice: "Practice", ai_recommendation: "AI Recommendation",
 };
 
-export default function ActionList({ actions, onComplete, onSkip, onNavigate }) {
+export default function ActionList({ actions, onComplete, onSkip, onNavigate, onReschedule }) {
   if (!actions || actions.length === 0) {
     return (
       <div className="text-center py-12">
@@ -84,6 +84,15 @@ export default function ActionList({ actions, onComplete, onSkip, onNavigate }) 
                     >
                       <SkipForward size={12} />
                     </button>
+                    {onReschedule && (
+                      <button
+                        onClick={() => onReschedule(action.id)}
+                        className="p-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] text-white/30 transition-colors"
+                        title="Reschedule"
+                      >
+                        <CalendarClock size={12} />
+                      </button>
+                    )}
                     {action.source_path && (
                       <button
                         onClick={() => onNavigate(action.source_path)}

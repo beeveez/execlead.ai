@@ -1,19 +1,21 @@
 /**
  * EXECLEAD.AI — Commercial Registry™ v1.0
  * =================================================
- * Centralized registry of all products and plans.
- * 
- * Current products exposed to customers:
- *   FREE → PROFESSIONAL → EXECUTIVE
- * 
- * Future products are registered but HIDDEN from UI:
+ * Centralized registry of all commercial products.
+ *
+ * Current Products (exposed to customers):
+ *   Free → Professional → Executive → Enterprise
+ *
+ * Future Products (registered but NOT exposed):
  *   - Executive Intelligence Suite™
  *   - Executive Trust Suite™
  *   - Executive Growth Suite™
- *   - Enterprise
- *   - Marketplace
+ *   - Executive Decision Suite™
+ *   - Enterprise Intelligence™
+ *   - Marketplace™
+ *   - Assessments™
  *   - APIs
- * 
+ *
  * Future products can be enabled by configuration
  * without code changes.
  */
@@ -27,6 +29,21 @@ export const PLAN_TIERS = {
   professional: 1,
   executive: 2,
   enterprise: 3,
+  internal: 99,        // Internal/developer access (all capabilities)
+  developer: 99,       // Developer access (all capabilities)
+};
+
+// Entitlement types beyond standard plans
+export const ENTITLEMENT_TYPES = {
+  FREE: 'free',
+  PROFESSIONAL: 'professional',
+  EXECUTIVE: 'executive',
+  ENTERPRISE: 'enterprise',
+  INTERNAL: 'internal',
+  DEVELOPER: 'developer',
+  FUTURE_SUITE: 'future_suite',
+  FUTURE_MARKETPLACE: 'future_marketplace',
+  FUTURE_API: 'future_api',
 };
 
 export const PLANS = [
@@ -49,9 +66,7 @@ export const PLANS = [
     description: 'Advanced analytics, evidence vault, and career tools',
     color: '#3b82f6',
     capabilities: [
-      // Includes all Free
       'executive_portfolio', 'verification_center', 'daily_challenge', 'network_feed', 'marketplace',
-      // Professional additions
       'evidence_vault', 'reputation', 'academy', 'resume_intelligence', 'career_advisor',
       'analytics', 'company_intelligence', 'network_mentorship',
     ],
@@ -65,11 +80,9 @@ export const PLANS = [
     description: 'Full AI intelligence, coaching, and digital twin',
     color: '#a855f7',
     capabilities: [
-      // Includes all Professional
       'executive_portfolio', 'verification_center', 'daily_challenge', 'network_feed', 'marketplace',
       'evidence_vault', 'reputation', 'academy', 'resume_intelligence', 'career_advisor',
       'analytics', 'company_intelligence', 'network_mentorship',
-      // Executive additions
       'executive_digital_twin', 'decision_intelligence', 'leadership_dna', 'intelligence_center',
       'executive_credentials', 'executive_readiness', 'executive_legacy',
       'ai_coach', 'simulator', 'debate', 'council',
@@ -80,12 +93,12 @@ export const PLANS = [
     id: 'enterprise',
     name: 'Enterprise',
     tier: 3,
-    price: 0, // Custom pricing
+    price: 0,
     exposed: true,
     description: 'Full platform with SSO, HR tools, and governance',
     color: '#10b981',
     customPricing: true,
-    capabilities: 'all', // Enterprise gets everything
+    capabilities: 'all',
   },
 ];
 
@@ -102,13 +115,7 @@ export const FUTURE_SUITES = [
     status: 'future',
     estimatedPrice: 299,
     color: '#a855f7',
-    capabilities: [
-      'executive_digital_twin',
-      'decision_intelligence',
-      'executive_future',
-      'intelligence_center',
-      'council',
-    ],
+    capabilities: ['executive_digital_twin', 'decision_intelligence', 'executive_future', 'intelligence_center', 'council'],
     targetSegment: 'C-Suite executives seeking AI-driven decision support',
     valueProposition: 'Complete AI intelligence layer for executive decision-making',
   },
@@ -120,12 +127,7 @@ export const FUTURE_SUITES = [
     status: 'future',
     estimatedPrice: 149,
     color: '#06b6d4',
-    capabilities: [
-      'executive_credentials',
-      'evidence_vault',
-      'reputation',
-      'identity_graph',
-    ],
+    capabilities: ['executive_credentials', 'evidence_vault', 'reputation', 'identity_graph'],
     targetSegment: 'Executives needing verified, portable professional identity',
     valueProposition: 'Verified executive identity with portable evidence portfolio',
   },
@@ -137,28 +139,59 @@ export const FUTURE_SUITES = [
     status: 'future',
     estimatedPrice: 249,
     color: '#10b981',
-    capabilities: [
-      'leadership_dna',
-      'executive_readiness',
-      'ai_coach',
-      'simulator',
-      'debate',
-      'academy',
-    ],
+    capabilities: ['leadership_dna', 'executive_readiness', 'ai_coach', 'simulator', 'debate', 'academy'],
     targetSegment: 'High-potential leaders in active development',
     valueProposition: 'Continuous AI-driven executive development and coaching',
   },
   {
-    id: 'marketplace_product',
-    name: 'Marketplace',
-    description: 'Transaction platform for executive services',
+    id: 'executive_decision_suite',
+    name: 'Executive Decision Suite™',
+    description: 'Decision intelligence, simulation, and council bundle',
+    exposed: false,
+    status: 'future',
+    estimatedPrice: 349,
+    color: '#f59e0b',
+    capabilities: ['decision_intelligence', 'simulator', 'debate', 'council', 'executive_future'],
+    targetSegment: 'Executives making high-stakes strategic decisions',
+    valueProposition: 'AI-powered decision support with simulation and multi-perspective analysis',
+  },
+  {
+    id: 'enterprise_intelligence',
+    name: 'Enterprise Intelligence™',
+    description: 'Organization-level executive intelligence and benchmarking platform',
     exposed: false,
     status: 'future',
     estimatedPrice: 0,
+    customPricing: true,
+    color: '#3b82f6',
+    capabilities: ['enterprise_intelligence', 'hr_dashboard', 'succession_planning', 'promotion_readiness', 'governance_command_center'],
+    targetSegment: 'Enterprise HR and talent leaders',
+    valueProposition: 'Organization-wide executive intelligence and talent pipeline management',
+  },
+  {
+    id: 'marketplace_product',
+    name: 'Marketplace™',
+    description: 'Transaction platform for executive services and intelligence products',
+    exposed: false,
+    status: 'future',
+    estimatedPrice: 0,
+    revenueModel: 'transaction_fee',
     color: '#f59e0b',
     capabilities: ['marketplace'],
     targetSegment: 'Executives and service providers',
-    valueProposition: 'Buy and sell executive services and intelligence',
+    valueProposition: 'Buy and sell executive services, intelligence, and verified credentials',
+  },
+  {
+    id: 'assessments',
+    name: 'Assessments™',
+    description: 'Standardized executive assessment platform with certification',
+    exposed: false,
+    status: 'future',
+    estimatedPrice: 99,
+    color: '#8b5cf6',
+    capabilities: ['leadership_dna', 'executive_readiness'],
+    targetSegment: 'Executives seeking certified competency assessments',
+    valueProposition: 'Industry-standard executive competency assessments with verifiable certification',
   },
   {
     id: 'apis',
@@ -167,15 +200,16 @@ export const FUTURE_SUITES = [
     exposed: false,
     status: 'future',
     estimatedPrice: 0,
-    color: '#8b5cf6',
+    revenueModel: 'usage_based',
+    color: '#06b6d4',
     capabilities: [],
     targetSegment: 'Enterprise developers and integrators',
-    valueProposition: 'Programmatic access to EXECLEAD.AI intelligence',
+    valueProposition: 'Programmatic access to EXECLEAD.AI intelligence via REST APIs',
   },
 ];
 
 // ============================================================
-// Commercial Product Types
+// Product Types
 // ============================================================
 
 export const PRODUCT_TYPES = {
@@ -184,6 +218,7 @@ export const PRODUCT_TYPES = {
   MARKETPLACE: 'marketplace',
   API: 'api',
   ENTERPRISE: 'enterprise',
+  ASSESSMENT: 'assessment',
 };
 
 // ============================================================
@@ -218,7 +253,6 @@ export function planIncludesCapability(planId, capabilityId) {
 }
 
 export function getPlanForCapability(capabilityId) {
-  // Returns the lowest-tier plan that includes this capability
   for (const plan of PLANS) {
     if (plan.capabilities === 'all' || plan.capabilities.includes(capabilityId)) {
       return plan;

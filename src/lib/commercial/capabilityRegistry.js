@@ -19,6 +19,9 @@ export const CAPABILITY_STATUS = {
   PREMIUM_CANDIDATE: 'premium_candidate',
   ENTERPRISE: 'enterprise',
   EXPERIMENTAL: 'experimental',
+  INTERNAL: 'internal',
+  VALIDATED: 'validated',
+  COMMERCIALIZED: 'commercialized',
   RETIRED: 'retired',
   FUTURE: 'future',
 };
@@ -28,6 +31,9 @@ export const STATUS_META = {
   premium_candidate:  { label: 'Premium Candidate',  color: '#a855f7', description: 'Candidate for future premium suite' },
   enterprise:         { label: 'Enterprise',          color: '#3b82f6', description: 'Enterprise-only capability' },
   experimental:       { label: 'Experimental',        color: '#f59e0b', description: 'In development / beta' },
+  internal:           { label: 'Internal',            color: '#06b6d4', description: 'Internal-only capability' },
+  validated:          { label: 'Validated',           color: '#3b82f6', description: 'Proven demand — ready for commercialization' },
+  commercialized:     { label: 'Commercialized',      color: '#10b981', description: 'Actively sold as part of a paid plan' },
   retired:            { label: 'Retired',             color: '#64748b', description: 'Decommissioned' },
   future:             { label: 'Future',              color: '#06b6d4', description: 'Planned but not built' },
 };
@@ -44,7 +50,10 @@ export const CAPABILITY_FLAGS = {
   HIDDEN: 'hidden',
   BETA: 'beta',
   INTERNAL: 'internal',
+  INTERNAL_ONLY: 'internal_only',
   DEVELOPER: 'developer',
+  DEVELOPER_ONLY: 'developer_only',
+  EXPERIMENTAL: 'experimental',
 };
 
 export const FLAG_META = {
@@ -55,7 +64,10 @@ export const FLAG_META = {
   hidden:             { label: 'Hidden',             color: '#64748b', visible: false, usable: false },
   beta:               { label: 'Beta',               color: '#f59e0b', visible: true,  usable: true },
   internal:           { label: 'Internal',           color: '#06b6d4', visible: false, usable: false },
+  internal_only:      { label: 'Internal Only',      color: '#06b6d4', visible: false, usable: false },
   developer:          { label: 'Developer',          color: '#8b5cf6', visible: false, usable: false },
+  developer_only:     { label: 'Developer Only',     color: '#8b5cf6', visible: false, usable: false },
+  experimental:       { label: 'Experimental',       color: '#f59e0b', visible: false, usable: false },
 };
 
 // ============================================================

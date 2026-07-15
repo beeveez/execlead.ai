@@ -229,6 +229,7 @@ export const WORKSPACE_NAV = {
       { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
     ]},
     { label: "Commercial", items: [
+      { path: "/developer/commercial-governance", label: "Commercial Governance Center™", icon: Scale },
       { path: "/developer/commercial-readiness", label: "Commercial Readiness™", icon: DollarSign },
       { path: "/developer/executive-product-board", label: "Executive Product Board™", icon: Building2 },
       { path: "/developer/intelligence-suite-simulator", label: "Intelligence Suite Simulator™", icon: Sparkles },

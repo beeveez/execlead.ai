@@ -121,6 +121,10 @@ export function getCapabilityEconomics(capabilityId, metrics = {}) {
   const monthlyCost = getMonthlyAICost(capabilityId, monthlyUsage);
   const costPerUser = getCostPerUser(capabilityId, monthlyUsage, uniqueUsers);
   const grossMargin = getGrossMargin(capabilityId, monthlyUsage, plan?.price || 0);
+  const sessionsPerUser = uniqueUsers > 0 ? monthlyUsage / uniqueUsers : 0;
+  const costPerSession = sessionsPerUser > 0 ? costPerUser / sessionsPerUser : costPerCall;
+  const projectedRevenue = uniqueUsers * (plan?.price || 0);
+  const aiROI = monthlyCost > 0 ? Math.round(((projectedRevenue - monthlyCost) / monthlyCost) * 100) : 0;
 
   return {
     capabilityId,
@@ -133,9 +137,13 @@ export function getCapabilityEconomics(capabilityId, metrics = {}) {
     uniqueUsers,
     monthlyCost,
     costPerUser,
+    costPerSession,
     planPrice: plan?.price || 0,
+    projectedRevenue,
     grossMargin: Math.round(grossMargin),
+    aiROI,
     profitable: grossMargin > 0,
+    sessionsPerUser: Math.round(sessionsPerUser * 10) / 10,
   };
 }
 

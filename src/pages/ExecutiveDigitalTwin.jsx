@@ -5,10 +5,10 @@ import { base44 } from '@/api/base44Client';
 import { buildCoreTwin, enrichTwin, runScenario, SCENARIO_TEMPLATES } from '@/lib/executiveDigitalTwinEngine';
 import {
   getCachedTwin, setCachedTwin, createMetrics, recordDataSourceTiming,
-  subscribeToRebuild, queueRebuild, isCacheStale, getCacheTTL,
 } from '@/lib/digitalTwinCache';
-import { Brain, Sparkles, RefreshCw, Clock } from 'lucide-react';
+import { Brain, RefreshCw, Clock, Sparkles } from 'lucide-react';
 import DigitalTwinHero from '@/components/digital-twin/DigitalTwinHero';
+import ExecutiveSnapshot from '@/components/digital-twin/ExecutiveSnapshot';
 import LeadershipForecast from '@/components/digital-twin/LeadershipForecast';
 import ScenarioSimulator from '@/components/digital-twin/ScenarioSimulator';
 import CareerTrajectory from '@/components/digital-twin/CareerTrajectory';
@@ -20,87 +20,128 @@ import {
 } from '@/components/digital-twin/SectionSkeleton';
 import PerformanceMetrics from '@/components/digital-twin/PerformanceMetrics';
 
-// Data source definitions — each has a name, fetch function, and index in results
-const DATA_SOURCES = [
-  { name: 'Identity',         fetch: (uid) => base44.entities.IdentityVerification.filter({ user_id: uid }, '-created_date', 1) },
-  { name: 'Verification Logs', fetch: (uid) => base44.entities.VerificationLog.filter({ user_id: uid }, '-created_date', 50) },
-  { name: 'Evidence',         fetch: (uid) => base44.entities.EvidenceItem.filter({ created_by_id: uid }, '-created_date', 50) },
-  { name: 'Credentials',      fetch: () => base44.entities.ExecutiveCredential.list('-created_date', 50) },
-  { name: 'Leadership DNA',   fetch: (uid) => base44.entities.LeadershipDNA.filter({ user_id: uid }, '-created_date', 1) },
-  { name: 'Portfolio',        fetch: () => base44.entities.PortfolioVersion.list('-created_date', 10) },
-  { name: 'Journey',          fetch: (uid) => base44.entities.JourneyEvent.filter({ user_id: uid }, '-created_date', 30) },
-  { name: 'Learning',        fetch: (uid) => base44.entities.LessonProgress.filter({ user_id: uid }, '-created_date', 50) },
-  { name: 'Simulations',      fetch: (uid) => base44.entities.SimulationSession.filter({ user_id: uid }, '-created_date', 20) },
-  { name: 'Achievements',     fetch: (uid) => base44.entities.Achievement.filter({ user_id: uid }, '-created_date', 30) },
-  { name: 'Competencies',    fetch: (uid) => base44.entities.ExecutiveCompetency.filter({ user_id: uid }, '-created_date', 30) },
-  { name: 'Profile',          fetch: (uid) => base44.entities.UserProfile.filter({ user_id: uid }, '-created_date', 1) },
+// Minimal data sources for the instant Executive Snapshot™
+const SNAPSHOT_SOURCES = [
+  { name: 'Identity', fetch: (uid) => base44.entities.IdentityVerification.filter({ user_id: uid }, '-created_date', 1) },
+  { name: 'Evidence', fetch: (uid) => base44.entities.EvidenceItem.filter({ created_by_id: uid }, '-created_date', 50) },
+  { name: 'Credentials', fetch: () => base44.entities.ExecutiveCredential.list('-created_date', 50) },
 ];
+
+// Full data sources for the complete Digital Twin™ analysis
+const FULL_DATA_SOURCES = [
+  { name: 'Identity',          fetch: (uid) => base44.entities.IdentityVerification.filter({ user_id: uid }, '-created_date', 1) },
+  { name: 'Verification Logs',  fetch: (uid) => base44.entities.VerificationLog.filter({ user_id: uid }, '-created_date', 50) },
+  { name: 'Evidence',          fetch: (uid) => base44.entities.EvidenceItem.filter({ created_by_id: uid }, '-created_date', 50) },
+  { name: 'Credentials',       fetch: () => base44.entities.ExecutiveCredential.list('-created_date', 50) },
+  { name: 'Leadership DNA',    fetch: (uid) => base44.entities.LeadershipDNA.filter({ user_id: uid }, '-created_date', 1) },
+  { name: 'Portfolio',         fetch: () => base44.entities.PortfolioVersion.list('-created_date', 10) },
+  { name: 'Journey',           fetch: (uid) => base44.entities.JourneyEvent.filter({ user_id: uid }, '-created_date', 30) },
+  { name: 'Learning',          fetch: (uid) => base44.entities.LessonProgress.filter({ user_id: uid }, '-created_date', 50) },
+  { name: 'Simulations',       fetch: (uid) => base44.entities.SimulationSession.filter({ user_id: uid }, '-created_date', 20) },
+  { name: 'Achievements',      fetch: (uid) => base44.entities.Achievement.filter({ user_id: uid }, '-created_date', 30) },
+  { name: 'Competencies',      fetch: (uid) => base44.entities.ExecutiveCompetency.filter({ user_id: uid }, '-created_date', 30) },
+  { name: 'Profile',           fetch: (uid) => base44.entities.UserProfile.filter({ user_id: uid }, '-created_date', 1) },
+];
+
+const TRUST_LEVEL_NAMES = ['Unverified', 'Registered', 'Email Verified', 'Identity Verified', 'Professional Verified', 'Executive Verified'];
 
 export default function ExecutiveDigitalTwin() {
   const { user } = useAuth();
   const { developerMode } = useDeveloper();
 
-  // Phase 1: Synchronous cache lookup — zero async, zero blocking
+  // ── Synchronous cache lookup — zero async, zero blocking ──
   const cacheRef = useRef(null);
   if (!cacheRef.current && user?.id) {
     cacheRef.current = getCachedTwin(user.id);
   }
-
   const cachedTwin = cacheRef.current?.twin || null;
   const cachedAt = cacheRef.current?.cachedAt || null;
-  const cacheWasStale = cacheRef.current?.isStale ?? true;
+  const hasCachedTwin = !!(cachedTwin?.scores && cachedTwin?.forecast);
 
-  const [twin, setTwin] = useState(cachedTwin);
-  const [coreReady, setCoreReady] = useState(!!cachedTwin?.scores);
-  const [refreshing, setRefreshing] = useState(false);
+  // ── State ──
+  const [twin, setTwin] = useState(hasCachedTwin ? cachedTwin : null);
+  const [snapshot, setSnapshot] = useState(null);
+  const [snapshotLoading, setSnapshotLoading] = useState(!hasCachedTwin);
+  const [generating, setGenerating] = useState(false);
   const [scenarioResult, setScenarioResult] = useState(null);
   const [runningScenario, setRunningScenario] = useState(null);
   const [metrics, setMetrics] = useState(() => {
     const m = createMetrics();
-    m.cacheHit = !!cachedTwin;
-    m.cacheStale = cacheWasStale;
-    if (cachedTwin) {
-      m.firstRenderTime = performance.now() - m.pageLoadStart;
-    }
+    m.cacheHit = hasCachedTwin;
+    if (hasCachedTwin) m.firstRenderTime = performance.now() - m.pageLoadStart;
     return m;
   });
 
   // ============================================================
-  // Phase 2: Background fetch with per-source timing
+  // Phase 1: Instant Snapshot — 3 minimal queries, non-blocking
   // ============================================================
-  const rebuildTwin = useCallback(async (reason = 'initial_load') => {
-    if (!user?.id) return;
+  useEffect(() => {
+    if (!user?.id || hasCachedTwin) return;
 
-    // Skip rebuild if cache is fresh (within TTL) — unless explicitly forced
-    if (reason === 'initial_load' && cachedTwin && !cacheWasStale) {
-      setMetrics((prev) => ({
-        ...prev,
-        skippedRebuild: true,
-        backgroundRefreshStatus: 'completed',
-        totalLoadTime: performance.now() - prev.pageLoadStart,
-      }));
-      return;
-    }
+    let cancelled = false;
+    setSnapshotLoading(true);
 
-    setRefreshing(true);
+    (async () => {
+      try {
+        const results = await Promise.all(
+          SNAPSHOT_SOURCES.map(async (s) => {
+            try { return await s.fetch(user.id); }
+            catch { return []; }
+          })
+        );
+
+        if (cancelled) return;
+
+        const verification = results[0]?.[0] || {};
+        const evidence = results[1] || [];
+        const credentials = results[2] || [];
+
+        setSnapshot({
+          trustScore: verification.trust_score || 0,
+          trustLevel: verification.trust_level || 0,
+          trustLevelName: TRUST_LEVEL_NAMES[verification.trust_level || 0] || 'Unverified',
+          identityConfidence: verification.confidence_overall || 0,
+          evidenceCount: evidence.length,
+          credentialCount: credentials.length,
+        });
+        setSnapshotLoading(false);
+        setMetrics((prev) => ({
+          ...prev,
+          firstRenderTime: performance.now() - prev.pageLoadStart,
+        }));
+      } catch {
+        if (!cancelled) setSnapshotLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [user?.id, hasCachedTwin]);
+
+  // ============================================================
+  // Phase 2: Full Twin Generation — async, user-triggered
+  // ============================================================
+  const generateTwin = useCallback(async () => {
+    if (!user?.id || generating) return;
+
+    setGenerating(true);
     setMetrics((prev) => ({
       ...prev,
       backgroundRefreshStatus: 'refreshing',
-      rebuildReason: reason,
-      skippedRebuild: false,
+      rebuildReason: 'user_triggered',
+      pageLoadStart: performance.now(),
     }));
 
     try {
-      // ── Phase 2a: Fire ALL queries in parallel with individual timing ──
+      // ── Fetch all 12 data sources in parallel with per-source timing ──
       const fetchStart = performance.now();
-      const timedPromises = DATA_SOURCES.map(async (source) => {
+      const timedPromises = FULL_DATA_SOURCES.map(async (source) => {
         const t0 = performance.now();
         try {
           const result = await source.fetch(user.id);
           const duration = performance.now() - t0;
           const recordCount = Array.isArray(result) ? result.length : (result ? 1 : 0);
           return { data: result, duration, status: 'ok', recordCount, name: source.name };
-        } catch (e) {
+        } catch {
           const duration = performance.now() - t0;
           return { data: [], duration, status: 'error', recordCount: 0, name: source.name };
         }
@@ -109,21 +150,19 @@ export default function ExecutiveDigitalTwin() {
       const results = await Promise.all(timedPromises);
       const fetchDuration = performance.now() - fetchStart;
 
-      // Record per-source timings into metrics
-      const updatedMetrics = { ...metrics };
-      updatedMetrics.dataSourceTimings = [];
-      updatedMetrics.slowestQuery = null;
-      updatedMetrics.blockingRequests = [];
-      results.forEach((r) => {
-        recordDataSourceTiming(updatedMetrics, r.name, r.duration, r.status, r.recordCount);
-      });
-      updatedMetrics.dataSourcesLoaded = results.filter((r) => r.status === 'ok').length;
-      updatedMetrics.dataSourcesTotal = DATA_SOURCES.length;
-      updatedMetrics.dataSourcesTotalRequested = DATA_SOURCES.length;
-      updatedMetrics.parallelRequests = true;
-      setMetrics(updatedMetrics);
+      // Record per-source timings
+      const m = { ...metrics };
+      m.dataSourceTimings = [];
+      m.slowestQuery = null;
+      m.blockingRequests = [];
+      results.forEach((r) => recordDataSourceTiming(m, r.name, r.duration, r.status, r.recordCount));
+      m.dataSourcesLoaded = results.filter((r) => r.status === 'ok').length;
+      m.dataSourcesTotal = FULL_DATA_SOURCES.length;
+      m.dataSourcesTotalRequested = FULL_DATA_SOURCES.length;
+      m.parallelRequests = true;
+      setMetrics(m);
 
-      // ── Phase 2b: Build CORE twin (fast, synchronous) — powers Hero + Simulator ──
+      // ── Build CORE twin (fast, synchronous) — powers Hero + Simulator ──
       const coreBuildStart = performance.now();
       const built = buildCoreTwin({
         user,
@@ -144,19 +183,12 @@ export default function ExecutiveDigitalTwin() {
 
       // Set core twin immediately — Hero + Simulator render NOW
       setTwin(built);
-      setCoreReady(true);
       setCachedTwin(user.id, built, { coreBuildTime, fetchDuration });
+      setMetrics((prev) => ({ ...prev, coreBuildTime, twinBuildTime: coreBuildTime }));
 
-      setMetrics((prev) => ({
-        ...prev,
-        coreBuildTime,
-        twinBuildTime: coreBuildTime,
-      }));
-
-      // ── Phase 2c: Defer enrichment to next tick — doesn't block Hero render ──
-      // Use requestIdleCallback if available, else setTimeout(0)
-      const scheduleEnrichment = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
-      scheduleEnrichment(() => {
+      // ── Defer enrichment — doesn't block Hero render ──
+      const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
+      schedule(() => {
         const enrichStart = performance.now();
         const enriched = enrichTwin(built);
         const enrichmentTime = performance.now() - enrichStart;
@@ -171,62 +203,27 @@ export default function ExecutiveDigitalTwin() {
           totalLoadTime: performance.now() - prev.pageLoadStart,
           backgroundRefreshStatus: 'completed',
         }));
-        setRefreshing(false);
+        setGenerating(false);
       });
-    } catch (e) {
+    } catch {
       setMetrics((prev) => ({ ...prev, backgroundRefreshStatus: 'error' }));
-      setRefreshing(false);
+      setGenerating(false);
     }
-  }, [user?.id, cachedTwin, cacheWasStale, metrics]);
+  }, [user?.id, generating, metrics]);
 
-  // Kick off background rebuild on mount (non-blocking)
-  useEffect(() => {
-    if (user?.id) {
-      rebuildTwin('initial_load');
-    }
-  }, [user?.id, rebuildTwin]);
-
-  // Subscribe to data-change rebuild events
-  useEffect(() => {
-    if (!user?.id) return;
-    const unsub = subscribeToRebuild((reason) => {
-      rebuildTwin(reason);
-    });
-    return unsub;
-  }, [user?.id, rebuildTwin]);
-
-  // Realtime subscriptions — queue rebuild on entity changes
-  useEffect(() => {
-    if (!user?.id) return;
-    const entities = [
-      base44.entities.IdentityVerification,
-      base44.entities.EvidenceItem,
-      base44.entities.ExecutiveCredential,
-      base44.entities.UserProfile,
-      base44.entities.LeadershipDNA,
-      base44.entities.ResumeImport,
-    ];
-    const unsubs = entities.map((entity) =>
-      entity.subscribe?.((event) => {
-        if (event?.type === 'create' || event?.type === 'update' || event?.type === 'delete') {
-          queueRebuild(`entity_change:${event.type}`);
-        }
-      })
-    );
-    return () => unsubs.forEach((fn) => fn && fn());
-  }, [user?.id]);
-
+  // ============================================================
+  // Scenario Simulator
+  // ============================================================
   const handleRunScenario = async (scenarioId) => {
     if (!twin) return;
     setRunningScenario(scenarioId);
     setScenarioResult(null);
     await new Promise((r) => setTimeout(r, 600));
-    const result = runScenario(twin, scenarioId);
-    setScenarioResult(result);
+    setScenarioResult(runScenario(twin, scenarioId));
     setRunningScenario(null);
   };
 
-  // Determine which sections have data — progressive rendering
+  // ── Progressive section readiness ──
   const hasHero = !!twin?.scores;
   const hasForecast = !!twin?.forecast;
   const hasTrajectory = !!twin?.trajectory;
@@ -234,18 +231,21 @@ export default function ExecutiveDigitalTwin() {
   const hasRecommendations = !!twin?.recommendations;
   const hasSimulator = !!twin?.scores;
 
+  // ── Show snapshot view if no twin generated yet ──
+  const showSnapshot = !hasHero && !generating;
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-6">
-      {/* Header — always renders immediately */}
+      {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
             <Brain size={12} className="text-violet-400" />
             Executive AI Brain™
-            {refreshing && (
+            {generating && (
               <span className="flex items-center gap-1 text-indigo-400 normal-case tracking-normal ml-2">
                 <RefreshCw size={10} className="animate-spin" />
-                Refreshing...
+                Generating...
               </span>
             )}
           </div>
@@ -259,55 +259,81 @@ export default function ExecutiveDigitalTwin() {
         {cachedAt && (
           <div className="flex items-center gap-1.5 text-[10px] text-white/30 bg-white/[0.02] border border-white/5 rounded-full px-3 py-1.5">
             <Clock size={10} />
-            Last Updated: {new Date(cachedAt).toLocaleString()}
+            {showSnapshot ? 'Snapshot' : 'Twin'}: {new Date(cachedAt).toLocaleString()}
           </div>
         )}
       </div>
 
-      {/* Hero — renders immediately from cache or core build */}
-      <SectionLoader loading={!hasHero} skeleton={HeroSkeleton} label="scores">
-        {hasHero && <DigitalTwinHero twin={twin} />}
-      </SectionLoader>
-
-      {/* Leadership Forecast — waits for enrichment */}
-      <SectionLoader loading={!hasForecast} skeleton={ForecastSkeleton} label="forecast">
-        {hasForecast && <LeadershipForecast forecast={twin.forecast} twin={twin} />}
-      </SectionLoader>
-
-      {/* Career Trajectory — waits for enrichment */}
-      <SectionLoader loading={!hasTrajectory} skeleton={TrajectorySkeleton} label="trajectory">
-        {hasTrajectory && <CareerTrajectory trajectory={twin.trajectory} />}
-      </SectionLoader>
-
-      {/* Scenario Simulator — available as soon as core scores are ready */}
-      <SectionLoader loading={!hasSimulator} skeleton={SimulatorSkeleton} label="simulator">
-        {hasSimulator && (
-          <ScenarioSimulator
-            templates={SCENARIO_TEMPLATES}
-            onRun={handleRunScenario}
-            result={scenarioResult}
-            running={runningScenario}
-            currentScores={twin.scores}
-          />
-        )}
-      </SectionLoader>
-
-      {/* Twin Intelligence — waits for enrichment */}
-      <SectionLoader loading={!hasIntelligence} skeleton={IntelligenceSkeleton} label="intelligence">
-        {hasIntelligence ? (
-          <TwinIntelligence intelligence={twin.intelligence} />
+      {/* ── Snapshot View (instant) or Full Twin View ── */}
+      {showSnapshot ? (
+        snapshotLoading ? (
+          <SectionLoader loading skeleton={HeroSkeleton} label="snapshot" />
         ) : (
-          <div className="text-center py-8 text-white/30 text-sm">
-            <Sparkles size={20} className="text-violet-400/30 mx-auto mb-2 animate-pulse" />
-            Generating fresh executive insights...
-          </div>
-        )}
-      </SectionLoader>
+          <ExecutiveSnapshot
+            snapshot={snapshot || { trustScore: 0, trustLevel: 0, trustLevelName: 'Unverified', identityConfidence: 0, evidenceCount: 0, credentialCount: 0 }}
+            user={user}
+            cachedAt={cachedAt}
+            hasCachedTwin={false}
+            onGenerate={generateTwin}
+            generating={generating}
+          />
+        )
+      ) : (
+        <>
+          {/* Full Twin Sections */}
+          <SectionLoader loading={!hasHero} skeleton={HeroSkeleton} label="scores">
+            {hasHero && <DigitalTwinHero twin={twin} />}
+          </SectionLoader>
 
-      {/* Recommendations — waits for enrichment */}
-      <SectionLoader loading={!hasRecommendations} skeleton={RecommendationSkeleton} label="recommendations">
-        {hasRecommendations && <RecommendationEngine recommendations={twin.recommendations} />}
-      </SectionLoader>
+          {/* Refresh button when twin is loaded */}
+          {hasHero && !generating && (
+            <div className="flex justify-end">
+              <button
+                onClick={generateTwin}
+                className="flex items-center gap-1.5 text-[11px] text-violet-400 hover:text-violet-300 bg-violet-500/10 hover:bg-violet-500/15 border border-violet-500/20 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                <RefreshCw size={11} />
+                Refresh Executive Digital Twin™
+              </button>
+            </div>
+          )}
+
+          <SectionLoader loading={!hasForecast} skeleton={ForecastSkeleton} label="forecast">
+            {hasForecast && <LeadershipForecast forecast={twin.forecast} twin={twin} />}
+          </SectionLoader>
+
+          <SectionLoader loading={!hasTrajectory} skeleton={TrajectorySkeleton} label="trajectory">
+            {hasTrajectory && <CareerTrajectory trajectory={twin.trajectory} />}
+          </SectionLoader>
+
+          <SectionLoader loading={!hasSimulator} skeleton={SimulatorSkeleton} label="simulator">
+            {hasSimulator && (
+              <ScenarioSimulator
+                templates={SCENARIO_TEMPLATES}
+                onRun={handleRunScenario}
+                result={scenarioResult}
+                running={runningScenario}
+                currentScores={twin.scores}
+              />
+            )}
+          </SectionLoader>
+
+          <SectionLoader loading={!hasIntelligence} skeleton={IntelligenceSkeleton} label="intelligence">
+            {hasIntelligence ? (
+              <TwinIntelligence intelligence={twin.intelligence} />
+            ) : (
+              <div className="text-center py-8 text-white/30 text-sm">
+                <Sparkles size={20} className="text-violet-400/30 mx-auto mb-2 animate-pulse" />
+                Generating fresh executive insights...
+              </div>
+            )}
+          </SectionLoader>
+
+          <SectionLoader loading={!hasRecommendations} skeleton={RecommendationSkeleton} label="recommendations">
+            {hasRecommendations && <RecommendationEngine recommendations={twin.recommendations} />}
+          </SectionLoader>
+        </>
+      )}
 
       {/* Performance Metrics™ — Developer Mode only */}
       {developerMode && <PerformanceMetrics metrics={metrics} cachedAt={cachedAt} />}

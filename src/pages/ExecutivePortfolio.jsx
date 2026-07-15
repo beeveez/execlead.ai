@@ -99,7 +99,7 @@ export default function ExecutivePortfolio() {
         {vis('journey') && <ExecutiveJourney data={data} />}
         {vis('achievements') && <VerifiedAchievements data={data} />}
         {vis('evidence') && <EvidenceVault user={user} data={data} />}
-        <LinkSection section={{ number: 20, title: 'Executive Credentials™' }} link="/executive-credentials" description="Verified leadership credentials earned through evidence-based achievement. Cannot be purchased — only earned." icon={Award} />
+        <LinkSection section={{ id: 'credentials', number: 20, title: 'Executive Credentials™', icon: Award, color: '#f59e0b' }} link="/executive-credentials" description="Verified leadership credentials earned through evidence-based achievement. Cannot be purchased — only earned." />
         {vis('case-studies') && <LinkSection section={S[5]} link="/legacy-library" description="Professional leadership stories with situation, challenge, actions, results, and lessons learned." icon={BookOpen} />}
         {vis('reputation') && <LinkSection section={S[6]} link="/reputation" description="Your executive reputation score, trend, community contributions, and thought leadership." icon={Star} />}
         {vis('trust') && <ExecutiveTrust data={data} />}

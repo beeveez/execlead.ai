@@ -3,13 +3,14 @@ import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
   generatePromotionForecast, getLatestForecast, generateGrowthNarrative,
-  generateCareerTimeline, FORECAST_VERSION,
+  FORECAST_VERSION,
 } from '@/lib/promotionForecastEngine';
 import { base44 } from '@/api/base44Client';
 import ForecastHero from '@/components/promotion/ForecastHero';
 import LeadershipDimensions from '@/components/promotion/LeadershipDimensions';
 import ImprovementPriorities from '@/components/promotion/ImprovementPriorities';
-import { RefreshCw, Brain, TrendingUp, GitBranch } from 'lucide-react';
+import ExecutiveStatusBar from '@/components/shared/ExecutiveStatusBar';
+import { RefreshCw, Brain, TrendingUp } from 'lucide-react';
 
 export default function PromotionForecast() {
   const { user } = useAuth();
@@ -55,8 +56,6 @@ export default function PromotionForecast() {
     setGeneratingNarrative(false);
   };
 
-  const careerTimeline = forecast ? generateCareerTimeline(forecast) : [];
-
   return (
     <div className="max-w-5xl mx-auto space-y-6 p-4 md:p-6">
       {/* Header */}
@@ -99,37 +98,8 @@ export default function PromotionForecast() {
         </div>
       ) : (
         <>
-          {/* Hero */}
+          <ExecutiveStatusBar />
           <ForecastHero forecast={forecast} />
-
-          {/* Career Timeline */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-white/80 mb-4 flex items-center gap-2">
-              <GitBranch size={14} className="text-cyan-400" />
-              Career Timeline™
-            </h3>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
-              {careerTimeline.map((stage, i) => (
-                <React.Fragment key={i}>
-                  <div className={`flex-shrink-0 border rounded-lg p-3 min-w-[120px] text-center ${
-                    stage.status === "current" ? "bg-indigo-500/10 border-indigo-500/20" :
-                    stage.status === "ready" ? "bg-emerald-500/10 border-emerald-500/20" :
-                    "bg-white/[0.02] border-white/5"
-                  }`}>
-                    <div className={`text-[10px] font-medium ${stage.status === "current" ? "text-indigo-400" : stage.status === "ready" ? "text-emerald-400" : "text-white/40"}`}>
-                      {stage.level}
-                    </div>
-                    <div className="text-[9px] text-white/30 mt-1">{stage.estimatedDate}</div>
-                    <div className={`text-[8px] uppercase mt-0.5 ${
-                      stage.confidence === "high" ? "text-emerald-400/60" :
-                      stage.confidence === "medium" ? "text-amber-400/60" : "text-rose-400/60"
-                    }`}>{stage.confidence}</div>
-                  </div>
-                  {i < careerTimeline.length - 1 && <div className="text-white/10 text-xs">→</div>}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
 
           {/* Leadership Dimensions */}
           <LeadershipDimensions
@@ -142,7 +112,6 @@ export default function PromotionForecast() {
           <ImprovementPriorities
             priorities={forecast.improvement_priorities}
             narrative={forecast.growth_narrative}
-            onNavigate={(path) => navigate(path)}
             onGenerateNarrative={handleGenerateNarrative}
             generatingNarrative={generatingNarrative}
           />

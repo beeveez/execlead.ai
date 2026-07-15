@@ -1,49 +1,40 @@
 import React from 'react';
-import { Lightbulb, ArrowRight, Sparkles } from 'lucide-react';
+import { Lightbulb, Sparkles } from 'lucide-react';
 
-export default function ImprovementPriorities({ priorities, narrative, onNavigate, onGenerateNarrative, generatingNarrative }) {
+export default function ImprovementPriorities({ priorities, narrative, onGenerateNarrative, generatingNarrative }) {
   return (
     <div className="space-y-4">
-      {/* Improvement Priority™ */}
+      {/* Leadership Gap Analysis™ */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
         <h3 className="text-sm font-semibold text-white/80 mb-4 flex items-center gap-2">
           <Lightbulb size={14} className="text-amber-400" />
-          Improvement Priority™ — Top 5 Highest Impact Actions
+          Leadership Gap Analysis™ — Critical Development Gaps
         </h3>
         <div className="space-y-2">
           {(priorities || []).map((p, i) => (
-            <div key={i} className="flex items-center gap-3 border border-white/5 rounded-lg p-3 hover:bg-white/[0.02] transition-colors">
+            <div key={i} className="flex items-center gap-3 border border-white/5 rounded-lg p-3">
               <span className="text-[9px] text-white/30 w-4">{i + 1}.</span>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-medium text-white/70">{p.action}</div>
+                <div className="text-[11px] font-medium text-white/70">{p.dimension}</div>
                 <div className="text-[9px] text-white/30 mt-0.5">
-                  {p.dimension}: {p.current}% → {p.target}% (gap: {p.gap}%)
+                  Current: {p.current}% → Target: {p.target}% · Gap: {p.gap}%
                 </div>
               </div>
               <div className="flex flex-col items-end">
                 <span className="text-[11px] font-bold text-emerald-400">+{p.impact}%</span>
                 <span className="text-[8px] text-white/20">readiness</span>
               </div>
-              {p.path && (
-                <button
-                  onClick={() => onNavigate(p.path)}
-                  className="p-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] text-white/40 transition-colors"
-                  title="Go to module"
-                >
-                  <ArrowRight size={12} />
-                </button>
-              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Executive Growth Narrative™ */}
+      {/* Promotion Narrative™ */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-white/80 flex items-center gap-2">
             <Sparkles size={14} className="text-violet-400" />
-            Executive Growth Narrative™
+            Promotion Narrative™
           </h3>
           <button
             onClick={onGenerateNarrative}
@@ -68,7 +59,7 @@ export default function ImprovementPriorities({ priorities, narrative, onNavigat
           </div>
         ) : (
           <p className="text-[11px] text-white/30 text-center py-4">
-            Click "Generate" to create your personalized AI growth narrative.
+            Click "Generate" to create your personalized promotion narrative.
           </p>
         )}
       </div>

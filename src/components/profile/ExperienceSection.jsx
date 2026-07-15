@@ -1,29 +1,9 @@
 import React from "react";
 import { TextField, TextAreaField, MonthYearField, SectionCard } from "./FormFields";
 import CurrentEmploymentToggle from "@/components/shared/CurrentEmploymentToggle";
-import { Plus, Trash2, Briefcase, Loader2, Check, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Briefcase } from "lucide-react";
 
-function SaveStatusBadge({ status }) {
-  if (!status) return null;
-  if (status === "saving") return (
-    <span className="flex items-center gap-1 text-xs text-white/40">
-      <Loader2 size={11} className="animate-spin" /> Saving…
-    </span>
-  );
-  if (status === "saved") return (
-    <span className="flex items-center gap-1 text-xs text-emerald-400">
-      <Check size={11} /> Saved
-    </span>
-  );
-  if (status === "error") return (
-    <span className="flex items-center gap-1 text-xs text-red-400">
-      <AlertCircle size={11} /> Save failed — retry
-    </span>
-  );
-  return null;
-}
-
-export default function ExperienceSection({ items, onChange, saveStatus }) {
+export default function ExperienceSection({ items, onChange }) {
   const addExp = () => onChange([
     ...items,
     {
@@ -45,15 +25,12 @@ export default function ExperienceSection({ items, onChange, saveStatus }) {
       description="Document your career journey."
       icon={Briefcase}
       action={
-        <div className="flex items-center gap-3">
-          <SaveStatusBadge status={saveStatus} />
-          <button
-            onClick={addExp}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-colors"
-          >
-            <Plus size={12} /> Add
-          </button>
-        </div>
+        <button
+          onClick={addExp}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-colors"
+        >
+          <Plus size={12} /> Add
+        </button>
       }
     >
       {items.length === 0 ? (

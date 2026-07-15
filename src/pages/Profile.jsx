@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
@@ -31,13 +31,13 @@ export default function Profile() {
   const [form, setForm] = useState(null);
   const [activeSection, setActiveSection] = useState("personal");
   const [saving, setSaving] = useState(false);
-  const [experienceSaveStatus, setExperienceSaveStatus] = useState(null); // null | "saving" | "saved" | "error"
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
   const [syncData, setSyncData] = useState(null);
   const [syncFileName, setSyncFileName] = useState("");
   const [syncFileUrl, setSyncFileUrl] = useState("");
-  const experienceDebounceRef = useRef(null);
+  // Snapshot of the last persisted form — used for dirty tracking and Cancel/Reset.
+  const savedFormRef = useRef(null);
 
   const buildFormFromProfile = useCallback((p) => ({
     ...p,
@@ -84,35 +84,40 @@ export default function Profile() {
   // calls — that would reset activeSection and scroll position mid-edit.
   useEffect(() => {
     if (profile && !form) {
-      setForm(buildFormFromProfile(profile));
+      const built = buildFormFromProfile(profile);
+      setForm(built);
+      savedFormRef.current = built;
     }
   }, [profile?.id, form, buildFormFromProfile]);
+
+  // Dirty tracking — compares working form against last persisted snapshot.
+  const isDirty = useMemo(() => {
+    if (!form || !savedFormRef.current) return false;
+    return JSON.stringify(form) !== JSON.stringify(savedFormRef.current);
+  }, [form]);
+
+  // Warn before navigating away / closing tab when there are unsaved edits.
+  useEffect(() => {
+    const handler = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   const setField = (field, value) => {
     setForm(prev => prev ? { ...prev, [field]: value } : prev);
   };
 
+  // Explicit save only — no auto-save, no debounce on Work Experience.
   const handleExperienceChange = useCallback((arr) => {
     setForm(prev => prev ? { ...prev, experience: arr } : prev);
-    setExperienceSaveStatus("saving");
-    if (experienceDebounceRef.current) clearTimeout(experienceDebounceRef.current);
-    experienceDebounceRef.current = setTimeout(async () => {
-      if (!profile) return;
-      try {
-        await base44.entities.UserProfile.update(profile.id, {
-          experience_json: JSON.stringify(arr),
-        });
-        setExperienceSaveStatus("saved");
-        // Refresh silently in background — do NOT await, do NOT setForm from result
-        // to avoid re-triggering the profile useEffect which resets activeSection
-        refreshProfile().catch(() => {});
-        setTimeout(() => setExperienceSaveStatus(null), 2000);
-      } catch (e) {
-        setExperienceSaveStatus("error");
-        toast({ title: "Unable to save your work experience.", description: e?.message || "Please try again.", variant: "destructive" });
-      }
-    }, 800);
-  }, [profile, refreshProfile]);
+  }, []);
+
+
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
@@ -175,6 +180,7 @@ export default function Profile() {
       }
       setForm(syncedForm);
       await persistForm(syncedForm);
+      savedFormRef.current = syncedForm;
       toast({ title: "Identity Updated", description: "Your Executive Identity has been populated. A version snapshot was saved for recovery." });
     } catch (e) {
       toast({ title: "Save Failed", description: "Could not persist identity.", variant: "destructive" });
@@ -266,6 +272,7 @@ export default function Profile() {
     setSaving(true);
     try {
       await persistForm(form);
+      savedFormRef.current = form;
       toast({ title: "Profile Updated", description: "Your changes have been saved successfully." });
     } catch (e) {
       toast({ title: "Save Failed", description: "Could not save your changes.", variant: "destructive" });
@@ -273,11 +280,19 @@ export default function Profile() {
     setSaving(false);
   };
 
+  // Restore the last persisted values — discard unsaved edits without navigating.
+  const handleCancel = () => {
+    if (savedFormRef.current) {
+      setForm(savedFormRef.current);
+    }
+  };
+
   const applyFormChange = async (newForm, message) => {
     setForm(newForm);
     setSaving(true);
     try {
       await persistForm(newForm);
+      savedFormRef.current = newForm;
       toast({ title: "Success", description: message });
     } catch (e) {
       toast({ title: "Action Failed", description: "Could not save changes.", variant: "destructive" });
@@ -314,7 +329,7 @@ export default function Profile() {
     social: <SocialLinksSection form={form} setField={setField} />,
     certifications: <CertificationsSection items={form.certifications} onChange={arr => setField("certifications", arr)} />,
     skills: <CompetenciesSection userId={user?.id} targetRole={form.target_role} onSkillsChange={arr => setField("skills", arr)} />,
-    experience: <ExperienceSection items={form.experience} onChange={handleExperienceChange} saveStatus={experienceSaveStatus} />,
+    experience: <ExperienceSection items={form.experience} onChange={handleExperienceChange} />,
     education: <EducationSection items={form.education} onChange={arr => setField("education", arr)} />,
     privacy: <PrivacySection form={form} setField={setField} />,
     public: <PublicProfileSection form={form} setField={setField} profile={profile} onPublish={handlePublish} />,
@@ -349,10 +364,22 @@ export default function Profile() {
             {headline && <p className="text-white/40 text-sm">{headline}</p>}
           </div>
         </div>
-        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-white text-sm font-medium transition-colors">
-          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          Save Changes
-        </button>
+        <div className="flex items-center gap-3">
+          {isDirty && (
+            <span className="flex items-center gap-1.5 text-xs text-amber-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" /> Unsaved Changes
+            </span>
+          )}
+          {isDirty && (
+            <button onClick={handleCancel} disabled={saving} className="px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-colors disabled:opacity-40">
+              Cancel
+            </button>
+          )}
+          <button onClick={handleSave} disabled={saving || !isDirty} className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors">
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            Save Changes
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-8">

@@ -11,8 +11,8 @@ import BriefingSummary from "@/components/briefing/BriefingSummary";
 import BriefingForecast from "@/components/briefing/BriefingForecast";
 import BriefingProgress from "@/components/briefing/BriefingProgress";
 import BriefingActions from "@/components/briefing/BriefingActions";
-import BriefingTimeline from "@/components/briefing/BriefingTimeline";
 import BriefingInsights from "@/components/briefing/BriefingInsights";
+import ExecutiveStatusBar from "@/components/shared/ExecutiveStatusBar";
 import BriefingHistory from "@/components/briefing/BriefingHistory";
 import BriefingSkeleton from "@/components/briefing/BriefingSkeleton";
 
@@ -102,6 +102,7 @@ export default function ExecutiveBriefing() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 p-4 md:p-6">
+      <ExecutiveStatusBar />
       <BriefingHero
         briefing={parsed}
         onRegenerate={handleGenerate}
@@ -112,7 +113,6 @@ export default function ExecutiveBriefing() {
       <BriefingForecast briefing={parsed} />
       <BriefingProgress briefing={parsed} />
       <BriefingActions briefing={parsed} />
-      <BriefingTimeline briefing={parsed} />
       <div className="flex justify-center pb-4">
         <button
           onClick={handlePrint}

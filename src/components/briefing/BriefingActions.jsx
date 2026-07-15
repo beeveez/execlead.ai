@@ -1,54 +1,30 @@
 import React from "react";
-import { Zap, Compass, Clock, TrendingUp } from "lucide-react";
-
-const PRIORITY_COLORS = {
-  critical: "text-red-400 bg-red-500/10 border-red-500/20",
-  high: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  medium: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-  low: "text-white/40 bg-white/5 border-white/10",
-};
+import { Link } from "react-router-dom";
+import { Compass, ArrowRight, Zap } from "lucide-react";
 
 export default function BriefingActions({ briefing }) {
-  const actions = briefing.executiveActions || [];
   const ahead = briefing.lookingAhead || {};
+  const actionCount = (briefing.executiveActions || []).length;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap size={16} className="text-indigo-400" />
-          <h3 className="text-sm font-semibold text-white">Executive Actions</h3>
-        </div>
-        {actions.length > 0 ? (
-          <div className="space-y-2">
-            {actions.map((a, i) => (
-              <div key={i} className="bg-white/[0.03] border border-white/5 rounded-lg p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-sm text-white font-medium">{a.title}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full border capitalize ${PRIORITY_COLORS[a.priority] || PRIORITY_COLORS.medium}`}>
-                    {a.priority}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 mt-2 text-xs">
-                  {a.estimated_minutes && (
-                    <span className="flex items-center gap-1 text-white/40">
-                      <Clock size={10} /> {a.estimated_minutes} min
-                    </span>
-                  )}
-                  {a.expected_readiness_increase && (
-                    <span className="flex items-center gap-1 text-emerald-400">
-                      <TrendingUp size={10} /> {a.expected_readiness_increase}
-                    </span>
-                  )}
-                </div>
-                {a.career_impact && <p className="text-xs text-white/50 mt-2">{a.career_impact}</p>}
-              </div>
-            ))}
+    <div className="space-y-4">
+      <Link
+        to="/action-center"
+        className="block group bg-white/5 hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl p-5 transition-all"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Zap size={16} className="text-amber-400" />
+            <span className="text-sm font-semibold text-white">Executive Action Center™</span>
           </div>
-        ) : (
-          <p className="text-xs text-white/30">No actions recommended this week.</p>
-        )}
-      </div>
+          <ArrowRight size={14} className="text-white/20 group-hover:text-white/40 group-hover:translate-x-0.5 transition-all" />
+        </div>
+        <p className="text-xs text-white/50 mt-2">
+          {actionCount > 0
+            ? `${actionCount} actions recommended this week`
+            : "View your recommended executive actions"}
+        </p>
+      </Link>
 
       <div className="bg-white/5 border border-white/10 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
@@ -75,7 +51,7 @@ export default function BriefingActions({ briefing }) {
         )}
         {ahead.recommended_goals?.length > 0 && (
           <div className="mb-3">
-            <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Recommended Goals</div>
+            <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Weekly Recommendations</div>
             <ul className="space-y-1">
               {ahead.recommended_goals.map((g, i) => (
                 <li key={i} className="text-xs text-white/60 flex items-center gap-2">

@@ -29,8 +29,8 @@ export const WORKSPACES = {
 
 export const WORKSPACE_HOME = {
   executive: "/dashboard",
-  enterprise: "/enterprise",
-  operations: "/product-intelligence",
+  enterprise: "/enterprise/command-center",
+  operations: "/operations",
   developer: "/developer/executive-platform-status",
 };
 
@@ -109,89 +109,49 @@ export const WORKSPACE_NAV = {
     ]},
   ],
   enterprise: [
+    { label: "Platform", items: [
+      { path: "/enterprise/command-center", label: "Enterprise Command Center™", icon: LayoutDashboard },
+    ]},
     { label: "Organization", items: [
-      { path: "/enterprise", label: "Enterprise Dashboard", icon: LayoutDashboard, feature: "team_dashboard" },
-      { path: "/enterprise/organizations", label: "Organization Management™", icon: Building2 },
-      { path: "/enterprise/admin", label: "Enterprise Administration™", icon: Shield },
-      { path: "/enterprise/identity", label: "Enterprise Identity™", icon: Fingerprint },
-      { path: "/enterprise-intelligence", label: "Intelligence", icon: TrendingUp },
-      { path: "/companies", label: "Organization Intelligence", icon: Building2, feature: "company_intelligence" },
+      { path: "/enterprise/organization-domain", label: "Organization", icon: Building2 },
     ]},
-    { label: "Users", items: [
-      { path: "/organization/users", label: "Users", icon: Users },
-    ]},
-    { label: "Teams", items: [
-      { path: "/succession-planning", label: "Teams", icon: Users, feature: "succession_planning" },
-      { path: "/hr-dashboard", label: "Departments", icon: Users, feature: "hr_dashboard" },
-      { path: "/learning-assignments", label: "Learning Assignments", icon: ClipboardCheck, feature: "learning_assignments" },
-      { path: "/promotion-readiness", label: "Promotion Readiness", icon: TrendingUp, feature: "promotion_readiness" },
-    ]},
-    { label: "Procurement", items: [
-      { path: "/enterprise/procurement", label: "Enterprise Procurement™", icon: ShoppingCart },
-      { path: "/enterprise/vendors", label: "Vendor Management™", icon: Store },
+    { label: "Workforce Development", items: [
+      { path: "/enterprise/workforce", label: "Workforce Development", icon: GraduationCap },
     ]},
     { label: "Governance", items: [
-      { path: "/enterprise/governance", label: "Governance Command Center™", icon: ShieldCheck },
-      { path: "/enterprise/privacy", label: "Enterprise Privacy™", icon: Lock },
+      { path: "/enterprise/governance-domain", label: "Governance", icon: ShieldCheck },
     ]},
-    { label: "Trust", items: [
-      { path: "/enterprise/security", label: "Enterprise Security™", icon: ShieldCheck },
-      { path: "/sso", label: "SSO & Identity", icon: KeyRound, feature: "sso" },
+    { label: "Security & Identity", items: [
+      { path: "/enterprise/security-identity", label: "Security & Identity", icon: Shield },
     ]},
-    { label: "Administration", items: [
-      { path: "/organization/billing", label: "Organization Billing", icon: CreditCard },
-      { path: "/analytics", label: "Leadership Analytics", icon: BarChart3, feature: "leadership_analytics" },
-      { path: "/ai-usage", label: "Reports", icon: Cpu, feature: "ai_usage_dashboard" },
-      { path: "/settings", label: "Organization Settings", icon: SettingsIcon },
+    { label: "Procurement", items: [
+      { path: "/enterprise/procurement-domain", label: "Procurement", icon: ShoppingCart },
+    ]},
+    { label: "Reporting", items: [
+      { path: "/enterprise/reporting", label: "Reporting", icon: BarChart3 },
     ]},
   ],
   operations: [
+    { label: "Platform", items: [
+      { path: "/operations", label: "Product Command Center™", icon: LayoutDashboard },
+    ]},
+    { label: "Customer Intelligence", items: [
+      { path: "/operations/customer-intelligence", label: "Customer Intelligence", icon: Users },
+    ]},
     { label: "Product Intelligence", items: [
-      { path: "/product-intelligence", label: "Product Intelligence™", icon: BarChart3 },
+      { path: "/operations/product-intelligence", label: "Product Intelligence", icon: BarChart3 },
     ]},
     { label: "Beta Operations", items: [
-      { path: "/beta-operations", label: "Beta Operations Center™", icon: Rocket },
-      { path: "/beta-program", label: "Beta Program Center™", icon: Rocket },
+      { path: "/operations/beta", label: "Beta Operations", icon: Rocket },
     ]},
-    { label: "Customer Lifecycle", items: [
-      { path: "/customer-lifecycle", label: "Customer Lifecycle Management™", icon: Users },
+    { label: "Product Strategy", items: [
+      { path: "/operations/strategy", label: "Product Strategy", icon: Boxes },
     ]},
-    { label: "Observability", items: [
-      { path: "/system-status", label: "System Status Center™", icon: Activity },
-      { path: "/exec-observability", label: "Observability Platform™", icon: Activity },
-    ]},
-    { label: "Commercial", items: [
-      { path: "/enterprise/commercial", label: "Commercial Intelligence™", icon: BarChart3 },
-      { path: "/cpq", label: "CPQ™", icon: Calculator },
-      { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
-    ]},
-    { label: "Growth", items: [
-      { path: "/pricing-admin", label: "Subscription Management", icon: DollarSign },
-      { path: "/membership-admin", label: "Membership Programs", icon: Award },
-      { path: "/referral-admin", label: "Referral Engine", icon: Gift },
-      { path: "/founding-member-admin", label: "Founding Members", icon: Star },
-      { path: "/elim", label: "ELIM™ Framework", icon: Brain },
-      { path: "/payment-settings", label: "Payment Providers", icon: Lock },
-    ]},
-    { label: "Success Center", items: [
-      { path: "/admin", label: "User Support", icon: Shield },
-      { path: "/identity-verification-admin", label: "Identity Reviews", icon: ShieldCheck },
-      { path: "/legacy-library/admin", label: "Legacy Moderation", icon: BookOpen },
-      { path: "/feedback", label: "Feedback", icon: Lightbulb },
+    { label: "Launch Operations", items: [
+      { path: "/operations/launch", label: "Launch Operations", icon: Flag },
     ]},
     { label: "Reports", items: [
-      { path: "/billing-admin", label: "Revenue Dashboard", icon: Receipt },
-      { path: "/email-settings", label: "Email Center", icon: Mail },
-      { path: "/company-admin", label: "Company Admin", icon: Database },
-      { path: "/company-reports-admin", label: "Company Reports", icon: BarChart3 },
-      { path: "/request-tracking", label: "Request Tracking", icon: ClipboardCheck },
-      { path: "/developer/organizations", label: "Organizations", icon: Network },
-    ]},
-    { label: "Roadmap", items: [
-      { path: "/developer/product", label: "Product Management™", icon: Boxes },
-      { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
-      { path: "/release-readiness", label: "Release Readiness Command Center™", icon: ClipboardCheck },
-      { path: "/feature-flags", label: "Feature Flag Center™", icon: Flag },
+      { path: "/operations/reports", label: "Reports", icon: FileText },
     ]},
   ],
   developer: [
@@ -313,6 +273,20 @@ const ROUTE_WORKSPACE = {
   "/request-tracking": ["operations"], "/founding-member-admin": ["operations"],
   "/cpq": ["operations", "developer"], "/cpq-dashboard": ["operations", "developer"],
   "/admin": ["operations"],
+  "/operations": ["operations"],
+  "/operations/customer-intelligence": ["operations"],
+  "/operations/product-intelligence": ["operations"],
+  "/operations/beta": ["operations"],
+  "/operations/strategy": ["operations"],
+  "/operations/launch": ["operations"],
+  "/operations/reports": ["operations"],
+  "/enterprise/command-center": ["enterprise"],
+  "/enterprise/organization-domain": ["enterprise"],
+  "/enterprise/workforce": ["enterprise"],
+  "/enterprise/governance-domain": ["enterprise"],
+  "/enterprise/security-identity": ["enterprise"],
+  "/enterprise/procurement-domain": ["enterprise"],
+  "/enterprise/reporting": ["enterprise"],
   "/developer/organizations": ["operations", "developer"],
   "/architecture-governance": ["developer"],
   "/developer-portal": ["developer"],
@@ -371,6 +345,8 @@ export function getRouteWorkspace(path) {
   if (path.startsWith("/cpq/")) return ["operations", "developer"];
   if (path.startsWith("/portal/")) return ["enterprise"];
   if (path.startsWith("/legacy-library/")) return ["executive"];
+  if (path.startsWith("/operations/")) return ["operations"];
+  if (path.startsWith("/enterprise/") && path !== "/enterprise/organizations") return ["enterprise"];
   return null;
 }
 

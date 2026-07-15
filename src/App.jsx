@@ -185,6 +185,10 @@ import PromotionForecastDashboard from '@/pages/developer/PromotionForecastDashb
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
+import ProductCommandCenter from '@/pages/operations/ProductCommandCenter';
+import OperationsDomain from '@/pages/operations/OperationsDomain';
+import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
+import EnterpriseDomain from '@/pages/enterprise/EnterpriseDomain';
 import EnterprisePortal from '@/pages/EnterprisePortal';
 import MyQuotes from '@/pages/MyQuotes';
 import CompanyAdmin from '@/pages/CompanyAdmin';
@@ -410,6 +414,20 @@ const AuthenticatedApp = () => {
           <Route path="/developer/deployments" element={<DeploymentCenter />} />
           <Route path="/developer/security-intelligence" element={<SecurityIntelligenceCenter />} />
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
+          <Route path="/operations" element={<ProductCommandCenter />} />
+          <Route path="/operations/customer-intelligence" element={<OperationsDomain domain="customer-intelligence" />} />
+          <Route path="/operations/product-intelligence" element={<OperationsDomain domain="product-intelligence" />} />
+          <Route path="/operations/beta" element={<OperationsDomain domain="beta" />} />
+          <Route path="/operations/strategy" element={<OperationsDomain domain="strategy" />} />
+          <Route path="/operations/launch" element={<OperationsDomain domain="launch" />} />
+          <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
+          <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
+          <Route path="/enterprise/organization-domain" element={<EnterpriseDomain domain="organization" />} />
+          <Route path="/enterprise/workforce" element={<EnterpriseDomain domain="workforce" />} />
+          <Route path="/enterprise/governance-domain" element={<EnterpriseDomain domain="governance" />} />
+          <Route path="/enterprise/security-identity" element={<EnterpriseDomain domain="security-identity" />} />
+          <Route path="/enterprise/procurement-domain" element={<EnterpriseDomain domain="procurement" />} />
+          <Route path="/enterprise/reporting" element={<EnterpriseDomain domain="reporting" />} />
           <Route path="/enterprise/organizations" element={<OrganizationManagement />} />
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />
           <Route path="/enterprise/governance" element={<GovernanceCommandCenter />} />

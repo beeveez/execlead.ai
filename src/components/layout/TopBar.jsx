@@ -50,9 +50,11 @@ export default function TopBar() {
       <button onClick={openExec} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors text-xs text-amber-500 font-medium">
         <Sparkles size={14} /> EXEC™
       </button>
-      <Link to="/brand-center" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60 hover:text-white/80">
-        <Crown size={14} className="text-amber-400" /> Brand Center
-      </Link>
+      {activeWorkspace === "executive" && (
+        <Link to="/brand-center" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/60 hover:text-white/80">
+          <Crown size={14} className="text-amber-400" /> Brand Center
+        </Link>
+      )}
       <ShareButton variant="icon" shareType="landing" iconSize={15} />
       <AccountMenu />
       {membership && (
@@ -61,17 +63,19 @@ export default function TopBar() {
           <span className="text-xs font-medium" style={{ color: membership.color }}>{membership.name}</span>
         </Link>
       )}
-      <Link to={billingPath} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-        <CreditCard size={14} className="text-white/40" />
-        {loading ? (
-          <span className="text-xs text-white/20">···</span>
-        ) : (
-          <span className="text-xs font-medium flex items-center gap-1">
-            <span>{subscription.icon}</span>
-            <span style={{ color: subscription.color }}>{subscription.planName}</span>
-          </span>
-        )}
-      </Link>
+      {subscription.planTier !== "developer_unlimited" && (
+        <Link to={billingPath} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <CreditCard size={14} className="text-white/40" />
+          {loading ? (
+            <span className="text-xs text-white/20">···</span>
+          ) : (
+            <span className="text-xs font-medium flex items-center gap-1">
+              <span>{subscription.icon}</span>
+              <span style={{ color: subscription.color }}>{subscription.planName}</span>
+            </span>
+          )}
+        </Link>
+      )}
       <ThemeToggle />
       <div className="relative">
         <button onClick={() => setShowNotifs(!showNotifs)} className="relative p-2 rounded-lg hover:bg-white/5 transition-colors">

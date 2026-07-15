@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { RESUME_TEMPLATES, defaultResumeContent } from "@/lib/careerStudio";
-import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown } from "lucide-react";
+import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown, UploadCloud } from "lucide-react";
 import ResumeSectionEditor from "@/components/career-studio/ResumeSectionEditor";
 import ResumePreview from "@/components/career-studio/ResumePreview";
 import { toast } from "@/components/ui/use-toast";
@@ -17,6 +17,7 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showList, setShowList] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const dropdownFileRef = useRef(null);
   const emptyFileRef = useRef(null);
 
@@ -72,9 +73,7 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
     setShowList(false);
   };
 
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    e.target.value = "";
+  const processFile = async (file) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       toast({ title: "File too large", description: "Maximum file size is 10MB.", variant: "destructive" });
@@ -101,6 +100,22 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
     }
     setUploading(false);
   };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    processFile(file);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer?.files?.[0];
+    processFile(file);
+  };
+
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); setIsDragging(false); };
 
   const duplicateResume = async (resume) => {
     const dup = await base44.entities.CareerResume.create({ title: resume.title + " (Copy)", template: resume.template, content: resume.content });
@@ -190,6 +205,22 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
         </div>
       )}
 
+      {/* Drag-and-drop upload bar (when a resume already exists) */}
+      {activeResume && (
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={`flex items-center gap-3 rounded-xl border border-dashed px-4 py-2.5 transition-colors ${isDragging ? "border-indigo-500 bg-indigo-500/10" : "border-white/10 bg-white/[0.02]"}`}
+        >
+          <UploadCloud size={18} className={isDragging ? "text-indigo-400" : "text-white/30"} />
+          <span className="text-xs text-white/40 flex-1">
+            {uploading ? "Parsing resume with AI…" : "Drag & drop a resume to import (PDF, DOCX, DOC)"}
+          </span>
+          {uploading && <Loader2 size={14} className="animate-spin text-indigo-400" />}
+        </div>
+      )}
+
       {/* Editor + Preview */}
       {activeResume ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -199,12 +230,24 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
           </div>
         </div>
       ) : (
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">
-          <p className="text-white/40 text-sm mb-4">No resume yet. Create one to get started.</p>
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${isDragging ? "border-indigo-500 bg-indigo-500/10" : "border-white/10 bg-white/[0.02]"}`}
+        >
+          <UploadCloud size={40} className={`mx-auto mb-3 ${isDragging ? "text-indigo-400" : "text-white/30"}`} />
+          <p className="text-white/60 text-sm font-medium mb-1">Drag &amp; drop your resume here</p>
+          <p className="text-white/30 text-xs mb-4">PDF, DOCX, or DOC — max 10MB. AI will extract your experience, skills, and education.</p>
+          {uploading && (
+            <div className="flex items-center justify-center gap-2 mb-4 text-indigo-400">
+              <Loader2 size={16} className="animate-spin" /> <span className="text-sm">Parsing resume with AI…</span>
+            </div>
+          )}
           <div className="flex justify-center gap-2">
             <button onClick={() => createResume()} className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"><Plus size={14} /> Create from Scratch</button>
             <button onClick={() => emptyFileRef.current?.click()} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-sm font-medium cursor-pointer">
-              {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Upload Existing
+              {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Browse Files
             </button>
             <input ref={emptyFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
           </div>

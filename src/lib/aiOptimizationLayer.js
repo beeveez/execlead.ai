@@ -25,6 +25,7 @@
 
 import { base44 } from "@/api/base44Client";
 import { deriveProvider } from "@/lib/aiOperations";
+import { enforcePolicy } from "@/lib/aiPolicyEngine";
 
 // ============================================================
 // §1 — INTENT ROUTER™
@@ -597,15 +598,61 @@ export async function optimizeAI(requestText, opts = {}) {
     };
   }
 
-  // Step 6: AI Invocation (only if required)
-  // Build workspace-aware context
+  // Step 6a: Build workspace-aware context
   const contextResult = buildContext(opts);
   const fullPrompt = contextResult.assembled
     ? `${contextResult.contextString}\n\n---\n\n${opts.prompt || requestText}`
     : (opts.prompt || requestText);
 
-  const model = opts.model || "automatic";
   const estimatedCost = estimateAICost(intent, { prompt: fullPrompt });
+
+  // Step 6b: AI Policy Engine™ — enforce all policies before AI invocation
+  const policyDecision = await enforcePolicy(requestText, {
+    intent,
+    plan: opts.plan || opts.subscription?.plan,
+    workspace: opts.workspace,
+    user: opts.user,
+    organization: opts.organization,
+    trustLevel: opts.trustLevel,
+    estimatedCost,
+    module: opts.module,
+    feature: opts.feature,
+    featureAllowed: opts.featureAllowed,
+    contextSize: estimateTokens(fullPrompt),
+    currentDailySpend: opts.currentDailySpend,
+    currentMonthlySpend: opts.currentMonthlySpend,
+  });
+
+  // If policy blocks the request, return the upgrade message — no AI invoked
+  if (!policyDecision.approved) {
+    const blockedResponseTime = Date.now() - startedAt;
+    await trackOptimization({
+      requestText, intent, source: "ai", workspace: opts.workspace, module: opts.module,
+      userId, userName, aiRequired: true, aiInvoked: false,
+      estimatedCost: 0, estimatedCostSaved: estimatedCost, responseTimeMs: blockedResponseTime,
+      model: policyDecision.model, provider: deriveProvider(policyDecision.model),
+      status: "error",
+      reason: `Policy blocked: ${policyDecision.violationType} — ${policyDecision.upgradeMessage}`,
+      contextAssembled: contextResult.assembled,
+      tokenEstimate: estimateTokens(fullPrompt),
+      creditsSaved: estimateCredits(intent),
+    });
+    return {
+      source: "policy_blocked",
+      content: policyDecision.upgradeMessage,
+      intent,
+      aiRequired: true,
+      aiInvoked: false,
+      policyBlocked: true,
+      policyDecision,
+      responseTimeMs: blockedResponseTime,
+      estimatedCostSaved: estimatedCost,
+      creditsSaved: estimateCredits(intent),
+    };
+  }
+
+  // Step 7: AI Invocation — policy approved
+  const model = opts.model || policyDecision.model || "automatic";
 
   let aiResponse = null;
   let aiError = null;

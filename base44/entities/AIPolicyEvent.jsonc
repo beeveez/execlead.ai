@@ -1,0 +1,165 @@
+{
+  "name": "AIPolicyEvent",
+  "type": "object",
+  "properties": {
+    "request_text": {
+      "type": "string",
+      "description": "Original request text (truncated)"
+    },
+    "intent": {
+      "type": "string",
+      "description": "Classified intent from AI Optimization Layer\u2122"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "blocked",
+        "warning"
+      ],
+      "default": "approved",
+      "description": "Overall policy decision"
+    },
+    "subscription": {
+      "type": "string",
+      "description": "User subscription plan"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "model_assigned": {
+      "type": "string",
+      "description": "Model selected by policy (small, balanced, premium, organization_policy)"
+    },
+    "context_limit": {
+      "type": "number",
+      "default": 0,
+      "description": "Max context tokens allowed by policy"
+    },
+    "policies_json": {
+      "type": "string",
+      "description": "JSON array of all policy evaluations"
+    },
+    "blocked_policies_json": {
+      "type": "string",
+      "description": "JSON array of policy names that failed"
+    },
+    "upgrade_message": {
+      "type": "string",
+      "description": "Friendly upgrade/access message if blocked"
+    },
+    "trust_level": {
+      "type": "number",
+      "default": 0
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "budget_remaining": {
+      "type": "number",
+      "default": 0,
+      "description": "AI budget remaining at time of evaluation"
+    },
+    "evaluation_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Time to evaluate all policies"
+    },
+    "violation_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "subscription",
+        "workspace",
+        "feature",
+        "organization",
+        "budget",
+        "security",
+        "trust",
+        "privacy",
+        "context",
+        "compliance"
+      ],
+      "default": "none"
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

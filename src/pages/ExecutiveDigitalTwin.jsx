@@ -21,18 +21,18 @@ export default function ExecutiveDigitalTwin() {
     if (!user?.id) return;
     try {
       const [verificationRecs, logs, evidence, credentials, leadershipDNA, portfolioVersions, journeyEvents, lessonProgress, simulations, achievements, competencies, profiles] = await Promise.all([
-        base44.entities.IdentityVerification.filter({ user_id: user.id }).catch(() => []),
-        base44.entities.VerificationLog.filter({ user_id: user.id }, '-created_date', 100).catch(() => []),
-        base44.entities.EvidenceItem.filter({}, '-created_date', 100).catch(() => []),
-        base44.entities.ExecutiveCredential.list('-created_date', 100).catch(() => []),
-        base44.entities.LeadershipDNA.filter({ user_id: user.id }).catch(() => []),
-        base44.entities.PortfolioVersion.list('-created_date', 20).catch(() => []),
-        base44.entities.JourneyEvent.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
-        base44.entities.LessonProgress.filter({ user_id: user.id }).catch(() => []),
-        base44.entities.SimulationSession.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
-        base44.entities.Achievement.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
-        base44.entities.ExecutiveCompetency.filter({ user_id: user.id }).catch(() => []),
-        base44.entities.UserProfile.filter({ user_id: user.id }).catch(() => []),
+        base44.entities.IdentityVerification.filter({ user_id: user.id }, '-created_date', 1).catch(() => []),
+        base44.entities.VerificationLog.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
+        base44.entities.EvidenceItem.filter({ created_by_id: user.id }, '-created_date', 50).catch(() => []),
+        base44.entities.ExecutiveCredential.list('-created_date', 50).catch(() => []),
+        base44.entities.LeadershipDNA.filter({ user_id: user.id }, '-created_date', 1).catch(() => []),
+        base44.entities.PortfolioVersion.list('-created_date', 10).catch(() => []),
+        base44.entities.JourneyEvent.filter({ user_id: user.id }, '-created_date', 30).catch(() => []),
+        base44.entities.LessonProgress.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
+        base44.entities.SimulationSession.filter({ user_id: user.id }, '-created_date', 20).catch(() => []),
+        base44.entities.Achievement.filter({ user_id: user.id }, '-created_date', 30).catch(() => []),
+        base44.entities.ExecutiveCompetency.filter({ user_id: user.id }, '-created_date', 30).catch(() => []),
+        base44.entities.UserProfile.filter({ user_id: user.id }, '-created_date', 1).catch(() => []),
       ]);
 
       const verification = verificationRecs[0] || null;

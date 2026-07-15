@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
@@ -31,11 +31,13 @@ export default function Profile() {
   const [form, setForm] = useState(null);
   const [activeSection, setActiveSection] = useState("personal");
   const [saving, setSaving] = useState(false);
+  const [experienceSaveStatus, setExperienceSaveStatus] = useState(null); // null | "saving" | "saved" | "error"
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
   const [syncData, setSyncData] = useState(null);
   const [syncFileName, setSyncFileName] = useState("");
   const [syncFileUrl, setSyncFileUrl] = useState("");
+  const experienceDebounceRef = useRef(null);
 
   useEffect(() => {
     if (profile) {
@@ -85,6 +87,26 @@ export default function Profile() {
   const setField = (field, value) => {
     setForm(prev => prev ? { ...prev, [field]: value } : prev);
   };
+
+  const handleExperienceChange = useCallback((arr) => {
+    setForm(prev => prev ? { ...prev, experience: arr } : prev);
+    setExperienceSaveStatus("saving");
+    if (experienceDebounceRef.current) clearTimeout(experienceDebounceRef.current);
+    experienceDebounceRef.current = setTimeout(async () => {
+      if (!profile) return;
+      try {
+        await base44.entities.UserProfile.update(profile.id, {
+          experience_json: JSON.stringify(arr),
+        });
+        setExperienceSaveStatus("saved");
+        await refreshProfile();
+        setTimeout(() => setExperienceSaveStatus(null), 2000);
+      } catch (e) {
+        setExperienceSaveStatus("error");
+        toast({ title: "Unable to save your work experience.", description: e?.message || "Please try again.", variant: "destructive" });
+      }
+    }, 800);
+  }, [profile, refreshProfile]);
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
@@ -286,7 +308,7 @@ export default function Profile() {
     social: <SocialLinksSection form={form} setField={setField} />,
     certifications: <CertificationsSection items={form.certifications} onChange={arr => setField("certifications", arr)} />,
     skills: <CompetenciesSection userId={user?.id} targetRole={form.target_role} onSkillsChange={arr => setField("skills", arr)} />,
-    experience: <ExperienceSection items={form.experience} onChange={arr => setField("experience", arr)} />,
+    experience: <ExperienceSection items={form.experience} onChange={handleExperienceChange} saveStatus={experienceSaveStatus} />,
     education: <EducationSection items={form.education} onChange={arr => setField("education", arr)} />,
     privacy: <PrivacySection form={form} setField={setField} />,
     public: <PublicProfileSection form={form} setField={setField} profile={profile} onPublish={handlePublish} />,

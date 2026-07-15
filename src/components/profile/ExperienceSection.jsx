@@ -1,26 +1,77 @@
 import React from "react";
 import { TextField, TextAreaField, MonthYearField, SectionCard } from "./FormFields";
 import CurrentEmploymentToggle from "@/components/shared/CurrentEmploymentToggle";
-import { Plus, Trash2, Briefcase } from "lucide-react";
+import { Plus, Trash2, Briefcase, Loader2, Check, AlertCircle } from "lucide-react";
 
-export default function ExperienceSection({ items, onChange }) {
-  const addExp = () => onChange([...items, { company: "", role: "", employment_type: "", start_date: "", end_date: "", is_current: false, responsibilities: "", achievements: "", technologies: "", leadership_scope: "", team_size: "" }]);
-  const updateExp = (idx, field, value) => onChange(items.map((e, i) => i === idx ? { ...e, [field]: value } : e));
+function SaveStatusBadge({ status }) {
+  if (!status) return null;
+  if (status === "saving") return (
+    <span className="flex items-center gap-1 text-xs text-white/40">
+      <Loader2 size={11} className="animate-spin" /> Saving…
+    </span>
+  );
+  if (status === "saved") return (
+    <span className="flex items-center gap-1 text-xs text-emerald-400">
+      <Check size={11} /> Saved
+    </span>
+  );
+  if (status === "error") return (
+    <span className="flex items-center gap-1 text-xs text-red-400">
+      <AlertCircle size={11} /> Save failed — retry
+    </span>
+  );
+  return null;
+}
+
+export default function ExperienceSection({ items, onChange, saveStatus }) {
+  const addExp = () => onChange([
+    ...items,
+    {
+      company: "", role: "", employment_type: "",
+      start_date: "", end_date: "", is_current: false,
+      responsibilities: "", achievements: "",
+      technologies: "", leadership_scope: "", team_size: "",
+    }
+  ]);
+
+  const updateExp = (idx, field, value) =>
+    onChange(items.map((e, i) => i === idx ? { ...e, [field]: value } : e));
+
   const removeExp = (idx) => onChange(items.filter((_, i) => i !== idx));
 
   return (
-    <SectionCard title="Work Experience" description="Document your career journey." icon={Briefcase} action={
-      <button onClick={addExp} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-colors"><Plus size={12} /> Add</button>
-    }>
+    <SectionCard
+      title="Work Experience"
+      description="Document your career journey."
+      icon={Briefcase}
+      action={
+        <div className="flex items-center gap-3">
+          <SaveStatusBadge status={saveStatus} />
+          <button
+            onClick={addExp}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-colors"
+          >
+            <Plus size={12} /> Add
+          </button>
+        </div>
+      }
+    >
       {items.length === 0 ? (
-        <div className="text-center py-8 text-white/30 text-sm">No experience added yet.</div>
+        <div className="text-center py-8 text-white/30 text-sm">
+          No experience added yet. Click <span className="text-indigo-400">Add</span> to get started.
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map((exp, idx) => (
             <div key={idx} className="p-4 bg-white/[0.02] border border-white/5 rounded-lg space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-white/40 text-xs font-medium">Experience #{idx + 1}</span>
-                <button onClick={() => removeExp(idx)} className="text-white/30 hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
+                <button
+                  onClick={() => removeExp(idx)}
+                  className="text-white/30 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <TextField label="Company" value={exp.company} onChange={v => updateExp(idx, "company", v)} placeholder="Acme Corp" />

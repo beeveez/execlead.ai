@@ -39,50 +39,54 @@ export default function Profile() {
   const [syncFileUrl, setSyncFileUrl] = useState("");
   const experienceDebounceRef = useRef(null);
 
+  const buildFormFromProfile = useCallback((p) => ({
+    ...p,
+    first_name: p.first_name || "",
+    last_name: p.last_name || "",
+    display_name: p.display_name || "",
+    preferred_name: p.preferred_name || "",
+    mobile_number: p.mobile_number || "",
+    city: p.city || "",
+    timezone: p.timezone || "",
+    language: p.language || "",
+    professional_headline: p.professional_headline || "",
+    target_country: p.target_country || "",
+    expected_salary: p.expected_salary ?? null,
+    preferred_industry: p.preferred_industry || "",
+    work_preference: p.work_preference || "",
+    github_url: p.github_url || "",
+    portfolio_url: p.portfolio_url || "",
+    website_url: p.website_url || "",
+    privacy_profile: p.privacy_profile || "private",
+    hide_salary: p.hide_salary || false,
+    hide_resume: p.hide_resume || false,
+    hide_email: p.hide_email || false,
+    public_username: p.public_username || "",
+    public_profile_enabled: p.public_profile_enabled || false,
+    public_visibility: p.public_visibility || "private",
+    public_content_json: p.public_content_json || "",
+    public_hide_email: p.public_hide_email ?? true,
+    public_hide_phone: p.public_hide_phone ?? true,
+    public_hide_address: p.public_hide_address ?? true,
+    public_hide_salary: p.public_hide_salary ?? true,
+    public_hide_notes: p.public_hide_notes ?? true,
+    allow_search_indexing: p.allow_search_indexing || false,
+    experience: safeParse(p.experience_json, []),
+    education: safeParse(p.education_json, []),
+    certifications: safeParse(p.certifications_json, []),
+    skills: p.skills || [],
+    languages: safeParse(p.languages_json, []),
+    projects: safeParse(p.projects_json, []),
+    awards: safeParse(p.awards_json, []),
+  }), []);
+
+  // Only initialize form once (on first load). Never re-run on background refreshProfile()
+  // calls — that would reset activeSection and scroll position mid-edit.
   useEffect(() => {
-    if (profile) {
-      setForm({
-        ...profile,
-        first_name: profile.first_name || "",
-        last_name: profile.last_name || "",
-        display_name: profile.display_name || "",
-        preferred_name: profile.preferred_name || "",
-        mobile_number: profile.mobile_number || "",
-        city: profile.city || "",
-        timezone: profile.timezone || "",
-        language: profile.language || "",
-        professional_headline: profile.professional_headline || "",
-        target_country: profile.target_country || "",
-        expected_salary: profile.expected_salary ?? null,
-        preferred_industry: profile.preferred_industry || "",
-        work_preference: profile.work_preference || "",
-        github_url: profile.github_url || "",
-        portfolio_url: profile.portfolio_url || "",
-        website_url: profile.website_url || "",
-        privacy_profile: profile.privacy_profile || "private",
-        hide_salary: profile.hide_salary || false,
-        hide_resume: profile.hide_resume || false,
-        hide_email: profile.hide_email || false,
-        public_username: profile.public_username || "",
-        public_profile_enabled: profile.public_profile_enabled || false,
-        public_visibility: profile.public_visibility || "private",
-        public_content_json: profile.public_content_json || "",
-        public_hide_email: profile.public_hide_email ?? true,
-        public_hide_phone: profile.public_hide_phone ?? true,
-        public_hide_address: profile.public_hide_address ?? true,
-        public_hide_salary: profile.public_hide_salary ?? true,
-        public_hide_notes: profile.public_hide_notes ?? true,
-        allow_search_indexing: profile.allow_search_indexing || false,
-        experience: safeParse(profile.experience_json, []),
-        education: safeParse(profile.education_json, []),
-        certifications: safeParse(profile.certifications_json, []),
-        skills: profile.skills || [],
-        languages: safeParse(profile.languages_json, []),
-        projects: safeParse(profile.projects_json, []),
-        awards: safeParse(profile.awards_json, []),
-      });
+    if (profile && !form) {
+      setForm(buildFormFromProfile(profile));
     }
-  }, [profile?.id]);
+  }, [profile?.id, form, buildFormFromProfile]);
 
   const setField = (field, value) => {
     setForm(prev => prev ? { ...prev, [field]: value } : prev);
@@ -99,7 +103,9 @@ export default function Profile() {
           experience_json: JSON.stringify(arr),
         });
         setExperienceSaveStatus("saved");
-        await refreshProfile();
+        // Refresh silently in background — do NOT await, do NOT setForm from result
+        // to avoid re-triggering the profile useEffect which resets activeSection
+        refreshProfile().catch(() => {});
         setTimeout(() => setExperienceSaveStatus(null), 2000);
       } catch (e) {
         setExperienceSaveStatus("error");

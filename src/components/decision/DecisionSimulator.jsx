@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { DECISION_TYPES, getDecisionTypeMeta, RISK_LEVEL_META, SALARY_IMPACT_LABELS } from '@/lib/decisionIntelligenceEngine';
 import DecisionExplainability from '@/components/decision/DecisionExplainability';
-import { ChevronRight, Loader2, ArrowRight, Save } from 'lucide-react';
+import { ChevronRight, Loader2, ArrowRight, Save, Briefcase, TrendingUp, Award, GraduationCap, BookOpen, Shuffle, Building2, MapPin, Users } from 'lucide-react';
+
+const ICON_MAP = {
+  Briefcase, TrendingUp, Award, GraduationCap, BookOpen, Shuffle, Building2, MapPin, Users,
+};
 
 export default function DecisionSimulator({ twin, onSimulate, result, running, onSave }) {
   const [selectedType, setSelectedType] = useState(null);
@@ -30,7 +34,7 @@ export default function DecisionSimulator({ twin, onSimulate, result, running, o
         <h3 className="text-sm font-bold text-white mb-3">1. Select Decision Type</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {DECISION_TYPES.map(type => {
-            const Icon = type.icon;
+            const Icon = ICON_MAP[type.icon] || Briefcase;
             const active = selectedType === type.key;
             return (
               <button

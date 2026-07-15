@@ -288,6 +288,84 @@
     },
     "notes": {
       "type": "string"
+    },
+    "workflow_stages_json": {
+      "type": "string",
+      "description": "JSON object mapping category keys to workflow stage objects { category: { stage, entered_date, completed_date } }"
+    },
+    "expiration_config_json": {
+      "type": "string",
+      "description": "JSON object mapping category keys to expiration config { category: { type: 'never'|'annual'|'24_months'|'custom', custom_months, expiration_date, last_renewed_date } }"
+    },
+    "confidence_verification_quality": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 quality score based on verification methods used"
+    },
+    "confidence_evidence_quality": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 quality score based on evidence items"
+    },
+    "confidence_coverage": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 score based on verification categories complete"
+    },
+    "confidence_document_quality": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 score based on document types and quality"
+    },
+    "confidence_review_quality": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 score based on reviewer credentials"
+    },
+    "confidence_overall": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 weighted overall identity confidence"
+    },
+    "confidence_calculated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "executive_role_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Executive role verified by enterprise admin"
+    },
+    "executive_role_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "executive_role_verified_by": {
+      "type": "string",
+      "description": "Enterprise admin who verified"
+    },
+    "executive_role_verified_method": {
+      "type": "string",
+      "enum": [
+        "enterprise_admin",
+        "hr_confirmation",
+        "board_resolution",
+        "org_chart"
+      ],
+      "default": "enterprise_admin"
+    },
+    "internal_credentials_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Internal credentials verified by enterprise admin"
+    },
+    "internal_credentials_verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "internal_credentials_verified_by": {
+      "type": "string",
+      "description": "Enterprise admin who verified"
     }
   },
   "required": [
@@ -321,6 +399,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
         }
       ]
     },
@@ -342,6 +425,11 @@
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
           }
         }
       ]

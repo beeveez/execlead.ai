@@ -1,0 +1,227 @@
+{
+  "name": "EvidenceRequest",
+  "type": "object",
+  "properties": {
+    "requesting_organization": {
+      "type": "string",
+      "description": "Organization requesting the evidence"
+    },
+    "requesting_user_id": {
+      "type": "string"
+    },
+    "requesting_user_name": {
+      "type": "string"
+    },
+    "target_user_id": {
+      "type": "string",
+      "description": "User from whom evidence is requested"
+    },
+    "target_user_name": {
+      "type": "string"
+    },
+    "target_user_email": {
+      "type": "string"
+    },
+    "evidence_type_requested": {
+      "type": "string",
+      "enum": [
+        "identity",
+        "employment",
+        "education",
+        "certifications",
+        "executive_credentials",
+        "awards",
+        "memberships",
+        "publications",
+        "projects",
+        "patents",
+        "board_memberships",
+        "licenses",
+        "security_clearances",
+        "organization_verification",
+        "executive_portfolio"
+      ],
+      "description": "Type of evidence being requested"
+    },
+    "title": {
+      "type": "string",
+      "description": "Request title"
+    },
+    "description": {
+      "type": "string",
+      "description": "What evidence is needed and why"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "requested",
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "expired"
+      ],
+      "default": "requested"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer_id": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "related_evidence_id": {
+      "type": "string",
+      "description": "EvidenceItem ID submitted in response to this request"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "When the evidence must be submitted by"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "rejection_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "evidence_type_requested",
+    "target_user_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.target_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.target_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

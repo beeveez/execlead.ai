@@ -1,0 +1,139 @@
+{
+  "name": "EvidenceCollection",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Collection name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "collection_type": {
+      "type": "string",
+      "enum": [
+        "leadership_portfolio",
+        "promotion_package",
+        "employment_verification",
+        "board_application",
+        "investor_due_diligence",
+        "executive_certification",
+        "enterprise_procurement",
+        "custom"
+      ],
+      "default": "custom",
+      "description": "Predefined collection template"
+    },
+    "evidence_ids": {
+      "type": "string",
+      "description": "JSON array of EvidenceItem IDs in this collection"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "shared",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "shared_with": {
+      "type": "string",
+      "description": "JSON array of user or organization IDs the collection is shared with"
+    },
+    "target_organization": {
+      "type": "string",
+      "description": "Organization this collection is intended for"
+    },
+    "completeness_score": {
+      "type": "number",
+      "default": 0,
+      "description": "How complete this collection is 0-100"
+    },
+    "item_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "collection_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

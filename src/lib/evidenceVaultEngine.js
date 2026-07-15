@@ -614,7 +614,7 @@ export const AI_REVIEW_SCHEMA = {
 // Utilities
 // ============================================================
 
-function parseJsonArray(str) {
+export function parseJsonArray(str) {
   if (!str) return [];
   if (Array.isArray(str)) return str;
   try { return JSON.parse(str); } catch { return []; }

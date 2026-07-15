@@ -340,6 +340,8 @@ const ROUTE_WORKSPACE = {
   "/verification-center": ["executive"],
   "/identity-graph": ["executive"],
   "/evidence-vault": ["executive"],
+  "/digital-twin": ["executive"],
+  "/decision-intelligence": ["executive"],
 };
 
 export function getRouteWorkspace(path) {

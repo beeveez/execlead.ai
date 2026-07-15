@@ -61,6 +61,7 @@ export const WORKSPACE_NAV = {
     { label: "Leadership", items: [
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
       { path: "/intelligence", label: "Intelligence Center", icon: Radar },
+      { path: "/digital-twin", label: "Digital Twin™", icon: Sparkles },
       { path: "/journey", label: "Intelligence Profile", icon: TrendingUp },
       { path: "/methodology", label: "EELM™ Methodology", icon: Brain },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },

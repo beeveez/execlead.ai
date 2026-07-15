@@ -229,6 +229,7 @@ import FeatureFlagCenter from '@/pages/FeatureFlagCenter';
 import SystemStatusCenter from '@/pages/SystemStatusCenter';
 import ArchitectureGovernanceBoard from '@/pages/ArchitectureGovernanceBoard';
 import DeveloperPortal from '@/pages/DeveloperPortal';
+import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelligenceDashboard';
 import BetaApply from '@/pages/BetaApply';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
@@ -494,6 +495,7 @@ const AuthenticatedApp = () => {
           <Route path="/system-status" element={<SystemStatusCenter />} />
           <Route path="/architecture-governance" element={<ArchitectureGovernanceBoard />} />
           <Route path="/developer-portal" element={<DeveloperPortal />} />
+          <Route path="/developer/experience-intelligence" element={<ExperienceIntelligenceDashboard />} />
         </Route>
         </Route>
       </Route>

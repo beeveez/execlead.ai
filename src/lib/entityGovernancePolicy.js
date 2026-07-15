@@ -94,6 +94,7 @@ const EXPLICIT_IMMUTABLE = new Set([
   "ShareEvent",
   // V2 Immutable
   "PortfolioVersion",
+  "ExecutiveCredential",
 ]);
 
 // ── Name-pattern heuristics for immutable classification ──

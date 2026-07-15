@@ -173,6 +173,7 @@ const ENTITY_SECURITY_CLASS_MAP = {
   // V2 Entities
   EvidenceItem: "confidential",
   PortfolioVersion: "immutable_audit",
+  ExecutiveCredential: "immutable_audit",
 };
 
 /**
@@ -318,6 +319,7 @@ export const RLS_REGISTRY = [
   // ── V2 Entities (registered 2026-07-15) ──
   { name: "EvidenceItem", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin read; owner/admin update; admin delete" },
   { name: "PortfolioVersion", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/dev read; no update/delete" },
+  { name: "ExecutiveCredential", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "immutable; owner + admin/dev read; claim/create by owner+admin; no update/delete; revocation via governance event only" },
 ];
 
 // ── Score Computation ──

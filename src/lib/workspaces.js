@@ -44,6 +44,7 @@ export const WORKSPACE_NAV = {
     { label: "Career", items: [
       { path: "/career", label: "Career Advisor", icon: Briefcase, feature: "career_advisor" },
       { path: "/executive-portfolio", label: "Executive Portfolio™", icon: Briefcase },
+      { path: "/executive-credentials", label: "Executive Credentials™", icon: Award },
       { path: "/career-studio", label: "Career Studio", icon: Briefcase, feature: "career_studio" },
       { path: "/resume", label: "Resume AI", icon: FileText, feature: "resume_intelligence" },
       { path: "/companies", label: "Companies", icon: Building2, feature: "company_intelligence" },

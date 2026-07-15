@@ -62,6 +62,7 @@ import CareerStudio from '@/pages/CareerStudio';
 import ExecutivePortfolio from '@/pages/ExecutivePortfolio';
 import ExecutiveCredentials from '@/pages/ExecutiveCredentials';
 import ExecutiveDigitalTwin from '@/pages/ExecutiveDigitalTwin';
+import ExecutiveDecisionIntelligence from '@/pages/ExecutiveDecisionIntelligence';
 import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
 import FeatureManagement from '@/pages/FeatureManagement';
@@ -374,6 +375,7 @@ const AuthenticatedApp = () => {
           <Route path="/verification-center" element={<VerificationCenter />} />
           <Route path="/evidence-vault" element={<EvidenceVault />} />
           <Route path="/digital-twin" element={<ExecutiveDigitalTwin />} />
+          <Route path="/decision-intelligence" element={<ExecutiveDecisionIntelligence />} />
           <Route path="/identity-graph" element={<IdentityGraph />} />
           <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
           <Route path="/beta-launch" element={<BetaLaunchDashboard />} />

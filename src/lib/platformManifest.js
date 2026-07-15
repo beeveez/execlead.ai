@@ -648,7 +648,7 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/beta-operations", "/customer-lifecycle", "/release-readiness",
   "/feature-flags", "/system-status", "/architecture-governance",
   "/developer-portal", "/beta",
-  "/evidence-vault", "/digital-twin",
+  "/evidence-vault", "/digital-twin", "/decision-intelligence",
 ];
 
 function isRouteExempt(path) {

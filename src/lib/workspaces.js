@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -62,6 +62,7 @@ export const WORKSPACE_NAV = {
       { path: "/leadership-dna", label: "Leadership DNA", icon: Fingerprint, feature: "leadership_dna" },
       { path: "/intelligence", label: "Intelligence Center", icon: Radar },
       { path: "/digital-twin", label: "Digital Twin™", icon: Sparkles },
+      { path: "/decision-intelligence", label: "Decision Intelligence™", icon: GitCompare },
       { path: "/journey", label: "Intelligence Profile", icon: TrendingUp },
       { path: "/methodology", label: "EELM™ Methodology", icon: Brain },
       { path: "/legacy-library", label: "Legacy Library", icon: BookOpen },

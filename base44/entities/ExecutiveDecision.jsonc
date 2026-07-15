@@ -1,0 +1,179 @@
+{
+  "name": "ExecutiveDecision",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Decision title"
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": [
+        "job_offer",
+        "promotion",
+        "certification",
+        "mba",
+        "executive_education",
+        "career_change",
+        "industry_change",
+        "relocation",
+        "leadership_opportunity"
+      ],
+      "description": "Type of executive decision being evaluated"
+    },
+    "description": {
+      "type": "string"
+    },
+    "params_json": {
+      "type": "string",
+      "description": "JSON object of decision parameters (salary, role, org, cost, etc.)"
+    },
+    "predicted_trust": {
+      "type": "number",
+      "default": 0,
+      "description": "Predicted trust score after decision"
+    },
+    "predicted_readiness": {
+      "type": "number",
+      "default": 0,
+      "description": "Predicted readiness score after decision"
+    },
+    "predicted_confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "AI confidence in the prediction 0-100"
+    },
+    "predicted_salary_impact": {
+      "type": "string",
+      "description": "Salary impact: +, ++, +++, neutral, negative"
+    },
+    "predicted_risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "explainability_json": {
+      "type": "string",
+      "description": "JSON object: evidence_used, assumptions, missing_evidence, alternative_outcomes, risk_factors"
+    },
+    "scenario_comparison_json": {
+      "type": "string",
+      "description": "JSON array of compared scenarios if this was part of a comparison"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "evaluating",
+        "accepted",
+        "declined",
+        "completed",
+        "abandoned"
+      ],
+      "default": "evaluating"
+    },
+    "decided_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_outcome": {
+      "type": "string",
+      "description": "What actually happened"
+    },
+    "actual_trust": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "outcome_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "prediction_accuracy": {
+      "type": "number",
+      "default": 0,
+      "description": "How close prediction was to actual 0-100"
+    }
+  },
+  "required": [
+    "title",
+    "decision_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

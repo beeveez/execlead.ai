@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       const phoneNumber = body.phone_number;
       const requestedMethod = body.method || 'email';
       const smsProvider = detectSmsProvider();
-      const deliveryMethod = requestedMethod === 'sms' && smsProvider.configured ? 'sms' : 'email';
+      let deliveryMethod = requestedMethod === 'sms' && smsProvider.configured ? 'sms' : 'email';
 
       if (requestedMethod === 'sms' && !smsProvider.configured) {
         await base44.entities.OtpActivityLog.create({
@@ -127,8 +127,22 @@ Deno.serve(async (req) => {
           }
           deliveryStatus = 'sent';
         } catch (err) {
-          deliveryStatus = 'failed';
+          // SMS failed (trial account, geo restriction, unreachable number, etc.)
+          // Auto-fallback to email so OTP delivery never blocks the user
           failureReason = err.message;
+          try {
+            await base44.asServiceRole.integrations.Core.SendEmail({
+              to: user.email,
+              subject: 'Your EXECLEAD.AI Verification Code',
+              body: 'Your verification code is: ' + otpCode + '\n\nThis code expires in 5 minutes.\n\n(SMS delivery to ' + maskPhone(e164) + ' failed — delivered via email instead.)\n\nIf you did not request this code, please ignore this email.',
+            });
+            deliveryStatus = 'sent';
+            deliveryMethod = 'email';
+            provider = 'email';
+          } catch (emailErr) {
+            deliveryStatus = 'failed';
+            failureReason = failureReason + ' | Email fallback also failed: ' + emailErr.message;
+          }
         }
       } else {
         try {

@@ -27,6 +27,7 @@ import { base44 } from "@/api/base44Client";
 import { deriveProvider } from "@/lib/aiOperations";
 import { enforcePolicy } from "@/lib/aiPolicyEngine";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
+import { generateRequestId, createRequestTrace } from "@/lib/aiObservabilityEngine";
 
 // ============================================================
 // §1 — INTENT ROUTER™
@@ -607,6 +608,9 @@ export async function optimizeAI(requestText, opts = {}) {
 
   const estimatedCost = estimateAICost(intent, { prompt: fullPrompt });
 
+  const requestId = generateRequestId();
+  const policyStart = Date.now();
+
   // Step 6b: AI Policy Engine™ — enforce all policies before AI invocation
   const policyDecision = await enforcePolicy(requestText, {
     intent,
@@ -638,6 +642,27 @@ export async function optimizeAI(requestText, opts = {}) {
       tokenEstimate: estimateTokens(fullPrompt),
       creditsSaved: estimateCredits(intent),
     });
+    createRequestTrace({
+      request_id: requestId,
+      request_text: (requestText || "").slice(0, 500),
+      intent,
+      user_id: userId,
+      user_name: userName,
+      workspace: opts.workspace,
+      module: opts.module,
+      source: "policy_blocked",
+      ai_required: true,
+      ai_invoked: false,
+      policy_blocked: true,
+      policy_violation_type: policyDecision.violationType,
+      optimization_time_ms: policyStart - startedAt,
+      policy_time_ms: policyDecision.evaluationTimeMs || 0,
+      total_response_time_ms: blockedResponseTime,
+      credits_saved: estimateCredits(intent),
+      response_status: "blocked",
+      subscription: opts.plan || opts.subscription?.plan,
+    });
+
     return {
       source: "policy_blocked",
       content: policyDecision.upgradeMessage,
@@ -652,6 +677,8 @@ export async function optimizeAI(requestText, opts = {}) {
     };
   }
 
+  const routingStart = Date.now();
+
   // Step 7: Model Router™ — select the best model, with automatic fallback
   const routingDecision = routeModel({
     intent,
@@ -661,6 +688,9 @@ export async function optimizeAI(requestText, opts = {}) {
     webSearchRequired: opts.aiOptions?.add_context_from_internet || false,
     streamingPreferred: opts.streaming || false,
   });
+
+  const routingEnd = Date.now();
+  const providerStart = Date.now();
 
   const modelChain = [routingDecision.selectedModel, ...routingDecision.fallbackChain];
   let aiResponse = null;
@@ -726,6 +756,38 @@ export async function optimizeAI(requestText, opts = {}) {
     status: aiError ? "error" : "ai_served",
     reason: decision.reason, contextAssembled: contextResult.assembled,
     cacheKey, tokenEstimate: estimateTokens(fullPrompt), creditsSaved: 0,
+  });
+
+  const providerEnd = Date.now();
+
+  createRequestTrace({
+    request_id: requestId,
+    request_text: (requestText || "").slice(0, 500),
+    intent,
+    user_id: userId,
+    user_name: userName,
+    workspace: opts.workspace,
+    module: opts.module,
+    source: "ai",
+    ai_required: true,
+    ai_invoked: true,
+    selected_model: actualModel,
+    selected_provider: routingDecision.selectedProvider,
+    tier: routingDecision.tier,
+    fallback_used: !!fallbackFrom,
+    fallback_from: fallbackFrom,
+    retry_count: retryCount,
+    optimization_time_ms: policyStart - startedAt,
+    policy_time_ms: policyDecision.evaluationTimeMs || 0,
+    routing_time_ms: routingEnd - routingStart,
+    provider_time_ms: providerEnd - providerStart,
+    total_response_time_ms: aiResponseTime,
+    estimated_cost: estimatedCost,
+    actual_cost: routingDecision.estimatedCost,
+    token_input: estimateTokens(fullPrompt),
+    response_status: aiError ? "failed" : (fallbackFrom ? "fallback" : "success"),
+    error_message: aiError?.message,
+    subscription: opts.plan || opts.subscription?.plan,
   });
 
   if (aiError) throw aiError;

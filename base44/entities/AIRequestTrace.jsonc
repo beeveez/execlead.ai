@@ -1,0 +1,219 @@
+{
+  "name": "AIRequestTrace",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "Unique AI Request ID"
+    },
+    "request_text": {
+      "type": "string",
+      "description": "Original request text (truncated)"
+    },
+    "intent": {
+      "type": "string",
+      "description": "Classified intent from AI Optimization Layer\u2122"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "database",
+        "cache",
+        "knowledge",
+        "ai",
+        "policy_blocked"
+      ],
+      "description": "Where the response came from"
+    },
+    "ai_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "ai_invoked": {
+      "type": "boolean",
+      "default": false
+    },
+    "cache_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "knowledge_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "policy_blocked": {
+      "type": "boolean",
+      "default": false
+    },
+    "policy_violation_type": {
+      "type": "string"
+    },
+    "selected_model": {
+      "type": "string"
+    },
+    "selected_provider": {
+      "type": "string"
+    },
+    "tier": {
+      "type": "number"
+    },
+    "fallback_used": {
+      "type": "boolean",
+      "default": false
+    },
+    "fallback_from": {
+      "type": "string"
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "optimization_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Time for intent classification + cache/knowledge lookup"
+    },
+    "policy_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Time for policy evaluation"
+    },
+    "knowledge_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "routing_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Time for model selection"
+    },
+    "provider_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Time for LLM invocation"
+    },
+    "total_response_time_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Total request duration"
+    },
+    "estimated_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "credits_used": {
+      "type": "number",
+      "default": 0
+    },
+    "credits_saved": {
+      "type": "number",
+      "default": 0
+    },
+    "token_input": {
+      "type": "number",
+      "default": 0
+    },
+    "token_output": {
+      "type": "number",
+      "default": 0
+    },
+    "response_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "blocked",
+        "fallback"
+      ],
+      "default": "success"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "subscription": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

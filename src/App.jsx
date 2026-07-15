@@ -63,6 +63,7 @@ import ExecutivePortfolio from '@/pages/ExecutivePortfolio';
 import ExecutiveCredentials from '@/pages/ExecutiveCredentials';
 import ExecutiveDigitalTwin from '@/pages/ExecutiveDigitalTwin';
 import ExecutiveActionCenter from '@/pages/ExecutiveActionCenter';
+import ExecutiveBriefing from '@/pages/ExecutiveBriefing';
 import PromotionForecast from '@/pages/PromotionForecast';
 import ExecutiveDecisionIntelligence from '@/pages/ExecutiveDecisionIntelligence';
 import PricingAdmin from '@/pages/PricingAdmin';
@@ -387,6 +388,7 @@ const AuthenticatedApp = () => {
           <Route path="/evidence-vault" element={<EvidenceVault />} />
           <Route path="/digital-twin" element={<ExecutiveDigitalTwin />} />
           <Route path="/action-center" element={<ExecutiveActionCenter />} />
+          <Route path="/executive-briefing" element={<ExecutiveBriefing />} />
           <Route path="/promotion-forecast" element={<PromotionForecast />} />
           <Route path="/decision-intelligence" element={<ExecutiveDecisionIntelligence />} />
           <Route path="/identity-graph" element={<IdentityGraph />} />

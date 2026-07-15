@@ -41,6 +41,7 @@ export const WORKSPACE_NAV = {
     { label: "Platform", items: [
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { path: "/action-center", label: "Action Center", icon: Zap },
+      { path: "/executive-briefing", label: "Executive Briefing™", icon: FileText },
     ]},
     { label: "Career", items: [
       { path: "/career", label: "Career Advisor", icon: Briefcase, feature: "career_advisor" },

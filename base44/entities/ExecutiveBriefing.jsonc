@@ -1,0 +1,211 @@
+{
+  "name": "ExecutiveBriefing",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "period": {
+      "type": "string",
+      "description": "ISO week key e.g. 2026-W29"
+    },
+    "briefing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "generating",
+        "ready",
+        "read"
+      ],
+      "default": "ready"
+    },
+    "read_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "read_time_seconds": {
+      "type": "number",
+      "default": 0
+    },
+    "briefing_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall Executive Briefing Score 0-100"
+    },
+    "previous_score": {
+      "type": "number",
+      "default": 0
+    },
+    "score_change": {
+      "type": "number",
+      "default": 0
+    },
+    "executive_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "promotion_probability": {
+      "type": "number",
+      "default": 0
+    },
+    "momentum": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "stable",
+        "declining"
+      ],
+      "default": "stable"
+    },
+    "growth_trend": {
+      "type": "string",
+      "default": "stable"
+    },
+    "executive_summary_json": {
+      "type": "string",
+      "description": "JSON: { summary, readiness, probability, momentum, stage, confidence, trend }"
+    },
+    "leadership_wins_json": {
+      "type": "string",
+      "description": "JSON array of { title, description, impact }"
+    },
+    "improvement_areas_json": {
+      "type": "string",
+      "description": "JSON array of { area, why_it_matters, potential_readiness_increase }"
+    },
+    "promotion_forecast_json": {
+      "type": "string",
+      "description": "JSON: { readiness, change, probability, timeline, confidence, trend, reason }"
+    },
+    "career_momentum_json": {
+      "type": "string",
+      "description": "JSON: { current, drivers: [] }"
+    },
+    "leadership_dna_json": {
+      "type": "string",
+      "description": "JSON array of { competency, change }"
+    },
+    "executive_insights_json": {
+      "type": "string",
+      "description": "JSON array of insight strings"
+    },
+    "learning_summary_json": {
+      "type": "string",
+      "description": "JSON: { courses, hours, mission_progress, academy_progress, next_course, readiness_gain }"
+    },
+    "interview_readiness_json": {
+      "type": "string",
+      "description": "JSON: { score, behavioral, executive, negotiation, recommended_practice }"
+    },
+    "company_intelligence_json": {
+      "type": "string",
+      "description": "JSON array of { company, trend, recommendation }"
+    },
+    "decision_lab_json": {
+      "type": "string",
+      "description": "JSON: { decisions, quality, risk, reasoning }"
+    },
+    "executive_actions_json": {
+      "type": "string",
+      "description": "JSON array of { title, priority, estimated_minutes, expected_readiness_increase, career_impact }"
+    },
+    "looking_ahead_json": {
+      "type": "string",
+      "description": "JSON: { next_week_focus, upcoming_milestones, recommended_goals, estimated_career_progress }"
+    },
+    "briefing_score_json": {
+      "type": "string",
+      "description": "JSON: { leadership, promotion, learning, momentum, missions, overall }"
+    },
+    "timeline_json": {
+      "type": "string",
+      "description": "JSON array of { label, value, status }"
+    },
+    "ai_narrative": {
+      "type": "string",
+      "description": "Executive Growth Narrative"
+    }
+  },
+  "required": [
+    "user_id",
+    "period"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { Sparkles } from "lucide-react";
-import { generateExecutiveBriefing, generateFallbackBriefing } from "@/lib/executiveBriefingEngine";
+import { generateBriefing, parseBriefing } from "@/lib/executiveBriefingEngine";
 import BriefingHero from "@/components/dashboard/BriefingHero";
 import ExecutivePriorities from "@/components/dashboard/ExecutivePriorities";
 import ExecutiveInsights from "@/components/dashboard/ExecutiveInsights";
@@ -17,9 +17,9 @@ export default function DailyBriefing({ profile }) {
   useEffect(() => {
     if (!user?.id) return;
     let cancelled = false;
-    generateExecutiveBriefing(user, activeWorkspace)
-      .then(({ briefing }) => { if (!cancelled) setData(briefing); })
-      .catch(() => { if (!cancelled) setData(generateFallbackBriefing(user, null)); })
+    generateBriefing(user)
+      .then((briefing) => { if (!cancelled) setData(parseBriefing(briefing)); })
+      .catch(() => { if (!cancelled) setData(null); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [user?.id]);

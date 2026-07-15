@@ -12,6 +12,7 @@ export default function Career() {
   const [resumeData, setResumeData] = useState(null);
   const [advice, setAdvice] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [adviceGenerated, setAdviceGenerated] = useState(false);
 
   const load = async () => {
     const profiles = await base44.entities.UserProfile.list();
@@ -94,7 +95,10 @@ Be specific to ${profile?.target_company || "the IT services industry"}. Practic
   };
 
   useEffect(() => {
-    if (profile) generateAdvice();
+    if (profile && !adviceGenerated) {
+      setAdviceGenerated(true);
+      generateAdvice();
+    }
   }, [profile]);
 
   return (

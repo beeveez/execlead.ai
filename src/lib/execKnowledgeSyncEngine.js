@@ -679,7 +679,7 @@ export function runKnowledgeSync() {
     },
     diagnostics: {
       syncStart: new Date(startTime).toISOString(),
-      syncEnd: result.lastSync,
+      syncEnd: new Date().toISOString(),
       executionTime: duration,
       previousHealth,
       newHealth: knowledgeHealth.health,

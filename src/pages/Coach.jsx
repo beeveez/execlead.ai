@@ -1,18 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { AI_PERSONALITIES } from "@/lib/constants";
-import { Send, Loader2, Bot, User, RotateCcw } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { orchestrateJourney } from "@/lib/journeyOrchestratorEngine";
+import { Send, Loader2, Bot, User, RotateCcw, MessageSquare } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import { getFlatSkills } from "@/lib/resume";
 import { getCachedCompanyContext } from "@/lib/companyContext";
+import ExecutiveStatusBar from "@/components/shared/ExecutiveStatusBar";
+import CoachingFocusCard from "@/components/coach/CoachingFocusCard";
+import LeadershipReflection from "@/components/coach/LeadershipReflection";
+import ExecutiveExercise from "@/components/coach/ExecutiveExercise";
+import ScenarioPractice from "@/components/coach/ScenarioPractice";
+import LeadershipHomework from "@/components/coach/LeadershipHomework";
+import SavedInsights from "@/components/coach/SavedInsights";
+import PreviousSessions from "@/components/coach/PreviousSessions";
 
 export default function Coach() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [personality, setPersonality] = useState(AI_PERSONALITIES[0]);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [coachingFocus, setCoachingFocus] = useState(null);
   const bottomRef = useRef(null);
   const [resumeData, setResumeData] = useState(null);
 
@@ -31,6 +43,13 @@ export default function Coach() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    orchestrateJourney(user)
+      .then((result) => setCoachingFocus(result.coachingFocus))
+      .catch(() => setCoachingFocus(null));
+  }, [user?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -82,16 +101,22 @@ Respond as ${personality.name}. Be direct, insightful, and challenging. Push the
   };
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col" style={{ height: "calc(100vh - 7rem)" }}>
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-white mb-3">AI Executive Coach</h1>
-        <div className="flex gap-2 overflow-x-auto pb-2">
+    <div className="max-w-4xl mx-auto space-y-6 p-4 md:p-6">
+      <ExecutiveStatusBar />
+      <CoachingFocusCard focus={coachingFocus} />
+
+      {/* AI Coaching Conversation — primary experience */}
+      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <MessageSquare size={14} className="text-indigo-400" />
+          <h2 className="text-sm font-semibold text-white/80">AI Coaching Conversation</h2>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-3">
           {AI_PERSONALITIES.map(p => (
             <button
               key={p.id}
               onClick={() => selectPersonality(p)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                 personality.id === p.id
                   ? "bg-indigo-500/15 text-indigo-400 ring-1 ring-indigo-500/30"
                   : "bg-white/5 text-white/40 hover:text-white/70"
@@ -102,107 +127,118 @@ Respond as ${personality.name}. Be direct, insightful, and challenging. Push the
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Chat area */}
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-1">
-        {messages.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-4xl mb-4">{personality.icon}</div>
-            <h2 className="text-white font-semibold text-lg mb-1">{personality.name}</h2>
-            <p className="text-white/30 text-sm max-w-md mx-auto mb-6">{personality.description}</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {[
-                "How do I prepare for a CIO interview?",
-                "Challenge my leadership experience",
-                "Help me with executive presence",
-                "Review my approach to P&L management"
-              ].map(s => (
-                <button
-                  key={s}
-                  onClick={() => { setInput(s); }}
-                  className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {messages.map((msg, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}
-          >
-            {msg.role === "assistant" && (
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-                <Bot size={16} className="text-indigo-400" />
+        <div className="h-[400px] overflow-y-auto space-y-4 mb-4 pr-1">
+          {messages.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-3xl mb-3">{personality.icon}</div>
+              <h2 className="text-white font-semibold text-lg mb-1">{personality.name}</h2>
+              <p className="text-white/30 text-sm max-w-md mx-auto mb-4">{personality.description}</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {[
+                  "How do I prepare for a CIO interview?",
+                  "Challenge my leadership experience",
+                  "Help me with executive presence",
+                  "Review my approach to P&L management"
+                ].map(s => (
+                  <button
+                    key={s}
+                    onClick={() => { setInput(s); }}
+                    className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
-            )}
-            <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
-              msg.role === "user"
-                ? "bg-indigo-500/15 text-white/90"
-                : "bg-white/[0.05] text-white/80"
-            }`}>
-              {msg.role === "user" ? (
-                <p className="text-sm">{msg.content}</p>
-              ) : (
-                <div className="text-sm prose prose-invert prose-sm max-w-none">
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+            </div>
+          )}
+
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}
+            >
+              {msg.role === "assistant" && (
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                  <Bot size={16} className="text-indigo-400" />
                 </div>
               )}
-            </div>
-            {msg.role === "user" && (
-              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                <User size={16} className="text-white/40" />
+              <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
+                msg.role === "user"
+                  ? "bg-indigo-500/15 text-white/90"
+                  : "bg-white/[0.05] text-white/80"
+              }`}>
+                {msg.role === "user" ? (
+                  <p className="text-sm">{msg.content}</p>
+                ) : (
+                  <div className="text-sm prose prose-invert prose-sm max-w-none">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                )}
               </div>
-            )}
-          </motion.div>
-        ))}
+              {msg.role === "user" && (
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                  <User size={16} className="text-white/40" />
+                </div>
+              )}
+            </motion.div>
+          ))}
 
-        {loading && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-              <Bot size={16} className="text-indigo-400" />
+          {loading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                <Bot size={16} className="text-indigo-400" />
+              </div>
+              <div className="bg-white/[0.05] rounded-xl px-4 py-3">
+                <Loader2 size={16} className="animate-spin text-indigo-400" />
+              </div>
             </div>
-            <div className="bg-white/[0.05] rounded-xl px-4 py-3">
-              <Loader2 size={16} className="animate-spin text-indigo-400" />
-            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+        <div className="flex gap-2">
+          {messages.length > 0 && (
+            <button
+              onClick={() => setMessages([])}
+              className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/30 hover:text-white/60 transition-colors"
+              title="New conversation"
+            >
+              <RotateCcw size={18} />
+            </button>
+          )}
+          <div className="flex-1 relative">
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
+              placeholder={`Ask ${personality.name} anything...`}
+              className="w-full bg-white/5 border border-white/10 rounded-lg pl-4 pr-12 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!input.trim() || loading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-indigo-400 hover:text-indigo-300 disabled:opacity-30 transition-colors"
+            >
+              <Send size={18} />
+            </button>
           </div>
-        )}
-        <div ref={bottomRef} />
+        </div>
       </div>
 
-      {/* Input */}
-      <div className="flex gap-2">
-        {messages.length > 0 && (
-          <button
-            onClick={() => setMessages([])}
-            className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/30 hover:text-white/60 transition-colors"
-            title="New conversation"
-          >
-            <RotateCcw size={18} />
-          </button>
-        )}
-        <div className="flex-1 relative">
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
-            placeholder={`Ask ${personality.name} anything...`}
-            className="w-full bg-white/5 border border-white/10 rounded-lg pl-4 pr-12 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!input.trim() || loading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-indigo-400 hover:text-indigo-300 disabled:opacity-30 transition-colors"
-          >
-            <Send size={18} />
-          </button>
-        </div>
+      {/* Coaching sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <LeadershipReflection />
+        <ExecutiveExercise coachingFocus={coachingFocus} />
+      </div>
+
+      <ScenarioPractice />
+
+      <LeadershipHomework coachingFocus={coachingFocus} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SavedInsights />
+        <PreviousSessions />
       </div>
     </div>
   );

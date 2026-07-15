@@ -1,0 +1,133 @@
+{
+  "name": "ResumeImport",
+  "type": "object",
+  "properties": {
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded resume file"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Original file name"
+    },
+    "import_status": {
+      "type": "string",
+      "enum": [
+        "analyzing",
+        "review",
+        "approved",
+        "rejected",
+        "partial"
+      ],
+      "default": "analyzing",
+      "description": "Lifecycle status of the import"
+    },
+    "extracted_data_json": {
+      "type": "string",
+      "description": "Full JSON of extracted data with confidence scores"
+    },
+    "intelligence_report_json": {
+      "type": "string",
+      "description": "Resume Intelligence report JSON"
+    },
+    "accepted_changes_json": {
+      "type": "string",
+      "description": "JSON array of accepted section names"
+    },
+    "rejected_changes_json": {
+      "type": "string",
+      "description": "JSON array of rejected section names"
+    },
+    "sections_extracted": {
+      "type": "number",
+      "default": 0,
+      "description": "Total sections extracted"
+    },
+    "sections_accepted": {
+      "type": "number",
+      "default": 0,
+      "description": "Sections accepted by user"
+    },
+    "sections_rejected": {
+      "type": "number",
+      "default": 0,
+      "description": "Sections rejected by user"
+    },
+    "avg_confidence_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Average AI confidence score across all sections"
+    },
+    "resume_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Resume Intelligence score 0-100"
+    },
+    "approved_by_id": {
+      "type": "string",
+      "description": "User who approved the import"
+    },
+    "approved_by_name": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_reimport": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a re-import over existing profile data"
+    },
+    "previous_import_id": {
+      "type": "string",
+      "description": "ID of the previous import if this is a re-import"
+    }
+  },
+  "required": [
+    "file_url",
+    "file_name"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

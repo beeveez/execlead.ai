@@ -57,6 +57,7 @@ import EnterpriseDashboard from '@/pages/EnterpriseDashboard';
 import Profile from '@/pages/Profile';
 import AdminConsole from '@/pages/AdminConsole';
 import ResumeIntelligence from '@/pages/ResumeIntelligence';
+import ResumeImport from '@/pages/ResumeImport';
 import CareerStudio from '@/pages/CareerStudio';
 import ExecutivePortfolio from '@/pages/ExecutivePortfolio';
 import ExecutiveCredentials from '@/pages/ExecutiveCredentials';
@@ -304,6 +305,7 @@ const AuthenticatedApp = () => {
           <Route path="/executive-legacy" element={<FeatureGate featureId="executive_legacy"><ExecutiveLegacy /></FeatureGate>} />
           <Route path="/journal" element={<FeatureGate featureId="executive_journal"><Journal /></FeatureGate>} />
           <Route path="/resume" element={<FeatureGate featureId="resume_intelligence"><ResumeIntelligence /></FeatureGate>} />
+          <Route path="/resume-import" element={<ResumeImport />} />
           <Route path="/career-studio" element={<FeatureGate featureId="career_studio"><CareerStudio /></FeatureGate>} />
           <Route path="/executive-portfolio" element={<ExecutivePortfolio />} />
           <Route path="/executive-credentials" element={<ExecutiveCredentials />} />

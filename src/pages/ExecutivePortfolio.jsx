@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
 import { PORTFOLIO_SECTIONS, computeCompleteness } from '@/lib/portfolioEngine';
@@ -27,7 +28,7 @@ import CareerAssets from '@/components/portfolio/CareerAssets';
 import ImpactDashboard from '@/components/portfolio/ImpactDashboard';
 import PortfolioAnalytics from '@/components/portfolio/PortfolioAnalytics';
 import VersionHistory from '@/components/portfolio/VersionHistory';
-import { BookOpen, Star, FileCheck, Users, Globe, Landmark, Award } from 'lucide-react';
+import { BookOpen, Star, FileCheck, Users, Globe, Landmark, Award, UploadCloud } from 'lucide-react';
 
 export default function ExecutivePortfolio() {
   const { user } = useAuth();
@@ -85,6 +86,18 @@ export default function ExecutivePortfolio() {
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       <PortfolioHero user={user} data={data} />
+      <div className="max-w-5xl mx-auto px-4 pt-4">
+        <Link to="/resume-import" className="flex items-center gap-3 bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 border border-indigo-500/20 rounded-xl p-4 hover:border-indigo-500/40 transition-all group">
+          <div className="w-10 h-10 rounded-lg bg-indigo-500/15 flex items-center justify-center flex-shrink-0">
+            <UploadCloud size={18} className="text-indigo-400" />
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-bold text-white">AI Resume Auto-Population Engine™</div>
+            <div className="text-xs text-white/40">Upload your resume to auto-populate 80–90% of your Executive Profile</div>
+          </div>
+          <span className="text-xs text-indigo-400 group-hover:translate-x-1 transition-transform">Start →</span>
+        </Link>
+      </div>
       <IdentityLayer data={data} completeness={completeness} />
       <PortfolioScoreboard data={data} completeness={completeness} />
       <RecommendationPanel data={data} completeness={completeness} />

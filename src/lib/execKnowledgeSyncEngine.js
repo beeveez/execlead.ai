@@ -33,6 +33,7 @@ import { WORKSPACE_PERSONAS, PAGE_PERSONA_OVERRIDES } from "./execWorkspacePerso
 import { MODULE_PERSONA_OVERRIDES } from "./execModulePersonas";
 import { runPlatformExperienceAudit } from "./platformExperienceAudit";
 import { dispatch as platformDispatch } from "./platformEventBus";
+import { base44 } from "@/api/base44Client";
 
 const SYNC_SNAPSHOT_KEY = "exec_knowledge_sync_snapshot";
 const SYNC_HISTORY_KEY = "exec_knowledge_sync_history";
@@ -709,6 +710,20 @@ export function runKnowledgeSync() {
 
   // Re-dispatch KnowledgeSyncCompleted with the full report now that it's built
   platformDispatch("KnowledgeSyncCompleted", { source: "sync_engine", report, health: result.health, status: result.status, timestamp: result.lastSync, duration });
+
+  // Send Gmail alert to leadership if sync status is critical
+  if (result.status === "critical") {
+    base44.functions.invoke("sendSyncAlert", {
+      health: result.health,
+      status: result.status,
+      duration: result.duration,
+      timestamp: result.lastSync,
+      knowledgeVersion: result.knowledgeVersion,
+      errors: result.validation?.errors?.length || 0,
+      warnings: result.validation?.warnings?.length || 0,
+      components: result.knowledgeHealth?.components || [],
+    }).catch(() => {});
+  }
 
   return result;
 }

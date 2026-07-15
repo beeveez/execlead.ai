@@ -30,7 +30,10 @@
         "device_registered",
         "device_blocked",
         "incident_created",
-        "secret_rotated"
+        "secret_rotated",
+        "verification_workflow",
+        "trust_score_change",
+        "verification_expired"
       ]
     },
     "severity": {
@@ -97,6 +100,11 @@
         {
           "user_condition": {
             "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
           }
         }
       ]

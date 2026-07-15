@@ -32,7 +32,7 @@ export default function ExecutiveStatusBar() {
           setData({
             readiness,
             momentum: forecast?.momentum || "stable",
-            stage: stageInfo?.current || "Explorer",
+            stage: stageInfo?.current?.title || "Seed",
             targetLevel: forecast?.target_level || "—",
             briefingAvailable: !!briefing,
           });

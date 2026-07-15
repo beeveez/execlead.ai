@@ -19,6 +19,21 @@ const SEVERITY_WEIGHTS = { critical: 25, high: 12, medium: 6, low: 2 };
 const NAV_EXEMPT = [
   "/home", "/onboarding", "/reset-password", "/forgot-password", "/companies/compare",
   "/intelligence/competencies", "/compare-plans", "/notifications", "/connected-accounts", "/cpq/quotes",
+  // Routes accessible via domain hub pages (Enterprise Domain, Operations Domain) — not sidebar
+  "/enterprise", "/enterprise/organizations", "/enterprise/admin", "/enterprise/identity",
+  "/enterprise/procurement", "/enterprise/vendors", "/enterprise/commercial",
+  "/enterprise/privacy", "/enterprise/security", "/enterprise/governance",
+  "/organization/billing", "/organization/users", "/enterprise-intelligence",
+  "/hr-dashboard", "/succession-planning", "/promotion-readiness", "/learning-assignments", "/sso",
+  // Routes accessible via dashboard cards, tabs, or deep links — not sidebar
+  "/ai-usage", "/admin", "/pricing-admin", "/billing-admin", "/founding-member-admin",
+  "/payment-settings", "/membership-admin", "/elim", "/referral-admin",
+  "/identity-verification-admin", "/legacy-library/admin",
+  "/cpq", "/cpq-dashboard", "/company-admin", "/company-reports-admin",
+  "/request-tracking", "/email-settings",
+  "/beta-program", "/exec-observability", "/product-intelligence", "/beta-operations",
+  "/customer-lifecycle", "/release-readiness", "/feature-flags", "/system-status",
+  "/developer/product",
 ];
 const FLOW_ROUTES = ["/onboarding", "/reset-password", "/forgot-password"];
 

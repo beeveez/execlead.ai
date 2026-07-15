@@ -2,6 +2,7 @@ import {
   FileText, Clock, Dna, Map, Trophy, BookOpen, Star, ShieldCheck,
   GraduationCap, Cpu, PenLine, Lightbulb, Briefcase, FileCheck,
   Users, Globe, BarChart3, Landmark, CheckCircle2, Target, Eye,
+  Zap, Activity, History,
 } from 'lucide-react';
 
 export const PORTFOLIO_SECTIONS = [
@@ -23,6 +24,12 @@ export const PORTFOLIO_SECTIONS = [
   { id: 'public-profile', number: 16, title: 'Public Profile™', icon: Globe, weight: 4, color: '#8b5cf6' },
   { id: 'analytics', number: 17, title: 'Portfolio Analytics™', icon: BarChart3, weight: 3, color: '#f59e0b' },
   { id: 'legacy', number: 18, title: 'Executive Legacy™', icon: Landmark, weight: 4, color: '#ef4444' },
+  // V2 Sections
+  { id: 'story', number: 19, title: 'Executive Story™', icon: BookOpen, weight: 3, color: '#f59e0b' },
+  { id: 'evidence', number: 20, title: 'Evidence Vault™', icon: ShieldCheck, weight: 5, color: '#10b981' },
+  { id: 'impact', number: 21, title: 'Executive Impact™', icon: Zap, weight: 4, color: '#06b6d4' },
+  { id: 'health', number: 22, title: 'Portfolio Health™', icon: Activity, weight: 3, color: '#ef4444' },
+  { id: 'versions', number: 23, title: 'Version History™', icon: History, weight: 2, color: '#8b5cf6' },
 ];
 
 export const SCOREBOARD_ITEMS = [
@@ -58,6 +65,11 @@ export function getSectionScore(id, data) {
     case 'public-profile': return data.profileVisible ? 100 : 0;
     case 'analytics': return 100;
     case 'legacy': return data.hasLegacy ? 100 : 0;
+    case 'story': return data.hasStory ? 100 : 0;
+    case 'evidence': return Math.min(100, (data.evidenceCount || 0) * 15);
+    case 'impact': return Math.min(100, (data.achievementsCount || 0) * 10 + 30);
+    case 'health': return data.healthScore || 0;
+    case 'versions': return data.versionsCount > 0 ? 100 : 0;
     default: return 0;
   }
 }

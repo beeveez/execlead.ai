@@ -1,0 +1,89 @@
+{
+  "name": "PortfolioVersion",
+  "type": "object",
+  "properties": {
+    "version_number": {
+      "type": "string",
+      "description": "Semantic version (e.g. v1.0, v1.1)"
+    },
+    "change_description": {
+      "type": "string",
+      "description": "What changed in this version"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "initial",
+        "leadership_dna_updated",
+        "certification_added",
+        "promotion_added",
+        "trust_updated",
+        "achievement_added",
+        "evidence_added",
+        "profile_updated",
+        "story_updated",
+        "view_changed",
+        "health_recalculated"
+      ],
+      "default": "profile_updated"
+    },
+    "snapshot_summary": {
+      "type": "string",
+      "description": "JSON summary of portfolio state at this version"
+    },
+    "completeness_score": {
+      "type": "number",
+      "default": 0
+    },
+    "health_score": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "version_number",
+    "change_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

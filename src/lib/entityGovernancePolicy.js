@@ -92,6 +92,8 @@ const EXPLICIT_IMMUTABLE = new Set([
   "EmailEvent",
   "ProfileView",
   "ShareEvent",
+  // V2 Immutable
+  "PortfolioVersion",
 ]);
 
 // ── Name-pattern heuristics for immutable classification ──

@@ -2,9 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { RESUME_TEMPLATES, defaultResumeContent } from "@/lib/careerStudio";
-import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown, UploadCloud, Sparkles } from "lucide-react";
+import { isTestMode } from "@/lib/resumeTestMode";
+import { recordUploadStart, recordUploadCompleted, recordParserStart, recordParserFinished, recordError, recordEvent } from "@/lib/resumeDiagnostics";
+import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown, UploadCloud } from "lucide-react";
 import ResumeSectionEditor from "@/components/career-studio/ResumeSectionEditor";
 import ResumePreview from "@/components/career-studio/ResumePreview";
+import ResumeParserTestTools from "@/components/career-studio/ResumeParserTestTools";
+import FilePickerFallback from "@/components/career-studio/FilePickerFallback";
 import { toast } from "@/components/ui/use-toast";
 
 export default function ResumeBuilder({ activeResume, onResumeChange }) {
@@ -18,6 +22,8 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const [showList, setShowList] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+  const testMode = isTestMode();
   const dropdownFileRef = useRef(null);
   const emptyFileRef = useRef(null);
 
@@ -73,19 +79,26 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
     setShowList(false);
   };
 
-  const processFile = async (file) => {
+  const EXTRACTION_SCHEMA = { type: "object", properties: { full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, summary: { type: "string" }, experience: { type: "array", items: { type: "object", properties: { job_title: { type: "string" }, employer: { type: "string" }, dates: { type: "string" }, bullets: { type: "array", items: { type: "string" } } } } }, skills: { type: "array", items: { type: "string" } }, education: { type: "array", items: { type: "object", properties: { degree: { type: "string" }, institution: { type: "string" }, year: { type: "string" } } } }, certifications: { type: "array", items: { type: "string" } } } };
+
+  const processFile = async (file, opts = {}) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       toast({ title: "File too large", description: "Maximum file size is 10MB.", variant: "destructive" });
       return;
     }
+    recordUploadStart({ filename: file.name, fileSize: file.size, fileType: file.type, source: opts.source || "upload" });
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const ex = await base44.integrations.Core.ExtractDataFromUploadedFile({ file_url, json_schema: { type: "object", properties: { full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, summary: { type: "string" }, experience: { type: "array", items: { type: "object", properties: { job_title: { type: "string" }, employer: { type: "string" }, dates: { type: "string" }, bullets: { type: "array", items: { type: "string" } } } } }, skills: { type: "array", items: { type: "string" } }, education: { type: "array", items: { type: "object", properties: { degree: { type: "string" }, institution: { type: "string" }, year: { type: "string" } } } }, certifications: { type: "array", items: { type: "string" } } } } });
+      recordUploadCompleted(file_url);
+      recordParserStart();
+      const ex = await base44.integrations.Core.ExtractDataFromUploadedFile({ file_url, json_schema: EXTRACTION_SCHEMA });
       const imported = defaultResumeContent();
+      let extracted = null;
       if (ex.output) {
         const d = typeof ex.output === "string" ? JSON.parse(ex.output) : ex.output;
+        extracted = d;
         imported.personal = { ...imported.personal, full_name: d.full_name || "", email: d.email || "", phone: d.phone || "" };
         imported.summary = d.summary || "";
         imported.experience = (d.experience || []).map(x => ({ ...x, bullets: x.bullets || [] }));
@@ -93,9 +106,11 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
         imported.education = (d.education || []).map(x => ({ ...x, honors: "" }));
         imported.certifications = (d.certifications || []).map(c => ({ name: c, issuer: "", year: "", expiration: "" }));
       }
+      recordParserFinished(extracted);
       await createResume(imported);
       toast({ title: "Resume uploaded", description: "Your resume has been imported successfully." });
     } catch (err) {
+      recordError(err?.message || "Upload failed");
       toast({ title: "Upload failed", description: err?.message || "Could not process the file. Please try again.", variant: "destructive" });
     }
     setUploading(false);
@@ -104,6 +119,11 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     e.target.value = "";
+    if (!file) {
+      setShowFallback(true);
+      return;
+    }
+    recordEvent("file_selected", { filename: file.name, fileSize: file.size, fileType: file.type, source: "file_picker" });
     processFile(file);
   };
 
@@ -111,55 +131,13 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    recordEvent("file_selected", { filename: file.name, fileSize: file.size, fileType: file.type, source: "drag_drop" });
     processFile(file);
   };
 
   const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = (e) => { e.preventDefault(); setIsDragging(false); };
-
-  const useSampleResume = () => {
-    const sampleText = `Sarah Mitchell
-Senior Director of Operations
-sarah.mitchell@email.com | (555) 123-4567 | San Francisco, CA
-LinkedIn: linkedin.com/in/sarahmitchell
-
-PROFESSIONAL SUMMARY
-Accomplished operations executive with 12+ years leading cross-functional teams and driving organizational excellence at scale. Proven track record of optimizing processes, reducing costs by 30%, and building high-performing teams across technology and healthcare sectors.
-
-EXPERIENCE
-Senior Director of Operations | TechCorp Inc. | 2020 - Present
-- Led a team of 85 across 4 departments, achieving 98% on-time delivery
-- Implemented agile operating model reducing cycle times by 40%
-- Spearheaded digital transformation initiative saving $2.3M annually
-- Established KPI framework adopted across 12 business units
-
-Director of Operations | HealthFirst Systems | 2016 - 2020
-- Managed $15M operational budget with zero cost overruns
-- Built and mentored team of 40 operations professionals
-- Launched predictive analytics program improving patient outcomes by 22%
-- Drove ISO 9001 certification across 3 facilities
-
-Senior Operations Manager | DataFlow Solutions | 2013 - 2016
-- Optimized supply chain reducing lead times by 35%
-- Managed vendor relationships with 50+ strategic partners
-- Introduced lean manufacturing principles saving $800K annually
-
-SKILLS
-Strategic Planning, Process Optimization, Team Leadership, Agile Methodologies, P&L Management, Digital Transformation, Supply Chain Management, Data Analytics, Change Management, Vendor Management, Six Sigma (Black Belt), Lean Operations, KPI Development, Cross-functional Leadership, Budget Management
-
-EDUCATION
-MBA, Stanford Graduate School of Business | 2013
-BS, Industrial Engineering, UC Berkeley | 2008
-Graduated with Honors
-
-CERTIFICATIONS
-Six Sigma Black Belt Certification | ASQ | 2015
-Project Management Professional (PMP) | PMI | 2014
-Certified Supply Chain Professional (CSCP) | APICS | 2017`;
-    const blob = new Blob([sampleText], { type: "text/plain" });
-    const file = new File([blob], "Sarah_Mitchell_Resume.txt", { type: "text/plain" });
-    processFile(file);
-  };
 
   const duplicateResume = async (resume) => {
     const dup = await base44.entities.CareerResume.create({ title: resume.title + " (Copy)", template: resume.template, content: resume.content });
@@ -192,6 +170,16 @@ Certified Supply Chain Professional (CSCP) | APICS | 2017`;
 
   return (
     <div className="space-y-4">
+      {/* Resume Parser Test Tools™ — Developer Mode only */}
+      {testMode && (
+        <div className="bg-white/[0.02] border border-indigo-500/20 rounded-xl p-4">
+          <ResumeParserTestTools onCreateResume={createResume} processFile={processFile} />
+        </div>
+      )}
+
+      {/* Fallback message — shown when file picker is blocked in test environments */}
+      {testMode && showFallback && <FilePickerFallback show={true} />}
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative">
@@ -215,9 +203,6 @@ Certified Supply Chain Professional (CSCP) | APICS | 2017`;
                   <button onClick={() => createResume()} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10"><Plus size={14} /> New Resume</button>
                   <button onClick={() => dropdownFileRef.current?.click()} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10 cursor-pointer">
                     {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Upload Resume
-                  </button>
-                  <button onClick={useSampleResume} disabled={uploading} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10 disabled:opacity-30">
-                    {uploading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Try Sample Resume
                   </button>
                   <input ref={dropdownFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
                 </div>
@@ -295,9 +280,6 @@ Certified Supply Chain Professional (CSCP) | APICS | 2017`;
             <button onClick={() => createResume()} className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"><Plus size={14} /> Create from Scratch</button>
             <button onClick={() => emptyFileRef.current?.click()} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-sm font-medium cursor-pointer">
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Browse Files
-            </button>
-            <button onClick={useSampleResume} disabled={uploading} className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-sm font-medium disabled:opacity-30">
-              {uploading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Try Sample Resume
             </button>
             <input ref={emptyFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
           </div>

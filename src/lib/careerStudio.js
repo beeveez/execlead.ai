@@ -35,7 +35,8 @@ export const SECTION_FIELDS = {
     { name: "job_title", label: "Job Title", type: "text" },
     { name: "employer", label: "Employer", type: "text" },
     { name: "location", label: "Location", type: "text" },
-    { name: "dates", label: "Dates", type: "text" },
+    { name: "start_date", label: "Start Date", type: "monthyear" },
+    { name: "end_date", label: "End Date", type: "monthyear", allowPresent: true },
     { name: "current", label: "Current Role", type: "checkbox" },
     { name: "bullets", label: "Responsibilities & Achievements", type: "bullets" },
   ],
@@ -61,19 +62,19 @@ export const SECTION_FIELDS = {
   education: [
     { name: "degree", label: "Degree", type: "text" },
     { name: "institution", label: "Institution", type: "text" },
-    { name: "year", label: "Year", type: "text" },
+    { name: "year", label: "Year", type: "year" },
     { name: "honors", label: "Honors", type: "text" },
   ],
   certifications: [
     { name: "name", label: "Certification", type: "text" },
     { name: "issuer", label: "Issuer", type: "text" },
-    { name: "year", label: "Year", type: "text" },
-    { name: "expiration", label: "Expiration", type: "text" },
+    { name: "year", label: "Issue Date", type: "monthyear" },
+    { name: "expiration", label: "Expiration", type: "monthyear", allowPresent: true },
   ],
   awards: [
     { name: "title", label: "Award", type: "text" },
     { name: "issuer", label: "Issuer", type: "text" },
-    { name: "year", label: "Year", type: "text" },
+    { name: "year", label: "Year", type: "year" },
   ],
   volunteer: [
     { name: "role", label: "Role", type: "text" },
@@ -87,12 +88,12 @@ export const SECTION_FIELDS = {
   public_speaking: [
     { name: "event", label: "Event", type: "text" },
     { name: "topic", label: "Topic", type: "text" },
-    { name: "date", label: "Date", type: "text" },
+    { name: "date", label: "Date", type: "monthyear" },
   ],
   publications: [
     { name: "title", label: "Title", type: "text" },
     { name: "publisher", label: "Publisher", type: "text" },
-    { name: "date", label: "Date", type: "text" },
+    { name: "date", label: "Date", type: "monthyear" },
   ],
 };
 

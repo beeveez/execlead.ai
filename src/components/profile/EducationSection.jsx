@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, SectionCard } from "./FormFields";
+import { TextField, MonthYearField, SectionCard } from "./FormFields";
 import { Plus, Trash2, GraduationCap } from "lucide-react";
 
 export default function EducationSection({ items, onChange }) {
@@ -26,7 +26,7 @@ export default function EducationSection({ items, onChange }) {
                 <TextField label="Degree" value={edu.degree} onChange={v => updateEdu(idx, "degree", v)} placeholder="MBA" />
                 <TextField label="Major" value={edu.major} onChange={v => updateEdu(idx, "major", v)} placeholder="Business Administration" />
               </div>
-              <TextField label="Graduation Year" value={edu.graduation_year} onChange={v => updateEdu(idx, "graduation_year", v)} placeholder="2015" type="number" />
+              <MonthYearField label="Graduation Year" value={edu.graduation_year} onChange={v => updateEdu(idx, "graduation_year", v)} placeholder="2015" mode="year-only" />
             </div>
           ))}
         </div>

@@ -1,6 +1,27 @@
 import React from "react";
 import { RESUME_TEMPLATES } from "@/lib/careerStudio";
 
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function fmtMonthYear(val) {
+  if (!val || val === "Present") return val;
+  const parts = String(val).split("-");
+  const y = parts[0];
+  const m = parts[1] ? parseInt(parts[1]) : null;
+  if (!y) return "";
+  if (!m) return y;
+  return `${MONTHS_SHORT[m - 1]} ${y}`;
+}
+
+function fmtDateRange(exp) {
+  if (exp.start_date || exp.end_date || exp.current) {
+    const start = fmtMonthYear(exp.start_date);
+    const end = exp.current ? "Present" : fmtMonthYear(exp.end_date);
+    return [start, end].filter(Boolean).join(" \u2013 ");
+  }
+  return exp.dates || "";
+}
+
 export default function ResumePreview({ content, template }) {
   const tpl = RESUME_TEMPLATES.find(t => t.id === template) || RESUME_TEMPLATES[0];
   const isDark = tpl.layout === "dark";
@@ -50,7 +71,7 @@ export default function ResumePreview({ content, template }) {
               <div key={i} style={{ marginBottom: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                   <span style={{ fontWeight: "600", fontSize: "12px", color: text }}>{exp.job_title || "Role"}</span>
-                  <span style={{ fontSize: "10px", color: muted }}>{exp.dates}</span>
+                  <span style={{ fontSize: "10px", color: muted }}>{fmtDateRange(exp)}</span>
                 </div>
                 <div style={{ fontSize: "11px", color: accent, marginBottom: "4px" }}>{exp.employer}{exp.location ? ` · ${exp.location}` : ""}</div>
                 {exp.bullets?.map((b, bi) => (

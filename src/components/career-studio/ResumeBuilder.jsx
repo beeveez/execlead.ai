@@ -66,7 +66,7 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
           };
           initialContent.summary = ex.career_history?.[0]?.description || "";
           initialContent.experience = (ex.career_history || []).map(h => ({
-            job_title: h.job_title || "", employer: h.employer || "", location: "", dates: `${h.start_date || ""} - ${h.end_date || (h.current ? "Present" : "")}`, current: h.current || false, bullets: h.key_achievements || [],
+            job_title: h.job_title || "", employer: h.employer || "", location: "", start_date: h.start_date || "", end_date: h.current ? "Present" : (h.end_date || ""), current: h.current || false, bullets: h.key_achievements || [],
           }));
           initialContent.education = (ex.education || []).map(e => ({ degree: e.degree || "", institution: e.institution || "", year: e.year || "", honors: e.honors || "" }));
           initialContent.certifications = (ex.certifications || []).map(c => ({ name: typeof c === "string" ? c : c.name, issuer: typeof c === "string" ? "" : c.issuer, year: "", expiration: typeof c === "string" ? "" : c.expiration_date }));
@@ -79,7 +79,7 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
     setShowList(false);
   };
 
-  const EXTRACTION_SCHEMA = { type: "object", properties: { full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, summary: { type: "string" }, experience: { type: "array", items: { type: "object", properties: { job_title: { type: "string" }, employer: { type: "string" }, dates: { type: "string" }, bullets: { type: "array", items: { type: "string" } } } } }, skills: { type: "array", items: { type: "string" } }, education: { type: "array", items: { type: "object", properties: { degree: { type: "string" }, institution: { type: "string" }, year: { type: "string" } } } }, certifications: { type: "array", items: { type: "string" } } } };
+  const EXTRACTION_SCHEMA = { type: "object", properties: { full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, summary: { type: "string" }, experience: { type: "array", items: { type: "object", properties: { job_title: { type: "string" }, employer: { type: "string" }, start_date: { type: "string" }, end_date: { type: "string" }, bullets: { type: "array", items: { type: "string" } } } } }, skills: { type: "array", items: { type: "string" } }, education: { type: "array", items: { type: "object", properties: { degree: { type: "string" }, institution: { type: "string" }, year: { type: "string" } } } }, certifications: { type: "array", items: { type: "string" } } } };
 
   const processFile = async (file, opts = {}) => {
     if (!file) return;

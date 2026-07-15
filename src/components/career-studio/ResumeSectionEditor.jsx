@@ -4,6 +4,7 @@ import { callAI } from "@/lib/ai";
 import { RESUME_SECTIONS, SECTION_FIELDS, buildExecutiveRewritePrompt } from "@/lib/careerStudio";
 import { Plus, Trash2, Sparkles, Loader2, X, Star } from "lucide-react";
 import AchievementWriter from "@/components/career-studio/AchievementWriter";
+import MonthYearPicker from "@/components/shared/MonthYearPicker";
 
 const inputClass = "w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50";
 
@@ -222,6 +223,18 @@ export default function ResumeSectionEditor({ content, setContent }) {
                           ))}
                           <button onClick={() => addTag(activeSection, idx)} className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"><Plus size={10} /> Add</button>
                         </div>
+                      </div>
+                    );
+                    if (f.type === "monthyear" || f.type === "year") return (
+                      <div key={f.name}>
+                        <label className="text-white/40 text-[10px] uppercase tracking-wider mb-0.5 block">{f.label}</label>
+                        <MonthYearPicker
+                          value={item[f.name] || ""}
+                          onChange={v => updateItem(activeSection, idx, f.name, v)}
+                          allowPresent={f.allowPresent}
+                          mode={f.type === "year" ? "year-only" : "month-year"}
+                          placeholder={f.label}
+                        />
                       </div>
                     );
                     return null;

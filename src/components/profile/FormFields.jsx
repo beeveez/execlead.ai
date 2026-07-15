@@ -1,4 +1,5 @@
 import React from "react";
+import MonthYearPicker from "@/components/shared/MonthYearPicker";
 
 export function safeParse(json, fallback) {
   try { const v = JSON.parse(json); return v || fallback; } catch { return fallback; }
@@ -44,6 +45,15 @@ export function ToggleField({ label, description, value, onChange }) {
       <button onClick={() => onChange(!value)} className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${value ? "bg-indigo-500" : "bg-white/10"}`}>
         <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${value ? "translate-x-4" : "translate-x-0.5"}`} />
       </button>
+    </div>
+  );
+}
+
+export function MonthYearField({ label, value, onChange, placeholder, allowPresent, mode, minYear, maxYear, allowFuture }) {
+  return (
+    <div>
+      <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">{label}</label>
+      <MonthYearPicker value={value} onChange={onChange} placeholder={placeholder} allowPresent={allowPresent} mode={mode} minYear={minYear} maxYear={maxYear} allowFuture={allowFuture} />
     </div>
   );
 }

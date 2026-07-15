@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, TextAreaField, SectionCard } from "./FormFields";
+import { TextField, TextAreaField, MonthYearField, SectionCard } from "./FormFields";
 import { Plus, Trash2, Briefcase } from "lucide-react";
 
 export default function ExperienceSection({ items, onChange }) {
@@ -26,8 +26,8 @@ export default function ExperienceSection({ items, onChange }) {
                 <TextField label="Role" value={exp.role} onChange={v => updateExp(idx, "role", v)} placeholder="Senior Engineer" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <TextField label="Start Date" value={exp.start_date} onChange={v => updateExp(idx, "start_date", v)} placeholder="2020-01" type="month" />
-                <TextField label="End Date" value={exp.end_date} onChange={v => updateExp(idx, "end_date", v)} placeholder="Present" type="month" />
+                <MonthYearField label="Start Date" value={exp.start_date} onChange={v => updateExp(idx, "start_date", v)} placeholder="Start date" />
+                <MonthYearField label="End Date" value={exp.end_date} onChange={v => updateExp(idx, "end_date", v)} placeholder="End date" allowPresent />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <TextField label="Employment Type" value={exp.employment_type} onChange={v => updateExp(idx, "employment_type", v)} placeholder="Full-time" />

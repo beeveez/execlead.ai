@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -14,7 +14,9 @@ import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
 import ConciergeDiagnosticsPanel from "./ConciergeDiagnosticsPanel";
 import EvidenceCompletenessPanel from "./EvidenceCompletenessPanel";
+import ContextualActions from "./ContextualActions";
 import { computeEvidenceCoverage } from "@/lib/evidenceCompletenessEngine";
+import { generateContextualActions, getDashboardLabel } from "@/lib/contextualActionEngine";
 
 export default function ExecConcierge() {
   const { user } = useAuth();
@@ -113,6 +115,34 @@ export default function ExecConcierge() {
   };
 
   const evidenceCoverage = useMemo(() => computeEvidenceCoverage(userContext), [userContext]);
+
+  // EXEC™ Contextual Action Engine™ — generates dashboard-aware next actions
+  const contextualActions = useMemo(
+    () => generateContextualActions({
+      pathname: location.pathname,
+      pageContext,
+      userContext,
+    }),
+    [location.pathname, pageContext, userContext]
+  );
+  const dashboardLabel = contextualActions.dashboardType
+    ? getDashboardLabel(contextualActions.dashboardType)
+    : null;
+
+  const handleContextualAction = useCallback((action) => {
+    base44.analytics.track({
+      eventName: "exec_contextual_action",
+      properties: { action: action.label, category: action.category, dashboard: contextualActions.dashboardType },
+    });
+    if (action.path) {
+      navigate(action.path);
+    } else if (action.action === "run_diagnostics") {
+      setShowDiagnostics(true);
+    } else if (action.action) {
+      // Automation/reporting actions — send as a message to EXEC™
+      sendMessage(`EXEC™ Action: ${action.label}`);
+    }
+  }, [navigate, contextualActions.dashboardType, sendMessage]);
 
   const showWelcome = !loading && !showDiagnostics && messages.length <= 1;
   const showSuggestions =
@@ -263,49 +293,60 @@ export default function ExecConcierge() {
                 <>
                   {user ? (
                     <>
-                      {recommendations.length > 0 && (
-                        <div className="space-y-2 pt-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
-                            Recommended Next Steps
-                          </p>
-                          {recommendations.map((rec) => (
-                            <button
-                              key={rec.label}
-                              onClick={() => handleRecommendation(rec)}
-                              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted hover:bg-accent border border-border text-sm text-foreground transition-colors text-left"
-                            >
-                              <span
-                                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                                  rec.priority === "high"
-                                    ? "bg-red-500"
-                                    : rec.priority === "medium"
-                                    ? "bg-amber-500"
-                                    : "bg-blue-500"
-                                }`}
-                              />
-                              {rec.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {tasks.length > 0 && (
-                        <div className="space-y-2 pt-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
-                            Quick Actions
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {tasks.map((task) => (
-                              <button
-                                key={task.label}
-                                onClick={() => handleTask(task.path)}
-                                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-muted hover:bg-accent border border-border text-[11px] font-medium text-foreground transition-colors"
-                              >
-                                <task.icon size={11} style={{ color: personaColor }} />
-                                {task.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                      {/* EXEC™ Contextual Action Engine™ — replaces generic "What would you like me to do?" */}
+                      {contextualActions.allActions.length > 0 ? (
+                        <ContextualActions
+                          actions={contextualActions}
+                          dashboardLabel={dashboardLabel}
+                          onAction={handleContextualAction}
+                        />
+                      ) : (
+                        <>
+                          {recommendations.length > 0 && (
+                            <div className="space-y-2 pt-1">
+                              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                                Recommended Next Steps
+                              </p>
+                              {recommendations.map((rec) => (
+                                <button
+                                  key={rec.label}
+                                  onClick={() => handleRecommendation(rec)}
+                                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted hover:bg-accent border border-border text-sm text-foreground transition-colors text-left"
+                                >
+                                  <span
+                                    className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                                      rec.priority === "high"
+                                        ? "bg-red-500"
+                                        : rec.priority === "medium"
+                                        ? "bg-amber-500"
+                                        : "bg-blue-500"
+                                    }`}
+                                  />
+                                  {rec.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          {tasks.length > 0 && (
+                            <div className="space-y-2 pt-1">
+                              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+                                Quick Actions
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {tasks.map((task) => (
+                                  <button
+                                    key={task.label}
+                                    onClick={() => handleTask(task.path)}
+                                    className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-muted hover:bg-accent border border-border text-[11px] font-medium text-foreground transition-colors"
+                                  >
+                                    <task.icon size={11} style={{ color: personaColor }} />
+                                    {task.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </>
                   ) : (

@@ -1,16 +1,18 @@
 /**
- * EXECLEAD.AI — Executive Digital Twin Cache™
+ * EXECLEAD.AI — Executive Digital Twin Cache™ v2.0
  * =================================================
- * localStorage-backed snapshot cache for the Digital Twin.
+ * localStorage-backed snapshot cache with TTL, per-source
+ * timing instrumentation, and progressive build support.
  *
- * - Renders cached twin immediately on page open
- * - Refreshes in the background (never blocks UI)
- * - Tracks performance metrics for Developer Mode
- * - Debounced rebuild queue for data-change triggers
+ * Key improvements over v1:
+ * - TTL-based cache freshness check (skip rebuild if fresh)
+ * - Per-data-source timing tracking
+ * - Progressive section readiness tracking
  */
 
 const CACHE_PREFIX = 'dt_cache_';
 const REBUILD_DEBOUNCE_MS = 2000;
+const CACHE_TTL_MS = 120000; // 2 minutes — skip rebuild if cache is fresh
 
 // ============================================================
 // Cache Read / Write
@@ -21,7 +23,9 @@ export function getCachedTwin(userId) {
   try {
     const raw = localStorage.getItem(CACHE_PREFIX + userId);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    parsed.isStale = isCacheStale(parsed.cachedAt);
+    return parsed;
   } catch {
     return null;
   }
@@ -52,10 +56,17 @@ export function clearCachedTwin(userId) {
   }
 }
 
+export function isCacheStale(cachedAt) {
+  if (!cachedAt) return true;
+  return Date.now() - new Date(cachedAt).getTime() > CACHE_TTL_MS;
+}
+
+export function getCacheTTL() {
+  return CACHE_TTL_MS;
+}
+
 // ============================================================
 // Background Rebuild Queue
-// Debounced — multiple change events collapse into one rebuild.
-// The page subscribes and performs the actual data fetch + rebuild.
 // ============================================================
 
 let rebuildTimer = null;
@@ -80,7 +91,7 @@ export function getLastRebuildReason() {
 }
 
 // ============================================================
-// Performance Metrics™
+// Performance Metrics™ v2 — Per-Source Instrumentation
 // ============================================================
 
 export function createMetrics() {
@@ -89,18 +100,48 @@ export function createMetrics() {
     firstRenderTime: 0,
     totalLoadTime: 0,
     cacheHit: false,
+    cacheStale: false,
     cacheAge: null,
     twinBuildTime: 0,
+    coreBuildTime: 0,
+    enrichmentTime: 0,
     llmResponseTime: 0,
     dataSourcesLoaded: 0,
     dataSourcesTotal: 12,
+    dataSourcesTotalRequested: 12,
+    dataSourceTimings: [], // [{ name, duration, status, recordCount }]
+    slowestQuery: null, // { name, duration }
+    blockingRequests: [], // queries >500ms
+    parallelRequests: true,
     backgroundRefreshStatus: 'idle', // idle | refreshing | completed | error
     rebuildReason: null,
     sectionsReady: [],
+    skippedRebuild: false, // true if cache was fresh and rebuild was skipped
   };
 }
 
+/**
+ * Record a single data source timing.
+ */
+export function recordDataSourceTiming(metrics, name, duration, status, recordCount = 0) {
+  const entry = { name, duration: Math.round(duration), status, recordCount };
+  metrics.dataSourceTimings.push(entry);
+
+  // Track slowest query
+  if (!metrics.slowestQuery || duration > metrics.slowestQuery.duration) {
+    metrics.slowestQuery = entry;
+  }
+
+  // Track blocking requests (>500ms)
+  if (duration > 500) {
+    metrics.blockingRequests.push(entry);
+  }
+
+  return metrics;
+}
+
 export function formatDuration(ms) {
+  if (ms === 0 || ms === undefined || ms === null) return '—';
   if (ms < 1) return '<1ms';
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(2)}s`;

@@ -158,6 +158,11 @@ const APP_ROUTES = [
   { path: "/system-status", component: "SystemStatusCenter", name: "System Status Center™", feature: null },
   { path: "/architecture-governance", component: "ArchitectureGovernanceBoard", name: "Architecture Governance Board™", feature: null },
   { path: "/developer-portal", component: "DeveloperPortal", name: "Developer Portal™", feature: "developer_access" },
+  { path: "/executive-portfolio", component: "ExecutivePortfolio", name: "Executive Portfolio™", feature: null },
+  { path: "/executive-credentials", component: "ExecutiveCredentials", name: "Executive Credentials™", feature: null },
+  { path: "/verification-center", component: "VerificationCenter", name: "Verification Center™", feature: null },
+  { path: "/identity-graph", component: "IdentityGraph", name: "Identity Graph™", feature: null },
+  { path: "/evidence-vault", component: "EvidenceVault", name: "Executive Evidence Vault™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

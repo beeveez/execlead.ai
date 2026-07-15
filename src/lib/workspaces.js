@@ -97,6 +97,7 @@ export const WORKSPACE_NAV = {
       { path: "/privacy-compliance", label: "Privacy & Compliance™", icon: Lock },
       { path: "/identity-verification", label: "Identity Verification", icon: ShieldCheck },
       { path: "/verification-center", label: "Verification Center™", icon: ShieldCheck },
+      { path: "/evidence-vault", label: "Evidence Vault™", icon: Database },
       { path: "/identity-graph", label: "Identity Graph™", icon: Network },
       { path: "/feedback", label: "Feedback", icon: Lightbulb },
     ]},
@@ -326,6 +327,11 @@ const ROUTE_WORKSPACE = {
   "/enterprise/privacy": ["enterprise"],
   "/referrals": ["executive"], "/referral-admin": ["operations"],
   "/exec-admin": ["developer"],
+  "/executive-portfolio": ["executive"],
+  "/executive-credentials": ["executive"],
+  "/verification-center": ["executive"],
+  "/identity-graph": ["executive"],
+  "/evidence-vault": ["executive"],
 };
 
 export function getRouteWorkspace(path) {

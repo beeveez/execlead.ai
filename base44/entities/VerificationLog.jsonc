@@ -15,18 +15,33 @@
     "action": {
       "type": "string",
       "enum": [
+        "verification_requested",
         "identity_submitted",
         "identity_approved",
         "identity_rejected",
         "identity_updated",
         "email_verified",
         "phone_verified",
+        "otp_sent",
+        "otp_verified",
+        "otp_failed",
         "professional_verified",
+        "employment_approved",
+        "organization_approved",
+        "education_verified",
+        "executive_credentials_verified",
+        "executive_portfolio_verified",
         "profile_published",
+        "resume_verified",
+        "leadership_dna_complete",
         "verified_executive_granted",
+        "verification_revoked",
+        "device_trusted",
+        "device_revoked",
+        "risk_challenge_triggered",
         "documents_requested"
       ],
-      "default": "identity_updated"
+      "default": "verification_requested"
     },
     "document_type": {
       "type": "string"
@@ -59,6 +74,23 @@
     },
     "notes": {
       "type": "string"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "Masked IP address"
+    },
+    "device_fingerprint": {
+      "type": "string"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low"
     }
   },
   "required": [
@@ -95,37 +127,14 @@
       ]
     },
     "update": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "platform_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "__immutable__"
+      }
     },
     "delete": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "platform_admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "__immutable__"
+      }
     }
   }
 }

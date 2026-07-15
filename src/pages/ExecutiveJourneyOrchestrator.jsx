@@ -5,14 +5,17 @@ import { orchestrateJourney } from "@/lib/journeyOrchestratorEngine";
 import { Compass, LayoutDashboard, Code2 } from "lucide-react";
 import OrchestratorSkeleton from "@/components/journey-orchestrator/OrchestratorSkeleton";
 import JourneyStageHero from "@/components/journey-orchestrator/JourneyStageHero";
-import NextBestAction from "@/components/journey-orchestrator/NextBestAction";
 import MissionBoard from "@/components/journey-orchestrator/MissionBoard";
 import MilestoneTracker from "@/components/journey-orchestrator/MilestoneTracker";
 import JourneyTimeline from "@/components/journey-orchestrator/JourneyTimeline";
 import AdaptiveLearningPath from "@/components/journey-orchestrator/AdaptiveLearningPath";
 import CoachingFocus from "@/components/journey-orchestrator/CoachingFocus";
-import EngagementMetrics from "@/components/journey-orchestrator/EngagementMetrics";
-import PredictiveInsights from "@/components/journey-orchestrator/PredictiveInsights";
+import CareerGoalCard from "@/components/journey-orchestrator/CareerGoalCard";
+import CurrentObjectiveCard from "@/components/journey-orchestrator/CurrentObjectiveCard";
+import FutureVisionCard from "@/components/journey-orchestrator/FutureVisionCard";
+import CareerDestinationCard from "@/components/journey-orchestrator/CareerDestinationCard";
+import JourneyHistoryCard from "@/components/journey-orchestrator/JourneyHistoryCard";
+import ExecutiveStatusBar from "@/components/shared/ExecutiveStatusBar";
 import DeveloperJourneyDashboard from "@/components/journey-orchestrator/DeveloperJourneyDashboard";
 
 export default function ExecutiveJourneyOrchestrator() {
@@ -37,7 +40,6 @@ export default function ExecutiveJourneyOrchestrator() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-6">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 text-indigo-400 text-xs uppercase tracking-widest mb-1">
@@ -45,7 +47,7 @@ export default function ExecutiveJourneyOrchestrator() {
           </div>
           <h1 className="text-2xl font-bold text-white -mt-1">Your Leadership Journey</h1>
           <p className="text-white/40 text-sm mt-1 max-w-3xl">
-            One question drives every recommendation: <span className="text-white/60 italic">"What is the next best step on this leadership journey?"</span>
+            Where is my leadership journey going, and what major milestone comes next?
           </p>
         </div>
         {showDevTab && (
@@ -77,22 +79,26 @@ export default function ExecutiveJourneyOrchestrator() {
         <DeveloperJourneyDashboard />
       ) : (
         <>
+          <ExecutiveStatusBar />
           <JourneyStageHero data={orchestration} user={user} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <NextBestAction action={orchestration.nextBestAction} />
-              <MissionBoard missions={orchestration.missions} />
-              <JourneyTimeline timeline={orchestration.timeline} />
-              <AdaptiveLearningPath path={orchestration.learningPath} />
-            </div>
-            <div className="space-y-6">
-              <CoachingFocus focus={orchestration.coachingFocus} bottleneck={orchestration.bottleneck} />
-              <EngagementMetrics metrics={orchestration.engagement} />
-              <MilestoneTracker milestones={orchestration.milestones} />
-              <PredictiveInsights predictions={orchestration.predictions} />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CareerGoalCard goal={orchestration.careerGoal} readiness={orchestration.readiness} />
+            <CurrentObjectiveCard coachingFocus={orchestration.coachingFocus} bottleneck={orchestration.bottleneck} />
           </div>
+
+          <JourneyTimeline timeline={orchestration.timeline} />
+          <MilestoneTracker milestones={orchestration.milestones} />
+          <MissionBoard missions={orchestration.missions} />
+          <AdaptiveLearningPath path={orchestration.learningPath} />
+          <CoachingFocus focus={orchestration.coachingFocus} bottleneck={orchestration.bottleneck} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <FutureVisionCard predictions={orchestration.predictions} stage={orchestration.stage} />
+            <CareerDestinationCard goal={orchestration.careerGoal} readiness={orchestration.readiness} milestones={orchestration.milestones} />
+          </div>
+
+          <JourneyHistoryCard milestones={orchestration.milestones} />
         </>
       )}
     </div>

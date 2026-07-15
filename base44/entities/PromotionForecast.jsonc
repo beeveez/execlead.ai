@@ -1,0 +1,167 @@
+{
+  "name": "PromotionForecast",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "readiness_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Promotion Readiness\u2122 0-100"
+    },
+    "probability_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Promotion Probability\u2122 0-100"
+    },
+    "momentum": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "stable",
+        "declining"
+      ],
+      "default": "stable",
+      "description": "Career Momentum\u2122"
+    },
+    "timeline_estimate": {
+      "type": "string",
+      "description": "ready_now, 3_months, 6_months, 12_months, 18_months, 24_plus_months"
+    },
+    "timeline_label": {
+      "type": "string"
+    },
+    "timeline_months": {
+      "type": "number",
+      "default": 0
+    },
+    "timeline_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "low"
+    },
+    "confidence_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Forecast Confidence\u2122 0-100"
+    },
+    "current_level": {
+      "type": "string"
+    },
+    "target_level": {
+      "type": "string"
+    },
+    "dimensions_json": {
+      "type": "string",
+      "description": "JSON array of 15 leadership dimensions with scores"
+    },
+    "skill_gaps_json": {
+      "type": "string",
+      "description": "JSON array of skill gaps"
+    },
+    "strengths_json": {
+      "type": "string",
+      "description": "JSON array of Executive Strength Index\u2122"
+    },
+    "improvement_priorities_json": {
+      "type": "string",
+      "description": "JSON array of top improvement priorities"
+    },
+    "growth_narrative_json": {
+      "type": "string",
+      "description": "JSON object with AI growth narrative answers"
+    },
+    "period": {
+      "type": "string",
+      "description": "Week key e.g. 2026-W29"
+    },
+    "component_scores_json": {
+      "type": "string",
+      "description": "JSON object of readiness component scores"
+    }
+  },
+  "required": [
+    "user_id",
+    "readiness_score"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

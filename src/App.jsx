@@ -63,6 +63,7 @@ import ExecutivePortfolio from '@/pages/ExecutivePortfolio';
 import ExecutiveCredentials from '@/pages/ExecutiveCredentials';
 import ExecutiveDigitalTwin from '@/pages/ExecutiveDigitalTwin';
 import ExecutiveActionCenter from '@/pages/ExecutiveActionCenter';
+import PromotionForecast from '@/pages/PromotionForecast';
 import ExecutiveDecisionIntelligence from '@/pages/ExecutiveDecisionIntelligence';
 import PricingAdmin from '@/pages/PricingAdmin';
 import ComparePlans from '@/pages/ComparePlans';
@@ -178,6 +179,7 @@ import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
 import AIPolicyDashboard from '@/pages/developer/AIPolicyDashboard';
 import ModelRouterDashboard from '@/pages/developer/ModelRouterDashboard';
 import AIObservabilityCenter from '@/pages/developer/AIObservabilityCenter';
+import PromotionForecastDashboard from '@/pages/developer/PromotionForecastDashboard';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -385,6 +387,7 @@ const AuthenticatedApp = () => {
           <Route path="/evidence-vault" element={<EvidenceVault />} />
           <Route path="/digital-twin" element={<ExecutiveDigitalTwin />} />
           <Route path="/action-center" element={<ExecutiveActionCenter />} />
+          <Route path="/promotion-forecast" element={<PromotionForecast />} />
           <Route path="/decision-intelligence" element={<ExecutiveDecisionIntelligence />} />
           <Route path="/identity-graph" element={<IdentityGraph />} />
           <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
@@ -433,6 +436,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/ai-policy" element={<AIPolicyDashboard />} />
           <Route path="/developer/model-router" element={<ModelRouterDashboard />} />
           <Route path="/developer/ai-observability" element={<AIObservabilityCenter />} />
+          <Route path="/developer/promotion-forecast" element={<PromotionForecastDashboard />} />
           <Route path="/privacy-compliance" element={<MyPrivacy />} />
           <Route path="/developer/privacy-compliance" element={<PrivacyComplianceCenter />} />
           <Route path="/enterprise/privacy" element={<EnterprisePrivacy />} />

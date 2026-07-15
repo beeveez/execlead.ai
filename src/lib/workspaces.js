@@ -70,6 +70,7 @@ export const WORKSPACE_NAV = {
       { path: "/executive-legacy", label: "Executive Legacy", icon: Award, feature: "executive_legacy" },
       { path: "/reputation", label: "Executive Reputation", icon: Star },
       { path: "/executive/rankings", label: "Executive Rankings", icon: Trophy },
+      { path: "/promotion-forecast", label: "Promotion Forecast", icon: TrendingUp },
     ]},
     { label: "AI Coach", items: [
       { path: "/coach", label: "Executive Coach", icon: MessageSquare },
@@ -235,6 +236,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/ai-policy", label: "AI Policy Engine™", icon: Shield },
       { path: "/developer/model-router", label: "Model Router™", icon: Cpu },
       { path: "/developer/ai-observability", label: "AI Observability Center™", icon: Activity },
+      { path: "/developer/promotion-forecast", label: "Promotion Forecast Engine™", icon: TrendingUp },
       { path: "/developer/commercial-readiness", label: "Commercial Readiness™", icon: DollarSign },
       { path: "/developer/executive-product-board", label: "Executive Product Board™", icon: Building2 },
       { path: "/developer/intelligence-suite-simulator", label: "Intelligence Suite Simulator™", icon: Sparkles },
@@ -257,7 +259,7 @@ export const WORKSPACE_NAV = {
 /* ======================= ROUTE → WORKSPACE MAP ======================= */
 
 const ROUTE_WORKSPACE = {
-  "/dashboard": ["executive"], "/action-center": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
+  "/dashboard": ["executive"],   "/action-center": ["executive"], "/promotion-forecast": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
   "/simulator": ["executive"], "/debate": ["executive"], "/council": ["executive"],
   "/marketplace": ["executive"], "/network": ["executive"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],
@@ -324,6 +326,7 @@ const ROUTE_WORKSPACE = {
   "/developer/ai-policy": ["developer"],
   "/developer/model-router": ["developer"],
   "/developer/ai-observability": ["developer"],
+  "/developer/promotion-forecast": ["developer"],
   "/developer/product": ["operations", "developer"],
   "/ai-command-center": ["executive"],
   "/developer/ai-command-center": ["developer"],

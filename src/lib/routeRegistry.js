@@ -155,6 +155,7 @@ const APP_ROUTES = [
   { path: "/developer/ai-policy", component: "AIPolicyDashboard", name: "AI Policy Engine™", feature: "developer_access" },
   { path: "/developer/model-router", component: "ModelRouterDashboard", name: "Model Router™", feature: "developer_access" },
   { path: "/developer/ai-observability", component: "AIObservabilityCenter", name: "AI Observability Center™", feature: "developer_access" },
+  { path: "/developer/promotion-forecast", component: "PromotionForecastDashboard", name: "Promotion Forecast Engine™", feature: "developer_access" },
   { path: "/developer/product", component: "ProductManagement", name: "Product Management™", feature: "developer_access" },
   { path: "/exec-os", component: "ExecOSDashboard", name: "EXEC™ Operating System™", feature: null },
   { path: "/exec-observability", component: "ExecObservabilityPlatform", name: "EXEC™ Observability & Telemetry Platform™", feature: null },
@@ -173,6 +174,7 @@ const APP_ROUTES = [
   { path: "/evidence-vault", component: "EvidenceVault", name: "Executive Evidence Vault™", feature: null },
   { path: "/digital-twin", component: "ExecutiveDigitalTwin", name: "Executive Digital Twin™", feature: null },
   { path: "/action-center", component: "ExecutiveActionCenter", name: "Executive Action Center™", feature: null },
+  { path: "/promotion-forecast", component: "PromotionForecast", name: "Promotion Forecast™", feature: null },
   { path: "/decision-intelligence", component: "ExecutiveDecisionIntelligence", name: "Executive Decision Intelligence™", feature: null },
 ];
 

@@ -96,6 +96,8 @@ export const WORKSPACE_NAV = {
       { path: "/security", label: "Account Security™", icon: ShieldCheck },
       { path: "/privacy-compliance", label: "Privacy & Compliance™", icon: Lock },
       { path: "/identity-verification", label: "Identity Verification", icon: ShieldCheck },
+      { path: "/verification-center", label: "Verification Center™", icon: ShieldCheck },
+      { path: "/identity-graph", label: "Identity Graph™", icon: Network },
       { path: "/feedback", label: "Feedback", icon: Lightbulb },
     ]},
   ],

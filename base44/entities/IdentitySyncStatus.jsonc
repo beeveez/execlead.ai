@@ -1,0 +1,125 @@
+{
+  "name": "IdentitySyncStatus",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "sync_type": {
+      "type": "string",
+      "enum": [
+        "resume_import",
+        "manual_resync"
+      ],
+      "default": "resume_import",
+      "description": "What triggered the sync"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "failed"
+      ],
+      "default": "completed",
+      "description": "Sync job status"
+    },
+    "records_imported": {
+      "type": "number",
+      "default": 0,
+      "description": "New records created"
+    },
+    "records_updated": {
+      "type": "number",
+      "default": 0,
+      "description": "Existing records updated"
+    },
+    "records_skipped": {
+      "type": "number",
+      "default": 0,
+      "description": "Records skipped (no changes needed)"
+    },
+    "duplicates_merged": {
+      "type": "number",
+      "default": 0,
+      "description": "Duplicate records merged or removed"
+    },
+    "sync_errors": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of errors during sync"
+    },
+    "error_details_json": {
+      "type": "string",
+      "description": "JSON array of error details"
+    },
+    "sync_health": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "warnings",
+        "errors"
+      ],
+      "default": "healthy",
+      "description": "Overall sync health"
+    },
+    "source_import_id": {
+      "type": "string",
+      "description": "ResumeImport ID that triggered this sync"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Sync duration in milliseconds"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

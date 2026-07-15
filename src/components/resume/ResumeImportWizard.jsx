@@ -63,7 +63,13 @@ export default function ResumeImportWizard() {
         intelligence_report: extractedData.intelligence_report,
         is_reimport: !!existingProfile,
       });
-      setApplyResult(response.data);
+      // Trigger Executive Identity Synchronization Engine™
+      let syncResult = null;
+      try {
+        const syncRes = await base44.functions.invoke('syncExecutiveIdentity', { action: 'sync' });
+        syncResult = syncRes.data;
+      } catch { /* sync failure shouldn't block import success */ }
+      setApplyResult({ ...response.data, sync: syncResult });
       setStep('done');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to apply changes');
@@ -93,6 +99,20 @@ export default function ResumeImportWizard() {
         <h2 className="text-xl font-bold text-white">Profile Updated Successfully</h2>
         <p className="text-sm text-white/40 mt-1">{applyResult.sections_applied.length} section{applyResult.sections_applied.length !== 1 ? 's' : ''} applied to your Executive Profile</p>
         {applyResult.resume_score > 0 && <div className="mt-3 text-xs text-white/50">Resume Score: <span className="font-bold text-indigo-400">{applyResult.resume_score}/100</span></div>}
+        {applyResult.sync && applyResult.sync.status === 'success' && (
+          <div className="mt-4 bg-white/[0.02] border border-white/5 rounded-lg p-4 max-w-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle2 size={14} className="text-emerald-400" />
+              <span className="text-xs font-bold text-white">Executive Identity Synced</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div><div className="text-lg font-bold text-emerald-400">{applyResult.sync.records_imported}</div><div className="text-[9px] text-white/30 uppercase">Imported</div></div>
+              <div><div className="text-lg font-bold text-blue-400">{applyResult.sync.records_updated}</div><div className="text-[9px] text-white/30 uppercase">Updated</div></div>
+              <div><div className="text-lg font-bold text-amber-400">{applyResult.sync.duplicates_merged}</div><div className="text-[9px] text-white/30 uppercase">Merged</div></div>
+              <div><div className="text-lg font-bold" style={{ color: applyResult.sync.sync_errors > 0 ? '#ef4444' : '#10b981' }}>{applyResult.sync.sync_errors}</div><div className="text-[9px] text-white/30 uppercase">Errors</div></div>
+            </div>
+          </div>
+        )}
         <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
           <Link to="/executive-portfolio" className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-500 transition-colors">View Portfolio <ArrowRight size={13} /></Link>
           <Link to="/profile" className="px-4 py-2 rounded-lg bg-white/5 text-white/60 text-xs font-medium hover:bg-white/10 transition-colors">View Profile</Link>

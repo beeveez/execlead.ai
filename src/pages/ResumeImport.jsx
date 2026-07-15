@@ -1,5 +1,6 @@
 import React from 'react';
 import ResumeImportWizard from '@/components/resume/ResumeImportWizard';
+import IdentitySyncStatusPanel from '@/components/resume/IdentitySyncStatusPanel';
 import { Sparkles } from 'lucide-react';
 
 export default function ResumeImport() {
@@ -15,6 +16,9 @@ export default function ResumeImport() {
           <p className="text-sm text-white/40 mt-1.5 max-w-xl mx-auto">Upload your resume and our AI will extract and populate 80–90% of your Executive Profile automatically. You review and approve every change.</p>
         </div>
         <ResumeImportWizard />
+      </div>
+      <div className="max-w-4xl mx-auto px-4 pb-8">
+        <IdentitySyncStatusPanel />
       </div>
     </div>
   );

@@ -1,0 +1,184 @@
+{
+  "name": "ProductCapabilityMetric",
+  "type": "object",
+  "properties": {
+    "capability_id": {
+      "type": "string",
+      "description": "Capability ID from the Capability Registry"
+    },
+    "capability_name": {
+      "type": "string"
+    },
+    "period": {
+      "type": "string",
+      "description": "Month key (e.g. 2026-07)"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "views": {
+      "type": "number",
+      "default": 0
+    },
+    "clicks": {
+      "type": "number",
+      "default": 0
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total feature executions"
+    },
+    "completions": {
+      "type": "number",
+      "default": 0,
+      "description": "Completed flows"
+    },
+    "time_spent_seconds": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_calls": {
+      "type": "number",
+      "default": 0
+    },
+    "errors": {
+      "type": "number",
+      "default": 0
+    },
+    "unique_users": {
+      "type": "number",
+      "default": 0
+    },
+    "repeat_usage": {
+      "type": "number",
+      "default": 0,
+      "description": "Users who used the feature more than once"
+    },
+    "retention_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage of users who returned"
+    },
+    "conversion_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage of users who upgraded after using"
+    },
+    "satisfaction_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Average satisfaction 0-5"
+    },
+    "estimated_ai_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated monthly AI compute cost in USD"
+    },
+    "revenue_influence": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated revenue influenced by this capability"
+    }
+  },
+  "required": [
+    "capability_id",
+    "period"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

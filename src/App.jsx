@@ -169,6 +169,9 @@ import PerformanceResilience from '@/pages/developer/PerformanceResilience';
 import PlatformExperienceAudit from '@/pages/developer/PlatformExperienceAudit';
 import PlatformArchitectureAudit from '@/pages/developer/PlatformArchitectureAudit';
 import FormLookupRegistry from '@/pages/developer/FormLookupRegistry';
+import CommercialReadinessDashboard from '@/pages/developer/CommercialReadinessDashboard';
+import IntelligenceSuiteSimulator from '@/pages/developer/IntelligenceSuiteSimulator';
+import ExecutiveProductBoard from '@/pages/developer/ExecutiveProductBoard';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -415,6 +418,9 @@ const AuthenticatedApp = () => {
           <Route path="/developer/experience-audit" element={<PlatformExperienceAudit />} />
           <Route path="/developer/architecture-audit" element={<PlatformArchitectureAudit />} />
           <Route path="/developer/form-lookup-registry" element={<FormLookupRegistry />} />
+          <Route path="/developer/commercial-readiness" element={<CommercialReadinessDashboard />} />
+          <Route path="/developer/intelligence-suite-simulator" element={<IntelligenceSuiteSimulator />} />
+          <Route path="/developer/executive-product-board" element={<ExecutiveProductBoard />} />
           <Route path="/privacy-compliance" element={<MyPrivacy />} />
           <Route path="/developer/privacy-compliance" element={<PrivacyComplianceCenter />} />
           <Route path="/enterprise/privacy" element={<EnterprisePrivacy />} />

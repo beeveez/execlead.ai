@@ -228,6 +228,11 @@ export const WORKSPACE_NAV = {
       { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
       { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
     ]},
+    { label: "Commercial", items: [
+      { path: "/developer/commercial-readiness", label: "Commercial Readiness™", icon: DollarSign },
+      { path: "/developer/executive-product-board", label: "Executive Product Board™", icon: Building2 },
+      { path: "/developer/intelligence-suite-simulator", label: "Intelligence Suite Simulator™", icon: Sparkles },
+    ]},
     { label: "Platform Health", items: [
       { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
       { path: "/exec-os", label: "EXEC™ Operating System™", icon: Sparkles },

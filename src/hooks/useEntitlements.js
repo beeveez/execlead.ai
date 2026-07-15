@@ -11,13 +11,20 @@ export function useEntitlements() {
 
   useEffect(() => {
     let active = true;
-    getFeatureCatalog().then(catalog => {
-      if (active) {
-        setFeatures(catalog);
-        setLoading(false);
-      }
-    });
-    return () => { active = false; };
+    const timeout = setTimeout(() => {
+      if (active) setLoading(false);
+    }, 5000);
+    getFeatureCatalog()
+      .then(catalog => {
+        if (active) {
+          setFeatures(catalog);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; clearTimeout(timeout); };
   }, []);
 
   // Plan comes from the Subscription Service (backend-resolved), not profile.subscription_plan.

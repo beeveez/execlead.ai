@@ -21,7 +21,7 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const emptyFileRef = useRef(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 8000);
+    const timer = setTimeout(() => setLoading(false), 3000);
     loadResumes();
     return () => clearTimeout(timer);
   }, []);

@@ -39,7 +39,17 @@
         "device_trusted",
         "device_revoked",
         "risk_challenge_triggered",
-        "documents_requested"
+        "documents_requested",
+        "verification_evidence_reviewed",
+        "executive_role_verified",
+        "internal_credentials_verified",
+        "trust_score_updated",
+        "portfolio_updated",
+        "credential_eligibility_updated",
+        "verification_expired",
+        "verification_renewed",
+        "verification_workflow_stage_changed",
+        "confidence_recalculated"
       ],
       "default": "verification_requested"
     },
@@ -91,6 +101,22 @@
         "critical"
       ],
       "default": "low"
+    },
+    "category": {
+      "type": "string",
+      "description": "Verification category this log entry relates to"
+    },
+    "workflow_stage": {
+      "type": "string",
+      "description": "Workflow stage at time of this log entry"
+    },
+    "trust_score_before": {
+      "type": "number",
+      "description": "Trust score before this event"
+    },
+    "trust_score_after": {
+      "type": "number",
+      "description": "Trust score after this event"
     }
   },
   "required": [
@@ -122,6 +148,11 @@
         {
           "user_condition": {
             "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
           }
         }
       ]

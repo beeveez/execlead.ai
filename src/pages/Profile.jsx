@@ -29,7 +29,15 @@ export default function Profile() {
   const { user } = useAuth();
   const { profile, refreshProfile } = useSubscription();
   const [form, setForm] = useState(null);
-  const [activeSection, setActiveSection] = useState("personal");
+  const [activeSection, setActiveSectionState] = useState(() => {
+    // Restore the section the user was last editing — never default back to
+    // Personal Information after a save-induced data reload / remount.
+    try { return sessionStorage.getItem("profile_active_section") || "personal"; } catch { return "personal"; }
+  });
+  const setActiveSection = useCallback((section) => {
+    setActiveSectionState(section);
+    try { sessionStorage.setItem("profile_active_section", section); } catch {}
+  }, []);
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);

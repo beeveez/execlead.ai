@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { useDeveloper } from '@/lib/DeveloperContext';
 import { base44 } from '@/api/base44Client';
-import { buildDigitalTwin, runScenario, SCENARIO_TEMPLATES } from '@/lib/executiveDigitalTwinEngine';
+import { buildCoreTwin, enrichTwin, runScenario, SCENARIO_TEMPLATES } from '@/lib/executiveDigitalTwinEngine';
 import {
-  getCachedTwin, setCachedTwin, createMetrics,
-  subscribeToRebuild, queueRebuild,
+  getCachedTwin, setCachedTwin, createMetrics, recordDataSourceTiming,
+  subscribeToRebuild, queueRebuild, isCacheStale, getCacheTTL,
 } from '@/lib/digitalTwinCache';
-import { Brain, Sparkles, RefreshCw, Clock, ChevronRight } from 'lucide-react';
+import { Brain, Sparkles, RefreshCw, Clock } from 'lucide-react';
 import DigitalTwinHero from '@/components/digital-twin/DigitalTwinHero';
 import LeadershipForecast from '@/components/digital-twin/LeadershipForecast';
 import ScenarioSimulator from '@/components/digital-twin/ScenarioSimulator';
@@ -20,101 +20,173 @@ import {
 } from '@/components/digital-twin/SectionSkeleton';
 import PerformanceMetrics from '@/components/digital-twin/PerformanceMetrics';
 
+// Data source definitions — each has a name, fetch function, and index in results
+const DATA_SOURCES = [
+  { name: 'Identity',         fetch: (uid) => base44.entities.IdentityVerification.filter({ user_id: uid }, '-created_date', 1) },
+  { name: 'Verification Logs', fetch: (uid) => base44.entities.VerificationLog.filter({ user_id: uid }, '-created_date', 50) },
+  { name: 'Evidence',         fetch: (uid) => base44.entities.EvidenceItem.filter({ created_by_id: uid }, '-created_date', 50) },
+  { name: 'Credentials',      fetch: () => base44.entities.ExecutiveCredential.list('-created_date', 50) },
+  { name: 'Leadership DNA',   fetch: (uid) => base44.entities.LeadershipDNA.filter({ user_id: uid }, '-created_date', 1) },
+  { name: 'Portfolio',        fetch: () => base44.entities.PortfolioVersion.list('-created_date', 10) },
+  { name: 'Journey',          fetch: (uid) => base44.entities.JourneyEvent.filter({ user_id: uid }, '-created_date', 30) },
+  { name: 'Learning',        fetch: (uid) => base44.entities.LessonProgress.filter({ user_id: uid }, '-created_date', 50) },
+  { name: 'Simulations',      fetch: (uid) => base44.entities.SimulationSession.filter({ user_id: uid }, '-created_date', 20) },
+  { name: 'Achievements',     fetch: (uid) => base44.entities.Achievement.filter({ user_id: uid }, '-created_date', 30) },
+  { name: 'Competencies',    fetch: (uid) => base44.entities.ExecutiveCompetency.filter({ user_id: uid }, '-created_date', 30) },
+  { name: 'Profile',          fetch: (uid) => base44.entities.UserProfile.filter({ user_id: uid }, '-created_date', 1) },
+];
+
 export default function ExecutiveDigitalTwin() {
   const { user } = useAuth();
   const { developerMode } = useDeveloper();
 
-  // Phase 1: Immediate cache lookup — no async, no blocking
+  // Phase 1: Synchronous cache lookup — zero async, zero blocking
   const cacheRef = useRef(null);
   if (!cacheRef.current && user?.id) {
     cacheRef.current = getCachedTwin(user.id);
   }
 
-  const [twin, setTwin] = useState(() => cacheRef.current?.twin || null);
+  const cachedTwin = cacheRef.current?.twin || null;
+  const cachedAt = cacheRef.current?.cachedAt || null;
+  const cacheWasStale = cacheRef.current?.isStale ?? true;
+
+  const [twin, setTwin] = useState(cachedTwin);
+  const [coreReady, setCoreReady] = useState(!!cachedTwin?.scores);
   const [refreshing, setRefreshing] = useState(false);
   const [scenarioResult, setScenarioResult] = useState(null);
   const [runningScenario, setRunningScenario] = useState(null);
   const [metrics, setMetrics] = useState(() => {
     const m = createMetrics();
-    if (cacheRef.current) {
-      m.cacheHit = true;
+    m.cacheHit = !!cachedTwin;
+    m.cacheStale = cacheWasStale;
+    if (cachedTwin) {
       m.firstRenderTime = performance.now() - m.pageLoadStart;
     }
     return m;
   });
 
-  const cachedAt = cacheRef.current?.cachedAt || null;
-
   // ============================================================
-  // Background Data Fetch + Twin Rebuild
+  // Phase 2: Background fetch with per-source timing
   // ============================================================
   const rebuildTwin = useCallback(async (reason = 'initial_load') => {
     if (!user?.id) return;
-    setRefreshing(true);
-    setMetrics((prev) => ({ ...prev, backgroundRefreshStatus: 'refreshing', rebuildReason: reason }));
 
-    const fetchStart = performance.now();
+    // Skip rebuild if cache is fresh (within TTL) — unless explicitly forced
+    if (reason === 'initial_load' && cachedTwin && !cacheWasStale) {
+      setMetrics((prev) => ({
+        ...prev,
+        skippedRebuild: true,
+        backgroundRefreshStatus: 'completed',
+        totalLoadTime: performance.now() - prev.pageLoadStart,
+      }));
+      return;
+    }
+
+    setRefreshing(true);
+    setMetrics((prev) => ({
+      ...prev,
+      backgroundRefreshStatus: 'refreshing',
+      rebuildReason: reason,
+      skippedRebuild: false,
+    }));
 
     try {
-      const results = await Promise.all([
-        base44.entities.IdentityVerification.filter({ user_id: user.id }, '-created_date', 1).catch(() => []),
-        base44.entities.VerificationLog.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
-        base44.entities.EvidenceItem.filter({ created_by_id: user.id }, '-created_date', 50).catch(() => []),
-        base44.entities.ExecutiveCredential.list('-created_date', 50).catch(() => []),
-        base44.entities.LeadershipDNA.filter({ user_id: user.id }, '-created_date', 1).catch(() => []),
-        base44.entities.PortfolioVersion.list('-created_date', 10).catch(() => []),
-        base44.entities.JourneyEvent.filter({ user_id: user.id }, '-created_date', 30).catch(() => []),
-        base44.entities.LessonProgress.filter({ user_id: user.id }, '-created_date', 50).catch(() => []),
-        base44.entities.SimulationSession.filter({ user_id: user.id }, '-created_date', 20).catch(() => []),
-        base44.entities.Achievement.filter({ user_id: user.id }, '-created_date', 30).catch(() => []),
-        base44.entities.ExecutiveCompetency.filter({ user_id: user.id }, '-created_date', 30).catch(() => []),
-        base44.entities.UserProfile.filter({ user_id: user.id }, '-created_date', 1).catch(() => []),
-      ]);
-
-      const dataSourcesLoaded = results.filter((r) => r !== null && r !== undefined).length;
-
-      const buildStart = performance.now();
-      const built = buildDigitalTwin({
-        user,
-        verification: results[0][0] || null,
-        logs: results[1],
-        evidence: results[2],
-        credentials: results[3],
-        leadershipDNA: results[4]?.[0] || null,
-        portfolioVersions: results[5],
-        journeyEvents: results[6],
-        lessonProgress: results[7],
-        simulations: results[8],
-        achievements: results[9],
-        competencies: results[10],
-        profile: results[11]?.[0] || {},
+      // ── Phase 2a: Fire ALL queries in parallel with individual timing ──
+      const fetchStart = performance.now();
+      const timedPromises = DATA_SOURCES.map(async (source) => {
+        const t0 = performance.now();
+        try {
+          const result = await source.fetch(user.id);
+          const duration = performance.now() - t0;
+          const recordCount = Array.isArray(result) ? result.length : (result ? 1 : 0);
+          return { data: result, duration, status: 'ok', recordCount, name: source.name };
+        } catch (e) {
+          const duration = performance.now() - t0;
+          return { data: [], duration, status: 'error', recordCount: 0, name: source.name };
+        }
       });
-      const twinBuildTime = performance.now() - buildStart;
 
+      const results = await Promise.all(timedPromises);
+      const fetchDuration = performance.now() - fetchStart;
+
+      // Record per-source timings into metrics
+      const updatedMetrics = { ...metrics };
+      updatedMetrics.dataSourceTimings = [];
+      updatedMetrics.slowestQuery = null;
+      updatedMetrics.blockingRequests = [];
+      results.forEach((r) => {
+        recordDataSourceTiming(updatedMetrics, r.name, r.duration, r.status, r.recordCount);
+      });
+      updatedMetrics.dataSourcesLoaded = results.filter((r) => r.status === 'ok').length;
+      updatedMetrics.dataSourcesTotal = DATA_SOURCES.length;
+      updatedMetrics.dataSourcesTotalRequested = DATA_SOURCES.length;
+      updatedMetrics.parallelRequests = true;
+      setMetrics(updatedMetrics);
+
+      // ── Phase 2b: Build CORE twin (fast, synchronous) — powers Hero + Simulator ──
+      const coreBuildStart = performance.now();
+      const built = buildCoreTwin({
+        user,
+        verification: results[0]?.data?.[0] || null,
+        logs: results[1]?.data || [],
+        evidence: results[2]?.data || [],
+        credentials: results[3]?.data || [],
+        leadershipDNA: results[4]?.data?.[0] || null,
+        portfolioVersions: results[5]?.data || [],
+        journeyEvents: results[6]?.data || [],
+        lessonProgress: results[7]?.data || [],
+        simulations: results[8]?.data || [],
+        achievements: results[9]?.data || [],
+        competencies: results[10]?.data || [],
+        profile: results[11]?.data?.[0] || {},
+      });
+      const coreBuildTime = performance.now() - coreBuildStart;
+
+      // Set core twin immediately — Hero + Simulator render NOW
       setTwin(built);
-      setCachedTwin(user.id, built, { twinBuildTime, dataSourcesLoaded });
+      setCoreReady(true);
+      setCachedTwin(user.id, built, { coreBuildTime, fetchDuration });
 
       setMetrics((prev) => ({
         ...prev,
-        totalLoadTime: performance.now() - prev.pageLoadStart,
-        twinBuildTime,
-        dataSourcesLoaded,
-        backgroundRefreshStatus: 'completed',
+        coreBuildTime,
+        twinBuildTime: coreBuildTime,
       }));
+
+      // ── Phase 2c: Defer enrichment to next tick — doesn't block Hero render ──
+      // Use requestIdleCallback if available, else setTimeout(0)
+      const scheduleEnrichment = window.requestIdleCallback || ((cb) => setTimeout(cb, 0));
+      scheduleEnrichment(() => {
+        const enrichStart = performance.now();
+        const enriched = enrichTwin(built);
+        const enrichmentTime = performance.now() - enrichStart;
+
+        setTwin(enriched);
+        setCachedTwin(user.id, enriched, { coreBuildTime, enrichmentTime, fetchDuration });
+
+        setMetrics((prev) => ({
+          ...prev,
+          enrichmentTime,
+          twinBuildTime: coreBuildTime + enrichmentTime,
+          totalLoadTime: performance.now() - prev.pageLoadStart,
+          backgroundRefreshStatus: 'completed',
+        }));
+        setRefreshing(false);
+      });
     } catch (e) {
       setMetrics((prev) => ({ ...prev, backgroundRefreshStatus: 'error' }));
+      setRefreshing(false);
     }
-    setRefreshing(false);
-  }, [user?.id]);
+  }, [user?.id, cachedTwin, cacheWasStale, metrics]);
 
-  // Phase 2: Kick off background rebuild on mount (non-blocking)
+  // Kick off background rebuild on mount (non-blocking)
   useEffect(() => {
     if (user?.id) {
       rebuildTwin('initial_load');
     }
   }, [user?.id, rebuildTwin]);
 
-  // Phase 3: Subscribe to data-change rebuild events
+  // Subscribe to data-change rebuild events
   useEffect(() => {
     if (!user?.id) return;
     const unsub = subscribeToRebuild((reason) => {
@@ -123,7 +195,7 @@ export default function ExecutiveDigitalTwin() {
     return unsub;
   }, [user?.id, rebuildTwin]);
 
-  // Phase 4: Realtime subscriptions — queue rebuild on entity changes
+  // Realtime subscriptions — queue rebuild on entity changes
   useEffect(() => {
     if (!user?.id) return;
     const entities = [
@@ -154,7 +226,7 @@ export default function ExecutiveDigitalTwin() {
     setRunningScenario(null);
   };
 
-  // Determine which sections have data
+  // Determine which sections have data — progressive rendering
   const hasHero = !!twin?.scores;
   const hasForecast = !!twin?.forecast;
   const hasTrajectory = !!twin?.trajectory;
@@ -184,7 +256,6 @@ export default function ExecutiveDigitalTwin() {
             identity, evidence, verification, trust, and leadership intelligence.
           </p>
         </div>
-        {/* Last Updated badge */}
         {cachedAt && (
           <div className="flex items-center gap-1.5 text-[10px] text-white/30 bg-white/[0.02] border border-white/5 rounded-full px-3 py-1.5">
             <Clock size={10} />
@@ -193,22 +264,22 @@ export default function ExecutiveDigitalTwin() {
         )}
       </div>
 
-      {/* Hero — cached data renders immediately, skeleton if no cache */}
+      {/* Hero — renders immediately from cache or core build */}
       <SectionLoader loading={!hasHero} skeleton={HeroSkeleton} label="scores">
         {hasHero && <DigitalTwinHero twin={twin} />}
       </SectionLoader>
 
-      {/* Leadership Forecast */}
+      {/* Leadership Forecast — waits for enrichment */}
       <SectionLoader loading={!hasForecast} skeleton={ForecastSkeleton} label="forecast">
         {hasForecast && <LeadershipForecast forecast={twin.forecast} twin={twin} />}
       </SectionLoader>
 
-      {/* Career Trajectory */}
+      {/* Career Trajectory — waits for enrichment */}
       <SectionLoader loading={!hasTrajectory} skeleton={TrajectorySkeleton} label="trajectory">
         {hasTrajectory && <CareerTrajectory trajectory={twin.trajectory} />}
       </SectionLoader>
 
-      {/* Scenario Simulator */}
+      {/* Scenario Simulator — available as soon as core scores are ready */}
       <SectionLoader loading={!hasSimulator} skeleton={SimulatorSkeleton} label="simulator">
         {hasSimulator && (
           <ScenarioSimulator
@@ -221,7 +292,7 @@ export default function ExecutiveDigitalTwin() {
         )}
       </SectionLoader>
 
-      {/* Twin Intelligence */}
+      {/* Twin Intelligence — waits for enrichment */}
       <SectionLoader loading={!hasIntelligence} skeleton={IntelligenceSkeleton} label="intelligence">
         {hasIntelligence ? (
           <TwinIntelligence intelligence={twin.intelligence} />
@@ -233,7 +304,7 @@ export default function ExecutiveDigitalTwin() {
         )}
       </SectionLoader>
 
-      {/* Recommendations */}
+      {/* Recommendations — waits for enrichment */}
       <SectionLoader loading={!hasRecommendations} skeleton={RecommendationSkeleton} label="recommendations">
         {hasRecommendations && <RecommendationEngine recommendations={twin.recommendations} />}
       </SectionLoader>

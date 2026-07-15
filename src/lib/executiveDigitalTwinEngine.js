@@ -186,6 +186,37 @@ export function buildDigitalTwin(raw) {
     computedAt: new Date().toISOString(),
   };
 
+  return twin;
+}
+
+// ============================================================
+// Progressive Build — Core (fast) + Enrichment (deferred)
+// ============================================================
+
+/**
+ * Phase 1: Build the core twin with scores only.
+ * This is the fast synchronous computation that powers
+ * the Hero and Scenario Simulator sections.
+ * Does NOT compute forecast, intelligence, recommendations, or trajectory.
+ */
+export function buildCoreTwin(raw) {
+  const twin = buildDigitalTwin(raw);
+  // Strip heavy computations — they'll be added in enrichTwin
+  twin.forecast = null;
+  twin.intelligence = null;
+  twin.recommendations = null;
+  twin.trajectory = null;
+  return twin;
+}
+
+/**
+ * Phase 2: Enrich the twin with forecast, intelligence,
+ * recommendations, and trajectory.
+ * This is the heavier computation that can be deferred
+ * to after initial render (requestIdleCallback / setTimeout).
+ */
+export function enrichTwin(twin) {
+  if (!twin) return twin;
   // ── Forecast ──
   twin.forecast = computeLeadershipForecast(twin);
 

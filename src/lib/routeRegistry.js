@@ -163,6 +163,7 @@ const APP_ROUTES = [
   { path: "/verification-center", component: "VerificationCenter", name: "Verification Center™", feature: null },
   { path: "/identity-graph", component: "IdentityGraph", name: "Identity Graph™", feature: null },
   { path: "/evidence-vault", component: "EvidenceVault", name: "Executive Evidence Vault™", feature: null },
+  { path: "/digital-twin", component: "ExecutiveDigitalTwin", name: "Executive Digital Twin™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

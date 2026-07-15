@@ -104,3 +104,34 @@ export function computeCompletenessBreakdown(data) {
   const overall = Math.round(cats.reduce((s, c) => s + c.score, 0) / cats.length);
   return { categories: cats, overall, missingItems: cats.filter(c => c.score < 100).length };
 }
+
+export const SCOREBOARD_ROUTES = {
+  completeness: '/executive-portfolio',
+  readiness: '/executive-readiness',
+  dna: '/leadership-dna',
+  trust: '/security',
+  reputation: '/reputation',
+  journey: '/journey',
+  learning: '/academy',
+  simulation: '/simulator',
+  career: '/career',
+  visibility: '/brand-center',
+};
+
+export function getActionableRecommendations(data, completeness) {
+  const recs = [
+    { id: 'generate_summary', title: 'Generate AI Executive Summary', description: 'Create your AI-powered executive summary', estimatedTime: '5 min', expectedImprovement: 10, completion: data.hasSummary ? 100 : 0, route: '/profile' },
+    { id: 'leadership_dna', title: 'Leadership DNA', description: 'Complete your Leadership DNA assessment', estimatedTime: '20 min', expectedImprovement: 15, completion: data.hasDNA ? 100 : 0, route: '/leadership-dna' },
+    { id: 'resume_score', title: 'Resume Score', description: 'Upload and analyze your resume', estimatedTime: '10 min', expectedImprovement: 10, completion: data.hasResume ? 100 : 0, route: '/resume' },
+    { id: 'add_certifications', title: 'Add Certifications', description: 'Add professional certifications and credentials', estimatedTime: '10 min', expectedImprovement: 10, completion: Math.min(100, (data.certificatesCount || 0) * 30), route: '/executive-credentials' },
+    { id: 'add_experience', title: 'Add Experience', description: 'Document your career timeline and achievements', estimatedTime: '15 min', expectedImprovement: 12, completion: Math.min(100, (data.achievementsCount || 0) * 15), route: '/executive-portfolio' },
+    { id: 'publish_profile', title: 'Publish Executive Profile', description: 'Make your executive profile publicly visible', estimatedTime: '5 min', expectedImprovement: 8, completion: data.profileVisible ? 100 : 0, route: '/brand-center' },
+    { id: 'learning_activity', title: 'Learning & Activity', description: 'Complete executive academy lessons', estimatedTime: '30 min', expectedImprovement: 10, completion: Math.min(100, (data.lessonsCount || 0) * 10), route: '/academy' },
+    { id: 'promotion_readiness', title: 'Promotion Readiness', description: 'Assess your executive promotion readiness', estimatedTime: '10 min', expectedImprovement: 12, completion: data.readinessScore || 0, route: '/executive-readiness' },
+    { id: 'connect_linkedin', title: 'Connect LinkedIn', description: 'Link your LinkedIn account for profile enrichment', estimatedTime: '3 min', expectedImprovement: 5, completion: data.hasLinkedIn ? 100 : 0, route: '/connected-accounts' },
+    { id: 'executive_brand', title: 'Executive Brand Score', description: 'Build and optimize your executive brand', estimatedTime: '15 min', expectedImprovement: 8, completion: 0, route: '/brand-center' },
+    { id: 'company_alignment', title: 'Company Alignment', description: 'Explore company intelligence and career opportunities', estimatedTime: '10 min', expectedImprovement: 5, completion: 0, route: '/career' },
+    { id: 'profile_completeness', title: 'Profile Completeness', description: 'Complete your portfolio to maximize your score', estimatedTime: '20 min', expectedImprovement: 15, completion: completeness || 0, route: '/executive-portfolio' },
+  ];
+  return recs.filter(r => r.completion < 100).sort((a, b) => a.completion - b.completion);
+}

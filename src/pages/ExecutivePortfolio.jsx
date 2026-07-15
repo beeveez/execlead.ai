@@ -6,6 +6,7 @@ import { isSectionVisible } from '@/lib/portfolioEngineV2';
 import SectionNavigator from '@/components/portfolio/SectionNavigator';
 import PortfolioHero from '@/components/portfolio/PortfolioHero';
 import PortfolioScoreboard from '@/components/portfolio/PortfolioScoreboard';
+import RecommendationPanel from '@/components/portfolio/RecommendationPanel';
 import IdentityLayer from '@/components/portfolio/IdentityLayer';
 import PortfolioViews from '@/components/portfolio/PortfolioViews';
 import PortfolioHealth from '@/components/portfolio/PortfolioHealth';
@@ -86,6 +87,7 @@ export default function ExecutivePortfolio() {
       <PortfolioHero user={user} data={data} />
       <IdentityLayer data={data} completeness={completeness} />
       <PortfolioScoreboard data={data} completeness={completeness} />
+      <RecommendationPanel data={data} completeness={completeness} />
       <PortfolioHealth data={data} />
       <PortfolioViews mode={viewMode} onChange={setViewMode} />
       <SectionNavigator sections={S.filter(s => vis(s.id))} active={active} onSelect={scrollTo} />

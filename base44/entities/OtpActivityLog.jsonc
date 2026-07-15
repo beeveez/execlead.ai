@@ -1,0 +1,106 @@
+{
+  "name": "OtpActivityLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "phone_number_masked": {
+      "type": "string",
+      "description": "E.164 phone number masked for privacy"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "twilio",
+        "vonage",
+        "aws_sns",
+        "messagebird",
+        "semaphore",
+        "email",
+        "none"
+      ],
+      "default": "email",
+      "description": "SMS provider or email"
+    },
+    "delivery_status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "failed",
+        "verified",
+        "expired",
+        "pending"
+      ],
+      "default": "pending",
+      "description": "OTP delivery status"
+    },
+    "failure_reason": {
+      "type": "string",
+      "description": "Reason for failure if delivery_status is failed"
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of retry attempts for this request"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "sms",
+        "email"
+      ],
+      "default": "email",
+      "description": "Delivery method"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

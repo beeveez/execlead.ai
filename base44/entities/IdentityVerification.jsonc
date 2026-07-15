@@ -41,6 +41,28 @@
     "phone_number": {
       "type": "string"
     },
+    "phone_otp_code": {
+      "type": "string",
+      "description": "Current OTP code for phone verification"
+    },
+    "phone_otp_expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "OTP expiry timestamp"
+    },
+    "phone_otp_attempts": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of failed OTP verification attempts"
+    },
+    "phone_otp_method": {
+      "type": "string",
+      "enum": [
+        "sms",
+        "email"
+      ],
+      "description": "OTP delivery method used"
+    },
     "identity_verified": {
       "type": "boolean",
       "default": false

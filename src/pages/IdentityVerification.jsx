@@ -9,6 +9,8 @@ import TrustScoreCard from "@/components/trust/TrustScoreCard";
 import ExecutiveTrustPanel from "@/components/trust/ExecutiveTrustPanel";
 import IdentityUpload from "@/components/trust/IdentityUpload";
 import VerificationHistory from "@/components/trust/VerificationHistory";
+import PhoneVerificationModal from "@/components/trust/PhoneVerificationModal";
+import OtpDiagnosticsPanel from "@/components/trust/OtpDiagnosticsPanel";
 
 export default function IdentityVerification() {
   const { user } = useAuth();
@@ -18,10 +20,6 @@ export default function IdentityVerification() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [phoneModal, setPhoneModal] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [phoneError, setPhoneError] = useState("");
 
   const load = useCallback(async () => {
     if (!user?.id) return;
@@ -85,41 +83,6 @@ export default function IdentityVerification() {
   }, [user?.id, profile?.id, foundingMember?.id, membership?.type]);
 
   useEffect(() => { load(); }, [load]);
-
-  const handlePhoneVerify = async () => {
-    setPhoneError("");
-    if (!otpSent) {
-      if (!phoneNumber.trim()) { setPhoneError("Enter a valid phone number"); return; }
-      setOtpSent(true);
-    } else {
-      if (!otpCode.trim()) { setPhoneError("Enter the OTP code"); return; }
-      try {
-        const updates = {
-          phone_verified: true,
-          phone_verified_date: new Date().toISOString(),
-          phone_number: phoneNumber,
-        };
-        const recalced = recalculateTrust({ ...verification, ...updates });
-        const updated = await base44.entities.IdentityVerification.update(verification.id, { ...updates, trust_score: recalced.trust_score, trust_level: recalced.trust_level });
-        await base44.entities.VerificationLog.create({
-          verification_id: verification.id,
-          user_id: verification.user_id,
-          user_name: verification.user_name,
-          action: "phone_verified",
-          decision: "approved",
-          notes: `Phone verified: ${phoneNumber}`,
-        });
-        setVerification(updated);
-        setPhoneModal(false);
-        setOtpSent(false);
-        setPhoneNumber("");
-        setOtpCode("");
-        load();
-      } catch (e) {
-        setPhoneError(e.message || "Verification failed");
-      }
-    }
-  };
 
   if (loading) {
     return (
@@ -243,40 +206,21 @@ export default function IdentityVerification() {
         </div>
       )}
 
+      {/* OTP Developer Diagnostics */}
+      {user && ["admin", "super_admin", "platform_admin", "developer"].includes(user.role) && (
+        <OtpDiagnosticsPanel />
+      )}
+
       {/* Verification History */}
       <VerificationHistory logs={logs} />
 
       {/* Phone Verification Modal */}
       {phoneModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPhoneModal(false)}>
-          <div className="bg-[#0d0d14] border border-white/10 rounded-2xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-white font-semibold text-sm mb-4">Phone Verification</h3>
-            {!otpSent ? (
-              <input
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-                value={phoneNumber}
-                onChange={e => setPhoneNumber(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 h-10 text-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50"
-              />
-            ) : (
-              <input
-                type="text"
-                placeholder="Enter OTP code"
-                value={otpCode}
-                onChange={e => setOtpCode(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 h-10 text-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 text-center tracking-widest"
-              />
-            )}
-            {phoneError && <p className="text-xs text-red-400 mt-2">{phoneError}</p>}
-            <div className="flex gap-2 mt-4">
-              <button onClick={() => { setPhoneModal(false); setOtpSent(false); setPhoneError(""); }} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium">Cancel</button>
-              <button onClick={handlePhoneVerify} className="flex-1 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium">
-                {otpSent ? "Verify OTP" : "Send OTP"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <PhoneVerificationModal
+          verification={verification}
+          onClose={() => setPhoneModal(false)}
+          onSuccess={() => { setPhoneModal(false); load(); }}
+        />
       )}
     </div>
   );

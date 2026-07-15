@@ -303,49 +303,54 @@ export const NAV_GROUPS = [
 
 export const DEVELOPER_WORKSPACE_NAV = [
   {
-    label: "Workspace",
+    label: "Developer Command Center™",
     items: [
       { path: "/developer", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
-      { path: "/guardian", label: "Guardian", icon: ShieldCheck },
     ],
   },
   {
-    label: "Administration",
+    label: "Platform Operations",
     items: [
-      { path: "/admin", label: "Admin Console", icon: Shield },
-      { path: "/enterprise", label: "Enterprise Admin", icon: Building2 },
-      { path: "/organization/users", label: "User Management", icon: Users },
+      { path: "/developer/system-health", label: "System Health", icon: Cpu },
+      { path: "/developer/experience-audit", label: "Experience Audit", icon: ClipboardCheck },
+    ],
+  },
+  {
+    label: "Security & Trust",
+    items: [
+      { path: "/guardian", label: "Guardian", icon: ShieldCheck },
+      { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
+    ],
+  },
+  {
+    label: "Engineering",
+    items: [
+      { path: "/developer/api-keys", label: "API Keys", icon: KeyRound },
+      { path: "/developer/database", label: "Database Tools", icon: Database },
+      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
+      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
     ],
   },
   {
     label: "Configuration",
     items: [
+      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+    ],
+  },
+  {
+    label: "System Administration",
+    items: [
+      { path: "/admin", label: "Admin Console", icon: Shield },
+      { path: "/enterprise", label: "Enterprise Admin", icon: Building2 },
+      { path: "/organization/users", label: "User Management", icon: Users },
+      { path: "/developer/organizations", label: "Organizations", icon: Network },
       { path: "/pricing-admin", label: "Pricing Admin", icon: DollarSign },
       { path: "/billing-admin", label: "Billing Admin", icon: Receipt },
       { path: "/email-settings", label: "Email Settings", icon: Mail },
       { path: "/payment-settings", label: "Payment Providers", icon: Lock },
-    ],
-  },
-  {
-    label: "Sales & Data",
-    items: [
       { path: "/cpq", label: "CPQ Wizard", icon: Calculator },
       { path: "/cpq-dashboard", label: "Sales Pipeline", icon: TrendingUp },
       { path: "/company-admin", label: "Company Admin", icon: Database },
-      { path: "/developer/organizations", label: "Organization Admin", icon: Network },
-      { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { path: "/developer/system-health", label: "System Health", icon: Cpu },
-      { path: "/developer/api-keys", label: "API Keys", icon: KeyRound },
-      { path: "/developer/database", label: "Database Tools", icon: Database },
-      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
-      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
-      { path: "/developer/experience-audit", label: "Experience Audit", icon: ClipboardCheck },
     ],
   },
 ];

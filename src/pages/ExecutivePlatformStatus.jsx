@@ -4,6 +4,8 @@ import { useGuardian } from "@/lib/GuardianContext";
 import { useDeveloper } from "@/lib/DeveloperContext";
 import { useAuth } from "@/lib/AuthContext";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
+import { useWorkspace } from "@/lib/WorkspaceContext";
+import { getPlatformStatusConfig } from "@/lib/platformStatusProvider";
 import { computeFounderSnapshot } from "@/lib/founderMissionControl";
 import ScoreRing from "@/components/founder-mc/ScoreRing";
 import PlatformOverview from "@/components/founder-mc/PlatformOverview";
@@ -19,7 +21,7 @@ import Roadmap from "@/components/founder-mc/Roadmap";
 import ExecCopilot from "@/components/founder-mc/ExecCopilot";
 import ExplainableScoresSection from "@/components/score/ExplainableScoresSection";
 import ScoreExplainableDrawer from "@/components/score/ScoreExplainableDrawer";
-import { Shield, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 export default function ExecutivePlatformStatus() {
   const state = usePlatformState();
@@ -27,6 +29,12 @@ export default function ExecutivePlatformStatus() {
   const { canAccessDeveloper } = useDeveloper();
   const { user } = useAuth();
   const concierge = useExecConcierge();
+  const { role, plan, activeWorkspace } = useWorkspace();
+
+  const statusConfig = useMemo(
+    () => getPlatformStatusConfig(role, plan, activeWorkspace),
+    [role, plan, activeWorkspace]
+  );
 
   const snapshot = useMemo(() => {
     const runtime = {
@@ -42,19 +50,8 @@ export default function ExecutivePlatformStatus() {
     };
     return computeFounderSnapshot(state, guardian, runtime);
   }, [state, guardian, concierge.userContext, concierge.messages, concierge.workspacePersona, concierge.pageContext, concierge.learnedPreferences]);
-  const [heroExplain, setHeroExplain] = useState(false);
 
-  if (!canAccessDeveloper) {
-    return (
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">
-          <Shield size={32} className="mx-auto text-white/20 mb-3" />
-          <h2 className="text-white font-medium mb-1">Developer Access Required</h2>
-          <p className="text-white/30 text-sm">Executive Platform Status™ is restricted to Developer and Super Admin roles.</p>
-        </div>
-      </div>
-    );
-  }
+  const [heroExplain, setHeroExplain] = useState(false);
 
   if (state.safeMode) {
     return (
@@ -65,82 +62,87 @@ export default function ExecutivePlatformStatus() {
   }
 
   const { overview, launch } = snapshot;
+  const showDevWidgets = canAccessDeveloper;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Hero Header */}
+      {/* Dynamic Platform Status™ Header */}
       <div className="bg-gradient-to-br from-indigo-500/10 via-white/[0.02] to-transparent border border-indigo-500/10 rounded-2xl p-6 flex items-center gap-6 flex-wrap">
-        <button type="button" onClick={() => setHeroExplain(true)} className="cursor-pointer hover:opacity-80 transition-opacity" title="Click to explain Platform Health™">
-          <ScoreRing score={overview.platformHealth} size={90} label="Health" />
-        </button>
+        {showDevWidgets && (
+          <button type="button" onClick={() => setHeroExplain(true)} className="cursor-pointer hover:opacity-80 transition-opacity" title="Click to explain Platform Health™">
+            <ScoreRing score={overview.platformHealth} size={90} label="Health" />
+          </button>
+        )}
         <div className="flex-1 min-w-[200px]">
           <div className="flex items-center gap-2 mb-1">
             <Trophy size={18} className="text-amber-400" />
-            <h1 className="text-xl font-bold text-white">Executive Platform Status™</h1>
+            <h1 className="text-xl font-bold text-white">{statusConfig.title}</h1>
           </div>
-          <p className="text-white/50 text-sm">Founder Mission Control™ — the single executive view of the entire EXECLEAD.AI platform.</p>
-          <div className="flex items-center gap-4 mt-2 text-xs">
-            <span className="text-white/40">v{overview.version} · Build {overview.buildNumber}</span>
-            <span className="text-white/20">·</span>
-            <span style={{ color: launch.color }}>{launch.levelShort} — {launch.levelName}</span>
-            <span className="text-white/20">·</span>
-            <span className="text-white/40">{overview.executionStream}</span>
+          <p className="text-white/50 text-sm">{statusConfig.subtitle}</p>
+          {showDevWidgets && (
+            <div className="flex items-center gap-4 mt-2 text-xs">
+              <span className="text-white/40">v{overview.version} · Build {overview.buildNumber}</span>
+              <span className="text-white/20">·</span>
+              <span style={{ color: launch.color }}>{launch.levelShort} — {launch.levelName}</span>
+              <span className="text-white/20">·</span>
+              <span className="text-white/40">{overview.executionStream}</span>
+            </div>
+          )}
+        </div>
+        {showDevWidgets && (
+          <div className="flex flex-col items-end gap-1">
+            <div className="text-[10px] text-white/30 uppercase tracking-wider">Launch Readiness</div>
+            <div className="text-2xl font-bold" style={{ color: launch.color }}>{launch.score}%</div>
+            <div className="text-[10px]" style={{ color: launch.color }}>{launch.launchReady ? "✓ Launch Ready" : "Not Yet Ready"}</div>
           </div>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="text-[10px] text-white/30 uppercase tracking-wider">Launch Readiness</div>
-          <div className="text-2xl font-bold" style={{ color: launch.color }}>{launch.score}%</div>
-          <div className="text-[10px]" style={{ color: launch.color }}>{launch.launchReady ? "✓ Launch Ready" : "Not Yet Ready"}</div>
-        </div>
+        )}
       </div>
 
-      {/* Section 1: Platform Overview */}
-      <PlatformOverview overview={overview} />
-
-      {/* Section 2: Executive Stream Intelligence™ */}
-      <StreamProgress streams={snapshot.streams} snapshot={snapshot} user={user} />
-
-      {/* Section 2b: Explainable Platform Scores™ */}
-      <ExplainableScoresSection snapshot={snapshot} user={user} />
-
-      {/* Section 3: Engineering Health */}
-      <EngineeringHealth engineering={snapshot.engineering} />
-
-      {/* Section 4: EXEC™ Daily Briefing */}
-      <ExecBriefing snapshot={snapshot} />
-
-      {/* Section 5 & 8 side by side on large screens */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EnterpriseReadiness snapshot={snapshot} user={user} />
-        <LaunchReadiness launch={launch} />
+      {/* Dynamic Metrics Bar */}
+      <div className="flex items-center gap-3 flex-wrap">
+        {statusConfig.metrics.map((m) => (
+          <div key={m.key} className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2">
+            <m.icon size={14} className={statusConfig.accent} />
+            <span className="text-xs text-white/60">{m.label}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Section 6: Product Status */}
-      <ProductStatus products={snapshot.products} />
+      {/* Developer/Super Admin Mission Control Widgets */}
+      {showDevWidgets ? (
+        <>
+          <PlatformOverview overview={overview} />
+          <StreamProgress streams={snapshot.streams} snapshot={snapshot} user={user} />
+          <ExplainableScoresSection snapshot={snapshot} user={user} />
+          <EngineeringHealth engineering={snapshot.engineering} />
+          <ExecBriefing snapshot={snapshot} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <EnterpriseReadiness snapshot={snapshot} user={user} />
+            <LaunchReadiness launch={launch} />
+          </div>
+          <ProductStatus products={snapshot.products} />
+          <AIIntelligence aiIntelligence={snapshot.aiIntelligence} />
+          <FounderKPIs kpis={snapshot.kpis} />
+          <Roadmap roadmap={snapshot.roadmap} />
+          <ExecCopilot snapshot={snapshot} />
 
-      {/* Section 7: AI Intelligence */}
-      <AIIntelligence aiIntelligence={snapshot.aiIntelligence} />
+          {heroExplain && (
+            <ScoreExplainableDrawer scoreId="platform_health" snapshot={snapshot} user={user} onClose={() => setHeroExplain(false)} />
+          )}
+        </>
+      ) : (
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center">
+          <p className="text-white/40 text-sm leading-relaxed max-w-md mx-auto">
+            {statusConfig.subtitle} Detailed platform engineering metrics are available in the Developer workspace.
+          </p>
+        </div>
+      )}
 
-      {/* Section 9: Founder KPIs */}
-      <FounderKPIs kpis={snapshot.kpis} />
-
-      {/* Section 10: Roadmap */}
-      <Roadmap roadmap={snapshot.roadmap} />
-
-      {/* Section 11: EXEC™ Founder Copilot */}
-      <ExecCopilot snapshot={snapshot} />
-
-      {/* Section 12: Success — closing vision */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 text-center">
         <p className="text-white/30 text-xs">
-          Executive Platform Status™ — the single source of truth for Engineering, Architecture, Product, AI, Enterprise, Launch, and Strategy.
+          {statusConfig.title} — the adaptive view of your EXECLEAD.AI platform experience.
         </p>
       </div>
-
-      {/* Hero Score Explainable Drawer */}
-      {heroExplain && (
-        <ScoreExplainableDrawer scoreId="platform_health" snapshot={snapshot} user={user} onClose={() => setHeroExplain(false)} />
-      )}
     </div>
   );
 }

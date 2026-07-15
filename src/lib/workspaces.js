@@ -195,65 +195,67 @@ export const WORKSPACE_NAV = {
     ]},
   ],
   developer: [
-    { label: "Documentation", items: [
-      { path: "/developer-portal", label: "Developer Portal™", icon: FileText },
+    { label: "Developer Command Center™", items: [
+      { path: "/developer", label: "Dashboard", icon: LayoutDashboard },
     ]},
-    { label: "Architecture", items: [
-      { path: "/architecture-governance", label: "Architecture Governance Board™", icon: Building2 },
-    ]},
-    { label: "Deployment", items: [
-      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
-      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
-    ]},
-    { label: "Architecture", items: [
+    { label: "Platform Operations", items: [
+      { path: "/developer/executive-platform-status", label: "Platform Status™", icon: Trophy },
+      { path: "/exec-os", label: "EXEC™ Operating System™", icon: Sparkles },
+      { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
+      { path: "/developer/launch-readiness", label: "Launch Readiness™", icon: Rocket },
       { path: "/developer/architecture-audit", label: "Architecture Audit™", icon: Building2 },
+      { path: "/architecture-governance", label: "Architecture Governance Board™", icon: Building2 },
       { path: "/developer/scalability", label: "Scalability™", icon: TrendingUp },
       { path: "/developer/performance-resilience", label: "Performance & Resilience™", icon: Gauge },
+      { path: "/developer/experience-audit", label: "Autonomic Experience Engine™", icon: ClipboardCheck },
     ]},
-    { label: "Registry", items: [
-      { path: "/developer/report-registry", label: "Report Registry™", icon: FileText },
-      { path: "/developer/form-lookup-registry", label: "Form Lookup Registry™", icon: ClipboardCheck },
-    ]},
-    { label: "APIs", items: [
-      { path: "/developer/api-keys", label: "API Management", icon: KeyRound },
-    ]},
-    { label: "Security", items: [
-      { path: "/developer/security-intelligence", label: "Security Intelligence™", icon: Shield },
-      { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
-    ]},
-    { label: "Privacy", items: [
-      { path: "/developer/privacy-compliance", label: "Platform Privacy & Compliance™", icon: Lock },
-    ]},
-    { label: "AI", items: [
-      { path: "/developer/cognitive", label: "Cognitive Excellence Engine™", icon: Brain },
-      { path: "/developer/cognitive/memory", label: "AI Memory Intelligence™", icon: Brain },
-      { path: "/developer/cognitive/personalization", label: "Personalization Intelligence™", icon: UserCircle },
-      { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
-      { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
-      { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
-    ]},
-    { label: "Commercial", items: [
-      { path: "/developer/commercial-governance", label: "Commercial Governance Center™", icon: Scale },
+    { label: "AI Control Plane", items: [
       { path: "/developer/ai-optimization", label: "AI Optimization Layer™", icon: Brain },
       { path: "/developer/ai-policy", label: "AI Policy Engine™", icon: Shield },
       { path: "/developer/model-router", label: "Model Router™", icon: Cpu },
       { path: "/developer/ai-observability", label: "AI Observability Center™", icon: Activity },
+      { path: "/developer/ai-command-center", label: "AI Command Center", icon: Cpu },
+      { path: "/developer/cognitive", label: "Cognitive Excellence Engine™", icon: Brain },
+      { path: "/developer/cognitive/memory", label: "AI Memory Intelligence™", icon: Brain },
+      { path: "/developer/cognitive/personalization", label: "Personalization Intelligence™", icon: UserCircle },
+    ]},
+    { label: "Executive Intelligence", items: [
       { path: "/developer/promotion-forecast", label: "Promotion Forecast Engine™", icon: TrendingUp },
-      { path: "/developer/commercial-readiness", label: "Commercial Readiness™", icon: DollarSign },
       { path: "/developer/executive-product-board", label: "Executive Product Board™", icon: Building2 },
       { path: "/developer/intelligence-suite-simulator", label: "Intelligence Suite Simulator™", icon: Sparkles },
+      { path: "/exec-admin", label: "EXEC™ Console", icon: Sparkles },
     ]},
-    { label: "Platform Health", items: [
-      { path: "/developer/executive-platform-status", label: "Executive Platform Status™", icon: Trophy },
-      { path: "/exec-os", label: "EXEC™ Operating System™", icon: Sparkles },
-      { path: "/developer", label: "Developer Dashboard", icon: LayoutDashboard },
+    { label: "Commercial Operations", items: [
+      { path: "/developer/commercial-governance", label: "Commercial Governance Center™", icon: Scale },
+      { path: "/developer/commercial-readiness", label: "Commercial Readiness™", icon: DollarSign },
+    ]},
+    { label: "Security & Trust", items: [
+      { path: "/developer/security-intelligence", label: "Security Intelligence™", icon: Shield },
+      { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
+      { path: "/developer/privacy-compliance", label: "Platform Privacy & Compliance™", icon: Lock },
+    ]},
+    { label: "Data & Knowledge", items: [
+      { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
+      { path: "/developer/report-registry", label: "Report Registry™", icon: FileText },
+    ]},
+    { label: "Observability", items: [
       { path: "/developer/system-health", label: "System Health", icon: Activity },
       { path: "/developer/stability", label: "Platform Stability™", icon: Activity },
-      { path: "/developer/diagnostics", label: "Platform Governance Center™", icon: Gauge },
-      { path: "/developer/experience-audit", label: "Platform Autonomic Experience Engine™", icon: ClipboardCheck },
-      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
-      { path: "/developer/database", label: "Database Explorer", icon: Database },
       { path: "/developer/audit-logs", label: "Audit Logs", icon: FileText },
+    ]},
+    { label: "Engineering", items: [
+      { path: "/developer-portal", label: "Developer Portal™", icon: FileText },
+      { path: "/developer/api-keys", label: "API Management", icon: KeyRound },
+      { path: "/developer/database", label: "Database Explorer", icon: Database },
+      { path: "/developer/migrations", label: "Migration History", icon: GitBranch },
+      { path: "/developer/deployments", label: "Deployment Center", icon: Rocket },
+    ]},
+    { label: "Configuration", items: [
+      { path: "/feature-management", label: "Feature Flags", icon: Boxes },
+      { path: "/developer/form-lookup-registry", label: "Form Lookup Registry™", icon: ClipboardCheck },
+    ]},
+    { label: "System Administration", items: [
+      { path: "/developer/organizations", label: "Organizations", icon: Network },
     ]},
   ],
 };

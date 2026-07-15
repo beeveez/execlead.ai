@@ -177,6 +177,7 @@ const APP_ROUTES = [
   { path: "/journey-orchestrator", component: "ExecutiveJourneyOrchestrator", name: "Executive Journey Orchestrator™", feature: null },
   { path: "/promotion-forecast", component: "PromotionForecast", name: "Promotion Forecast™", feature: null },
   { path: "/decision-intelligence", component: "ExecutiveDecisionIntelligence", name: "Executive Decision Intelligence™", feature: null },
+  { path: "/executive-briefing", component: "ExecutiveBriefing", name: "Executive Briefing™", feature: null },
 ];
 
 const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>

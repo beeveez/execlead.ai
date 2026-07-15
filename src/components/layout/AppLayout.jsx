@@ -63,9 +63,11 @@ export default function AppLayout() {
         </div>
         <nav className="flex-1 p-3 overflow-y-auto">
           {navGroups.map((group) =>
-          <div key={group.label} className="mb-4">
-              <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/20">{group.label}</div>
-              <div className="space-y-0.5">
+          <div key={group.label} className="mb-1 mt-4 first:mt-0">
+              <div className="px-3 pb-1.5 mb-1 border-b border-white/[0.06]">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#A1AAB8" }}>{group.label}</span>
+              </div>
+              <div className="space-y-0.5 mt-1.5">
                 {group.items.map((item) =>
               <NavItem key={`${item.path}-${item.label}`} item={item} active={location.pathname === item.path} />
               )}
@@ -99,9 +101,11 @@ export default function AppLayout() {
             </div>
             <nav>
               {navGroups.map((group) =>
-            <div key={group.label} className="mb-4">
-                  <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white/20">{group.label}</div>
-                  <div className="space-y-0.5">
+            <div key={group.label} className="mb-1 mt-4 first:mt-0">
+                  <div className="px-3 pb-1.5 mb-1 border-b border-white/[0.06]">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#A1AAB8" }}>{group.label}</span>
+                  </div>
+                  <div className="space-y-0.5 mt-1.5">
                     {group.items.map((item) =>
                 <NavItem key={`${item.path}-${item.label}`} item={item} active={location.pathname === item.path} onClick={() => setMobileOpen(false)} />
                 )}

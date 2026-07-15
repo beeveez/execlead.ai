@@ -44,6 +44,32 @@ const COMMIT_STEPS = [
 
 const STEP_INTERVAL = 300;
 
+function truncateFindings(findings, maxItems = 50) {
+  if (!findings || findings.length === 0) return [];
+  return findings.slice(0, maxItems).map((f) => ({
+    code: f.code,
+    level: f.level,
+    message: (f.message || "").slice(0, 200),
+    context: f.context
+      ? { route: f.context.route, moduleId: f.context.moduleId, frameworkId: f.context.frameworkId }
+      : undefined,
+  }));
+}
+
+function truncateRepairs(data) {
+  return JSON.stringify({
+    repairs: (data.repairs || []).slice(0, 30).map((r) => ({
+      code: r.code, target: r.target, action: r.action, status: r.status, alreadyRepaired: r.alreadyRepaired,
+    })),
+    lifecycle: data.lifecycle || null,
+    persistence: data.persistence
+      ? { persistedCount: data.persistence.persistedCount, allPersistent: data.persistence.allPersistent, nonPersistentCount: (data.persistence.nonPersistent || []).length }
+      : null,
+    validationResult: data.validationResult || null,
+    diagnostics: (data.diagnostics || []).slice(0, 30).map((d) => ({ step: d.step, timestamp: d.timestamp })),
+  });
+}
+
 export default function SelfHealingEngine() {
   const { user } = useAuth();
   const [phase, setPhase] = useState("loading");
@@ -88,15 +114,9 @@ export default function SelfHealingEngine() {
         platform_version: data.platformVersion,
         manifest_version: data.manifestVersion,
         knowledge_version: data.knowledgeVersion,
-        findings_json: JSON.stringify(data.findings || []),
-        repairs_json: JSON.stringify({
-          repairs: data.repairs || [],
-          lifecycle: data.lifecycle || null,
-          persistence: data.persistence || null,
-          validationResult: data.validationResult || null,
-          diagnostics: data.diagnostics || [],
-        }),
-        review_items_json: JSON.stringify(data.review || []),
+        findings_json: JSON.stringify(truncateFindings(data.findings)),
+        repairs_json: truncateRepairs(data),
+        review_items_json: JSON.stringify(truncateFindings(data.review)),
       });
       setTimeout(loadHistory, 500);
     } catch (e) {}

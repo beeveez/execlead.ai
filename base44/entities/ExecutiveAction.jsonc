@@ -1,0 +1,161 @@
+{
+  "name": "ExecutiveAction",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Action title"
+    },
+    "description": {
+      "type": "string"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "goal",
+        "task",
+        "learning",
+        "verification",
+        "networking",
+        "career",
+        "health",
+        "reflection",
+        "practice",
+        "ai_recommendation"
+      ],
+      "default": "task",
+      "description": "Category of executive action"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "skipped"
+      ],
+      "default": "pending"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "source_module": {
+      "type": "string",
+      "description": "Which platform module generated this action"
+    },
+    "source_path": {
+      "type": "string",
+      "description": "Navigation path to the source module"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "impact_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100, how much this action impacts executive readiness"
+    },
+    "estimated_minutes": {
+      "type": "number",
+      "default": 15
+    },
+    "action_date": {
+      "type": "string",
+      "format": "date",
+      "description": "The date this action is scheduled for"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "action_type",
+    "action_date"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

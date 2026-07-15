@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -40,6 +40,7 @@ export const WORKSPACE_NAV = {
   executive: [
     { label: "Platform", items: [
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { path: "/action-center", label: "Action Center", icon: Zap },
     ]},
     { label: "Career", items: [
       { path: "/career", label: "Career Advisor", icon: Briefcase, feature: "career_advisor" },
@@ -256,7 +257,7 @@ export const WORKSPACE_NAV = {
 /* ======================= ROUTE → WORKSPACE MAP ======================= */
 
 const ROUTE_WORKSPACE = {
-  "/dashboard": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
+  "/dashboard": ["executive"], "/action-center": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
   "/simulator": ["executive"], "/debate": ["executive"], "/council": ["executive"],
   "/marketplace": ["executive"], "/network": ["executive"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],

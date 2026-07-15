@@ -5,6 +5,7 @@ import { RESUME_SECTIONS, SECTION_FIELDS, buildExecutiveRewritePrompt } from "@/
 import { Plus, Trash2, Sparkles, Loader2, X, Star } from "lucide-react";
 import AchievementWriter from "@/components/career-studio/AchievementWriter";
 import MonthYearPicker from "@/components/shared/MonthYearPicker";
+import CurrentEmploymentToggle from "@/components/shared/CurrentEmploymentToggle";
 
 const inputClass = "w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50";
 
@@ -234,6 +235,22 @@ export default function ResumeSectionEditor({ content, setContent }) {
                           allowPresent={f.allowPresent}
                           mode={f.type === "year" ? "year-only" : "month-year"}
                           placeholder={f.label}
+                        />
+                      </div>
+                    );
+                    if (f.type === "current_employment") return (
+                      <div key={f.name}>
+                        <CurrentEmploymentToggle
+                          isCurrentEmployer={item.current || item.is_current || false}
+                          endDate={item.end_date || ""}
+                          startDate={item.start_date || ""}
+                          onChange={({ isCurrentEmployer, endDate }) => {
+                            setContent(prev => {
+                              const items = [...(prev[activeSection] || [])];
+                              items[idx] = { ...items[idx], current: isCurrentEmployer, end_date: endDate };
+                              return { ...prev, [activeSection]: items };
+                            });
+                          }}
                         />
                       </div>
                     );

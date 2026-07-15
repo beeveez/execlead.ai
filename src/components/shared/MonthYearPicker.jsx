@@ -25,6 +25,7 @@ export default function MonthYearPicker({
   onChange,
   mode = "month-year",
   placeholder = "Select date",
+  disabled = false,
 }) {
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -117,8 +118,9 @@ export default function MonthYearPicker({
     <div ref={containerRef} className="relative">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        className={`w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
       >
         <span className={displayValue ? "text-white/90" : "text-white/20"}>{displayValue || placeholder}</span>
         <Calendar size={14} className="text-white/30 flex-shrink-0 ml-2" />

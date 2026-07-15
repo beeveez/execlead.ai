@@ -14,9 +14,10 @@ function fmtMonthYear(val) {
 }
 
 function fmtDateRange(exp) {
-  if (exp.start_date || exp.end_date || exp.current) {
+  const isCurrent = exp.current || exp.is_current || exp.isCurrentEmployer || exp.end_date === "Present";
+  if (exp.start_date || exp.end_date || isCurrent) {
     const start = fmtMonthYear(exp.start_date);
-    const end = exp.current ? "Present" : fmtMonthYear(exp.end_date);
+    const end = isCurrent ? "Present" : fmtMonthYear(exp.end_date);
     return [start, end].filter(Boolean).join(" \u2013 ");
   }
   return exp.dates || "";

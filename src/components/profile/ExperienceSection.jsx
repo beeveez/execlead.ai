@@ -1,9 +1,10 @@
 import React from "react";
 import { TextField, TextAreaField, MonthYearField, SectionCard } from "./FormFields";
+import CurrentEmploymentToggle from "@/components/shared/CurrentEmploymentToggle";
 import { Plus, Trash2, Briefcase } from "lucide-react";
 
 export default function ExperienceSection({ items, onChange }) {
-  const addExp = () => onChange([...items, { company: "", role: "", employment_type: "", start_date: "", end_date: "", responsibilities: "", achievements: "", technologies: "", leadership_scope: "", team_size: "" }]);
+  const addExp = () => onChange([...items, { company: "", role: "", employment_type: "", start_date: "", end_date: "", is_current: false, responsibilities: "", achievements: "", technologies: "", leadership_scope: "", team_size: "" }]);
   const updateExp = (idx, field, value) => onChange(items.map((e, i) => i === idx ? { ...e, [field]: value } : e));
   const removeExp = (idx) => onChange(items.filter((_, i) => i !== idx));
 
@@ -27,7 +28,14 @@ export default function ExperienceSection({ items, onChange }) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <MonthYearField label="Start Date" value={exp.start_date} onChange={v => updateExp(idx, "start_date", v)} placeholder="Start date" />
-                <MonthYearField label="End Date" value={exp.end_date} onChange={v => updateExp(idx, "end_date", v)} placeholder="End date" allowPresent />
+                <CurrentEmploymentToggle
+                  isCurrentEmployer={exp.is_current || false}
+                  endDate={exp.end_date || ""}
+                  startDate={exp.start_date || ""}
+                  onChange={({ isCurrentEmployer, endDate }) => {
+                    onChange(items.map((e, i) => i === idx ? { ...e, is_current: isCurrentEmployer, end_date: endDate } : e));
+                  }}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <TextField label="Employment Type" value={exp.employment_type} onChange={v => updateExp(idx, "employment_type", v)} placeholder="Full-time" />

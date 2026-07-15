@@ -36,8 +36,7 @@ export const SECTION_FIELDS = {
     { name: "employer", label: "Employer", type: "text" },
     { name: "location", label: "Location", type: "text" },
     { name: "start_date", label: "Start Date", type: "monthyear" },
-    { name: "end_date", label: "End Date", type: "monthyear", allowPresent: true },
-    { name: "current", label: "Current Role", type: "checkbox" },
+    { name: "end_date", label: "End Date", type: "current_employment" },
     { name: "bullets", label: "Responsibilities & Achievements", type: "bullets" },
   ],
   achievements: [

@@ -181,6 +181,7 @@ import SecurityCenter from '@/pages/SecurityCenter';
 import IdentityVerification from '@/pages/IdentityVerification';
 import IdentityVerificationAdmin from '@/pages/IdentityVerificationAdmin';
 import VerificationCenter from '@/pages/VerificationCenter';
+import EvidenceVault from '@/pages/EvidenceVault';
 import IdentityGraph from '@/pages/IdentityGraph';
 import BetaLaunchDashboard from '@/pages/BetaLaunchDashboard';
 import FoundersWall from '@/pages/FoundersWall';
@@ -370,6 +371,7 @@ const AuthenticatedApp = () => {
           <Route path="/security" element={<SecurityCenter />} />
           <Route path="/identity-verification" element={<IdentityVerification />} />
           <Route path="/verification-center" element={<VerificationCenter />} />
+          <Route path="/evidence-vault" element={<EvidenceVault />} />
           <Route path="/identity-graph" element={<IdentityGraph />} />
           <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
           <Route path="/beta-launch" element={<BetaLaunchDashboard />} />

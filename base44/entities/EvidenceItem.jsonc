@@ -6,9 +6,24 @@
       "type": "string",
       "description": "Evidence title"
     },
-    "category": {
+    "evidence_type": {
       "type": "string",
       "enum": [
+        "identity",
+        "employment",
+        "education",
+        "certifications",
+        "executive_credentials",
+        "awards",
+        "memberships",
+        "publications",
+        "projects",
+        "patents",
+        "board_memberships",
+        "licenses",
+        "security_clearances",
+        "organization_verification",
+        "executive_portfolio",
         "award",
         "certificate",
         "government_id",
@@ -18,8 +33,6 @@
         "performance_review",
         "project_summary",
         "whitepaper",
-        "publication",
-        "patent",
         "speaking_engagement",
         "board_appointment",
         "recommendation_letter",
@@ -29,14 +42,19 @@
         "presentation"
       ],
       "default": "certificate",
-      "description": "Type of evidence"
+      "description": "Type of evidence \u2014 the 15 canonical types plus legacy categories"
+    },
+    "category": {
+      "type": "string",
+      "description": "Legacy category field for backward compatibility"
     },
     "organization": {
       "type": "string"
     },
     "date": {
       "type": "string",
-      "format": "date"
+      "format": "date",
+      "description": "Date evidence was issued or occurred"
     },
     "description": {
       "type": "string"
@@ -59,13 +77,36 @@
       "type": "string",
       "description": "URL to uploaded evidence file"
     },
+    "evidence_hash": {
+      "type": "string",
+      "description": "Digital hash for immutability verification"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of the evidence \u2014 issuer, provider, or self-reported"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "official_document",
+        "third_party_verification",
+        "self_reported",
+        "ai_extracted",
+        "manual_review",
+        "enterprise_admin",
+        "automated_check"
+      ],
+      "default": "self_reported"
+    },
     "verification_status": {
       "type": "string",
       "enum": [
         "unverified",
         "pending",
         "verified",
-        "rejected"
+        "rejected",
+        "expired",
+        "revoked"
       ],
       "default": "unverified"
     },
@@ -76,13 +117,100 @@
       "type": "string",
       "format": "date-time"
     },
-    "related_competencies": {
+    "reviewer_id": {
       "type": "string",
-      "description": "JSON array of competency IDs"
+      "description": "ID of the reviewer who verified this evidence"
     },
-    "related_achievements": {
+    "reviewer_name": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "Confidence score 0-100 \u2014 how reliable the evidence source is"
+    },
+    "evidence_quality": {
+      "type": "number",
+      "default": 0,
+      "description": "Evidence Quality Score 0-100 \u2014 document quality, completeness"
+    },
+    "authenticity": {
+      "type": "number",
+      "default": 0,
+      "description": "Authenticity score 0-100 \u2014 likelihood the evidence is genuine"
+    },
+    "freshness": {
+      "type": "number",
+      "default": 0,
+      "description": "Freshness score 0-100 \u2014 how current the evidence is"
+    },
+    "overall_quality": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall Evidence Quality Score 0-100 \u2014 weighted composite"
+    },
+    "expiration_date": {
       "type": "string",
-      "description": "JSON array of achievement IDs"
+      "format": "date",
+      "description": "When this evidence expires (null = permanent)"
+    },
+    "expiration_type": {
+      "type": "string",
+      "enum": [
+        "never",
+        "annual",
+        "biennial",
+        "custom"
+      ],
+      "default": "never"
+    },
+    "related_modules": {
+      "type": "string",
+      "description": "JSON array of related module names (Verification Center, Executive Trust, etc.)"
+    },
+    "audit_references": {
+      "type": "string",
+      "description": "JSON array of audit log IDs and references"
+    },
+    "related_verification_id": {
+      "type": "string",
+      "description": "Linked IdentityVerification record ID"
+    },
+    "related_evidence_ids": {
+      "type": "string",
+      "description": "JSON array of related EvidenceItem IDs with relationship types for the graph"
+    },
+    "ai_review_status": {
+      "type": "string",
+      "enum": [
+        "not_reviewed",
+        "pending",
+        "completed",
+        "flagged"
+      ],
+      "default": "not_reviewed"
+    },
+    "ai_review_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ai_review_summary": {
+      "type": "string",
+      "description": "AI-generated review summary"
+    },
+    "ai_confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "AI confidence in the evidence 0-100"
+    },
+    "ai_flags": {
+      "type": "string",
+      "description": "JSON array of AI flags (e.g. expired_document, blurry_image, mismatch)"
+    },
+    "is_immutable": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this evidence record is immutable \u2014 once verified, cannot be edited"
     },
     "encryption_status": {
       "type": "string",
@@ -91,11 +219,19 @@
         "not_encrypted"
       ],
       "default": "encrypted"
+    },
+    "related_competencies": {
+      "type": "string",
+      "description": "JSON array of competency IDs"
+    },
+    "related_achievements": {
+      "type": "string",
+      "description": "JSON array of achievement IDs"
     }
   },
   "required": [
     "title",
-    "category"
+    "evidence_type"
   ],
   "rls": {
     "create": {

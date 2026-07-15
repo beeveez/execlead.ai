@@ -1,30 +1,47 @@
 import React, { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import { Sparkles, CheckCircle2, Loader2, AlertCircle, RotateCcw } from "lucide-react";
 import { SYNC_STAGES, runKnowledgeSync } from "@/lib/execKnowledgeSyncEngine";
 
-export default function SyncPipeline({ onComplete }) {
+export default function SyncPipeline({ onComplete, onSyncStart }) {
   const [running, setRunning] = useState(false);
   const [currentStage, setCurrentStage] = useState(-1);
   const [stages, setStages] = useState([]);
+  const [error, setError] = useState(null);
 
   const handleSync = useCallback(async () => {
     setRunning(true);
+    setError(null);
+    onSyncStart?.();
     setStages(SYNC_STAGES.map((s) => ({ ...s, status: "pending" })));
     // Animate through each stage with real computation at the end
     for (let i = 0; i < SYNC_STAGES.length; i++) {
       setCurrentStage(i);
       setStages((prev) => prev.map((s, idx) => idx === i ? { ...s, status: "running" } : s));
-      // Small delay for UX; the actual computation happens on the final stage
       await new Promise((r) => setTimeout(r, i === SYNC_STAGES.length - 2 ? 100 : 250));
       setStages((prev) => prev.map((s, idx) => idx === i ? { ...s, status: "completed" } : s));
     }
-    // Run the actual synchronization (synchronous computation)
-    const result = runKnowledgeSync();
-    setRunning(false);
-    setCurrentStage(-1);
-    onComplete?.(result);
-  }, [onComplete]);
+    // Run the actual synchronization
+    try {
+      const result = runKnowledgeSync();
+      setRunning(false);
+      setCurrentStage(-1);
+      onComplete?.(result);
+    } catch (e) {
+      setRunning(false);
+      setCurrentStage(-1);
+      setError({
+        reason: e?.message || "Unknown synchronization error",
+        affectedComponent: "EXEC™ Knowledge Synchronization Engine™",
+        suggestedFix: "Check platform manifest and route registry for consistency, then retry.",
+      });
+    }
+  }, [onComplete, onSyncStart]);
+
+  const handleRetry = useCallback(() => {
+    setError(null);
+    handleSync();
+  }, [handleSync]);
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
@@ -49,7 +66,7 @@ export default function SyncPipeline({ onComplete }) {
       </div>
 
       <AnimatePresence>
-        {(running || stages.length > 0) && (
+        {(running || stages.length > 0) && !error && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -74,7 +91,33 @@ export default function SyncPipeline({ onComplete }) {
         )}
       </AnimatePresence>
 
-      {!running && stages.length === 0 && (
+      {/* Failure Panel */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="bg-rose-500/5 border border-rose-500/20 rounded-lg p-4 space-y-3"
+        >
+          <div className="flex items-center gap-2">
+            <AlertCircle size={16} className="text-rose-400" />
+            <span className="text-sm font-semibold text-rose-400">Synchronization Failed</span>
+          </div>
+          <div className="space-y-1 text-xs">
+            <div className="text-white/50"><span className="text-white/30">Reason:</span> {error.reason}</div>
+            <div className="text-white/50"><span className="text-white/30">Affected Component:</span> {error.affectedComponent}</div>
+            <div className="text-white/50"><span className="text-white/30">Suggested Fix:</span> {error.suggestedFix}</div>
+          </div>
+          <button
+            onClick={handleRetry}
+            className="flex items-center gap-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+          >
+            <RotateCcw size={12} /> Retry Synchronization
+          </button>
+        </motion.div>
+      )}
+
+      {!running && stages.length === 0 && !error && (
         <div className="text-center py-4">
           <p className="text-white/30 text-sm">Click "Synchronize EXEC™" to run the full discovery → validation → registration pipeline.</p>
         </div>

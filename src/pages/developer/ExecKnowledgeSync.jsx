@@ -4,6 +4,7 @@ import { runKnowledgeSync } from "@/lib/execKnowledgeSyncEngine";
 import { Shield } from "lucide-react";
 import SyncStatusHero from "@/components/developer/knowledge-sync/SyncStatusHero";
 import SyncPipeline from "@/components/developer/knowledge-sync/SyncPipeline";
+import SyncSuccessPanel from "@/components/developer/knowledge-sync/SyncSuccessPanel";
 import SyncMetricsGrid from "@/components/developer/knowledge-sync/SyncMetricsGrid";
 import RegistryBreakdown from "@/components/developer/knowledge-sync/RegistryBreakdown";
 import ValidationFindings from "@/components/developer/knowledge-sync/ValidationFindings";
@@ -41,7 +42,9 @@ export default function ExecKnowledgeSync() {
     <div className="max-w-7xl mx-auto space-y-6">
       <SyncStatusHero result={result} running={running} />
 
-      <SyncPipeline onComplete={handleComplete} />
+      <SyncPipeline onComplete={handleComplete} onSyncStart={handleSyncStart} />
+
+      {result && !running && <SyncSuccessPanel result={result} />}
 
       {result && (
         <>

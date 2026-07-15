@@ -70,6 +70,8 @@ const SAFE_DEFAULT_STATE = {
   runtimeStateVersion: 0,
   cacheVersion: "v0",
   runtimeVersion: PLATFORM_METADATA.platformVersion,
+  knowledgeHealth: 0,
+  synchronizationStatus: "idle",
   lastRefresh: null,
   lastCommit: null,
   lastAnalysis: null,
@@ -230,6 +232,10 @@ export function PlatformStateProvider({ children }) {
           setLastAnalysis(now);
         }
         if (eventName === "KnowledgeSyncCompleted" || eventName === "KnowledgeUpdated") {
+          setLastKnowledgeSync(now);
+          persistStateEvent(eventName, payload, newState);
+        }
+        if (eventName === "KnowledgeHealthUpdated" || eventName === "PlatformStateUpdated") {
           setLastKnowledgeSync(now);
           persistStateEvent(eventName, payload, newState);
         }

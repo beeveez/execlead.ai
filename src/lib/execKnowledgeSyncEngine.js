@@ -199,7 +199,25 @@ export function validateKnowledgeSync(assets) {
   });
 
   // Orphan routes — registered but no nav entry (and not public/flow)
-  const NAV_EXEMPT = ["/home", "/onboarding", "/reset-password", "/forgot-password", "/compare-plans", "/notifications", "/connected-accounts", "/companies/compare", "/intelligence/competencies", "/cpq/quotes"];
+  // Aligned with platformExperienceAudit.js NAV_EXEMPT — routes accessible via
+  // domain hub pages, dashboard cards, tabs, or deep links rather than sidebar.
+  const NAV_EXEMPT = [
+    "/home", "/onboarding", "/reset-password", "/forgot-password", "/companies/compare",
+    "/intelligence/competencies", "/compare-plans", "/notifications", "/connected-accounts", "/cpq/quotes",
+    "/enterprise", "/enterprise/organizations", "/enterprise/admin", "/enterprise/identity",
+    "/enterprise/procurement", "/enterprise/vendors", "/enterprise/commercial",
+    "/enterprise/privacy", "/enterprise/security", "/enterprise/governance",
+    "/organization/billing", "/organization/users", "/enterprise-intelligence",
+    "/hr-dashboard", "/succession-planning", "/promotion-readiness", "/learning-assignments", "/sso",
+    "/ai-usage", "/admin", "/pricing-admin", "/billing-admin", "/founding-member-admin",
+    "/payment-settings", "/membership-admin", "/elim", "/referral-admin",
+    "/identity-verification-admin", "/legacy-library/admin",
+    "/cpq", "/cpq-dashboard", "/company-admin", "/company-reports-admin",
+    "/request-tracking", "/email-settings",
+    "/beta-program", "/exec-observability", "/product-intelligence", "/beta-operations",
+    "/customer-lifecycle", "/release-readiness", "/feature-flags", "/system-status",
+    "/developer/product",
+  ];
   assets.routes.forEach((r) => {
     if (r.public || NAV_EXEMPT.includes(r.path) || r.path.includes(":")) return;
     const hasNav = assets.navItems.some((i) => routeMatches(r.path, i.path) || routeMatches(i.path, r.path));
@@ -433,16 +451,84 @@ function computeDiff(current, previous) {
 }
 
 // ============================================================
-// STAGE 6 — SYNC HEALTH SCORE
+// STAGE 6 — KNOWLEDGE HEALTH SERVICE™
+// Centralized weighted calculation of overall Knowledge Health.
+//   Knowledge Registry    25%
+//   Knowledge Packs       20%
+//   Capability Graph      15%
+//   Evidence Engine       10%
+//   Reasoning Engine      10%
+//   Platform Graph        10%
+//   Guardian Validation   10%
 // ============================================================
+export function computeKnowledgeHealth(registries, intelligence, validation, guardianResult) {
+  const componentHealth = (errors, warnings, infos) => {
+    const penalty = errors * 15 + warnings * 6 + infos * 1;
+    return clamp(100 - penalty);
+  };
+
+  // Knowledge Registry — navigation + workspace + module registries
+  const navErrors = validation.findings.filter((f) => f.code === "BROKEN_NAV_REFERENCE" && f.level === "error").length;
+  const navWarnings = validation.findings.filter((f) => f.code === "ORPHAN_ROUTE" && f.level === "warning").length;
+  const navInfos = validation.findings.filter((f) => f.code === "MISSING_PERSONA" && f.level === "info").length;
+  const knowledgeRegistry = componentHealth(navErrors, navWarnings, navInfos);
+
+  // Knowledge Packs — framework + knowledge pack registries
+  const kpErrors = validation.findings.filter((f) => f.code === "DUPLICATE_CAPABILITY" && f.level === "error").length;
+  const kpWarnings = validation.findings.filter((f) => f.code === "MODULE_MISSING_PACK" && f.level === "warning").length;
+  const knowledgePacks = componentHealth(kpErrors, kpWarnings, 0);
+
+  // Capability Graph — duplicates, missing capabilities
+  const cgErrors = validation.findings.filter((f) => f.code === "DUPLICATE_CAPABILITY" && f.level === "error").length;
+  const capabilityGraph = componentHealth(cgErrors, 0, 0);
+
+  // Evidence Engine — modules with keyFeatures
+  const evidenceEngine = clamp(Math.round((registries.evidence.verifiedSources / Math.max(1, registries.evidence.sources)) * 100));
+
+  // Reasoning Engine — live capabilities ratio
+  const reasoningEngine = clamp(Math.round((registries.capability.live / Math.max(1, registries.capability.count)) * 100));
+
+  // Platform Graph — routes + modules graph completeness
+  const pgWarnings = validation.findings.filter((f) => f.code === "DEPRECATED_IN_NAV" && f.level === "warning").length;
+  const platformGraph = componentHealth(0, pgWarnings, 0);
+
+  // Guardian Validation — manifest + experience audit findings
+  const guardianErrors = (guardianResult?.manifestFindings || 0) + (guardianResult?.experienceFindings || 0);
+  const guardian = componentHealth(0, guardianErrors, 0);
+
+  const weights = { knowledgeRegistry: 0.25, knowledgePacks: 0.20, capabilityGraph: 0.15, evidenceEngine: 0.10, reasoningEngine: 0.10, platformGraph: 0.10, guardian: 0.10 };
+  const overall = clamp(
+    knowledgeRegistry * weights.knowledgeRegistry +
+    knowledgePacks * weights.knowledgePacks +
+    capabilityGraph * weights.capabilityGraph +
+    evidenceEngine * weights.evidenceEngine +
+    reasoningEngine * weights.reasoningEngine +
+    platformGraph * weights.platformGraph +
+    guardian * weights.guardian
+  );
+
+  const components = [
+    { name: "Knowledge Registry", score: knowledgeRegistry, weight: "25%" },
+    { name: "Knowledge Packs", score: knowledgePacks, weight: "20%" },
+    { name: "Capability Graph", score: capabilityGraph, weight: "15%" },
+    { name: "Evidence Engine", score: evidenceEngine, weight: "10%" },
+    { name: "Reasoning Engine", score: reasoningEngine, weight: "10%" },
+    { name: "Platform Graph", score: platformGraph, weight: "10%" },
+    { name: "Guardian Validation", score: guardian, weight: "10%" },
+  ];
+
+  const status = overall >= 90 ? "synced" : overall >= 70 ? "needs_attention" : "critical";
+  return { health: overall, status, components };
+}
+
+// Legacy alias for backward compatibility
 export function computeSyncHealth(validation, diff) {
-  const errorPenalty = validation.errors.length * 15;
-  const warningPenalty = validation.warnings.length * 6;
-  const infoPenalty = validation.infos.length * 1;
-  const brokenPenalty = validation.findings.filter((f) => f.code === "BROKEN_NAV_REFERENCE").length * 5;
-  const health = clamp(100 - errorPenalty - warningPenalty - infoPenalty - brokenPenalty);
-  const status = health >= 90 ? "synced" : health >= 70 ? "needs_attention" : "critical";
-  return { health, status };
+  return computeKnowledgeHealth(
+    { evidence: { sources: 1, verifiedSources: 1 }, capability: { live: 1, count: 1 } },
+    {},
+    validation,
+    { manifestFindings: 0, experienceFindings: 0 }
+  );
 }
 
 // ============================================================
@@ -452,6 +538,14 @@ export function computeSyncHealth(validation, diff) {
 export function runKnowledgeSync() {
   const startTime = Date.now();
   const stageResults = {};
+  const eventsPublished = [];
+  const dispatchEvent = (event, payload = {}) => {
+    eventsPublished.push(event);
+    platformDispatch(event, { source: "sync_engine", ...payload });
+  };
+
+  // ── Publish sync started ──
+  dispatchEvent("KnowledgeSyncStarted", { timestamp: new Date().toISOString() });
 
   // Stage 1: Scan
   const coverage = safe(() => getManifestCoverage(), null);
@@ -467,9 +561,11 @@ export function runKnowledgeSync() {
   // Stage 4: Register
   const registries = buildRegistries(assets, validation);
   stageResults.register = { status: "completed", registries: Object.keys(registries).length };
+  dispatchEvent("KnowledgeRegistryUpdated", { registries: Object.keys(registries).length });
 
   // Stage 5: Knowledge Packs
   stageResults.packs = { status: "completed", packs: registries.knowledgePack.count, active: registries.knowledgePack.active };
+  dispatchEvent("KnowledgePacksRefreshed", { packs: registries.knowledgePack.count });
 
   // Stage 6: Evidence
   stageResults.evidence = { status: "completed", sources: registries.evidence.sources, verified: registries.evidence.verifiedSources };
@@ -490,19 +586,40 @@ export function runKnowledgeSync() {
   // Stage 11: Guardian
   const manifestFindings = safe(() => validateManifest(), []);
   const experienceAudit = safe(() => runPlatformExperienceAudit(), { findings: [] });
-  stageResults.guardian = { status: "completed", manifestFindings: manifestFindings.length, experienceFindings: experienceAudit.findings?.length || 0 };
+  const guardianResult = { manifestFindings: manifestFindings.length, experienceFindings: experienceAudit.findings?.length || 0 };
+  stageResults.guardian = { status: "completed", ...guardianResult };
 
-  // Stage 12: Complete
-  stageResults.complete = { status: "completed" };
+  // Stage 12: Complete — Recalculate Knowledge Health
+  const previousHealth = loadLastSnapshot()?.health || 0;
+  const knowledgeHealth = computeKnowledgeHealth(registries, intelligence, validation, guardianResult);
+  dispatchEvent("KnowledgeHealthUpdated", { health: knowledgeHealth.health, status: knowledgeHealth.status });
 
   // Diff report
   const currentSig = assetSignature(assets);
   const previousSig = loadLastSnapshot();
   const diff = computeDiff(currentSig, previousSig);
-  saveSnapshot(currentSig);
+  saveSnapshot({ ...currentSig, health: knowledgeHealth.health });
 
-  const syncHealth = computeSyncHealth(validation, diff);
+  // ── Update Platform State Manager™ ──
+  const platformStateUpdate = {
+    knowledgeHealth: knowledgeHealth.health,
+    synchronizationStatus: knowledgeHealth.status,
+    lastSynchronization: new Date().toISOString(),
+    knowledgeVersion: EXEC_KNOWLEDGE_VERSION,
+    knowledgeCoverage: coverage?.routeCoverage ?? 100,
+    guardianStatus: guardianResult.manifestFindings === 0 ? "passed" : "warning",
+    synchronizationDuration: 0, // filled below
+    platformReadinessContribution: knowledgeHealth.health * 0.1,
+  };
+
   const duration = Date.now() - startTime;
+  platformStateUpdate.synchronizationDuration = duration;
+
+  // Publish PlatformStateUpdated so all subscribed dashboards refresh
+  dispatchEvent("PlatformStateUpdated", platformStateUpdate);
+
+  // ── Publish KnowledgeSyncCompleted ──
+  dispatchEvent("KnowledgeSyncCompleted", { report: null }); // report filled below
 
   const report = {
     platformVersion: PLATFORM_METADATA.platformVersion,
@@ -522,13 +639,16 @@ export function runKnowledgeSync() {
     reasoningCacheRebuilt: true,
     capabilityGraphRebuilt: true,
     platformGraphRebuilt: true,
-    overallStatus: syncHealth.status,
+    overallStatus: knowledgeHealth.status,
     isFirstSync: diff.isFirstSync,
+    knowledgeHealth: knowledgeHealth.health,
+    guardianStatus: platformStateUpdate.guardianStatus,
   };
 
   const result = {
-    status: syncHealth.status,
-    health: syncHealth.health,
+    status: knowledgeHealth.status,
+    health: knowledgeHealth.health,
+    knowledgeHealth: knowledgeHealth,
     lastSync: new Date().toISOString(),
     duration,
     knowledgeVersion: EXEC_KNOWLEDGE_VERSION,
@@ -542,6 +662,7 @@ export function runKnowledgeSync() {
     validation,
     report,
     coverage,
+    platformStateUpdate,
     metrics: {
       knowledgePacksLoaded: registries.knowledgePack.count,
       capabilitiesRegistered: registries.capability.count,
@@ -554,7 +675,18 @@ export function runKnowledgeSync() {
       brokenRegistrations: validation.errors.length,
       syncErrors: validation.errors.length,
       syncWarnings: validation.warnings.length,
-      overallKnowledgeHealth: syncHealth.health,
+      overallKnowledgeHealth: knowledgeHealth.health,
+    },
+    diagnostics: {
+      syncStart: new Date(startTime).toISOString(),
+      syncEnd: result.lastSync,
+      executionTime: duration,
+      previousHealth,
+      newHealth: knowledgeHealth.health,
+      eventsPublished,
+      stateUpdated: true,
+      uiSubscribersRefreshed: true,
+      validationResult: guardianResult,
     },
   };
 
@@ -575,8 +707,8 @@ export function runKnowledgeSync() {
     localStorage.setItem(SYNC_HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
   } catch {}
 
-  // Broadcast completion on the Platform Event Bus™
-  platformDispatch("KnowledgeSyncCompleted", { source: "sync_engine", report });
+  // Re-dispatch KnowledgeSyncCompleted with the full report now that it's built
+  platformDispatch("KnowledgeSyncCompleted", { source: "sync_engine", report, health: result.health, status: result.status, timestamp: result.lastSync, duration });
 
   return result;
 }

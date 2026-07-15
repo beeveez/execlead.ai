@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { RESUME_TEMPLATES, defaultResumeContent } from "@/lib/careerStudio";
-import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown, UploadCloud } from "lucide-react";
+import { Plus, Copy, Trash2, Save, Loader2, Layout, FileUp, ChevronDown, UploadCloud, Sparkles } from "lucide-react";
 import ResumeSectionEditor from "@/components/career-studio/ResumeSectionEditor";
 import ResumePreview from "@/components/career-studio/ResumePreview";
 import { toast } from "@/components/ui/use-toast";
@@ -117,6 +117,50 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
   const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = (e) => { e.preventDefault(); setIsDragging(false); };
 
+  const useSampleResume = () => {
+    const sampleText = `Sarah Mitchell
+Senior Director of Operations
+sarah.mitchell@email.com | (555) 123-4567 | San Francisco, CA
+LinkedIn: linkedin.com/in/sarahmitchell
+
+PROFESSIONAL SUMMARY
+Accomplished operations executive with 12+ years leading cross-functional teams and driving organizational excellence at scale. Proven track record of optimizing processes, reducing costs by 30%, and building high-performing teams across technology and healthcare sectors.
+
+EXPERIENCE
+Senior Director of Operations | TechCorp Inc. | 2020 - Present
+- Led a team of 85 across 4 departments, achieving 98% on-time delivery
+- Implemented agile operating model reducing cycle times by 40%
+- Spearheaded digital transformation initiative saving $2.3M annually
+- Established KPI framework adopted across 12 business units
+
+Director of Operations | HealthFirst Systems | 2016 - 2020
+- Managed $15M operational budget with zero cost overruns
+- Built and mentored team of 40 operations professionals
+- Launched predictive analytics program improving patient outcomes by 22%
+- Drove ISO 9001 certification across 3 facilities
+
+Senior Operations Manager | DataFlow Solutions | 2013 - 2016
+- Optimized supply chain reducing lead times by 35%
+- Managed vendor relationships with 50+ strategic partners
+- Introduced lean manufacturing principles saving $800K annually
+
+SKILLS
+Strategic Planning, Process Optimization, Team Leadership, Agile Methodologies, P&L Management, Digital Transformation, Supply Chain Management, Data Analytics, Change Management, Vendor Management, Six Sigma (Black Belt), Lean Operations, KPI Development, Cross-functional Leadership, Budget Management
+
+EDUCATION
+MBA, Stanford Graduate School of Business | 2013
+BS, Industrial Engineering, UC Berkeley | 2008
+Graduated with Honors
+
+CERTIFICATIONS
+Six Sigma Black Belt Certification | ASQ | 2015
+Project Management Professional (PMP) | PMI | 2014
+Certified Supply Chain Professional (CSCP) | APICS | 2017`;
+    const blob = new Blob([sampleText], { type: "text/plain" });
+    const file = new File([blob], "Sarah_Mitchell_Resume.txt", { type: "text/plain" });
+    processFile(file);
+  };
+
   const duplicateResume = async (resume) => {
     const dup = await base44.entities.CareerResume.create({ title: resume.title + " (Copy)", template: resume.template, content: resume.content });
     setResumes(prev => [dup, ...prev]);
@@ -171,6 +215,9 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
                   <button onClick={() => createResume()} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10"><Plus size={14} /> New Resume</button>
                   <button onClick={() => dropdownFileRef.current?.click()} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10 cursor-pointer">
                     {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Upload Resume
+                  </button>
+                  <button onClick={useSampleResume} disabled={uploading} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-indigo-400 hover:bg-indigo-500/10 disabled:opacity-30">
+                    {uploading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Try Sample Resume
                   </button>
                   <input ref={dropdownFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
                 </div>
@@ -244,10 +291,13 @@ export default function ResumeBuilder({ activeResume, onResumeChange }) {
               <Loader2 size={16} className="animate-spin" /> <span className="text-sm">Parsing resume with AI…</span>
             </div>
           )}
-          <div className="flex justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             <button onClick={() => createResume()} className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"><Plus size={14} /> Create from Scratch</button>
             <button onClick={() => emptyFileRef.current?.click()} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-sm font-medium cursor-pointer">
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />} Browse Files
+            </button>
+            <button onClick={useSampleResume} disabled={uploading} className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-sm font-medium disabled:opacity-30">
+              {uploading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Try Sample Resume
             </button>
             <input ref={emptyFileRef} type="file" accept=".pdf,.docx,.doc" className="hidden" onChange={handleUpload} />
           </div>

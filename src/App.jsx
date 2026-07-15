@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { GuardianProvider } from '@/lib/GuardianContext';
 import { PlatformStateProvider } from '@/lib/PlatformStateContext';
+import { PlatformReadinessProvider } from '@/lib/PlatformReadinessContext';
 import { GovernancePipelineProvider } from '@/lib/GovernancePipelineContext';
 import { WorkspaceProvider } from '@/lib/WorkspaceContext';
 import { SubscriptionProvider } from '@/lib/SubscriptionContext';
@@ -511,6 +512,7 @@ function App() {
       <ThemeProvider>
       <GuardianProvider>
       <PlatformStateProvider>
+      <PlatformReadinessProvider>
       <GovernancePipelineProvider>
       <DeveloperProvider>
       <SubscriptionProvider>
@@ -539,6 +541,7 @@ function App() {
       </SubscriptionProvider>
       </DeveloperProvider>
       </GovernancePipelineProvider>
+      </PlatformReadinessProvider>
       </PlatformStateProvider>
       </GuardianProvider>
       </ThemeProvider>

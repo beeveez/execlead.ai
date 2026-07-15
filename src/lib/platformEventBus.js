@@ -32,6 +32,12 @@ export const PLATFORM_EVENTS = [
   "RegistrySynchronizationCompleted",
   "GovernancePipelineCompleted",
   "IntelligenceRefreshCompleted",
+  "PlatformReadinessUpdated",
+  "CertificationChanged",
+  "DeploymentDecisionChanged",
+  "BlockingIssueDetected",
+  "ReleaseApproved",
+  "ReleaseBlocked",
 ];
 
 const subscribers = new Map(PLATFORM_EVENTS.map((e) => [e, new Set()]));

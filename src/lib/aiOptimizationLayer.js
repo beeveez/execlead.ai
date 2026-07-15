@@ -26,6 +26,7 @@
 import { base44 } from "@/api/base44Client";
 import { deriveProvider } from "@/lib/aiOperations";
 import { enforcePolicy } from "@/lib/aiPolicyEngine";
+import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
 
 // ============================================================
 // §1 — INTENT ROUTER™
@@ -651,26 +652,63 @@ export async function optimizeAI(requestText, opts = {}) {
     };
   }
 
-  // Step 7: AI Invocation — policy approved
-  const model = opts.model || policyDecision.model || "automatic";
+  // Step 7: Model Router™ — select the best model, with automatic fallback
+  const routingDecision = routeModel({
+    intent,
+    contextSize: estimateTokens(fullPrompt),
+    subscription: opts.plan || opts.subscription?.plan,
+    workspace: opts.workspace,
+    webSearchRequired: opts.aiOptions?.add_context_from_internet || false,
+    streamingPreferred: opts.streaming || false,
+  });
 
+  const modelChain = [routingDecision.selectedModel, ...routingDecision.fallbackChain];
   let aiResponse = null;
   let aiError = null;
-  try {
-    if (opts.invokeAI) {
-      aiResponse = await opts.invokeAI({ prompt: fullPrompt, model, ...opts.aiOptions });
-    } else {
-      aiResponse = await base44.integrations.Core.InvokeLLM({
-        prompt: fullPrompt,
-        model,
-        ...opts.aiOptions,
-      });
+  let actualModel = routingDecision.selectedModel;
+  let fallbackFrom = null;
+  let retryCount = 0;
+
+  for (let i = 0; i < modelChain.length; i++) {
+    const tryModel = modelChain[i];
+    try {
+      if (opts.invokeAI) {
+        aiResponse = await opts.invokeAI({ prompt: fullPrompt, model: tryModel, ...opts.aiOptions });
+      } else {
+        aiResponse = await base44.integrations.Core.InvokeLLM({
+          prompt: fullPrompt,
+          model: tryModel,
+          ...opts.aiOptions,
+        });
+      }
+      actualModel = tryModel;
+      if (i > 0) { fallbackFrom = modelChain[0]; retryCount = i; }
+      aiError = null;
+      break;
+    } catch (err) {
+      aiError = err;
+      // Try next model in fallback chain
     }
-  } catch (err) {
-    aiError = err;
   }
 
   const aiResponseTime = Date.now() - startedAt;
+
+  // Track routing event with actual performance data
+  trackRoutingEvent(routingDecision, {
+    intent,
+    success: !aiError,
+    latencyMs: aiResponseTime,
+    cost: routingDecision.estimatedCost,
+    tokenInput: estimateTokens(fullPrompt),
+    fallbackFrom,
+    status: fallbackFrom ? "fallback_used" : (aiError ? "failed" : "success"),
+    retryCount,
+    userId, userName,
+    workspace: opts.workspace,
+    subscription: opts.plan || opts.subscription?.plan,
+    module: opts.module,
+    errorMessage: aiError?.message,
+  });
 
   // Cache AI response if cacheable
   if (aiResponse && isCacheable(intent) && cacheKey) {
@@ -684,7 +722,7 @@ export async function optimizeAI(requestText, opts = {}) {
     requestText, intent, source: "ai", workspace: opts.workspace, module: opts.module,
     userId, userName, aiRequired: true, aiInvoked: true,
     estimatedCost, estimatedCostSaved: 0, responseTimeMs: aiResponseTime,
-    model, provider: deriveProvider(model),
+    model: actualModel, provider: routingDecision.selectedProvider,
     status: aiError ? "error" : "ai_served",
     reason: decision.reason, contextAssembled: contextResult.assembled,
     cacheKey, tokenEstimate: estimateTokens(fullPrompt), creditsSaved: 0,
@@ -703,6 +741,7 @@ export async function optimizeAI(requestText, opts = {}) {
     estimatedCost,
     estimatedCostSaved: 0,
     creditsSaved: 0,
+    routingDecision,
   };
 }
 

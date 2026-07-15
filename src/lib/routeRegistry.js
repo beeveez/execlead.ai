@@ -153,6 +153,7 @@ const APP_ROUTES = [
   { path: "/developer/commercial-governance", component: "CommercialGovernanceCenter", name: "Commercial Governance Center™", feature: "developer_access" },
   { path: "/developer/ai-optimization", component: "AIOptimizationDashboard", name: "AI Optimization Layer™", feature: "developer_access" },
   { path: "/developer/ai-policy", component: "AIPolicyDashboard", name: "AI Policy Engine™", feature: "developer_access" },
+  { path: "/developer/model-router", component: "ModelRouterDashboard", name: "Model Router™", feature: "developer_access" },
   { path: "/developer/product", component: "ProductManagement", name: "Product Management™", feature: "developer_access" },
   { path: "/exec-os", component: "ExecOSDashboard", name: "EXEC™ Operating System™", feature: null },
   { path: "/exec-observability", component: "ExecObservabilityPlatform", name: "EXEC™ Observability & Telemetry Platform™", feature: null },

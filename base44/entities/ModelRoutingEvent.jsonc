@@ -1,0 +1,168 @@
+{
+  "name": "ModelRoutingEvent",
+  "type": "object",
+  "properties": {
+    "intent": {
+      "type": "string",
+      "description": "Classified intent from AI Optimization Layer\u2122"
+    },
+    "selected_model": {
+      "type": "string",
+      "description": "Model ID selected by Model Router\u2122"
+    },
+    "selected_provider": {
+      "type": "string",
+      "description": "Provider (openai, google, anthropic)"
+    },
+    "tier": {
+      "type": "number",
+      "description": "Model tier (1=Fast, 2=Balanced, 3=Advanced)"
+    },
+    "fallback_from": {
+      "type": "string",
+      "description": "Original model if this was a fallback (null if primary succeeded)"
+    },
+    "fallback_chain_json": {
+      "type": "string",
+      "description": "JSON array of fallback models tried"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "fallback_used",
+        "retried"
+      ],
+      "default": "success"
+    },
+    "latency_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Actual response latency"
+    },
+    "cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Estimated cost in USD"
+    },
+    "token_input": {
+      "type": "number",
+      "default": 0
+    },
+    "token_output": {
+      "type": "number",
+      "default": 0
+    },
+    "context_size": {
+      "type": "number",
+      "default": 0,
+      "description": "Context tokens sent to model"
+    },
+    "success": {
+      "type": "boolean",
+      "default": true
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "subscription": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "routing_reason": {
+      "type": "string",
+      "description": "Why this model was selected"
+    },
+    "routing_factors_json": {
+      "type": "string",
+      "description": "JSON object of routing factors evaluated"
+    },
+    "streaming": {
+      "type": "boolean",
+      "default": false
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "selected_model",
+    "selected_provider"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

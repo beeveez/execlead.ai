@@ -175,6 +175,7 @@ import ExecutiveProductBoard from '@/pages/developer/ExecutiveProductBoard';
 import CommercialGovernanceCenter from '@/pages/developer/CommercialGovernanceCenter';
 import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
 import AIPolicyDashboard from '@/pages/developer/AIPolicyDashboard';
+import ModelRouterDashboard from '@/pages/developer/ModelRouterDashboard';
 import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
@@ -427,6 +428,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/commercial-governance" element={<CommercialGovernanceCenter />} />
           <Route path="/developer/ai-optimization" element={<AIOptimizationDashboard />} />
           <Route path="/developer/ai-policy" element={<AIPolicyDashboard />} />
+          <Route path="/developer/model-router" element={<ModelRouterDashboard />} />
           <Route path="/privacy-compliance" element={<MyPrivacy />} />
           <Route path="/developer/privacy-compliance" element={<PrivacyComplianceCenter />} />
           <Route path="/enterprise/privacy" element={<EnterprisePrivacy />} />

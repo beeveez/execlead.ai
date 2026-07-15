@@ -211,7 +211,7 @@ export async function getMemoryUtilization(userId) {
   const mem = await loadExecutiveMemory(userId);
   if (!mem) return { score: 0, domains: [], populated: 0, total: 12 };
 
-  const prefs = parseObject(mem.preferences_json);
+  const prefs = parseObject(mem.preferences_json) || {};
   const domains = [
     { key: "career_goals", populated: parseArray(mem.goals_json).length > 0 },
     { key: "aspirations", populated: parseArray(mem.aspirations_json).length > 0 },

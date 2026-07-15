@@ -224,7 +224,7 @@ export const WORKSPACE_NAV = {
 /* ======================= ROUTE → WORKSPACE MAP ======================= */
 
 const ROUTE_WORKSPACE = {
-  "/dashboard": ["executive"],   "/journey-orchestrator": ["executive"], "/action-center": ["executive"], "/promotion-forecast": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
+  "/dashboard": ["executive"],   "/journey-orchestrator": ["executive"], "/action-center": ["executive"], "/promotion-forecast": ["executive"], "/executive-briefing": ["executive"], "/academy": ["executive"], "/coach": ["executive"],
   "/simulator": ["executive"], "/debate": ["executive"], "/council": ["executive"],
   "/marketplace": ["executive"], "/network": ["executive"], "/career-studio": ["executive"],
   "/resume": ["executive"], "/companies": ["executive", "enterprise"],

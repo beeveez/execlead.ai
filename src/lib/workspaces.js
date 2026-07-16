@@ -137,6 +137,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Commercial Intelligence", items: [
       { path: "/commercial-command-center", label: "Commercial Command Center™", icon: DollarSign },
+      { path: "/commercial-automation", label: "Commercial Automation Engine™", icon: Zap },
     ]},
     { label: "Customer Intelligence", items: [
       { path: "/operations/customer-intelligence", label: "Customer Intelligence", icon: Users },

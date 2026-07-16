@@ -1,0 +1,184 @@
+{
+  "name": "AutomationRule",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Rule name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "new_executive_signup",
+        "enterprise_inquiry",
+        "trial_expiring_3d",
+        "high_promotion_readiness",
+        "inactive_14d",
+        "dormant_executive",
+        "founding_member_purchased",
+        "churn_risk",
+        "revenue_milestone",
+        "custom"
+      ],
+      "description": "Event that triggers this rule"
+    },
+    "conditions_json": {
+      "type": "string",
+      "description": "JSON array of condition objects"
+    },
+    "actions_json": {
+      "type": "string",
+      "description": "JSON array of action objects"
+    },
+    "cooldown_hours": {
+      "type": "number",
+      "default": 24,
+      "description": "Minimum hours between firings for same target"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "execution_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_fired_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_execution_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "partial",
+        "failed",
+        "no_match"
+      ],
+      "default": "no_match"
+    },
+    "last_execution_summary": {
+      "type": "string"
+    },
+    "execution_history_json": {
+      "type": "string",
+      "description": "JSON array of execution history entries"
+    },
+    "is_system": {
+      "type": "boolean",
+      "default": false,
+      "description": "System rules cannot be deleted"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "trigger"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

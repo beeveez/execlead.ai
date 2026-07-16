@@ -1,0 +1,216 @@
+{
+  "name": "CommercialTask",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "description": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "follow_up",
+        "enterprise_opportunity",
+        "upgrade_email",
+        "re_engagement",
+        "retention",
+        "welcome_workflow",
+        "issue_benefits",
+        "recommendation",
+        "outreach",
+        "notification"
+      ],
+      "default": "follow_up",
+      "description": "Category of commercial task"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why this task was created"
+    },
+    "suggested_action": {
+      "type": "string",
+      "description": "Recommended action to take"
+    },
+    "expected_impact": {
+      "type": "string",
+      "description": "Expected business impact"
+    },
+    "expected_revenue": {
+      "type": "number",
+      "default": 0,
+      "description": "Expected annualized revenue impact in USD"
+    },
+    "owner": {
+      "type": "string",
+      "enum": [
+        "founder",
+        "enterprise",
+        "support",
+        "marketing",
+        "success"
+      ],
+      "default": "founder"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "skipped"
+      ],
+      "default": "pending"
+    },
+    "source_rule_id": {
+      "type": "string",
+      "description": "AutomationRule ID that generated this task"
+    },
+    "source_rule_name": {
+      "type": "string"
+    },
+    "source_trigger": {
+      "type": "string",
+      "description": "Trigger type that created this task"
+    },
+    "target_email": {
+      "type": "string"
+    },
+    "target_name": {
+      "type": "string"
+    },
+    "target_company": {
+      "type": "string"
+    },
+    "target_plan": {
+      "type": "string"
+    },
+    "exec_recommendation": {
+      "type": "string",
+      "description": "EXEC\u2122 AI recommendation for this task"
+    },
+    "metadata_json": {
+      "type": "string",
+      "description": "JSON object of additional context"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "priority",
+    "task_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

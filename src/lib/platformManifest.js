@@ -636,6 +636,7 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/developer/executive-platform-status", "/developer/experience-audit", "/developer/knowledge-sync",
   "/developer/stability", "/developer/launch-readiness",
   "/developer/scalability", "/developer/performance-resilience",
+  "/developer/experience-intelligence",
   // Routes covered by parent module knowledge entries
   "/dashboard", "/ai-usage", "/founder", "/network/events",
   // Newer platform administration & intelligence routes — covered by parent modules

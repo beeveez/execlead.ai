@@ -21,6 +21,13 @@
  * NO per-profile orchestration logic.
  */
 import { normalizeRole } from "@/lib/roles";
+import {
+  resolveCapabilities,
+  getCapabilityById,
+  canAccessCapability,
+  getCapabilityPath,
+  getRecommendationCapabilities,
+} from "./capabilityRegistry";
 
 // ============================================================
 // PROFILE DEFINITIONS
@@ -42,7 +49,7 @@ export const EXPERIENCE_PROFILES = {
       sections: ["onboarding_checklist", "first_steps", "upgrade_prompt"],
       defaultRoute: "/dashboard",
     },
-    availableModules: ["dashboard", "profile", "resume_intelligence", "executive_portfolio", "companies", "academy", "settings", "compare_plans"],
+    capabilities: ["dashboard", "profile", "resume_intelligence", "executive_portfolio", "companies", "academy", "settings", "compare_plans"],
     sidebarNav: [
       { label: "Platform", paths: ["/dashboard", "/onboarding", "/academy"] },
       { label: "Career", paths: ["/resume", "/companies"] },
@@ -74,7 +81,6 @@ export const EXPERIENCE_PROFILES = {
       { type: "onboarding", priority: "high", message: "Complete your profile to unlock more features" },
       { type: "resume", priority: "medium", message: "Upload your resume to accelerate your profile" },
     ],
-    featureAvailability: ["dashboard", "profile", "resume_intelligence", "companies", "academy"],
     upgradeOpportunities: [
       { plan: "professional", label: "Professional Experience™", price: 29, reason: "Unlock simulations, daily challenges, and career advisor", highlight: true },
     ],
@@ -95,7 +101,7 @@ export const EXPERIENCE_PROFILES = {
       sections: ["daily_actions", "career_metrics", "recommended_simulations", "challenge_streak"],
       defaultRoute: "/dashboard",
     },
-    availableModules: ["dashboard", "profile", "resume_intelligence", "executive_portfolio", "companies", "academy", "settings", "compare_plans", "career_advisor", "career_studio", "simulator", "challenge", "metrics", "analytics", "journal", "executive_coach", "ai_command_center"],
+    capabilities: ["dashboard", "profile", "resume_intelligence", "executive_portfolio", "companies", "academy", "settings", "compare_plans", "career_advisor", "career_studio", "simulator", "challenge", "metrics", "analytics", "journal", "executive_coach", "ai_command_center"],
     sidebarNav: [
       { label: "Platform", paths: ["/dashboard", "/challenge", "/academy", "/coach", "/simulator"] },
       { label: "Career", paths: ["/career", "/career-studio", "/resume", "/companies", "/journal"] },
@@ -128,7 +134,6 @@ export const EXPERIENCE_PROFILES = {
       { type: "challenge", priority: "high", message: "Don't break your challenge streak — complete today's challenge" },
       { type: "simulation", priority: "medium", message: "Practice a simulation to improve readiness" },
     ],
-    featureAvailability: ["dashboard", "profile", "resume_intelligence", "companies", "academy", "career_advisor", "career_studio", "simulator", "challenge", "metrics", "analytics", "journal", "executive_coach"],
     upgradeOpportunities: [
       { plan: "executive", label: "Executive Experience™", price: 79, reason: "Unlock executive coaching, briefings, leadership DNA, and career orchestration", highlight: true },
     ],
@@ -150,7 +155,7 @@ export const EXPERIENCE_PROFILES = {
       sections: ["briefing_summary", "leadership_dna", "promotion_forecast", "strategic_actions", "momentum"],
       defaultRoute: "/dashboard",
     },
-    availableModules: ["dashboard", "executive_briefing", "journey_orchestrator", "action_center", "executive_coach", "leadership_dna", "digital_twin", "decision_intelligence", "promotion_forecast", "intelligence_center", "council", "debate", "simulator", "challenge", "academy", "career_advisor", "career_studio", "resume_intelligence", "executive_portfolio", "companies", "metrics", "analytics", "journal", "reputation", "executive_rankings", "brand_center", "profile", "billing", "settings"],
+    capabilities: ["dashboard", "executive_briefing", "journey_orchestrator", "action_center", "executive_coach", "leadership_dna", "digital_twin", "decision_intelligence", "promotion_forecast", "intelligence_center", "council", "debate", "simulator", "challenge", "academy", "career_advisor", "career_studio", "resume_intelligence", "executive_portfolio", "companies", "metrics", "analytics", "journal", "reputation", "executive_rankings", "brand_center", "profile", "billing", "settings"],
     sidebarNav: [
       { label: "Command Center", paths: ["/dashboard", "/executive-briefing", "/journey-orchestrator", "/action-center"] },
       { label: "Leadership", paths: ["/coach", "/leadership-dna", "/digital-twin", "/decision-intelligence"] },
@@ -187,7 +192,6 @@ export const EXPERIENCE_PROFILES = {
       { type: "briefing", priority: "high", message: "Your weekly executive briefing is ready" },
       { type: "coaching", priority: "medium", message: "Schedule your executive coaching session this week" },
     ],
-    featureAvailability: ["dashboard", "executive_briefing", "journey_orchestrator", "action_center", "executive_coach", "leadership_dna", "digital_twin", "decision_intelligence", "promotion_forecast", "intelligence_center", "council", "debate", "simulator", "challenge", "academy", "career_advisor", "career_studio", "resume_intelligence", "executive_portfolio", "companies", "metrics", "analytics", "journal", "reputation", "executive_rankings", "brand_center"],
     upgradeOpportunities: [
       { plan: "enterprise", label: "Enterprise Experience™", price: 500, reason: "Unlock organization-wide workforce development, governance, and succession planning", highlight: false },
     ],
@@ -208,7 +212,7 @@ export const EXPERIENCE_PROFILES = {
       sections: ["workforce_metrics", "governance_status", "succession_pipeline", "learning_progress", "enterprise_insights"],
       defaultRoute: "/enterprise",
     },
-    availableModules: ["enterprise_dashboard", "hr_dashboard", "succession_planning", "learning_assignments", "promotion_readiness", "analytics", "academy", "executive_coach", "simulator", "council", "leadership_dna", "marketplace", "companies", "organization_users", "sso", "security", "identity_verification", "ai_command_center", "billing", "settings", "profile"],
+    capabilities: ["enterprise_dashboard", "hr_dashboard", "succession_planning", "learning_assignments", "promotion_readiness", "analytics", "academy", "executive_coach", "simulator", "council", "leadership_dna", "marketplace", "companies", "organization_users", "sso", "security", "identity_verification", "ai_command_center", "billing", "settings", "profile"],
     sidebarNav: [
       { label: "Enterprise Workspace", paths: ["/enterprise", "/ai-command-center", "/academy", "/coach", "/simulator", "/council", "/leadership-dna", "/marketplace"] },
       { label: "Organization", paths: ["/companies", "/analytics", "/hr-dashboard", "/learning-assignments", "/promotion-readiness"] },
@@ -242,7 +246,6 @@ export const EXPERIENCE_PROFILES = {
       { type: "governance", priority: "medium", message: "Governance compliance review needed this week" },
       { type: "succession", priority: "medium", message: "Succession pipeline updates pending review" },
     ],
-    featureAvailability: ["enterprise_dashboard", "hr_dashboard", "succession_planning", "learning_assignments", "promotion_readiness", "analytics", "academy", "executive_coach", "simulator", "council", "leadership_dna", "marketplace", "companies", "organization_users", "sso", "security", "identity_verification"],
     upgradeOpportunities: [],
   },
 
@@ -261,7 +264,7 @@ export const EXPERIENCE_PROFILES = {
       sections: ["system_health", "ai_observability", "platform_stability", "commercial_intelligence", "deployment_status"],
       defaultRoute: "/developer",
     },
-    availableModules: ["developer_console", "system_health", "experience_audit", "guardian", "audit_logs", "api_keys", "database_tools", "migration_history", "deployment_center", "feature_management", "organization_admin", "admin_console", "enterprise_admin", "commercial_command_center", "commercial_automation", "ai_command_center", "ai_observability", "platform_stability", "cognitive_excellence", "scalability_assessment", "performance_resilience", "architecture_audit", "launch_readiness", "commercial_readiness", "diagnostics", "security_intelligence"],
+    capabilities: ["developer_console", "system_health", "experience_audit", "guardian", "audit_logs", "api_keys", "database_tools", "migration_history", "deployment_center", "feature_management", "organization_admin", "admin_console", "enterprise_admin", "commercial_command_center", "commercial_automation", "ai_command_center", "ai_observability", "platform_stability", "cognitive_excellence", "scalability_assessment", "performance_resilience", "architecture_audit", "launch_readiness", "commercial_readiness", "diagnostics", "security_intelligence"],
     sidebarNav: [
       { label: "Developer Command Center™", paths: ["/developer"] },
       { label: "Platform Operations", paths: ["/developer/system-health", "/developer/experience-audit"] },
@@ -300,7 +303,6 @@ export const EXPERIENCE_PROFILES = {
       { type: "ai", priority: "medium", message: "AI usage patterns need review" },
       { type: "deployment", priority: "medium", message: "Deployment pipeline has pending changes" },
     ],
-    featureAvailability: ["developer_console", "system_health", "audit_logs", "api_keys", "database_tools", "deployment_center", "feature_management", "ai_command_center", "ai_observability", "commercial_command_center", "commercial_automation"],
     upgradeOpportunities: [],
   },
 
@@ -319,7 +321,7 @@ export const EXPERIENCE_PROFILES = {
       sections: ["commercial_intelligence", "platform_status", "system_health", "all_workspaces", "security_events"],
       defaultRoute: "/dashboard",
     },
-    availableModules: [
+    capabilities: [
       // Executive modules
       "dashboard", "executive_briefing", "journey_orchestrator", "action_center", "executive_coach", "leadership_dna", "digital_twin", "decision_intelligence", "promotion_forecast", "intelligence_center", "council", "debate", "simulator", "challenge", "academy", "career_advisor", "career_studio", "resume_intelligence", "executive_portfolio", "companies", "metrics", "analytics", "journal", "reputation", "executive_rankings", "brand_center",
       // Enterprise modules
@@ -371,7 +373,6 @@ export const EXPERIENCE_PROFILES = {
       { type: "platform", priority: "high", message: "Platform status review recommended" },
       { type: "security", priority: "medium", message: "Security events require attention" },
     ],
-    featureAvailability: ["*"],
     upgradeOpportunities: [],
   },
 };
@@ -437,9 +438,64 @@ export function getAllProfiles() {
   return Object.values(EXPERIENCE_PROFILES);
 }
 
+/**
+ * Returns the capability IDs for a profile.
+ * Backward compatible — reads `capabilities` (new) or `availableModules` (legacy).
+ */
 export function getProfileModules(profileId) {
   const profile = getExperienceProfile(profileId);
-  return profile.availableModules || [];
+  return profile.capabilities || profile.availableModules || [];
+}
+
+/**
+ * Resolves capability IDs into full capability objects from the Capability Registry™.
+ * This is the primary accessor for the Experience Engine™.
+ */
+export function resolveProfileCapabilities(profileId) {
+  const profile = getExperienceProfile(profileId);
+  const ids = profile.capabilities || profile.availableModules || [];
+  if (ids === "*") return resolveCapabilities("*");
+  return resolveCapabilities(ids);
+}
+
+/**
+ * Returns capabilities that support recommendations for this profile.
+ */
+export function getProfileRecommendationCapabilities(profileId) {
+  return resolveProfileCapabilities(profileId).filter((c) => c.recommendationSupport);
+}
+
+/**
+ * Returns capabilities that use AI for this profile.
+ */
+export function getProfileAICapabilities(profileId) {
+  return resolveProfileCapabilities(profileId).filter((c) => c.aiSupport);
+}
+
+/**
+ * Checks if a profile has access to a specific capability.
+ */
+export function profileHasCapability(profileId, capabilityId) {
+  const modules = getProfileModules(profileId);
+  if (modules === "*" || modules.includes("*")) return true;
+  return modules.includes(capabilityId);
+}
+
+/**
+ * Derives feature availability from capabilities (replaces the old
+ * featureAvailability field — one source of truth).
+ */
+export function getProfileFeatureAvailability(profileId) {
+  return getProfileModules(profileId);
+}
+
+/**
+ * Resolves navigation targets for all capabilities in a profile.
+ */
+export function getProfileNavigationTargets(profileId) {
+  return resolveProfileCapabilities(profileId)
+    .map((c) => c.navigationTarget)
+    .filter(Boolean);
 }
 
 export function getProfileSidebarNav(profileId) {
@@ -492,7 +548,7 @@ export function profileToAdaptiveMode(profile) {
     id: profile.id,
     label: profile.label,
     description: profile.description,
-    priorityModules: (profile.availableModules || []).slice(0, 5),
+    priorityModules: (profile.capabilities || profile.availableModules || []).slice(0, 5),
     dashboardFocus: profile.focus,
     coachFocus: profile.focus,
     color: profile.color || "text-indigo-400",

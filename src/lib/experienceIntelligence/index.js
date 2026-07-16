@@ -29,5 +29,26 @@ export {
   getProfileUpgrades,
   getProfileNextBestAction,
   profileToAdaptiveMode,
+  resolveProfileCapabilities,
+  getProfileRecommendationCapabilities,
+  getProfileAICapabilities,
+  profileHasCapability,
+  getProfileFeatureAvailability,
+  getProfileNavigationTargets,
 } from "./experienceProfiles";
+export {
+  CAPABILITIES,
+  getCapabilityById,
+  getCapabilitiesByWorkspace,
+  getCapabilitiesByPlan,
+  getRecommendationCapabilities,
+  getAICapabilities,
+  getAllCapabilityIds,
+  getCapabilityCount,
+  resolveCapabilities,
+  canAccessCapability,
+  getCapabilityPath,
+  getDependencyChain,
+  getCapabilityRegistryHealth,
+} from "./capabilityRegistry";
 export { getDailyMissions, getWeeklyObjectives, getUpgradeOpportunities, getAIRecommendations } from "./recommendationEngine";

@@ -27,27 +27,27 @@ const EXEC_MEMBERS_FIELDS = [
   { name: "Job Title", type: "singleLineText" },
   { name: "Country", type: "singleLineText" },
   { name: "Membership Type", type: "singleSelect", options: { choices: [
-    { name: "Founding", color: "goldDark" },
-    { name: "Executive", color: "purpleDark" },
-    { name: "Premium", color: "blueDark" },
-    { name: "Free", color: "grayDark" },
+    { name: "Founding" },
+    { name: "Executive" },
+    { name: "Premium" },
+    { name: "Free" },
   ]}},
   { name: "Current Plan", type: "singleLineText" },
   { name: "Journey Stage", type: "singleSelect", options: { choices: [
-    { name: "Onboarding", color: "yellowDark" },
-    { name: "Active", color: "greenDark" },
-    { name: "Engaged", color: "blueDark" },
-    { name: "Dormant", color: "grayDark" },
-    { name: "Churned", color: "redDark" },
+    { name: "Onboarding" },
+    { name: "Active" },
+    { name: "Engaged" },
+    { name: "Dormant" },
+    { name: "Churned" },
   ]}},
   { name: "Identity Completion", type: "number", options: { precision: 0 } },
-  { name: "Identity Verified", type: "checkbox", options: { icon: "checkmark", color: "greenBright" } },
+  { name: "Identity Verified", type: "checkbox", options: { icon: "check", color: "greenBright" } },
   { name: "Executive Score", type: "number", options: { precision: 0 } },
   { name: "Promotion Readiness", type: "number", options: { precision: 0 } },
   { name: "Promotion Momentum", type: "singleSelect", options: { choices: [
-    { name: "increasing", color: "greenDark" },
-    { name: "stable", color: "yellowDark" },
-    { name: "declining", color: "redDark" },
+    { name: "increasing" },
+    { name: "stable" },
+    { name: "declining" },
   ]}},
   { name: "Target Executive Level", type: "singleLineText" },
   { name: "Trust Score", type: "number", options: { precision: 0 } },
@@ -57,11 +57,11 @@ const EXEC_MEMBERS_FIELDS = [
   { name: "Sync Trigger", type: "singleLineText" },
   { name: "Last Synced", type: "dateTime", options: { dateFormat: { name: "iso" }, timeFormat: { name: "24hour" }, timeZone: "utc" } },
   { name: "Status", type: "singleSelect", options: { choices: [
-    { name: "Active", color: "greenDark" },
-    { name: "Inactive", color: "grayDark" },
-    { name: "Suspended", color: "redDark" },
-    { name: "Trial", color: "yellowDark" },
-    { name: "Invited", color: "blueDark" },
+    { name: "Active" },
+    { name: "Inactive" },
+    { name: "Suspended" },
+    { name: "Trial" },
+    { name: "Invited" },
   ]}},
   { name: "Notes", type: "multilineText" },
   { name: "Tags", type: "multipleSelects", options: { choices: [] } },
@@ -75,9 +75,9 @@ const SYNC_LOGS_FIELDS = [
   { name: "Email", type: "email" },
   { name: "Trigger", type: "singleLineText" },
   { name: "Status", type: "singleSelect", options: { choices: [
-    { name: "Success", color: "greenDark" },
-    { name: "Failed", color: "redDark" },
-    { name: "Retrying", color: "yellowDark" },
+    { name: "Success" },
+    { name: "Failed" },
+    { name: "Retrying" },
   ]}},
   { name: "Error", type: "multilineText" },
   { name: "Retry Count", type: "number", options: { precision: 0 } },
@@ -130,16 +130,26 @@ function findMissingFields(existingFields, requiredFields) {
 async function ensureTable(tables, name, description, requiredFields) {
   let table = tables.find((t) => t.name === name);
   if (!table) {
-    table = await createTable(name, description, requiredFields);
-  } else {
-    const missing = findMissingFields(table.fields || [], requiredFields);
-    for (const field of missing) {
-      try { await addField(table.id, field); } catch { /* non-blocking */ }
-    }
-    // Re-fetch to get the complete field list
-    const refreshed = await listTables();
-    table = refreshed.find((t) => t.name === name) || table;
+    // Create with just the primary field — the field creation endpoint has
+    // more lenient validation than the table creation endpoint
+    table = await createTable(name, description, [requiredFields[0]]);
   }
+
+  // Add any missing fields one by one via the field creation endpoint
+  const missing = findMissingFields(table.fields || [], requiredFields);
+  const fieldErrors = [];
+  for (const field of missing) {
+    try {
+      await addField(table.id, field);
+    } catch (e) {
+      fieldErrors.push({ field: field.name, error: e.message });
+    }
+  }
+
+  // Re-fetch to get the complete field list after additions
+  const refreshed = await listTables();
+  table = refreshed.find((t) => t.name === name) || table;
+  table._fieldErrors = fieldErrors;
   return table;
 }
 
@@ -195,6 +205,7 @@ Deno.serve(async (req) => {
       fieldsValidated: EXEC_MEMBERS_FIELDS.length - membersMissing.length,
       fieldsTotal: EXEC_MEMBERS_FIELDS.length,
       missingFields: membersMissing.map((f) => f.name),
+      fieldErrors: membersTable._fieldErrors || [],
     };
     report.tables[SYNC_LOGS_TABLE] = {
       exists: true,
@@ -202,6 +213,7 @@ Deno.serve(async (req) => {
       fieldsValidated: SYNC_LOGS_FIELDS.length - logsMissing.length,
       fieldsTotal: SYNC_LOGS_FIELDS.length,
       missingFields: logsMissing.map((f) => f.name),
+      fieldErrors: logsTable._fieldErrors || [],
     };
     report.fieldsValidated =
       report.tables[EXEC_MEMBERS_TABLE].fieldsValidated + report.tables[SYNC_LOGS_TABLE].fieldsValidated;
@@ -236,7 +248,7 @@ Deno.serve(async (req) => {
       "Last Synced": now,
       Status: "Active",
       Notes: "Sample record created during CRM provisioning test.",
-      Tags: ["test", "provisioning"],
+      Tags: [],
     };
 
     const createRes = await airtableFetch(`/${BASE_ID}/${membersTable.id}`, {
@@ -245,6 +257,7 @@ Deno.serve(async (req) => {
     });
     const createData = await createRes.json();
     const testRecordId = createData.records?.[0]?.id;
+    const sampleRecordError = !testRecordId ? createData?.error?.message || JSON.stringify(createData) : null;
 
     // ── 6. Verify the sample record was received ──
     const safeEmail = testEmail.replace(/'/g, "\\'");
@@ -294,7 +307,7 @@ Deno.serve(async (req) => {
     const failLogId = (await failLogRes.json()).records?.[0]?.id;
 
     report.testSync = {
-      sampleRecord: { created: !!testRecordId, verified, recordId: testRecordId },
+      sampleRecord: { created: !!testRecordId, verified, recordId: testRecordId, error: sampleRecordError },
       syncLogSuccess: { created: !!successLogId, recordId: successLogId },
       syncLogFailure: { created: !!failLogId, recordId: failLogId },
     };

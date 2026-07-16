@@ -371,16 +371,65 @@ export const COMPANIES = [
   },
 ];
 
-/** Search companies by name, industry, country, or technology. */
+/**
+ * Search companies by name, industry, country, or technology.
+ * Returns [] when query is shorter than 2 characters — the UI
+ * shows "Popular Companies" instead of the full registry on focus.
+ * Results are scored by relevance and sorted accordingly.
+ */
 export function searchCompanies(query, limit = 10) {
-  if (!query || !query.trim()) return COMPANIES.slice(0, limit);
+  if (!query || query.trim().length < 2) return [];
   const q = query.toLowerCase().trim();
-  return COMPANIES.filter(c =>
-    c.name.toLowerCase().includes(q) ||
-    c.industry.toLowerCase().includes(q) ||
-    c.country.toLowerCase().includes(q) ||
-    c.technology.some(t => t.toLowerCase().includes(q))
-  ).slice(0, limit);
+
+  const scored = COMPANIES.map(c => {
+    let score = 0;
+    const name = c.name.toLowerCase();
+    const industry = (c.industry || "").toLowerCase();
+    const country = (c.country || "").toLowerCase();
+    const tech = (c.technology || []).map(t => t.toLowerCase());
+
+    // Name: highest weight — exact > starts-with > includes
+    if (name === q) score += 200;
+    else if (name.startsWith(q)) score += 100;
+    else if (name.includes(q)) score += 50;
+
+    // Industry
+    if (industry === q) score += 30;
+    else if (industry.includes(q)) score += 20;
+
+    // Country
+    if (country === q) score += 25;
+    else if (country.includes(q)) score += 15;
+
+    // Technology stack
+    if (tech.some(t => t === q)) score += 20;
+    else if (tech.some(t => t.includes(q))) score += 10;
+
+    return { company: c, score };
+  })
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(r => r.company);
+
+  return scored;
+}
+
+const POPULAR_COMPANY_IDS = [
+  "microsoft", "amazon", "google", "apple", "openai", "servicenow", "meta", "salesforce",
+];
+
+/** Returns 6–8 commonly targeted organizations for the empty-state UI. */
+export function getPopularCompanies(limit = 8) {
+  return POPULAR_COMPANY_IDS
+    .map(id => COMPANIES.find(c => c.id === id))
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
+/** Explicitly browse all companies (used by the "Browse Companies" button). */
+export function browseCompanies(limit = 10) {
+  return COMPANIES.slice(0, limit);
 }
 
 export function getCompanyById(id) {

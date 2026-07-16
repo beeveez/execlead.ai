@@ -5,6 +5,8 @@ import { getPlan, PLANS } from '@/lib/plans';
 import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
 import { setCachedCareerIntelligenceForm } from '@/lib/careerIntelligence/contextCache';
+import { seedExecutiveContext, setMemoryContext } from '@/lib/executiveContextEngine';
+import { loadExecutiveMemory } from '@/lib/experienceIntelligence/executiveMemory';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
 import { syncFounderEntitlements } from '@/lib/entitlementSync';
 import { getUserEntitlements, FOUNDER_BENEFIT_KEYS } from '@/lib/entitlementService';
@@ -192,6 +194,37 @@ export const SubscriptionProvider = ({ children }) => {
       work_preference: profile.work_preference,
     });
   }, [profile?.target_company, profile?.target_role, profile?.preferred_industry, profile?.target_country, profile?.expected_salary, profile?.salary_currency, profile?.work_preference]);
+
+  // ── Executive Context Engine™: Seed identity, career, leadership,
+  // journey, and capabilities layers. The engine is the single
+  // authoritative context source for all EXEC™ AI modules via callAI().
+  // Company Context™ and Career Intelligence™ are still seeded above
+  // (the engine consumes them as input sources).
+  useEffect(() => {
+    seedExecutiveContext({ user, profile, subscription, entitlements });
+  }, [
+    user?.id, profile?.id,
+    profile?.display_name, profile?.full_name, profile?.subscription_plan,
+    profile?.organization_id, profile?.target_company, profile?.target_role,
+    profile?.preferred_industry, profile?.target_country, profile?.expected_salary,
+    profile?.career_stage, profile?.cached_journey_points, profile?.cached_readiness_score,
+    profile?.promotion_readiness, profile?.executive_presence, profile?.leadership_maturity,
+    profile?.commercial_maturity, profile?.communication_growth, profile?.confidence,
+    profile?.strong_areas, profile?.weak_areas, profile?.ai_personality,
+    profile?.career_goals, profile?.growth_plan,
+    subscription?.planTier, entitlements,
+  ]);
+
+  // ── Executive Memory™: Async-load the user's persistent leadership
+  // memory and seed it into the Executive Context Engine™.
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    loadExecutiveMemory(user.id).then(mem => {
+      if (active && mem) setMemoryContext(mem);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [user?.id]);
 
   const refreshProfile = useCallback(async () => {
     await loadProfile();

@@ -6,6 +6,7 @@ import { getAvailableWorkspaces, getDefaultWorkspace } from "@/lib/workspaces";
 import { resolveNavGroups } from "@/lib/navigationRegistry";
 import { hasFeatureAccess } from "@/lib/featureCatalog";
 import { normalizeRole, getEffectiveRole as computeEffectiveRole } from "@/lib/roles";
+import { setWorkspaceContext } from "@/lib/executiveContextEngine";
 
 const WorkspaceContext = createContext(null);
 export const useWorkspace = () => useContext(WorkspaceContext);
@@ -57,6 +58,18 @@ export function WorkspaceProvider({ children }) {
       setWorkspaceChosen(false);
     }
   }, [availableWorkspaces.join(","), role]);
+
+  // ── Executive Context Engine™: Seed the workspace layer so every
+  // AI call is workspace-aware (persona, terminology, KPIs, response style).
+  useEffect(() => {
+    if (!activeWorkspace) return;
+    setWorkspaceContext({
+      activeWorkspace,
+      role,
+      plan,
+      activeRoute: typeof window !== "undefined" ? window.location.pathname : null,
+    });
+  }, [activeWorkspace, role, plan]);
 
   const setActiveWorkspace = useCallback((wsId, { persist = true } = {}) => {
     if (!availableWorkspaces.includes(wsId)) return;

@@ -1,6 +1,5 @@
 import { base44 } from "@/api/base44Client";
-import { getCachedCompanyContext } from "@/lib/companyContext";
-import { getCachedCareerIntelligence } from "@/lib/careerIntelligence/contextCache";
+import { getExecutiveContextPrompt } from "@/lib/executiveContextEngine";
 import { deriveProvider } from "@/lib/aiOperations";
 
 /**
@@ -20,10 +19,8 @@ const classifyError = (err) => {
 };
 
 export const callAI = async (module, { prompt, ...options }) => {
-  const companyContext = getCachedCompanyContext();
-  const careerContext = getCachedCareerIntelligence();
-  const contextParts = [companyContext, careerContext].filter(Boolean);
-  const fullPrompt = contextParts.length ? `${contextParts.join("\n\n")}\n\n${prompt}` : prompt;
+  const contextPrompt = getExecutiveContextPrompt();
+  const fullPrompt = contextPrompt ? `${contextPrompt}\n\n${prompt}` : prompt;
   const model = options.model || "automatic";
   const startedAt = Date.now();
 

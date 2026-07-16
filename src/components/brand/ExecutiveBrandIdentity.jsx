@@ -3,10 +3,10 @@ import ExecutiveMark from "@/components/layout/ExecutiveMark";
 import { BrandRegistry } from "@/lib/brandRegistry";
 
 const COLORS = [
+  { name: "Gold Highlight", hex: "#D4B483", label: "Champagne" },
+  { name: "Gold Shadow", hex: "#A68759", label: "Burnished Bronze" },
   { name: "Primary", hex: "#6366f1", label: "Indigo" },
-  { name: "Gold", hex: "#f59e0b", label: "Executive Gold" },
-  { name: "Gold Light", hex: "#fbbf24", label: "Gold Light" },
-  { name: "Background", hex: "#0a0a0f", label: "Executive Navy" },
+  { name: "Background", hex: "#0B111D", label: "Executive Navy" },
   { name: "Card", hex: "#0d0d14", label: "Card Surface" },
   { name: "Primary Dark", hex: "#4f46e5", label: "Indigo Dark" },
 ];
@@ -32,11 +32,11 @@ export default function ExecutiveBrandIdentity() {
       {/* Logo Display */}
       <div className="bg-gradient-to-br from-amber-500/[0.06] via-indigo-500/[0.03] to-transparent border border-white/10 rounded-2xl p-8 md:p-12 text-center">
         <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-[#0a0a0f] border border-amber-500/20 mb-6">
-          <ExecutiveMark size={56} color="#f59e0b" />
+          <ExecutiveMark size={56}  />
         </div>
         <h2 className="text-xl font-bold text-white mb-2">{BrandRegistry.brandName} Executive Mark™</h2>
         <p className="text-white/40 text-sm max-w-lg mx-auto">
-          The official EXECLEAD.AI logo — a custom Executive "E" monogram with an integrated upward arrow.
+          A stylized capital "E" with a vertical spine, a horizontal bottom bar, an upward-angled middle bar, and a sharp-tipped arrow on the top bar pointing diagonally upward to the right.
         </p>
       </div>
 
@@ -45,7 +45,7 @@ export default function ExecutiveBrandIdentity() {
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <ExecutiveMark size={22} color="#f59e0b" />
+              <ExecutiveMark size={22}  />
             </div>
             <div>
               <h3 className="text-white font-semibold text-sm">The Executive "E"</h3>
@@ -147,7 +147,7 @@ export default function ExecutiveBrandIdentity() {
           <div className="flex items-center justify-center bg-[#0a0a0f] border border-white/5 rounded-xl p-8">
             <div className="relative">
               <div className="absolute -inset-4 border-2 border-dashed border-amber-500/20 rounded-lg" />
-              <ExecutiveMark size={48} color="#f59e0b" />
+              <ExecutiveMark size={48}  />
             </div>
           </div>
           <p className="text-white/30 text-xs mt-3 text-center">Maintain padding equal to the mark height on all sides.</p>
@@ -157,17 +157,17 @@ export default function ExecutiveBrandIdentity() {
           <h3 className="text-white font-semibold text-sm mb-3">Minimum Sizes</h3>
           <div className="flex items-end justify-center gap-6 bg-[#0a0a0f] border border-white/5 rounded-xl p-8">
             <div className="text-center">
-              <ExecutiveMark size={32} color="#f59e0b" />
+              <ExecutiveMark size={32}  />
               <div className="text-white/30 text-[10px] mt-2">32px</div>
               <div className="text-white/20 text-[10px]">Digital min</div>
             </div>
             <div className="text-center">
-              <ExecutiveMark size={20} color="#f59e0b" />
+              <ExecutiveMark size={20}  />
               <div className="text-white/30 text-[10px] mt-2">20px</div>
               <div className="text-white/20 text-[10px]">Favicon min</div>
             </div>
             <div className="text-center">
-              <ExecutiveMark size={14} color="#f59e0b" />
+              <ExecutiveMark size={14}  />
               <div className="text-white/30 text-[10px] mt-2">14px</div>
               <div className="text-white/20 text-[10px]">Absolute min</div>
             </div>
@@ -181,12 +181,12 @@ export default function ExecutiveBrandIdentity() {
         <h3 className="text-white font-semibold text-sm mb-4">Dark &amp; Light Variants</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-[#0a0a0f] border border-white/10 rounded-xl p-8 text-center">
-            <ExecutiveMark size={48} color="#f59e0b" />
+            <ExecutiveMark size={48}  />
             <div className="text-white/40 text-xs mt-3">Dark Variant</div>
             <div className="text-white/20 text-[10px]">Gold mark on navy</div>
           </div>
           <div className="bg-white border border-black/10 rounded-xl p-8 text-center">
-            <ExecutiveMark size={48} color="#d97706" />
+            <ExecutiveMark size={48} color="#8B6B3D" />
             <div className="text-black/60 text-xs mt-3">Light Variant</div>
             <div className="text-black/30 text-[10px]">Dark gold on white</div>
           </div>

@@ -21,7 +21,7 @@ export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2
         transition={{ type: "spring", stiffness: 400, damping: 22 }}
       >
         {showMark && (
-          <ExecutiveMark size={markSize} className="mr-2 text-amber-400 group-hover:text-amber-300 transition-colors" />
+          <ExecutiveMark size={markSize} className="mr-2 group-hover:opacity-80 transition-opacity shrink-0" />
         )}
         <span className="inline-flex items-baseline">
           <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">{BrandRegistry.logo.parts.prefix}</span>

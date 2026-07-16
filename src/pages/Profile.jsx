@@ -23,6 +23,7 @@ import DataManagementSection from "@/components/profile/DataManagementSection";
 import MembershipSection from "@/components/profile/MembershipSection";
 import PublicProfileSection from "@/components/profile/PublicProfileSection";
 import { createSnapshot, averageConfidence } from "@/lib/identityVersioning";
+import { setCachedCareerIntelligenceForm } from "@/lib/careerIntelligence/contextCache";
 import { Loader2, Save, UserCircle, Globe, Lock } from "lucide-react";
 
 export default function Profile() {
@@ -105,6 +106,22 @@ export default function Profile() {
     if (!form || !savedFormRef.current) return false;
     return JSON.stringify(form) !== JSON.stringify(savedFormRef.current);
   }, [form]);
+
+  // Sync Career Intelligence™ cache so all EXEC™ AI modules (Coach, Simulator,
+  // Debate, Resume, Academy, Council) receive role/industry/country/salary
+  // personalization automatically via callAI.
+  useEffect(() => {
+    if (!form) return;
+    setCachedCareerIntelligenceForm({
+      target_company: form.target_company,
+      target_role: form.target_role,
+      preferred_industry: form.preferred_industry,
+      target_country: form.target_country,
+      expected_salary: form.expected_salary,
+      salary_currency: form.salary_currency,
+      work_preference: form.work_preference,
+    });
+  }, [form?.target_company, form?.target_role, form?.preferred_industry, form?.target_country, form?.expected_salary, form?.salary_currency, form?.work_preference]);
 
   // Warn before navigating away / closing tab when there are unsaved edits.
   useEffect(() => {

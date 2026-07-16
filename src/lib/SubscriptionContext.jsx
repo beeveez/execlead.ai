@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { getPlan, PLANS } from '@/lib/plans';
 import { canAccessDeveloperWorkspace } from '@/lib/roles';
 import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from '@/lib/companyContext';
+import { setCachedCareerIntelligenceForm } from '@/lib/careerIntelligence/contextCache';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
 import { syncFounderEntitlements } from '@/lib/entitlementSync';
 import { getUserEntitlements, FOUNDER_BENEFIT_KEYS } from '@/lib/entitlementService';
@@ -174,6 +175,23 @@ export const SubscriptionProvider = ({ children }) => {
     });
     return () => { active = false; };
   }, [profile?.target_company]);
+
+  // Career Intelligence™ Context: cache the resolved Career Intelligence
+  // Profile™ so every EXEC™ AI module (Coach, Simulator, Debate, Resume,
+  // Academy, Council) auto-personalizes to the user's target role, industry,
+  // country, and salary benchmark.
+  useEffect(() => {
+    if (!profile) { setCachedCareerIntelligenceForm(null); return; }
+    setCachedCareerIntelligenceForm({
+      target_company: profile.target_company,
+      target_role: profile.target_role,
+      preferred_industry: profile.preferred_industry,
+      target_country: profile.target_country,
+      expected_salary: profile.expected_salary,
+      salary_currency: profile.salary_currency,
+      work_preference: profile.work_preference,
+    });
+  }, [profile?.target_company, profile?.target_role, profile?.preferred_industry, profile?.target_country, profile?.expected_salary, profile?.salary_currency, profile?.work_preference]);
 
   const refreshProfile = useCallback(async () => {
     await loadProfile();

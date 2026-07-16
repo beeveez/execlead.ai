@@ -650,6 +650,7 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/feature-flags", "/system-status", "/architecture-governance",
   "/developer-portal", "/beta",
   "/evidence-vault", "/digital-twin", "/decision-intelligence",
+  "/commercial-command-center", "/commercial-automation", "/business-intelligence",
 ];
 
 function isRouteExempt(path) {

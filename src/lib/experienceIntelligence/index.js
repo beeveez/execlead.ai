@@ -13,4 +13,21 @@ export { generateNotification, createNotification, initializeNotificationEngine,
 export { INTELLIGENCE_NODES, INTELLIGENCE_EDGES, getGraphHealth, tracePropagation, getConnectedNodes } from "./intelligenceGraph";
 export { detectInterventions, runInterventionCheck, getInterventionRules, getInterventionStats } from "./interventionEngine";
 export { getDailyRhythm, getWeeklyRhythm, getMonthlyRhythm, getQuarterlyRhythm, getRhythmForToday, getRhythmStats } from "./operatingRhythm";
-export { getCurrentExperience, getNextExperience, getExperienceContext, getExperienceHealth } from "./experienceEngine";
+export { getCurrentExperience, getNextExperience, getExperienceContext, getExperienceHealth, getExperienceProfile } from "./experienceEngine";
+export {
+  EXPERIENCE_PROFILES,
+  resolveExperienceProfile,
+  getExperienceProfile as getProfile,
+  getAllProfiles,
+  getProfileModules,
+  getProfileSidebarNav,
+  getProfileDashboardLayout,
+  getProfileMissions,
+  getProfileObjectives,
+  getProfileAIRecommendations,
+  getProfileNotifications,
+  getProfileUpgrades,
+  getProfileNextBestAction,
+  profileToAdaptiveMode,
+} from "./experienceProfiles";
+export { getDailyMissions, getWeeklyObjectives, getUpgradeOpportunities, getAIRecommendations } from "./recommendationEngine";

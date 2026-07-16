@@ -29,6 +29,7 @@ import { detectInterventions } from "./interventionEngine";
 import { getRhythmForToday } from "./operatingRhythm";
 import { getSynchronizationHealth } from "./eventBus";
 import { getGraphHealth } from "./intelligenceGraph";
+import { resolveExperienceProfile } from "./experienceProfiles";
 
 let currentContext = null;
 let contextTimestamp = 0;
@@ -46,7 +47,7 @@ export function getCurrentExperience(pathname) {
 // EXPERIENCE CONTEXT
 // ============================================================
 
-export async function getExperienceContext(user, pathname = "/dashboard") {
+export async function getExperienceContext(user, pathname = "/dashboard", options = {}) {
   if (!user) return null;
 
   const now = Date.now();
@@ -55,8 +56,15 @@ export async function getExperienceContext(user, pathname = "/dashboard") {
   }
 
   const experience = getCurrentExperience(pathname);
-  const adaptiveMode = resolveAdaptiveMode(user, user, null);
-  const recommendations = await getAllRecommendations(user, pathname);
+  const experienceProfile = resolveExperienceProfile(
+    user,
+    options.profile || user,
+    options.workspace,
+    options.journeyStage,
+    options.entitlements
+  );
+  const adaptiveMode = resolveAdaptiveMode(user, options.profile || user, { workspace: options.workspace });
+  const recommendations = await getAllRecommendations(user, pathname, experienceProfile);
   const memory = await loadExecutiveMemory(user.id);
   const memoryUtil = await getMemoryUtilization(user.id);
   const behaviorInsights = await getBehaviorInsights(user.id);
@@ -69,6 +77,7 @@ export async function getExperienceContext(user, pathname = "/dashboard") {
     user,
     pathname,
     experience,
+    experienceProfile,
     adaptiveMode: getAdaptiveMode(adaptiveMode),
     recommendations,
     memory,
@@ -198,4 +207,12 @@ export function clearContextCache() {
 
 export function getCurrentContextSync() {
   return currentContext;
+}
+
+// ============================================================
+// EXPERIENCE PROFILE ACCESS
+// ============================================================
+
+export function getExperienceProfile(user, profile, workspace) {
+  return resolveExperienceProfile(user, profile || user, workspace);
 }

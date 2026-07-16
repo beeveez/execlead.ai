@@ -22,6 +22,14 @@ import { generateContextualActions } from "@/lib/contextualActionEngine";
 import { trackRecommendationShown } from "./behaviorAnalytics";
 import { getAdaptiveMode, getPriorityModules } from "./adaptiveExperience";
 import { getExperienceById } from "./experienceRegistry";
+import {
+  resolveExperienceProfile,
+  getProfileMissions,
+  getProfileObjectives,
+  getProfileUpgrades,
+  getProfileAIRecommendations,
+  getProfileNextBestAction,
+} from "./experienceProfiles";
 
 let recommendationCache = null;
 let cacheTimestamp = 0;
@@ -43,8 +51,8 @@ export const RECOMMENDATION_TYPES = {
 // CONTEXT ASSEMBLY
 // ============================================================
 
-async function assembleContext(user, pathname) {
-  const ctx = { user, pathname, profile: null, actions: [], forecast: null };
+async function assembleContext(user, pathname, experienceProfile) {
+  const ctx = { user, pathname, profile: null, experienceProfile: null, actions: [], forecast: null };
 
   try {
     const [actions, forecast] = await Promise.all([
@@ -62,6 +70,7 @@ async function assembleContext(user, pathname) {
     ctx.actions = actions || [];
     ctx.forecast = forecast && forecast[0] ? forecast[0] : null;
     ctx.profile = user;
+    ctx.experienceProfile = experienceProfile || resolveExperienceProfile(user, user, null);
   } catch {}
 
   return ctx;
@@ -73,7 +82,25 @@ async function assembleContext(user, pathname) {
 
 function generateNextBestAction(ctx) {
   const pendingActions = ctx.actions || [];
-  if (pendingActions.length === 0) return null;
+  const profileAction = ctx.experienceProfile ? getProfileNextBestAction(ctx.experienceProfile.id) : null;
+
+  // No pending actions — fall back to the Experience Profile's default Next Best Action™
+  if (pendingActions.length === 0) {
+    if (profileAction) {
+      return {
+        type: "action",
+        id: `profile_${ctx.experienceProfile.id}_nba`,
+        title: profileAction.title,
+        description: profileAction.description || "",
+        path: profileAction.path,
+        priority: profileAction.priority,
+        estimatedMinutes: profileAction.estimatedMinutes || 15,
+        impactScore: 0,
+        source: "experience_profile",
+      };
+    }
+    return null;
+  }
 
   // Sort by priority
   const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -186,7 +213,7 @@ function prioritizeByMode(recommendations, modeId) {
 // MAIN API
 // ============================================================
 
-export async function getAllRecommendations(user, pathname = "/dashboard") {
+export async function getAllRecommendations(user, pathname = "/dashboard", experienceProfile) {
   if (!user) return emptyRecommendations();
 
   // Cache check
@@ -195,7 +222,7 @@ export async function getAllRecommendations(user, pathname = "/dashboard") {
     return recommendationCache;
   }
 
-  const ctx = await assembleContext(user, pathname);
+  const ctx = await assembleContext(user, pathname, experienceProfile);
   const mode = resolveMode(user);
 
   const recommendations = {
@@ -205,6 +232,11 @@ export async function getAllRecommendations(user, pathname = "/dashboard") {
     nextBestSimulation: generateNextBestSimulation(ctx),
     nextBestReflection: generateNextBestReflection(ctx),
     adaptiveMode: mode,
+    experienceProfile: ctx.experienceProfile,
+    dailyMissions: ctx.experienceProfile ? getProfileMissions(ctx.experienceProfile.id) : [],
+    weeklyObjectives: ctx.experienceProfile ? getProfileObjectives(ctx.experienceProfile.id) : [],
+    aiRecommendations: ctx.experienceProfile ? getProfileAIRecommendations(ctx.experienceProfile.id) : [],
+    upgradeOpportunities: ctx.experienceProfile ? getProfileUpgrades(ctx.experienceProfile.id) : [],
     generatedAt: new Date().toISOString(),
   };
 
@@ -252,6 +284,26 @@ export function clearRecommendationCache() {
   cacheTimestamp = 0;
 }
 
+// ============================================================
+// EXPERIENCE PROFILE ACCESSORS
+// ============================================================
+
+export function getDailyMissions(profileId) {
+  return getProfileMissions(profileId);
+}
+
+export function getWeeklyObjectives(profileId) {
+  return getProfileObjectives(profileId);
+}
+
+export function getUpgradeOpportunities(profileId) {
+  return getProfileUpgrades(profileId);
+}
+
+export function getAIRecommendations(profileId) {
+  return getProfileAIRecommendations(profileId);
+}
+
 function emptyRecommendations() {
   return {
     nextBestAction: null,
@@ -261,6 +313,11 @@ function emptyRecommendations() {
     nextBestReflection: null,
     all: [],
     adaptiveMode: "new_user",
+    experienceProfile: null,
+    dailyMissions: [],
+    weeklyObjectives: [],
+    aiRecommendations: [],
+    upgradeOpportunities: [],
     generatedAt: new Date().toISOString(),
   };
 }

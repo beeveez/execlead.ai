@@ -12,6 +12,10 @@
  *   • founder → Prioritize strategy
  */
 
+import { resolveExperienceProfile, profileToAdaptiveMode } from "./experienceProfiles";
+
+// Legacy mode definitions — kept for backward compatibility.
+// resolveAdaptiveMode now delegates to Experience Profiles™.
 const ADAPTIVE_MODES = {
   new_user: {
     id: "new_user",
@@ -67,29 +71,16 @@ const ADAPTIVE_MODES = {
 export function resolveAdaptiveMode(user, profile, journeyData) {
   if (!user) return ADAPTIVE_MODES.new_user;
 
-  // New user: no profile data, recently registered
-  const accountAgeDays = user.created_date
-    ? Math.floor((Date.now() - new Date(user.created_date).getTime()) / 86400000)
-    : 999;
-  if (accountAgeDays < 7 || !profile?.target_role) {
-    return ADAPTIVE_MODES.new_user;
-  }
+  // Delegate to Experience Profile™ resolution — single source of truth.
+  const experienceProfile = resolveExperienceProfile(
+    user,
+    profile,
+    journeyData?.workspace
+  );
+  const mode = profileToAdaptiveMode(experienceProfile);
+  if (mode) return mode;
 
-  // Founder
-  if (profile?.is_founder || user.role === "developer" || user.role === "super_admin") {
-    return ADAPTIVE_MODES.founder;
-  }
-
-  // Director / CIO candidate based on target role
-  const targetRole = (profile?.target_role || "").toLowerCase();
-  if (targetRole.includes("cio") || targetRole.includes("cto") || targetRole.includes("chief")) {
-    return ADAPTIVE_MODES.cio_candidate;
-  }
-  if (targetRole.includes("director") || targetRole.includes("vp") || targetRole.includes("vice")) {
-    return ADAPTIVE_MODES.director_candidate;
-  }
-
-  // Default: returning executive
+  // Safety fallback (should not be reached — resolveExperienceProfile always returns a profile)
   return ADAPTIVE_MODES.returning_executive;
 }
 

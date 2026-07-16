@@ -138,6 +138,7 @@ export const WORKSPACE_NAV = {
     { label: "Commercial Intelligence", items: [
       { path: "/commercial-command-center", label: "Commercial Command Center™", icon: DollarSign },
       { path: "/commercial-automation", label: "Commercial Automation Engine™", icon: Zap },
+      { path: "/business-intelligence", label: "Business Intelligence™", icon: Brain },
     ]},
     { label: "Customer Intelligence", items: [
       { path: "/operations/customer-intelligence", label: "Customer Intelligence", icon: Users },
@@ -278,6 +279,7 @@ const ROUTE_WORKSPACE = {
   "/request-tracking": ["operations"], "/founding-member-admin": ["operations"],
   "/cpq": ["operations", "developer"], "/cpq-dashboard": ["operations", "developer"],
   "/admin": ["operations"],
+  "/business-intelligence": ["operations"],
   "/operations": ["operations"],
   "/operations/customer-intelligence": ["operations"],
   "/operations/product-intelligence": ["operations"],

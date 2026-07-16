@@ -1,0 +1,197 @@
+{
+  "name": "ContinuousImprovementAction",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Improvement action title"
+    },
+    "description": {
+      "type": "string"
+    },
+    "improvement_type": {
+      "type": "string",
+      "enum": [
+        "automation_rule",
+        "recommendation",
+        "workflow",
+        "commercial_action",
+        "coaching",
+        "engagement"
+      ],
+      "default": "automation_rule",
+      "description": "What type of system element needs improvement"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "ID of the rule, recommendation, or workflow to improve"
+    },
+    "target_name": {
+      "type": "string"
+    },
+    "metric_name": {
+      "type": "string",
+      "description": "Name of the metric being improved"
+    },
+    "current_metric": {
+      "type": "number",
+      "default": 0,
+      "description": "Current metric value"
+    },
+    "target_metric": {
+      "type": "number",
+      "default": 0,
+      "description": "Target metric value"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "identified",
+        "planned",
+        "in_progress",
+        "implemented",
+        "verified",
+        "dismissed"
+      ],
+      "default": "identified"
+    },
+    "expected_impact": {
+      "type": "string",
+      "description": "Expected business impact description"
+    },
+    "expected_revenue_impact": {
+      "type": "number",
+      "default": 0,
+      "description": "Expected annualized revenue impact in USD"
+    },
+    "actual_impact": {
+      "type": "string"
+    },
+    "actual_revenue_impact": {
+      "type": "number",
+      "default": 0
+    },
+    "implemented_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_report_id": {
+      "type": "string",
+      "description": "BusinessIntelligenceReport ID that generated this action"
+    },
+    "source_report_period": {
+      "type": "string"
+    },
+    "ai_recommendation": {
+      "type": "string",
+      "description": "AI-generated specific recommendation"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "improvement_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,267 @@
+{
+  "name": "BusinessIntelligenceReport",
+  "type": "object",
+  "properties": {
+    "period": {
+      "type": "string",
+      "description": "ISO week key e.g. 2026-W29"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "generating",
+        "ready",
+        "reviewed"
+      ],
+      "default": "ready"
+    },
+    "overall_health_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Business Intelligence Health Score 0-100"
+    },
+    "previous_score": {
+      "type": "number",
+      "default": 0
+    },
+    "score_change": {
+      "type": "number",
+      "default": 0
+    },
+    "momentum": {
+      "type": "string",
+      "enum": [
+        "increasing",
+        "stable",
+        "declining"
+      ],
+      "default": "stable"
+    },
+    "upgrade_conversion_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "revenue_generated": {
+      "type": "number",
+      "default": 0
+    },
+    "automation_success_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "founder_action_completion_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "customer_activation_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "enterprise_conversion_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "customer_lifetime_value": {
+      "type": "number",
+      "default": 0
+    },
+    "retention_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "executive_engagement_score": {
+      "type": "number",
+      "default": 0
+    },
+    "experience_completion_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "recommendation_acceptance_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "next_best_action_completion_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "coaching_effectiveness_score": {
+      "type": "number",
+      "default": 0
+    },
+    "promotion_readiness_improvement": {
+      "type": "number",
+      "default": 0
+    },
+    "time_to_upgrade_days": {
+      "type": "number",
+      "default": 0
+    },
+    "churn_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "automation_effectiveness_json": {
+      "type": "string",
+      "description": "JSON array of per-rule effectiveness scores"
+    },
+    "recommendation_performance_json": {
+      "type": "string",
+      "description": "JSON array of recommendation acceptance rates"
+    },
+    "action_impact_json": {
+      "type": "string",
+      "description": "JSON array of founder action business impact scores"
+    },
+    "churn_analysis_json": {
+      "type": "string",
+      "description": "JSON array of churn reasons with counts"
+    },
+    "retention_trends_json": {
+      "type": "string",
+      "description": "JSON array of retention trend data points"
+    },
+    "revenue_attribution_json": {
+      "type": "string",
+      "description": "JSON array of revenue by source/campaign"
+    },
+    "engagement_breakdown_json": {
+      "type": "string",
+      "description": "JSON object of engagement metrics by module"
+    },
+    "coaching_outcomes_json": {
+      "type": "string",
+      "description": "JSON object of coaching effectiveness metrics"
+    },
+    "roi_by_workflow_json": {
+      "type": "string",
+      "description": "JSON array of ROI by commercial workflow"
+    },
+    "what_worked_json": {
+      "type": "string",
+      "description": "JSON array of successes"
+    },
+    "what_didnt_work_json": {
+      "type": "string",
+      "description": "JSON array of failures"
+    },
+    "what_should_change_json": {
+      "type": "string",
+      "description": "JSON array of recommended changes"
+    },
+    "automation_improvements_json": {
+      "type": "string",
+      "description": "JSON array of automation improvement recommendations"
+    },
+    "ai_narrative": {
+      "type": "string",
+      "description": "AI-generated executive narrative"
+    },
+    "generated_by": {
+      "type": "string"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "period"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

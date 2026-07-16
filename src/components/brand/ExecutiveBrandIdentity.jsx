@@ -186,7 +186,7 @@ export default function ExecutiveBrandIdentity() {
             <div className="text-white/20 text-[10px]">Gold mark on navy</div>
           </div>
           <div className="bg-white border border-black/10 rounded-xl p-8 text-center">
-            <ExecutiveMark size={48} color="#8B6B3D" />
+            <ExecutiveMark size={48}  />
             <div className="text-black/60 text-xs mt-3">Light Variant</div>
             <div className="text-black/30 text-[10px]">Dark gold on white</div>
           </div>

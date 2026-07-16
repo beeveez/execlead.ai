@@ -74,12 +74,12 @@ export const BrandRegistry = {
   },
 
   // ── Favicon ──
-  favicon: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
-  faviconImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
+  favicon: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
+  faviconImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
 
   // ── Open Graph / Social Images ──
-  ogImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
-  socialImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
+  ogImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
+  socialImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
 
   // ── Email Signature ──
   emailSignature:

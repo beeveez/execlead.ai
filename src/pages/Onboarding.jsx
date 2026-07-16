@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { COMPANIES, CAREER_PATHS, COUNTRIES, CAREER_STAGES } from "@/lib/constants";
 import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildTruthEnginePrompt, buildRoadmapPrompt, getResumeHealthScore } from "@/lib/resume";
+import { saveResumeVersionSmart } from "@/lib/resumeVersioning";
 import { motion, AnimatePresence } from "framer-motion";
 import { getStoredAttribution } from "@/lib/referralEngine";
 import { markOnboardingCompleted } from "@/lib/sessionRestore";
@@ -145,11 +146,13 @@ export default function Onboarding() {
   const finalize = async () => {
     setSaving(true);
     try {
-      await base44.entities.ResumeVersion.create({
-        file_url: fileUrl, file_name: fileName, version_number: 1,
-        extracted_data: JSON.stringify(resumeData),
-        learning_roadmap: roadmap,
-        enhancement_report: JSON.stringify(truthEngine),
+      await saveResumeVersionSmart({
+        fileUrl, fileName,
+        extractedData: resumeData,
+        createdBy: "user",
+        creationReason: "onboarding",
+        learningRoadmap: roadmap,
+        enhancementReport: JSON.stringify(truthEngine),
       });
 
       await base44.entities.UserProfile.create({

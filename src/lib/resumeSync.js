@@ -435,19 +435,17 @@ export function calculateCompleteness(form) {
 // ------------------------------------------------------------
 
 export async function saveResumeVersion(fileUrl, fileName, extractedForm) {
-  try {
-    const existing = await base44.entities.ResumeVersion.list("-version_number", 1);
-    const nextVersion = (existing[0]?.version_number || 0) + 1;
-    await base44.entities.ResumeVersion.create({
-      file_url: fileUrl,
-      file_name: fileName,
-      version_number: nextVersion,
-      extracted_data: JSON.stringify(extractedForm),
-    });
-    return nextVersion;
-  } catch (e) {
-    return null;
-  }
+  // Delegates to the content-aware smart versioning system.
+  // Only creates a new version if the resume content actually changed.
+  const { saveResumeVersionSmart } = await import("@/lib/resumeVersioning");
+  const result = await saveResumeVersionSmart({
+    fileUrl,
+    fileName,
+    extractedData: extractedForm,
+    createdBy: "user",
+    creationReason: "upload",
+  });
+  return result?.version?.version_number || null;
 }
 
 // ------------------------------------------------------------

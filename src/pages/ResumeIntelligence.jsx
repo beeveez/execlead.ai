@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { callAI } from "@/lib/ai";
 import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildRoadmapPrompt, buildTruthEnginePrompt } from "@/lib/resume";
+import { saveResumeVersionSmart, setCurrentVersion, deduplicateVersions } from "@/lib/resumeVersioning";
 import ResumeUpload from "@/components/resume/ResumeUpload";
 import ExecutiveProfile from "@/components/resume/ExecutiveProfile";
 import CareerTimeline from "@/components/resume/CareerTimeline";
@@ -10,6 +11,7 @@ import LearningRoadmap from "@/components/resume/LearningRoadmap";
 import TruthEngineReport from "@/components/resume/TruthEngineReport";
 import VersionCompare from "@/components/resume/VersionCompare";
 import ResumePrivacy from "@/components/resume/ResumePrivacy";
+import ResumeVersionTimeline from "@/components/resume/ResumeVersionTimeline";
 import { FileText, Loader2, Target, Clock, ShieldAlert, Compass, GitCompare, GitBranch, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -55,6 +57,19 @@ export default function ResumeIntelligence() {
     load();
   }, []);
 
+  // Deduplicate versions — collapses consecutive versions with identical
+  // content so only meaningful resume revisions are shown in the timeline.
+  const dedupedVersions = useMemo(() => deduplicateVersions(versions), [versions]);
+
+  const handleRestore = async (version) => {
+    try {
+      await setCurrentVersion(version.id);
+      setCurrent(version);
+      const vs = await base44.entities.ResumeVersion.list("-created_date", 20);
+      setVersions(vs);
+    } catch (e) {}
+  };
+
   let parsedData = null;
   let truthData = null;
   if (current?.extracted_data) {
@@ -87,13 +102,16 @@ export default function ResumeIntelligence() {
 
       setProcessStep(2);
 
-      const version = await base44.entities.ResumeVersion.create({
-        file_url, file_name: file.name,
-        version_number: versions.length + 1,
-        extracted_data: JSON.stringify(extracted),
-        learning_roadmap: road,
-        enhancement_report: JSON.stringify(truth),
+      const result = await saveResumeVersionSmart({
+        fileUrl: file_url,
+        fileName: file.name,
+        extractedData: extracted,
+        createdBy: "user",
+        creationReason: "upload",
+        learningRoadmap: road,
+        enhancementReport: JSON.stringify(truth),
       });
+      const version = result?.version;
 
       setProcessStep(3);
 
@@ -181,19 +199,17 @@ export default function ResumeIntelligence() {
               {activeTab === "gaps" && <SkillGapAnalysis data={parsedData} targetRole={profile?.target_role} />}
               {activeTab === "roadmap" && <LearningRoadmap roadmap={current.learning_roadmap} />}
               {activeTab === "truth" && <TruthEngineReport report={truthData || current.enhancement_report} />}
-              {activeTab === "compare" && <VersionCompare versions={versions} />}
+              {activeTab === "compare" && <VersionCompare versions={dedupedVersions} />}
               {activeTab === "privacy" && <ResumePrivacy resumeVersion={current} onDeleted={handleDelete} />}
             </div>
 
-            {versions.length > 1 && (
-              <div className="flex items-center gap-2 pt-4 border-t border-white/5">
-                <span className="text-xs text-white/30">Viewing version:</span>
-                {versions.map((v, i) => (
-                  <button key={v.id} onClick={() => setCurrent(v)} className={`px-2 py-1 rounded text-xs transition-colors ${current.id === v.id ? "bg-indigo-500/15 text-indigo-400" : "text-white/30 hover:text-white/60"}`}>
-                    v{versions.length - i}
-                  </button>
-                ))}
-              </div>
+            {dedupedVersions.length > 0 && (
+              <ResumeVersionTimeline
+                versions={dedupedVersions}
+                current={current}
+                onSelect={setCurrent}
+                onRestore={handleRestore}
+              />
             )}
           </motion.div>
         )}

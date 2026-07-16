@@ -19,6 +19,38 @@
     "extracted_data": {
       "type": "string"
     },
+    "content_hash": {
+      "type": "string",
+      "description": "Fingerprint of normalized resume content \u2014 used for deduplication"
+    },
+    "created_by": {
+      "type": "string",
+      "enum": [
+        "user",
+        "ai",
+        "system"
+      ],
+      "default": "user",
+      "description": "Who created this version"
+    },
+    "creation_reason": {
+      "type": "string",
+      "enum": [
+        "upload",
+        "manual_edit",
+        "ai_rewrite",
+        "save_as_new",
+        "onboarding",
+        "import"
+      ],
+      "default": "upload",
+      "description": "Why this version was created"
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": false,
+      "description": "Marks the active/current resume version"
+    },
     "learning_roadmap": {
       "type": "string"
     },
@@ -29,5 +61,76 @@
   "required": [
     "file_url",
     "file_name"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
 }

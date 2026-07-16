@@ -391,9 +391,11 @@ export default function Profile() {
       </div>
 
       <div className="flex gap-8">
-        <div className="hidden lg:block w-64 flex-shrink-0 space-y-4">
-          <ProfileSidebar active={activeSection} onSelect={setActiveSection} />
-          <ProfileCompleteness form={form} />
+        <div className="hidden lg:block w-64 flex-shrink-0">
+          <div className="sticky top-20 flex flex-col gap-4">
+            <ProfileSidebar active={activeSection} onSelect={setActiveSection} />
+            <ProfileCompleteness form={form} />
+          </div>
         </div>
         <div className="flex-1 min-w-0">
           <div className="lg:hidden mb-4">

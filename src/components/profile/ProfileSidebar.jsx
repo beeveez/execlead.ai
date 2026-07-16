@@ -38,7 +38,7 @@ export default function ProfileSidebar({ active, onSelect }) {
   return (
     <>
       <aside className="hidden lg:block w-56 flex-shrink-0">
-        <nav className="space-y-6 sticky top-20">
+        <nav className="space-y-6">
           {SECTIONS.map(group => (
             <div key={group.group}>
               <div className="px-3 text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">{group.group}</div>

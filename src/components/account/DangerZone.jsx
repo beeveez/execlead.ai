@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { AlertTriangle, Trash2, Download, Pause, Loader2, RotateCcw, Building2 } from "lucide-react";
+import { AlertTriangle, Trash2, Download, Pause, Loader2, RotateCcw, Building2, Check, X } from "lucide-react";
 import DeleteAccountDialog from "./DeleteAccountDialog";
 import DownloadDataDialog from "./DownloadDataDialog";
 import { useSubscription } from "@/lib/SubscriptionContext";

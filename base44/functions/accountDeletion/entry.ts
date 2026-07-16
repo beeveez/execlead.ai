@@ -64,11 +64,16 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 5. Pending referral commissions
+  // 5. Pending referral commissions — only block if a referral actually converted
+  //    and earned a commission that hasn't been paid out. (commission_status defaults
+  //    to "pending" on every record, so checking amount + converted status avoids
+  //    false positives on mere invites.)
   try {
-    const commissions = await safeFilter(base44, 'Referral', { referrer_user_id: user.id, commission_status: 'pending' });
-    if (commissions.length > 0) {
-      blockers.push({ key: 'pending_commission', label: 'Pending referral commissions', detail: 'Pending referral commissions must be resolved first. Pay out or forfeit in your Wallet.' });
+    const referrals = await safeFilter(base44, 'Referral', { referrer_user_id: user.id, status: 'converted' }, 200);
+    const owed = referrals.filter(r => (r.commission_amount || 0) > 0 && (r.commission_status === 'pending' || r.commission_status === 'approved'));
+    if (owed.length > 0) {
+      const total = owed.reduce((s, r) => s + (r.commission_amount || 0), 0);
+      blockers.push({ key: 'pending_commission', label: 'Pending referral commissions', detail: 'You have ' + owed.length + ' unpaid referral commission' + (owed.length > 1 ? 's' : '') + ' totalling $' + total.toFixed(2) + '. Pay out or forfeit in your Wallet before deleting.' });
     }
   } catch {}
 

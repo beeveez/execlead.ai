@@ -52,7 +52,7 @@ export default function Pricing() {
         <div className="max-w-4xl mx-auto text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full mb-6">
             <Sparkles size={14} className="text-indigo-400" />
-            <span className="text-white/50 text-xs font-medium">The Executive Leadership Operating System™</span>
+            <span className="text-white/50 text-xs font-medium">An AI Executive Leadership Operating System™</span>
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
             Membership Tiers for <span className="text-indigo-400">Your Leadership Journey</span>
@@ -264,7 +264,7 @@ export default function Pricing() {
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-gradient-to-br from-amber-500/10 via-indigo-500/5 to-emerald-500/5 border border-white/10 rounded-3xl p-12 text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Join the Founding Private Beta™</h2>
-            <p className="text-white/40 mb-8 max-w-xl mx-auto text-lg">Become one of the first executive professionals shaping an AI Executive Leadership Operating System. Invitation-only — apply today.</p>
+            <p className="text-white/40 mb-8 max-w-xl mx-auto text-lg">Become one of the first executive professionals shaping an AI Executive Leadership Operating System™. Invitation-only — apply today.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               {authed ? (
                 <Link to="/dashboard" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors">

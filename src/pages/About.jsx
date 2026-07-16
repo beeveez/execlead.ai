@@ -13,11 +13,9 @@ export default function About() {
             EXECLEAD.AI was built on a simple belief: <strong>Leadership is a lifelong journey—not a single promotion.</strong>
           </p>
           <p>
-            Our mission is to provide one intelligent AI platform that grows with professionals from
-            their earliest career aspirations to executive leadership and beyond. From your first
-            leadership opportunity to the boardroom, EXECLEAD.AI provides personalized AI coaching,
-            assessments, simulations, executive development, career intelligence, and lifelong
-            leadership growth—all within one intelligent platform.
+            EXECLEAD.AI is an AI Executive Leadership Operating System™, purpose-built to help
+            ambitious technology professionals prepare for executive leadership through AI-powered
+            coaching, executive simulations, career intelligence, and personalized guidance.
           </p>
 
           <p>

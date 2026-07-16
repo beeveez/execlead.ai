@@ -76,7 +76,7 @@ export default function BetaHero({ onApply }) {
         <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">{mode.label}</h2>
         <p className="text-white/50 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-4">
           Become one of the first executive professionals helping shape an
-          AI Executive Leadership Operating System.
+          AI Executive Leadership Operating System™.
         </p>
         <p className="text-amber-400/60 text-sm leading-relaxed max-w-xl mx-auto mb-8">
           We're accepting a limited number of founding members before General Availability.

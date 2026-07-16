@@ -127,7 +127,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="text-lg md:text-xl font-medium text-white/60 max-w-3xl mx-auto mb-4 leading-relaxed"
             >
-            An AI Executive Leadership Operating System designed to help professionals, managers, and organizations develop leadership capability through AI coaching, executive simulations, assessments, analytics, and enterprise intelligence.
+            Purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.
             </motion.p>
 
           <motion.p
@@ -347,7 +347,7 @@ export default function Landing() {
                 Organizations today need more than online courses or isolated executive coaching.
               </p>
               <p className="text-white/50 text-base md:text-lg leading-relaxed">
-                EXECLEAD.AI is an AI Executive Leadership Operating System designed to help professionals, managers, executives, and organizations develop leadership capability through AI coaching, executive simulations, assessments, analytics, enterprise intelligence, and governance.
+                EXECLEAD.AI is an AI Executive Leadership Operating System™, purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.
               </p>
               <p className="text-white/50 text-base md:text-lg leading-relaxed">
                 During our Founding Private Beta™, we are partnering with executive professionals and organizations to validate the platform, refine the experience, and prepare for General Availability.

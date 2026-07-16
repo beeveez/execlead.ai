@@ -54,6 +54,7 @@ export default function Profile() {
     display_name: p.display_name || "",
     preferred_name: p.preferred_name || "",
     mobile_number: p.mobile_number || "",
+    country: p.country || "",
     city: p.city || "",
     timezone: p.timezone || "",
     language: p.language || "",
@@ -223,7 +224,7 @@ export default function Profile() {
   const persistForm = async (formData) => {
     if (!profile) return;
     const fullName = [formData.first_name, formData.last_name].filter(Boolean).join(" ") || formData.full_name;
-    await base44.entities.UserProfile.update(profile.id, {
+    const payload = {
       first_name: formData.first_name,
       last_name: formData.last_name,
       full_name: fullName,
@@ -271,19 +272,83 @@ export default function Profile() {
       languages_json: JSON.stringify(formData.languages || []),
       projects_json: JSON.stringify(formData.projects || []),
       awards_json: JSON.stringify(formData.awards || []),
+    };
+
+    const t0 = performance.now();
+    console.info("[Profile] persistForm — write", {
+      userId: user?.id,
+      profileId: profile.id,
+      fieldCount: Object.keys(payload).length,
     });
+
+    await base44.entities.UserProfile.update(profile.id, payload);
+
+    // ── Read-back verification: confirm DB actually persisted the data ──
+    const readBack = await base44.entities.UserProfile.get(profile.id);
+    const writeMs = Math.round(performance.now() - t0);
+    console.info("[Profile] persistForm — read-back", {
+      userId: user?.id,
+      profileId: profile.id,
+      loadedProfileId: readBack?.id,
+      loadedUserId: readBack?.created_by_id,
+      writeMs,
+    });
+
+    // Verify critical Personal Information fields round-tripped correctly
+    const verifyFields = [
+      "first_name", "last_name", "display_name", "preferred_name",
+      "mobile_number", "country", "city", "timezone", "language",
+    ];
+    const mismatches = verifyFields.filter(
+      (f) => String(readBack?.[f] ?? "") !== String(payload[f] ?? "")
+    );
+
+    if (mismatches.length > 0) {
+      console.error("[Profile] persistForm — VERIFICATION FAILED", {
+        userId: user?.id,
+        profileId: profile.id,
+        mismatches: mismatches.map((f) => ({
+          field: f,
+          sent: payload[f],
+          readBack: readBack?.[f],
+        })),
+        writeMs,
+      });
+      throw new Error(
+        `Database verification failed. The following fields did not persist correctly: ${mismatches.join(", ")}`
+      );
+    }
+
+    console.info("[Profile] persistForm — verified OK", { userId: user?.id, profileId: profile.id, writeMs });
     await refreshProfile();
   };
 
   const handleSave = async () => {
     if (!form || !profile) return;
     setSaving(true);
+    const t0 = performance.now();
     try {
       await persistForm(form);
       savedFormRef.current = form;
+      console.info("[Profile] handleSave — success", {
+        userId: user?.id,
+        profileId: profile.id,
+        totalMs: Math.round(performance.now() - t0),
+      });
       toast({ title: "Profile Updated", description: "Your changes have been saved successfully." });
     } catch (e) {
-      toast({ title: "Save Failed", description: "Could not save your changes.", variant: "destructive" });
+      console.error("[Profile] handleSave — FAILED", {
+        userId: user?.id,
+        profileId: profile.id,
+        error: e?.message,
+        totalMs: Math.round(performance.now() - t0),
+      });
+      const reason = e?.message || "An unexpected error occurred.";
+      toast({
+        title: "Unable to save Personal Information",
+        description: `${reason} Please try again.`,
+        variant: "destructive",
+      });
     }
     setSaving(false);
   };

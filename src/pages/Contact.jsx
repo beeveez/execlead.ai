@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Mail, MessageSquare, Linkedin, Twitter, ArrowRight } from "lucide-react";
+import { BrandRegistry } from "@/lib/brandRegistry";
 import { toast } from "@/components/ui/use-toast";
 
 export default function Contact() {
@@ -10,7 +11,7 @@ export default function Contact() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const mailto = `mailto:hello@execlead.ai?subject=Contact from ${encodeURIComponent(form.name)}&body=${encodeURIComponent(form.message + "\n\nFrom: " + form.email)}`;
+      const mailto = `mailto:${BrandRegistry.supportEmail}?subject=Contact from ${encodeURIComponent(form.name)}&body=${encodeURIComponent(form.message + "\n\nFrom: " + form.email)}`;
       window.location.href = mailto;
       toast({ title: "Opening your email client…", variant: "info" });
     } catch (e) {
@@ -30,11 +31,11 @@ export default function Contact() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Contact methods */}
           <div className="space-y-4">
-            <a href="mailto:hello@execlead.ai" className="flex items-start gap-3 bg-white/[0.03] border border-white/5 rounded-xl p-5 hover:bg-white/[0.05] transition-colors">
+            <a href={`mailto:${BrandRegistry.supportEmail}`} className="flex items-start gap-3 bg-white/[0.03] border border-white/5 rounded-xl p-5 hover:bg-white/[0.05] transition-colors">
               <Mail size={20} className="text-indigo-400 mt-0.5 flex-shrink-0" />
               <div>
                 <h3 className="text-white font-semibold text-sm">Email</h3>
-                <p className="text-white/40 text-xs mt-1">hello@execlead.ai</p>
+                <p className="text-white/40 text-xs mt-1">{BrandRegistry.supportEmail}</p>
               </div>
             </a>
 

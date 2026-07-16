@@ -1,4 +1,5 @@
 {
+  "_comment": "Brand values mirror src/lib/brandRegistry.js — keep in sync",
   "name": "EXECLEAD.AI — AI Executive Leadership Operating System",
   "short_name": "EXECLEAD",
   "description": "An AI Executive Leadership Operating System™. Purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.",

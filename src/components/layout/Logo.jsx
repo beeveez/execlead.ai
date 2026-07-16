@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { BrandRegistry } from "@/lib/brandRegistry";
 
 export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2" }) {
   const sizeClass = size === "sm" ? "text-base" : "text-lg";
@@ -17,11 +18,11 @@ export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 400, damping: 22 }}
       >
-        <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">EXEC</span>
-        <span className="text-white/80 group-hover:text-white transition-colors">LEAD</span>
-        <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">.</span>
+        <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">{BrandRegistry.logo.parts.prefix}</span>
+        <span className="text-white/80 group-hover:text-white transition-colors">{BrandRegistry.logo.parts.middle}</span>
+        <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">{BrandRegistry.logo.parts.dot}</span>
         {showAiTag && (
-          <span className={`text-[10px] text-white/30 font-normal tracking-widest uppercase ${aiTagClass}`}>AI</span>
+          <span className={`text-[10px] text-white/30 font-normal tracking-widest uppercase ${aiTagClass}`}>{BrandRegistry.logo.parts.suffix}</span>
         )}
       </motion.span>
     </Link>

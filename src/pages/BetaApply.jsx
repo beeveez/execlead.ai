@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronRight, Rocket, Shield, Zap, Sparkles, Check, Users, TrendingUp } from "lucide-react";
 import BetaApplicationForm from "@/components/beta/BetaApplicationForm";
 import { getCurrentBetaStage } from "@/lib/betaProgramEngine";
+import { BrandRegistry } from "@/lib/brandRegistry";
 
 const BENEFITS = [
   { icon: Zap, label: "Free during Beta", desc: "Full access to every EXEC™ capability at no cost" },
@@ -35,7 +36,7 @@ export default function BetaApply() {
             Become a Founding Member of <span className="text-amber-400">EXECLEAD.AI</span>
           </h1>
           <p className="text-white/50 text-lg leading-relaxed max-w-2xl mb-8">
-            Help shape an AI Executive Leadership Operating System™.
+            Help shape {BrandRegistry.headline}.
           </p>
 
           <div className="flex flex-wrap items-center gap-4 mb-8">
@@ -99,7 +100,7 @@ export default function BetaApply() {
                 <Sparkles size={24} className="text-amber-400" />
               </div>
               <h3 className="text-white font-medium text-sm mb-2">Ready to shape the future?</h3>
-              <p className="text-white/40 text-xs mb-4 max-w-xs">Join a select group of professionals building an AI Executive Leadership Operating System™.</p>
+              <p className="text-white/40 text-xs mb-4 max-w-xs">Join a select group of professionals building {BrandRegistry.headline}.</p>
               <button
                 onClick={() => setShowForm(true)}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium text-sm transition-colors"

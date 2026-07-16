@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Target, Users, Building2 } from "lucide-react";
+import { BrandRegistry } from "@/lib/brandRegistry";
 
 export default function About() {
   return (
@@ -13,9 +14,7 @@ export default function About() {
             EXECLEAD.AI was built on a simple belief: <strong>Leadership is a lifelong journey—not a single promotion.</strong>
           </p>
           <p>
-            EXECLEAD.AI is an AI Executive Leadership Operating System™, purpose-built to help
-            ambitious technology professionals prepare for executive leadership through AI-powered
-            coaching, executive simulations, career intelligence, and personalized guidance.
+            {BrandRegistry.positioningStatement}
           </p>
 
           <p>
@@ -51,7 +50,7 @@ export default function About() {
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Target size={20} className="text-indigo-400 mb-3" />
             <h3 className="text-white font-semibold text-sm mb-1">Our Mission</h3>
-            <p className="text-white/40 text-xs leading-relaxed">One leadership journey, one AI platform — from classroom to boardroom.</p>
+            <p className="text-white/40 text-xs leading-relaxed">{BrandRegistry.tagline}</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Users size={20} className="text-cyan-400 mb-3" />

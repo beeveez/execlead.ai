@@ -19,6 +19,7 @@ import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
 import FoundersWallCTA from "@/components/founding/FoundersWallCTA";
 import PricingTiers from "@/components/pricing/PricingTiers";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
+import { BrandRegistry } from "@/lib/brandRegistry";
 
 const FEATURES = [
   { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation." },
@@ -127,7 +128,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="text-lg md:text-xl font-medium text-white/60 max-w-3xl mx-auto mb-4 leading-relaxed"
             >
-            Purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.
+            {BrandRegistry.description}
             </motion.p>
 
           <motion.p
@@ -136,7 +137,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-base md:text-lg text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            One Leadership Journey. One AI Platform.
+            {BrandRegistry.tagline}
           </motion.p>
 
           <motion.div
@@ -182,7 +183,7 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="text-white/20 text-xs mt-6"
           >
-            From Classroom to Boardroom.
+            {BrandRegistry.secondaryTagline}
           </motion.p>
 
           <motion.div
@@ -347,7 +348,7 @@ export default function Landing() {
                 Organizations today need more than online courses or isolated executive coaching.
               </p>
               <p className="text-white/50 text-base md:text-lg leading-relaxed">
-                EXECLEAD.AI is an AI Executive Leadership Operating System™, purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.
+                {BrandRegistry.positioningStatement}
               </p>
               <p className="text-white/50 text-base md:text-lg leading-relaxed">
                 During our Founding Private Beta™, we are partnering with executive professionals and organizations to validate the platform, refine the experience, and prepare for General Availability.
@@ -399,7 +400,7 @@ export default function Landing() {
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Vision</h2>
           <p className="text-white/50 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-            Our vision is to establish the AI Executive Leadership Operating System category and become one of the world's most trusted platforms for executive leadership development.
+            {BrandRegistry.vision}
           </p>
           <p className="text-white/30 text-sm mt-4 max-w-xl mx-auto">
             We are building toward this vision through continuous innovation, partnership with executive professionals, and a commitment to governance, trust, and measurable leadership outcomes.

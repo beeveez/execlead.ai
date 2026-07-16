@@ -8,6 +8,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { MicrosoftIcon, AppleIcon } from "@/components/auth/ProviderIcons";
 import { toast } from "@/components/ui/use-toast";
+import { BrandRegistry } from "@/lib/brandRegistry";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -131,7 +132,7 @@ export default function Register() {
   return (
     <AuthLayout
       title="Create your account"
-      subtitle="Start your executive leadership journey"
+      subtitle={BrandRegistry.auth.registerSubtitle}
       footer={
         <>
           Already have an account?{" "}

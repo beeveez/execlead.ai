@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { getPostAuthRedirect } from "@/lib/sessionRestore";
 import { Mail, Lock, Loader2, AlertCircle, ArrowRight, Rocket } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
+import { BrandRegistry } from "@/lib/brandRegistry";
 import GoogleIcon from "@/components/GoogleIcon";
 import { MicrosoftIcon, AppleIcon } from "@/components/auth/ProviderIcons";
 
@@ -43,7 +44,7 @@ export default function Login() {
   return (
     <AuthLayout
       title="Welcome Back"
-      subtitle="Continue your Executive Leadership Journey"
+      subtitle={BrandRegistry.auth.loginSubtitle}
       footer={
         <>
           Don't have an account?{" "}

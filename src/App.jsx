@@ -235,6 +235,7 @@ import ArchitectureGovernanceBoard from '@/pages/ArchitectureGovernanceBoard';
 import DeveloperPortal from '@/pages/DeveloperPortal';
 import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelligenceDashboard';
 import BetaApply from '@/pages/BetaApply';
+import FounderDashboard from '@/pages/FounderDashboard';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
 import BetaBanner from '@/components/beta/BetaBanner';
@@ -405,6 +406,7 @@ const AuthenticatedApp = () => {
           <Route path="/identity-graph" element={<IdentityGraph />} />
           <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
           <Route path="/beta-launch" element={<BetaLaunchDashboard />} />
+          <Route path="/founder-dashboard" element={<FounderDashboard />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />

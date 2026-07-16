@@ -1,56 +1,113 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Rocket, Users, Shield, Zap, Sparkles } from "lucide-react";
+import { ChevronRight, Rocket, Shield, Zap, Sparkles, Check, Users, TrendingUp } from "lucide-react";
 import BetaApplicationForm from "@/components/beta/BetaApplicationForm";
-import { getCurrentBetaStage, BETA_TIERS } from "@/lib/betaProgramEngine";
+import { getCurrentBetaStage } from "@/lib/betaProgramEngine";
+
+const BENEFITS = [
+  { icon: Zap, label: "Free during Beta", desc: "Full access to every EXEC™ capability at no cost" },
+  { icon: Shield, label: "Lifetime Founding Member Badge", desc: "Permanent recognition as a founding contributor" },
+  { icon: TrendingUp, label: "Direct influence on product roadmap", desc: "Your feedback shapes what we build next" },
+  { icon: Sparkles, label: "Early access to every new capability", desc: "Be first to try new EXEC™ modules" },
+  { icon: Rocket, label: "Exclusive Founder pricing after launch", desc: "Locked-in lifetime discount when we go paid" },
+];
 
 export default function BetaApply() {
   const stage = getCurrentBetaStage();
-  const urlParams = new URLSearchParams(window.location.search);
-  const tierParam = urlParams.get("tier");
-  const tier = BETA_TIERS[tierParam] || BETA_TIERS.founding_beta;
+  const [showForm, setShowForm] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Hero */}
       <div className="bg-gradient-to-br from-amber-500/10 via-indigo-500/5 to-transparent border-b border-white/5">
-        <div className="max-w-3xl mx-auto px-6 py-12">
-          <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6">
+        <div className="max-w-4xl mx-auto px-6 py-16">
+          <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-8">
             <Link to="/" className="hover:text-white/60 transition-colors">Home</Link>
             <ChevronRight size={10} />
-            <span className="text-amber-400">Private Beta</span>
+            <span className="text-amber-400">Founding Beta</span>
           </nav>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-400 mb-4">
-            <Sparkles size={12} /> The Executive Leadership Operating System™
-          </div>
-          <div className="flex items-center gap-2 text-amber-400 text-xs uppercase tracking-widest mb-3">
+
+          <div className="flex items-center gap-2 text-amber-400 text-xs uppercase tracking-widest mb-4">
             <Rocket size={14} /> {stage.label}
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">Become a Founding Beta Member</h1>
-          <p className="text-white/50 text-lg leading-relaxed max-w-xl">
-            Be one of the first executive professionals to shape the future of AI-powered leadership.
-            We're accepting a limited number of Founding Beta Members for our private beta program.
+
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+            Become a Founding Member of <span className="text-amber-400">EXECLEAD.AI</span>
+          </h1>
+          <p className="text-white/50 text-lg leading-relaxed max-w-2xl mb-8">
+            Help shape the world's first AI Executive Leadership Operating System.
           </p>
-          <div className="flex items-center gap-4 mt-6">
+
+          <div className="flex flex-wrap items-center gap-4 mb-8">
             <div className="flex items-center gap-1.5 text-xs text-white/40">
-              <Users size={14} className="text-amber-400" /> {stage.maxUsers} spots available
+              <Users size={14} className="text-amber-400" /> {stage.maxUsers} founding spots
             </div>
             <div className="flex items-center gap-1.5 text-xs text-white/40">
               <Shield size={14} className="text-indigo-400" /> Application-only access
             </div>
             <div className="flex items-center gap-1.5 text-xs text-white/40">
-              <Zap size={14} className="text-cyan-400" /> v{stage.version}
+              <Zap size={14} className="text-cyan-400" /> Free during Beta
             </div>
           </div>
+
+          {!showForm && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium text-sm transition-colors"
+            >
+              <Rocket size={16} /> Request Beta Access
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Form */}
-      <div className="max-w-3xl mx-auto px-6 py-10">
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-8">
-          <h2 className="text-lg font-bold text-white mb-1">Beta Application</h2>
-          <p className="text-sm text-white/40 mb-6">Fill out the form below. Our team reviews each application personally.</p>
-          <BetaApplicationForm defaultTier={tierParam || "founding_beta"} />
+      {/* Benefits + Form */}
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Benefits */}
+          <div>
+            <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-4">Why Join the Founding Beta?</h2>
+            <div className="space-y-4">
+              {BENEFITS.map(b => (
+                <div key={b.label} className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <b.icon size={14} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <div className="text-white font-medium text-sm flex items-center gap-1.5">
+                      <Check size={12} className="text-emerald-400" /> {b.label}
+                    </div>
+                    <p className="text-white/40 text-xs mt-0.5">{b.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Application Form */}
+          {showForm && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+              <h2 className="text-lg font-bold text-white mb-1">Beta Application</h2>
+              <p className="text-sm text-white/40 mb-6">Fill out the form below. Our team reviews each application personally.</p>
+              <BetaApplicationForm defaultTier="founding_beta" />
+            </div>
+          )}
+
+          {!showForm && (
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-8 text-center flex flex-col items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4">
+                <Sparkles size={24} className="text-amber-400" />
+              </div>
+              <h3 className="text-white font-medium text-sm mb-2">Ready to shape the future?</h3>
+              <p className="text-white/40 text-xs mb-4 max-w-xs">Join a select group of executives building the first AI Executive Leadership Operating System.</p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium text-sm transition-colors"
+              >
+                <Rocket size={14} /> Request Beta Access
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

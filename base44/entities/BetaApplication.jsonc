@@ -6,9 +6,17 @@
       "type": "string",
       "maxLength": 1000
     },
+    "first_name": {
+      "type": "string",
+      "description": "Applicant first name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Applicant last name"
+    },
     "full_name": {
       "type": "string",
-      "description": "Applicant full name"
+      "description": "Applicant full name (derived from first + last)"
     },
     "email": {
       "type": "string",
@@ -70,6 +78,17 @@
     "why_join": {
       "type": "string",
       "description": "Why the applicant wants to join the beta program"
+    },
+    "primary_goal": {
+      "type": "string",
+      "enum": [
+        "promotion",
+        "leadership_growth",
+        "executive_interview",
+        "career_transition",
+        "other"
+      ],
+      "description": "Primary goal for joining EXECLEAD.AI"
     },
     "interested_capabilities": {
       "type": "string",

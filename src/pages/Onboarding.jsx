@@ -54,7 +54,7 @@ export default function Onboarding() {
           if (state.isComplete) {
             // Returning user with complete onboarding — send to Dashboard
             markOnboardingCompleted();
-            window.location.href = "/dashboard";
+            window.location.href = "/founder-dashboard";
             return;
           }
         }
@@ -139,7 +139,7 @@ export default function Onboarding() {
         subscription_plan: "free", subscription_status: "active", subscription_cycle: "monthly",
       });
       markOnboardingCompleted();
-      window.location.href = "/dashboard";
+      window.location.href = "/founder-dashboard";
     } catch (e) { setSaving(false); }
   };
 
@@ -180,7 +180,7 @@ export default function Onboarding() {
       });
 
       markOnboardingCompleted();
-      window.location.href = "/dashboard";
+      window.location.href = "/founder-dashboard";
     } catch (e) { setSaving(false); }
   };
 

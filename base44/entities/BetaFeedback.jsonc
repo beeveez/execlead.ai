@@ -1,0 +1,123 @@
+{
+  "name": "BetaFeedback",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "assessment_value_rating": {
+      "type": "number",
+      "description": "How valuable was your assessment? (1-5)",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "what_surprised_you": {
+      "type": "string",
+      "description": "What surprised you about your assessment?"
+    },
+    "what_confused_you": {
+      "type": "string",
+      "description": "What confused you?"
+    },
+    "would_recommend": {
+      "type": "number",
+      "description": "Would you recommend EXECLEAD.AI? (0-10 NPS)",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "what_should_improve": {
+      "type": "string",
+      "description": "What should EXEC improve?"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_context": {
+      "type": "string",
+      "description": "What the user was doing when asked (e.g. 'post_assessment')"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -76,20 +76,35 @@ function buildMemberFields(data, trigger, schemaFields) {
   const identity = data.identity || {};
   const forecast = data.forecast || {};
   const profile = data.profile || {};
+  const user = data.user || {};
 
   const allFields = {
-    Email: data.user.email || "",
-    "Full Name": data.user.full_name || profile.display_name || "",
-    Plan: sub.plan || sub.tier || sub.subscription_plan || "",
-    "Identity Verified": identity.identity_verified ? "Yes" : "No",
-    "Trust Score": identity.trust_score || 0,
+    Email: user.email || "",
+    "User ID": user.id || "",
+    "Full Name": user.full_name || profile.display_name || "",
+    "First Name": profile.first_name || "",
+    "Last Name": profile.last_name || "",
+    Company: profile.current_company || "",
+    "Job Title": profile.current_role || profile.professional_headline || "",
+    Country: profile.country || "",
+    "Membership Type": sub.membership_type || sub.plan || "",
+    "Current Plan": sub.plan || sub.tier || sub.subscription_plan || "",
+    "Journey Stage": sub.journey_stage || "",
+    "Identity Completion": identity.confidence_overall || 0,
+    "Identity Verified": identity.identity_verified || false,
     "Executive Score": forecast.readiness_score || 0,
     "Promotion Readiness": forecast.probability_score || 0,
     "Promotion Momentum": forecast.momentum || "",
-    "Target Level": forecast.target_level || "",
-    "Registration Date": data.user.created_date || "",
+    "Target Executive Level": forecast.target_level || "",
+    "Trust Score": identity.trust_score || 0,
+    "Leadership DNA Score": profile.leadership_dna_score || 0,
+    "Last Login": user.last_login || "",
+    "Registration Date": user.created_date || "",
     "Sync Trigger": trigger,
     "Last Synced": new Date().toISOString(),
+    Status: sub.status || "Active",
+    Notes: "",
+    Tags: [],
   };
 
   return filterToSchema(allFields, schemaFields);
@@ -127,15 +142,21 @@ async function upsertByEmail(token, baseId, tableId, fields, email) {
   return { action: "created", recordId: created?.id };
 }
 
-async function logSyncFailure(token, schema, userId, email, errorMessage, trigger) {
+async function logSyncEvent(token, schema, userId, email, status, errorMessage, trigger, durationMs) {
+  const now = new Date().toISOString();
   const fields = filterToSchema(
     {
+      "Log Entry": `Sync ${status} — ${trigger}`,
+      Timestamp: now,
       "User ID": userId || "",
       Email: email || "",
-      Error: (errorMessage || "Unknown error").slice(0, 1000),
       Trigger: trigger || "",
-      Timestamp: new Date().toISOString(),
-      Status: "Failed",
+      Status: status,
+      Error: status === "Failed" ? (errorMessage || "").slice(0, 1000) : "",
+      "Retry Count": 0,
+      "Duration (ms)": durationMs || 0,
+      "Last Attempt": now,
+      Resolution: status === "Success" ? "Record synced successfully." : "",
     },
     schema.logsFields
   );
@@ -145,6 +166,14 @@ async function logSyncFailure(token, schema, userId, email, errorMessage, trigge
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ records: [{ fields }] }),
   });
+}
+
+async function logSyncFailure(token, schema, userId, email, errorMessage, trigger, durationMs) {
+  return logSyncEvent(token, schema, userId, email, "Failed", errorMessage, trigger, durationMs);
+}
+
+async function logSyncSuccess(token, schema, userId, email, trigger, action, durationMs) {
+  return logSyncEvent(token, schema, userId, email, "Success", null, trigger, durationMs);
 }
 
 Deno.serve(async (req) => {
@@ -174,13 +203,15 @@ Deno.serve(async (req) => {
     return Response.json({ error: "No user_id could be resolved from the payload" }, { status: 400 });
   }
 
+  const syncT0 = performance.now();
   try {
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("airtable");
     const schema = await resolveSchema(accessToken);
 
     const data = await gatherUserData(base44, userId);
     if (!data) {
-      await logSyncFailure(accessToken, schema, userId, "", "User not found in database", trigger);
+      const duration = Math.round(performance.now() - syncT0);
+      await logSyncFailure(accessToken, schema, userId, "", "User not found in database", trigger, duration);
       return Response.json({ error: "User not found", userId }, { status: 404 });
     }
 
@@ -193,17 +224,21 @@ Deno.serve(async (req) => {
       data.user.email
     );
 
-    return Response.json({ success: true, userId, ...result });
+    const duration = Math.round(performance.now() - syncT0);
+    await logSyncSuccess(accessToken, schema, userId, data.user.email, trigger, result.action, duration);
+
+    return Response.json({ success: true, userId, ...result, durationMs: duration });
   } catch (error) {
+    const duration = Math.round(performance.now() - syncT0);
     // Best-effort failure logging — never mask the original error
     try {
       const { accessToken } = await base44.asServiceRole.connectors.getConnection("airtable");
       const schema = await resolveSchema(accessToken);
       const email = entityData?.email || "";
-      await logSyncFailure(accessToken, schema, userId, email, error.message, trigger);
+      await logSyncFailure(accessToken, schema, userId, email, error.message, trigger, duration);
     } catch {
       // Schema/Airtable unreachable — nothing more we can do
     }
-    return Response.json({ error: error.message, userId }, { status: 500 });
+    return Response.json({ error: error.message, userId, durationMs: duration }, { status: 500 });
   }
 });

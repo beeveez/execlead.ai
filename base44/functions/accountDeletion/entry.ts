@@ -39,55 +39,78 @@ async function runPreDeletionChecks(base44, user) {
     } catch {}
   }
 
-  // 2. Outstanding invoice
+  // 2. Pending invoices
   try {
     const invoices = await safeFilter(base44, 'Invoice', { owner_user_id: user.id });
     if (invoices.some(i => i.status === 'pending' || i.status === 'failed')) {
-      blockers.push({ key: 'outstanding_invoice', label: 'Outstanding invoice', detail: 'Resolve pending or failed invoices in Billing.' });
+      blockers.push({ key: 'pending_invoices', label: 'Pending invoices', detail: 'Resolve pending or failed invoices in Billing.' });
     }
   } catch {}
 
-  // 3. Pending wallet payout
+  // 3. Organization owner
   try {
-    const payouts = await safeFilter(base44, 'WithdrawalRequest', { user_id: user.id, status: 'pending' });
-    if (payouts.length > 0) {
-      blockers.push({ key: 'pending_payout', label: 'Pending wallet payout', detail: 'Cancel or wait for pending wallet withdrawals to complete.' });
+    const orgs = await safeFilter(base44, 'Organization', { admin_user_id: user.id });
+    const activeOrgs = orgs.filter(o => o.plan_status === 'active' || o.plan_status === 'pending' || !o.plan_status);
+    if (activeOrgs.length > 0) {
+      blockers.push({ key: 'org_owner', label: 'Organization owner', detail: 'Transfer ownership or cancel your organization "' + (activeOrgs[0].name || '') + '" before deleting.' });
     }
   } catch {}
 
-  // 4. Pending referral commission
+  // 4. Enterprise administrator
+  try {
+    const memberships = await safeFilter(base44, 'OrgMembership', { user_id: user.id });
+    if (memberships.some(m => m.role === 'enterprise_admin' || m.role === 'admin')) {
+      blockers.push({ key: 'enterprise_admin', label: 'Enterprise administrator', detail: 'You are an enterprise administrator. Transfer your admin role or contact your organization before deleting.' });
+    }
+  } catch {}
+
+  // 5. Pending referral commissions
   try {
     const commissions = await safeFilter(base44, 'Referral', { referrer_user_id: user.id, commission_status: 'pending' });
     if (commissions.length > 0) {
-      blockers.push({ key: 'pending_commission', label: 'Pending referral commission', detail: 'Pending referral commissions must be resolved first.' });
+      blockers.push({ key: 'pending_commission', label: 'Pending referral commissions', detail: 'Pending referral commissions must be resolved first. Pay out or forfeit in your Wallet.' });
     }
   } catch {}
 
-  // 5 & 6. Organization owner / active team members
+  // 6. Marketplace seller balance
   try {
-    const orgs = await safeFilter(base44, 'Organization', { admin_user_id: user.id });
-    const activeOrgs = orgs.filter(o => o.plan_status === 'active' || o.plan_status === 'pending');
-    if (activeOrgs.length > 0) {
-      blockers.push({ key: 'org_owner', label: 'Organization owner', detail: 'Transfer ownership or cancel your organization "' + (activeOrgs[0].name || '') + '" before deleting.' });
-      if (activeOrgs.some(o => (o.seats_used || 0) > 1)) {
-        blockers.push({ key: 'active_team_members', label: 'Active team members', detail: 'Your organization has active team members. Remove them or transfer ownership first.' });
+    const wallet = await safeFilter(base44, 'ExecutiveWallet', { user_id: user.id });
+    if (wallet[0] && (wallet[0].balance || 0) > 0) {
+      blockers.push({ key: 'marketplace_balance', label: 'Marketplace seller balance', detail: 'Withdraw your wallet balance of ' + (wallet[0].currency || 'USD') + ' ' + (wallet[0].balance || 0).toFixed(2) + ' before deleting.' });
+    }
+  } catch {}
+
+  // 7. Pending payouts
+  try {
+    const payouts = await safeFilter(base44, 'WithdrawalRequest', { user_id: user.id, status: 'pending' });
+    if (payouts.length > 0) {
+      blockers.push({ key: 'pending_payout', label: 'Pending payouts', detail: 'Cancel or wait for pending wallet withdrawals to complete.' });
+    }
+  } catch {}
+
+  // 8. Active developer applications
+  try {
+    if (user.role === 'developer' || user.role === 'admin' || user.role === 'super_admin') {
+      const apiKeys = await safeFilter(base44, 'FeatureFlagAudit', { user_id: user.id });
+      if (apiKeys.length > 0) {
+        blockers.push({ key: 'developer_apps', label: 'Active developer applications', detail: 'Revoke your API keys and developer applications before deleting.' });
       }
     }
   } catch {}
 
-  // 7. Ongoing identity verification
+  // 9. Legal retention requirement
   try {
-    const verifications = await safeFilter(base44, 'IdentityVerification', { user_id: user.id });
-    if (verifications.some(v => v.identity_status === 'submitted' || v.identity_status === 'under_review')) {
-      blockers.push({ key: 'identity_verification', label: 'Ongoing identity verification', detail: 'Wait for your identity verification to complete or cancel it.' });
+    const dataRequests = await safeFilter(base44, 'DataSubjectRequest', { user_id: user.id });
+    if (dataRequests.some(r => r.status === 'pending' || r.status === 'in_review')) {
+      blockers.push({ key: 'legal_retention', label: 'Legal retention requirement', detail: 'An active data subject request requires data retention. Contact support for details.' });
     }
   } catch {}
 
-  // 8. Compliance hold
+  // 10. Security investigation
   try {
     const incidents = await safeFilter(base44, 'SecurityIncident', { user_id: user.id });
     if (incidents.some(i => i.status === 'open' || i.status === 'investigating')) {
-      blockers.push({ key: 'compliance_hold', label: 'Compliance hold', detail: 'A security or compliance hold is active on your account. Contact support.' });
+      blockers.push({ key: 'security_investigation', label: 'Security investigation', detail: 'A security investigation is active on your account. Contact support.' });
     }
   } catch {}
 
@@ -155,6 +178,70 @@ async function deleteUserData(base44, userId) {
   return results;
 }
 
+async function buildDeletedItems(base44, user) {
+  const items = [];
+  try {
+    const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
+    if (profiles.length > 0) items.push('Executive Profile');
+  } catch {}
+  try {
+    const resumes = await safeFilter(base44, 'ResumeVersion', { created_by_id: user.id });
+    if (resumes.length > 0 || true) items.push('Resume Intelligence');
+  } catch {}
+  try {
+    const memory = await safeFilter(base44, 'ExecutiveMemory', { user_id: user.id });
+    if (memory.length > 0 || true) items.push('Executive Memory™');
+  } catch {}
+  try {
+    const dna = await safeFilter(base44, 'LeadershipDNA', { user_id: user.id });
+    if (dna.length > 0 || true) items.push('Leadership DNA™');
+  } catch {}
+  try {
+    const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
+    if (profiles[0] && profiles[0].career_intelligence_json) items.push('Career Intelligence™');
+  } catch {}
+  try {
+    const journey = await safeFilter(base44, 'JourneyEvent', { user_id: user.id });
+    if (journey.length > 0 || true) items.push('Executive Journey™');
+  } catch {}
+  try {
+    const sims = await safeFilter(base44, 'SimulationSession', { created_by_id: user.id });
+    if (sims.length > 0 || true) items.push('AI Conversations');
+  } catch {}
+  try {
+    const insights = await safeFilter(base44, 'ExecutiveInterest', { user_id: user.id });
+    if (insights.length > 0 || true) items.push('Saved Insights');
+  } catch {}
+  try {
+    const passport = await safeFilter(base44, 'ExecutivePassport', { user_id: user.id });
+    if (passport.length > 0 || true) items.push('Executive Passport™');
+  } catch {}
+  // Always ensure at least the core items
+  if (items.length === 0) {
+    items.push('Executive Profile', 'Resume Intelligence', 'Executive Memory™', 'Leadership DNA™', 'Career Intelligence™', 'Executive Journey™', 'AI Conversations', 'Saved Insights', 'Executive Passport™');
+  }
+  return items;
+}
+
+async function buildWarnings(base44, user) {
+  const warnings = [];
+  try {
+    const fm = await safeFilter(base44, 'FoundingMember', { user_id: user.id, status: 'active' });
+    if (fm.length > 0) warnings.push('Founding Member benefits are permanently forfeited.');
+  } catch {}
+  try {
+    const wallet = await safeFilter(base44, 'ExecutiveWallet', { user_id: user.id });
+    if (wallet[0] && (wallet[0].balance || 0) > 0) warnings.push('Wallet balance will be lost unless withdrawn.');
+  } catch {}
+  try {
+    const certs = await safeFilter(base44, 'Certificate', { created_by_id: user.id });
+    if (certs.length > 0) warnings.push('Downloaded certificates remain valid but cannot be reissued.');
+  } catch {}
+  warnings.push('This action is permanent.');
+  warnings.push('Your Executive Identity cannot be recovered.');
+  return warnings;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -166,6 +253,28 @@ Deno.serve(async (req) => {
       if (fwd) return fwd.split(',')[0].trim();
       return req.headers.get('x-real-ip') || 'unknown';
     };
+
+    // ---- check_eligibility: evaluate blockers without sending code ----
+    if (action === 'check_eligibility') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const existingPending = await safeFilter(base44, 'AccountDeletionRequest', { user_id: user.id, status: 'pending_deletion' });
+      if (existingPending.length > 0) {
+        return Response.json({ already_scheduled: true, scheduled_deletion_at: existingPending[0].scheduled_deletion_at });
+      }
+
+      const blockers = await runPreDeletionChecks(base44, user);
+      const deletedItems = await buildDeletedItems(base44, user);
+      const warnings = await buildWarnings(base44, user);
+
+      return Response.json({
+        blockers,
+        eligible: blockers.length === 0,
+        deleted_items: deletedItems,
+        warnings,
+      });
+    }
 
     // ---- request_deletion: run pre-checks + send verification code ----
     if (action === 'request_deletion') {
@@ -208,11 +317,16 @@ Deno.serve(async (req) => {
         });
       } catch {}
 
+      const deletedItems = await buildDeletedItems(base44, user);
+      const warnings = await buildWarnings(base44, user);
+
       return Response.json({
         request_id: requestRec.id,
         blockers,
         can_proceed: blockers.length === 0,
         code_sent_to: maskEmail(user.email),
+        deleted_items: deletedItems,
+        warnings,
       });
     }
 

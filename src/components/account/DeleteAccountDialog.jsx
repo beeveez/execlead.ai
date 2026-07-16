@@ -1,27 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { AlertTriangle, X, Loader2, ArrowRight, Trash2, RotateCcw } from "lucide-react";
-
-const DELETED_ITEMS = [
-  "Executive Profile", "Leadership DNA", "Resume AI", "Career Studio",
-  "Executive Wallet", "Referral History", "Communities", "Messages",
-  "Journal", "Learning Progress", "Certificates (unless exported)",
-  "Analytics", "AI History", "Identity Profile",
-];
-
-const FINAL_WARNINGS = [
-  "This action is permanent.",
-  "Your Executive Identity cannot be recovered.",
-  "Founding Member benefits are permanently forfeited.",
-  "Wallet balance will be lost unless withdrawn.",
-  "Referral commissions will be cancelled if unpaid.",
-  "Downloaded certificates remain valid but cannot be reissued.",
-];
+import { AlertTriangle, X, Loader2, ArrowRight, Trash2, RotateCcw, Check, ShieldCheck, Download } from "lucide-react";
 
 export default function DeleteAccountDialog({ onClose }) {
-  const [step, setStep] = useState("warning");
-  const [checking, setChecking] = useState(false);
+  const [step, setStep] = useState("loading");
   const [blockers, setBlockers] = useState([]);
+  const [deletedItems, setDeletedItems] = useState([]);
+  const [warnings, setWarnings] = useState([]);
+  const [eligible, setEligible] = useState(false);
   const [code, setCode] = useState("");
   const [confirmText, setConfirmText] = useState("");
   const [reason, setReason] = useState("");
@@ -30,22 +16,51 @@ export default function DeleteAccountDialog({ onClose }) {
   const [scheduledDate, setScheduledDate] = useState("");
   const [codeSentTo, setCodeSentTo] = useState("");
 
-  const runChecksAndSendCode = async () => {
-    setChecking(true);
+  // Deletion Eligibility Engine™ — evaluate on mount
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await base44.functions.invoke("accountDeletion", { action: "check_eligibility" });
+        if (!active) return;
+        if (res.data.already_scheduled) {
+          setScheduledDate(res.data.scheduled_deletion_at);
+          setStep("done");
+          return;
+        }
+        setBlockers(res.data.blockers || []);
+        setDeletedItems(res.data.deleted_items || []);
+        setWarnings(res.data.warnings || []);
+        setEligible(res.data.eligible ?? false);
+        setStep(res.data.eligible ? "eligible" : "blocked");
+      } catch (e) {
+        if (!active) return;
+        setError(e.response?.data?.error || "Failed to check eligibility. Please try again.");
+        setStep("error");
+      }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  const handleProceedToVerify = async () => {
+    setSubmitting(true);
     setError("");
     try {
       const res = await base44.functions.invoke("accountDeletion", { action: "request_deletion", reason });
       setBlockers(res.data.blockers || []);
+      setDeletedItems(res.data.deleted_items || deletedItems);
+      setWarnings(res.data.warnings || warnings);
       setCodeSentTo(res.data.code_sent_to || "");
       if (res.data.can_proceed) {
         setStep("verify");
       } else {
+        setEligible(false);
         setStep("blocked");
       }
     } catch (e) {
       setError(e.response?.data?.error || "Failed to start deletion. Please try again.");
     }
-    setChecking(false);
+    setSubmitting(false);
   };
 
   const handleConfirmDeletion = async () => {
@@ -73,6 +88,23 @@ export default function DeleteAccountDialog({ onClose }) {
     setSubmitting(false);
   };
 
+  const handleDownloadData = async () => {
+    setSubmitting(true);
+    try {
+      const res = await base44.functions.invoke("accountDeletion", { action: "export_data" });
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "execlead-data-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Failed to export data.");
+    }
+    setSubmitting(false);
+  };
+
   const canConfirm = code.trim().length === 6 && confirmText === "DELETE MY ACCOUNT" && !submitting;
 
   return (
@@ -87,37 +119,67 @@ export default function DeleteAccountDialog({ onClose }) {
         </div>
 
         <div className="p-6">
-          {step === "warning" && !checking && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Delete Your EXECLEAD.AI Account?</h3>
-                <p className="text-white/50 text-sm">Deleting your account is permanent. <span className="text-red-400 font-medium">This action cannot be undone.</span></p>
-              </div>
-              <div>
-                <p className="text-white/40 text-xs uppercase tracking-wider mb-2">The following will be permanently deleted:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                  {DELETED_ITEMS.map(item => (
-                    <div key={item} className="flex items-center gap-2 text-sm text-white/60">
-                      <span className="text-red-400">✕</span> {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="Reason for leaving (optional)" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-red-500/30 resize-none" rows={2} />
-              {error && <p className="text-red-400 text-sm">{error}</p>}
-              <div className="flex gap-3">
-                <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Cancel</button>
-                <button onClick={runChecksAndSendCode} className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                  <ArrowRight size={16} /> Continue
-                </button>
-              </div>
+          {step === "loading" && (
+            <div className="flex flex-col items-center py-12">
+              <Loader2 size={32} className="animate-spin text-red-400 mb-3" />
+              <p className="text-white/40 text-sm">Evaluating deletion eligibility…</p>
             </div>
           )}
 
-          {step === "warning" && checking && (
-            <div className="flex flex-col items-center py-12">
-              <Loader2 size={32} className="animate-spin text-red-400 mb-3" />
-              <p className="text-white/40 text-sm">Running pre-deletion checks…</p>
+          {step === "error" && (
+            <div className="space-y-4">
+              <p className="text-red-400 text-sm">{error}</p>
+              <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Close</button>
+            </div>
+          )}
+
+          {step === "eligible" && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-2">Delete Your EXECLEAD.AI Account?</h3>
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
+                  <ShieldCheck size={18} className="text-emerald-400 flex-shrink-0" />
+                  <p className="text-emerald-400 text-sm font-medium">Your account is eligible for deletion.</p>
+                </div>
+              </div>
+
+              {deletedItems.length > 0 && (
+                <div>
+                  <p className="text-white/40 text-xs uppercase tracking-wider mb-2">The following will be permanently deleted:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {deletedItems.map(item => (
+                      <div key={item} className="flex items-center gap-2 text-sm text-white/60">
+                        <span className="text-red-400">✕</span> {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {warnings.length > 0 && (
+                <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-1.5">
+                  {warnings.map((w, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm text-white/60">
+                      <AlertTriangle size={14} className="text-red-400 mt-0.5 flex-shrink-0" /> {w}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button onClick={handleDownloadData} disabled={submitting} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-colors disabled:opacity-50">
+                {submitting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} Download My Data
+              </button>
+
+              <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="Reason for leaving (optional)" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-red-500/30 resize-none" rows={2} />
+
+              {error && <p className="text-red-400 text-sm">{error}</p>}
+
+              <div className="flex gap-3">
+                <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Cancel</button>
+                <button onClick={handleProceedToVerify} disabled={submitting} className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} Continue
+                </button>
+              </div>
             </div>
           )}
 
@@ -136,19 +198,24 @@ export default function DeleteAccountDialog({ onClose }) {
                   </div>
                 ))}
               </div>
+              <button onClick={handleDownloadData} disabled={submitting} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-colors disabled:opacity-50">
+                {submitting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} Download My Data
+              </button>
               <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Close</button>
             </div>
           )}
 
           {step === "verify" && (
             <div className="space-y-4">
-              <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-1.5">
-                {FINAL_WARNINGS.map((w, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm text-white/60">
-                    <AlertTriangle size={14} className="text-red-400 mt-0.5 flex-shrink-0" /> {w}
-                  </div>
-                ))}
-              </div>
+              {warnings.length > 0 && (
+                <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-1.5">
+                  {warnings.map((w, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm text-white/60">
+                      <AlertTriangle size={14} className="text-red-400 mt-0.5 flex-shrink-0" /> {w}
+                    </div>
+                  ))}
+                </div>
+              )}
               <div>
                 <label className="text-white/40 text-xs uppercase tracking-wider mb-1.5 block">Email Verification Code</label>
                 <p className="text-white/40 text-xs mb-2">A 6-digit code was sent to {codeSentTo}. Enter it below.</p>
@@ -160,7 +227,7 @@ export default function DeleteAccountDialog({ onClose }) {
               </div>
               {error && <p className="text-red-400 text-sm">{error}</p>}
               <div className="flex gap-3">
-                <button onClick={() => setStep("warning")} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Back</button>
+                <button onClick={() => setStep("eligible")} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Back</button>
                 <button onClick={handleConfirmDeletion} disabled={!canConfirm} className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                   {submitting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} Delete Account
                 </button>

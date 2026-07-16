@@ -75,11 +75,16 @@
     },
     "work_preference": {
       "type": "string",
-      "enum": [
-        "remote",
-        "hybrid",
-        "onsite"
-      ]
+      "description": "JSON array of work preferences or legacy single value"
+    },
+    "salary_currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency for expected salary"
+    },
+    "career_intelligence_json": {
+      "type": "string",
+      "description": "JSON: Career Intelligence Profile\u2122 from Master Registries"
     },
     "linkedin_url": {
       "type": "string"
@@ -435,10 +440,7 @@
       "description": "Duration of last computation in milliseconds"
     }
   },
-  "required": [
-    "target_company",
-    "target_role"
-  ],
+  "required": [],
   "rls": {
     "create": {
       "data.user_id": "{{user.id}}"

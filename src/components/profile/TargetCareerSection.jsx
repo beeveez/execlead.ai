@@ -1,42 +1,92 @@
-import React from "react";
-import { TextField, SelectField, SectionCard } from "./FormFields";
+import React, { useMemo } from "react";
+import { SectionCard } from "./FormFields";
 import CountrySelect from "@/components/common/CountrySelect";
-import { Target, Monitor, Building, MapPin } from "lucide-react";
-
-const INDUSTRIES = ["Technology", "Finance", "Healthcare", "Manufacturing", "Retail", "Consulting", "Education", "Government", "Media", "Energy", "Real Estate", "Transportation", "Other"];
+import CompanyAutocomplete from "@/components/career-intelligence/CompanyAutocomplete";
+import RoleAutocomplete from "@/components/career-intelligence/RoleAutocomplete";
+import IndustryAutocomplete from "@/components/career-intelligence/IndustryAutocomplete";
+import SalaryInput from "@/components/career-intelligence/SalaryInput";
+import WorkPreferenceSelector from "@/components/career-intelligence/WorkPreferenceSelector";
+import CareerIntelligencePanel from "@/components/career-intelligence/CareerIntelligencePanel";
+import { Target } from "lucide-react";
+import { getCompanyByName } from "@/lib/careerIntelligence/companyRegistry";
 
 export default function TargetCareerSection({ form, setField }) {
-  const workPrefs = [
-    { value: "remote", label: "Remote", icon: Monitor },
-    { value: "hybrid", label: "Hybrid", icon: Building },
-    { value: "onsite", label: "Onsite", icon: MapPin },
-  ];
+  // When a company is selected, auto-populate industry if not already set
+  const handleCompanyChange = (companyName) => {
+    setField("target_company", companyName);
+    const company = getCompanyByName(companyName);
+    if (company && !form.preferred_industry) {
+      setField("preferred_industry", company.industry);
+    }
+  };
+
+  // Normalize work_preference: accept legacy string or new array
+  const workPrefValue = Array.isArray(form.work_preference)
+    ? form.work_preference
+    : form.work_preference ? [form.work_preference] : [];
 
   return (
-    <SectionCard title="Target Career" description="Define your next career move." icon={Target}>
-      <div className="grid grid-cols-2 gap-3">
-        <TextField label="Target Company" value={form.target_company} onChange={v => setField("target_company", v)} placeholder="Google, Amazon, Stripe..." />
-        <TextField label="Target Role" value={form.target_role} onChange={v => setField("target_role", v)} placeholder="Chief Technology Officer" />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
+    <SectionCard
+      title="Target Career"
+      description="Define your next career move with Career Intelligence™."
+      icon={Target}
+    >
+      {/* Registry-Driven Selections */}
+      <div className="space-y-3">
         <div>
-          <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Target Country</label>
-          <CountrySelect value={form.target_country} onChange={v => setField("target_country", v)} />
+          <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Target Company</label>
+          <CompanyAutocomplete
+            value={form.target_company}
+            onChange={handleCompanyChange}
+            placeholder="Search Microsoft, Amazon, Google..."
+          />
         </div>
-        <SelectField label="Preferred Industry" value={form.preferred_industry} onChange={v => setField("preferred_industry", v)} options={INDUSTRIES} />
-      </div>
-      <TextField label="Expected Salary (USD)" value={form.expected_salary} onChange={v => setField("expected_salary", v)} placeholder="250000" type="number" />
-      <div>
-        <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 block">Work Preference</label>
-        <div className="grid grid-cols-3 gap-2">
-          {workPrefs.map(pref => (
-            <button key={pref.value} onClick={() => setField("work_preference", pref.value)} className={`flex flex-col items-center gap-1.5 py-3 rounded-lg border transition-all ${form.work_preference === pref.value ? "bg-indigo-500/15 border-indigo-500/30 text-indigo-400" : "bg-white/5 border-white/5 text-white/40 hover:bg-white/10"}`}>
-              <pref.icon size={18} />
-              <span className="text-xs font-medium">{pref.label}</span>
-            </button>
-          ))}
+
+        <div>
+          <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Target Role</label>
+          <RoleAutocomplete
+            value={form.target_role}
+            onChange={v => setField("target_role", v)}
+            placeholder="Search CEO, CTO, Director..."
+          />
         </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Target Country</label>
+            <CountrySelect
+              value={form.target_country}
+              onChange={v => setField("target_country", v)}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-white/50 uppercase tracking-wider mb-1.5 block">Preferred Industry</label>
+            <IndustryAutocomplete
+              value={form.preferred_industry}
+              onChange={v => setField("preferred_industry", v)}
+              placeholder="Search Technology, Finance..."
+            />
+          </div>
+        </div>
+
+        <SalaryInput
+          value={form.expected_salary}
+          onChange={v => setField("expected_salary", v)}
+          currency={form.salary_currency}
+          onCurrencyChange={v => setField("salary_currency", v)}
+          role={form.target_role}
+          country={form.target_country}
+          industry={form.preferred_industry}
+        />
+
+        <WorkPreferenceSelector
+          value={workPrefValue}
+          onChange={v => setField("work_preference", v)}
+        />
       </div>
+
+      {/* Career Intelligence Panel™ */}
+      <CareerIntelligencePanel form={form} />
     </SectionCard>
   );
 }

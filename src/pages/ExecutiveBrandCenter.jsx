@@ -14,22 +14,25 @@ import AchievementGallery from "@/components/brand/AchievementGallery";
 import DigitalBusinessCard from "@/components/brand/DigitalBusinessCard";
 import ReferralDashboard from "@/components/brand/ReferralDashboard";
 import ExecutiveTimeline from "@/components/brand/ExecutiveTimeline";
+import ExecutiveBrandIdentity from "@/components/brand/ExecutiveBrandIdentity";
+import ExecutiveMark from "@/components/layout/ExecutiveMark";
 
 const TABS = [
-  { id: "identity", label: "Identity", icon: Crown },
+  { id: "brand-identity", label: "Brand Identity", icon: Crown },
+  { id: "identity", label: "Identity", icon: Sparkles },
   { id: "reputation", label: "Reputation", icon: Activity },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "achievements", label: "Achievements", icon: Sparkles },
-  { id: "card", label: "Business Card", icon: CreditCard },
-  { id: "referrals", label: "Referrals", icon: Gift },
-  { id: "timeline", label: "Timeline", icon: Clock },
+  { id: "achievements", label: "Achievements", icon: CreditCard },
+  { id: "card", label: "Business Card", icon: Gift },
+  { id: "referrals", label: "Referrals", icon: Clock },
+  { id: "timeline", label: "Timeline", icon: Activity },
 ];
 
 export default function ExecutiveBrandCenter() {
   const { profile, loading, refreshProfile, entitlements } = useSubscription();
   const isFoundingMember = entitlements?.founderPortalEnabled ?? false;
   const [user, setUser] = useState(null);
-  const [tab, setTab] = useState("identity");
+  const [tab, setTab] = useState("brand-identity");
   const [milestones, setMilestones] = useState([]);
 
   useEffect(() => {
@@ -83,6 +86,7 @@ export default function ExecutiveBrandCenter() {
       </div>
 
       <div>
+        {tab === "brand-identity" && <ExecutiveBrandIdentity />}
         {tab === "identity" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">

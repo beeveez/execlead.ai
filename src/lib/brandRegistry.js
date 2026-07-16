@@ -39,7 +39,19 @@ export const BrandRegistry = {
   logo: {
     brandName: "EXECLEAD.AI",
     parts: { prefix: "EXEC", middle: "LEAD", dot: ".", suffix: "AI" },
+    markName: "Executive Mark™",
+    description: "A custom Executive 'E' monogram with an integrated upward arrow.",
   },
+
+  // ── Logo Story & Brand Philosophy ──
+  logoStory:
+    "The EXECLEAD.AI mark combines an Executive 'E' with an ascending arrow. Together, the mark symbolizes the journey from ambitious technology professional to executive leader.",
+  logoMeaning: {
+    e: ["Executive Leadership", "Excellence", "Execution", "Empowerment"],
+    arrow: ["Leadership Growth", "Career Progression", "Continuous Learning", "Promotion", "Executive Impact"],
+  },
+  brandPhilosophy:
+    "EXECLEAD.AI exists to help ambitious technology professionals become executive leaders. The new Executive 'E' represents excellence. The upward arrow represents continuous leadership growth. Every interaction should reinforce that journey.",
 
   // ── Colors ──
   colors: {
@@ -62,11 +74,12 @@ export const BrandRegistry = {
   },
 
   // ── Favicon ──
-  favicon: "/favicon.svg",
+  favicon: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
+  faviconImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
 
   // ── Open Graph / Social Images ──
-  ogImage: "/og-image.png",
-  socialImage: "/og-image.png",
+  ogImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
+  socialImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/f176d963a_generated_image.png?v=3.0",
 
   // ── Email Signature ──
   emailSignature:

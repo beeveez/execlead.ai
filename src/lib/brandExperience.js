@@ -10,8 +10,8 @@
 export const BRAND = {
   promise: "Become the Executive Every Company Wants to Hire.",
   philosophy: "One Leadership Journey. One AI Platform.",
-  foundation: "Strategy. Success. Scale.",
-  identity: "The Executive Leadership Operating System.",
+  foundation: "Excellence. Execution. Empowerment.",
+  identity: "An AI Executive Leadership Operating System™.",
 };
 
 /**

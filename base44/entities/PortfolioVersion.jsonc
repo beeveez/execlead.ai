@@ -2,6 +2,10 @@
   "name": "PortfolioVersion",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "version_number": {
       "type": "string",
       "description": "Semantic version (e.g. v1.0, v1.1)"

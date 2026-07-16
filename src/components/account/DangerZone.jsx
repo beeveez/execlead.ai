@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { AlertTriangle, Trash2, Download, Pause, Loader2, RotateCcw, Building2, Check, X } from "lucide-react";
 import DeleteAccountDialog from "./DeleteAccountDialog";
 import DownloadDataDialog from "./DownloadDataDialog";
+import DeletionPolicyConfigPanel from "./DeletionPolicyConfigPanel";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -83,7 +84,7 @@ export default function DangerZone() {
                 <Trash2 size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <div className="text-sm font-medium text-white">Delete Account</div>
-                  <div className="text-xs text-white/40 mt-0.5">Permanently delete your account and all associated data. A 30-day recovery window is provided.</div>
+                  <div className="text-xs text-white/40 mt-0.5">Permanently delete your account and all associated data. Choose immediate deletion or a configurable grace period with recovery window.</div>
                 </div>
               </div>
               <button onClick={() => setShowDelete(true)} className="px-4 py-2 rounded-lg border border-red-900/60 hover:border-red-900 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0">Delete</button>
@@ -124,6 +125,10 @@ export default function DangerZone() {
           </div>
         </div>
       </div>
+
+      {user?.role === 'admin' && (
+        <DeletionPolicyConfigPanel />
+      )}
 
       {showDelete && <DeleteAccountDialog onClose={() => { setShowDelete(false); loadStatus(); }} />}
       {showDownload && <DownloadDataDialog onClose={() => setShowDownload(false)} />}

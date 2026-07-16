@@ -173,6 +173,11 @@
     "contract_length_years": {
       "type": "number",
       "default": 1
+    },
+    "deletion_grace_period_days": {
+      "type": "number",
+      "default": 0,
+      "description": "Enterprise org-level account deletion grace period (clamped to policy min/max)"
     }
   },
   "required": [

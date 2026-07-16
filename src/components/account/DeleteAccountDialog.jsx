@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { AlertTriangle, X, Loader2, ArrowRight, Trash2, RotateCcw, Check, ShieldCheck, Download } from "lucide-react";
+import { AlertTriangle, X, Loader2, ArrowRight, Trash2, RotateCcw, ShieldCheck, Download, Zap, Clock, Calendar } from "lucide-react";
+
+const MODE_META = {
+  immediate: { icon: Zap, color: "red", desc: "Irreversible — your account and all data will be permanently deleted immediately. No recovery window." },
+  delayed_14: { icon: Clock, color: "amber", desc: "Recommended — your account will be deleted in 14 days. You can restore it anytime before then." },
+  delayed_30: { icon: Calendar, color: "blue", desc: "Your account will be deleted in 30 days. You can restore it anytime before then." },
+};
 
 export default function DeleteAccountDialog({ onClose }) {
   const [step, setStep] = useState("loading");
@@ -15,8 +21,10 @@ export default function DeleteAccountDialog({ onClose }) {
   const [error, setError] = useState("");
   const [scheduledDate, setScheduledDate] = useState("");
   const [codeSentTo, setCodeSentTo] = useState("");
+  const [availableModes, setAvailableModes] = useState([]);
+  const [selectedMode, setSelectedMode] = useState("");
+  const [deletionResult, setDeletionResult] = useState(null);
 
-  // Deletion Eligibility Engine™ — evaluate on mount
   useEffect(() => {
     let active = true;
     (async () => {
@@ -32,6 +40,11 @@ export default function DeleteAccountDialog({ onClose }) {
         setDeletedItems(res.data.deleted_items || []);
         setWarnings(res.data.warnings || []);
         setEligible(res.data.eligible ?? false);
+        setAvailableModes(res.data.available_modes || []);
+        // Default to delayed_14 if available, otherwise first mode
+        const modes = res.data.available_modes || [];
+        const defaultMode = modes.find(m => m.recommended)?.mode || modes[0]?.mode || "";
+        setSelectedMode(defaultMode);
         setStep(res.data.eligible ? "eligible" : "blocked");
       } catch (e) {
         if (!active) return;
@@ -46,7 +59,7 @@ export default function DeleteAccountDialog({ onClose }) {
     setSubmitting(true);
     setError("");
     try {
-      const res = await base44.functions.invoke("accountDeletion", { action: "request_deletion", reason });
+      const res = await base44.functions.invoke("accountDeletion", { action: "request_deletion", reason, deletion_mode: selectedMode });
       setBlockers(res.data.blockers || []);
       setDeletedItems(res.data.deleted_items || deletedItems);
       setWarnings(res.data.warnings || warnings);
@@ -68,8 +81,13 @@ export default function DeleteAccountDialog({ onClose }) {
     setError("");
     try {
       const res = await base44.functions.invoke("accountDeletion", { action: "verify_and_schedule", code, reason });
-      setScheduledDate(res.data.scheduled_deletion_at);
-      setStep("done");
+      if (res.data.deleted) {
+        setDeletionResult({ deleted: true, completed_at: res.data.completed_at });
+        setStep("immediate_done");
+      } else {
+        setScheduledDate(res.data.scheduled_deletion_at);
+        setStep("done");
+      }
     } catch (e) {
       setError(e.response?.data?.error || "Failed to confirm deletion.");
     }
@@ -105,7 +123,14 @@ export default function DeleteAccountDialog({ onClose }) {
     setSubmitting(false);
   };
 
+  const isImmediate = selectedMode === "immediate";
   const canConfirm = code.trim().length === 6 && confirmText === "DELETE MY ACCOUNT" && !submitting;
+
+  const colorClass = (color) => ({
+    red: "border-red-500/40 bg-red-500/10 text-red-400",
+    amber: "border-amber-500/40 bg-amber-500/10 text-amber-400",
+    blue: "border-blue-500/40 bg-blue-500/10 text-blue-400",
+  })[color] || "border-white/10 bg-white/5 text-white/60";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
@@ -143,6 +168,38 @@ export default function DeleteAccountDialog({ onClose }) {
                 </div>
               </div>
 
+              {/* Deletion Mode Selection */}
+              <div>
+                <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Choose a deletion option</p>
+                <div className="space-y-2">
+                  {availableModes.map(m => {
+                    const meta = MODE_META[m.mode] || MODE_META.immediate;
+                    const Icon = meta.icon;
+                    const isSelected = selectedMode === m.mode;
+                    return (
+                      <button
+                        key={m.mode}
+                        onClick={() => setSelectedMode(m.mode)}
+                        className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-colors ${isSelected ? colorClass(meta.color) : "border-white/10 bg-white/[0.02] hover:bg-white/5"}`}
+                      >
+                        <Icon size={18} className={`mt-0.5 flex-shrink-0 ${isSelected ? "" : "text-white/40"}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium ${isSelected ? "" : "text-white"}`}>{m.label}</span>
+                            {m.recommended && <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium uppercase tracking-wide">Recommended</span>}
+                            {m.irreversible && <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 font-medium uppercase tracking-wide">Irreversible</span>}
+                          </div>
+                          <p className={`text-xs mt-1 ${isSelected ? "opacity-80" : "text-white/40"}`}>{meta.desc}</p>
+                        </div>
+                        <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-1 ${isSelected ? "border-current" : "border-white/20"}`}>
+                          {isSelected && <div className="w-full h-full rounded-full bg-current" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {deletedItems.length > 0 && (
                 <div>
                   <p className="text-white/40 text-xs uppercase tracking-wider mb-2">The following will be permanently deleted:</p>
@@ -176,7 +233,7 @@ export default function DeleteAccountDialog({ onClose }) {
 
               <div className="flex gap-3">
                 <button onClick={onClose} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Cancel</button>
-                <button onClick={handleProceedToVerify} disabled={submitting} className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                <button onClick={handleProceedToVerify} disabled={submitting || !selectedMode} className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                   {submitting ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} Continue
                 </button>
               </div>
@@ -207,6 +264,26 @@ export default function DeleteAccountDialog({ onClose }) {
 
           {step === "verify" && (
             <div className="space-y-4">
+              {/* Immediate deletion: extra warning */}
+              {isImmediate && (
+                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 space-y-2">
+                  <div className="flex items-center gap-2 text-red-400 font-semibold">
+                    <AlertTriangle size={16} /> Final Warning — Irreversible
+                  </div>
+                  <p className="text-red-300/80 text-xs">You have selected <strong>immediate deletion</strong>. Once confirmed, your account and all data will be <strong>permanently deleted within seconds</strong>. There is no recovery window and no undo.</p>
+                </div>
+              )}
+
+              {/* Delayed deletion: show scheduled date */}
+              {!isImmediate && selectedMode && (
+                <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/15">
+                  <p className="text-amber-400 text-sm">
+                    {selectedMode === "delayed_14" ? "Your account will be scheduled for deletion in 14 days." : "Your account will be scheduled for deletion in 30 days."}
+                    {" "}You can restore it anytime before the deletion date.
+                  </p>
+                </div>
+              )}
+
               {warnings.length > 0 && (
                 <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-1.5">
                   {warnings.map((w, i) => (
@@ -228,13 +305,29 @@ export default function DeleteAccountDialog({ onClose }) {
               {error && <p className="text-red-400 text-sm">{error}</p>}
               <div className="flex gap-3">
                 <button onClick={() => setStep("eligible")} className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Back</button>
-                <button onClick={handleConfirmDeletion} disabled={!canConfirm} className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} Delete Account
+                <button onClick={handleConfirmDeletion} disabled={!canConfirm} className={`flex-1 py-2.5 rounded-lg text-white text-sm font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isImmediate ? "bg-red-600 hover:bg-red-700" : "bg-red-500 hover:bg-red-600"}`}>
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} {isImmediate ? "Delete Now" : "Schedule Deletion"}
                 </button>
               </div>
             </div>
           )}
 
+          {/* Immediate deletion completed */}
+          {step === "immediate_done" && (
+            <div className="space-y-4 text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
+                <Trash2 size={28} className="text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Account Deleted</h3>
+                <p className="text-white/50 text-sm mt-2">Your account has been permanently deleted. All associated data has been removed.</p>
+                <p className="text-white/30 text-xs mt-2">This action was irreversible and cannot be undone.</p>
+              </div>
+              <button onClick={() => { base44.auth.logout("/login"); }} className="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">Close</button>
+            </div>
+          )}
+
+          {/* Delayed deletion scheduled */}
           {step === "done" && (
             <div className="space-y-4 text-center py-4">
               <div className="w-14 h-14 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
@@ -243,7 +336,7 @@ export default function DeleteAccountDialog({ onClose }) {
               <div>
                 <h3 className="text-lg font-semibold text-white">Deletion Scheduled</h3>
                 <p className="text-white/50 text-sm mt-2">Your account will be permanently deleted on <span className="text-amber-400 font-medium">{new Date(scheduledDate).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</span>.</p>
-                <p className="text-white/40 text-xs mt-2">You have 30 days to change your mind. Log in and restore your account anytime before this date.</p>
+                <p className="text-white/40 text-xs mt-2">You can restore your account anytime before this date by clicking the button below.</p>
               </div>
               <button onClick={handleRestore} disabled={submitting} className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <RotateCcw size={16} />} Restore Account Now

@@ -1,0 +1,133 @@
+{
+  "name": "DeletionPolicyConfig",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "free_days": {
+      "type": "number",
+      "default": 7,
+      "description": "Grace period days for Free plan"
+    },
+    "professional_days": {
+      "type": "number",
+      "default": 14,
+      "description": "Grace period days for Professional plan"
+    },
+    "executive_days": {
+      "type": "number",
+      "default": 30,
+      "description": "Grace period days for Executive plan"
+    },
+    "enterprise_default_days": {
+      "type": "number",
+      "default": 30,
+      "description": "Default grace period for Enterprise (before org-level config)"
+    },
+    "enterprise_min_days": {
+      "type": "number",
+      "default": 30,
+      "description": "Minimum grace period an enterprise org can set"
+    },
+    "enterprise_max_days": {
+      "type": "number",
+      "default": 90,
+      "description": "Maximum grace period an enterprise org can set"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "updated_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "free_days"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

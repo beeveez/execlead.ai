@@ -1,8 +1,24 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-const GRACE_PERIOD_DAYS = 30;
 const RETENTION_YEARS = 7;
 const CODE_EXPIRY_MINUTES = 10;
+
+// Default grace period policies (used when no DeletionPolicyConfig record exists)
+const DEFAULT_POLICIES = {
+  free_days: 7,
+  professional_days: 14,
+  executive_days: 30,
+  enterprise_default_days: 30,
+  enterprise_min_days: 30,
+  enterprise_max_days: 90,
+};
+
+// Maps user-selectable deletion modes to delay in days
+const MODE_DELAY_DAYS = {
+  immediate: 0,
+  delayed_14: 14,
+  delayed_30: 30,
+};
 
 function maskEmail(email) {
   if (!email || !email.includes('@')) return email;
@@ -19,10 +35,67 @@ async function safeFilter(base44, entityName, filterObj, limit) {
   }
 }
 
+// ---- Grace Period Policy Resolution ----
+
+async function getDeletionPolicies(base44) {
+  try {
+    const configs = await safeFilter(base44, 'DeletionPolicyConfig', { is_active: true }, 1);
+    if (configs.length > 0) {
+      const c = configs[0];
+      return {
+        free_days: c.free_days ?? DEFAULT_POLICIES.free_days,
+        professional_days: c.professional_days ?? DEFAULT_POLICIES.professional_days,
+        executive_days: c.executive_days ?? DEFAULT_POLICIES.executive_days,
+        enterprise_default_days: c.enterprise_default_days ?? DEFAULT_POLICIES.enterprise_default_days,
+        enterprise_min_days: c.enterprise_min_days ?? DEFAULT_POLICIES.enterprise_min_days,
+        enterprise_max_days: c.enterprise_max_days ?? DEFAULT_POLICIES.enterprise_max_days,
+      };
+    }
+  } catch {}
+  return DEFAULT_POLICIES;
+}
+
+async function getUserPlan(base44, user) {
+  try {
+    const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
+    if (profiles[0]?.subscription_plan) return profiles[0].subscription_plan;
+  } catch {}
+  try {
+    const subs = await safeFilter(base44, 'Subscription', { created_by_id: user.id });
+    if (subs[0]?.plan) return subs[0].plan;
+  } catch {}
+  return 'free';
+}
+
+async function getMaxGraceDays(base44, user, policies) {
+  const plan = await getUserPlan(base44, user);
+
+  if (plan === 'enterprise') {
+    // Check org-level configured grace period
+    try {
+      const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
+      const orgId = profiles[0]?.organization_id;
+      if (orgId) {
+        const org = await base44.asServiceRole.entities.Organization.get(orgId);
+        const orgDays = org?.deletion_grace_period_days;
+        if (orgDays && orgDays > 0) {
+          return Math.min(Math.max(orgDays, policies.enterprise_min_days), policies.enterprise_max_days);
+        }
+      }
+    } catch {}
+    return policies.enterprise_default_days;
+  }
+
+  if (plan === 'executive') return policies.executive_days;
+  if (plan === 'professional') return policies.professional_days;
+  return policies.free_days;
+}
+
+// ---- Pre-Deletion Checks (unchanged) ----
+
 async function runPreDeletionChecks(base44, user) {
   const blockers = [];
 
-  // 1. Active subscription
   try {
     const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
     const p = profiles[0];
@@ -39,7 +112,6 @@ async function runPreDeletionChecks(base44, user) {
     } catch {}
   }
 
-  // 2. Pending invoices
   try {
     const invoices = await safeFilter(base44, 'Invoice', { owner_user_id: user.id });
     if (invoices.some(i => i.status === 'pending' || i.status === 'failed')) {
@@ -47,7 +119,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 3. Organization owner
   try {
     const orgs = await safeFilter(base44, 'Organization', { admin_user_id: user.id });
     const activeOrgs = orgs.filter(o => o.plan_status === 'active' || o.plan_status === 'pending' || !o.plan_status);
@@ -56,7 +127,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 4. Enterprise administrator
   try {
     const memberships = await safeFilter(base44, 'OrgMembership', { user_id: user.id });
     if (memberships.some(m => m.role === 'enterprise_admin' || m.role === 'admin')) {
@@ -64,10 +134,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 5. Pending referral commissions — only block if a referral actually converted
-  //    and earned a commission that hasn't been paid out. (commission_status defaults
-  //    to "pending" on every record, so checking amount + converted status avoids
-  //    false positives on mere invites.)
   try {
     const referrals = await safeFilter(base44, 'Referral', { referrer_user_id: user.id, status: 'converted' }, 200);
     const owed = referrals.filter(r => (r.commission_amount || 0) > 0 && (r.commission_status === 'pending' || r.commission_status === 'approved'));
@@ -77,7 +143,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 6. Marketplace seller balance
   try {
     const wallet = await safeFilter(base44, 'ExecutiveWallet', { user_id: user.id });
     if (wallet[0] && (wallet[0].balance || 0) > 0) {
@@ -85,7 +150,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 7. Pending payouts
   try {
     const payouts = await safeFilter(base44, 'WithdrawalRequest', { user_id: user.id, status: 'pending' });
     if (payouts.length > 0) {
@@ -93,7 +157,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 8. Active developer applications
   try {
     if (user.role === 'developer' || user.role === 'admin' || user.role === 'super_admin') {
       const apiKeys = await safeFilter(base44, 'FeatureFlagAudit', { user_id: user.id });
@@ -103,7 +166,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 9. Legal retention requirement
   try {
     const dataRequests = await safeFilter(base44, 'DataSubjectRequest', { user_id: user.id });
     if (dataRequests.some(r => r.status === 'pending' || r.status === 'in_review')) {
@@ -111,7 +173,6 @@ async function runPreDeletionChecks(base44, user) {
     }
   } catch {}
 
-  // 10. Security investigation
   try {
     const incidents = await safeFilter(base44, 'SecurityIncident', { user_id: user.id });
     if (incidents.some(i => i.status === 'open' || i.status === 'investigating')) {
@@ -189,42 +250,12 @@ async function buildDeletedItems(base44, user) {
     const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
     if (profiles.length > 0) items.push('Executive Profile');
   } catch {}
-  try {
-    const resumes = await safeFilter(base44, 'ResumeVersion', { created_by_id: user.id });
-    if (resumes.length > 0 || true) items.push('Resume Intelligence');
-  } catch {}
-  try {
-    const memory = await safeFilter(base44, 'ExecutiveMemory', { user_id: user.id });
-    if (memory.length > 0 || true) items.push('Executive Memory™');
-  } catch {}
-  try {
-    const dna = await safeFilter(base44, 'LeadershipDNA', { user_id: user.id });
-    if (dna.length > 0 || true) items.push('Leadership DNA™');
-  } catch {}
+  items.push('Resume Intelligence', 'Executive Memory™', 'Leadership DNA™');
   try {
     const profiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
     if (profiles[0] && profiles[0].career_intelligence_json) items.push('Career Intelligence™');
   } catch {}
-  try {
-    const journey = await safeFilter(base44, 'JourneyEvent', { user_id: user.id });
-    if (journey.length > 0 || true) items.push('Executive Journey™');
-  } catch {}
-  try {
-    const sims = await safeFilter(base44, 'SimulationSession', { created_by_id: user.id });
-    if (sims.length > 0 || true) items.push('AI Conversations');
-  } catch {}
-  try {
-    const insights = await safeFilter(base44, 'ExecutiveInterest', { user_id: user.id });
-    if (insights.length > 0 || true) items.push('Saved Insights');
-  } catch {}
-  try {
-    const passport = await safeFilter(base44, 'ExecutivePassport', { user_id: user.id });
-    if (passport.length > 0 || true) items.push('Executive Passport™');
-  } catch {}
-  // Always ensure at least the core items
-  if (items.length === 0) {
-    items.push('Executive Profile', 'Resume Intelligence', 'Executive Memory™', 'Leadership DNA™', 'Career Intelligence™', 'Executive Journey™', 'AI Conversations', 'Saved Insights', 'Executive Passport™');
-  }
+  items.push('Executive Journey™', 'AI Conversations', 'Saved Insights', 'Executive Passport™');
   return items;
 }
 
@@ -247,6 +278,19 @@ async function buildWarnings(base44, user) {
   return warnings;
 }
 
+// ---- Available deletion options based on max grace days ----
+
+function getAvailableModes(maxGraceDays) {
+  const modes = [{ mode: 'immediate', label: 'Delete Immediately', days: 0, irreversible: true }];
+  if (maxGraceDays >= 14) {
+    modes.push({ mode: 'delayed_14', label: 'Delete in 14 Days', days: 14, recommended: true });
+  }
+  if (maxGraceDays >= 30) {
+    modes.push({ mode: 'delayed_30', label: 'Delete in 30 Days', days: 30 });
+  }
+  return modes;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -259,16 +303,18 @@ Deno.serve(async (req) => {
       return req.headers.get('x-real-ip') || 'unknown';
     };
 
-    // ---- check_eligibility: evaluate blockers without sending code ----
+    // ---- check_eligibility: evaluate blockers + return grace period info ----
     if (action === 'check_eligibility') {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
       const existingPending = await safeFilter(base44, 'AccountDeletionRequest', { user_id: user.id, status: 'pending_deletion' });
       if (existingPending.length > 0) {
-        return Response.json({ already_scheduled: true, scheduled_deletion_at: existingPending[0].scheduled_deletion_at });
+        return Response.json({ already_scheduled: true, scheduled_deletion_at: existingPending[0].scheduled_deletion_at, deletion_mode: existingPending[0].deletion_mode });
       }
 
+      const policies = await getDeletionPolicies(base44);
+      const maxGraceDays = await getMaxGraceDays(base44, user, policies);
       const blockers = await runPreDeletionChecks(base44, user);
       const deletedItems = await buildDeletedItems(base44, user);
       const warnings = await buildWarnings(base44, user);
@@ -278,6 +324,9 @@ Deno.serve(async (req) => {
         eligible: blockers.length === 0,
         deleted_items: deletedItems,
         warnings,
+        max_grace_days: maxGraceDays,
+        available_modes: getAvailableModes(maxGraceDays),
+        policies,
       });
     }
 
@@ -289,6 +338,19 @@ Deno.serve(async (req) => {
       const existingPending = await safeFilter(base44, 'AccountDeletionRequest', { user_id: user.id, status: 'pending_deletion' });
       if (existingPending.length > 0) {
         return Response.json({ error: 'You already have a deletion scheduled. Restore your account first.' }, { status: 400 });
+      }
+
+      // Validate deletion_mode
+      const mode = body.deletion_mode || 'delayed_14';
+      if (!MODE_DELAY_DAYS.hasOwnProperty(mode)) {
+        return Response.json({ error: 'Invalid deletion mode.' }, { status: 400 });
+      }
+
+      // Validate mode is allowed for this user's plan
+      const policies = await getDeletionPolicies(base44);
+      const maxGraceDays = await getMaxGraceDays(base44, user, policies);
+      if (MODE_DELAY_DAYS[mode] > maxGraceDays) {
+        return Response.json({ error: 'Selected deletion delay exceeds your plan maximum of ' + maxGraceDays + ' days.' }, { status: 400 });
       }
 
       const blockers = await runPreDeletionChecks(base44, user);
@@ -306,6 +368,8 @@ Deno.serve(async (req) => {
         ip_address: getIp(),
         blocked_reasons_json: JSON.stringify(blockers),
         reason: body.reason || '',
+        deletion_mode: mode,
+        grace_period_days: MODE_DELAY_DAYS[mode],
       };
       let requestRec;
       if (existing.length > 0) {
@@ -315,10 +379,11 @@ Deno.serve(async (req) => {
       }
 
       try {
+        const modeLabel = mode === 'immediate' ? 'IMMEDIATE deletion (no recovery window)' : 'deletion in ' + MODE_DELAY_DAYS[mode] + ' days';
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: user.email,
           subject: 'EXECLEAD.AI — Account Deletion Verification Code',
-          body: 'Your verification code is: ' + code + '\n\nThis code expires in ' + CODE_EXPIRY_MINUTES + ' minutes.\n\nIf you did not request account deletion, please ignore this email and secure your account.',
+          body: 'Your verification code is: ' + code + '\n\nThis code expires in ' + CODE_EXPIRY_MINUTES + ' minutes.\n\nYou selected: ' + modeLabel + '.\n\nIf you did not request account deletion, please ignore this email and secure your account.',
         });
       } catch {}
 
@@ -332,10 +397,11 @@ Deno.serve(async (req) => {
         code_sent_to: maskEmail(user.email),
         deleted_items: deletedItems,
         warnings,
+        deletion_mode: mode,
       });
     }
 
-    // ---- verify_and_schedule: verify code + start 30-day grace period ----
+    // ---- verify_and_schedule: verify code + execute (immediate) or schedule (delayed) ----
     if (action === 'verify_and_schedule') {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -357,9 +423,41 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'Pre-deletion checks now failing. Resolve the blockers and try again.', blockers }, { status: 400 });
       }
 
+      const mode = delReq.deletion_mode || 'delayed_14';
+      const delayDays = MODE_DELAY_DAYS[mode] || 0;
       const now = new Date();
-      const scheduled = new Date(now.getTime() + GRACE_PERIOD_DAYS * 86400000);
-      const retentionExpires = new Date(now.getTime() + (GRACE_PERIOD_DAYS + RETENTION_YEARS * 365) * 86400000);
+
+      // ---- IMMEDIATE DELETION ----
+      if (mode === 'immediate') {
+        const summary = await deleteUserData(base44, user.id);
+        await base44.asServiceRole.entities.AccountDeletionRequest.update(delReq.id, {
+          status: 'completed',
+          completed_at: now.toISOString(),
+          scheduled_deletion_at: now.toISOString(),
+          retention_expires_at: new Date(now.getTime() + RETENTION_YEARS * 365 * 86400000).toISOString(),
+          deletion_summary_json: JSON.stringify(summary),
+          reason: body.reason || delReq.reason || '',
+          verification_code: '',
+        });
+
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: user.email,
+            subject: 'EXECLEAD.AI — Account Deleted',
+            body: 'Your account has been permanently deleted. All associated data has been removed.\n\nThis action was irreversible and cannot be undone.',
+          });
+        } catch {}
+
+        return Response.json({
+          deleted: true,
+          deletion_mode: 'immediate',
+          completed_at: now.toISOString(),
+        });
+      }
+
+      // ---- DELAYED DELETION ----
+      const scheduled = new Date(now.getTime() + delayDays * 86400000);
+      const retentionExpires = new Date(now.getTime() + (delayDays + RETENTION_YEARS * 365) * 86400000);
 
       await base44.asServiceRole.entities.AccountDeletionRequest.update(delReq.id, {
         status: 'pending_deletion',
@@ -373,13 +471,14 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: user.email,
           subject: 'EXECLEAD.AI — Account Deletion Scheduled',
-          body: 'Your account is scheduled for permanent deletion on ' + scheduled.toUTCString() + '.\n\nYou have ' + GRACE_PERIOD_DAYS + ' days to restore your account by logging in and selecting "Restore Account".\n\nAfter this period, all data will be permanently deleted.',
+          body: 'Your account is scheduled for permanent deletion on ' + scheduled.toUTCString() + '.\n\nYou have ' + delayDays + ' days to restore your account by logging in and selecting "Restore Account".\n\nAfter this period, all data will be permanently deleted.',
         });
       } catch {}
 
       return Response.json({
         scheduled_deletion_at: scheduled.toISOString(),
-        grace_period_days: GRACE_PERIOD_DAYS,
+        grace_period_days: delayDays,
+        deletion_mode: mode,
       });
     }
 
@@ -418,6 +517,54 @@ Deno.serve(async (req) => {
 
       const data = await exportUserData(base44, user);
       return Response.json({ data, exported_at: new Date().toISOString() });
+    }
+
+    // ---- admin_get_policies: get grace period config ----
+    if (action === 'admin_get_policies') {
+      const user = await base44.auth.me();
+      if (!user || (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'platform_admin')) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      const policies = await getDeletionPolicies(base44);
+      let configId = null;
+      try {
+        const configs = await safeFilter(base44, 'DeletionPolicyConfig', { is_active: true }, 1);
+        if (configs.length > 0) configId = configs[0].id;
+      } catch {}
+
+      return Response.json({ policies, config_id: configId, defaults: DEFAULT_POLICIES });
+    }
+
+    // ---- admin_update_policies: update grace period config ----
+    if (action === 'admin_update_policies') {
+      const user = await base44.auth.me();
+      if (!user || (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'platform_admin')) {
+        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      const fields = ['free_days', 'professional_days', 'executive_days', 'enterprise_default_days', 'enterprise_min_days', 'enterprise_max_days'];
+      const updates = { updated_by_name: user.full_name || user.email };
+      for (const f of fields) {
+        if (typeof body[f] === 'number' && body[f] >= 0) updates[f] = body[f];
+      }
+
+      // Validate enterprise bounds
+      if (updates.enterprise_min_days !== undefined && updates.enterprise_max_days !== undefined) {
+        if (updates.enterprise_min_days > updates.enterprise_max_days) {
+          return Response.json({ error: 'Enterprise min days cannot exceed max days.' }, { status: 400 });
+        }
+      }
+
+      const existing = await safeFilter(base44, 'DeletionPolicyConfig', { is_active: true }, 1);
+      let rec;
+      if (existing.length > 0) {
+        rec = await base44.asServiceRole.entities.DeletionPolicyConfig.update(existing[0].id, updates);
+      } else {
+        rec = await base44.asServiceRole.entities.DeletionPolicyConfig.create({ is_active: true, ...updates });
+      }
+
+      return Response.json({ policies: rec, updated: true });
     }
 
     // ---- admin_list: list all deletion requests (admin only) ----

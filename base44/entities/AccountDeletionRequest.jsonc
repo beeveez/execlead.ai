@@ -27,6 +27,20 @@
       ],
       "default": "verification_pending"
     },
+    "deletion_mode": {
+      "type": "string",
+      "enum": [
+        "immediate",
+        "delayed_14",
+        "delayed_30"
+      ],
+      "description": "User-selected deletion timing"
+    },
+    "grace_period_days": {
+      "type": "number",
+      "default": 0,
+      "description": "Grace period in days (0 for immediate)"
+    },
     "verification_code": {
       "type": "string",
       "description": "6-digit email verification code"
@@ -46,7 +60,7 @@
     "scheduled_deletion_at": {
       "type": "string",
       "format": "date-time",
-      "description": "30 days from request \u2014 grace period end"
+      "description": "When the account will be deleted (null for immediate)"
     },
     "completed_at": {
       "type": "string",

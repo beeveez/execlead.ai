@@ -10,6 +10,7 @@ import {
 import { LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
 import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
+import ScrollIndicator from "@/components/landing/ScrollIndicator";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { captureReferralAttribution } from "@/lib/referralEngine";
@@ -183,6 +184,14 @@ export default function Landing() {
           >
             From Classroom to Boardroom.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.7 }}
+          >
+            <ScrollIndicator targetSection="#features" />
+          </motion.div>
         </div>
       </section>
 

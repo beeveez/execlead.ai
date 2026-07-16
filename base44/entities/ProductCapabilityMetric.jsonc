@@ -2,6 +2,10 @@
   "name": "ProductCapabilityMetric",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "capability_id": {
       "type": "string",
       "description": "Capability ID from the Capability Registry"

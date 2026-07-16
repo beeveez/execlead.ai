@@ -2,6 +2,10 @@
   "name": "ModelRoutingEvent",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "intent": {
       "type": "string",
       "description": "Classified intent from AI Optimization Layer\u2122"

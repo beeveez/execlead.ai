@@ -2,6 +2,10 @@
   "name": "ProductInsight",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "insight_type": {
       "type": "string",
       "enum": [

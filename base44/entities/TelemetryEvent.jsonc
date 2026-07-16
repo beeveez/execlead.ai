@@ -2,6 +2,10 @@
   "name": "TelemetryEvent",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "event_type": {
       "type": "string",
       "description": "Type of telemetry event (navigation, search, button_click, ai_session, repair, error, etc.)"

@@ -2,6 +2,10 @@
   "name": "ConsentRecord",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "consent_type": {
       "type": "string",
       "enum": [

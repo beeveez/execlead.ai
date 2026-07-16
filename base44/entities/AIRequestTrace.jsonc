@@ -2,6 +2,10 @@
   "name": "AIRequestTrace",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "request_id": {
       "type": "string",
       "description": "Unique AI Request ID"

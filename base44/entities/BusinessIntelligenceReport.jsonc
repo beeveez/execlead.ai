@@ -2,6 +2,10 @@
   "name": "BusinessIntelligenceReport",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "period": {
       "type": "string",
       "description": "ISO week key e.g. 2026-W29"

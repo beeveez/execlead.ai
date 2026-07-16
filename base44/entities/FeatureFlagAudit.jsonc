@@ -2,6 +2,10 @@
   "name": "FeatureFlagAudit",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "flag_key": {
       "type": "string",
       "description": "Flag key that was changed"

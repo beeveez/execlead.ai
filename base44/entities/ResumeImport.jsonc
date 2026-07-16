@@ -2,6 +2,10 @@
   "name": "ResumeImport",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "file_url": {
       "type": "string",
       "description": "URL of the uploaded resume file"

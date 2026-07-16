@@ -2,6 +2,10 @@
   "name": "AIOptimizationEvent",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "request_text": {
       "type": "string",
       "description": "Original request text (truncated for storage)"

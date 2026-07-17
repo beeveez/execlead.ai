@@ -9,6 +9,53 @@
     "founding_member_number": {
       "type": "string"
     },
+    "founder_number": {
+      "type": "string",
+      "description": "Permanent Founder Identity Seal\u2122 number (e.g. FM-000001). Immutable \u2014 can never be edited, reassigned, or recycled."
+    },
+    "founder_rank": {
+      "type": "number",
+      "description": "Permanent founder rank (1 = first founder). Immutable."
+    },
+    "founder_since": {
+      "type": "number",
+      "description": "Year the founder joined (e.g. 2026). Immutable."
+    },
+    "lifetime_founder": {
+      "type": "boolean",
+      "default": false,
+      "description": "Permanent lifetime founder status \u2014 never expires"
+    },
+    "founding_member": {
+      "type": "boolean",
+      "default": false,
+      "description": "Confirmed founding member"
+    },
+    "human_founder": {
+      "type": "boolean",
+      "default": false,
+      "description": "Human founding member (not organizational)"
+    },
+    "founder_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Founder Identity Seal\u2122 \u2014 locks the entire founder record"
+    },
+    "identity_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Founder identity is permanently locked"
+    },
+    "certificate_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Founder certificate is permanently locked"
+    },
+    "founder_record_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Entire founder record is sealed \u2014 no modifications permitted"
+    },
     "user_id": {
       "type": "string"
     },
@@ -50,6 +97,10 @@
         "lifetime"
       ],
       "default": "active"
+    },
+    "founder_role": {
+      "type": "string",
+      "description": "Founder's role title (e.g. Founder & Chief Product Architect)"
     },
     "subscription_plan": {
       "type": "string",

@@ -620,6 +620,432 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'Invited to Executive Advisory Circle™' });
     }
 
+    // ============================================================
+    // ACTION: lifecycle_transition
+    // Transition a founder to a new lifecycle stage with full
+    // stage history tracking, audit logging, and workflow observability.
+    // ============================================================
+    if (action === 'lifecycle_transition') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const isAdmin = ['admin', 'developer', 'super_admin', 'platform_admin'].includes(user.role);
+
+      const { founding_member_id, new_stage, reason } = body;
+      if (!founding_member_id) return Response.json({ error: 'founding_member_id required' }, { status: 400 });
+      if (!new_stage) return Response.json({ error: 'new_stage required' }, { status: 400 });
+
+      const fm = await base44.asServiceRole.entities.FoundingMember.get(founding_member_id);
+      if (!fm) return Response.json({ error: 'Founding member not found' }, { status: 404 });
+
+      const oldStage = fm.current_stage || 'application';
+      const now = new Date().toISOString();
+
+      // Build stage history
+      let stageHistory = [];
+      try { stageHistory = JSON.parse(fm.stage_history_json || '[]'); } catch { stageHistory = []; }
+      stageHistory.push({
+        stage: oldStage,
+        entered_date: fm.entered_stage_date || fm.joined_date || now,
+        exited_date: now,
+      });
+
+      // Compute progress percentage based on stage
+      const STAGE_PROGRESS = {
+        application: 5, screening: 15, approval: 25, onboarding: 35,
+        beta_active: 50, contributor: 65, top_contributor: 80,
+        advisory_council: 90, general_availability: 95, lifetime_founder: 100,
+      };
+
+      const STAGE_NEXT_ACTION = {
+        application: 'Complete screening review',
+        screening: 'Admin reviews and approves application',
+        approval: 'Onboarding workflow executing',
+        onboarding: 'Founder activates account and starts using platform',
+        beta_active: 'Submit first idea or feedback to become a Contributor',
+        contributor: 'Increase contribution score to reach Top Contributor',
+        top_contributor: 'Awaiting Executive Advisory Circle invitation',
+        advisory_council: 'Participate in strategy surveys and prototype reviews',
+        general_availability: 'Continue engaging as a lifetime founder',
+        lifetime_founder: 'You are a Lifetime Founder — all benefits are permanent',
+      };
+
+      await base44.asServiceRole.entities.FoundingMember.update(founding_member_id, {
+        current_stage: new_stage,
+        entered_stage_date: now,
+        stage_history_json: JSON.stringify(stageHistory),
+        progress_percentage: STAGE_PROGRESS[new_stage] || 0,
+        next_recommended_action: STAGE_NEXT_ACTION[new_stage] || '',
+      });
+
+      // Log audit
+      await logAudit(base44, {
+        founding_member_id: fm.id,
+        founding_member_number: fm.founding_member_number,
+        user_id: fm.user_id,
+        member_name: fm.full_name,
+        action: 'status_changed',
+        description: `Lifecycle transition: ${oldStage} → ${new_stage}. Reason: ${reason || 'Automatic progression'}. Progress: ${STAGE_PROGRESS[new_stage] || 0}%.`,
+        performed_by: user.id,
+        performed_by_name: user.email || 'System',
+        metadata: { old_stage: oldStage, new_stage, reason, progress: STAGE_PROGRESS[new_stage] || 0 },
+      });
+
+      return Response.json({
+        success: true,
+        old_stage: oldStage,
+        new_stage,
+        progress_percentage: STAGE_PROGRESS[new_stage] || 0,
+        next_action: STAGE_NEXT_ACTION[new_stage] || '',
+      });
+    }
+
+    // ============================================================
+    // ACTION: get_health_score
+    // Compute Founder Health Score from engagement metrics.
+    // ============================================================
+    if (action === 'get_health_score') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const targetUserId = body.user_id || user.id;
+
+      const [fmRecords, feedback, betaFeedback, profile] = await Promise.all([
+        base44.asServiceRole.entities.FoundingMember.filter({ user_id: targetUserId }),
+        base44.asServiceRole.entities.Feedback.filter({ created_by_id: targetUserId }),
+        base44.asServiceRole.entities.BetaFeedback.filter({ user_id: targetUserId }),
+        base44.asServiceRole.entities.UserProfile.filter({ created_by_id: targetUserId }),
+      ]);
+
+      const fm = fmRecords[0];
+      const userProfile = profile[0];
+      if (!fm) return Response.json({ error: 'Founding member not found' }, { status: 404 });
+
+      // Activity score
+      let activityScore = 0;
+      if (userProfile?.updated_date) {
+        const daysSince = (Date.now() - new Date(userProfile.updated_date).getTime()) / (24 * 60 * 60 * 1000);
+        if (daysSince <= 1) activityScore = 100;
+        else if (daysSince <= 7) activityScore = 80;
+        else if (daysSince <= 14) activityScore = 60;
+        else if (daysSince <= 30) activityScore = 40;
+        else if (daysSince <= 60) activityScore = 20;
+        else activityScore = 0;
+      }
+
+      const feedbackCount = (fm.feedback_submitted || 0) + (fm.accepted_suggestions || 0);
+      const feedbackScore = Math.min(100, feedbackCount * 20);
+      const votesScore = Math.min(100, (fm.votes_cast || 0) * 10);
+      const aiScore = Math.min(100, (fm.feedback_sessions_attended || 0) * 25);
+      const moduleScore = Math.min(100, (fm.early_access_modules?.length || 0) * 15 + (fm.community_connections || 0) * 5);
+      const communityScore = Math.min(100, (fm.community_posts || 0) * 10 + (fm.community_comments || 0) * 5 + (fm.community_connections || 0) * 3);
+
+      const score = Math.round(
+        (activityScore * 25 + feedbackScore * 15 + votesScore * 10 + aiScore * 20 + moduleScore * 15 + communityScore * 15) / 100
+      );
+      const healthStatus = score >= 70 ? 'healthy' : score >= 30 ? 'at_risk' : 'inactive';
+
+      // Update the founding member record with health data
+      await base44.asServiceRole.entities.FoundingMember.update(fm.id, {
+        health_score: score,
+        health_status: healthStatus,
+        health_checked_at: new Date().toISOString(),
+      });
+
+      return Response.json({
+        score,
+        status: healthStatus,
+        breakdown: {
+          activity: { score: activityScore, label: 'Recent Activity' },
+          feedback: { score: feedbackScore, label: 'Feedback & Ideas' },
+          votes: { score: votesScore, label: 'Community Votes' },
+          ai_sessions: { score: aiScore, label: 'AI Sessions' },
+          module_usage: { score: moduleScore, label: 'Feature Adoption' },
+          community: { score: communityScore, label: 'Community Engagement' },
+        },
+      });
+    }
+
+    // ============================================================
+    // ACTION: anniversary_check
+    // Scheduled action — checks for founder anniversaries and
+    // sends personalized recognition messages.
+    // ============================================================
+    if (action === 'anniversary_check') {
+      // This is called by scheduled automation — use service role
+      const members = await base44.asServiceRole.entities.FoundingMember.list('-created_date', 100000);
+      const today = new Date();
+      const todayMonth = today.getMonth() + 1;
+      const todayDate = today.getDate();
+      let recognized = 0;
+
+      for (const fm of members) {
+        if (!fm.joined_date || fm.status !== 'active') continue;
+        const joinDate = new Date(fm.joined_date);
+        const yearsElapsed = today.getFullYear() - joinDate.getFullYear();
+
+        // Check if it's the anniversary month/day
+        if (joinDate.getMonth() + 1 === todayMonth && joinDate.getDate() === todayDate && yearsElapsed >= 1) {
+          // Check if we already recognized this anniversary
+          const lastAnniversaryYear = fm.last_anniversary_date
+            ? new Date(fm.last_anniversary_date).getFullYear()
+            : null;
+          if (lastAnniversaryYear === today.getFullYear()) continue;
+
+          await base44.asServiceRole.entities.FoundingMember.update(fm.id, {
+            anniversary_count: (fm.anniversary_count || 0) + 1,
+            last_anniversary_date: today.toISOString().split('T')[0],
+          });
+
+          // Log audit
+          await logAudit(base44, {
+            founding_member_id: fm.id,
+            founding_member_number: fm.founding_member_number,
+            user_id: fm.user_id,
+            member_name: fm.full_name,
+            action: 'benefit_granted',
+            description: `${yearsElapsed} year anniversary recognized. Founder #${fm.founding_member_number}. Contribution: ${fm.feedback_submitted || 0} ideas, ${fm.votes_cast || 0} votes, ${fm.implemented_ideas || 0} ideas implemented.`,
+            performed_by: '',
+            performed_by_name: 'Anniversary Automation',
+            metadata: { years: yearsElapsed, anniversary_count: (fm.anniversary_count || 0) + 1 },
+          });
+
+          // Send anniversary email
+          if (fm.email) {
+            try {
+              await base44.integrations.Core.SendEmail({
+                to: fm.email,
+                subject: `🎂 Happy ${yearsElapsed} Year Anniversary, Founder #${fm.founding_member_number}! — EXECLEAD.AI`,
+                body: `Hi ${fm.full_name || 'there'},\n\nHappy ${yearsElapsed} year anniversary as a Founding Member of EXECLEAD.AI!\n\n══════════════════════════════════\n  FOUNDER ANNIVERSARY REPORT\n══════════════════════════════════\n\n  Founder Number: ${fm.founding_member_number}\n  Years as Founder: ${yearsElapsed}\n  Joined: ${fm.joined_date}\n  Status: ${fm.status}\n\n  Your Contributions:\n  • Ideas Submitted: ${fm.feedback_submitted || 0}\n  • Ideas Accepted: ${fm.accepted_suggestions || 0}\n  • Ideas Implemented: ${fm.implemented_ideas || 0}\n  • Votes Cast: ${fm.votes_cast || 0}\n  • Community Posts: ${fm.community_posts || 0}\n  • Referrals: ${fm.referrals_count || 0}\n\nThank you for being an integral part of the EXECLEAD.AI community. Your contributions have helped shape the platform into what it is today.\n\n— The EXECLEAD.AI Team`,
+                from_name: 'EXECLEAD.AI',
+              });
+            } catch (e) {}
+          }
+
+          // Send in-app notification
+          if (fm.user_id) {
+            try {
+              await base44.asServiceRole.entities.Notification.create({
+                type: 'subscription',
+                title: `🎂 ${yearsElapsed} Year Anniversary!`,
+                message: `Happy anniversary! You've been a Founding Member for ${yearsElapsed} year(s). Thank you for your contributions!`,
+                icon: '🎂',
+                action_url: '/founder-dashboard',
+                user_id: fm.user_id,
+                organization_id: '',
+                workspace: 'executive',
+                visibility: 'private',
+                role_scope: '',
+                read: false,
+              });
+            } catch (e) {}
+          }
+
+          recognized++;
+        }
+      }
+
+      return Response.json({ success: true, recognized, checked: members.length });
+    }
+
+    // ============================================================
+    // ACTION: ga_transition
+    // Transition all founders to General Availability stage.
+    // Maintains badge, pricing, status, and history.
+    // ============================================================
+    if (action === 'ga_transition') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const isSuperAdmin = ['super_admin', 'platform_admin', 'admin', 'developer'].includes(user.role);
+      if (!isSuperAdmin) return Response.json({ error: 'Admin access required' }, { status: 403 });
+
+      const members = await base44.asServiceRole.entities.FoundingMember.filter({ ga_transitioned: false });
+      const today = new Date().toISOString().split('T')[0];
+      let transitioned = 0;
+
+      for (const fm of members) {
+        if (fm.status !== 'active') continue;
+
+        await base44.asServiceRole.entities.FoundingMember.update(fm.id, {
+          ga_transitioned: true,
+          ga_transitioned_date: today,
+          current_stage: 'general_availability',
+          progress_percentage: 95,
+          next_recommended_action: 'Continue engaging as a lifetime founder',
+          // All benefits are PRESERVED — no changes to:
+          // badge_status, protected_pricing, lifetime_discount_enabled,
+          // beta_access, early_access_enabled, community_access
+        });
+
+        await logAudit(base44, {
+          founding_member_id: fm.id,
+          founding_member_number: fm.founding_member_number,
+          user_id: fm.user_id,
+          member_name: fm.full_name,
+          action: 'status_changed',
+          description: `GA Transition: Founder transitioned to General Availability. All benefits preserved (badge, pricing, status, history).`,
+          performed_by: user.id,
+          performed_by_name: user.email || 'Admin',
+          metadata: { ga_transitioned: true, benefits_preserved: true },
+        });
+
+        // Send GA notification email
+        if (fm.email) {
+          try {
+            await base44.integrations.Core.SendEmail({
+              to: fm.email,
+              subject: `🚀 EXECLEAD.AI is now Generally Available! — Founder #${fm.founding_member_number}`,
+              body: `Hi ${fm.full_name || 'there'},\n\nEXECLEAD.AI has officially transitioned from Beta to General Availability!\n\nAs a Founding Member, ALL your benefits are preserved:\n  ✓ Lifetime Founding Member Badge\n  ✓ ${fm.lifetime_discount_percentage || 25}% Lifetime Discount (price-protected)\n  ✓ Early Access to features\n  ✓ Founder Community access\n  ✓ All history and timeline preserved\n\nThank you for being part of the founding chapter. Your contributions helped shape this platform.\n\n— The EXECLEAD.AI Team`,
+              from_name: 'EXECLEAD.AI',
+            });
+          } catch (e) {}
+        }
+
+        transitioned++;
+      }
+
+      return Response.json({
+        success: true,
+        transitioned,
+        total_checked: members.length,
+        message: 'GA transition complete — all founder benefits preserved',
+      });
+    }
+
+    // ============================================================
+    // ACTION: get_executive_analytics
+    // Returns comprehensive executive analytics for the founder program.
+    // ============================================================
+    if (action === 'get_executive_analytics') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const isAdmin = ['admin', 'developer', 'super_admin', 'platform_admin'].includes(user.role);
+      if (!isAdmin) return Response.json({ error: 'Admin access required' }, { status: 403 });
+
+      const [members, feedback, betaFeedback, auditLogs, bugs] = await Promise.all([
+        base44.asServiceRole.entities.FoundingMember.list('-created_date', 100000),
+        base44.asServiceRole.entities.Feedback.filter({ type: 'idea' }),
+        base44.asServiceRole.entities.BetaFeedback.list('-created_date', 500),
+        base44.asServiceRole.entities.FoundingMemberAuditLog.list('-created_date', 500),
+        base44.asServiceRole.entities.Feedback.filter({ type: 'bug' }),
+      ]);
+
+      const now = Date.now();
+      const active = members.filter((m) => m.status === 'active');
+
+      // Growth by month
+      const monthMap = {};
+      members.forEach((m) => { if (m.joined_date) { const mo = m.joined_date.substring(0, 7); monthMap[mo] = (monthMap[mo] || 0) + 1; } });
+      const growth = Object.entries(monthMap).map(([month, count]) => ({ month, count })).sort((a, b) => a.month.localeCompare(b.month));
+
+      const activated = members.filter((m) => m.badge_status === 'granted').length;
+      const activationRate = members.length > 0 ? Math.round((activated / members.length) * 100) : 0;
+
+      const weeklyActive = active.filter((m) => {
+        const d = m.health_checked_at || m.entered_stage_date || m.joined_date;
+        return d && (now - new Date(d).getTime()) <= 7 * 24 * 60 * 60 * 1000;
+      }).length;
+
+      const monthlyActive = active.filter((m) => {
+        const d = m.health_checked_at || m.entered_stage_date || m.joined_date;
+        return d && (now - new Date(d).getTime()) <= 30 * 24 * 60 * 60 * 1000;
+      }).length;
+
+      const over30 = members.filter((m) => m.joined_date && (now - new Date(m.joined_date).getTime()) > 30 * 24 * 60 * 60 * 1000);
+      const retained30 = over30.filter((m) => m.status === 'active').length;
+      const retentionRate = over30.length > 0 ? Math.round((retained30 / over30.length) * 100) : 100;
+
+      const recentFeedback = feedback.filter((f) => f.created_date && (now - new Date(f.created_date).getTime()) <= 30 * 24 * 60 * 60 * 1000).length;
+      const resolvedBugs = bugs.filter((b) => b.status === 'resolved' || b.status === 'closed').length;
+      const bugResolutionRate = bugs.length > 0 ? Math.round((resolvedBugs / bugs.length) * 100) : 100;
+
+      const acceptedIdeas = feedback.filter((f) => ['planned', 'in_development', 'testing', 'ready_for_release', 'released'].includes(f.roadmap_stage)).length;
+      const ideaAcceptanceRate = feedback.length > 0 ? Math.round((acceptedIdeas / feedback.length) * 100) : 0;
+
+      const npsScores = betaFeedback.filter((b) => b.would_recommend != null).map((b) => b.would_recommend);
+      const avgSatisfaction = npsScores.length > 0 ? Math.round((npsScores.reduce((s, n) => s + n, 0) / npsScores.length) * 10) / 10 : 0;
+
+      const advisoryCount = members.filter((m) => m.founding_tier === 'advisory_council').length;
+
+      // Lifecycle distribution
+      const stageDist = {};
+      members.forEach((m) => { const s = m.current_stage || 'application'; stageDist[s] = (stageDist[s] || 0) + 1; });
+
+      // Health distribution
+      const healthDist = { healthy: 0, at_risk: 0, inactive: 0 };
+      members.forEach((m) => { const h = m.health_status || 'healthy'; healthDist[h] = (healthDist[h] || 0) + 1; });
+
+      return Response.json({
+        summary: {
+          totalFounders: members.length,
+          activeFounders: active.length,
+          activationRate,
+          weeklyActive,
+          monthlyActive,
+          retentionRate,
+          feedbackVelocity: recentFeedback,
+          bugResolutionRate,
+          ideaAcceptanceRate,
+          avgSatisfaction,
+          advisoryParticipation: advisoryCount,
+        },
+        growth,
+        lifecycle: Object.entries(stageDist).map(([stage, count]) => ({ stage, count })),
+        health: healthDist,
+        metrics: {
+          totalIdeas: feedback.length,
+          acceptedIdeas,
+          totalBugs: bugs.length,
+          resolvedBugs,
+          totalAuditEntries: auditLogs.length,
+        },
+      });
+    }
+
+    // ============================================================
+    // ACTION: get_workflow_stats
+    // Returns workflow observability metrics for the monitoring dashboard.
+    // ============================================================
+    if (action === 'get_workflow_stats') {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const logs = await base44.asServiceRole.entities.WorkflowExecutionLog.list('-created_date', 500);
+      const completed = logs.filter((l) => l.status === 'completed');
+      const failed = logs.filter((l) => l.status === 'failed');
+      const running = logs.filter((l) => l.status === 'running');
+      const retrying = logs.filter((l) => l.status === 'retrying');
+      const deadLetter = logs.filter((l) => l.status === 'dead_letter');
+
+      const totalDuration = completed.reduce((s, l) => s + (l.duration_ms || 0), 0);
+      const avgDuration = completed.length > 0 ? Math.round(totalDuration / completed.length) : 0;
+      const failureRate = logs.length > 0 ? Math.round((failed.length / logs.length) * 100) : 0;
+      const healthPercentage = logs.length > 0 ? Math.round((completed.length / logs.length) * 100) : 100;
+
+      const byType = {};
+      logs.forEach((l) => {
+        if (!byType[l.workflow_type]) byType[l.workflow_type] = { total: 0, completed: 0, failed: 0 };
+        byType[l.workflow_type].total++;
+        if (l.status === 'completed') byType[l.workflow_type].completed++;
+        if (l.status === 'failed') byType[l.workflow_type].failed++;
+      });
+
+      return Response.json({
+        total: logs.length,
+        completed: completed.length,
+        failed: failed.length,
+        running: running.length,
+        retrying: retrying.length,
+        deadLetter: deadLetter.length,
+        avgDurationMs: avgDuration,
+        failureRate,
+        healthPercentage,
+        byType: Object.entries(byType).map(([type, s]) => ({
+          type, ...s,
+          successRate: s.total > 0 ? Math.round((s.completed / s.total) * 100) : 0,
+        })),
+      });
+    }
+
     return Response.json({ error: 'Unknown action: ' + action }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -118,6 +118,13 @@
       "type": "string",
       "format": "date"
     },
+    "verification_token": {
+      "type": "string",
+      "description": "Unique verification token for certificate verification"
+    },
+    "verification_url": {
+      "type": "string"
+    },
     "founding_wallet": {
       "type": "number",
       "default": 0
@@ -165,10 +172,179 @@
     "feedback_submitted": {
       "type": "number",
       "default": 0
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": [
+        "application",
+        "screening",
+        "approval",
+        "onboarding",
+        "beta_active",
+        "contributor",
+        "top_contributor",
+        "advisory_council",
+        "general_availability",
+        "lifetime_founder"
+      ],
+      "default": "application",
+      "description": "Current lifecycle stage in the Founding Member Lifecycle Engine\u2122"
+    },
+    "entered_stage_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the founder entered the current lifecycle stage"
+    },
+    "stage_history_json": {
+      "type": "string",
+      "description": "JSON array of { stage, entered_date, exited_date } lifecycle transitions"
+    },
+    "progress_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Lifecycle progress 0-100"
+    },
+    "next_recommended_action": {
+      "type": "string",
+      "description": "AI-recommended next action for lifecycle progression"
+    },
+    "health_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Founder Health Score 0-100"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "at_risk",
+        "inactive"
+      ],
+      "default": "healthy"
+    },
+    "health_checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "anniversary_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_anniversary_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "ga_transitioned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the founder has been transitioned to General Availability"
+    },
+    "ga_transitioned_date": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [
     "founding_member_number",
     "user_id"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
 }

@@ -92,6 +92,7 @@ import FounderTimeline from '@/pages/founder/FounderTimeline';
 import FounderSettings from '@/pages/founder/FounderSettings';
 import FounderTimeCapsule from '@/pages/founder/FounderTimeCapsule';
 import FounderFeedbackCenter from '@/pages/founder/FounderFeedbackCenter';
+import FounderLifecycleDashboard from '@/pages/founder/FounderLifecycleDashboard';
 import LegacyLibrary from '@/pages/legacy/LegacyLibrary';
 import LegacyLetterDetail from '@/pages/legacy/LegacyLetterDetail';
 import LegacyLetterEditor from '@/pages/legacy/LegacyLetterEditor';
@@ -369,6 +370,7 @@ const AuthenticatedApp = () => {
             <Route path="/founder/settings" element={<FounderSettings />} />
             <Route path="/founder/time-capsule" element={<FounderTimeCapsule />} />
             <Route path="/founder/feedback" element={<FounderFeedbackCenter />} />
+            <Route path="/founder/lifecycle" element={<FounderLifecycleDashboard />} />
           </Route>
           <Route element={<NetworkLayout />}>
             <Route path="/network" element={<NetworkFeed />} />

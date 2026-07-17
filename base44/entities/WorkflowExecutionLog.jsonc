@@ -1,0 +1,159 @@
+{
+  "name": "WorkflowExecutionLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "workflow_id": {
+      "type": "string",
+      "description": "Unique workflow execution ID"
+    },
+    "workflow_type": {
+      "type": "string",
+      "enum": [
+        "approve_founder",
+        "suspend_founder",
+        "restore_founder",
+        "revoke_founder",
+        "lifecycle_transition",
+        "anniversary_recognition",
+        "ga_transition",
+        "advisory_invite",
+        "idea_accepted",
+        "feature_released"
+      ],
+      "description": "Type of workflow executed"
+    },
+    "target_user_id": {
+      "type": "string"
+    },
+    "target_member_id": {
+      "type": "string",
+      "description": "FoundingMember record ID"
+    },
+    "target_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "completed",
+        "failed",
+        "retrying",
+        "dead_letter"
+      ],
+      "default": "running",
+      "description": "Workflow execution status"
+    },
+    "steps_total": {
+      "type": "number",
+      "default": 0
+    },
+    "steps_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "steps_failed": {
+      "type": "number",
+      "default": 0
+    },
+    "completed_steps_json": {
+      "type": "string",
+      "description": "JSON array of completed step names with timestamps"
+    },
+    "failed_steps_json": {
+      "type": "string",
+      "description": "JSON array of failed step names with error messages"
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "max_retries": {
+      "type": "number",
+      "default": 3
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Prevents duplicate workflow executions for the same logical action"
+    },
+    "triggered_by": {
+      "type": "string",
+      "description": "automation, admin, system, scheduled"
+    },
+    "triggered_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "workflow_id",
+    "workflow_type"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.target_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

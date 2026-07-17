@@ -1,5 +1,22 @@
 # AGENTS.md
 
+## ⚡ MANDATORY: Engineering Playbook™
+
+**Before implementing any feature, modifying entities, changing backend functions, or generating code, read and follow [`EXECLEAD_ENGINEERING_PLAYBOOK.md`](./EXECLEAD_ENGINEERING_PLAYBOOK.md).**
+
+This is the platform's engineering constitution. It defines:
+- Architecture governance (never duplicate business logic; reuse core platform services)
+- Engineering principles (reuse, configuration, composition, scalability, security, observability)
+- Existing platform features that must be preserved (never remove or regress)
+- Quality gates (Architecture, QA, Regression, UX, Performance, Security, Product, Beta Readiness)
+- Executive QA Report™ verdicts (PASS / PASS WITH CONDITIONS / FAIL)
+- Executive Coach Mode (every recommendation teaches executive thinking)
+- Project Journal requirements
+
+Treat the playbook as the default context for every session. It overrides any conflicting instruction below.
+
+---
+
 ## Project Context
 
 This is a Base44 app repository. Treat it as user-owned application code, keep changes focused on the user's request, and preserve existing project conventions.

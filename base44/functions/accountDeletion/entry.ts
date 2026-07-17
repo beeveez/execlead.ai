@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 const RETENTION_YEARS = 7;
 const CODE_EXPIRY_MINUTES = 10;
@@ -25,6 +25,12 @@ function maskEmail(email) {
   const [local, domain] = email.split('@');
   const masked = local.length > 2 ? local[0] + '***' + local[local.length - 1] : '***';
   return masked + '@' + domain;
+}
+
+async function hashCode(code) {
+  const data = new TextEncoder().encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 async function safeFilter(base44, entityName, filterObj, limit) {
@@ -354,7 +360,8 @@ Deno.serve(async (req) => {
       }
 
       const blockers = await runPreDeletionChecks(base44, user);
-      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+      const codeHash = await hashCode(code);
       const expires = new Date(Date.now() + CODE_EXPIRY_MINUTES * 60000).toISOString();
 
       const existing = await safeFilter(base44, 'AccountDeletionRequest', { user_id: user.id, status: 'verification_pending' });
@@ -362,7 +369,7 @@ Deno.serve(async (req) => {
         user_email: user.email,
         user_name: user.full_name,
         status: 'verification_pending',
-        verification_code: code,
+        verification_code: codeHash,
         verification_code_expires: expires,
         requested_at: new Date().toISOString(),
         ip_address: getIp(),
@@ -411,7 +418,8 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'No pending verification. Please start again.' }, { status: 400 });
       }
       const delReq = requests[0];
-      if (!delReq.verification_code || delReq.verification_code !== body.code) {
+      const inputHash = await hashCode(body.code);
+      if (!delReq.verification_code || delReq.verification_code !== inputHash) {
         return Response.json({ error: 'Invalid verification code.' }, { status: 400 });
       }
       if (new Date(delReq.verification_code_expires) < new Date()) {
@@ -620,6 +628,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ error: 'Unknown action: ' + (action || 'none') }, { status: 400 });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('accountDeletion error:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

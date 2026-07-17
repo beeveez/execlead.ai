@@ -30,7 +30,15 @@ function maskPhone(phone) {
 }
 
 function generateOtp() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return String(100000 + (arr[0] % 900000));
+}
+
+async function hashOtp(code) {
+  const data = new TextEncoder().encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function recalculateTrust(v) {
@@ -93,6 +101,13 @@ Deno.serve(async (req) => {
       const requestedMethod = body.method || 'email';
       const smsProvider = detectSmsProvider();
       let deliveryMethod = requestedMethod === 'sms' && smsProvider.configured ? 'sms' : 'email';
+
+      // Rate limit: max 5 OTP requests per hour per user
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const recentOtps = await base44.entities.OtpActivityLog.filter({ created_date: { $gte: oneHourAgo } });
+      if (recentOtps.length >= 5) {
+        return Response.json({ status: 'error', message: 'Too many OTP requests. Please try again later.' }, { status: 429 });
+      }
 
       if (requestedMethod === 'sms' && !smsProvider.configured) {
         await base44.entities.OtpActivityLog.create({
@@ -176,8 +191,9 @@ Deno.serve(async (req) => {
         });
       }
 
+      const otpHash = await hashOtp(otpCode);
       await base44.entities.IdentityVerification.update(verification.id, {
-        phone_otp_code: otpCode,
+        phone_otp_code: otpHash,
         phone_otp_expires: expires,
         phone_otp_attempts: 0,
         phone_otp_method: deliveryMethod,
@@ -219,14 +235,14 @@ Deno.serve(async (req) => {
 
       if (!verification) return Response.json({ error: 'Verification record not found' }, { status: 404 });
 
-      const storedCode = verification.phone_otp_code;
+      const storedHash = verification.phone_otp_code;
       const expires = verification.phone_otp_expires;
       const attempts = (verification.phone_otp_attempts || 0) + 1;
       const method = verification.phone_otp_method || 'email';
       const provider = method === 'sms' ? (detectSmsProvider().provider || 'sms') : 'email';
       const masked = maskPhone(verification.phone_number || '');
 
-      if (!storedCode) {
+      if (!storedHash) {
         return Response.json({ status: 'error', message: 'No OTP requested. Please request a new code.' }, { status: 400 });
       }
 
@@ -248,7 +264,8 @@ Deno.serve(async (req) => {
         return Response.json({ status: 'error', message: 'Too many attempts. Please request a new OTP.' }, { status: 429 });
       }
 
-      if (storedCode !== otpCode) {
+      const inputHash = await hashOtp(otpCode);
+      if (storedHash !== inputHash) {
         await base44.entities.IdentityVerification.update(verification.id, { phone_otp_attempts: attempts });
         await base44.entities.OtpActivityLog.create({
           user_id: user.id, user_name: verification.user_name,
@@ -336,6 +353,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ error: 'Invalid action. Use check_status, send_otp, verify_otp, diagnostics, or get_logs.' }, { status: 400 });
   } catch (error) {
-    return Response.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    console.error('managePhoneOtp error:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

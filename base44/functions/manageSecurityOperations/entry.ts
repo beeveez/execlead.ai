@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 const ADMIN_ROLES = ['admin', 'super_admin', 'platform_admin'];
 
@@ -50,8 +50,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Log a security event — available to all authenticated users
+    // Log a security event — admin only (prevents log injection by regular users)
     if (action === 'log_event') {
+      if (!ADMIN_ROLES.includes(user.role)) {
+        return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
+      }
       const { eventType, severity, description, actionTaken, metadata } = body;
       if (!eventType || !description) {
         return Response.json({ error: 'eventType and description are required' }, { status: 400 });
@@ -138,6 +141,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('manageSecurityOperations error:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

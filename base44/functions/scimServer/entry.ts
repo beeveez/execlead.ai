@@ -39,15 +39,28 @@ function scimJson(data, status = 200) {
     status,
     headers: {
       'Content-Type': 'application/scim+json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
     },
   });
 }
 
 function scimErr(status, detail) {
   return scimJson({ schemas: [SCIM_ERROR], status, detail }, status);
+}
+
+async function safeTokenCompare(a, b) {
+  if (!a || !b) return false;
+  const enc = new TextEncoder();
+  const [hashA, hashB] = await Promise.all([
+    crypto.subtle.digest('SHA-256', enc.encode(a)),
+    crypto.subtle.digest('SHA-256', enc.encode(b)),
+  ]);
+  const arrA = new Uint8Array(hashA);
+  const arrB = new Uint8Array(hashB);
+  let result = 0;
+  for (let i = 0; i < arrA.length; i++) {
+    result |= arrA[i] ^ arrB[i];
+  }
+  return result === 0;
 }
 
 async function logEvent(base44, provider, eventType, status, msg, users = 0, severity = 'info') {
@@ -96,14 +109,7 @@ function toScimGroup(g) {
 Deno.serve(async (req) => {
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-      },
-    });
+    return new Response(null, { status: 204 });
   }
 
   try {
@@ -166,7 +172,7 @@ Deno.serve(async (req) => {
     for (const p of providers) {
       try {
         const config = JSON.parse(p.config_json || '{}');
-        if (config.scim_token === token) { provider = p; break; }
+        if (await safeTokenCompare(config.scim_token, token)) { provider = p; break; }
       } catch {}
     }
     if (!provider) return scimErr(401, 'Invalid bearer token');
@@ -189,7 +195,7 @@ Deno.serve(async (req) => {
     return scimErr(404, `Unknown resource type: ${resourceType}`);
   } catch (error) {
     console.error('SCIM server error:', error);
-    return scimErr(500, error.message || 'Internal server error');
+      return scimErr(500, 'Internal server error');
   }
 });
 
@@ -261,6 +267,13 @@ async function handleUsers(req, base44, provider, resourceId, url) {
 
     let users = await base44.asServiceRole.entities.User.list('-created_date', count);
 
+    // Scope to provider's organization only — prevent cross-tenant data access
+    const orgProfiles = await base44.asServiceRole.entities.UserProfile.filter(
+      { organization_id: provider.organization_id }, '-created_date', 500
+    );
+    const orgUserIds = new Set(orgProfiles.map(p => p.created_by_id));
+    users = users.filter(u => orgUserIds.has(u.id));
+
     // Basic SCIM filter (userName eq "x" or emails.value eq "x")
     if (filter) {
       const m = filter.match(/(\w+(?:\.\w+)?)\s+eq\s+"(.+?)"/);
@@ -287,7 +300,11 @@ async function handleUsers(req, base44, provider, resourceId, url) {
   // GET /Users/{id}
   if (method === 'GET' && resourceId) {
     const users = await base44.asServiceRole.entities.User.list('-created_date', 200);
-    const user = users.find(u => u.id === resourceId);
+       const orgProfiles = await base44.asServiceRole.entities.UserProfile.filter(
+         { organization_id: provider.organization_id }, '-created_date', 500
+       );
+       const orgUserIds = new Set(orgProfiles.map(p => p.created_by_id));
+       const user = users.find(u => u.id === resourceId && orgUserIds.has(u.id));
     if (!user) return scimErr(404, `User ${resourceId} not found`);
     return scimJson(toScimUser(user));
   }

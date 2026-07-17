@@ -73,6 +73,7 @@ export default function ExecMessageBubble({ message }) {
             ) : (
               <ReactMarkdown
                 key={i}
+                skipHtml
                 components={markdownComponents}
                 className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:font-semibold"
               >

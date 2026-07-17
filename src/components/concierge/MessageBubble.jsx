@@ -10,7 +10,7 @@ export default function MessageBubble({ message }) {
         {message.content && (
           isUser
             ? <p className="text-sm text-white/90 whitespace-pre-wrap">{message.content}</p>
-            : <ReactMarkdown className="text-sm text-white/80 prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">{message.content}</ReactMarkdown>
+            : <ReactMarkdown skipHtml className="text-sm text-white/80 prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">{message.content}</ReactMarkdown>
         )}
         {message.tool_calls?.map((tc, i) => <ToolCallDisplay key={i} toolCall={tc} />)}
       </div>

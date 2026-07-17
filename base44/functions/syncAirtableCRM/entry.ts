@@ -191,6 +191,7 @@ Deno.serve(async (req) => {
 
   // Resolve the user_id from either a manual invocation or an entity automation payload
   let userId = body.user_id;
+  const isManualInvocation = !!body.user_id;
   if (!userId) {
     if (event?.entity_name === "User") {
       userId = event.entity_id;
@@ -201,6 +202,16 @@ Deno.serve(async (req) => {
 
   if (!userId) {
     return Response.json({ error: "No user_id could be resolved from the payload" }, { status: 400 });
+  }
+
+  // For manual invocations (body.user_id set), verify caller is the user or an admin
+  if (isManualInvocation) {
+    const caller = await base44.auth.me();
+    if (!caller) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const ADMIN_ROLES = ["admin", "super_admin", "platform_admin", "developer"];
+    if (caller.id !== userId && !ADMIN_ROLES.includes(caller.role)) {
+      return Response.json({ error: "Forbidden — cannot sync another user's data" }, { status: 403 });
+    }
   }
 
   const syncT0 = performance.now();
@@ -239,6 +250,7 @@ Deno.serve(async (req) => {
     } catch {
       // Schema/Airtable unreachable — nothing more we can do
     }
-    return Response.json({ error: error.message, userId, durationMs: duration }, { status: 500 });
+    console.error("syncAirtableCRM error:", error);
+    return Response.json({ error: "Internal server error", userId, durationMs: duration }, { status: 500 });
   }
 });

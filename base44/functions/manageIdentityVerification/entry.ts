@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 const ADMIN_ROLES = ['admin', 'super_admin', 'platform_admin', 'support'];
 const ENTERPRISE_ADMIN_ROLES = ['enterprise_admin', 'organization_owner', 'super_admin', 'platform_admin'];
@@ -202,6 +202,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('manageIdentityVerification error:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

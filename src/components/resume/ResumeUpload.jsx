@@ -1,14 +1,21 @@
 import React, { useRef, useState } from "react";
-import { FileText, Loader2, FileUp } from "lucide-react";
+import { FileText, Loader2, FileUp, AlertCircle } from "lucide-react";
+import { validateFileUpload } from "@/lib/fileUploadSecurity";
 
 export default function ResumeUpload({ onUpload, uploading, versions, selectedId, onSelect }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const handleFile = (file) => {
-    if (file && file.name.match(/\.(pdf|docx?|PDF|DOCX?)$/)) {
-      onUpload(file);
+    setUploadError("");
+    if (!file) return;
+    const validation = validateFileUpload(file);
+    if (!validation.valid) {
+      setUploadError(validation.error);
+      return;
     }
+    onUpload(file);
   };
 
   return (
@@ -27,6 +34,12 @@ export default function ResumeUpload({ onUpload, uploading, versions, selectedId
             <p className="text-white/60 text-sm">Uploading resume...</p>
           </div>
         ) : (
+          <>
+          {uploadError && (
+            <div className="flex items-center gap-1.5 text-xs text-red-400 mb-2">
+              <AlertCircle size={12} /> {uploadError}
+            </div>
+          )}
           <div className="flex flex-col items-center gap-3">
             <div className="w-14 h-14 rounded-xl bg-indigo-500/10 flex items-center justify-center">
               <FileUp size={24} className="text-indigo-400" />
@@ -36,6 +49,7 @@ export default function ResumeUpload({ onUpload, uploading, versions, selectedId
               <p className="text-white/30 text-sm mt-1">PDF or DOCX · Drag & drop or click to browse</p>
             </div>
           </div>
+          </>
         )}
       </div>
 

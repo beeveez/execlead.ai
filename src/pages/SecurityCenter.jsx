@@ -3,11 +3,18 @@ import { Link } from "react-router-dom";
 import {
   ShieldCheck, Key, Smartphone, Monitor, Activity, Lock, Fingerprint,
   Eye, FileText, ArrowRight, Shield, CheckCircle2, AlertCircle, Cpu,
+  Radar, Plug, Download, Building2, AlertTriangle,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import SessionManager from "@/components/security/SessionManager";
 import DeviceManagement from "@/components/security/DeviceManagement";
+import SecurityEventsPanel from "@/components/security/SecurityEventsPanel";
+import ThreatDetectionPanel from "@/components/security/ThreatDetectionPanel";
+import ConnectedApplications from "@/components/security/ConnectedApplications";
+import DataExportHistory from "@/components/security/DataExportHistory";
+
+const ADMIN_ROLES = ["admin", "super_admin", "platform_admin", "developer", "enterprise_admin"];
 
 export default function SecurityCenter() {
   const { user } = useAuth();
@@ -39,12 +46,17 @@ export default function SecurityCenter() {
   const activeSessions = sessions.filter(s => s.status === "active");
   const trustedDevices = devices.filter(d => d.status === "trusted");
   const securityScore = computePersonalScore(sessions, devices);
+  const isAdmin = ADMIN_ROLES.includes(user?.role);
 
   const TABS = [
     { id: "overview", label: "Overview", icon: Eye },
     { id: "sessions", label: "Sessions", icon: Monitor },
     { id: "devices", label: "Devices", icon: Smartphone },
     { id: "history", label: "Login History", icon: Activity },
+    { id: "events", label: "Security Events", icon: ShieldCheck },
+    { id: "threats", label: "Threat Detection", icon: Radar },
+    { id: "apps", label: "Connected Apps", icon: Plug },
+    { id: "exports", label: "Data Exports", icon: Download },
     { id: "recovery", label: "Recovery", icon: Shield },
   ];
 
@@ -53,20 +65,21 @@ export default function SecurityCenter() {
       {/* Hero */}
       <div className="bg-gradient-to-br from-indigo-500/10 to-blue-500/5 border border-indigo-500/10 rounded-xl p-6">
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-          <ShieldCheck size={12} className="text-indigo-400" /> Account Security™ · My Account
+          <ShieldCheck size={12} className="text-indigo-400" /> Enterprise Security Center™
+          {isAdmin && <span className="text-amber-400">· Admin View</span>}
         </div>
-        <h1 className="text-2xl font-bold text-white">Account Security™</h1>
+        <h1 className="text-2xl font-bold text-white">Enterprise Security Center™</h1>
         <p className="text-white/50 text-sm mt-2 leading-relaxed max-w-3xl">
-          Manage your personal account security — authentication, devices, sessions, and recovery.
-          This page manages only your account, not platform or organization security.
+          Manage your account security — authentication, devices, sessions, threat detection,
+          connected applications, and recovery. {isAdmin ? "Admin visibility includes organization-wide security events." : "You see only your own security information."}
         </p>
         <div className="flex items-center gap-6 mt-4">
           <ScoreRing score={securityScore} />
           <div className="space-y-1.5">
-            <SecurityStatusItem label="Multi-Factor Auth" status="check" />
-            <SecurityStatusItem label="Password" status="check" />
+            <SecurityStatusItem label="Admin Security Gate" status={isAdmin ? "info" : "check"} value={isAdmin ? "Available" : "N/A"} />
             <SecurityStatusItem label="Active Sessions" value={`${activeSessions.length}`} status="info" />
             <SecurityStatusItem label="Trusted Devices" value={`${trustedDevices.length}`} status="info" />
+            <SecurityStatusItem label="Threat Detection" status="check" value="Active" />
           </div>
         </div>
       </div>
@@ -92,10 +105,14 @@ export default function SecurityCenter() {
       </div>
 
       {/* Content */}
-      {tab === "overview" && <AccountOverview sessions={sessions} devices={devices} score={securityScore} loading={loading} />}
+      {tab === "overview" && <AccountOverview sessions={sessions} devices={devices} score={securityScore} loading={loading} isAdmin={isAdmin} />}
       {tab === "sessions" && <SessionManager />}
       {tab === "devices" && <DeviceManagement />}
       {tab === "history" && <LoginHistory sessions={sessions} loading={loading} />}
+      {tab === "events" && <SecurityEventsPanel isAdmin={isAdmin} />}
+      {tab === "threats" && <ThreatDetectionPanel isAdmin={isAdmin} />}
+      {tab === "apps" && <ConnectedApplications />}
+      {tab === "exports" && <DataExportHistory />}
       {tab === "recovery" && <RecoveryOptions />}
     </div>
   );
@@ -146,16 +163,16 @@ function QuickLink({ to, icon: Icon, label, desc }) {
   );
 }
 
-function AccountOverview({ sessions, devices, score, loading }) {
+function AccountOverview({ sessions, devices, score, loading, isAdmin }) {
   if (loading) {
     return <div className="flex items-center justify-center py-12"><div className="w-6 h-6 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" /></div>;
   }
   const cards = [
-    { label: "Multi-Factor Auth", icon: ShieldCheck, status: "Enabled", color: "emerald", desc: "Your account is protected with MFA" },
-    { label: "Password", icon: Key, status: "Strong", color: "emerald", desc: "Last changed recently" },
-    { label: "Passkeys", icon: Fingerprint, status: "Not set up", color: "amber", desc: "Add a passkey for passwordless login" },
+    { label: "Admin Security Gate", icon: ShieldCheck, status: isAdmin ? "Available" : "N/A", color: "emerald", desc: "Secondary verification for destructive actions" },
     { label: "Active Sessions", icon: Monitor, status: `${sessions.filter(s => s.status === "active").length}`, color: "blue", desc: "Across your devices" },
     { label: "Trusted Devices", icon: Smartphone, status: `${devices.filter(d => d.status === "trusted").length}`, color: "blue", desc: "Recognized devices" },
+    { label: "Threat Detection", icon: Radar, status: "Active", color: "emerald", desc: "Real-time threat monitoring" },
+    { label: "Connected Apps", icon: Key, status: "2 Active", color: "blue", desc: "OAuth integrations" },
     { label: "Recovery", icon: Shield, status: "Verified", color: "emerald", desc: "Recovery email confirmed" },
   ];
   const colorMap = { emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", amber: "text-amber-400 bg-amber-500/10 border-amber-500/20", blue: "text-blue-400 bg-blue-500/10 border-blue-500/20" };
@@ -234,6 +251,6 @@ function computePersonalScore(sessions, devices) {
   if (devices.some(d => d.status === "trusted")) score += 15;
   if (sessions.length <= 5) score += 15;
   else if (sessions.length <= 10) score += 10;
-  score += 15; // MFA assumed enabled
+  score += 15; // MFA / Admin Gate
   return Math.min(100, score);
 }

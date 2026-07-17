@@ -18,6 +18,7 @@ import RouteTracker from './components/RouteTracker';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionRoutingManager from '@/components/SessionRoutingManager';
 import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
+import { SessionSecurityProvider } from '@/components/security/SessionSecurityProvider';
 import { TelemetryProvider } from '@/lib/TelemetryContext';
 import ExecConcierge from '@/components/concierge/ExecConcierge';
 import { RepairWorkflowProvider } from '@/components/developer/repair/RepairWorkflowProvider';
@@ -533,7 +534,9 @@ function App() {
             <RepairWorkflowProvider>
               <TelemetryProvider>
               <ExecConciergeProvider>
+                <SessionSecurityProvider>
                 <AuthenticatedApp />
+                </SessionSecurityProvider>
                 <ExecConcierge />
                 <FeedbackWidget />
                 <CommandPalette />

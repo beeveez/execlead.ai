@@ -3,6 +3,7 @@ import { Upload, FileText, Loader2, AlertCircle, CheckCircle, XCircle, ShieldChe
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { DOCUMENT_TYPES, IDENTITY_STATUSES, ACCEPTED_FILE_TYPES, MAX_FILE_SIZE_MB } from "@/lib/trustEngine";
+import { validateFileUpload } from "@/lib/fileUploadSecurity";
 
 export default function IdentityUpload({ verification, onUpdate }) {
   const { user } = useAuth();
@@ -17,6 +18,11 @@ export default function IdentityUpload({ verification, onUpdate }) {
   const handleFileChange = (e) => {
     const f = e.target.files[0];
     if (!f) return;
+    const securityCheck = validateFileUpload(f);
+    if (!securityCheck.valid) {
+      setError(securityCheck.error);
+      return;
+    }
     if (!ACCEPTED_FILE_TYPES.includes(f.type)) {
       setError("Only PNG, JPEG, and PDF files are accepted.");
       return;

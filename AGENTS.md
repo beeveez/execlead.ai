@@ -1,19 +1,16 @@
 # AGENTS.md
 
-## ⚡ MANDATORY: Engineering Playbook™
+## ⚡ MANDATORY: Architecture Frameworks
 
-**Before implementing any feature, modifying entities, changing backend functions, or generating code, read and follow [`EXECLEAD_ENGINEERING_PLAYBOOK.md`](./EXECLEAD_ENGINEERING_PLAYBOOK.md).**
+Before implementing any feature, modifying entities, changing backend functions, or generating code, read and follow these canonical documents:
 
-This is the platform's engineering constitution. It defines:
-- Architecture governance (never duplicate business logic; reuse core platform services)
-- Engineering principles (reuse, configuration, composition, scalability, security, observability)
-- Existing platform features that must be preserved (never remove or regress)
-- Quality gates (Architecture, QA, Regression, UX, Performance, Security, Product, Beta Readiness)
-- Executive QA Report™ verdicts (PASS / PASS WITH CONDITIONS / FAIL)
-- Executive Coach Mode (every recommendation teaches executive thinking)
-- Project Journal requirements
+1. **[`src/EXECLEAD_ENGINEERING_PLAYBOOK.md`](./src/EXECLEAD_ENGINEERING_PLAYBOOK.md)** — Platform Engineering Constitution
+   - Architecture governance, engineering principles, quality gates, QA/Product/UX/Security reviews, Executive QA Report™ verdicts
 
-Treat the playbook as the default context for every session. It overrides any conflicting instruction below.
+2. **[`src/EXECLEAD_AI_AGENTS_FRAMEWORK.md`](./src/EXECLEAD_AI_AGENTS_FRAMEWORK.md)** — AI Agents & Automation Framework
+   - Multi-agent orchestration architecture, Agent Registry™, specialized agents (Executive/Developer/Enterprise), Automation Engine™, Human Approval flow, shared Memory + Event Bus, workspace awareness, AI safety rules
+
+Both are mandatory context for every session. They override any conflicting instruction below.
 
 ---
 

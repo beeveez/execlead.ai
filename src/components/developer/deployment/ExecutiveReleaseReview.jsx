@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2, AlertTriangle, XCircle, Clock, ShieldCheck,
   Activity, Server, Bug, ShieldAlert,
 } from "lucide-react";
 import { computeRLSScores } from "@/lib/rlsRegistry";
 import { computeRiskBasedCoverage, computeSecurityDebt } from "@/lib/entityDiscovery";
-import { runSecurityRegressionSuite } from "@/lib/securityRegressionSuite";
+import { runSecurityRegressionSuite, buildSuiteShape } from "@/lib/securityRegressionSuite";
 import { computeDeploymentReadiness } from "@/lib/deploymentReadinessEngine";
 import { CAPABILITY_REGISTRY } from "@/lib/platformManifest";
 
@@ -43,7 +43,14 @@ export default function ExecutiveReleaseReview({ pipelineResult }) {
   const rlsScores = useMemo(() => computeRLSScores(), []);
   const riskCoverage = useMemo(() => computeRiskBasedCoverage(), []);
   const securityDebt = useMemo(() => computeSecurityDebt(), []);
-  const securityResults = useMemo(() => runSecurityRegressionSuite(), []);
+  const [securityResults, setSecurityResults] = useState({ tests: [], total: 0, passed: 0, failed: 0, blocked: false, criticalFailures: 0, warningFailures: 0 });
+  useEffect(() => {
+    let cancelled = false;
+    runSecurityRegressionSuite().then((raw) => {
+      if (!cancelled) setSecurityResults(buildSuiteShape(raw));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
   const readiness = useMemo(() => computeDeploymentReadiness(), []);
 
   const stages = pipelineResult?.stages || {};

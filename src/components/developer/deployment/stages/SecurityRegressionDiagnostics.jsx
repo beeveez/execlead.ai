@@ -1,20 +1,28 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, XCircle, CheckCircle2, Loader2, Clock, ShieldAlert, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { runSecurityRegressionSuite } from "@/lib/securityRegressionSuite";
+import { runSecurityRegressionSuite, buildSuiteShape } from "@/lib/securityRegressionSuite";
 
 export default function SecurityRegressionDiagnostics({ query, initialFilter }) {
-  const [results] = useState(() => runSecurityRegressionSuite());
+  const [results, setResults] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    runSecurityRegressionSuite().then((raw) => {
+      if (!cancelled) setResults(buildSuiteShape(raw));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const filteredTests = useMemo(() => {
-    if (!results.tests) return [];
+    if (!results?.tests) return [];
     return results.tests.filter((t) => {
       if (initialFilter === "error" && t.status !== "fail") return false;
       if (initialFilter === "warning" && t.riskLevel !== "warning") return false;
       if (query && !t.name.toLowerCase().includes(query.toLowerCase()) && !t.entity.toLowerCase().includes(query.toLowerCase())) return false;
       return true;
     });
-  }, [results.tests, query, initialFilter]);
+  }, [results?.tests, query, initialFilter]);
 
   if (!results) {
     return <div className="flex items-center gap-2 text-white/40 text-sm"><Loader2 size={14} className="animate-spin" /> Running security tests...</div>;

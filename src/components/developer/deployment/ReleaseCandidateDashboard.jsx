@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2, AlertTriangle, XCircle, FileCheck, Shield, Server,
   Cpu, Rocket, ChevronRight,
 } from "lucide-react";
 import { computeRLSScores } from "@/lib/rlsRegistry";
 import { computeRiskBasedCoverage, computeSecurityDebt } from "@/lib/entityDiscovery";
-import { runSecurityRegressionSuite } from "@/lib/securityRegressionSuite";
+import { runSecurityRegressionSuite, buildSuiteShape } from "@/lib/securityRegressionSuite";
 import { PLATFORM_METADATA } from "@/lib/platformManifest";
 
 const DECISION_CONFIG = {
@@ -61,7 +61,14 @@ export default function ReleaseCandidateDashboard({ pipelineResult, user }) {
   const rlsScores = useMemo(() => computeRLSScores(), []);
   const riskCoverage = useMemo(() => computeRiskBasedCoverage(), []);
   const securityDebt = useMemo(() => computeSecurityDebt(), []);
-  const securityResults = useMemo(() => runSecurityRegressionSuite(), []);
+  const [securityResults, setSecurityResults] = useState({ tests: [], total: 0, passed: 0, failed: 0, blocked: false, criticalFailures: 0, warningFailures: 0 });
+  useEffect(() => {
+    let cancelled = false;
+    runSecurityRegressionSuite().then((raw) => {
+      if (!cancelled) setSecurityResults(buildSuiteShape(raw));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const stages = pipelineResult?.stages || {};
   const finalDecision = pipelineResult?.finalDecision || (securityResults.blocked ? "BLOCKED" : "AWAITING");

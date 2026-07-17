@@ -9,7 +9,7 @@
  * explainable, traceable, filterable, and exportable.
  */
 import { runSecurityRegressionSuite, TEST_CATEGORIES } from "./securityRegressionSuite";
-import { discoverAllEntities } from "./entityDiscovery";
+import { discoverAllEntities, computeRiskBasedCoverage, computeSecurityDebt, computeDiscoveryMetrics } from "./entityDiscovery";
 import { RLS_REGISTRY, computeRLSScores } from "./rlsRegistry";
 
 const SEVERITY_HOURS = { critical: 2, high: 1, medium: 0.5, low: 0.15 };
@@ -540,16 +540,51 @@ function computeSecurityScore(suite, rlsScores) {
   return Math.round(passRate * 0.3 + rlsScore * 0.4 + coverageScore * 0.3);
 }
 
-export function computeSecurityIntelligence() {
-  const suite = runSecurityRegressionSuite();
+export async function computeSecurityIntelligence() {
+  const rawSuite = await runSecurityRegressionSuite();
   const rlsScores = computeRLSScores();
-  const securityScore = computeSecurityScore(suite, rlsScores);
+  const riskCoverage = computeRiskBasedCoverage();
+  const securityDebt = computeSecurityDebt();
+  const discovery = computeDiscoveryMetrics();
 
-  const tests = suite.tests.map((t) => enrichTest(t, suite.total, securityScore));
-  const engineeringTasks = computeEngineeringTasks(tests, securityScore);
+  // Map raw regression results into the enriched test format the engine expects
+  const tests = rawSuite.results.map((r) => ({
+    id: r.id,
+    name: r.name,
+    category: r.category,
+    status: r.passed ? "pass" : "fail",
+    severity: "medium",
+    riskLevel: r.passed ? null : "warning",
+    entity: r.category,
+    expected: "Pass",
+    detail: r.detail,
+  }));
+
+  const securityScore = computeSecurityScore(
+    { total: rawSuite.total, passed: rawSuite.passed, riskCoverage },
+    rlsScores
+  );
+
+  const suite = {
+    tests,
+    categories: TEST_CATEGORIES,
+    total: rawSuite.total,
+    passed: rawSuite.passed,
+    failed: rawSuite.failed,
+    blocked: tests.some((t) => t.status === "fail" && t.riskLevel === "critical"),
+    criticalFailures: tests.filter((t) => t.riskLevel === "critical").length,
+    warningFailures: tests.filter((t) => t.riskLevel === "warning").length,
+    riskCoverage,
+    securityDebt,
+    discovery,
+    timestamp: rawSuite.run_at,
+  };
+
+  const enrichedTests = suite.tests.map((t) => enrichTest(t, suite.total, securityScore));
+  const engineeringTasks = computeEngineeringTasks(enrichedTests, securityScore);
   const deployGate = computeDeployGate(suite, engineeringTasks, suite.riskCoverage, securityScore);
   const riskMatrix = computeRiskMatrix(suite, engineeringTasks, suite.riskCoverage, securityScore);
-  const categoryDiagnostics = computeCategoryDiagnostics(suite, tests);
+  const categoryDiagnostics = computeCategoryDiagnostics(suite, enrichedTests);
   const coverageDiagnostics = computeCoverageDiagnostics(suite.riskCoverage);
   const techDebtRoadmap = computeTechnicalDebtRoadmap(suite.securityDebt);
   const confidence = computeConfidence(suite, suite.riskCoverage, securityScore);
@@ -571,7 +606,7 @@ export function computeSecurityIntelligence() {
       rlsCoverage: rlsScores.rlsCoverage,
       tenantIsolation: rlsScores.tenantIsolationScore,
     },
-    tests,
+    tests: enrichedTests,
     categories: categoryDiagnostics,
     coverage: coverageDiagnostics,
     techDebt: techDebtRoadmap,

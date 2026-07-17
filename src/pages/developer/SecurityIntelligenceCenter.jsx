@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 import { computeSecurityIntelligence } from "@/lib/securityIntelligenceEngine";
 import SecHeader from "@/components/security-intelligence/SecHeader";
@@ -16,12 +17,40 @@ import SecCategoryDrawer from "@/components/security-intelligence/SecCategoryDra
 import SecTestDetailDrawer from "@/components/security-intelligence/SecTestDetailDrawer";
 
 export default function SecurityIntelligenceCenter() {
-  const intel = useMemo(() => computeSecurityIntelligence(), []);
+  const [intel, setIntel] = useState(null);
   const [activeDrawer, setActiveDrawer] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [activeTest, setActiveTest] = useState(null);
   const [coverageKey, setCoverageKey] = useState(null);
   const [debtKey, setDebtKey] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    computeSecurityIntelligence().then((result) => {
+      if (!cancelled) setIntel(result);
+    }).catch(() => {
+      if (!cancelled) setIntel({ error: true });
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (!intel) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex items-center gap-2 text-white/40 text-sm">
+          <Loader2 size={16} className="animate-spin" /> Computing security intelligence…
+        </div>
+      </div>
+    );
+  }
+
+  if (intel.error) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-white/40 text-sm">Failed to compute security intelligence.</div>
+      </div>
+    );
+  }
 
   const handleNavigate = (target, key) => {
     if (target === "testRegistry") setActiveDrawer("testRegistry");

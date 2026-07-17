@@ -284,4 +284,32 @@ const TEST_CATEGORIES = [
   { id: "Session Security", label: "Session Security", type: "session", description: "Idle timeout and session lifecycle management" },
 ];
 
+/**
+ * Build the full suite shape expected by consumers (tests, blocked,
+ * criticalFailures, warningFailures, etc.) from the raw regression results.
+ */
+export function buildSuiteShape(rawSuite) {
+  const tests = (rawSuite.results || []).map((r) => ({
+    id: r.id,
+    name: r.name,
+    category: r.category,
+    status: r.passed ? "pass" : "fail",
+    severity: "medium",
+    riskLevel: r.passed ? null : "warning",
+    entity: r.category,
+    expected: "Pass",
+    detail: r.detail,
+  }));
+  return {
+    tests,
+    total: rawSuite.total || tests.length,
+    passed: rawSuite.passed || 0,
+    failed: rawSuite.failed || 0,
+    blocked: tests.some((t) => t.status === "fail" && t.riskLevel === "critical"),
+    criticalFailures: tests.filter((t) => t.riskLevel === "critical").length,
+    warningFailures: tests.filter((t) => t.riskLevel === "warning").length,
+    timestamp: rawSuite.run_at,
+  };
+}
+
 export { SUITE_VERSION, TESTS, TEST_CATEGORIES };

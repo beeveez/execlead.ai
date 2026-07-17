@@ -42,43 +42,43 @@
     },
     {
       "function_name": "manageJourney",
-      "description": "Record journey events, view the journey timeline, and compute journey progress. Use when a user wants to log an achievement, see their journey, or track career milestones."
+      "description": "Record journey events, view the journey timeline, and compute journey progress."
     },
     {
       "function_name": "recomputeIntelligence",
-      "description": "Recompute Executive Intelligence\u2122 \u2014 journey points, Executive Readiness\u2122 score, Executive Trust\u2122 score, promotion forecast, and achievements. Use when a user wants to see their current scores or refresh their intelligence cache."
+      "description": "Recompute Executive Intelligence \u2014 journey, readiness, trust, forecast, achievements."
     },
     {
       "function_name": "manageReputation",
-      "description": "View and manage Executive Reputation\u2122 score, tier, and dimensions. Use when a user asks about their reputation standing."
+      "description": "View and manage Executive Reputation score, tier, and dimensions."
     },
     {
       "function_name": "manageExecutiveWallet",
-      "description": "View wallet balance, transaction history, and referral rewards. Use when a user asks about their earnings or wallet."
+      "description": "View wallet balance, transaction history, and referral rewards."
     },
     {
       "function_name": "getScopedNotifications",
-      "description": "Fetch the user's scoped notifications. Use when a user asks about recent notifications or unread items."
+      "description": "Fetch the user's scoped notifications."
     },
     {
       "function_name": "calculateJobMatch",
-      "description": "Calculate a job match score for a specific career opportunity. Use when a user wants to know how well they match a job."
+      "description": "Calculate a job match score for a career opportunity."
     },
     {
       "function_name": "manageLegacyLibrary",
-      "description": "Create and manage Leadership Letters in the Legacy Library. Use when a user wants to write, edit, or view their leadership letters."
+      "description": "Create and manage Leadership Letters in the Legacy Library."
     },
     {
       "function_name": "manageTimeCapsule",
-      "description": "Create and manage Founder Time Capsules. Use when a user wants to create a time capsule or view an existing one."
+      "description": "Create and manage Founder Time Capsules."
     },
     {
       "function_name": "processReferral",
-      "description": "Process referral transactions and rewards. Use when a user asks about referral status or referral earnings."
+      "description": "Process referral transactions and rewards."
     },
     {
       "function_name": "manageIdentityVerification",
-      "description": "Check and manage identity verification status. Use when a user asks about their verification progress or trust level."
+      "description": "Check and manage identity verification status."
     }
   ],
   "context_files": [],

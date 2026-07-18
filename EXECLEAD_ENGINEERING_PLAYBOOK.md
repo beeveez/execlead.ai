@@ -253,6 +253,44 @@ Maintain a development journal for every significant implementation. Capture:
 
 ---
 
+## GOLDEN RULE #1 — DATA PRESERVATION
+
+> **No release may be deployed unless automated validation confirms that 100% of existing user profiles, uploaded files, identity documents, subscriptions, AI memories, and relationships remain intact after deployment.**
+
+### Enforcement
+
+- **Before every deployment:** Capture a baseline snapshot of all protected entity counts using the Data Preservation Gate™ (`src/components/developer/deployment/DataPreservationGate.jsx`).
+- **After every deployment:** Run post-deployment validation. The gate compares current counts against the baseline.
+- **Gate result:** If any protected category shows data loss (count decreased), the deployment gate is **BLOCKED**. No release proceeds.
+- **Rollback:** If data loss is detected, initiate immediate rollback. All user records, uploaded files, identity documents, subscriptions, AI memories, and audit history must be preserved.
+
+### Protected Data Categories
+
+| Group | Entities |
+|---|---|
+| User Data | UserProfile, ExecutiveCredential, LeadershipDNA |
+| Career History | CareerResume, CareerDocument, ResumeVersion, PortfolioVersion, Achievement |
+| Identity Documents | IdentityVerification, EvidenceItem, IdentityVersion, ExecutiveIdentityTransfer |
+| Billing History | Subscription, Invoice, BillingEvent, WalletTransaction |
+| AI Memory | ExecutiveMemory, AIAgentState, AIRequestTrace |
+| Leadership Journey | JourneyEvent, SimulationSession, ChallengeResult, JournalEntry |
+| Audit History | LegacyAuditLog, VerificationLog, UsageLog, FoundingMemberAuditLog |
+| Credentials | Certificate, ExecutiveCompetency |
+
+### Soft Delete Policy
+
+Never permanently delete user data. Use soft-delete fields (`deleted`, `deletedAt`, `deletedBy`) with a retention policy. Identity documents require encrypted storage and owner-only access.
+
+### Migration Rules
+
+- All migrations must be backward compatible.
+- No dropped columns without review.
+- No dropped tables without approval.
+- Data migration must be verified before cutover.
+- Rollback must be available for every migration.
+
+---
+
 ## FINAL RULE
 
 Never optimize for writing code.

@@ -103,6 +103,19 @@
       "default": "low",
       "description": "Confidence level bucket"
     },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "growing",
+        "emerging",
+        "needs_refresh",
+        "legacy",
+        "deprecated"
+      ],
+      "default": "healthy",
+      "description": "Executive Skill Health\u2122 status"
+    },
     "source": {
       "type": "string",
       "enum": [
@@ -123,6 +136,7 @@
         "growing",
         "emerging",
         "stable",
+        "declining",
         "legacy"
       ],
       "default": "stable",
@@ -139,6 +153,10 @@
     "change_history_json": {
       "type": "string",
       "description": "JSON array of { timestamp, event, details } \u2014 immutable audit trail"
+    },
+    "skill_impact_json": {
+      "type": "string",
+      "description": "JSON object of Executive Skill Impact\u2122 \u2014 contribution to each module"
     },
     "recommendation_reason": {
       "type": "string",

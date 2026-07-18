@@ -4,7 +4,9 @@ import SkillConfidenceScore from "./SkillConfidenceScore";
 import SkillVerificationBadge from "./SkillVerificationBadge";
 import SkillEvidencePanel from "./SkillEvidencePanel";
 import MarketIntelligenceBadge from "./MarketIntelligencePanel";
-import { parseJSON, getDomainMeta, EXECUTIVE_DOMAINS } from "@/lib/skillsIntelligenceEngine";
+import { parseJSON, getDomainMeta, EXECUTIVE_DOMAINS, calculateSkillHealth } from "@/lib/skillsIntelligenceEngine";
+import SkillHealthBadge from "./SkillHealthBadge";
+import SkillImpactPanel from "./SkillImpactPanel";
 
 const DOMAIN_LABELS = Object.fromEntries(EXECUTIVE_DOMAINS.map(d => [d.id, d.label]));
 
@@ -59,13 +61,20 @@ export default function SkillDetailDrawer({ skill, onClose }) {
             </div>
           </div>
 
-          {/* Market Intelligence */}
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
-              <Brain size={12} /> Market Intelligence™
+          {/* Skill Health + Market Intelligence */}
+          <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-lg p-2.5">
+            <div>
+              <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Health</div>
+              <SkillHealthBadge status={calculateSkillHealth(skill)} size="sm" />
             </div>
-            <MarketIntelligenceBadge level={skill.market_demand} size="sm" />
+            <div>
+              <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Market</div>
+              <MarketIntelligenceBadge level={skill.market_demand} size="sm" />
+            </div>
           </div>
+
+          {/* Executive Skill Impact™ */}
+          <SkillImpactPanel skill={skill} />
 
           {/* Evidence */}
           <div>

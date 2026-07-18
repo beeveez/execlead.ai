@@ -13,6 +13,10 @@ import {
 } from "lucide-react";
 import SkillIntelligenceDashboard from "@/components/skills/SkillIntelligenceDashboard";
 import ExecutiveSkillScorecard from "@/components/skills/ExecutiveSkillScorecard";
+import ExecutiveSkillScoreCard from "@/components/skills/ExecutiveSkillScoreCard";
+import ExecutiveSkillInsights from "@/components/skills/ExecutiveSkillInsights";
+import CompanyBenchmarkPanel from "@/components/skills/CompanyBenchmarkPanel";
+import RoleBenchmarkPanel from "@/components/skills/RoleBenchmarkPanel";
 import SkillTimeline from "@/components/skills/SkillTimeline";
 import SkillRecommendations from "@/components/skills/SkillRecommendations";
 import SkillCard from "@/components/skills/SkillCard";
@@ -286,6 +290,18 @@ Do NOT include skills the user already has. Extract 5-15 skills.`;
 
       {/* Scorecard */}
       <ExecutiveSkillScorecard skills={skills} />
+
+      {/* Executive Skill Score™ */}
+      <ExecutiveSkillScoreCard skills={skills} />
+
+      {/* Benchmark Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CompanyBenchmarkPanel skills={skills} />
+        <RoleBenchmarkPanel skills={skills} targetRole={targetRole} />
+      </div>
+
+      {/* AI Insights */}
+      <ExecutiveSkillInsights skills={skills} targetRole={targetRole} />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">

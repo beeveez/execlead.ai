@@ -56,6 +56,7 @@ export const MARKET_DEMAND_LEVELS = {
   emerging:    { label: "Emerging",    icon: "Sparkles",    color: "purple",   priority: 3 },
   stable:      { label: "Stable",      icon: "Minus",       color: "slate",   priority: 2 },
   legacy:      { label: "Legacy",      icon: "TrendingDown", color: "orange",  priority: 1 },
+  declining:   { label: "Declining",   icon: "TrendingDown", color: "red",     priority: 0 },
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -206,6 +207,136 @@ export function appendChangeHistory(existingHistory, event, details) {
   history.push({ timestamp: new Date().toISOString(), event, details });
   return JSON.stringify(history);
 }
+
+// ═══════════════════════════════════════════════════════════
+// EXECUTIVE SKILL HEALTH™
+// ═══════════════════════════════════════════════════════════
+
+export const SKILL_HEALTH_STATES = {
+  healthy:       { label: "Healthy",       color: "emerald", icon: "CheckCircle2" },
+  growing:       { label: "Growing",       color: "blue",    icon: "TrendingUp" },
+  emerging:      { label: "Emerging",      color: "purple",  icon: "Sparkles" },
+  needs_refresh: { label: "Needs Refresh", color: "amber",   icon: "RefreshCw" },
+  legacy:        { label: "Legacy",        color: "orange",  icon: "AlertTriangle" },
+  deprecated:    { label: "Deprecated",    color: "red",     icon: "XCircle" },
+};
+
+export function calculateSkillHealth(skill) {
+  if (!skill) return "healthy";
+
+  // Market demand directly maps to certain health states
+  if (skill.market_demand === "legacy") return "legacy";
+  if (skill.market_demand === "declining") return "needs_refresh";
+
+  // Check recency from last_used
+  const lastUsed = (skill.last_used || "").toLowerCase().trim();
+  if (lastUsed === "current" || lastUsed === "present" || lastUsed === "") {
+    return skill.market_demand === "growing" ? "growing" : skill.market_demand === "emerging" ? "emerging" : "healthy";
+  }
+
+  // Parse year from last_used
+  const year = parseInt(lastUsed);
+  if (!isNaN(year)) {
+    const yearsSince = new Date().getFullYear() - year;
+    if (yearsSince <= 1) return "healthy";
+    if (yearsSince <= 3) return "growing";
+    if (yearsSince <= 5) return "needs_refresh";
+    return "legacy";
+  }
+
+  // Fallback to market demand
+  if (skill.market_demand === "emerging") return "emerging";
+  if (skill.market_demand === "growing") return "growing";
+  return "healthy";
+}
+
+export function getHealthMeta(statusId) {
+  return SKILL_HEALTH_STATES[statusId] || SKILL_HEALTH_STATES.healthy;
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXECUTIVE SKILL SCORE™
+// ═══════════════════════════════════════════════════════════
+
+const DEMAND_MULTIPLIERS = { high_demand: 1.2, growing: 1.15, emerging: 1.1, stable: 1.0, declining: 0.8, legacy: 0.7 };
+
+export function calculateExecutiveSkillScore(skills) {
+  if (!skills || skills.length === 0) {
+    return { overall_score: 0, domain_coverage_score: 0, weighted_confidence_score: 0, domain_scores: [], total_skills: 0, verified_skills: 0, avg_confidence: 0 };
+  }
+
+  const domains = aggregateDomainCoverage(skills);
+  const domainList = Object.values(domains);
+  const domainCoverageScore = domainList.length > 0
+    ? Math.round(domainList.reduce((s, d) => s + d.coverage, 0) / domainList.length)
+    : 0;
+
+  // Weighted confidence (market demand multiplier)
+  const weightedConfidence = skills.reduce((sum, s) => {
+    const multiplier = DEMAND_MULTIPLIERS[s.market_demand] || 1.0;
+    return sum + (s.confidence_score || 0) * multiplier;
+  }, 0) / skills.length;
+
+  const overallScore = Math.round(Math.min(100, domainCoverageScore * 0.55 + weightedConfidence * 0.45));
+
+  return {
+    overall_score: overallScore,
+    domain_coverage_score: domainCoverageScore,
+    weighted_confidence_score: Math.round(weightedConfidence),
+    domain_scores: domainList.map(d => ({ domain: d.id, label: d.label, coverage: d.coverage, skills: d.skills.length, avg_confidence: d.avgConfidence })),
+    total_skills: skills.length,
+    verified_skills: skills.filter(s => s.verification_state !== "self_reported").length,
+    avg_confidence: Math.round(skills.reduce((s, sk) => s + (sk.confidence_score || 0), 0) / skills.length),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXECUTIVE SKILL IMPACT™
+// ═══════════════════════════════════════════════════════════
+
+const DOMAIN_IMPACT_WEIGHTS = {
+  leadership:        { leadership_dna: 12, executive_readiness: 8,  promotion_forecast: 7, career_momentum: 5, interview_performance: 6 },
+  strategy:          { leadership_dna: 8,  executive_readiness: 10, promotion_forecast: 9, career_momentum: 7, interview_performance: 7 },
+  technology:        { leadership_dna: 4,  executive_readiness: 6,  promotion_forecast: 5, career_momentum: 6, interview_performance: 5 },
+  operations:        { leadership_dna: 7,  executive_readiness: 8,  promotion_forecast: 6, career_momentum: 5, interview_performance: 4 },
+  governance:        { leadership_dna: 6,  executive_readiness: 7,  promotion_forecast: 8, career_momentum: 4, interview_performance: 5 },
+  finance:           { leadership_dna: 5,  executive_readiness: 7,  promotion_forecast: 8, career_momentum: 5, interview_performance: 4 },
+  communication:     { leadership_dna: 9,  executive_readiness: 8,  promotion_forecast: 6, career_momentum: 7, interview_performance: 10 },
+  people_leadership: { leadership_dna: 10, executive_readiness: 8,  promotion_forecast: 8, career_momentum: 6, interview_performance: 7 },
+  transformation:    { leadership_dna: 7,  executive_readiness: 9,  promotion_forecast: 7, career_momentum: 6, interview_performance: 5 },
+  innovation:        { leadership_dna: 6,  executive_readiness: 7,  promotion_forecast: 6, career_momentum: 8, interview_performance: 5 },
+  risk:              { leadership_dna: 5,  executive_readiness: 7,  promotion_forecast: 7, career_momentum: 3, interview_performance: 4 },
+  customer_success:  { leadership_dna: 6,  executive_readiness: 7,  promotion_forecast: 5, career_momentum: 6, interview_performance: 5 },
+};
+
+const IMPACT_LABELS = {
+  leadership_dna: "Leadership DNA™",
+  executive_readiness: "Executive Readiness™",
+  promotion_forecast: "Promotion Forecast™",
+  career_momentum: "Career Momentum™",
+  interview_performance: "Interview Performance™",
+};
+
+export function getSkillImpact(skill) {
+  if (!skill) return { impacts: {}, coaching_priority: "low" };
+
+  const domain = skill.capability_domain || "technology";
+  const baseImpact = DOMAIN_IMPACT_WEIGHTS[domain] || DOMAIN_IMPACT_WEIGHTS.technology;
+  const confidenceMultiplier = (skill.confidence_score || 0) / 100;
+  const experienceBonus = Math.min((skill.years_of_experience || 0) / 10, 0.2);
+  const totalMultiplier = confidenceMultiplier + experienceBonus;
+
+  const impacts = {};
+  for (const [key, value] of Object.entries(baseImpact)) {
+    impacts[key] = Math.min(15, Math.round(value * totalMultiplier));
+  }
+
+  const coaching_priority = (skill.confidence_score || 0) < 40 ? "high" : (skill.confidence_score || 0) < 70 ? "medium" : "low";
+
+  return { impacts, coaching_priority, impact_labels: IMPACT_LABELS };
+}
+
+export { IMPACT_LABELS };
 
 // ═══════════════════════════════════════════════════════════
 // HELPER UTILITIES

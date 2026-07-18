@@ -3,7 +3,8 @@ import { Code, Crown, Target, Settings, Shield, DollarSign, MessageSquare, Users
 import SkillConfidenceScore from "./SkillConfidenceScore";
 import SkillVerificationBadge from "./SkillVerificationBadge";
 import MarketIntelligenceBadge from "./MarketIntelligencePanel";
-import { parseJSON, getDomainMeta } from "@/lib/skillsIntelligenceEngine";
+import { parseJSON, getDomainMeta, calculateSkillHealth } from "@/lib/skillsIntelligenceEngine";
+import SkillHealthBadge from "./SkillHealthBadge";
 
 const ICON_MAP = { Code, Crown, Target, Settings, Shield, DollarSign, MessageSquare, Users, RefreshCw, Lightbulb, AlertTriangle, Heart };
 
@@ -59,6 +60,7 @@ export default function SkillCard({ skill, onEdit, onDelete, onClick }) {
       <div className="flex flex-wrap items-center gap-1.5 mb-2">
         <SkillVerificationBadge state={skill.verification_state} size="xs" />
         <MarketIntelligenceBadge level={skill.market_demand} size="xs" />
+        <SkillHealthBadge status={calculateSkillHealth(skill)} size="xs" />
       </div>
 
       {/* Stats */}

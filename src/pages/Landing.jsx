@@ -82,17 +82,17 @@ export default function Landing() {
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px]"
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-orange/20 rounded-full blur-[120px]"
             animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-[120px]"
+            className="absolute top-1/3 right-1/4 w-96 h-96 bg-amber-500/15 rounded-full blur-[120px]"
             animate={{ x: [0, -40, 0], y: [0, 50, 0] }}
             transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-cyan-600/10 rounded-full blur-[100px]"
+            className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px]"
             animate={{ x: [0, 30, 0], y: [0, -40, 0] }}
             transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -103,7 +103,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-xs text-amber-400 mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-orange/10 border border-accent-orange/20 rounded-full text-xs text-accent-orange mb-8"
           >
             <Zap size={12} />
             🚀 Founding Private Beta™ — Invitation Only
@@ -117,7 +117,7 @@ export default function Landing() {
           >
             Become the Executive
             <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">
               Every Company Wants to Hire.
             </span>
           </motion.h1>
@@ -149,14 +149,14 @@ export default function Landing() {
             {authed ? (
               <Link
                 to="/home"
-                className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
               >
                 Go to Dashboard <ArrowRight size={18} />
               </Link>
             ) : (
               <Link
                 to="/beta"
-                className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
               >
                 Apply for Private Beta™ <ArrowRight size={18} />
               </Link>
@@ -322,17 +322,17 @@ export default function Landing() {
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
               <h2 className="text-3xl md:text-4xl font-bold">Pricing</h2>
-              <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] text-amber-400 font-medium uppercase tracking-wider">Future GA Pricing</span>
+              <span className="px-2 py-0.5 bg-accent-orange/10 border border-accent-orange/20 rounded-full text-[10px] text-accent-orange font-medium uppercase tracking-wider">Future GA Pricing</span>
             </div>
             <p className="text-white/40 max-w-2xl mx-auto">Pricing reflects future General Availability. Current access is invitation-only through the Founding Private Beta™.</p>
           </div>
           <div className="flex items-center justify-center gap-3 mb-12">
-            <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
-            <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
+            <button onClick={() => setCycle("monthly")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "monthly" ? "bg-accent-orange/15 text-accent-orange" : "text-white/40 hover:text-white/70"}`}>Monthly</button>
+            <button onClick={() => setCycle("annual")} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === "annual" ? "bg-accent-orange/15 text-accent-orange" : "text-white/40 hover:text-white/70"}`}>Annual <span className="text-emerald-400 text-xs">Save 20%</span></button>
           </div>
           <PricingTiers plans={pricingPlans} cycle={cycle} getPrice={getPrice} authed={authed} />
           <div className="text-center mt-10">
-            <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors">Compare all features <ArrowRight size={14} /></Link>
+            <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-accent-orange hover:text-accent-orange/80 transition-colors">Compare all features <ArrowRight size={14} /></Link>
           </div>
         </div>
       </section>
@@ -450,7 +450,7 @@ export default function Landing() {
             <p className="text-white/40 mb-8 max-w-xl mx-auto">Join the Founding Private Beta™ and help shape the future of executive leadership development.</p>
             <Link
               to="/beta"
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-8 py-3.5 rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 bg-accent-orange hover:bg-accent-orange/90 text-white font-medium px-8 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
             >
               Apply for Private Beta™ <ArrowRight size={18} />
             </Link>

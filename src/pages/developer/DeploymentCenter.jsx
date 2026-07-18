@@ -9,6 +9,7 @@ import DiagnosticsDrawer from "@/components/developer/deployment/DiagnosticsDraw
 import ReleaseCandidateDashboard from "@/components/developer/deployment/ReleaseCandidateDashboard";
 import ExecutiveReleaseReview from "@/components/developer/deployment/ExecutiveReleaseReview";
 import ReleaseRoadmap from "@/components/developer/deployment/ReleaseRoadmap";
+import ReleaseIntegrityGate from "@/components/developer/deployment/ReleaseIntegrityGate";
 import ReportToolbar from "@/components/reports/ReportToolbar";
 import { buildPlatformValidationReport } from "@/lib/reports/platformValidationReport";
 
@@ -145,6 +146,9 @@ export default function DeploymentCenter() {
 
       {/* Executive Release Review™ */}
       <ExecutiveReleaseReview pipelineResult={result} />
+
+      {/* Release Integrity Gate™ v2.0 — 10-Gate Deployment Protection */}
+      <ReleaseIntegrityGate />
 
       {/* Phase 2 Roadmap */}
       <ReleaseRoadmap sprint4Ready={result?.stages?.sprint_4?.data?.ready || false} />

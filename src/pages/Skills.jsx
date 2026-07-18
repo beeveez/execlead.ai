@@ -7,24 +7,34 @@ import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Loader2, Plus, BrainCircuit, Search, Sparkles, ArrowLeft,
-  Code, Crown, Briefcase, Brain, SlidersHorizontal, Download,
+  Code, Crown, Target, Settings, Shield, DollarSign, MessageSquare,
+  Users, RefreshCw, Lightbulb, AlertTriangle, Heart, Download,
+  SlidersHorizontal, Network,
 } from "lucide-react";
-import SkillsDashboard from "@/components/skills/SkillsDashboard";
+import SkillIntelligenceDashboard from "@/components/skills/SkillIntelligenceDashboard";
+import ExecutiveSkillScorecard from "@/components/skills/ExecutiveSkillScorecard";
+import SkillTimeline from "@/components/skills/SkillTimeline";
+import SkillRecommendations from "@/components/skills/SkillRecommendations";
 import SkillCard from "@/components/skills/SkillCard";
 import SkillForm from "@/components/skills/SkillForm";
-import SkillGapAnalysis from "@/components/skills/SkillGapAnalysis";
+import SkillDetailDrawer from "@/components/skills/SkillDetailDrawer";
+import { EXECUTIVE_DOMAINS, calculateConfidenceScore, getConfidenceLevel, appendChangeHistory, mapCategoryToDomain, parseJSON } from "@/lib/skillsIntelligenceEngine";
 
-const CATEGORIES = [
-  { id: "technical", label: "Technical Skills", icon: Code, iconClass: "text-indigo-400" },
-  { id: "leadership", label: "Leadership Skills", icon: Crown, iconClass: "text-amber-400" },
-  { id: "business", label: "Business Skills", icon: Briefcase, iconClass: "text-emerald-400" },
-  { id: "ai_digital", label: "AI & Digital Skills", icon: Brain, iconClass: "text-purple-400" },
-];
+const DOMAIN_ICON_MAP = { Code, Crown, Target, Settings, Shield, DollarSign, MessageSquare, Users, RefreshCw, Lightbulb, AlertTriangle, Heart };
+
+const DOMAIN_TEXT_COLORS = {
+  indigo: "text-indigo-400", amber: "text-amber-400", purple: "text-purple-400",
+  blue: "text-blue-400", emerald: "text-emerald-400", green: "text-green-400",
+  cyan: "text-cyan-400", rose: "text-rose-400", orange: "text-orange-400",
+  yellow: "text-yellow-400", red: "text-red-400", pink: "text-pink-400",
+};
 
 const SORT_OPTIONS = [
+  { value: "confidence", label: "By Confidence Score" },
   { value: "name", label: "Alphabetical" },
   { value: "proficiency", label: "By Proficiency" },
-  { value: "years", label: "By Years of Experience" },
+  { value: "years", label: "By Experience" },
+  { value: "demand", label: "By Market Demand" },
 ];
 
 export default function Skills() {
@@ -34,11 +44,12 @@ export default function Skills() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState(null);
   const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState("all");
-  const [filterProficiency, setFilterProficiency] = useState("all");
-  const [filterVerified, setFilterVerified] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
+  const [filterDomain, setFilterDomain] = useState("all");
+  const [filterVerification, setFilterVerification] = useState("all");
+  const [filterDemand, setFilterDemand] = useState("all");
+  const [sortBy, setSortBy] = useState("confidence");
   const [analyzing, setAnalyzing] = useState(false);
 
   const targetRole = profile?.target_role || profile?.current_role || "Executive";
@@ -60,10 +71,13 @@ export default function Skills() {
   const handleSave = async (formData) => {
     try {
       if (editingSkill) {
-        await base44.entities.Skill.update(editingSkill.id, formData);
+        const existingHistory = editingSkill.change_history_json || "[]";
+        const updatedHistory = appendChangeHistory(existingHistory, "skill_updated", `Updated via form`);
+        await base44.entities.Skill.update(editingSkill.id, { ...formData, change_history_json: updatedHistory });
         toast({ title: "Skill Updated", description: `${formData.skill_name} has been updated.` });
       } else {
-        await base44.entities.Skill.create({ ...formData, user_id: user.id });
+        const history = appendChangeHistory("[]", "skill_created", `Created via form`);
+        await base44.entities.Skill.create({ ...formData, change_history_json: history, user_id: user.id });
         toast({ title: "Skill Added", description: `${formData.skill_name} has been added to your profile.` });
       }
       setShowForm(false);
@@ -86,8 +100,17 @@ export default function Skills() {
 
   const handleAddFromAI = async (skillData) => {
     try {
-      await base44.entities.Skill.create({ ...skillData, user_id: user.id, proficiency: skillData.proficiency || "intermediate" });
-      toast({ title: "Skill Added", description: `${skillData.skill_name} added from AI analysis.` });
+      const confidence = calculateConfidenceScore(skillData);
+      const level = getConfidenceLevel(confidence);
+      const history = appendChangeHistory("[]", "skill_created", `Added from AI recommendation`);
+      await base44.entities.Skill.create({
+        ...skillData,
+        confidence_score: confidence,
+        confidence_level: level,
+        change_history_json: history,
+        user_id: user.id,
+      });
+      toast({ title: "Skill Added", description: `${skillData.skill_name} added from AI recommendation.` });
       await loadSkills();
     } catch (err) {
       toast({ title: "Error", description: "Could not add skill.", variant: "destructive" });
@@ -97,9 +120,8 @@ export default function Skills() {
   const handleAnalyzeWithAI = async () => {
     setAnalyzing(true);
     try {
-      const resumeUrl = profile?.resume_url;
-      const experience = profile?.experience_json ? JSON.parse(profile.experience_json) : [];
-      const prompt = `You are an executive skills analyst. Analyze this executive's profile and extract a comprehensive skills list.
+      const experience = profile?.experience_json ? parseJSON(profile.experience_json, []) : [];
+      const prompt = `You are an executive skills intelligence analyst. Analyze this executive's profile and extract a comprehensive skills list with evidence, verification state, and market demand.
 
 Target Role: ${targetRole}
 Current Role: ${profile?.current_role || "Unknown"}
@@ -107,14 +129,24 @@ Industry: ${profile?.preferred_industry || profile?.industry || "Unknown"}
 Years of Experience: ${profile?.years_experience || "Unknown"}
 
 Work Experience:
-${experience?.map(e => `- ${e.role || e.title || "Role"} at ${e.company || "Company"}: ${e.description || ""}`).join("\n") || "Not provided"}
+${Array.isArray(experience) ? experience.map(e => `- ${e.role || e.title || "Role"} at ${e.company || "Company"}: ${e.description || ""}`).join("\n") : "Not provided"}
 
 Existing Skills: ${skills.map(s => s.skill_name).join(", ") || "None"}
 
-Extract skills from the work experience. Return a JSON object with:
-- extracted_skills: array of { skill_name, category (technical/leadership/business/ai_digital), proficiency (beginner/intermediate/advanced/expert), years_of_experience (number), last_used (string), why_detected (string) }
-- missing_skills: array of skill names that are commonly expected for this role but not found
-- suggestions: array of { skill_name, category, reason } for skills to develop`;
+Extract skills from the work experience. For each skill, provide:
+- skill_name: the skill name
+- capability_domain: one of technology, leadership, strategy, operations, governance, finance, communication, people_leadership, transformation, innovation, risk, customer_success
+- proficiency: beginner, intermediate, advanced, or expert
+- years_of_experience: estimated number
+- acquired_year: estimated year first acquired (based on career timeline)
+- verification_state: resume_verified, experience_verified, or ai_detected
+- market_demand: high_demand, growing, emerging, stable, or legacy
+- evidence: array of { source, type, description } — what evidence supports this skill
+- related_skills: array of skill names that connect to this in the Executive Skill Graph™
+
+Return JSON: { "extracted_skills": [...], "market_insights": [{ skill_name, demand_level, insight }] }
+
+Do NOT include skills the user already has. Extract 5-15 skills.`;
 
       const res = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -122,27 +154,51 @@ Extract skills from the work experience. Return a JSON object with:
           type: "object",
           properties: {
             extracted_skills: { type: "array", items: { type: "object", properties: {
-              skill_name: { type: "string" }, category: { type: "string" },
-              proficiency: { type: "string" }, years_of_experience: { type: "number" },
-              last_used: { type: "string" }, why_detected: { type: "string" },
+              skill_name: { type: "string" },
+              capability_domain: { type: "string" },
+              proficiency: { type: "string" },
+              years_of_experience: { type: "number" },
+              acquired_year: { type: "number" },
+              verification_state: { type: "string" },
+              market_demand: { type: "string" },
+              evidence: { type: "array", items: { type: "object", properties: {
+                source: { type: "string" }, type: { type: "string" }, description: { type: "string" },
+              }}},
+              related_skills: { type: "array", items: { type: "string" } },
             }}},
-            missing_skills: { type: "array", items: { type: "string" } },
-            suggestions: { type: "array", items: { type: "object", properties: {
-              skill_name: { type: "string" }, category: { type: "string" }, reason: { type: "string" },
+            market_insights: { type: "array", items: { type: "object", properties: {
+              skill_name: { type: "string" }, demand_level: { type: "string" }, insight: { type: "string" },
             }}},
           },
         },
       });
 
-      // Auto-add extracted skills that don't already exist
       const existingNames = new Set(skills.map(s => s.skill_name.toLowerCase()));
       const newSkills = (res.extracted_skills || []).filter(s => !existingNames.has(s.skill_name.toLowerCase()));
 
       if (newSkills.length > 0) {
-        await base44.entities.Skill.bulkCreate(newSkills.map(s => ({
-          ...s, user_id: user.id, source: "resume",
-        })));
-        toast({ title: "AI Analysis Complete", description: `${newSkills.length} new skills extracted and added from your profile.` });
+        const records = newSkills.map(s => {
+          const confidence = calculateConfidenceScore({ ...s, evidence_json: JSON.stringify(s.evidence || []) });
+          const level = getConfidenceLevel(confidence);
+          return {
+            skill_name: s.skill_name,
+            capability_domain: s.capability_domain || "technology",
+            proficiency: s.proficiency || "intermediate",
+            years_of_experience: s.years_of_experience || 0,
+            acquired_year: s.acquired_year,
+            verification_state: s.verification_state || "ai_detected",
+            confidence_score: confidence,
+            confidence_level: level,
+            market_demand: s.market_demand || "stable",
+            source: "resume",
+            evidence_json: JSON.stringify(s.evidence || []),
+            related_skills_json: JSON.stringify(s.related_skills || []),
+            change_history_json: appendChangeHistory("[]", "skill_created", "Extracted from resume via AI Skill Import Engine™"),
+            user_id: user.id,
+          };
+        });
+        await base44.entities.Skill.bulkCreate(records);
+        toast({ title: "AI Import Complete", description: `${newSkills.length} skills extracted with evidence and confidence scores.` });
         await loadSkills();
       } else {
         toast({ title: "AI Analysis Complete", description: "No new skills found. Your skills profile is up to date." });
@@ -156,39 +212,50 @@ Extract skills from the work experience. Return a JSON object with:
 
   const handleExport = () => {
     const data = skills.map(s => ({
-      Skill: s.skill_name, Category: s.category, Proficiency: s.proficiency,
-      Years: s.years_of_experience, "Last Used": s.last_used,
-      Verified: s.verified, Source: s.source,
+      Skill: s.skill_name,
+      Domain: EXECUTIVE_DOMAINS.find(d => d.id === s.capability_domain)?.label || s.capability_domain,
+      Proficiency: s.proficiency,
+      Years: s.years_of_experience,
+      Confidence: s.confidence_score,
+      Level: s.confidence_level,
+      Verification: s.verification_state,
+      Market: s.market_demand,
+      Evidence: parseJSON(s.evidence_json, []).length,
     }));
     const csv = [Object.keys(data[0] || {}).join(","), ...data.map(d => Object.values(d).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "skills-report.csv"; a.click();
+    a.href = url; a.download = "skills-intelligence-report.csv"; a.click();
     URL.revokeObjectURL(url);
   };
 
   // Filter & sort
+  const demandPriority = { high_demand: 5, growing: 4, emerging: 3, stable: 2, legacy: 1 };
+  const profOrder = { expert: 4, advanced: 3, intermediate: 2, beginner: 1 };
+
   const filtered = skills
     .filter(s => !search || s.skill_name.toLowerCase().includes(search.toLowerCase()))
-    .filter(s => filterCategory === "all" || s.category === filterCategory)
-    .filter(s => filterProficiency === "all" || s.proficiency === filterProficiency)
-    .filter(s => filterVerified === "all" || (filterVerified === "verified" ? s.verified : !s.verified))
+    .filter(s => filterDomain === "all" || s.capability_domain === filterDomain)
+    .filter(s => filterVerification === "all" || (filterVerification === "verified" ? s.verification_state !== "self_reported" : s.verification_state === filterVerification))
+    .filter(s => filterDemand === "all" || s.market_demand === filterDemand)
     .sort((a, b) => {
+      if (sortBy === "confidence") return (b.confidence_score || 0) - (a.confidence_score || 0);
       if (sortBy === "name") return a.skill_name.localeCompare(b.skill_name);
-      if (sortBy === "proficiency") { const order = { expert: 4, advanced: 3, intermediate: 2, beginner: 1 }; return (order[b.proficiency] || 0) - (order[a.proficiency] || 0); }
+      if (sortBy === "proficiency") return (profOrder[b.proficiency] || 0) - (profOrder[a.proficiency] || 0);
       if (sortBy === "years") return (b.years_of_experience || 0) - (a.years_of_experience || 0);
+      if (sortBy === "demand") return (demandPriority[b.market_demand] || 0) - (demandPriority[a.market_demand] || 0);
       return 0;
     });
 
-  const skillsByCategory = CATEGORIES.map(cat => ({ ...cat, skills: filtered.filter(s => s.category === cat.id) }));
+  const skillsByDomain = EXECUTIVE_DOMAINS.map(d => ({ ...d, skills: filtered.filter(s => s.capability_domain === d.id) }));
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>;
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
@@ -196,14 +263,14 @@ Extract skills from the work experience. Return a JSON object with:
             <ArrowLeft size={12} /> Back to Profile
           </Link>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
-            <BrainCircuit size={12} className="text-indigo-400" /> Qualifications
+            <Network size={12} className="text-indigo-400" /> Skills Intelligence™ v2.0
           </div>
-          <h1 className="text-2xl font-bold text-white">Skills</h1>
-          <p className="text-white/40 text-sm mt-1 max-w-2xl">Manage your professional, technical, leadership, and business skills to strengthen your executive profile and improve AI-powered recommendations.</p>
+          <h1 className="text-2xl font-bold text-white">Skills Intelligence™</h1>
+          <p className="text-white/40 text-sm mt-1 max-w-2xl">Evidence-driven, verified, and continuously improving representation of your professional capabilities across 12 executive domains.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleAnalyzeWithAI} disabled={analyzing} variant="outline" className="border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10">
-            {analyzing ? <><Loader2 size={14} className="mr-1.5 animate-spin" /> Analyzing...</> : <><Sparkles size={14} className="mr-1.5" /> Analyze Skills with AI</>}
+            {analyzing ? <><Loader2 size={14} className="mr-1.5 animate-spin" /> Importing...</> : <><Sparkles size={14} className="mr-1.5" /> AI Skill Import™</>}
           </Button>
           <Button onClick={handleExport} variant="outline" className="text-white/60">
             <Download size={14} className="mr-1.5" /> Export
@@ -215,10 +282,10 @@ Extract skills from the work experience. Return a JSON object with:
       </div>
 
       {/* Dashboard */}
-      <SkillsDashboard skills={skills} />
+      <SkillIntelligenceDashboard skills={skills} />
 
-      {/* Skill Gap Analysis */}
-      <SkillGapAnalysis skills={skills} targetRole={targetRole} onAddSkill={handleAddFromAI} />
+      {/* Scorecard */}
+      <ExecutiveSkillScorecard skills={skills} />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
@@ -226,21 +293,26 @@ Extract skills from the work experience. Return a JSON object with:
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search skills..." className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" />
         </div>
-        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
-          <option value="all">All Categories</option>
-          {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+        <select value={filterDomain} onChange={e => setFilterDomain(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
+          <option value="all">All Domains</option>
+          {EXECUTIVE_DOMAINS.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
         </select>
-        <select value={filterProficiency} onChange={e => setFilterProficiency(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
-          <option value="all">All Proficiency</option>
-          <option value="beginner">Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="advanced">Advanced</option>
-          <option value="expert">Expert</option>
-        </select>
-        <select value={filterVerified} onChange={e => setFilterVerified(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
-          <option value="all">All Status</option>
+        <select value={filterVerification} onChange={e => setFilterVerification(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
+          <option value="all">All Verification</option>
           <option value="verified">Verified Only</option>
-          <option value="unverified">Unverified Only</option>
+          <option value="self_reported">Self Reported</option>
+          <option value="resume_verified">Resume Verified</option>
+          <option value="experience_verified">Experience Verified</option>
+          <option value="certification_verified">Certification Verified</option>
+          <option value="ai_detected">AI Detected</option>
+        </select>
+        <select value={filterDemand} onChange={e => setFilterDemand(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
+          <option value="all">All Market Demand</option>
+          <option value="high_demand">High Demand</option>
+          <option value="growing">Growing</option>
+          <option value="emerging">Emerging</option>
+          <option value="stable">Stable</option>
+          <option value="legacy">Legacy</option>
         </select>
         <div className="flex items-center gap-1.5">
           <SlidersHorizontal size={12} className="text-white/30" />
@@ -250,25 +322,25 @@ Extract skills from the work experience. Return a JSON object with:
         </div>
       </div>
 
-      {/* Skills by Category */}
+      {/* Skills by Domain */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <BrainCircuit size={32} className="text-white/10 mx-auto mb-3" />
-          <p className="text-white/40 text-sm mb-1">{search || filterCategory !== "all" || filterProficiency !== "all" ? "No skills match your filters." : "No skills added yet."}</p>
-          <p className="text-white/30 text-xs">{search ? "Try a different search term." : "Click \"Add Skill\" or \"Analyze Skills with AI\" to get started."}</p>
+          <p className="text-white/40 text-sm mb-1">{search || filterDomain !== "all" || filterVerification !== "all" || filterDemand !== "all" ? "No skills match your filters." : "No skills added yet."}</p>
+          <p className="text-white/30 text-xs">{search ? "Try a different search term." : "Click \"Add Skill\" or \"AI Skill Import™\" to get started."}</p>
         </div>
       ) : (
         <div className="space-y-6">
-          {skillsByCategory.map(cat => cat.skills.length > 0 && (
-            <div key={cat.id}>
+          {skillsByDomain.map(domain => domain.skills.length > 0 && (
+            <div key={domain.id}>
               <div className="flex items-center gap-2 mb-3">
-                <cat.icon size={16} className={cat.iconClass} />
-                <h3 className="text-white/70 text-sm font-semibold">{cat.label}</h3>
-                <span className="text-white/20 text-xs">{cat.skills.length}</span>
+                {React.createElement(DOMAIN_ICON_MAP[domain.icon] || Code, { size: 16, className: DOMAIN_TEXT_COLORS[domain.color] || "text-indigo-400" })}
+                <h3 className="text-white/70 text-sm font-semibold">{domain.label}</h3>
+                <span className="text-white/20 text-xs">{domain.skills.length}</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {cat.skills.map(skill => (
-                  <SkillCard key={skill.id} skill={skill} onEdit={(s) => { setEditingSkill(s); setShowForm(true); }} onDelete={handleDelete} />
+                {domain.skills.map(skill => (
+                  <SkillCard key={skill.id} skill={skill} onEdit={(s) => { setEditingSkill(s); setShowForm(true); }} onDelete={handleDelete} onClick={setSelectedSkill} />
                 ))}
               </div>
             </div>
@@ -276,9 +348,20 @@ Extract skills from the work experience. Return a JSON object with:
         </div>
       )}
 
+      {/* Timeline + Recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SkillTimeline skills={skills} />
+        <SkillRecommendations skills={skills} targetRole={targetRole} onAddSkill={handleAddFromAI} />
+      </div>
+
       {/* Form Modal */}
       {showForm && (
         <SkillForm skill={editingSkill} onSave={handleSave} onClose={() => { setShowForm(false); setEditingSkill(null); }} />
+      )}
+
+      {/* Detail Drawer */}
+      {selectedSkill && (
+        <SkillDetailDrawer skill={selectedSkill} onClose={() => setSelectedSkill(null)} />
       )}
     </div>
   );

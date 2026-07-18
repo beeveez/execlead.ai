@@ -19,7 +19,26 @@
         "ai_digital"
       ],
       "default": "technical",
-      "description": "Skill category"
+      "description": "Legacy category grouping"
+    },
+    "capability_domain": {
+      "type": "string",
+      "enum": [
+        "technology",
+        "leadership",
+        "strategy",
+        "operations",
+        "governance",
+        "finance",
+        "communication",
+        "people_leadership",
+        "transformation",
+        "innovation",
+        "risk",
+        "customer_success"
+      ],
+      "default": "technology",
+      "description": "Executive Capability Domain\u2122"
     },
     "proficiency": {
       "type": "string",
@@ -39,7 +58,11 @@
     },
     "last_used": {
       "type": "string",
-      "description": "When the skill was last used (e.g. Current, 2026, 2025)"
+      "description": "When the skill was last used"
+    },
+    "acquired_year": {
+      "type": "number",
+      "description": "Year the skill was first acquired (for timeline)"
     },
     "verified": {
       "type": "boolean",
@@ -49,6 +72,36 @@
     "verification_source": {
       "type": "string",
       "description": "How the skill was verified"
+    },
+    "verification_state": {
+      "type": "string",
+      "enum": [
+        "self_reported",
+        "ai_detected",
+        "resume_verified",
+        "experience_verified",
+        "certification_verified",
+        "manager_verified",
+        "peer_verified",
+        "enterprise_verified"
+      ],
+      "default": "self_reported",
+      "description": "Verification Engine\u2122 state"
+    },
+    "confidence_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Skill Confidence Score\u2122 0-100"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "low",
+      "description": "Confidence level bucket"
     },
     "source": {
       "type": "string",
@@ -63,6 +116,34 @@
       "default": "manual",
       "description": "Where the skill was sourced from"
     },
+    "market_demand": {
+      "type": "string",
+      "enum": [
+        "high_demand",
+        "growing",
+        "emerging",
+        "stable",
+        "legacy"
+      ],
+      "default": "stable",
+      "description": "Market Intelligence\u2122 demand level"
+    },
+    "evidence_json": {
+      "type": "string",
+      "description": "JSON array of { source, type, description, confidence_weight }"
+    },
+    "related_skills_json": {
+      "type": "string",
+      "description": "JSON array of related skill names for Executive Skill Graph\u2122"
+    },
+    "change_history_json": {
+      "type": "string",
+      "description": "JSON array of { timestamp, event, details } \u2014 immutable audit trail"
+    },
+    "recommendation_reason": {
+      "type": "string",
+      "description": "AI explanation for why this skill is recommended"
+    },
     "user_id": {
       "type": "string",
       "description": "Owner user ID"
@@ -70,7 +151,6 @@
   },
   "required": [
     "skill_name",
-    "category",
     "user_id"
   ],
   "rls": {

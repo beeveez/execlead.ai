@@ -280,6 +280,8 @@ const ROUTE_WORKSPACE = {
   "/cpq": ["operations", "developer"], "/cpq-dashboard": ["operations", "developer"],
   "/admin": ["operations"],
   "/business-intelligence": ["operations"],
+  "/commercial-command-center": ["operations"],
+  "/commercial-automation": ["operations"],
   "/operations": ["operations"],
   "/operations/customer-intelligence": ["operations"],
   "/operations/product-intelligence": ["operations"],

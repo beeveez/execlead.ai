@@ -19,7 +19,8 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
-    const action = body.action;
+    // Scheduled automations call with no payload — default to anniversary_check
+    const action = body.action ?? 'anniversary_check';
 
     // ============================================================
     // HELPER: Log a founding member audit entry (immutable)

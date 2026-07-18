@@ -324,6 +324,57 @@ export const RLS_REGISTRY = [
 
   // ── Immutable Entities (registered 2026-07-18) ──
   { name: "UsageLog", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/dev read; no update/delete" },
+
+  // ── Discovered Entities (audited 2026-07-18) ──
+  // Resolves the 39 "unverified" entities from Entity Discovery™.
+  // Each entry documents the actual RLS state: has_rls = explicit RLS block,
+  // no_rls_block = platform default (owner-scoped via created_by_id),
+  // empty_rls = empty {} block (no restrictions — needs configuration).
+
+  // User-Scoped — explicit user_id field
+  { name: "AIAgentState", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "EventRegistration", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin (platform default)" },
+  { name: "FoundingMember", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin; create/update/delete: admin only" },
+  { name: "FoundingWaitlist", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "FounderTimeCapsule", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "NetworkBadge", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "CommunityMembership", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "CouncilReview", classification: "user", scope: "user_id", status: "open", sensitive: false, rule: "no restrictions — empty RLS block; needs configuration" },
+  { name: "LetterComment", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "LetterInteraction", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "ReputationAppeal", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "CommentAppeal", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "CommentReaction", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "JobApplication", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + admin (platform default)" },
+  { name: "SavedJob", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "AITask", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "Notification", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+
+  // User-Scoped — built-in created_by_id (no explicit user_id field)
+  { name: "NetworkCircle", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "NetworkPost", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "NetworkDiscussion", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "PartnershipListing", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "LeadershipLetter", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "LetterReport", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "LegacyCaseStudy", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "CareerDocument", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin" },
+  { name: "JournalEntry", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "ChallengeResult", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "LearningAssignment", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "Achievement", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "Feedback", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "Task", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "Wishlist", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin" },
+  { name: "MarketplaceItem", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "DemoRequest", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+  { name: "CareerOpportunity", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
+
+  // Platform-Scoped
+  { name: "Feature", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
+  { name: "ProductRelease", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
+  { name: "JobSource", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
+  { name: "ELIMKnowledgePack", classification: "platform", scope: "created_by_id", status: "open", sensitive: false, rule: "no restrictions — empty RLS block; needs configuration" },
 ];
 
 // ── Score Computation ──

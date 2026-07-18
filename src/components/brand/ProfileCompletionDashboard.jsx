@@ -18,9 +18,9 @@ function CompletionBar({ score }) {
   );
 }
 
-export default function ProfileCompletionDashboard({ profile }) {
-  const { overall, sections, missing } = calculateProfileCompletion(profile);
-  const validation = validateForPublish(profile);
+export default function ProfileCompletionDashboard({ profile, skillsCount }) {
+  const { overall, sections, missing } = calculateProfileCompletion(profile, { skillsCount });
+  const validation = validateForPublish(profile, { skillsCount });
   const readyToPublish = validation.valid;
 
   return (

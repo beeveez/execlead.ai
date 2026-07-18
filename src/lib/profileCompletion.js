@@ -89,8 +89,8 @@ export const COMPLETION_SECTIONS = [
     icon: "Zap",
     weight: 10,
     items: [
-      { key: "has_skills", label: "At Least 5 Skills", check: (p) => (p.skills || []).length >= 5 },
-      { key: "rich_skills", label: "10+ Skills (Rich Profile)", check: (p) => (p.skills || []).length >= 10 },
+      { key: "has_skills", label: "At Least 5 Skills", check: (p) => (p._skillsCount ?? (p.skills || []).length) >= 5 },
+      { key: "rich_skills", label: "10+ Skills (Rich Profile)", check: (p) => (p._skillsCount ?? (p.skills || []).length) >= 10 },
     ],
   },
   {
@@ -152,7 +152,7 @@ export const PUBLISH_REQUIREMENTS = [
   { key: "current_position", label: "Current Position", check: (p) => !!(p.current_role || p.current_company) },
   { key: "experience", label: "Work Experience", check: (p) => (p.experience || []).length > 0 },
   { key: "resume", label: "Resume", check: (p) => !!p.resume_url },
-  { key: "skills", label: "Skills", check: (p) => (p.skills || []).length >= 5 },
+  { key: "skills", label: "Skills", check: (p) => (p._skillsCount ?? (p.skills || []).length) >= 5 },
   { key: "target_role", label: "Target Role", check: (p) => !!p.target_role },
   { key: "target_company", label: "Target Company", check: (p) => !!p.target_company },
   { key: "username", label: "Username", check: (p) => !!p.public_username },
@@ -162,9 +162,13 @@ export const PUBLISH_REQUIREMENTS = [
 export const MIN_PUBLISH_COMPLETION = 80;
 
 /** Calculate transparent per-section + overall completion. */
-export function calculateProfileCompletion(rawProfile) {
+export function calculateProfileCompletion(rawProfile, options = {}) {
   const profile = normalizeProfile(rawProfile);
   if (!profile) return { overall: 0, sections: [], missing: [], requiredMissing: [] };
+
+  // Consume Skills Intelligence™ metrics (actual Skill entity count) when provided;
+  // falls back to the denormalized profile.skills array for backward compatibility
+  profile._skillsCount = options.skillsCount ?? (profile.skills || []).length;
 
   const sections = COMPLETION_SECTIONS.map((section) => {
     const items = section.items.map((item) => ({
@@ -199,10 +203,11 @@ export function calculateProfileCompletion(rawProfile) {
 }
 
 /** Validate whether a profile is ready to publish. */
-export function validateForPublish(rawProfile) {
+export function validateForPublish(rawProfile, options = {}) {
   const profile = normalizeProfile(rawProfile);
   if (!profile) return { valid: false, checks: [], passed: 0, total: PUBLISH_REQUIREMENTS.length, missing: [], completion: 0, minRequired: MIN_PUBLISH_COMPLETION };
-  const { overall, requiredMissing } = calculateProfileCompletion(profile);
+  profile._skillsCount = options.skillsCount ?? (profile.skills || []).length;
+  const { overall, requiredMissing } = calculateProfileCompletion(profile, options);
   const checks = PUBLISH_REQUIREMENTS.map((r) => ({ ...r, passed: r.check(profile) }));
   const passed = checks.filter((c) => c.passed).length;
   const valid = overall >= MIN_PUBLISH_COMPLETION && requiredMissing.length === 0;

@@ -210,10 +210,16 @@ Extract 5-15 skills from the work experience. Existing skills will be intelligen
           // ── UPSERT: merge evidence + refresh metadata ──
           const existingEvidence = parseJSON(existing.evidence_json, []);
           const newEvidence = Array.isArray(s.evidence) ? s.evidence : [];
+          // Dedup by source+type only — prevents evidence count growth on re-import.
+          // LLM returns varied descriptions for the same evidence each time; matching
+          // on description would accumulate items and inflate confidence/scores.
           const mergedEvidence = [...existingEvidence];
           for (const ev of newEvidence) {
-            const sig = `${ev.source}|${ev.type}|${ev.description}`.toLowerCase().trim();
-            if (!mergedEvidence.some(e => `${e.source}|${e.type}|${e.description}`.toLowerCase().trim() === sig)) {
+            const sig = `${ev.source}|${ev.type}`.toLowerCase().trim();
+            const idx = mergedEvidence.findIndex(e => `${e.source}|${e.type}`.toLowerCase().trim() === sig);
+            if (idx >= 0) {
+              mergedEvidence[idx] = { ...mergedEvidence[idx], description: ev.description };
+            } else {
               mergedEvidence.push(ev);
             }
           }
@@ -281,7 +287,7 @@ Extract 5-15 skills from the work experience. Existing skills will be intelligen
       const projectedTotal = skills.length + toCreate.length;
       toast({
         title: "AI Skill Import Complete",
-        description: `✓ ${toCreate.length} new · ✓ ${toUpdate.length} updated · ${duplicatesSkipped} duplicates skipped — Total: ${projectedTotal}`,
+        description: `✓ ${toCreate.length} new skills added · ✓ ${toUpdate.length} existing skills updated — Total: ${projectedTotal}`,
       });
     } catch (err) {
       toast({ title: "Analysis Failed", description: err.message || "Could not analyze skills.", variant: "destructive" });

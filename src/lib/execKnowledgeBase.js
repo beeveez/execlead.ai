@@ -1805,6 +1805,18 @@ export const EXEC_KNOWLEDGE_INDEX = [
     findIt: "Developer Workspace → Platform Operations → Experience Intelligence™.",
   },
   {
+    id: "performance-dashboard",
+    name: "Performance Dashboard™",
+    aliases: ["performance dashboard", "performance metrics", "latency", "background jobs", "intelligence cache", "ai invocation guard", "optimization checklist"],
+    path: "/developer/performance",
+    category: "Developer",
+    icon: Gauge,
+    description: "Performance Dashboard™ — real-time latency metrics, background job monitor, Computed Intelligence Cache™, AI Invocation Guard™, performance budgets, and the 12-point optimization checklist.",
+    purpose: "Track platform latency, cache hit rates, background job throughput, and AI optimization against the performance optimization strategy.",
+    keyFeatures: ["Latency Metrics", "Background Job Monitor", "Intelligence Cache Config", "Performance Budgets", "AI Optimization Rules", "Optimization Checklist"],
+    findIt: "Developer Workspace → Platform Operations → Performance Dashboard™.",
+  },
+  {
     id: "cognitive-excellence",
     name: "Cognitive Excellence Engine™",
     aliases: ["cognitive excellence", "cognitive engine", "cognitive pillars", "persona resolution", "capability chain"],

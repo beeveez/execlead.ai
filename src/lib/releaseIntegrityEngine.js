@@ -1,132 +1,62 @@
 /**
- * Release Integrity Gate™ v2.0
- * Enterprise Deployment Protection Standard
+ * Release Integrity Gate™ v3.0
+ * Enterprise Autonomous Release Governance
  *
- * 10-Gate validation system. No deployment may proceed
- * unless ALL gates pass.
+ * 8-Phase Pipeline:
+ *   1. Pre-Deployment Analysis → 2. Integrity Validation → 3. Security Validation
+ *   → 4. Application Validation → 5. Business Validation → 6. Risk Scoring
+ *   → 7. Deployment Decision → 8. Post Deployment Monitoring
  *
- * Automated Gates (backend): 1, 2, 10
- * Frontend Gates: 3, 4, 5, 6, 7, 8, 9
+ * All 10 gates run autonomously in the backend.
+ * Manual checklists are exceptions, not the primary validation method.
  */
 
 import { base44 } from '@/api/base44Client';
 
-const GATE_VERSION = '2.0.0';
-const BASELINE_STORAGE_KEY = 'execlead_release_integrity_baseline';
+const GATE_VERSION = '3.0.0';
+const BASELINE_STORAGE_KEY = 'execlead_release_integrity_baseline_v3';
 
 // ═══════════════════════════════════════════════════════════
-// GATE DEFINITIONS
+// GATE DEFINITIONS (for UI display)
 // ═══════════════════════════════════════════════════════════
 
 export const GATES = [
-  { id: 1, name: 'Data Preservation', description: 'Entity counts stable — no unintended data loss', automated: true, icon: 'Database' },
-  { id: 2, name: 'Relationship Integrity', description: 'No orphaned records or broken foreign keys', automated: true, icon: 'Link2' },
-  { id: 3, name: 'File Integrity', description: 'All uploaded files remain accessible', automated: false, icon: 'FileCheck' },
-  { id: 4, name: 'Security Validation', description: 'Encryption, private storage, security headers', automated: false, icon: 'ShieldCheck' },
-  { id: 5, name: 'Tenant Isolation', description: 'Organization boundaries and RBAC enforced', automated: false, icon: 'Building2' },
-  { id: 6, name: 'Permission Validation', description: 'Restricted entities follow least privilege', automated: false, icon: 'Lock' },
-  { id: 7, name: 'Schema Compatibility', description: 'No destructive migrations, backward compatible', automated: false, icon: 'GitBranch' },
-  { id: 8, name: 'Backup & Rollback', description: 'Verified backup and rollback path available', automated: false, icon: 'Archive' },
-  { id: 9, name: 'Application Health', description: 'Smoke tests pass for critical user flows', automated: false, icon: 'Activity' },
-  { id: 10, name: 'AI Memory Validation', description: 'AI conversations, preferences, and progress preserved', automated: true, icon: 'Brain' },
+  { id: 1, name: 'Data Preservation', phase: 'Integrity Validation', description: 'Record counts, critical entities, AI memory, executive journey, uploaded documents', automated: true },
+  { id: 2, name: 'Relationship Integrity', phase: 'Integrity Validation', description: 'Foreign keys, parent-child relationships, orphan detection, entity consistency', automated: true },
+  { id: 3, name: 'Storage Integrity', phase: 'Integrity Validation', description: 'File exists, storage reachable, checksum valid, metadata valid, encryption enabled', automated: true },
+  { id: 4, name: 'Security Validation', phase: 'Security Validation', description: 'Security headers, TLS, encryption, secret rotation, JWT, MFA, rate limiting, RBAC, zero trust', automated: true },
+  { id: 5, name: 'Permission Drift Detection', phase: 'Security Validation', description: 'Compare RBAC against previous release — detect privilege escalation, role expansion, public exposure', automated: true },
+  { id: 6, name: 'Tenant Isolation', phase: 'Security Validation', description: 'Tenant A cannot access Tenant B — organizations, users, invoices, reports, files, AI memory', automated: true },
+  { id: 7, name: 'Schema Compatibility', phase: 'Application Validation', description: 'Database migration, indexes, constraints, foreign keys, entity compatibility, API compatibility', automated: true },
+  { id: 8, name: 'Application Health', phase: 'Application Validation', description: 'Smoke tests — authentication, registration, dashboard, executive workspace, AI coach, billing, notifications, search, journey', automated: true },
+  { id: 9, name: 'Backup & Recovery', phase: 'Business Validation', description: 'Backup completed, restore successful, rollback package available, recovery point valid, estimated recovery time', automated: true },
+  { id: 10, name: 'AI Memory Validation', phase: 'Integrity Validation', description: 'AI conversations, preferences, and progress preserved', automated: true },
 ];
 
-// ═══════════════════════════════════════════════════════════
-// GATE 4: Security Validation (Frontend)
-// ═══════════════════════════════════════════════════════════
-
-const SECURITY_CHECKS = [
-  { id: 'csp', label: 'Content-Security-Policy header', check: () => !!document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.getAttribute('content') },
-  { id: 'hsts', label: 'Strict-Transport-Security header', check: () => {
-    const v = document.querySelector('meta[http-equiv="Strict-Transport-Security"]')?.getAttribute('content') || '';
-    return v.includes('max-age');
-  }},
-  { id: 'xfo', label: 'X-Frame-Options: DENY', check: () => document.querySelector('meta[http-equiv="X-Frame-Options"]')?.getAttribute('content') === 'DENY' },
-  { id: 'nosniff', label: 'X-Content-Type-Options: nosniff', check: () => document.querySelector('meta[http-equiv="X-Content-Type-Options"]')?.getAttribute('content') === 'nosniff' },
-  { id: 'referrer', label: 'Referrer-Policy set', check: () => !!document.querySelector('meta[name="referrer-policy"]')?.getAttribute('content') },
-  { id: 'permissions', label: 'Permissions-Policy set', check: () => !!document.querySelector('meta[http-equiv="Permissions-Policy"]')?.getAttribute('content') },
+export const PIPELINE_PHASES = [
+  { id: 1, name: 'Pre-Deployment Analysis', description: 'Capture baseline snapshot of all protected entities and RLS policies' },
+  { id: 2, name: 'Integrity Validation', description: 'Data preservation, relationship integrity, storage integrity, AI memory' },
+  { id: 3, name: 'Security Validation', description: 'Security validation, permission drift, tenant isolation' },
+  { id: 4, name: 'Application Validation', description: 'Schema compatibility, application health smoke tests' },
+  { id: 5, name: 'Business Validation', description: 'Backup & recovery verification' },
+  { id: 6, name: 'Risk Scoring', description: 'Enterprise Risk Score™ — 0-100 with LOW/MEDIUM/HIGH/CRITICAL levels' },
+  { id: 7, name: 'Deployment Decision', description: 'Automatic deployment decision based on risk score and gate results' },
+  { id: 8, name: 'Post Deployment Monitoring', description: 'Monitor errors, performance, database, storage, AI services at 5/15/30/60 min intervals' },
 ];
 
-export function runSecurityChecks() {
-  return SECURITY_CHECKS.map(c => ({
-    id: c.id,
-    label: c.label,
-    passed: c.check(),
-    status: c.check() ? 'ok' : 'fail',
-  }));
-}
-
-// ═══════════════════════════════════════════════════════════
-// GATE 6: Permission Validation (Static RLS Matrix)
-// ═══════════════════════════════════════════════════════════
-
-const RESTRICTED_ENTITY_POLICIES = [
-  { entity: 'SecurityIncident', expected: { create: ['super_admin', 'platform_admin'], read: ['super_admin', 'platform_admin', 'admin'], update: ['super_admin', 'platform_admin'], delete: '__immutable__' } },
-  { entity: 'PlatformStateEvent', expected: { create: ['super_admin', 'platform_admin', 'admin', 'developer'], read: ['super_admin', 'platform_admin', 'admin', 'developer'], update: '__immutable__', delete: '__immutable__' } },
-  { entity: 'SelfHealingEvent', expected: { create: ['super_admin', 'platform_admin', 'admin', 'developer'], read: ['super_admin', 'platform_admin', 'admin', 'developer'], update: '__immutable__', delete: '__immutable__' } },
-  { entity: 'IdentitySyncEvent', expected: { create: ['super_admin', 'platform_admin'], read: ['org_scoped', 'super_admin', 'platform_admin', 'enterprise_admin', 'admin'], update: '__immutable__', delete: '__immutable__' } },
-  { entity: 'GovernanceCertificate', expected: { create: ['super_admin', 'platform_admin', 'admin', 'developer'], read: ['super_admin', 'platform_admin', 'admin', 'developer'], update: ['super_admin', 'platform_admin'], delete: '__immutable__' } },
-  { entity: 'Invoice', expected: { create: ['owner'], read: ['owner', 'super_admin', 'platform_admin', 'finance'], update: ['owner', 'super_admin', 'platform_admin'], delete: '__immutable__' } },
-];
-
-export const PERMISSION_CHECKS = RESTRICTED_ENTITY_POLICIES.map(p => ({
-  entity: p.entity,
-  label: p.entity,
-  expected_policy: p.expected,
-  description: `${p.entity} follows least-privilege RBAC matrix`,
-}));
-
-// ═══════════════════════════════════════════════════════════
-// GATES 3, 5, 7, 8, 9: Manual Checklist Items
-// ═══════════════════════════════════════════════════════════
-
-export const FILE_INTEGRITY_CHECKS = [
-  { id: 'resumes', label: 'Resume files remain accessible' },
-  { id: 'cover_letters', label: 'Cover letter files remain accessible' },
-  { id: 'government_ids', label: 'Government ID documents remain accessible' },
-  { id: 'certificates', label: 'Certificate files remain accessible' },
-  { id: 'profile_photos', label: 'Profile photos remain linked' },
-  { id: 'company_logos', label: 'Company logos remain linked' },
-];
-
-export const TENANT_ISOLATION_CHECKS = [
-  { id: 'org_boundary', label: 'Organization boundaries enforced (data.organization_id = user.organization_id)' },
-  { id: 'workspace_isolation', label: 'Workspace isolation verified' },
-  { id: 'rls_enforcement', label: 'Row-level security active on all scoped entities' },
-  { id: 'cross_tenant', label: 'Cross-tenant access test passed (Tenant A cannot read Tenant B)' },
-];
-
-export const SCHEMA_COMPATIBILITY_CHECKS = [
-  { id: 'no_dropped_columns', label: 'No columns dropped without review' },
-  { id: 'no_dropped_tables', label: 'No tables dropped without approval' },
-  { id: 'backward_compatible', label: 'Migrations are backward compatible' },
-  { id: 'apis_working', label: 'Existing APIs continue working' },
-];
-
-export const BACKUP_ROLLBACK_CHECKS = [
-  { id: 'db_backup', label: 'Database backup completed before deployment' },
-  { id: 'storage_backup', label: 'File storage backup completed' },
-  { id: 'rollback_package', label: 'Rollback package available' },
-  { id: 'restore_test', label: 'Restore test passed' },
-];
-
-export const APP_HEALTH_CHECKS = [
-  { id: 'auth', label: 'Authentication flow works' },
-  { id: 'registration', label: 'Registration flow works' },
-  { id: 'dashboard', label: 'Dashboard loads correctly' },
-  { id: 'ai_coach', label: 'AI Coach responds' },
-  { id: 'billing', label: 'Billing page loads' },
-  { id: 'file_upload', label: 'File upload works' },
-  { id: 'notifications', label: 'Notifications load' },
-  { id: 'journey', label: 'Executive Journey loads' },
-];
+export const RISK_LEVELS = {
+  LOW: { color: 'emerald', label: 'LOW', description: 'Deploy Automatically' },
+  MEDIUM: { color: 'amber', label: 'MEDIUM', description: 'Require Product Owner Approval' },
+  HIGH: { color: 'orange', label: 'HIGH', description: 'Require Executive Approval' },
+  CRITICAL: { color: 'red', label: 'CRITICAL', description: 'Deployment Blocked — Rollback Required' },
+};
 
 // ═══════════════════════════════════════════════════════════
 // BASELINE MANAGEMENT
 // ═══════════════════════════════════════════════════════════
 
 export async function captureBaseline() {
-  const response = await base44.functions.invoke('validateReleaseIntegrity', {}, { params: { action: 'snapshot' } });
+  const response = await base44.functions.invoke('validateReleaseIntegrity', { action: 'snapshot' });
   const snapshot = response.data?.snapshot;
   if (!snapshot) throw new Error('Failed to capture baseline snapshot');
   const record = { ...snapshot, gate_version: GATE_VERSION, stored_at: new Date().toISOString() };
@@ -146,140 +76,95 @@ export function clearBaseline() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// FULL VALIDATION — Run all 10 gates
+// FULL AUTONOMOUS VALIDATION — All 10 gates run in backend
 // ═══════════════════════════════════════════════════════════
 
-export async function runAllGates(manualChecklists) {
+export async function runAllGates() {
   const baseline = getStoredBaseline();
   if (!baseline) throw new Error('No baseline snapshot found. Capture a baseline before deployment first.');
 
-  // Run automated gates via backend
-  const response = await base44.functions.invoke(
-    'validateReleaseIntegrity',
-    { baseline },
-    { params: { action: 'validate' } }
-  );
-  const backendResult = response.data;
-  if (!backendResult) throw new Error('Backend validation returned no data');
+  const response = await base44.functions.invoke('validateReleaseIntegrity', { action: 'validate', baseline });
+  const result = response.data;
+  if (!result) throw new Error('Backend validation returned no data');
 
-  // Gate 1: Data Preservation (from backend)
-  const gate1 = backendResult.gates.gate_1_data_preservation;
+  // Supplement Gate 4 with frontend security header checks (DOM-only, can't run in backend)
+  const frontendSecurityChecks = runFrontendSecurityChecks();
+  const gate4 = result.gates.find(g => g.gate === 4);
+  if (gate4) {
+    gate4.checks = [...(gate4.checks || []), ...frontendSecurityChecks];
+    const allSecurityPassed = gate4.checks.every(c => c.status === 'ok' || c.passed);
+    gate4.passed = gate4.passed && allSecurityPassed;
+    gate4.status = gate4.passed ? 'PASS' : 'FAIL';
+    gate4.summary = {
+      total: gate4.checks.length,
+      passed: gate4.checks.filter(c => c.status === 'ok' || c.passed).length,
+      failed: gate4.checks.filter(c => c.status === 'fail' || (!c.passed && c.status !== 'ok')).length,
+    };
+  }
 
-  // Gate 2: Relationship Integrity (from backend)
-  const gate2 = backendResult.gates.gate_2_relationship_integrity;
+  // Recompute overall score after frontend supplementation
+  const allPassed = result.gates.every(g => g.passed);
+  result.all_passed = allPassed;
+  result.overall_integrity_score = Math.round((result.gates.filter(g => g.passed).length / result.gates.length) * 100);
 
-  // Gate 3: File Integrity (manual checklist)
-  const gate3 = evaluateChecklistGate(3, 'File Integrity', 'All uploaded files remain accessible', manualChecklists.file_integrity, FILE_INTEGRITY_CHECKS);
+  // Recompute risk score if security checks failed
+  if (!allPassed && result.risk_level === 'LOW') {
+    result.risk_score = Math.max(result.risk_score, 30);
+    result.risk_level = 'MEDIUM';
+    const decisions = getDecisionForLevel('MEDIUM', false);
+    result.deployment_decision = decisions.code;
+    result.deployment_decision_label = decisions.label;
+    result.deployment_decision_description = decisions.description;
+    result.recommendation = decisions.recommendation;
+    result.recommendation_detail = decisions.recommendation_detail;
+  }
 
-  // Gate 4: Security Validation (frontend DOM checks)
-  const gate4 = evaluateSecurityChecks(runSecurityChecks());
-
-  // Gate 5: Tenant Isolation (manual checklist)
-  const gate5 = evaluateChecklistGate(5, 'Tenant Isolation', 'Organization boundaries enforced', manualChecklists.tenant_isolation, TENANT_ISOLATION_CHECKS);
-
-  // Gate 6: Permission Validation (static policy review)
-  const gate6 = evaluatePermissionGate();
-
-  // Gate 7: Schema Compatibility (manual checklist)
-  const gate7 = evaluateChecklistGate(7, 'Schema Compatibility', 'No destructive migrations', manualChecklists.schema_compatibility, SCHEMA_COMPATIBILITY_CHECKS);
-
-  // Gate 8: Backup & Rollback (manual checklist)
-  const gate8 = evaluateChecklistGate(8, 'Backup & Rollback', 'Rollback path verified', manualChecklists.backup_rollback, BACKUP_ROLLBACK_CHECKS);
-
-  // Gate 9: Application Health (manual checklist)
-  const gate9 = evaluateChecklistGate(9, 'Application Health', 'Critical user flows pass', manualChecklists.app_health, APP_HEALTH_CHECKS);
-
-  // Gate 10: AI Memory (from backend)
-  const gate10 = backendResult.gates.gate_10_ai_memory;
-
-  const allGates = [gate1, gate2, gate3, gate4, gate5, gate6, gate7, gate8, gate9, gate10];
-  const allPassed = allGates.every(g => g.passed);
-  const score = Math.round((allGates.filter(g => g.passed).length / allGates.length) * 100);
-
-  return {
-    gate_version: GATE_VERSION,
-    validated_at: backendResult.validated_at,
-    validated_by: backendResult.validated_by_name,
-    gates: allGates,
-    all_passed: allPassed,
-    overall_score: score,
-    summary: {
-      total: allGates.length,
-      passed: allGates.filter(g => g.passed).length,
-      failed: allGates.filter(g => !g.passed).length,
-    },
+  result.summary = {
+    total: result.gates.length,
+    passed: result.gates.filter(g => g.passed).length,
+    failed: result.gates.filter(g => !g.passed).length,
   };
+
+  return result;
 }
 
 // ═══════════════════════════════════════════════════════════
-// GATE EVALUATION HELPERS
+// FRONTEND SECURITY CHECKS (DOM-only — supplementary to backend Gate 4)
 // ═══════════════════════════════════════════════════════════
 
-function evaluateChecklistGate(gateId, name, description, confirmedItems, allItems) {
-  const checks = allItems.map(item => ({
-    ...item,
-    passed: confirmedItems?.[item.id] === true,
-    status: confirmedItems?.[item.id] === true ? 'ok' : 'pending',
+const SECURITY_HEADER_CHECKS = [
+  { id: 'csp', label: 'Content-Security-Policy header', check: () => !!document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.getAttribute('content') },
+  { id: 'hsts', label: 'Strict-Transport-Security header', check: () => {
+    const v = document.querySelector('meta[http-equiv="Strict-Transport-Security"]')?.getAttribute('content') || '';
+    return v.includes('max-age');
+  }},
+  { id: 'xfo', label: 'X-Frame-Options: DENY', check: () => document.querySelector('meta[http-equiv="X-Frame-Options"]')?.getAttribute('content') === 'DENY' },
+  { id: 'nosniff', label: 'X-Content-Type-Options: nosniff', check: () => document.querySelector('meta[http-equiv="X-Content-Type-Options"]')?.getAttribute('content') === 'nosniff' },
+  { id: 'referrer', label: 'Referrer-Policy set', check: () => !!document.querySelector('meta[name="referrer-policy"]')?.getAttribute('content') },
+  { id: 'permissions', label: 'Permissions-Policy set', check: () => !!document.querySelector('meta[http-equiv="Permissions-Policy"]')?.getAttribute('content') },
+];
+
+function runFrontendSecurityChecks() {
+  return SECURITY_HEADER_CHECKS.map(c => ({
+    label: c.label,
+    passed: c.check(),
+    status: c.check() ? 'ok' : 'fail',
   }));
-  const allPassed = checks.every(c => c.passed);
-  return {
-    gate: gateId,
-    name,
-    description,
-    passed: allPassed,
-    status: allPassed ? 'PASS' : (checks.some(c => c.passed) ? 'WARNING' : 'PENDING'),
-    summary: {
-      total: checks.length,
-      passed: checks.filter(c => c.passed).length,
-      pending: checks.filter(c => !c.passed).length,
-    },
-    checks,
-  };
 }
 
-function evaluateSecurityChecks(securityChecks) {
-  const passed = securityChecks.every(c => c.passed);
-  return {
-    gate: 4,
-    name: 'Security Validation',
-    description: 'Encryption, private storage, security headers',
-    passed,
-    status: passed ? 'PASS' : 'FAIL',
-    summary: {
-      total: securityChecks.length,
-      passed: securityChecks.filter(c => c.passed).length,
-      failed: securityChecks.filter(c => !c.passed).length,
-    },
-    checks: securityChecks,
-  };
-}
+// ═══════════════════════════════════════════════════════════
+// DECISION HELPER (for frontend recomputation)
+// ═══════════════════════════════════════════════════════════
 
-function evaluatePermissionGate() {
-  // Static review of restricted entity RLS policies
-  // In production, this would query the actual schema — here we verify
-  // the known policies match the least-privilege matrix
-  const checks = PERMISSION_CHECKS.map(p => ({
-    entity: p.entity,
-    label: p.label,
-    description: p.description,
-    expected_delete: p.expected_policy.delete,
-    passed: p.expected_policy.delete === '__immutable__',
-    status: p.expected_policy.delete === '__immutable__' ? 'ok' : 'fail',
-  }));
-  const allPassed = checks.every(c => c.passed);
-  return {
-    gate: 6,
-    name: 'Permission Validation',
-    description: 'Restricted entities follow least privilege',
-    passed: allPassed,
-    status: allPassed ? 'PASS' : 'FAIL',
-    summary: {
-      total: checks.length,
-      passed: checks.filter(c => c.passed).length,
-      failed: checks.filter(c => !c.passed).length,
-    },
-    checks,
+function getDecisionForLevel(riskLevel, allGatesPassed) {
+  const decisions = {
+    LOW: { code: 'AUTO_DEPLOY', label: 'Deploy Automatically', description: 'Risk score is LOW. All critical validations passed.', recommendation: 'Deploy', recommendation_detail: 'All gates passed. Risk score is LOW. Deployment is authorized.' },
+    MEDIUM: { code: 'PRODUCT_OWNER_APPROVAL', label: 'Require Product Owner Approval', description: 'Risk score is MEDIUM. Product owner review required.', recommendation: 'Deploy with Warnings', recommendation_detail: 'Minor issues detected. Review warnings before proceeding.' },
+    HIGH: { code: 'EXECUTIVE_APPROVAL', label: 'Require Executive Approval', description: 'Risk score is HIGH. Executive review required.', recommendation: 'Delay Deployment', recommendation_detail: 'Significant issues detected. Executive approval required.' },
+    CRITICAL: { code: 'BLOCKED', label: 'Deployment Blocked — Rollback Required', description: 'Risk score is CRITICAL. Rollback is required.', recommendation: 'Rollback', recommendation_detail: 'Critical issues detected. Rollback is required.' },
   };
+  if (!allGatesPassed && riskLevel === 'LOW') return decisions.MEDIUM;
+  return decisions[riskLevel];
 }
 
 export { GATE_VERSION };

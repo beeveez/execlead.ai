@@ -19,6 +19,11 @@ import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
 import FoundersWallCTA from "@/components/founding/FoundersWallCTA";
 import PricingTiers from "@/components/pricing/PricingTiers";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
+import ExecutiveInsightsSection from "@/components/landing/ExecutiveInsightsSection";
+import FounderInsightsSection from "@/components/landing/FounderInsightsSection";
+import SocialProofSection from "@/components/landing/SocialProofSection";
+import TrustSignalsSection from "@/components/landing/TrustSignalsSection";
+import NewsletterSection from "@/components/landing/NewsletterSection";
 import { BrandRegistry } from "@/lib/brandRegistry";
 
 const FEATURES = [
@@ -99,6 +104,16 @@ export default function Landing() {
         </div>
 
         <div className="relative max-w-7xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full text-xs text-amber-400 font-semibold tracking-wide mb-6"
+          >
+            <Crown size={12} />
+            Executive Leadership Operating System™
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -219,6 +234,19 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Supporting Messaging */}
+      <section className="py-6 px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-4 md:gap-6 text-center">
+          <span className="text-sm font-medium text-white/50">Ignite Your Leadership Journey</span>
+          <span className="text-accent-orange/40 text-xs">◆</span>
+          <span className="text-sm font-medium text-white/50">Accelerate Executive Growth</span>
+          <span className="text-accent-orange/40 text-xs">◆</span>
+          <span className="text-sm font-medium text-white/50">Lead with Confidence</span>
+          <span className="text-accent-orange/40 text-xs">◆</span>
+          <span className="text-sm font-medium text-white/50">Develop Executive Excellence Through AI</span>
+        </div>
+      </section>
+
       {/* Founders Wall CTA */}
       <FoundersWallCTA />
 
@@ -288,6 +316,15 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Executive Insights */}
+      <ExecutiveInsightsSection />
+
+      {/* Founder Insights */}
+      <FounderInsightsSection />
+
+      {/* Social Proof */}
+      <SocialProofSection />
 
       {/* Learning Paths */}
       <section id="paths" className="py-20 md:py-32 px-6 lg:px-8">
@@ -408,6 +445,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Trust Signals */}
+      <TrustSignalsSection />
+
       {/* Founding Member Program */}
       <section className="py-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -436,6 +476,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Newsletter */}
+      <NewsletterSection />
 
       {/* CTA */}
       <section className="py-20 md:py-32 px-6 lg:px-8">

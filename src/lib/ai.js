@@ -1,6 +1,23 @@
 import { base44 } from "@/api/base44Client";
 import { getExecutiveContextPrompt } from "@/lib/executiveContextEngine";
 import { deriveProvider } from "@/lib/aiOperations";
+import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
+
+// Module → intent mapping for Model Router™ routing
+const MODULE_INTENT_MAP = {
+  coach: "executive_coaching",
+  simulator: "interview_simulation",
+  challenge: "executive_coaching",
+  debate: "executive_debate",
+  academy: "knowledge",
+  companies: "company_intelligence",
+  career: "resume_analysis",
+  metrics: "analytics",
+  resume: "resume_analysis",
+  council: "executive_council",
+  legacy: "executive_coaching",
+  other: "general_inquiry",
+};
 
 /**
  * AI call wrapper with automatic usage tracking.
@@ -18,53 +35,84 @@ const classifyError = (err) => {
   return { status: "error", error_type: "provider_error" };
 };
 
-export const callAI = async (module, { prompt, ...options }) => {
+export const callAI = async (module, { prompt, intent, ...options }) => {
   const contextPrompt = getExecutiveContextPrompt();
   const fullPrompt = contextPrompt ? `${contextPrompt}\n\n${prompt}` : prompt;
-  const model = options.model || "automatic";
+
+  // ── Model Router™ — every request passes through the router ──
+  const routingIntent = intent || MODULE_INTENT_MAP[module] || "general_inquiry";
+  const routingDecision = routeModel({
+    intent: routingIntent,
+    contextSize: Math.ceil(fullPrompt.length / 4),
+    webSearchRequired: options.add_context_from_internet || false,
+    streamingPreferred: false,
+  });
+
+  const modelChain = [routingDecision.selectedModel, ...routingDecision.fallbackChain];
   const startedAt = Date.now();
 
-  let res;
-  try {
-    res = await base44.integrations.Core.InvokeLLM({ prompt: fullPrompt, ...options });
-  } catch (err) {
-    const latency = Date.now() - startedAt;
-    const { status, error_type } = classifyError(err);
+  let res = null;
+  let actualModel = routingDecision.selectedModel;
+  let fallbackFrom = null;
+  let retryCount = 0;
+  let lastError = null;
+
+  // Try primary model, then fallback chain
+  for (let i = 0; i < modelChain.length; i++) {
+    const tryModel = modelChain[i];
     try {
-      await base44.entities.UsageLog.create({
-        module,
-        tokens_estimated: Math.ceil(fullPrompt.length / 4),
-        input_tokens: Math.ceil(fullPrompt.length / 4),
-        output_tokens: 0,
-        cost_estimated: 0,
-        model,
-        provider: deriveProvider(model),
-        response_time_ms: latency,
-        status,
-        error_type,
-      });
-    } catch (e) {}
-    throw err;
+      res = await base44.integrations.Core.InvokeLLM({ prompt: fullPrompt, model: tryModel, ...options });
+      actualModel = tryModel;
+      if (i > 0) { fallbackFrom = modelChain[0]; retryCount = i; }
+      lastError = null;
+      break;
+    } catch (err) {
+      lastError = err;
+    }
   }
 
-  const responseLength = typeof res === "string" ? res.length : JSON.stringify(res || {}).length;
+  const latency = Date.now() - startedAt;
   const inputTokens = Math.ceil(fullPrompt.length / 4);
+
+  // Failed after all fallbacks
+  if (lastError) {
+    const { status, error_type } = classifyError(lastError);
+    trackRoutingEvent(routingDecision, {
+      intent: routingIntent, success: false, latencyMs: latency,
+      cost: routingDecision.estimatedCost, tokenInput: inputTokens,
+      fallbackFrom, status: "failed", retryCount, module,
+      errorMessage: lastError.message,
+    });
+    try {
+      await base44.entities.UsageLog.create({
+        module, tokens_estimated: inputTokens, input_tokens: inputTokens,
+        output_tokens: 0, cost_estimated: 0, model: actualModel,
+        provider: deriveProvider(actualModel), response_time_ms: latency,
+        status, error_type,
+      });
+    } catch (e) {}
+    throw lastError;
+  }
+
+  // Success
+  const responseLength = typeof res === "string" ? res.length : JSON.stringify(res || {}).length;
   const outputTokens = Math.ceil(responseLength / 4);
   const tokensEstimate = inputTokens + outputTokens;
   const costEstimate = (tokensEstimate / 1000) * 0.002;
-  const latency = Date.now() - startedAt;
+
+  trackRoutingEvent(routingDecision, {
+    intent: routingIntent, success: true, latencyMs: latency,
+    cost: costEstimate, tokenInput: inputTokens, tokenOutput: outputTokens,
+    fallbackFrom, status: fallbackFrom ? "fallback_used" : "success",
+    retryCount, module,
+  });
 
   try {
     await base44.entities.UsageLog.create({
-      module,
-      tokens_estimated: tokensEstimate,
-      input_tokens: inputTokens,
-      output_tokens: outputTokens,
-      cost_estimated: costEstimate,
-      model,
-      provider: deriveProvider(model),
-      response_time_ms: latency,
-      status: "success",
+      module, tokens_estimated: tokensEstimate, input_tokens: inputTokens,
+      output_tokens: outputTokens, cost_estimated: costEstimate,
+      model: actualModel, provider: deriveProvider(actualModel),
+      response_time_ms: latency, status: "success",
     });
   } catch (e) {}
 

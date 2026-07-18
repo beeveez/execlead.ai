@@ -49,7 +49,7 @@ export const PLATFORM_LIMITS = {
   maxDocumentSize: "50 MB",
   maxDataFileSize: "50 MB",
   // Rate limiting
-  rateLimitModel: "Per-user (scales with user count)",
+  rateLimitModel: "App-level — 150 operations/minute (shared across all users)",
   rateLimitError: "HTTP 429",
   // AI / integration credits (by plan)
   integrationCredits: {
@@ -195,23 +195,25 @@ export const BOTTLENECK_CHAIN = [
   },
   {
     rank: 3,
-    component: "API Rate Limits (429)",
-    failurePoint: "Third — per-user buckets saturate on burst",
+    component: "API Rate Limits (429 — 150 ops/min)",
+    failurePoint: "Third — app-level bucket saturates on burst",
     reason:
-      "Rate limits are per-user (Base44 docs), so aggregate capacity scales with users. " +
-      "However, a single power user issuing rapid-fire requests (e.g., dashboard refresh loop) " +
-      "can hit 429s before the database is stressed.",
+      "Base44 enforces a 150 operations/minute rate limit at the app level (not per-user as " +
+      "previously documented). This is an aggregate ceiling — all users share the same bucket. " +
+      "A burst of concurrent requests (e.g., dashboard refresh loops, bulk entity writes) can " +
+      "exhaust the 150 ops/min bucket before the database is stressed, returning HTTP 429s.",
     severity: "Medium",
-    mitigation: "Client-side request deduplication, optimistic UI, exponential backoff on 429.",
+    mitigation: "Client-side request deduplication, optimistic UI, exponential backoff on 429, batch operations (bulkCreate/bulkUpdate) to reduce request count.",
   },
   {
     rank: 4,
     component: "Automation Timeout (3-min limit)",
     failurePoint: "Batch jobs fail under data growth",
     reason:
-      "Automations have a 3-minute hard timeout. As data grows, batch jobs " +
+      "Automations have a 3-minute hard timeout (Base44 docs). As data grows, batch jobs " +
       "(intelligence recompute, job sync, manifest sync) risk timeout. " +
-      "The 'Time Capsule Unlock Checker' automation already shows 2 consecutive failures.",
+      "The 'Founder Anniversary Recognition' automation currently shows 1 consecutive failure, " +
+      "demonstrating this risk is real at current data volume.",
     severity: "Medium",
     mitigation: "Paginate batch processing, split large jobs into chunks, move heavy work to backend functions.",
   },

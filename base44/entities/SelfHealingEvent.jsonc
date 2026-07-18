@@ -104,14 +104,21 @@
           "user_condition": {
             "role": "platform_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
         }
       ]
     },
     "read": {
       "$or": [
-        {
-          "data.user_id": "{{user.id}}"
-        },
         {
           "user_condition": {
             "role": "super_admin"

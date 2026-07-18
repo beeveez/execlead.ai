@@ -238,6 +238,7 @@ import SystemStatusCenter from '@/pages/SystemStatusCenter';
 import ArchitectureGovernanceBoard from '@/pages/ArchitectureGovernanceBoard';
 import DeveloperPortal from '@/pages/DeveloperPortal';
 import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelligenceDashboard';
+import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
 import BetaApply from '@/pages/BetaApply';
 import FounderDashboard from '@/pages/FounderDashboard';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
@@ -512,6 +513,7 @@ const AuthenticatedApp = () => {
           <Route path="/architecture-governance" element={<ArchitectureGovernanceBoard />} />
           <Route path="/developer-portal" element={<DeveloperPortal />} />
           <Route path="/developer/experience-intelligence" element={<ExperienceIntelligenceDashboard />} />
+          <Route path="/developer/performance" element={<PerformanceDashboard />} />
         </Route>
         </Route>
       </Route>

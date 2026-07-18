@@ -1,0 +1,211 @@
+{
+  "name": "PerformanceJob",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Unique job identifier"
+    },
+    "job_type": {
+      "type": "string",
+      "enum": [
+        "intelligence_recompute",
+        "reputation_recalculation",
+        "manifest_validation",
+        "foundation_verification",
+        "ai_summarization",
+        "knowledge_sync",
+        "job_sync",
+        "executive_briefing",
+        "promotion_forecast",
+        "business_intelligence"
+      ],
+      "description": "Type of background job"
+    },
+    "target_user_id": {
+      "type": "string"
+    },
+    "target_user_name": {
+      "type": "string"
+    },
+    "target_entity": {
+      "type": "string",
+      "description": "Entity being recomputed"
+    },
+    "target_entity_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "retrying",
+        "dead_letter"
+      ],
+      "default": "queued"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "payload_json": {
+      "type": "string",
+      "description": "JSON job parameters"
+    },
+    "result_json": {
+      "type": "string",
+      "description": "JSON job result"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "queued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "max_retries": {
+      "type": "number",
+      "default": 3
+    },
+    "triggered_by": {
+      "type": "string",
+      "enum": [
+        "user",
+        "automation",
+        "system",
+        "scheduled"
+      ],
+      "default": "user"
+    },
+    "triggered_by_name": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "job_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.target_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

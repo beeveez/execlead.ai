@@ -3,8 +3,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
-    const { action } = body;
+    const body = await req.json().catch(() => ({}));
+    // Scheduled automations call with no payload — default to process_batch
+    const { action } = { action: body.action ?? 'process_batch' };
 
     // ── Queue a background job (user-scoped) ──
     if (action === 'queue') {

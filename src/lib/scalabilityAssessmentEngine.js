@@ -399,7 +399,7 @@ export const READINESS_SCORES = [
     score: 75,
     rationale:
       "Managed infra (Cloudflare, Deno Deploy, MongoDB, EventBridge) is inherently reliable. " +
-      "Deductions for: 1 automation showing consecutive failures (Time Capsule Unlock Checker), " +
+      "Deductions for: 1 automation showing a consecutive failure (Founder Anniversary Recognition), " +
       "and no documented SLA from Base44.",
   },
   {

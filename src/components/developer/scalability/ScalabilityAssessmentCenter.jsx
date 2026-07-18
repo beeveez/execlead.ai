@@ -6,6 +6,7 @@ import ScalingPlan from "./ScalingPlan";
 import LoadTestSimulation from "./LoadTestSimulation";
 import ReadinessScores from "./ReadinessScores";
 import ExecutiveSummary from "./ExecutiveSummary";
+import PlatformHealthCenter from "./PlatformHealthCenter";
 
 /**
  * Scalability Assessment Center™
@@ -17,6 +18,7 @@ export default function ScalabilityAssessmentCenter() {
       <ScalabilityOverview />
       <CapacityReport />
       <BottleneckAnalysis />
+      <PlatformHealthCenter />
       <LoadTestSimulation />
       <ScalingPlan />
       <ReadinessScores />

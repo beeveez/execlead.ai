@@ -163,6 +163,7 @@ const ENTITY_SECURITY_CLASS_MAP = {
   ReportEvidence: "confidential",
   // Immutable Audit
   ReputationAuditLog: "immutable_audit",
+  UsageLog: "immutable_audit",
   SubscriptionAuditLog: "immutable_audit",
   CompanyAuditLog: "immutable_audit",
   FoundingMemberAuditLog: "immutable_audit",
@@ -320,6 +321,9 @@ export const RLS_REGISTRY = [
   { name: "EvidenceItem", classification: "user", scope: "created_by_id", status: "protected", sensitive: true, rule: "owner + admin read; owner/admin update; admin delete" },
   { name: "PortfolioVersion", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/dev read; no update/delete" },
   { name: "ExecutiveCredential", classification: "user", scope: "created_by_id", status: "protected", sensitive: false, rule: "immutable; owner + admin/dev read; claim/create by owner+admin; no update/delete; revocation via governance event only" },
+
+  // ── Immutable Entities (registered 2026-07-18) ──
+  { name: "UsageLog", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/dev read; no update/delete" },
 ];
 
 // ── Score Computation ──

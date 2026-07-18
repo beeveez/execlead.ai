@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import {
   UserCircle, Briefcase, Target, FileText, Building2,
-  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database, Globe, Crown, Trophy
+  GraduationCap, Award, Sparkles, Link2, Shield, Settings as SettingsIcon, Database, Globe, Crown, Trophy, BadgeCheck
 } from "lucide-react";
 
 const SECTIONS = [
@@ -17,6 +17,7 @@ const SECTIONS = [
     { id: "experience", label: "Experience", icon: Building2 },
     { id: "education", label: "Education", icon: GraduationCap },
     { id: "certifications", label: "Certifications", icon: Award },
+    { id: "skills_page", label: "Skills", icon: BadgeCheck, to: "/profile/skills" },
     { id: "skills", label: "Competencies", icon: Sparkles },
   ]},
   { group: "Membership", items: [
@@ -44,10 +45,17 @@ export default function ProfileSidebar({ active, onSelect }) {
               <div className="px-3 text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">{group.group}</div>
               <div className="space-y-0.5">
                 {group.items.map(item => (
-                  <button key={item.id} onClick={() => onSelect(item.id)} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${active === item.id ? "bg-indigo-500/10 text-indigo-400" : "text-white/40 hover:text-white/80 hover:bg-white/5"}`}>
-                    <item.icon size={16} className={active === item.id ? "text-indigo-400" : "text-white/30"} />
-                    {item.label}
-                  </button>
+                  item.to ? (
+                    <Link key={item.id} to={item.to} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all text-white/40 hover:text-white/80 hover:bg-white/5">
+                      <item.icon size={16} className="text-white/30" />
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button key={item.id} onClick={() => onSelect(item.id)} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${active === item.id ? "bg-indigo-500/10 text-indigo-400" : "text-white/40 hover:text-white/80 hover:bg-white/5"}`}>
+                      <item.icon size={16} className={active === item.id ? "text-indigo-400" : "text-white/30"} />
+                      {item.label}
+                    </button>
+                  )
                 ))}
               </div>
             </div>
@@ -62,10 +70,17 @@ export default function ProfileSidebar({ active, onSelect }) {
       <div className="lg:hidden mb-4">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
           {SECTIONS.flatMap(g => g.items).map(item => (
-            <button key={item.id} onClick={() => onSelect(item.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${active === item.id ? "bg-indigo-500/15 text-indigo-400" : "bg-white/5 text-white/40"}`}>
-              <item.icon size={14} />
-              {item.label}
-            </button>
+            item.to ? (
+              <Link key={item.id} to={item.to} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all bg-white/5 text-white/40">
+                <item.icon size={14} />
+                {item.label}
+              </Link>
+            ) : (
+              <button key={item.id} onClick={() => onSelect(item.id)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${active === item.id ? "bg-indigo-500/15 text-indigo-400" : "bg-white/5 text-white/40"}`}>
+                <item.icon size={14} />
+                {item.label}
+              </button>
+            )
           ))}
         </div>
       </div>

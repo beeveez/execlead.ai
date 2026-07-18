@@ -57,6 +57,7 @@ import Notifications from '@/pages/Notifications';
 import AIUsage from '@/pages/AIUsage';
 import EnterpriseDashboard from '@/pages/EnterpriseDashboard';
 import Profile from '@/pages/Profile';
+import Skills from '@/pages/Skills';
 import AdminConsole from '@/pages/AdminConsole';
 import ResumeIntelligence from '@/pages/ResumeIntelligence';
 import ResumeImport from '@/pages/ResumeImport';
@@ -342,6 +343,7 @@ const AuthenticatedApp = () => {
           <Route path="/executive-credentials" element={<ExecutiveCredentials />} />
           <Route path="/compare-plans" element={<ComparePlans />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/skills" element={<Skills />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/organization/billing" element={<OrganizationBilling />} />
           <Route path="/notifications" element={<Notifications />} />

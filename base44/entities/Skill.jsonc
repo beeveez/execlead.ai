@@ -1,0 +1,114 @@
+{
+  "name": "Skill",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "skill_name": {
+      "type": "string",
+      "description": "Name of the skill"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "technical",
+        "leadership",
+        "business",
+        "ai_digital"
+      ],
+      "default": "technical",
+      "description": "Skill category"
+    },
+    "proficiency": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "default": "intermediate",
+      "description": "Proficiency level"
+    },
+    "years_of_experience": {
+      "type": "number",
+      "default": 0,
+      "description": "Years of experience with this skill"
+    },
+    "last_used": {
+      "type": "string",
+      "description": "When the skill was last used (e.g. Current, 2026, 2025)"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the skill has been verified"
+    },
+    "verification_source": {
+      "type": "string",
+      "description": "How the skill was verified"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "resume",
+        "linkedin",
+        "ai_suggested",
+        "work_experience",
+        "certification"
+      ],
+      "default": "manual",
+      "description": "Where the skill was sourced from"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    }
+  },
+  "required": [
+    "skill_name",
+    "category",
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.user_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.user_id": "{{user.id}}"
+    }
+  }
+}

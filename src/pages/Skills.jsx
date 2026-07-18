@@ -41,6 +41,14 @@ const SORT_OPTIONS = [
   { value: "demand", label: "By Market Demand" },
 ];
 
+// Normalize skill names for idempotent dedup — "ServiceNow", " servicenow ", "service-now" all resolve to "servicenow"
+const normalizeSkillName = (name) =>
+  (name || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s]/g, "")   // strip punctuation
+    .replace(/\s+/g, " ");     // collapse whitespace
+
 export default function Skills() {
   const { user } = useAuth();
   const { profile } = useSubscription();
@@ -150,7 +158,7 @@ Extract skills from the work experience. For each skill, provide:
 
 Return JSON: { "extracted_skills": [...], "market_insights": [{ skill_name, demand_level, insight }] }
 
-Do NOT include skills the user already has. Extract 5-15 skills.`;
+Extract 5-15 skills from the work experience. Existing skills will be intelligently merged — include a skill even if it already exists when you have new evidence or updated market intelligence to add.`;
 
       const res = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -177,14 +185,71 @@ Do NOT include skills the user already has. Extract 5-15 skills.`;
         },
       });
 
-      const existingNames = new Set(skills.map(s => s.skill_name.toLowerCase()));
-      const newSkills = (res.extracted_skills || []).filter(s => !existingNames.has(s.skill_name.toLowerCase()));
+      // ── Idempotent Upsert: normalize → match existing → update or create ──
+      const existingMap = new Map();
+      for (const s of skills) {
+        const key = normalizeSkillName(s.skill_name);
+        if (!existingMap.has(key)) existingMap.set(key, s);
+      }
 
-      if (newSkills.length > 0) {
-        const records = newSkills.map(s => {
+      const toCreate = [];
+      const toUpdate = [];
+      let duplicatesSkipped = 0;
+      const seenInBatch = new Set();
+
+      for (const s of (res.extracted_skills || [])) {
+        const key = normalizeSkillName(s.skill_name);
+        if (!key) { duplicatesSkipped++; continue; }
+
+        // Within-batch dedup (LLM may return the same skill twice)
+        if (seenInBatch.has(key)) { duplicatesSkipped++; continue; }
+        seenInBatch.add(key);
+
+        const existing = existingMap.get(key);
+        if (existing) {
+          // ── UPSERT: merge evidence + refresh metadata ──
+          const existingEvidence = parseJSON(existing.evidence_json, []);
+          const newEvidence = Array.isArray(s.evidence) ? s.evidence : [];
+          const mergedEvidence = [...existingEvidence];
+          for (const ev of newEvidence) {
+            const sig = `${ev.source}|${ev.type}|${ev.description}`.toLowerCase().trim();
+            if (!mergedEvidence.some(e => `${e.source}|${e.type}|${e.description}`.toLowerCase().trim() === sig)) {
+              mergedEvidence.push(ev);
+            }
+          }
+
+          const existingRelated = parseJSON(existing.related_skills_json, []);
+          const newRelated = Array.isArray(s.related_skills) ? s.related_skills : [];
+          const mergedRelated = [...new Set([...existingRelated, ...newRelated])];
+
+          const confidence = calculateConfidenceScore({ ...s, evidence_json: JSON.stringify(mergedEvidence) });
+          const level = getConfidenceLevel(confidence);
+
+          toUpdate.push({
+            id: existing.id,
+            skill_name: existing.skill_name,
+            capability_domain: s.capability_domain || existing.capability_domain || "technology",
+            proficiency: s.proficiency || existing.proficiency || "intermediate",
+            years_of_experience: s.years_of_experience ?? existing.years_of_experience ?? 0,
+            acquired_year: s.acquired_year ?? existing.acquired_year,
+            verification_state: s.verification_state || existing.verification_state || "ai_detected",
+            confidence_score: confidence,
+            confidence_level: level,
+            market_demand: s.market_demand || existing.market_demand || "stable",
+            source: "resume",
+            evidence_json: JSON.stringify(mergedEvidence),
+            related_skills_json: JSON.stringify(mergedRelated),
+            change_history_json: appendChangeHistory(
+              existing.change_history_json || "[]",
+              "skill_updated",
+              "Enriched via AI Skill Import™ — evidence merged, confidence recalculated"
+            ),
+          });
+        } else {
+          // ── CREATE: new skill ──
           const confidence = calculateConfidenceScore({ ...s, evidence_json: JSON.stringify(s.evidence || []) });
           const level = getConfidenceLevel(confidence);
-          return {
+          toCreate.push({
             skill_name: s.skill_name,
             capability_domain: s.capability_domain || "technology",
             proficiency: s.proficiency || "intermediate",
@@ -199,14 +264,25 @@ Do NOT include skills the user already has. Extract 5-15 skills.`;
             related_skills_json: JSON.stringify(s.related_skills || []),
             change_history_json: appendChangeHistory("[]", "skill_created", "Extracted from resume via AI Skill Import Engine™"),
             user_id: user.id,
-          };
-        });
-        await base44.entities.Skill.bulkCreate(records);
-        toast({ title: "AI Import Complete", description: `${newSkills.length} skills extracted with evidence and confidence scores.` });
-        await loadSkills();
-      } else {
-        toast({ title: "AI Analysis Complete", description: "No new skills found. Your skills profile is up to date." });
+          });
+        }
       }
+
+      // Execute upserts
+      if (toCreate.length > 0) {
+        await base44.entities.Skill.bulkCreate(toCreate);
+      }
+      if (toUpdate.length > 0) {
+        await base44.entities.Skill.bulkUpdate(toUpdate);
+      }
+
+      await loadSkills();
+
+      const projectedTotal = skills.length + toCreate.length;
+      toast({
+        title: "AI Skill Import Complete",
+        description: `✓ ${toCreate.length} new · ✓ ${toUpdate.length} updated · ${duplicatesSkipped} duplicates skipped — Total: ${projectedTotal}`,
+      });
     } catch (err) {
       toast({ title: "Analysis Failed", description: err.message || "Could not analyze skills.", variant: "destructive" });
     } finally {

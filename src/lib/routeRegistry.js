@@ -73,6 +73,7 @@ const APP_ROUTES = [
   { path: "/payment-settings", component: "PaymentSettings", feature: "payment_providers" },
   { path: "/developer", component: "DeveloperConsole", feature: "developer_access" },
   { path: "/developer/experience-intelligence", component: "ExperienceIntelligenceDashboard", name: "Experience Intelligence™", feature: "developer_access" },
+  { path: "/developer/performance", component: "PerformanceDashboard", name: "Performance Dashboard™", feature: "developer_access" },
   { path: "/developer/executive-platform-status", component: "ExecutivePlatformStatus", name: "Executive Platform Status™", feature: "developer_access" },
   { path: "/developer/audit-logs", component: "AuditLogs", feature: "developer_access" },
   { path: "/developer/system-health", component: "SystemHealth", feature: "developer_access" },

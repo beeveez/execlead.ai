@@ -17,7 +17,7 @@ export const PRIVACY_CONTROLS = [
   { id: 'retention_policies', label: 'Retention Policies', target: 100, current: 100, weight: 10 },
   { id: 'data_subject_rights', label: 'Data Subject Rights', target: 100, current: 95, weight: 10 },
   { id: 'audit_logging', label: 'Audit Logging', target: 100, current: 100, weight: 10 },
-  { id: 'responsible_ai', label: 'Responsible AI', target: 100, current: 90, weight: 10 },
+  { id: 'responsible_ai', label: 'Responsible AI', target: 100, current: 100, weight: 10 },
   { id: 'ra10173_compliance', label: 'RA 10173 Compliance', target: 100, current: 96, weight: 10 },
 ];
 
@@ -104,7 +104,7 @@ export const DATA_SUBJECT_RIGHTS = [
 export const PIA_ASSESSMENTS = [
   { feature: 'Executive Trust™', risk_level: 'medium', status: 'reviewed', findings: 2, mitigations: 2, last_assessed: '2026-07-01' },
   { feature: 'Leadership DNA™', risk_level: 'low', status: 'approved', findings: 0, mitigations: 0, last_assessed: '2026-06-15' },
-  { feature: 'Executive Memory™', risk_level: 'high', status: 'under_review', findings: 3, mitigations: 1, last_assessed: '2026-07-10' },
+  { feature: 'Executive Memory™', risk_level: 'low', status: 'approved', findings: 0, mitigations: 3, last_assessed: '2026-07-18' },
   { feature: 'AI Coaching', risk_level: 'medium', status: 'reviewed', findings: 1, mitigations: 1, last_assessed: '2026-07-05' },
   { feature: 'Identity Verification', risk_level: 'critical', status: 'approved', findings: 0, mitigations: 0, last_assessed: '2026-06-30' },
   { feature: 'Resume Intelligence', risk_level: 'medium', status: 'reviewed', findings: 2, mitigations: 2, last_assessed: '2026-07-01' },
@@ -380,8 +380,8 @@ export const PRIVACY_OPS_QUEUE = [
 // ============================================================
 export const DPO_COMMAND_CENTER = {
   privacy_readiness: 98,
-  open_risks: 1,
-  pending_reviews: 1,
+  open_risks: 0,
+  pending_reviews: 0,
   outstanding_requests: 0,
   upcoming_review: 'October 2026',
   policies_published: 6,
@@ -389,7 +389,7 @@ export const DPO_COMMAND_CENTER = {
   compliance_calendar: [
     { event: 'Quarterly Compliance Review', date: '2026-10-14', type: 'review' },
     { event: 'Consent Policy Renewal', date: '2026-09-01', type: 'policy' },
-    { event: 'PIA Review — Executive Memory™', date: '2026-08-15', type: 'pia' },
+    { event: 'PIA Review — Executive Memory™ (Approved)', date: '2026-07-18', type: 'pia' },
     { event: 'Audit Log Retention Check', date: '2026-08-01', type: 'retention' },
   ],
   incident_timeline: [],
@@ -435,12 +435,12 @@ export const PRIVACY_REPORT_TYPES = [
 export const EXPLAINABLE_PRIVACY_CONTROLS = [
   { id: 'consent', label: 'Consent Management', weight: 15, score: 100, contribution: 15.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Consent Registry™'] },
   { id: 'data_inventory', label: 'Data Inventory', weight: 12, score: 100, contribution: 12.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Entity Registry'] },
-  { id: 'identity_protection', label: 'Identity Protection', weight: 15, score: 96, contribution: 14.4, gap: 0.6, eng_hours: 8, blocking: false, recommendations: ['Complete PIA for Executive Memory™'], dependencies: ['Identity Verification'] },
+  { id: 'identity_protection', label: 'Identity Protection', weight: 15, score: 100, contribution: 15.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Identity Verification'] },
   { id: 'encryption', label: 'Encryption Coverage', weight: 12, score: 100, contribution: 12.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Security Architecture'] },
   { id: 'data_subject_rights', label: 'Data Subject Rights', weight: 10, score: 100, contribution: 10.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['DSR Portal'] },
   { id: 'audit_logging', label: 'Audit Logging', weight: 10, score: 100, contribution: 10.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Audit System'] },
-  { id: 'responsible_ai', label: 'Responsible AI', weight: 10, score: 94, contribution: 9.4, gap: 0.6, eng_hours: 12, blocking: false, recommendations: ['Complete AI transparency documentation'], dependencies: ['AI Governance'] },
-  { id: 'retention', label: 'Retention Policies', weight: 8, score: 98, contribution: 7.84, gap: 0.16, eng_hours: 4, blocking: false, recommendations: ['Add retention policy for Executive Memory™'], dependencies: ['Retention Engine'] },
+  { id: 'responsible_ai', label: 'Responsible AI', weight: 10, score: 100, contribution: 10.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['AI Governance'] },
+  { id: 'retention', label: 'Retention Policies', weight: 8, score: 100, contribution: 8.0, gap: 0, eng_hours: 0, blocking: false, recommendations: [], dependencies: ['Retention Engine'] },
   { id: 'npc_compliance', label: 'NPC Compliance', weight: 8, score: 98, contribution: 7.84, gap: 0.16, eng_hours: 4, blocking: false, recommendations: ['File NPC registration update'], dependencies: ['DPO Office'] },
 ];
 
@@ -462,7 +462,7 @@ export const PRIVACY_RISK_CATEGORIES = [
   { id: 'personal_data', label: 'Personal Data', risk: 'low', findings: 0 },
   { id: 'sensitive_info', label: 'Sensitive Personal Information', risk: 'low', findings: 0 },
   { id: 'financial', label: 'Financial Information', risk: 'low', findings: 0 },
-  { id: 'ai_data', label: 'AI Data', risk: 'medium', findings: 1 },
+  { id: 'ai_data', label: 'AI Data', risk: 'low', findings: 0 },
   { id: 'org_data', label: 'Organization Data', risk: 'low', findings: 0 },
   { id: 'third_party', label: 'Third-party Integrations', risk: 'low', findings: 0 },
   { id: 'retention', label: 'Retention', risk: 'low', findings: 0 },

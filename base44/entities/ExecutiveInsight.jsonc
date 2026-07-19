@@ -14,6 +14,10 @@
       "type": "string",
       "description": "URL-friendly slug"
     },
+    "subtitle": {
+      "type": "string",
+      "description": "Article subtitle displayed below the title"
+    },
     "category": {
       "type": "string",
       "enum": [
@@ -23,7 +27,10 @@
         "ai_leadership",
         "enterprise_transformation",
         "executive_interviews",
-        "digital_leadership"
+        "digital_leadership",
+        "strategy",
+        "management",
+        "communication"
       ],
       "description": "Content category"
     },
@@ -58,6 +65,22 @@
       ],
       "default": "draft"
     },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "default": "intermediate",
+      "description": "Estimated reading difficulty"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a featured article"
+    },
     "published_at": {
       "type": "string",
       "format": "date-time"
@@ -71,6 +94,30 @@
       "items": {
         "type": "string"
       }
+    },
+    "executive_summary": {
+      "type": "string",
+      "description": "Executive summary for the article"
+    },
+    "key_insights_json": {
+      "type": "string",
+      "description": "JSON array of key insight strings"
+    },
+    "leadership_lessons_json": {
+      "type": "string",
+      "description": "JSON array of leadership lesson strings"
+    },
+    "recommended_actions_json": {
+      "type": "string",
+      "description": "JSON array of recommended action strings"
+    },
+    "related_modules_json": {
+      "type": "string",
+      "description": "JSON array of { label, path } for related EXECLEAD.AI modules"
+    },
+    "suggested_learning_path": {
+      "type": "string",
+      "description": "Suggested learning path for further study"
     },
     "linkedin_snippets_json": {
       "type": "string",

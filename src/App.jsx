@@ -33,6 +33,8 @@ import ResetPassword from '@/pages/ResetPassword';
 
 import MarketingLayout from '@/components/marketing/MarketingLayout';
 import { LandingSkeleton, PricingSkeleton, LeaderboardSkeleton } from '@/components/marketing/Shimmer';
+import ArticleHub from '@/pages/articles/ArticleHub';
+import ArticleDetail from '@/pages/articles/ArticleDetail';
 
 const Landing = lazy(() => import('@/pages/Landing'));
 import AppLayout from '@/components/layout/AppLayout';
@@ -188,6 +190,7 @@ import IntelligenceSuiteSimulator from '@/pages/developer/IntelligenceSuiteSimul
 import ExecutiveProductBoard from '@/pages/developer/ExecutiveProductBoard';
 import CommercialGovernanceCenter from '@/pages/developer/CommercialGovernanceCenter';
 import PlatformHardeningDashboard from '@/pages/developer/PlatformHardeningDashboard';
+import ArticleCMS from '@/pages/articles/ArticleCMS';
 import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
 import AIPolicyDashboard from '@/pages/developer/AIPolicyDashboard';
 import ModelRouterDashboard from '@/pages/developer/ModelRouterDashboard';
@@ -285,6 +288,8 @@ const AuthenticatedApp = () => {
         <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
         <Route path="/company-library" element={<div className="pt-20"><Companies /></div>} />
         <Route path="/company-library/:id" element={<div className="pt-20"><CompanyDetail /></div>} />
+        <Route path="/articles" element={<ArticleHub />} />
+        <Route path="/articles/:slug" element={<ArticleDetail />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -481,6 +486,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/executive-product-board" element={<ExecutiveProductBoard />} />
           <Route path="/developer/commercial-governance" element={<CommercialGovernanceCenter />} />
           <Route path="/developer/hardening" element={<PlatformHardeningDashboard />} />
+          <Route path="/developer/articles" element={<ArticleCMS />} />
           <Route path="/developer/ai-optimization" element={<AIOptimizationDashboard />} />
           <Route path="/developer/ai-policy" element={<AIPolicyDashboard />} />
           <Route path="/developer/model-router" element={<ModelRouterDashboard />} />

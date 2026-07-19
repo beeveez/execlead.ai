@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
+import { useIntelligenceDrillDown } from "@/lib/useIntelligenceDrillDown";
 
 /**
  * Launch Phase Card — reusable card for one launch-readiness phase.
@@ -10,11 +11,13 @@ import { CheckCircle2, XCircle, ChevronRight, AlertTriangle } from "lucide-react
 export default function LaunchPhaseCard({ phase, icon: Icon, accent }) {
   const accentColor = accent || "#6366f1";
   const passed = phase.passed;
+  const openDrillDown = useIntelligenceDrillDown();
+  const isClickable = phase.score < 100;
 
   return (
     <div
       id={`phase-${phase.id}`}
-      className="bg-white/[0.02] border border-white/5 rounded-xl p-5 scroll-mt-4"
+      className={`bg-white/[0.02] border rounded-xl p-5 scroll-mt-4 transition-all ${isClickable ? 'border-amber-500/20 hover:border-amber-500/40 hover:shadow-[0_0_20px_-4px_rgba(245,158,11,0.25)]' : 'border-white/5'}`}
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
@@ -31,8 +34,13 @@ export default function LaunchPhaseCard({ phase, icon: Icon, accent }) {
             {phase.id === "platform_iq" ? "+" : "%"}
           </div>
         </div>
-        {/* Score Ring */}
-        <div className="relative flex-shrink-0">
+        {/* Score Ring — clickable when below 100 */}
+        <button
+          onClick={(e) => { e.stopPropagation(); if (isClickable) openDrillDown(phase); }}
+          disabled={!isClickable}
+          className={`relative flex-shrink-0 ${isClickable ? 'cursor-pointer group/ring' : 'cursor-default'}`}
+          title={isClickable ? 'View Intelligence Analysis' : 'Perfect'}
+        >
           <svg width="48" height="48" viewBox="0 0 48 48">
             <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
             <circle
@@ -47,7 +55,12 @@ export default function LaunchPhaseCard({ phase, icon: Icon, accent }) {
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-[11px] font-bold text-white">{phase.score}</span>
           </div>
-        </div>
+          {isClickable && (
+            <div className="absolute -inset-1 rounded-full opacity-0 group-hover/ring:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
+              <span className="text-[8px] font-medium text-amber-400 bg-[#0d0d14] px-1 py-0.5 rounded">Investigate</span>
+            </div>
+          )}
+        </button>
         <span
           className={`text-[9px] font-medium px-2 py-1 rounded-md flex items-center gap-1 flex-shrink-0 ${
             passed

@@ -10,6 +10,7 @@ import {
 } from "@/lib/launchMode";
 import MarketingClaimsValidator from "@/components/governance/MarketingClaimsValidator";
 import FloatingUIInventory from "@/components/governance/FloatingUIInventory";
+import { useIntelligenceDrillDown } from "@/lib/useIntelligenceDrillDown";
 
 const DEPENDENCY_GRAPH = [
   { level: "Pricing Page", file: "src/pages/Pricing.jsx", status: "single" },
@@ -44,6 +45,7 @@ function StatusIcon({ status }) {
 export default function PlatformArchitectureAudit() {
   const { mode, isBeta, isPaymentEnabled, showPricing } = usePlatformLaunchMode();
   const [duplicateRoutes, setDuplicateRoutes] = useState([]);
+  const openDrillDown = useIntelligenceDrillDown();
 
   useEffect(() => {
     // Collect all <Route path="..."> from the DOM-free router is not trivial from here,
@@ -71,8 +73,11 @@ export default function PlatformArchitectureAudit() {
         </p>
       </div>
 
-      {/* Health Score */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex items-center gap-6">
+      {/* Health Score — clickable to open Intelligence Drill-Down™ */}
+      <button
+        onClick={() => openDrillDown('architecture_audit')}
+        className="w-full text-left bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex items-center gap-6 transition-all hover:border-amber-500/30 hover:shadow-[0_0_20px_-4px_rgba(245,158,11,0.25)] group"
+      >
         <div className="relative w-20 h-20 shrink-0">
           <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
             <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
@@ -102,7 +107,14 @@ export default function PlatformArchitectureAudit() {
             </span>
           </div>
         </div>
-      </div>
+        {healthScore < 100 && (
+          <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-amber-400 text-xs font-medium flex items-center gap-1">
+              View Intelligence Analysis <ArrowRight size={12} />
+            </span>
+          </div>
+        )}
+      </button>
 
       {/* Dependency Graph */}
       <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">

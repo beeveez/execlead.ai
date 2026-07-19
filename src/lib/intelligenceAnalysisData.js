@@ -709,6 +709,221 @@ const ANALYSIS_DATA = {
     healthyStatus: null,
   },
 
+  // ═══ LAUNCH READINESS PHASES (reusing existing launch readiness engine data) ═══
+  guardian: {
+    metricId: 'guardian',
+    label: 'Guardian™ Certification',
+    executiveSummary: { currentScore: 88, target: 100, gap: 12, status: 'Blocked', severity: 'high', confidence: '96%', lastUpdated: '5m ago', trend: 'up', change: 3, recoveryEstimate: '2 days' },
+    concerns: [
+      { title: 'Runtime Consistency Below 100%', description: 'Runtime consistency validation has not reached 100%.', severity: 'Medium', pointsLost: '-4 points', confidence: '95%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Orphan Routes Detected', description: 'Manifest validation found orphan routes not registered in the platform manifest.', severity: 'Medium', pointsLost: '-4 points', confidence: '94%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Knowledge Resolution Below 100%', description: 'Knowledge pack resolution has not reached 100%.', severity: 'Low', pointsLost: '-2 points', confidence: '93%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Configuration Consistency Below 100%', description: 'Feature flag configuration consistency below 100%.', severity: 'Low', pointsLost: '-2 points', confidence: '92%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+    ],
+    businessImpact: {
+      customer: ['Platform validation gates not fully passed — may affect reliability'],
+      executive: ['Guardian™ certification is a hard launch gate — must reach 100%'],
+      platform: ['Guardian™ Certification below 100% — launch blocked'],
+      operational: ['Engineering team resolving validation findings via self-healing'],
+      deployment: ['Deployment BLOCKED — Guardian™ must be 100% before launch'],
+    },
+    deploymentRisks: { deploymentReady: false, blockingIssues: ['Guardian™ score below 100% — launch gate not passed'], deploymentRisks: ['Cannot launch until all validation rules pass'], rollbackRisks: ['Launching with failed validation requires rollback'], complianceRisks: ['Governance compliance requires 100% Guardian™ certification'] },
+    evidence: [
+      { source: 'Guardian Validation Engine™', detail: 'Runtime consistency, manifest validation, knowledge resolution, and configuration consistency checks in progress', timestamp: '2026-07-19 15:00' },
+      { source: 'Self-Healing Engine', detail: 'Automated repair workflow available for resolvable findings', timestamp: '2026-07-19 14:55' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Run self-healing repair workflow', description: 'Auto-resolve all safe-to-repair Guardian findings.', owner: 'Developer', estimatedEffort: '5 minutes', expectedImprovement: '+8 points', blockingDependency: 'Self-Healing Engine™', confidence: '95%', action: 'Run Repair', to: '/guardian' },
+      { priority: 2, title: 'Resolve orphan routes', description: 'Register or remove orphan routes from the manifest.', owner: 'Developer', estimatedEffort: '1 hour', expectedImprovement: '+4 points', blockingDependency: 'Platform Manifest™', confidence: '94%', action: 'View Manifest', to: '/developer/migrations' },
+    ],
+    forecast: [
+      { label: 'Current', score: 88 },
+      { label: 'After Repair', score: 96 },
+      { label: 'After Orphan Fix', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Guardian Validation Engine™', to: '/guardian' },
+      { name: 'Self-Healing Engine™', to: '/guardian' },
+      { name: 'Platform Manifest™', to: '/developer/migrations' },
+    ],
+    relatedModules: [
+      { label: 'Guardian', to: '/guardian' },
+      { label: 'Launch Readiness', to: '/developer/launch-readiness' },
+      { label: 'Diagnostics', to: '/developer/diagnostics' },
+    ],
+    historicalTrend: { previousScore: 85, currentScore: 88, trend: 'up', resolvedIssues: 2, newIssues: 1, regressionEvents: 0, validationHistory: [{ score: 80, timestamp: '2026-07-10' }, { score: 85, timestamp: '2026-07-15' }, { score: 88, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  exec_intelligence: {
+    metricId: 'exec_intelligence',
+    label: 'EXEC™ Intelligence',
+    executiveSummary: { currentScore: 82, target: 80, gap: 18, status: 'Passing', severity: 'low', confidence: '90%', lastUpdated: '5m ago', trend: 'up', change: 2, recoveryEstimate: '1 week' },
+    concerns: [
+      { title: 'Fallback Persona Count Above Zero', description: 'Some personas still using fallback logic instead of dynamic resolution.', severity: 'Medium', pointsLost: '-6 points', confidence: '90%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Explainability Below 100%', description: 'Explainability score below 100% — some scores lack full explainability fields.', severity: 'Low', pointsLost: '-4 points', confidence: '88%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Incomplete Capability Chains', description: 'Some capability chains not fully complete.', severity: 'Low', pointsLost: '-4 points', confidence: '87%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Knowledge Resolution Below 100%', description: 'Knowledge pack resolution below 100%.', severity: 'Low', pointsLost: '-4 points', confidence: '86%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+    ],
+    businessImpact: {
+      customer: ['AI responses may use fallback logic instead of dynamic knowledge'],
+      executive: ['EXEC™ Intelligence exceeds 80% target but below 100% perfection'],
+      platform: ['EXEC™ Intelligence at 82% — above target but room for improvement'],
+      operational: ['Engineering team resolving fallback personas and knowledge gaps'],
+      deployment: ['Deployment not blocked — exceeds 80% target threshold'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: ['Fallback logic may produce less precise responses'], rollbackRisks: ['No rollback risk'], complianceRisks: [] },
+    evidence: [
+      { source: 'Knowledge Resolution Engine', detail: 'Persona audit, fallback count, and capability chain analysis in progress', timestamp: '2026-07-19 15:00' },
+      { source: 'EELM™ Dashboard', detail: 'Explainability and recommendation quality metrics tracked', timestamp: '2026-07-19 14:55' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Eliminate fallback personas', description: 'Replace all fallback persona logic with dynamic resolution.', owner: 'Developer', estimatedEffort: '3 days', expectedImprovement: '+6 points', blockingDependency: 'Knowledge Resolution Engine', confidence: '90%', action: 'View ELIM', to: '/elim' },
+      { priority: 2, title: 'Complete explainability fields', description: 'Fill in missing explainability fields on all scores.', owner: 'Developer', estimatedEffort: '2 days', expectedImprovement: '+4 points', blockingDependency: 'EELM™ Dashboard', confidence: '92%', action: 'Start', to: '/eelm' },
+    ],
+    forecast: [
+      { label: 'Current', score: 82 },
+      { label: 'After Fallback Fix', score: 88 },
+      { label: 'After Explainability', score: 92 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Knowledge Resolution Engine', to: '/elim' },
+      { name: 'EELM™ Dashboard', to: '/eelm' },
+      { name: 'Executive Memory™', to: '/developer/cognitive/memory' },
+    ],
+    relatedModules: [
+      { label: 'ELIM Management', to: '/elim' },
+      { label: 'EELM™ Dashboard', to: '/eelm' },
+      { label: 'Cognitive Excellence', to: '/developer/cognitive' },
+    ],
+    historicalTrend: { previousScore: 80, currentScore: 82, trend: 'up', resolvedIssues: 1, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 76, timestamp: '2026-07-10' }, { score: 80, timestamp: '2026-07-15' }, { score: 82, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  foundation_certification: {
+    metricId: 'foundation_certification',
+    label: 'Foundation Certification™',
+    executiveSummary: { currentScore: 91, target: 100, gap: 9, status: 'Blocked', severity: 'high', confidence: '93%', lastUpdated: '5m ago', trend: 'up', change: 4, recoveryEstimate: '3 days' },
+    concerns: [
+      { title: 'Open Foundation Blockers', description: 'Foundation certification has open blockers across multiple categories.', severity: 'High', pointsLost: '-9 points', confidence: '93%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+    ],
+    businessImpact: {
+      customer: ['Foundation layer not fully certified — may affect platform stability'],
+      executive: ['Foundation Certification™ is a hard launch gate — must reach 100%'],
+      platform: ['Foundation Certification™ at 91% — launch blocked until 100%'],
+      operational: ['Engineering team resolving categorized blockers'],
+      deployment: ['Deployment BLOCKED — Foundation must be certified before launch'],
+    },
+    deploymentRisks: { deploymentReady: false, blockingIssues: ['Foundation Certification™ below 100% — open blockers remain'], deploymentRisks: ['Cannot launch until all foundation blockers resolved'], rollbackRisks: ['Launching with open foundation issues requires rollback'], complianceRisks: ['Foundation certification is a governance requirement'] },
+    evidence: [
+      { source: 'Foundation Certification Engine', detail: 'Categorized blockers tracked with severity counts (critical/high/medium/low)', timestamp: '2026-07-19 15:00' },
+      { source: 'Diagnostics Center', detail: 'Estimated completion tracked per blocker category', timestamp: '2026-07-19 14:55' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Resolve critical foundation blockers', description: 'Address all critical-severity foundation blockers first.', owner: 'Developer', estimatedEffort: '2 days', expectedImprovement: '+5 points', blockingDependency: 'Foundation Certification Engine', confidence: '93%', action: 'View Diagnostics', to: '/developer/diagnostics' },
+      { priority: 2, title: 'Resolve high/medium blockers', description: 'Address remaining high and medium severity blockers.', owner: 'Developer', estimatedEffort: '1 day', expectedImprovement: '+4 points', blockingDependency: 'Foundation Certification Engine', confidence: '90%', action: 'View Diagnostics', to: '/developer/diagnostics' },
+    ],
+    forecast: [
+      { label: 'Current', score: 91 },
+      { label: 'After Critical Fix', score: 96 },
+      { label: 'After All Blockers', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Foundation Certification Engine', to: '/developer/diagnostics' },
+      { name: 'Diagnostics Center', to: '/developer/diagnostics' },
+      { name: 'Self-Healing Engine™', to: '/guardian' },
+    ],
+    relatedModules: [
+      { label: 'Diagnostics', to: '/developer/diagnostics' },
+      { label: 'Launch Readiness', to: '/developer/launch-readiness' },
+      { label: 'Guardian', to: '/guardian' },
+    ],
+    historicalTrend: { previousScore: 87, currentScore: 91, trend: 'up', resolvedIssues: 2, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 83, timestamp: '2026-07-10' }, { score: 87, timestamp: '2026-07-15' }, { score: 91, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  platform_iq: {
+    metricId: 'platform_iq',
+    label: 'Platform Intelligence Quotient™',
+    executiveSummary: { currentScore: 87, target: 85, gap: 13, status: 'Passing', severity: 'low', confidence: '92%', lastUpdated: '5m ago', trend: 'up', change: 2, recoveryEstimate: '1 week' },
+    concerns: [
+      { title: 'Discoverability Domain Below 100%', description: 'Platform discoverability intelligence domain not fully mature.', severity: 'Low', pointsLost: '-4 points', confidence: '90%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Metadata Domain Below 100%', description: 'Metadata intelligence domain has completion gaps.', severity: 'Low', pointsLost: '-3 points', confidence: '89%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Knowledge Domain Below 100%', description: 'Knowledge intelligence domain below 100%.', severity: 'Low', pointsLost: '-3 points', confidence: '88%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+      { title: 'Explainability Domain Below 100%', description: 'Explainability intelligence domain below 100%.', severity: 'Low', pointsLost: '-3 points', confidence: '87%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+    ],
+    businessImpact: {
+      customer: ['Platform intelligence maturity at 87 — above target but below perfection'],
+      executive: ['Platform IQ exceeds 85 target — launch ready from IQ perspective'],
+      platform: ['Platform IQ at 87 — above 85 target, estimated gain available'],
+      operational: ['Engineering team maturing intelligence domains'],
+      deployment: ['Deployment not blocked — exceeds 85 target threshold'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: ['Intelligence domains not fully mature — may affect recommendation quality'], rollbackRisks: ['No rollback risk'], complianceRisks: [] },
+    evidence: [
+      { source: 'Platform Intelligence Engine', detail: '5 launch-focus domains tracked: discoverability, metadata, foundation, knowledge, explainability', timestamp: '2026-07-19 15:00' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Mature discoverability domain', description: 'Complete discoverability intelligence to 100%.', owner: 'Developer', estimatedEffort: '3 days', expectedImprovement: '+4 points', blockingDependency: 'Platform Intelligence Engine', confidence: '90%', action: 'View Diagnostics', to: '/developer/diagnostics' },
+      { priority: 2, title: 'Complete metadata domain', description: 'Fill metadata intelligence gaps.', owner: 'Developer', estimatedEffort: '2 days', expectedImprovement: '+3 points', blockingDependency: 'Metadata Completion Engine', confidence: '89%', action: 'Start', to: '/developer/diagnostics' },
+    ],
+    forecast: [
+      { label: 'Current', score: 87 },
+      { label: 'After Discoverability', score: 91 },
+      { label: 'After All Domains', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Platform Intelligence Engine', to: '/developer/diagnostics' },
+      { name: 'Metadata Completion Engine', to: '/developer/diagnostics' },
+    ],
+    relatedModules: [
+      { label: 'Platform Intelligence', to: '/developer/pii' },
+      { label: 'Diagnostics', to: '/developer/diagnostics' },
+      { label: 'Launch Readiness', to: '/developer/launch-readiness' },
+    ],
+    historicalTrend: { previousScore: 85, currentScore: 87, trend: 'up', resolvedIssues: 1, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 82, timestamp: '2026-07-10' }, { score: 85, timestamp: '2026-07-15' }, { score: 87, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  // ═══ ARCHITECTURE AUDIT ═══
+  architecture_audit: {
+    metricId: 'architecture_audit',
+    label: 'Structural Health Score',
+    executiveSummary: { currentScore: 100, target: 100, gap: 0, status: 'Healthy', severity: 'low', confidence: '98%', lastUpdated: '1m ago', trend: 'stable', change: 0, recoveryEstimate: 'N/A' },
+    concerns: [],
+    businessImpact: {
+      customer: ['No customer-facing impact — architecture is healthy'],
+      executive: ['Single-source architecture maintained — no duplicates or dead code'],
+      platform: ['Structural Health Score at 100% — healthy'],
+      operational: ['Continuous structural monitoring active'],
+      deployment: ['Deployment not blocked — architecture is healthy'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: [], rollbackRisks: [], complianceRisks: [] },
+    evidence: [
+      { source: 'Architecture Audit Engine', detail: 'Dependency graph: all single-source. Dead code: cleaned. Duplicate routes: none.', timestamp: '2026-07-19 15:00' },
+    ],
+    recommendations: [],
+    forecast: [
+      { label: 'Current', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Route Registry', to: '/admin' },
+      { name: 'Platform Manifest™', to: '/developer/migrations' },
+    ],
+    relatedModules: [
+      { label: 'Architecture Audit', to: '/developer/architecture-audit' },
+      { label: 'Architecture Governance', to: '/architecture-governance' },
+      { label: 'UX Audit Report', to: '/developer/ux-audit' },
+    ],
+    historicalTrend: { previousScore: 100, currentScore: 100, trend: 'stable', resolvedIssues: 2, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 90, timestamp: '2026-07-10' }, { score: 95, timestamp: '2026-07-15' }, { score: 100, timestamp: '2026-07-19' }] },
+    healthyStatus: { validationPassed: true, lastVerification: '2026-07-19 15:00', validationHistory: [{ score: 90, timestamp: '2026-07-10' }, { score: 95, timestamp: '2026-07-15' }, { score: 100, timestamp: '2026-07-19' }] },
+  },
+
   // ═══ HEALTHY METRICS (score == 100) — open Healthy Status panel ═══
   security: {
     metricId: 'security',

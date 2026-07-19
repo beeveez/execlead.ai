@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -226,6 +226,24 @@ export const WORKSPACE_NAV = {
     ]},
   ],
 };
+
+/* ======================= FOOTER NAVIGATION ======================= */
+
+// Public informational pages — discoverable via site footer,
+// not cluttering workspace sidebars.
+export const FOOTER_NAV = [
+  { label: "Footer Navigation", items: [
+    { path: "/pricing", label: "Pricing", icon: CreditCard },
+    { path: "/about", label: "About", icon: Info },
+    { path: "/contact", label: "Contact", icon: Mail },
+    { path: "/legal", label: "Legal", icon: FileText },
+    { path: "/trust-center", label: "Trust Center", icon: ShieldCheck },
+    { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
+    { path: "/founders", label: "Founders Wall", icon: Crown },
+    { path: "/company-library", label: "Company Library", icon: Building2 },
+    { path: "/articles", label: "Articles", icon: BookOpen },
+  ]},
+];
 
 /* ======================= ROUTE → WORKSPACE MAP ======================= */
 

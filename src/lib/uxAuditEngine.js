@@ -22,14 +22,22 @@
  */
 
 import { ROUTE_REGISTRY, routeMatches, ROUTE_CLASSIFICATIONS } from './routeRegistry';
-import { WORKSPACE_NAV } from './workspaces';
+import { WORKSPACE_NAV, FOOTER_NAV } from './workspaces';
 
-const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flat().flatMap(group =>
-  (group.items || []).map(item => ({
-    ...item,
-    group: group.label,
-  }))
-);
+const ALL_NAV_ITEMS = [
+  ...Object.values(WORKSPACE_NAV).flat().flatMap(group =>
+    (group.items || []).map(item => ({
+      ...item,
+      group: group.label,
+    }))
+  ),
+  ...FOOTER_NAV.flatMap(group =>
+    (group.items || []).map(item => ({
+      ...item,
+      group: group.label,
+    }))
+  ),
+];
 
 const AUDIT_VERSION = '2.0';
 
@@ -270,10 +278,12 @@ function scanIncompleteMetadata() {
 
   for (const route of ROUTE_REGISTRY) {
     const missing = [];
+    if (!route.routeId) missing.push('routeId');
     if (!route.name || route.name === route.url) missing.push('name');
     if (!route.workspace) missing.push('workspace');
     if (!route.navType) missing.push('navType');
     if (!route.visibility) missing.push('visibility');
+    if (!route.requiredRole) missing.push('requiredRole');
 
     if (missing.length > 0) {
       findings.push({
@@ -316,6 +326,7 @@ function buildNavigationReport(findings) {
     wizardRoutes: byClassification.wizard_step || 0,
     orphanRoutes: orphanFindings.length,
     routesMissingMetadata: metadataFindings.length,
+    footerRoutes: ROUTE_REGISTRY.filter(r => r.navRefs?.some(n => n.group === 'Footer Navigation')).length,
     byClassification,
   };
 }
@@ -374,6 +385,13 @@ export function runUXAudit() {
     f => f.type.severity === 'critical' || f.type.severity === 'error'
   ).length;
 
+  // ── Footer pages validation ──
+  const REQUIRED_FOOTER_PATHS = ['/pricing', '/about', '/contact', '/legal', '/trust-center'];
+  const footerPagesRegistered = REQUIRED_FOOTER_PATHS.every(path => {
+    const route = ROUTE_REGISTRY.find(r => r.url === path);
+    return route && route.navRefs && route.navRefs.length > 0;
+  });
+
   const navigationReport = buildNavigationReport(allFindings);
 
   const qualityGates = {
@@ -385,6 +403,7 @@ export function runUXAudit() {
     noMissingComponents: !byType.missing_component,
     noDeprecatedInNav: !byType.deprecated_in_nav,
     noIncompleteMetadata: !byType.incomplete_metadata,
+    footerPagesRegistered,
   };
 
   const executiveSummary = buildExecutiveSummary(

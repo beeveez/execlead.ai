@@ -276,6 +276,7 @@ export default function UXAuditReport() {
             <QualityGateChip label="No Missing Components" passed={audit.qualityGates.noMissingComponents} />
             <QualityGateChip label="No Deprecated in Nav" passed={audit.qualityGates.noDeprecatedInNav} />
             <QualityGateChip label="No Incomplete Metadata" passed={audit.qualityGates.noIncompleteMetadata} />
+            <QualityGateChip label="Footer Pages Registered" passed={audit.qualityGates.footerPagesRegistered} />
           </div>
         </div>
 
@@ -300,6 +301,7 @@ export default function UXAuditReport() {
                 { label: 'Wizard Steps', value: audit.navigationReport.wizardRoutes, color: 'text-orange-400' },
                 { label: 'Orphan Routes', value: audit.navigationReport.orphanRoutes, color: audit.navigationReport.orphanRoutes > 0 ? 'text-red-400' : 'text-emerald-400' },
                 { label: 'Missing Metadata', value: audit.navigationReport.routesMissingMetadata, color: audit.navigationReport.routesMissingMetadata > 0 ? 'text-amber-400' : 'text-emerald-400' },
+                { label: 'Footer Routes', value: audit.navigationReport.footerRoutes, color: 'text-cyan-400' },
               ].map((stat, i) => (
                 <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-3 text-center">
                   <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>

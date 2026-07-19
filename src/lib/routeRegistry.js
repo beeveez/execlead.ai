@@ -10,7 +10,7 @@
  *   status, owner, version, deprecated, lastUpdated, public, navRefs }
  */
 import { ROUTE_ACCESS } from "./roles";
-import { WORKSPACE_NAV } from "./workspaces";
+import { WORKSPACE_NAV, FOOTER_NAV } from "./workspaces";
 import { DEFAULT_FEATURES, FEATURE_REGISTRY, PLAN_TIERS, normalizeFeature, isFeatureLive } from "./featureCatalog";
 
 const ROUTE_VERSION = "2.0";
@@ -28,6 +28,14 @@ const APP_ROUTES = [
   { path: "/about", component: "About", public: true },
   { path: "/contact", component: "Contact", public: true },
   { path: "/u/:username", component: "PublicProfile", public: true },
+  { path: "/founders", component: "FoundersWall", public: true },
+  { path: "/founders-wall", component: "FoundersWall", public: true },
+  { path: "/verify/:verificationId", component: "CertificateVerify", public: true },
+  { path: "/beta", component: "BetaApply", public: true },
+  { path: "/company-library", component: "Companies", public: true },
+  { path: "/company-library/:id", component: "CompanyDetail", public: true },
+  { path: "/articles", component: "ArticleHub", public: true },
+  { path: "/articles/:slug", component: "ArticleDetail", public: true },
   { path: "/onboarding", component: "Onboarding" },
   { path: "/home", component: "WorkspaceHome" },
   { path: "/section/:workspaceId/:section", component: "SectionHome", name: "Section Home" },
@@ -199,9 +207,12 @@ const APP_ROUTES = [
   { path: "/executive-briefing", component: "ExecutiveBriefing", name: "Executive Briefing™", feature: null },
 ];
 
-const ALL_NAV_ITEMS = Object.values(WORKSPACE_NAV).flatMap((groups) =>
-  groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })))
-);
+const ALL_NAV_ITEMS = [
+  ...Object.values(WORKSPACE_NAV).flatMap((groups) =>
+    groups.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })))
+  ),
+  ...FOOTER_NAV.flatMap((g) => g.items.map((i) => ({ ...i, group: g.label }))),
+];
 
 function routeMatches(known, path) {
   if (known === path) return true;
@@ -241,6 +252,18 @@ const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'
 const ADMIN_PATTERNS = ['/admin', '-admin', '/admin/'];
 const CPQ_PATHS = ['/cpq', '/cpq-dashboard'];
 const HIDDEN_PATHS = ['/guardian', '/portal/'];
+
+// Route-specific overrides for edge cases that automatic classification
+// cannot handle correctly (dynamic routes without parent list pages, etc.)
+const ROUTE_OVERRIDES = {
+  '/u/:username': { navType: 'detail_route', parentRoute: null, searchable: true, indexable: true },
+  '/section/:workspaceId/:section': { navType: 'hidden_system_route', parentRoute: null, searchable: false, indexable: false },
+  '/founders-wall': { navType: 'context_route', parentRoute: '/founders', searchable: true, indexable: false },
+};
+
+function deriveRouteId(path) {
+  return path.replace(/^\//, '').replace(/[:/]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'root';
+}
 
 function deriveWorkspace(path) {
   if (path.startsWith('/developer')) return 'developer';
@@ -298,16 +321,19 @@ function buildRegistry() {
     const owner = reg?.module || featureDef?.category || (r.public ? "Public" : "Platform");
     const duplicate = seen.has(r.path);
     seen.add(r.path);
-    const navType = classifyRoute(r);
+    const override = ROUTE_OVERRIDES[r.path];
+    const navType = override?.navType || classifyRoute(r);
     const classification = ROUTE_CLASSIFICATIONS[navType] || ROUTE_CLASSIFICATIONS.context_route;
     const workspace = deriveWorkspace(r.path);
-    const parentRoute = deriveParentRoute(r.path);
+    const parentRoute = override?.parentRoute !== undefined ? override.parentRoute : deriveParentRoute(r.path);
 
     return {
+      routeId: deriveRouteId(r.path),
       name: r.name || deriveName(r.path, r.component),
       url: r.path,
       component: r.component,
       permission: permission ? permission.join(", ") : "authenticated",
+      requiredRole: permission ? permission.join(", ") : (r.public ? "public" : "authenticated"),
       permissionRaw: permission,
       feature,
       plan,
@@ -327,9 +353,9 @@ function buildRegistry() {
       workspace,
       parentRoute,
       needsNav: classification.needsNav,
-      searchable: navType !== 'hidden_system_route' && navType !== 'auth_route' && navType !== 'internal_api_route',
+      searchable: override?.searchable !== undefined ? override.searchable : (navType !== 'hidden_system_route' && navType !== 'auth_route' && navType !== 'internal_api_route'),
       breadcrumb: r.name || deriveName(r.path, r.component),
-      indexable: !!r.public && navType === 'primary_navigation',
+      indexable: override?.indexable !== undefined ? override.indexable : (!!r.public && navType === 'primary_navigation'),
     };
   });
 }

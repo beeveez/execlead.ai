@@ -55,6 +55,38 @@ export default [
         { ignore: ["cmdk-input-wrapper", "toast-close"] },
       ],
       "react-hooks/rules-of-hooks": "error",
+
+      // ── Interactive Experience Standard™ — Legacy Component Enforcement ──
+      // Reject deprecated interactive component patterns.
+      // All dashboard cards, metrics, widgets, and progress bars must use
+      // the shared Interactive* components from @/components/shared.
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "JSXOpeningElement[name.name='MetricCard']",
+          message: "MetricCard is deprecated — use InteractiveMetric™ from @/components/shared for Universal Metric Intelligence™ drill-down.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='ProgressCard']",
+          message: "ProgressCard is deprecated — use InteractiveProgress™ from @/components/shared.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='WidgetCard']",
+          message: "WidgetCard is deprecated — use InteractiveWidget™ from @/components/shared.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='InsightCard']",
+          message: "InsightCard is deprecated — use InteractiveInsight™ from @/components/shared.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='RoadmapCard']",
+          message: "RoadmapCard is deprecated — use InteractiveRoadmap™ from @/components/shared.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='ArticleCard']",
+          message: "ArticleCard is deprecated — use InteractiveArticle™ from @/components/shared.",
+        },
+      ],
     },
   },
 ];

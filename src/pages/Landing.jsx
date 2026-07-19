@@ -26,16 +26,17 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import TrustSignalsSection from "@/components/landing/TrustSignalsSection";
 import NewsletterSection from "@/components/landing/NewsletterSection";
 import { BrandRegistry } from "@/lib/brandRegistry";
+import InteractiveCard from "@/components/shared/InteractiveCard";
 
 const FEATURES = [
-  { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation." },
-  { icon: MessageSquare, title: "AI Executive Coach", desc: "11 AI personas — former CIOs, COOs, CFOs — mentoring you 24/7." },
-  { icon: Brain, title: "Executive Simulator", desc: "15+ realistic scenarios: interviews, QBRs, crises, negotiations." },
-  { icon: Swords, title: "Debate Mode", desc: "AI pushes back for 5+ rounds, testing conviction and strategic depth." },
-  { icon: Shield, title: "Truth Engine", desc: "Detects exaggeration, inflated metrics, and false ownership instantly." },
-  { icon: BookOpen, title: "Career Advisor", desc: "Personalized roadmap with certs, books, and promotion readiness." },
-  { icon: Building2, title: "Company Intelligence", desc: "126+ global organizations with executive-grade intelligence." },
-  { icon: BarChart3, title: "Leadership Analytics", desc: "Radar charts, trends, and heat maps tracking your executive growth." },
+  { icon: GraduationCap, title: "Executive Academy", desc: "18 learning paths from leadership to digital transformation.", to: "/academy" },
+  { icon: MessageSquare, title: "AI Executive Coach", desc: "11 AI personas — former CIOs, COOs, CFOs — mentoring you 24/7.", to: "/coach" },
+  { icon: Brain, title: "Executive Simulator", desc: "15+ realistic scenarios: interviews, QBRs, crises, negotiations.", to: "/simulator" },
+  { icon: Swords, title: "Debate Mode", desc: "AI pushes back for 5+ rounds, testing conviction and strategic depth.", to: "/debate" },
+  { icon: Shield, title: "Truth Engine", desc: "Detects exaggeration, inflated metrics, and false ownership instantly.", comingSoon: { purpose: "AI-powered honesty verification for executive responses", status: "In Development", availability: "Private Beta Phase 2" } },
+  { icon: BookOpen, title: "Career Advisor", desc: "Personalized roadmap with certs, books, and promotion readiness.", to: "/career" },
+  { icon: Building2, title: "Company Intelligence", desc: "126+ global organizations with executive-grade intelligence.", to: "/companies" },
+  { icon: BarChart3, title: "Leadership Analytics", desc: "Radar charts, trends, and heat maps tracking your executive growth.", to: "/analytics" },
 ];
 
 const DIFFERENTIATORS = [
@@ -266,13 +267,18 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300"
               >
-                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
-                  <f.icon size={20} className="text-indigo-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{f.desc}</p>
+                <InteractiveCard
+                  to={f.to}
+                  comingSoon={f.comingSoon}
+                  className="bg-white/[0.02] border border-white/5 p-6 h-full hover:bg-white/[0.04]"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
+                    <f.icon size={20} className="text-indigo-400" />
+                  </div>
+                  <h3 className="font-semibold text-white mb-2">{f.title}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed">{f.desc}</p>
+                </InteractiveCard>
               </motion.div>
             ))}
           </div>
@@ -342,9 +348,13 @@ export default function Landing() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.03 }}
-                className="px-5 py-3 bg-white/[0.03] border border-white/5 rounded-full text-sm text-white/50 hover:text-indigo-400 hover:border-indigo-500/20 transition-all cursor-default"
               >
-                {path}
+                <InteractiveCard
+                  to="/academy"
+                  className="px-5 py-3 bg-white/[0.03] border border-white/5 rounded-full text-sm text-white/50 hover:text-indigo-400 hover:border-indigo-500/20"
+                >
+                  {path}
+                </InteractiveCard>
               </motion.div>
             ))}
           </div>

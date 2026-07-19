@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import {
   LayoutDashboard, Boxes, DollarSign, Receipt, Mail, Lock,
   Calculator, TrendingUp, Database, Network, FileText,
-  Cpu, KeyRound, GitBranch, Rocket, ClipboardList, Gauge, ShieldCheck
+  Cpu, KeyRound, GitBranch, Rocket, ClipboardList, Gauge, ShieldCheck, RefreshCw
 } from "lucide-react";
 
 const MODULES = [
   { path: "/developer/product", label: "Product Mgmt", desc: "Feedback, bugs & roadmap", icon: ClipboardList },
   { path: "/developer/diagnostics", label: "Governance Center", desc: "Platform health & integrity", icon: Gauge },
   { path: "/developer/hardening", label: "Platform Hardening", desc: "Security & readiness gates", icon: ShieldCheck },
+  { path: "/developer/migration-report", label: "Migration Report", desc: "Interactive component compliance", icon: RefreshCw },
   { path: "/developer", label: "Dashboard", desc: "Workspace overview", icon: LayoutDashboard },
   { path: "/feature-management", label: "Feature Flags", desc: "Toggle platform features", icon: Boxes },
   { path: "/pricing-admin", label: "Pricing Admin", desc: "Manage pricing plans", icon: DollarSign },

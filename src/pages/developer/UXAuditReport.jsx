@@ -16,12 +16,13 @@ const SEVERITY_CONFIG = {
 
 const TYPE_ICONS = {
   dead_link: Unlink,
-  orphan_page: FileQuestion,
+  unclassified_route: Tag,
+  orphan_nav_route: FileQuestion,
+  missing_parent: AlertTriangle,
   duplicate_route: Copy,
   missing_component: AlertTriangle,
   deprecated_in_nav: AlertCircle,
-  ungated_feature_route: Info,
-  missing_nav_label: Tag,
+  incomplete_metadata: Info,
 };
 
 function FindingCard({ finding, index }) {
@@ -131,7 +132,7 @@ export default function UXAuditReport() {
               <h1 className="text-2xl font-bold">UX Audit Report™</h1>
             </div>
             <p className="text-white/40 text-sm">
-              Automated Platform UX Rule validation · {audit.totalRoutes} routes · {audit.totalNavItems} nav items scanned
+              Navigation Intelligence™ · Route governance validation · {audit.totalRoutes} routes classified · {audit.totalNavItems} nav items scanned
             </p>
           </div>
           <button
@@ -192,12 +193,46 @@ export default function UXAuditReport() {
           <h2 className="text-white font-semibold text-sm mb-4">Quality Gates</h2>
           <div className="flex flex-wrap gap-2">
             <QualityGateChip label="No Dead Links" passed={audit.qualityGates.noDeadLinks} />
-            <QualityGateChip label="No Orphan Pages" passed={audit.qualityGates.noOrphanPages} />
+            <QualityGateChip label="No Orphan Nav Routes" passed={audit.qualityGates.noOrphanNavRoutes} />
+            <QualityGateChip label="No Unclassified Routes" passed={audit.qualityGates.noUnclassifiedRoutes} />
+            <QualityGateChip label="No Missing Parents" passed={audit.qualityGates.noMissingParents} />
             <QualityGateChip label="No Duplicates" passed={audit.qualityGates.noDuplicates} />
             <QualityGateChip label="No Missing Components" passed={audit.qualityGates.noMissingComponents} />
             <QualityGateChip label="No Deprecated in Nav" passed={audit.qualityGates.noDeprecatedInNav} />
+            <QualityGateChip label="No Incomplete Metadata" passed={audit.qualityGates.noIncompleteMetadata} />
           </div>
         </div>
+
+        {/* Navigation Report */}
+        {audit.navigationReport && (
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-white font-semibold text-sm">Navigation Report™</h2>
+              <span className="text-white/20 text-xs">· Route Classification Intelligence</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {[
+                { label: 'Total Routes', value: audit.navigationReport.totalRoutes, color: 'text-white' },
+                { label: 'Primary Nav', value: audit.navigationReport.primaryRoutes, color: 'text-indigo-400' },
+                { label: 'Context Routes', value: audit.navigationReport.contextRoutes, color: 'text-blue-400' },
+                { label: 'Detail Routes', value: audit.navigationReport.detailRoutes, color: 'text-cyan-400' },
+                { label: 'Developer Routes', value: audit.navigationReport.developerRoutes, color: 'text-purple-400' },
+                { label: 'Enterprise Routes', value: audit.navigationReport.enterpriseRoutes, color: 'text-teal-400' },
+                { label: 'Admin Routes', value: audit.navigationReport.adminRoutes, color: 'text-amber-400' },
+                { label: 'Hidden Routes', value: audit.navigationReport.hiddenRoutes, color: 'text-white/40' },
+                { label: 'Auth Routes', value: audit.navigationReport.authRoutes, color: 'text-emerald-400' },
+                { label: 'Wizard Steps', value: audit.navigationReport.wizardRoutes, color: 'text-orange-400' },
+                { label: 'Orphan Routes', value: audit.navigationReport.orphanRoutes, color: audit.navigationReport.orphanRoutes > 0 ? 'text-red-400' : 'text-emerald-400' },
+                { label: 'Missing Metadata', value: audit.navigationReport.routesMissingMetadata, color: audit.navigationReport.routesMissingMetadata > 0 ? 'text-amber-400' : 'text-emerald-400' },
+              ].map((stat, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 rounded-xl p-3 text-center">
+                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                  <p className="text-white/30 text-[10px] mt-1 uppercase tracking-wider">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Findings */}
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">

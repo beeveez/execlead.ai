@@ -216,6 +216,74 @@ function deriveName(path, component) {
   return path.split("/").filter(Boolean).pop() || path;
 }
 
+// ═══════════════════════════════════════════════════════════
+// ROUTE CLASSIFICATION — Navigation Intelligence™
+// ═══════════════════════════════════════════════════════════
+
+export const ROUTE_CLASSIFICATIONS = {
+  primary_navigation: { label: 'Primary Navigation', visibility: 'public', needsNav: true, icon: 'LayoutGrid' },
+  secondary_navigation: { label: 'Secondary Navigation', visibility: 'authenticated', needsNav: true, icon: 'Navigation' },
+  context_route: { label: 'Context Route', visibility: 'authenticated', needsNav: false, icon: 'Link' },
+  detail_route: { label: 'Detail Route', visibility: 'authenticated', needsNav: false, icon: 'FileText' },
+  modal_route: { label: 'Modal Route', visibility: 'authenticated', needsNav: false, icon: 'Square' },
+  drawer_route: { label: 'Drawer Route', visibility: 'authenticated', needsNav: false, icon: 'PanelRight' },
+  wizard_step: { label: 'Wizard Step', visibility: 'authenticated', needsNav: false, icon: 'Steps' },
+  hidden_system_route: { label: 'Hidden System Route', visibility: 'hidden', needsNav: false, icon: 'EyeOff' },
+  admin_route: { label: 'Admin Route', visibility: 'admin', needsNav: false, icon: 'Shield' },
+  developer_route: { label: 'Developer Route', visibility: 'developer', needsNav: false, icon: 'Terminal' },
+  enterprise_route: { label: 'Enterprise Route', visibility: 'enterprise', needsNav: false, icon: 'Building2' },
+  internal_api_route: { label: 'Internal API Route', visibility: 'hidden', needsNav: false, icon: 'Server' },
+  auth_route: { label: 'Authentication Route', visibility: 'public', needsNav: false, icon: 'KeyRound' },
+  coming_soon: { label: 'Coming Soon', visibility: 'hidden', needsNav: false, icon: 'Clock' },
+};
+
+const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
+const ADMIN_PATTERNS = ['/admin', '-admin', '/admin/'];
+const CPQ_PATHS = ['/cpq', '/cpq-dashboard'];
+const HIDDEN_PATHS = ['/guardian', '/portal/'];
+
+function deriveWorkspace(path) {
+  if (path.startsWith('/developer')) return 'developer';
+  if (path.startsWith('/enterprise')) return 'enterprise';
+  if (path.startsWith('/operations')) return 'operations';
+  if (path.startsWith('/founder')) return 'founder';
+  if (path.startsWith('/network')) return 'network';
+  if (path.startsWith('/community')) return 'community';
+  if (path.startsWith('/legacy-library')) return 'legacy';
+  if (path.startsWith('/cpq')) return 'sales';
+  if (['/hr-dashboard', '/succession-planning', '/promotion-readiness', '/learning-assignments', '/sso'].includes(path)) return 'hr';
+  if (path.startsWith('/privacy') || path.startsWith('/security') || path.startsWith('/identity')) return 'security';
+  if (path === '/' || path.startsWith('/pricing') || path.startsWith('/about') || path.startsWith('/contact') || path.startsWith('/legal') || path.startsWith('/trust') || path.startsWith('/founders') || path.startsWith('/beta') || path.startsWith('/articles') || path.startsWith('/leaderboard') || path.startsWith('/company-library')) return 'marketing';
+  if (path.startsWith('/profile') || path.startsWith('/settings') || path.startsWith('/billing') || path.startsWith('/notifications') || path.startsWith('/organization') || path.startsWith('/connected')) return 'account';
+  return 'executive';
+}
+
+function deriveParentRoute(path) {
+  const parts = path.split('/').filter(Boolean);
+  if (parts.length <= 1) return null;
+  if (path.includes(':')) {
+    const paramIndex = parts.findIndex(p => p.startsWith(':'));
+    if (paramIndex > 0) return '/' + parts.slice(0, paramIndex).join('/');
+    if (paramIndex === 0) return null;
+  }
+  return '/' + parts.slice(0, -1).join('/');
+}
+
+function classifyRoute(route) {
+  const path = route.path;
+
+  if (AUTH_PATHS.includes(path)) return 'auth_route';
+  if (path === '/onboarding') return 'wizard_step';
+  if (HIDDEN_PATHS.some(p => path.startsWith(p))) return 'hidden_system_route';
+  if (path.startsWith('/developer')) return 'developer_route';
+  if (path.startsWith('/enterprise')) return 'enterprise_route';
+  if (ADMIN_PATTERNS.some(p => path.includes(p))) return 'admin_route';
+  if (CPQ_PATHS.some(p => path === p || path.startsWith(p + '/'))) return 'wizard_step';
+  if (path.includes(':')) return 'detail_route';
+  if (route.public) return 'primary_navigation';
+  return 'context_route';
+}
+
 function buildRegistry() {
   const seen = new Set();
   return APP_ROUTES.map((r) => {
@@ -230,6 +298,11 @@ function buildRegistry() {
     const owner = reg?.module || featureDef?.category || (r.public ? "Public" : "Platform");
     const duplicate = seen.has(r.path);
     seen.add(r.path);
+    const navType = classifyRoute(r);
+    const classification = ROUTE_CLASSIFICATIONS[navType] || ROUTE_CLASSIFICATIONS.context_route;
+    const workspace = deriveWorkspace(r.path);
+    const parentRoute = deriveParentRoute(r.path);
+
     return {
       name: r.name || deriveName(r.path, r.component),
       url: r.path,
@@ -247,6 +320,16 @@ function buildRegistry() {
       navRefs: navRefs.map((n) => ({ label: n.label, group: n.group })),
       hasComponent: !!r.component,
       duplicate,
+      // ── Navigation Intelligence™ metadata ──
+      navType,
+      navTypeLabel: classification.label,
+      visibility: classification.visibility,
+      workspace,
+      parentRoute,
+      needsNav: classification.needsNav,
+      searchable: navType !== 'hidden_system_route' && navType !== 'auth_route' && navType !== 'internal_api_route',
+      breadcrumb: r.name || deriveName(r.path, r.component),
+      indexable: !!r.public && navType === 'primary_navigation',
     };
   });
 }

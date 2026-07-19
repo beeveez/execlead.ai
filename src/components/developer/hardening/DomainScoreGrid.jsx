@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { Palette, Gauge, ShieldCheck, FlaskConical, Activity, ArrowRight, Clock } from 'lucide-react';
 
 const ICON_MAP = { Palette, Gauge, ShieldCheck, FlaskConical, Activity };
@@ -14,30 +13,32 @@ function getStatusStyle(status) {
   }
 }
 
-export default function DomainScoreGrid({ domains }) {
+export default function DomainScoreGrid({ domains, onDomainClick }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       {domains.map((d, i) => {
         const Icon = ICON_MAP[d.icon] || Activity;
         const style = getStatusStyle(d.status);
         return (
-          <motion.div
+          <motion.button
             key={d.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
-            className={`relative bg-white/[0.02] border ${style.ring} rounded-2xl p-5 overflow-hidden`}
+            onClick={() => onDomainClick?.(d)}
+            data-cursor-label="View Analysis"
+            className={`relative bg-white/[0.02] border ${style.ring} rounded-2xl p-5 overflow-hidden text-left cursor-pointer hover:bg-white/[0.04] hover:border-white/20 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-0.5 hover:glow-indigo-500/10 transition-all duration-300 group w-full`}
           >
             <div className={`absolute left-0 top-0 bottom-0 w-1 ${style.bar}`} />
             <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Icon size={16} className={style.text} />
               </div>
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${style.bar} bg-opacity-10 ${style.text}`}>
                 Phase {d.phase}
               </span>
             </div>
-            <h3 className="text-white font-semibold text-sm mb-1">{d.name}</h3>
+            <h3 className="text-white font-semibold text-sm mb-1 group-hover:text-white transition-colors">{d.name}</h3>
             <div className="flex items-baseline gap-1 mb-2">
               {d.score !== null ? (
                 <>
@@ -53,13 +54,13 @@ export default function DomainScoreGrid({ domains }) {
             <div className="h-1.5 bg-white/5 rounded-full overflow-hidden mb-2">
               <div className={`h-full rounded-full ${style.bar} transition-all`} style={{ width: d.score !== null ? `${d.score}%` : '0%' }} />
             </div>
-            <div className={`text-[10px] ${style.text} font-medium`}>{style.label}</div>
-            {d.deepLink && (
-              <Link to={d.deepLink} className="absolute top-3 right-3 text-white/20 hover:text-white/60 transition-colors">
-                <ArrowRight size={12} />
-              </Link>
-            )}
-          </motion.div>
+            <div className="flex items-center justify-between">
+              <span className={`text-[10px] ${style.text} font-medium`}>{style.label}</span>
+              <span className="flex items-center gap-0.5 text-white/20 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">
+                View Analysis <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </div>
+          </motion.button>
         );
       })}
     </div>

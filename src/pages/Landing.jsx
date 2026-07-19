@@ -177,12 +177,12 @@ export default function Landing() {
               </Link>
             )}
             {!authed && (
-              <Link
-                to="/beta?tier=enterprise_beta"
-                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              <a
+                href="#founding-members"
+                className="w-full sm:w-auto bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 text-amber-400 font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
               >
-                Request Enterprise Beta™
-              </Link>
+                <Crown size={16} /> Become a Founding Member™
+              </a>
             )}
             <a
               href="#features"
@@ -449,9 +449,25 @@ export default function Landing() {
       <TrustSignalsSection />
 
       {/* Founding Member Program */}
-      <section className="py-20 px-6 lg:px-8">
+      <section id="founding-members" className="py-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <FoundingMemberSection />
+        </div>
+      </section>
+
+      {/* Enterprise Edition — Coming Soon */}
+      <section className="py-12 px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto text-center bg-white/[0.02] border border-white/5 rounded-2xl p-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs text-blue-400 font-medium mb-4">
+            <Building2 size={12} />
+            Enterprise Edition — Coming Soon
+          </div>
+          <p className="text-white/50 text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
+            Enterprise capabilities including organization management, SSO, advanced governance, compliance, and executive workforce intelligence are currently under development.
+          </p>
+          <a href="#newsletter" className="inline-flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300 transition-colors mt-4">
+            Notify Me <ArrowRight size={14} />
+          </a>
         </div>
       </section>
 
@@ -478,7 +494,9 @@ export default function Landing() {
       </section>
 
       {/* Newsletter */}
-      <NewsletterSection />
+      <section id="newsletter">
+        <NewsletterSection />
+      </section>
 
       {/* CTA */}
       <section className="py-20 md:py-32 px-6 lg:px-8">

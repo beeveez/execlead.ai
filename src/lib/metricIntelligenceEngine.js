@@ -793,6 +793,44 @@ export async function computeMetricScores(base44) {
         scim_readiness: scimScore,
       },
     };
+
+    // ── Billing System Health from Invoices, Subscriptions, WalletTransactions ──
+    const [invoices, subscriptions, walletTxns] = await Promise.all([
+      base44.entities.Invoice.filter({}).catch(() => []),
+      base44.entities.Subscription.filter({}).catch(() => []),
+      base44.entities.WalletTransaction.filter({}).catch(() => []),
+    ]);
+
+    const invTotal = invoices?.length || 0;
+    const invPaid = invoices?.filter((i) => i.status === 'paid')?.length || 0;
+    const invFailed = invoices?.filter((i) => i.status === 'failed')?.length || 0;
+    const invRefunded = invoices?.filter((i) => i.status === 'refunded')?.length || 0;
+    const invPending = invoices?.filter((i) => i.status === 'pending')?.length || 0;
+
+    // Transaction Success: paid / (paid + failed) — pending excluded as in-flight
+    const txDenominator = invPaid + invFailed;
+    const transactionSuccess = txDenominator === 0 ? 100 : Math.round((invPaid / txDenominator) * 100);
+
+    // Reconciliation Rate: invoices in final state (paid + refunded) / total
+    const reconciliationRate = invTotal === 0 ? 100 : Math.round(((invPaid + invRefunded) / invTotal) * 100);
+
+    // Dispute Resolution: refunded are resolved disputes; failed with no refund = unresolved
+    const disputeResolution = invFailed === 0 ? 100 : Math.round((invRefunded / invFailed) * 100);
+
+    // Wallet transaction health contributes to overall
+    const walletTotal = walletTxns?.length || 0;
+    const walletHealthy = walletTotal === 0 ? 100 : Math.round((walletTotal / (walletTotal + invFailed)) * 100);
+
+    const billingOverall = Math.round((transactionSuccess + reconciliationRate + disputeResolution) / 3);
+    results.billing_health = {
+      score: billingOverall,
+      previous: 0,
+      breakdownData: {
+        transaction_success: transactionSuccess,
+        reconciliation_rate: reconciliationRate,
+        dispute_resolution: disputeResolution,
+      },
+    };
   } catch (err) {
     // Graceful degradation — return what we have
   }

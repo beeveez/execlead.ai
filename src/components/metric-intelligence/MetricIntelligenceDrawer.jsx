@@ -4,6 +4,7 @@ import { enrichMetric, getMetricDefinition } from '@/lib/metricIntelligenceEngin
 import { closeMetricDrawer } from '@/lib/metricDrawerStore';
 import { logMetricOpened, logMetricTaskCreated } from '@/lib/metricActivityLogger';
 import GuardianValidationPanel from './GuardianValidationPanel';
+import { publishGuardianEvents } from '@/lib/metricActivityLogger';
 import {
   X, TrendingUp, TrendingDown, Minus, ChevronRight, AlertTriangle,
   Target, Lightbulb, Wrench, Link2, BarChart3, CheckCircle2,
@@ -19,7 +20,9 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
 
   // Log to Platform Activity Center™ on open
   useEffect(() => {
-    if (metric) logMetricOpened(metric, displayScore);
+    if (!metric) return;
+    logMetricOpened(metric, displayScore);
+    if (isGuardian) publishGuardianEvents(metric);
   }, [metricId]);
 
   if (!metric) return null;
@@ -151,8 +154,8 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
             </Section>
           )}
 
-          {/* AI Insight */}
-          {!isHealthy && (
+          {/* AI Insight (suppressed for Guardian — panel renders structured insights) */}
+          {!isHealthy && !isGuardian && (
             <Section icon={Lightbulb} title="AI Insight™" iconColor="text-indigo-400">
               <p className="text-white/60 text-sm leading-relaxed">{metric.aiInsight}</p>
               {metric.estimatedFutureScore > displayScore && (
@@ -165,7 +168,8 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
             </Section>
           )}
 
-          {/* Score Breakdown */}
+          {/* Score Breakdown (suppressed for Guardian — panel renders full domain breakdown) */}
+          {!isGuardian && (
           <Section icon={BarChart3} title="Score Breakdown" iconColor="text-blue-400">
             <div className="space-y-2">
               {metric.breakdown.map((b) => (
@@ -186,6 +190,7 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
               </div>
             </div>
           </Section>
+          )}
 
           {/* Root Cause Analysis */}
           {!isHealthy && metric.rootCauses.length > 0 && (
@@ -200,6 +205,11 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
                         <span className="text-red-400 text-xs font-medium">-{rc.estimatedImpact || rc.scoreImpact}%</span>
                       </div>
                       {rc.impact && <p className="text-white/40 text-xs mt-0.5">{rc.impact}</p>}
+                      {rc.technicalImpact && (
+                        <p className="text-white/30 text-[10px] mt-1 font-mono bg-white/[0.02] rounded px-1.5 py-1 border border-white/5">
+                          {rc.technicalImpact}
+                        </p>
+                      )}
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${rc.severity === 'critical' ? 'bg-red-500/10 text-red-400' : rc.severity === 'high' ? 'bg-orange-500/10 text-orange-400' : 'bg-amber-500/10 text-amber-400'}`}>
                           {rc.severity}

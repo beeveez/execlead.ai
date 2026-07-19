@@ -65,6 +65,83 @@ export async function logMetricTargetReached(metricDef, score) {
 }
 
 /**
+ * Guardian™ Validation Event Logger
+ *
+ * Publishes validation lifecycle events to the Platform Activity Center™.
+ * Events: validation_started, validation_completed, validation_failed,
+ *         validation_passed, validation_warning, issue_detected,
+ *         issue_resolved, guardian_score_changed, deployment_ready,
+ *         deployment_blocked
+ *
+ * Silent-fail — logging never breaks the user experience.
+ */
+export async function logGuardianValidationEvent(eventType, metadata = {}) {
+  try {
+    await base44.entities.PlatformActivity.create({
+      activity_id: genId(),
+      category: 'governance',
+      subcategory: 'guardian_validation',
+      action: `guardian_${eventType}`,
+      module: 'guardian_validation',
+      workspace: 'platform',
+      target_entity: 'GuardianValidation',
+      description: eventType.replace(/_/g, ' '),
+      tags: ['guardian', 'validation', eventType],
+      metadata_json: JSON.stringify({ eventType, ...metadata }),
+    });
+  } catch {
+    // Silent fail
+  }
+}
+
+/**
+ * Publish a batch of Guardian validation events based on current state.
+ * Called when the Guardian drawer is opened — logs validation viewed,
+ * issue detected (per failed rule), and deployment status.
+ */
+export async function publishGuardianEvents(metric) {
+  if (!metric?.isGuardian) return;
+  try {
+    await logGuardianValidationEvent('validation_viewed', {
+      score: metric.current,
+      projectedScore: metric.estimatedFutureScore,
+    });
+
+    // Log issue_detected for each failed rule
+    for (const rc of metric.rootCauses) {
+      await logGuardianValidationEvent('issue_detected', {
+        ruleId: rc.ruleId,
+        rule: rc.rule,
+        severity: rc.severity,
+        contribution: rc.contribution,
+      });
+    }
+
+    // Log deployment status
+    if (metric.deploymentReadiness?.status === 'not_ready') {
+      await logGuardianValidationEvent('deployment_blocked', {
+        blockers: metric.deploymentReadiness.criticalBlockers.length,
+      });
+    } else if (metric.deploymentReadiness?.status === 'ready') {
+      await logGuardianValidationEvent('deployment_ready', {
+        score: metric.current,
+      });
+    }
+
+    // Log score change if trend != 0
+    if (metric.trend !== 0) {
+      await logGuardianValidationEvent('guardian_score_changed', {
+        previousScore: metric.previous,
+        newScore: metric.current,
+        trend: metric.trend,
+      });
+    }
+  } catch {
+    // Silent fail
+  }
+}
+
+/**
  * Query metric analytics from Platform Activity Center.
  */
 export async function getMetricAnalytics(base44Client, limit = 500) {

@@ -1,16 +1,9 @@
 import React from 'react';
 import {
-  CheckCircle2, AlertTriangle, XCircle, MinusCircle,
-  Shield, BarChart3, TrendingUp, TrendingDown, FileText, Clock,
+  CheckCircle2, Clock, BarChart3, TrendingUp, TrendingDown,
 } from 'lucide-react';
-
-const STATUS_META = {
-  PASS: { label: 'Pass', color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: CheckCircle2 },
-  WARNING: { label: 'Warning', color: 'text-amber-400', bg: 'bg-amber-500/10', icon: AlertTriangle },
-  FAIL: { label: 'Fail', color: 'text-red-400', bg: 'bg-red-500/10', icon: XCircle },
-  SKIPPED: { label: 'Skipped', color: 'text-white/30', bg: 'bg-white/5', icon: MinusCircle },
-  NOT_APPLICABLE: { label: 'N/A', color: 'text-white/30', bg: 'bg-white/5', icon: MinusCircle },
-};
+import DomainBreakdown from './guardian/DomainBreakdown';
+import InsightsAndReadiness from './guardian/InsightsAndReadiness';
 
 function Section({ icon: Icon, title, iconColor, children }) {
   return (
@@ -25,48 +18,30 @@ function Section({ icon: Icon, title, iconColor, children }) {
 }
 
 /**
- * GuardianValidationPanel — renders Guardian-specific sections
+ * GuardianValidationPanel v4.0 — renders all Guardian-specific sections
  * inside the Metric Intelligence drawer.
  *
- * Displays validation rules, progress tracking, validation history,
- * and the executive validation report — all derived from the
- * Guardian Validation Engine.
+ * Composes:
+ *   • Structured AI Insights (executive summary, risk areas, priorities)
+ *   • Categorized Business Impact (customer, executive, platform, operational, deployment)
+ *   • Deployment Readiness Assessment (3 states, blockers, actions, time)
+ *   • Full Validation Domain Breakdown (all 23 domains, clickable drill-down)
+ *   • Progress Tracking (resolved/remaining rules, projected score)
+ *   • Validation History (trend, new/resolved issues, duration)
  */
 export default function GuardianValidationPanel({ metric }) {
-  const { validationRules, scoreData, progressTracking, validationHistory, validationReport } = metric;
+  const { progressTracking, validationHistory } = metric;
 
   return (
     <>
-      {/* Validation Rules */}
-      <Section icon={Shield} title="Validation Rules" iconColor="text-violet-400">
-        <div className="space-y-1">
-          <div className="grid grid-cols-12 gap-2 text-[10px] text-white/30 uppercase tracking-wider px-2 py-1">
-            <span className="col-span-4">Rule</span>
-            <span className="col-span-3">Domain</span>
-            <span className="col-span-2 text-center">Weight</span>
-            <span className="col-span-3 text-center">Status</span>
-          </div>
-          {validationRules.map((rule) => {
-            const meta = STATUS_META[rule.status] || STATUS_META.SKIPPED;
-            return (
-              <div key={rule.id} className="grid grid-cols-12 gap-2 items-center text-xs bg-white/[0.02] border border-white/5 rounded-lg px-2 py-1.5">
-                <span className="col-span-4 text-white/70 truncate">{rule.name}</span>
-                <span className="col-span-3 text-white/40 truncate">{rule.domain.replace(/_/g, ' ')}</span>
-                <span className="col-span-2 text-center text-white/50">{rule.weight}</span>
-                <span className="col-span-3 flex justify-center">
-                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${meta.bg} ${meta.color}`}>
-                    <meta.icon size={10} />
-                    {meta.label}
-                  </span>
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </Section>
+      {/* Structured Insights + Categorized Impact + Deployment Readiness */}
+      <InsightsAndReadiness metric={metric} />
+
+      {/* Full Domain Breakdown with drill-down */}
+      <DomainBreakdown metric={metric} />
 
       {/* Progress Tracking */}
-      <Section icon={BarChart3} title="Progress Tracking" iconColor="text-blue-400">
+      <Section icon={CheckCircle2} title="Progress Tracking" iconColor="text-blue-400">
         <div className="space-y-2.5">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
@@ -131,7 +106,7 @@ export default function GuardianValidationPanel({ metric }) {
             </div>
           </div>
           <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-            <div className="text-[10px] text-white/30 uppercase tracking-wider">Regression Count</div>
+            <div className="text-[10px] text-white/30 uppercase tracking-wider">Regression Events</div>
             <div className="text-lg font-bold text-white/70">{validationHistory.regressionCount}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
@@ -143,53 +118,12 @@ export default function GuardianValidationPanel({ metric }) {
             <div className="text-lg font-bold text-emerald-400">{validationHistory.resolvedIssues}</div>
           </div>
         </div>
-        <div className="mt-2 text-xs text-white/40">
-          Average recovery time: <span className="text-white/60">{validationHistory.averageRecoveryTime}</span>
-        </div>
-      </Section>
-
-      {/* Validation Report */}
-      <Section icon={FileText} title="Validation Report" iconColor="text-indigo-400">
-        <div className="space-y-3">
-          {/* Executive Summary */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-            <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Executive Summary</div>
-            <p className="text-white/60 text-sm leading-relaxed">{validationReport.executiveSummary}</p>
+        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+          <div className="text-white/40">
+            Avg recovery: <span className="text-white/60">{validationHistory.averageRecoveryTime}</span>
           </div>
-
-          {/* Validation Breakdown */}
-          <div className="grid grid-cols-4 gap-2">
-            <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
-              <div className="text-[9px] text-white/30 uppercase">Total</div>
-              <div className="text-base font-bold text-white">{validationReport.validationBreakdown.total}</div>
-            </div>
-            <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2 text-center">
-              <div className="text-[9px] text-emerald-400/60 uppercase">Passed</div>
-              <div className="text-base font-bold text-emerald-400">{validationReport.validationBreakdown.passed}</div>
-            </div>
-            <div className="bg-amber-500/5 border border-amber-500/10 rounded-lg p-2 text-center">
-              <div className="text-[9px] text-amber-400/60 uppercase">Warnings</div>
-              <div className="text-base font-bold text-amber-400">{validationReport.validationBreakdown.warnings}</div>
-            </div>
-            <div className="bg-red-500/5 border border-red-500/10 rounded-lg p-2 text-center">
-              <div className="text-[9px] text-red-400/60 uppercase">Failures</div>
-              <div className="text-base font-bold text-red-400">{validationReport.validationBreakdown.failures}</div>
-            </div>
-          </div>
-
-          {/* Deployment Readiness */}
-          <div className={`rounded-lg p-3 border ${validationReport.deploymentReady ? 'bg-emerald-500/5 border-emerald-500/15' : 'bg-red-500/5 border-red-500/15'}`}>
-            <div className="flex items-center gap-2">
-              {validationReport.deploymentReady
-                ? <CheckCircle2 size={16} className="text-emerald-400" />
-                : <XCircle size={16} className="text-red-400" />}
-              <span className={`text-sm font-medium ${validationReport.deploymentReady ? 'text-emerald-400' : 'text-red-400'}`}>
-                {validationReport.deploymentReadiness}
-              </span>
-            </div>
-            <p className="text-white/40 text-xs mt-1">
-              Projected recovery: <span className="text-white/60">{validationReport.projectedRecovery}%</span>
-            </p>
+          <div className="text-white/40">
+            Validation duration: <span className="text-white/60">{validationHistory.validationDuration}</span>
           </div>
         </div>
       </Section>

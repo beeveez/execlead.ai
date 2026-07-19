@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import {
   Activity, BarChart3, Brain, Download, Pause, Play, RefreshCw, Radio,
-  Shield, Settings,
+  Shield, Settings, ChevronDown, FileText, FileJson, FileSpreadsheet,
 } from 'lucide-react';
 import ActivityTimeline from '@/components/platform-activity/ActivityTimeline';
 import ActivityFilters from '@/components/platform-activity/ActivityFilters';
 import ActivityDetailDrawer from '@/components/platform-activity/ActivityDetailDrawer';
 import ActivityAnalytics from '@/components/platform-activity/ActivityAnalytics';
 import ActivityInsights from '@/components/platform-activity/ActivityInsights';
+import ActivityGrouping from '@/components/platform-activity/ActivityGrouping';
 import { TIMEFRAMES } from '@/lib/platformActivityConfig';
 
 const PAGE_SIZE = 50;
@@ -25,6 +26,8 @@ export default function PlatformActivityCenter() {
   const [livePaused, setLivePaused] = useState(false);
   const [liveCount, setLiveCount] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportRef = useRef(null);
 
   const buildQuery = useCallback((f) => {
     const query = {};
@@ -97,7 +100,7 @@ export default function PlatformActivityCenter() {
     }
   };
 
-  const handleExport = (format) => {
+  const handleExport = async (format) => {
     const data = activities.map((a) => ({
       ActivityID: a.activity_id || '',
       Timestamp: a.created_date || '',
@@ -120,6 +123,37 @@ export default function PlatformActivityCenter() {
 
     if (format === 'json') {
       downloadFile(JSON.stringify(data, null, 2), 'platform-activities.json', 'application/json');
+    } else if (format === 'pdf') {
+      const { jsPDF } = await import('jspdf');
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text('EXECLEAD.AI — Platform Activity Center', 14, 20);
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text(`Exported: ${new Date().toLocaleString()}  ·  ${data.length} activities`, 14, 27);
+      doc.setTextColor(0);
+      doc.setDrawColor(200);
+      doc.line(14, 30, 196, 30);
+      let y = 38;
+      for (const d of data) {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${d.Action} [${d.Severity}]`, 14, y);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100);
+        doc.text(`${d.Category} · ${d.Workspace} · ${d.PerformedBy} · ${d.Timestamp}`, 14, y + 4);
+        if (d.Description) {
+          const lines = doc.splitTextToSize(d.Description.substring(0, 200), 180);
+          doc.text(lines, 14, y + 8);
+          y += 12 + (lines.length - 1) * 4;
+        } else {
+          y += 10;
+        }
+        doc.setTextColor(0);
+        y += 2;
+      }
+      doc.save('platform-activities.pdf');
     } else {
       const headers = Object.keys(data[0] || {});
       const csv = [headers.join(','), ...data.map((d) => headers.map((h) => `"${String(d[h] || '').replace(/"/g, '""')}"`).join(','))].join('\n');
@@ -140,7 +174,7 @@ export default function PlatformActivityCenter() {
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
-            <Shield size={12} className="text-indigo-400" /> Developer Workspace
+            <Shield size={12} className="text-indigo-400" /> Operations Workspace
           </div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Activity size={22} className="text-indigo-400" /> Platform Activity Center™
@@ -169,12 +203,30 @@ export default function PlatformActivityCenter() {
           >
             <RefreshCw size={14} /> Refresh
           </button>
-          <button
-            onClick={() => handleExport('csv')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white/50 hover:text-white/70"
-          >
-            <Download size={14} /> Export
-          </button>
+          <div className="relative" ref={exportRef}>
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm bg-white/5 border border-white/10 text-white/50 hover:text-white/70"
+            >
+              <Download size={14} /> Export <ChevronDown size={12} />
+            </button>
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                <div className="absolute right-0 top-12 z-20 bg-[#1a1a24] border border-white/10 rounded-lg shadow-xl py-1 w-36">
+                  <button onClick={() => { handleExport('csv'); setShowExportMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-white/60 hover:bg-white/5">
+                    <FileSpreadsheet size={12} /> CSV
+                  </button>
+                  <button onClick={() => { handleExport('json'); setShowExportMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-white/60 hover:bg-white/5">
+                    <FileJson size={12} /> JSON
+                  </button>
+                  <button onClick={() => { handleExport('pdf'); setShowExportMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs text-white/60 hover:bg-white/5">
+                    <FileText size={12} /> PDF
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -202,7 +254,7 @@ export default function PlatformActivityCenter() {
       {activeTab === 'timeline' && (
         <>
           <ActivityFilters filters={filters} onFilterChange={setFilters} resultCount={activities.length} />
-          <ActivityTimeline
+          <ActivityGrouping
             activities={activities}
             loading={loading}
             onLoadMore={handleLoadMore}

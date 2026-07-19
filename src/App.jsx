@@ -431,7 +431,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/deployments" element={<DeploymentCenter />} />
           <Route path="/developer/security-intelligence" element={<SecurityIntelligenceCenter />} />
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
-          <Route path="/developer/activity" element={<PlatformActivityCenter />} />
+          <Route path="/platform/activity" element={<PlatformActivityCenter />} />
           <Route path="/operations" element={<ProductCommandCenter />} />
           <Route path="/operations/customer-intelligence" element={<OperationsDomain domain="customer-intelligence" />} />
           <Route path="/operations/product-intelligence" element={<OperationsDomain domain="product-intelligence" />} />

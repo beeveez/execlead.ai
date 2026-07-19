@@ -85,6 +85,7 @@ import EELMDashboard from '@/pages/EELMDashboard';
 import EELMArchitectureDashboard from '@/pages/EELMArchitectureDashboard';
 import EELMHardeningDashboard from '@/pages/EELMHardeningDashboard';
 import RC2IntelligenceConfidence from '@/pages/RC2IntelligenceConfidence';
+import CommandCenterHome from '@/pages/ProductCommandCenter';
 import ReferralDashboard from '@/pages/ReferralDashboard';
 import ExecutiveWallet from '@/pages/ExecutiveWallet';
 import ReferralAdmin from '@/pages/ReferralAdmin';
@@ -380,6 +381,7 @@ const AuthenticatedApp = () => {
           <Route path="/eelm/architecture" element={<EELMArchitectureDashboard />} />
           <Route path="/eelm/hardening" element={<EELMHardeningDashboard />} />
           <Route path="/rc2-confidence" element={<RC2IntelligenceConfidence />} />
+          <Route path="/command-center" element={<CommandCenterHome />} />
           <Route path="/referrals" element={<ReferralDashboard />} />
           <Route path="/wallet" element={<ExecutiveWallet />} />
           <Route path="/referral-admin" element={<ReferralAdmin />} />

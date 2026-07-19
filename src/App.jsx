@@ -86,6 +86,7 @@ import EELMArchitectureDashboard from '@/pages/EELMArchitectureDashboard';
 import EELMHardeningDashboard from '@/pages/EELMHardeningDashboard';
 import RC2IntelligenceConfidence from '@/pages/RC2IntelligenceConfidence';
 import CommandCenterHome from '@/pages/ProductCommandCenter';
+import IntelligenceAnalysisRoot from '@/components/intelligence-analysis/IntelligenceAnalysisRoot';
 import ReferralDashboard from '@/pages/ReferralDashboard';
 import ExecutiveWallet from '@/pages/ExecutiveWallet';
 import ReferralAdmin from '@/pages/ReferralAdmin';
@@ -585,6 +586,7 @@ function App() {
                 <FeedbackWidget />
                 <CommandPalette />
                 <KeyboardShortcuts />
+                <IntelligenceAnalysisRoot />
               </ExecConciergeProvider>
               </TelemetryProvider>
             </RepairWorkflowProvider>

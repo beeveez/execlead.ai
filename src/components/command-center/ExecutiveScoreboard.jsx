@@ -1,34 +1,81 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendBadge, ConfidenceDot } from './SectionShell';
+import { CheckCircle2, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { openIntelligenceAnalysis } from '@/lib/intelligenceAnalysisStore';
+
+const TREND_ICONS = { up: TrendingUp, down: TrendingDown, stable: Minus };
+
+export function TrendBadge({ trend, change, unit }) {
+  if (trend === 'stable' || change === 0) {
+    return <span className="text-white/30 text-xs">—</span>;
+  }
+  const positive = trend === 'up';
+  return (
+    <span className={`text-xs font-medium ${positive ? 'text-emerald-400' : 'text-red-400'}`}>
+      {positive ? '↑' : '↓'} {Math.abs(change)}{unit || ''}
+    </span>
+  );
+}
+
+export function ConfidenceDot({ level }) {
+  const color = level === 'high' ? 'bg-emerald-400' : level === 'medium' ? 'bg-amber-400' : 'bg-red-400';
+  return <span className={`inline-block w-1.5 h-1.5 rounded-full ${color}`} />;
+}
 
 export default function ExecutiveScoreboard({ metrics }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {metrics.map((m, i) => {
-        const meets = m.value >= m.target;
-        return (
+        const isPerfect = m.value >= (m.target || 100);
+        const TrendIcon = TREND_ICONS[m.trend] || Minus;
+        const isClickable = !isPerfect;
+        const card = (
           <motion.div
-            key={m.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.03 }}
-            className="bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:bg-white/[0.04] transition-colors"
+            className={`relative bg-white/[0.02] border rounded-xl p-4 transition-all ${
+              isClickable
+                ? 'border-white/10 hover:bg-white/[0.04] hover:border-amber-500/30 hover:shadow-[0_0_20px_-4px_rgba(245,158,11,0.25)] cursor-pointer group'
+                : 'border-emerald-500/15'
+            }`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-white/40 text-[10px] uppercase tracking-wider">{m.label}</span>
-              <ConfidenceDot level={m.confidence} />
+              {isPerfect ? (
+                <CheckCircle2 size={14} className="text-emerald-400" />
+              ) : (
+                <ConfidenceDot level={m.confidence} />
+              )}
             </div>
             <div className="flex items-baseline gap-1.5 mb-1">
-              <span className={`text-2xl font-bold ${meets ? 'text-emerald-400' : 'text-amber-400'}`}>{m.value}{m.unit}</span>
+              <span className={`text-2xl font-bold ${isPerfect ? 'text-emerald-400' : 'text-amber-400'}`}>{m.value}{m.unit}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-white/30 text-[10px]">Target {m.target}{m.unit}</span>
-              <TrendBadge trend={m.trend} change={m.change} unit={m.unit} />
+              <span className="text-white/30 text-[10px]">{isPerfect ? 'Perfect' : `Target ${m.target}${m.unit}`}</span>
+              {!isPerfect && <TrendBadge trend={m.trend} change={m.change} unit={m.unit} />}
+              {isPerfect && <span className="text-white/20 text-[10px]">View History</span>}
             </div>
             <p className="text-white/20 text-[9px] mt-1.5">Updated {m.lastUpdated}</p>
+            {isClickable && (
+              <div className="absolute inset-x-0 bottom-0 flex items-center justify-center pb-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <span className="text-amber-400 text-[9px] font-medium flex items-center gap-1">
+                  View Intelligence Analysis →
+                </span>
+              </div>
+            )}
           </motion.div>
         );
+        if (isClickable) {
+          return (
+            <div key={m.id} onClick={() => openIntelligenceAnalysis({ metricId: m.id })} role="button" tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIntelligenceAnalysis({ metricId: m.id }); } }}
+            >
+              {card}
+            </div>
+          );
+        }
+        return <div key={m.id}>{card}</div>;
       })}
     </div>
   );

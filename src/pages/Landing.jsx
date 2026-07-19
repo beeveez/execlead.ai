@@ -16,6 +16,7 @@ import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { captureReferralAttribution } from "@/lib/referralEngine";
 import { usePlatformLaunchMode, getPlanCta, getBetaTierLink } from "@/lib/launchMode";
 import FoundingMemberSection from "@/components/founding/FoundingMemberSection";
+import RolloutRoadmap from "@/components/founding/RolloutRoadmap";
 import FoundersWallCTA from "@/components/founding/FoundersWallCTA";
 import PricingTiers from "@/components/pricing/PricingTiers";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
@@ -452,6 +453,13 @@ export default function Landing() {
       <section id="founding-members" className="py-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <FoundingMemberSection />
+        </div>
+      </section>
+
+      {/* Rollout Roadmap */}
+      <section className="py-20 px-6 lg:px-8 bg-white/[0.01]">
+        <div className="max-w-5xl mx-auto">
+          <RolloutRoadmap />
         </div>
       </section>
 

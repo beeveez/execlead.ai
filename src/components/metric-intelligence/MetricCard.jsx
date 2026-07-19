@@ -31,12 +31,13 @@ export default function MetricCard({
 }) {
   const status = getScoreStatus(score);
   const trend = previous != null ? score - previous : null;
-  const isClickable = score < 100;
 
   const handleClick = () => {
     if (onClick) {
       onClick();
-    } else if (metricId) {
+      return;
+    }
+    if (metricId) {
       const def = getMetricById(metricId);
       if (def) logMetricOpened(def, score);
       openMetricDrawer(metricId, score, previous, label);
@@ -58,10 +59,7 @@ export default function MetricCard({
   return (
     <button
       onClick={handleClick}
-      disabled={!isClickable && !onClick}
-      className={`relative ${sizeClasses[size]} bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden transition-all text-left w-full ${
-        isClickable ? 'hover:border-white/15 hover:bg-white/[0.04] cursor-pointer' : 'cursor-default'
-      } ${className}`}
+      className={`relative ${sizeClasses[size]} bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden transition-all text-left w-full cursor-pointer hover:border-white/15 hover:bg-white/[0.04] ${className}`}
     >
       {/* Status accent bar */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${getScoreBarColor(score)}`} />
@@ -97,11 +95,9 @@ export default function MetricCard({
       </div>
 
       {/* Clickable hint */}
-      {isClickable && (
-        <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-          <span className="text-white/20 text-[10px]">Click for details →</span>
-        </div>
-      )}
+      <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
+        <span className="text-white/20 text-[10px]">Click for details →</span>
+      </div>
     </button>
   );
 }

@@ -115,6 +115,30 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
             )}
           </div>
 
+          {/* Healthy Summary (100% metrics) */}
+          {isHealthy && (
+            <Section icon={CheckCircle2} title="Healthy Summary" iconColor="text-emerald-400">
+              <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-400" />
+                  <span className="text-emerald-400 font-medium text-sm">All systems operational</span>
+                </div>
+                <p className="text-white/50 text-sm">{metric.aiInsight}</p>
+                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                  <div>
+                    <span className="text-white/30">Current Status:</span>
+                    <span className="text-emerald-400 ml-1.5">Healthy</span>
+                  </div>
+                  <div>
+                    <span className="text-white/30">Last Updated:</span>
+                    <span className="text-white/60 ml-1.5">{new Date(metric.lastUpdated).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <p className="text-white/30 text-xs pt-1">No remediation required — all components performing at target.</p>
+              </div>
+            </Section>
+          )}
+
           {/* Calculation Formula */}
           {metric.calculation && (
             <Section icon={FileText} title="Calculation" iconColor="text-white/40">

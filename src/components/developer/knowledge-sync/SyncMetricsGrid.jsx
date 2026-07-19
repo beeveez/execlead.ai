@@ -1,16 +1,39 @@
 import React from "react";
 import { Boxes, Route, Layers, BookOpen, Users, Fingerprint, FileStack, AlertOctagon, AlertTriangle, Heart } from "lucide-react";
+import { openMetricDrawer } from "@/lib/metricDrawerStore";
+import { getScoreStatus } from "@/lib/metricIntelligenceEngine";
 
-function Metric({ label, value, icon: Icon, accent }) {
+function Metric({ label, value, icon: Icon, accent, metricId, score }) {
   const colors = { green: "text-emerald-400", amber: "text-amber-400", red: "text-red-400", blue: "text-cyan-400", violet: "text-violet-400", indigo: "text-indigo-400" };
+  const isPercentage = typeof value === "string" && value.includes("%");
+  const numericScore = score ?? (isPercentage ? parseInt(value) : null);
+
+  const handleClick = () => {
+    if (metricId && numericScore != null) {
+      openMetricDrawer(metricId, numericScore, null, label);
+    }
+  };
+
+  const isClickable = metricId && numericScore != null;
+  const status = numericScore != null ? getScoreStatus(numericScore) : null;
+
   return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+    <button
+      onClick={handleClick}
+      disabled={!isClickable}
+      className={`bg-white/[0.02] border border-white/5 rounded-lg p-3 text-left w-full transition-all ${
+        isClickable ? "cursor-pointer hover:border-white/15 hover:bg-white/[0.04]" : "cursor-default"
+      }`}
+    >
       <div className="flex items-center gap-1.5 mb-1">
         <Icon size={11} className={colors[accent] || "text-white/40"} />
         <div className="text-[10px] text-white/30 uppercase tracking-wider truncate">{label}</div>
       </div>
-      <div className={`text-xl font-bold ${colors[accent] || "text-white"}`}>{value}</div>
-    </div>
+      <div className={`text-xl font-bold ${status ? status.textClass : colors[accent] || "text-white"}`}>{value}</div>
+      {isClickable && (
+        <div className="text-[9px] text-white/20 mt-0.5">Click for details →</div>
+      )}
+    </button>
   );
 }
 
@@ -31,7 +54,7 @@ export default function SyncMetricsGrid({ metrics }) {
         <Metric label="Broken Registrations" value={metrics.brokenRegistrations} icon={AlertOctagon} accent={metrics.brokenRegistrations > 0 ? "red" : "green"} />
         <Metric label="Sync Errors" value={metrics.syncErrors} icon={AlertOctagon} accent={metrics.syncErrors > 0 ? "red" : "green"} />
         <Metric label="Sync Warnings" value={metrics.syncWarnings} icon={AlertTriangle} accent={metrics.syncWarnings > 0 ? "amber" : "green"} />
-        <Metric label="Overall Knowledge Health" value={`${metrics.overallKnowledgeHealth}%`} icon={Heart} accent={metrics.overallKnowledgeHealth >= 90 ? "green" : metrics.overallKnowledgeHealth >= 70 ? "amber" : "red"} />
+        <Metric label="Overall Knowledge Health" value={`${metrics.overallKnowledgeHealth}%`} icon={Heart} accent={metrics.overallKnowledgeHealth >= 90 ? "green" : metrics.overallKnowledgeHealth >= 70 ? "amber" : "red"} metricId="platform_health" score={metrics.overallKnowledgeHealth} />
       </div>
     </div>
   );

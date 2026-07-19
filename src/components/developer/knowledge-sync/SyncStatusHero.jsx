@@ -1,6 +1,9 @@
 import React from "react";
 import ScoreRing from "@/components/founder-mc/ScoreRing";
 import { RefreshCw, CheckCircle2, AlertTriangle, XCircle, Database, Clock, GitBranch } from "lucide-react";
+import { openMetricDrawer } from "@/lib/metricDrawerStore";
+import { logMetricOpened } from "@/lib/metricActivityLogger";
+import { getMetricById } from "@/lib/metricIntelligenceEngine";
 
 const STATUS_META = {
   synced: { label: "Synced", color: "#10b981", icon: CheckCircle2 },
@@ -14,9 +17,19 @@ export default function SyncStatusHero({ result, running }) {
   const meta = STATUS_META[status === "syncing" ? "needs_attention" : status] || STATUS_META.idle;
   const color = running ? "#6366f1" : meta.color;
 
+  const handleHealthClick = () => {
+    const metricId = "platform_health";
+    const def = getMetricById(metricId);
+    const score = result?.health ?? 0;
+    if (def) logMetricOpened(def, score);
+    openMetricDrawer(metricId, score, null, "Knowledge Sync Health");
+  };
+
   return (
     <div className="bg-gradient-to-br from-violet-500/10 via-white/[0.02] to-transparent border border-violet-500/10 rounded-2xl p-6 flex items-center gap-6 flex-wrap">
-      <ScoreRing score={result?.health ?? 0} size={90} label="Health" color={color} />
+      <button onClick={handleHealthClick} className="cursor-pointer hover:opacity-80 transition-opacity" title="Click for metric details">
+        <ScoreRing score={result?.health ?? 0} size={90} label="Health" color={color} />
+      </button>
       <div className="flex-1 min-w-[200px]">
         <div className="flex items-center gap-2 mb-1">
           {running ? <RefreshCw size={18} className="text-violet-400 animate-spin" /> : <Database size={18} className="text-violet-400" />}

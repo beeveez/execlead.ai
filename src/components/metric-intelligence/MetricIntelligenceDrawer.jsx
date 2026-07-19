@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { enrichMetric, getMetricDefinition } from '@/lib/metricIntelligenceEngine';
 import { closeMetricDrawer } from '@/lib/metricDrawerStore';
 import { logMetricOpened, logMetricTaskCreated } from '@/lib/metricActivityLogger';
+import GuardianValidationPanel from './GuardianValidationPanel';
 import {
   X, TrendingUp, TrendingDown, Minus, ChevronRight, AlertTriangle,
   Target, Lightbulb, Wrench, Link2, BarChart3, CheckCircle2,
-  ArrowRight, FileText, ExternalLink, Plus, Check,
+  ArrowRight, FileText, ExternalLink, Plus, Check, Shield,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from '@/components/ui/use-toast';
@@ -18,13 +19,15 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
 
   // Log to Platform Activity Center™ on open
   useEffect(() => {
-    if (metric) logMetricOpened(metric, score);
+    if (metric) logMetricOpened(metric, displayScore);
   }, [metricId]);
 
   if (!metric) return null;
 
   const status = metric.status;
-  const isHealthy = score >= 100;
+  const displayScore = metric.current ?? score;
+  const isHealthy = displayScore >= 100;
+  const isGuardian = metric.isGuardian === true;
 
   const handleCreateTask = async (action) => {
     setCreatingTask(action.action);
@@ -71,7 +74,7 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
           {/* Score Summary */}
           <div className="flex items-center gap-4 mt-4">
             <div className="flex items-baseline gap-1">
-              <span className={`text-4xl font-bold ${status.textClass}`}>{Math.round(score)}</span>
+              <span className={`text-4xl font-bold ${status.textClass}`}>{Math.round(displayScore)}</span>
               <span className="text-white/20 text-sm">/ {metric.target}</span>
             </div>
             {previous != null && previous !== 0 && (
@@ -152,11 +155,11 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
           {!isHealthy && (
             <Section icon={Lightbulb} title="AI Insight™" iconColor="text-indigo-400">
               <p className="text-white/60 text-sm leading-relaxed">{metric.aiInsight}</p>
-              {metric.estimatedFutureScore > score && (
+              {metric.estimatedFutureScore > displayScore && (
                 <div className="mt-3 flex items-center gap-2 text-xs">
                   <span className="text-white/30">Estimated future score:</span>
                   <span className="text-emerald-400 font-medium">{metric.estimatedFutureScore}</span>
-                  <span className="text-emerald-400/60">(+{metric.estimatedFutureScore - score})</span>
+                  <span className="text-emerald-400/60">(+{metric.estimatedFutureScore - displayScore})</span>
                 </div>
               )}
             </Section>
@@ -177,9 +180,9 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
               <div className="flex items-center gap-3 pt-2 border-t border-white/5">
                 <span className="text-white/70 text-sm font-semibold w-40 shrink-0">Overall</span>
                 <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full ${status.bgClass}`} style={{ width: `${score}%` }} />
+                  <div className={`h-full rounded-full ${status.bgClass}`} style={{ width: `${displayScore}%` }} />
                 </div>
-                <span className={`text-sm font-bold w-10 text-right ${status.textClass}`}>{Math.round(score)}%</span>
+                <span className={`text-sm font-bold w-10 text-right ${status.textClass}`}>{Math.round(displayScore)}%</span>
               </div>
             </div>
           </Section>
@@ -194,13 +197,22 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-white/70 text-sm font-medium">{rc.issue}</span>
-                        <span className="text-red-400 text-xs font-medium">-{rc.scoreImpact}%</span>
+                        <span className="text-red-400 text-xs font-medium">-{rc.estimatedImpact || rc.scoreImpact}%</span>
                       </div>
-                      <p className="text-white/40 text-xs mt-0.5">{rc.impact}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
+                      {rc.impact && <p className="text-white/40 text-xs mt-0.5">{rc.impact}</p>}
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${rc.severity === 'critical' ? 'bg-red-500/10 text-red-400' : rc.severity === 'high' ? 'bg-orange-500/10 text-orange-400' : 'bg-amber-500/10 text-amber-400'}`}>
                           {rc.severity}
                         </span>
+                        {rc.ruleId && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/40 font-mono">{rc.ruleId}</span>
+                        )}
+                        {rc.affectedModule && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/40">{rc.affectedModule}</span>
+                        )}
+                        {rc.owner && (
+                          <span className="text-[10px] text-white/30">Owner: {rc.owner}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -235,11 +247,22 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
                         {ra.priority}
                       </span>
                     </div>
+                    {ra.reason && (
+                      <p className="text-white/40 text-xs mb-1.5 italic">{ra.reason}</p>
+                    )}
                     <div className="flex items-center gap-3 text-xs text-white/40">
                       <span>Owner: {ra.owner}</span>
                       <span>· Effort: {ra.effort}</span>
                       <span className="text-emerald-400">+{ra.improvement}%</span>
                     </div>
+                    {ra.blockingDependencies && ra.blockingDependencies.length > 0 && (
+                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                        <span className="text-white/30 text-[10px]">Blocking:</span>
+                        {ra.blockingDependencies.map((dep, i) => (
+                          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/50">{dep}</span>
+                        ))}
+                      </div>
+                    )}
                     <button
                       onClick={() => handleCreateTask(ra)}
                       disabled={creatingTask === ra.action}
@@ -283,8 +306,11 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
             </Section>
           )}
 
+          {/* Guardian Validation Panels — rule-level detail, history, report */}
+          {isGuardian && <GuardianValidationPanel metric={metric} />}
+
           {/* Progress Tracking */}
-          {!isHealthy && (
+          {!isHealthy && !isGuardian && (
             <Section icon={CheckCircle2} title="Progress Tracking" iconColor="text-blue-400">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -296,7 +322,7 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
                 </div>
                 <div className="flex items-center justify-between text-sm pt-1">
                   <span className="text-white/40">Current score</span>
-                  <span className="text-white/60">{Math.round(score)}%</span>
+                  <span className="text-white/60">{Math.round(displayScore)}%</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white/40">Estimated future score</span>

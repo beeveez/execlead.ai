@@ -13,6 +13,7 @@
  */
 
 import { additionalMetrics, WORKSPACES, CATEGORY_TO_WORKSPACE } from './metrics/additionalMetrics';
+import { enrichGuardianValidation, computeGuardianScore } from './guardianValidationEngine';
 
 // ═══════════════════════════════════════════════════════════
 // SCORE STATUS HELPERS
@@ -517,6 +518,11 @@ export function getMetricById(metricId) {
  * recommended actions, and AI insights based on the score.
  */
 export function enrichMetric(metricId, score, previousScore, breakdownData) {
+  // Guardian Validation uses a deterministic, rule-based engine
+  if (metricId === 'guardian_validation') {
+    return enrichGuardianValidation(previousScore);
+  }
+
   const def = getMetricDefinition(metricId);
   if (!def) return null;
 
@@ -643,6 +649,19 @@ function generateAIInsight(def, score, rootCauses, breakdown) {
  */
 export async function computeMetricScores(base44) {
   const results = {};
+
+  // Guardian Validation — deterministic from validation rules
+  const guardianScore = computeGuardianScore();
+  results.guardian_validation = {
+    score: guardianScore.score,
+    previous: 0,
+    breakdownData: {
+      check_pass_rate: Math.round((guardianScore.passedRules / guardianScore.totalRules) * 100),
+      prompt_registry: 50,
+      configuration_drift: 0,
+      sync_status: 0,
+    },
+  };
 
   try {
     // ── Platform Health from latest GovernanceCertificate ──

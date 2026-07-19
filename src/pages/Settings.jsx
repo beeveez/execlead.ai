@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Settings as SettingsIcon, User, ShieldCheck, KeyRound, Mail, Fingerprint,
@@ -122,14 +122,12 @@ function PasswordSection() {
 export default function Settings() {
   const { user } = useAuth();
   const { profile } = useSubscription();
-  const [activeSection, setActiveSection] = React.useState("profile");
+  const [activeSection, setActiveSection] = useState("profile");
 
   const groupedNav = GROUP_ORDER.map(group => ({
     group,
     items: NAV_SECTIONS.filter(s => s.group === group),
   }));
-
-  const activeItem = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -140,6 +138,28 @@ export default function Settings() {
         </div>
         <h1 className="text-2xl font-bold text-white">Account Settings</h1>
         <p className="text-white/40 text-sm mt-1">Securely manage your account, authentication, security, and privacy.</p>
+      </div>
+
+      {/* Mobile section selector */}
+      <div className="lg:hidden mb-6">
+        <div className="flex gap-1.5 overflow-x-auto pb-2">
+          {NAV_SECTIONS.map(section => {
+            const Icon = section.icon;
+            const isActive = activeSection === section.id;
+            return (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-colors ${
+                  isActive ? "bg-indigo-500/10 text-indigo-300 font-medium" : "text-white/40 bg-white/5"
+                }`}
+              >
+                <Icon size={12} />
+                {section.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex gap-8">
@@ -171,28 +191,6 @@ export default function Settings() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Mobile section selector */}
-        <div className="lg:hidden w-full mb-4">
-          <div className="flex gap-1.5 overflow-x-auto pb-2">
-            {NAV_SECTIONS.map(section => {
-              const Icon = section.icon;
-              const isActive = activeSection === section.id;
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-colors ${
-                    isActive ? "bg-indigo-500/10 text-indigo-300 font-medium" : "text-white/40 bg-white/5"
-                  }`}
-                >
-                  <Icon size={12} />
-                  {section.label}
-                </button>
-              );
-            })}
           </div>
         </div>
 

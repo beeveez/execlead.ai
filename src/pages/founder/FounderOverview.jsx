@@ -6,6 +6,7 @@ import { formatFoundingMemberDate, FOUNDING_MEMBER_TIERS } from "@/lib/foundingM
 import {
   Crown, DollarSign, CreditCard, Users, Award, Shield, Check, ArrowRight, Loader2,
 } from "lucide-react";
+import FounderRolloutCard from "@/components/founder/FounderRolloutCard";
 
 const UNLOCKED_BENEFITS = [
   "Lifetime Founder Badge", "Founder Portal", "Founder Community", "Founder Lounge",
@@ -78,6 +79,8 @@ export default function FounderOverview() {
           ))}
         </div>
       </div>
+
+      <FounderRolloutCard />
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <QuickLink to="/founder/benefits" icon={Shield} label="View Benefits" />

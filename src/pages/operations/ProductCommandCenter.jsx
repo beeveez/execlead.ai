@@ -1,6 +1,7 @@
 import React from 'react';
 import MetricCard from '@/components/shared/MetricCard';
 import BetaCapacityDashboard from '@/components/operations/BetaCapacityDashboard';
+import RolloutReadinessPanel from '@/components/operations/RolloutReadinessPanel';
 import { useNavigate } from 'react-router-dom';
 import {
   Gauge, Activity, Users, Rocket, Flag, BarChart3, Cpu,
@@ -96,6 +97,9 @@ export default function ProductCommandCenter() {
           </div>
         </div>
       </div>
+
+      {/* Rollout Readiness Score™ */}
+      <RolloutReadinessPanel />
 
       {/* Beta Capacity & Rollout Strategy */}
       <BetaCapacityDashboard />

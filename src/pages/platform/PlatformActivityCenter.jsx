@@ -140,7 +140,7 @@ export default function PlatformActivityCenter() {
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-1">
-            <Shield size={12} className="text-indigo-400" /> Operations Workspace
+            <Shield size={12} className="text-indigo-400" /> Developer Workspace
           </div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Activity size={22} className="text-indigo-400" /> Platform Activity Center™

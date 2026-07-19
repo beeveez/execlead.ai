@@ -297,6 +297,35 @@ function getAvailableModes(maxGraceDays) {
   return modes;
 }
 
+// ---- Founder & Last-of-Kind Protection ----
+const FOUNDER_EMAIL = 'dev.rayvaldez@gmail.com';
+const PLATFORM_ADMIN_ROLES = ['super_admin', 'platform_admin'];
+const DEVELOPER_ROLES = ['developer'];
+const OPERATIONS_ROLES = ['admin'];
+const covers = (u, roles) => u.role === 'super_admin' || roles.includes(u.role);
+
+async function checkDeletionProtection(base44, user) {
+  if (user.email === FOUNDER_EMAIL) {
+    return { blocked: true, message: 'This is the protected Founder account and cannot be deleted.' };
+  }
+  try {
+    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 500);
+    if (covers(user, PLATFORM_ADMIN_ROLES)) {
+      const count = allUsers.filter(u => covers(u, PLATFORM_ADMIN_ROLES)).length;
+      if (count <= 1) return { blocked: true, message: 'Cannot delete the last Platform Administrator.' };
+    }
+    if (covers(user, DEVELOPER_ROLES)) {
+      const count = allUsers.filter(u => covers(u, DEVELOPER_ROLES)).length;
+      if (count <= 1) return { blocked: true, message: 'Cannot delete the last Developer.' };
+    }
+    if (covers(user, OPERATIONS_ROLES)) {
+      const count = allUsers.filter(u => covers(u, OPERATIONS_ROLES)).length;
+      if (count <= 1) return { blocked: true, message: 'Cannot delete the last Operations Administrator.' };
+    }
+  } catch {}
+  return { blocked: false };
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -340,6 +369,12 @@ Deno.serve(async (req) => {
     if (action === 'request_deletion') {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      // Founder & last-of-kind protection
+      const protection = await checkDeletionProtection(base44, user);
+      if (protection.blocked) {
+        return Response.json({ error: protection.message }, { status: 400 });
+      }
 
       const existingPending = await safeFilter(base44, 'AccountDeletionRequest', { user_id: user.id, status: 'pending_deletion' });
       if (existingPending.length > 0) {
@@ -412,6 +447,12 @@ Deno.serve(async (req) => {
     if (action === 'verify_and_schedule') {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      // Founder & last-of-kind protection
+      const protection = await checkDeletionProtection(base44, user);
+      if (protection.blocked) {
+        return Response.json({ error: protection.message }, { status: 400 });
+      }
 
       const requests = await safeFilter(base44, 'AccountDeletionRequest', { user_id: user.id, status: 'verification_pending' });
       if (requests.length === 0) {

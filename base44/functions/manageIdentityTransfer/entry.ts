@@ -175,6 +175,27 @@ Deno.serve(async (req) => {
       const { target_user_id, reason, notify_member } = body;
       if (!target_user_id) return Response.json({ error: 'target_user_id required' }, { status: 400 });
 
+      // Founder & last-of-kind protection
+      let tUser = null;
+      try { tUser = await base44.asServiceRole.entities.User.get(target_user_id); } catch (_) {}
+      if (tUser) {
+        if (tUser.email === 'dev.rayvaldez@gmail.com') {
+          return Response.json({ error: 'This is the protected Founder account and cannot be deleted.' }, { status: 400 });
+        }
+        const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 500);
+        const covers = (u, roles) => u.role === 'super_admin' || roles.includes(u.role);
+        const PA = ['super_admin', 'platform_admin'];
+        if (covers(tUser, PA) && allUsers.filter(u => covers(u, PA)).length <= 1) {
+          return Response.json({ error: 'Cannot delete the last Platform Administrator.' }, { status: 400 });
+        }
+        if (tUser.role === 'developer' && allUsers.filter(u => u.role === 'super_admin' || u.role === 'developer').length <= 1) {
+          return Response.json({ error: 'Cannot delete the last Developer.' }, { status: 400 });
+        }
+        if (tUser.role === 'admin' && allUsers.filter(u => u.role === 'super_admin' || u.role === 'admin').length <= 1) {
+          return Response.json({ error: 'Cannot delete the last Operations Administrator.' }, { status: 400 });
+        }
+      }
+
       const adminProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
       const adminProfile = adminProfiles[0];
       if (!adminProfile?.organization_id) {

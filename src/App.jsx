@@ -187,6 +187,7 @@ import CommercialReadinessDashboard from '@/pages/developer/CommercialReadinessD
 import IntelligenceSuiteSimulator from '@/pages/developer/IntelligenceSuiteSimulator';
 import ExecutiveProductBoard from '@/pages/developer/ExecutiveProductBoard';
 import CommercialGovernanceCenter from '@/pages/developer/CommercialGovernanceCenter';
+import PlatformHardeningDashboard from '@/pages/developer/PlatformHardeningDashboard';
 import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
 import AIPolicyDashboard from '@/pages/developer/AIPolicyDashboard';
 import ModelRouterDashboard from '@/pages/developer/ModelRouterDashboard';
@@ -479,6 +480,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/intelligence-suite-simulator" element={<IntelligenceSuiteSimulator />} />
           <Route path="/developer/executive-product-board" element={<ExecutiveProductBoard />} />
           <Route path="/developer/commercial-governance" element={<CommercialGovernanceCenter />} />
+          <Route path="/developer/hardening" element={<PlatformHardeningDashboard />} />
           <Route path="/developer/ai-optimization" element={<AIOptimizationDashboard />} />
           <Route path="/developer/ai-policy" element={<AIPolicyDashboard />} />
           <Route path="/developer/model-router" element={<ModelRouterDashboard />} />

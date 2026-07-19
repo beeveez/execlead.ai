@@ -95,6 +95,7 @@ export const FEATURE_REGISTRY = {
   membership_administration: { routePath: "/membership-admin", navLabel: "Membership Admin", navEnabled: false, module: "Enterprise" },
   elim_management: { routePath: "/elim", navLabel: "ELIM Management", navEnabled: false, module: "Enterprise" },
   exec_console: { routePath: "/exec-admin", navLabel: "EXEC Admin", navEnabled: false, module: "Enterprise" },
+  exec_verified: { routePath: "/verification", navLabel: "EXEC™ Verified", navEnabled: false, module: "Trust" },
 };
 
 export function normalizeFeature(f) {

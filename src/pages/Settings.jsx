@@ -15,6 +15,7 @@ import AccountHealthScore from "@/components/settings/AccountHealthScore";
 import QuickActions from "@/components/settings/QuickActions";
 import RecentActivity from "@/components/settings/RecentActivity";
 import DangerZone from "@/components/account/DangerZone";
+import ExecVerifiedSection from "@/components/settings/ExecVerifiedSection";
 
 const NAV_SECTIONS = [
   { id: "profile", label: "Profile", icon: User, desc: "Personal information, executive identity, resume, and career details", to: "/profile", group: "Identity" },
@@ -204,6 +205,7 @@ export default function Settings() {
         return (
           <div className="space-y-6">
             <QuickActions />
+            <ExecVerifiedSection />
             <RecentActivity activities={activities} loading={loadingData} />
           </div>
         );

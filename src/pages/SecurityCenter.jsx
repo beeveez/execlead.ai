@@ -14,6 +14,7 @@ import ThreatDetectionPanel from "@/components/security/ThreatDetectionPanel";
 import ConnectedApplications from "@/components/security/ConnectedApplications";
 import DataExportHistory from "@/components/security/DataExportHistory";
 import RecoverySection from "@/components/security/RecoverySection";
+import ExecVerifiedCards from "@/components/security/ExecVerifiedCards";
 
 const ADMIN_ROLES = ["admin", "super_admin", "platform_admin", "developer", "enterprise_admin"];
 
@@ -106,7 +107,12 @@ export default function SecurityCenter() {
       </div>
 
       {/* Content */}
-      {tab === "overview" && <AccountOverview sessions={sessions} devices={devices} score={securityScore} loading={loading} isAdmin={isAdmin} />}
+      {tab === "overview" && (
+        <div className="space-y-6">
+          <AccountOverview sessions={sessions} devices={devices} score={securityScore} loading={loading} isAdmin={isAdmin} />
+          <ExecVerifiedCards />
+        </div>
+      )}
       {tab === "sessions" && <SessionManager />}
       {tab === "devices" && <DeviceManagement />}
       {tab === "history" && <LoginHistory sessions={sessions} loading={loading} />}

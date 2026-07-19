@@ -1,0 +1,302 @@
+{
+  "name": "ExecVerification",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "verification_id": {
+      "type": "string",
+      "description": "Unique verification record ID"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Applicant user ID"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID for enterprise verification"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "not_available",
+        "pending",
+        "under_review",
+        "verified",
+        "rejected",
+        "expired",
+        "suspended"
+      ],
+      "default": "not_available",
+      "description": "Overall EXEC\u2122 Verified status"
+    },
+    "verification_level": {
+      "type": "string",
+      "enum": [
+        "level_1_email",
+        "level_2_identity",
+        "level_3_professional",
+        "level_4_exec",
+        "level_5_enterprise"
+      ],
+      "default": "level_1_email",
+      "description": "Achieved verification level"
+    },
+    "verification_level_number": {
+      "type": "number",
+      "default": 1,
+      "description": "Numeric verification level 1-5"
+    },
+    "verification_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When verification was granted"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When verification expires"
+    },
+    "renewal_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Next renewal due date"
+    },
+    "reviewer_id": {
+      "type": "string",
+      "description": "Admin who reviewed the application"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "evidence_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total evidence items submitted"
+    },
+    "evidence_confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "Evidence Confidence\u2122 score 0-100"
+    },
+    "identity_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "verified",
+        "rejected",
+        "expired"
+      ],
+      "default": "not_started",
+      "description": "Government ID verification status"
+    },
+    "employment_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "verified",
+        "rejected",
+        "expired"
+      ],
+      "default": "not_started",
+      "description": "Employment verification status"
+    },
+    "certification_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "verified",
+        "rejected",
+        "expired"
+      ],
+      "default": "not_started",
+      "description": "Professional certification status"
+    },
+    "executive_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "verified",
+        "rejected",
+        "expired"
+      ],
+      "default": "not_started",
+      "description": "Executive leadership profile status"
+    },
+    "enterprise_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "verified",
+        "rejected",
+        "expired"
+      ],
+      "default": "not_started",
+      "description": "Organization verification status"
+    },
+    "application_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the application was submitted"
+    },
+    "workflow_stage": {
+      "type": "string",
+      "enum": [
+        "not_applied",
+        "eligibility_check",
+        "identity_verification",
+        "evidence_submission",
+        "ai_validation",
+        "manual_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "not_applied",
+      "description": "Current workflow stage"
+    },
+    "ai_validation_result": {
+      "type": "string",
+      "description": "AI validation summary"
+    },
+    "ai_validation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "AI validation confidence score 0-100"
+    },
+    "manual_review_notes": {
+      "type": "string",
+      "description": "Reviewer notes (part of permanent audit record)"
+    },
+    "review_decision": {
+      "type": "string",
+      "description": "Final review decision"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_json": {
+      "type": "string",
+      "description": "JSON array of evidence references [{type, file_url, submitted_date, status}]"
+    },
+    "audit_trail_json": {
+      "type": "string",
+      "description": "JSON array of audit events [{timestamp, event, actor, details}]"
+    },
+    "launch_phase": {
+      "type": "string",
+      "enum": [
+        "internal_testing",
+        "founding_members",
+        "executive_subscribers",
+        "recruiters",
+        "enterprise",
+        "general_availability"
+      ],
+      "default": "internal_testing",
+      "description": "Launch phase when this verification was processed"
+    },
+    "annual_renewal_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether annual renewal is required"
+    },
+    "last_renewal_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "verification_id",
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

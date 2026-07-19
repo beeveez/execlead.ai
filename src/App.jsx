@@ -225,7 +225,7 @@ import OrganizationUsers from '@/pages/OrganizationUsers';
 import SecurityCenter from '@/pages/SecurityCenter';
 import IdentityVerification from '@/pages/IdentityVerification';
 import IdentityVerificationAdmin from '@/pages/IdentityVerificationAdmin';
-import VerificationCenter from '@/pages/VerificationCenter';
+import VerificationCenter from '@/pages/verification/VerificationCenter';
 import EvidenceVault from '@/pages/EvidenceVault';
 import IdentityGraph from '@/pages/IdentityGraph';
 import BetaLaunchDashboard from '@/pages/BetaLaunchDashboard';
@@ -244,6 +244,11 @@ import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';
 import ExecAdmin from '@/pages/ExecAdmin';
+import VerificationApply from '@/pages/verification/VerificationApply';
+import VerificationStatus from '@/pages/verification/VerificationStatus';
+import VerificationHistory from '@/pages/verification/VerificationHistory';
+import VerificationEvidence from '@/pages/verification/VerificationEvidence';
+import VerificationAdmin from '@/pages/VerificationAdmin';
 import ExecOSDashboard from '@/pages/ExecOSDashboard';
 import Feedback from '@/pages/Feedback';
 import ExecObservabilityPlatform from '@/pages/ExecObservabilityPlatform';
@@ -549,6 +554,12 @@ const AuthenticatedApp = () => {
           <Route path="/developer/experience-intelligence" element={<ExperienceIntelligenceDashboard />} />
           <Route path="/developer/performance" element={<PerformanceDashboard />} />
           <Route path="/founder-governance" element={<FounderReviewCenter />} />
+          <Route path="/verification" element={<VerificationCenter />} />
+          <Route path="/verification/apply" element={<VerificationApply />} />
+          <Route path="/verification/status" element={<VerificationStatus />} />
+          <Route path="/verification/history" element={<VerificationHistory />} />
+          <Route path="/verification/evidence" element={<VerificationEvidence />} />
+          <Route path="/admin/verifications" element={<VerificationAdmin />} />
         </Route>
         </Route>
       </Route>

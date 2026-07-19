@@ -32,8 +32,8 @@ export default function ExecutiveInsightsSection() {
             <BookOpen size={12} />
             Executive Insights™
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Trusted Authority in Executive Leadership</h2>
-          <p className="text-white/40 max-w-2xl mx-auto">Thought leadership, research, and frameworks from the EXECLEAD.AI team and industry experts.</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Executive Leadership Insights™</h2>
+          <p className="text-white/40 max-w-2xl mx-auto">Research, practical frameworks, executive perspectives, and AI-powered learning designed to help ambitious technology professionals develop executive leadership capabilities.</p>
         </div>
 
         {/* Categories */}

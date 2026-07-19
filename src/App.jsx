@@ -195,6 +195,7 @@ import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
 import ProductCommandCenter from '@/pages/operations/ProductCommandCenter';
 import OperationsDomain from '@/pages/operations/OperationsDomain';
+import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
 import EnterpriseDomain from '@/pages/enterprise/EnterpriseDomain';
 import EnterprisePortal from '@/pages/EnterprisePortal';
@@ -437,6 +438,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/strategy" element={<OperationsDomain domain="strategy" />} />
           <Route path="/operations/launch" element={<OperationsDomain domain="launch" />} />
           <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
+          <Route path="/platform/activity" element={<PlatformActivityCenter />} />
           <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
           <Route path="/enterprise/organization-domain" element={<EnterpriseDomain domain="organization" />} />
           <Route path="/enterprise/workforce" element={<EnterpriseDomain domain="workforce" />} />

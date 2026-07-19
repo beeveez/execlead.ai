@@ -1,0 +1,254 @@
+{
+  "name": "PlatformActivity",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "activity_id": {
+      "type": "string",
+      "description": "Unique activity tracking ID"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "authentication",
+        "identity",
+        "user_management",
+        "executive",
+        "leadership",
+        "career",
+        "skills",
+        "resume",
+        "coaching",
+        "journey",
+        "ai",
+        "model_router",
+        "recommendation",
+        "governance",
+        "approval",
+        "audit",
+        "security",
+        "developer",
+        "operations",
+        "enterprise",
+        "automation",
+        "notification",
+        "integration",
+        "analytics",
+        "performance",
+        "infrastructure",
+        "database",
+        "api",
+        "platform",
+        "configuration",
+        "marketplace",
+        "billing",
+        "subscription",
+        "compliance",
+        "trust",
+        "system",
+        "other"
+      ],
+      "description": "Event category"
+    },
+    "subcategory": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "information",
+        "success",
+        "warning",
+        "error",
+        "critical",
+        "emergency"
+      ],
+      "default": "information"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "default": "completed"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "feature": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "description": "The action that was performed"
+    },
+    "performed_by_id": {
+      "type": "string",
+      "description": "User who performed the action"
+    },
+    "performed_by_name": {
+      "type": "string"
+    },
+    "target_user_id": {
+      "type": "string"
+    },
+    "target_user_name": {
+      "type": "string"
+    },
+    "target_entity": {
+      "type": "string",
+      "description": "Entity type affected"
+    },
+    "target_entity_id": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "browser": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "os": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "execution_time_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "risk_score": {
+      "type": "number",
+      "default": 0
+    },
+    "business_impact": {
+      "type": "string",
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "none"
+    },
+    "ai_credits_used": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "model_used": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "cache_hit": {
+      "type": "boolean",
+      "default": false
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "automation_id": {
+      "type": "string"
+    },
+    "notification_id": {
+      "type": "string"
+    },
+    "approval_id": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata_json": {
+      "type": "string",
+      "description": "JSON object of additional metadata"
+    }
+  },
+  "required": [
+    "activity_id",
+    "category",
+    "action"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.performed_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

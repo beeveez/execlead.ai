@@ -410,3 +410,25 @@ header, nav, aside, button,
   min-width: 44px;
   min-height: 44px;
 }
+
+/* ============================================================
+   EXEC™ Intelligent Magnetic Cursor — Platform Service
+   ============================================================ */
+@keyframes exec-cursor-rotate {
+  to { transform: rotate(360deg); }
+}
+.exec-cursor-spin {
+  animation: exec-cursor-rotate 0.8s linear infinite;
+}
+
+/* Hide native cursor when EXEC™ Cursor is active */
+body.exec-cursor-active,
+body.exec-cursor-active * {
+  cursor: none !important;
+}
+/* Restore text cursor for input fields (usability) */
+body.exec-cursor-active input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+body.exec-cursor-active textarea,
+body.exec-cursor-active [contenteditable="true"] {
+  cursor: text !important;
+}

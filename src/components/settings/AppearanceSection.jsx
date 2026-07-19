@@ -1,6 +1,7 @@
 import React from "react";
 import { Moon, Sun, Monitor, Check, Palette, Type, Zap, Contrast, LayoutDashboard, Columns } from "lucide-react";
 import { useTheme } from "@/lib/ThemeContext";
+import CursorSettings from "@/components/settings/CursorSettings";
 
 const THEMES = [
   { id: 'dark', label: 'Executive Dark', desc: 'Deep charcoal · gold & purple', icon: Moon, swatch: ['#0a0a0f', '#6366f1', '#fbbf24'] },
@@ -125,6 +126,9 @@ export default function AppearanceSection() {
       <div className="flex items-center gap-2 text-xs text-white/20 pt-1">
         <Type size={12} /> Accent color &amp; font size — coming soon
       </div>
+
+      {/* EXEC™ Intelligent Magnetic Cursor */}
+      <CursorSettings />
     </div>
   );
 }

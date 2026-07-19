@@ -24,6 +24,7 @@ import ExecConcierge from '@/components/concierge/ExecConcierge';
 import MetricIntelligenceRoot from '@/components/metric-intelligence/MetricIntelligenceRoot';
 import { RepairWorkflowProvider } from '@/components/developer/repair/RepairWorkflowProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import EXECursorRoot from '@/components/exec-cursor/EXECursorRoot';
 
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -543,6 +544,7 @@ function App() {
       <WorkspaceProvider>
       <QueryClientProvider client={queryClientInstance}>
         <ErrorBoundary>
+          <EXECursorRoot>
           <Router>
             <ScrollToTop />
             <RouteTracker />
@@ -562,6 +564,7 @@ function App() {
             </RepairWorkflowProvider>
           </Router>
           <Toaster />
+          </EXECursorRoot>
         </ErrorBoundary>
       </QueryClientProvider>
       </WorkspaceProvider>

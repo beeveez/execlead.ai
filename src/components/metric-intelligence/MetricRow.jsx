@@ -45,6 +45,7 @@ export default function MetricRow({
   return (
     <button
       onClick={handleClick}
+      data-cursor-label="Drill Down"
       className={`w-full flex items-center gap-2.5 text-sm bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-white/15 hover:bg-white/[0.04] ${
         belowTarget ? '' : 'hover:border-emerald-500/20'
       }`}

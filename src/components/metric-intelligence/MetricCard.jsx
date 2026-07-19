@@ -59,6 +59,7 @@ export default function MetricCard({
   return (
     <button
       onClick={handleClick}
+      data-cursor-label="Drill Down"
       className={`relative ${sizeClasses[size]} bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden transition-all text-left w-full cursor-pointer hover:border-white/15 hover:bg-white/[0.04] ${className}`}
     >
       {/* Status accent bar */}

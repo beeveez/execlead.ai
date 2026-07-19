@@ -23,7 +23,8 @@
         "instructor",
         "coach",
         "admin",
-        "user"
+        "user",
+        "founder_root_admin"
       ]
     },
     "appearance_theme": {

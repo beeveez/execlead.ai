@@ -1,0 +1,156 @@
+{
+  "name": "GovernanceAuditLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "audit_id": {
+      "type": "string",
+      "description": "Unique immutable audit record ID"
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Linked GovernanceRequest ID"
+    },
+    "requester_id": {
+      "type": "string"
+    },
+    "requester_name": {
+      "type": "string"
+    },
+    "requester_email": {
+      "type": "string"
+    },
+    "approver_id": {
+      "type": "string"
+    },
+    "approver_name": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "description": "Protected operation that was requested"
+    },
+    "target_user_id": {
+      "type": "string"
+    },
+    "target_user_name": {
+      "type": "string"
+    },
+    "justification_category": {
+      "type": "string"
+    },
+    "business_justification": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "rejected",
+        "revision_requested",
+        "expired",
+        "unauthorized_attempt"
+      ]
+    },
+    "decision_notes": {
+      "type": "string"
+    },
+    "risk_score": {
+      "type": "number",
+      "default": 0
+    },
+    "risk_level": {
+      "type": "string"
+    },
+    "impact_level": {
+      "type": "string"
+    },
+    "old_values_json": {
+      "type": "string",
+      "description": "JSON snapshot of values before the change"
+    },
+    "new_values_json": {
+      "type": "string",
+      "description": "JSON snapshot of values after the change"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approval_duration_ms": {
+      "type": "number",
+      "default": 0
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "browser": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "violation_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Unauthorized attempt count for this user"
+    }
+  },
+  "required": [
+    "audit_id",
+    "requester_id",
+    "action",
+    "decision"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.requester_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
+  }
+}

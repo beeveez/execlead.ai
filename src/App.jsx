@@ -242,6 +242,7 @@ import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
 import BetaApply from '@/pages/BetaApply';
 import FounderDashboard from '@/pages/FounderDashboard';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
+import FounderReviewCenter from '@/pages/FounderReviewCenter';
 import FeedbackWidget from '@/components/beta/FeedbackWidget';
 import BetaBanner from '@/components/beta/BetaBanner';
 import CommandPalette from '@/components/exec-os/CommandPalette';
@@ -514,6 +515,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer-portal" element={<DeveloperPortal />} />
           <Route path="/developer/experience-intelligence" element={<ExperienceIntelligenceDashboard />} />
           <Route path="/developer/performance" element={<PerformanceDashboard />} />
+          <Route path="/founder-governance" element={<FounderReviewCenter />} />
         </Route>
         </Route>
       </Route>

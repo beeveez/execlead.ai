@@ -14,8 +14,8 @@ export default function SocialProofSection() {
     <section className="py-20 md:py-32 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Trusted by Leaders</h2>
-          <p className="text-white/40 max-w-2xl mx-auto">Join executives and ambitious professionals growing with EXECLEAD.AI.</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for Future Leaders</h2>
+          <p className="text-white/40 max-w-2xl mx-auto">Helping ambitious technology professionals develop the skills, confidence, and executive mindset needed for leadership success.</p>
         </div>
 
         {/* Metrics */}
@@ -60,7 +60,7 @@ export default function SocialProofSection() {
 
         {/* Enterprise Logos Placeholder */}
         <div className="border-t border-white/5 pt-12">
-          <h3 className="text-center text-sm font-semibold text-white/40 uppercase tracking-wider mb-6">Trusted by Forward-Thinking Organizations</h3>
+          <h3 className="text-center text-sm font-semibold text-white/40 uppercase tracking-wider mb-6">Enterprise Partnerships in Progress</h3>
           <div className="flex flex-wrap items-center justify-center gap-8">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="h-8 w-24 bg-white/5 rounded-lg" />

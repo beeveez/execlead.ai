@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { enrichMetric, getMetricDefinition } from '@/lib/metricIntelligenceEngine';
 import { closeMetricDrawer } from '@/lib/metricDrawerStore';
+import { logMetricOpened, logMetricTaskCreated } from '@/lib/metricActivityLogger';
 import {
   X, TrendingUp, TrendingDown, Minus, ChevronRight, AlertTriangle,
   Target, Lightbulb, Wrench, Link2, BarChart3, CheckCircle2,
@@ -14,6 +15,12 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
   const [creatingTask, setCreatingTask] = useState(null);
 
   const metric = enrichMetric(metricId, score, previous);
+
+  // Log to Platform Activity Center™ on open
+  useEffect(() => {
+    if (metric) logMetricOpened(metric, score);
+  }, [metricId]);
+
   if (!metric) return null;
 
   const status = metric.status;
@@ -30,6 +37,7 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
         tags: ['metric-intelligence', metric.category, metric.id],
       });
       toast({ title: 'Task Created', description: `"${action.action}" assigned to ${action.owner}.` });
+      logMetricTaskCreated(metric, action);
     } catch (err) {
       toast({ title: 'Failed', description: 'Could not create task.', variant: 'destructive' });
     } finally {
@@ -79,6 +87,43 @@ export default function MetricIntelligenceDrawer({ metricId, score, previous, la
         </div>
 
         <div className="px-6 py-4 space-y-6">
+          {/* Metric Metadata */}
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            {metric.owner && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-white/30">Owner:</span>
+                <span className="text-white/60">{metric.owner}</span>
+              </div>
+            )}
+            {metric.workspace && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-white/30">Workspace:</span>
+                <span className="text-white/60 capitalize">{metric.workspace}</span>
+              </div>
+            )}
+            {metric.lastUpdated && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-white/30">Last Updated:</span>
+                <span className="text-white/60">{new Date(metric.lastUpdated).toLocaleDateString()}</span>
+              </div>
+            )}
+            {metric.target && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-white/30">Target:</span>
+                <span className="text-white/60">{metric.target}%</span>
+              </div>
+            )}
+          </div>
+
+          {/* Calculation Formula */}
+          {metric.calculation && (
+            <Section icon={FileText} title="Calculation" iconColor="text-white/40">
+              <p className="text-white/50 text-sm leading-relaxed font-mono bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                {metric.calculation}
+              </p>
+            </Section>
+          )}
+
           {/* AI Insight */}
           {!isHealthy && (
             <Section icon={Lightbulb} title="AI Insight™" iconColor="text-indigo-400">

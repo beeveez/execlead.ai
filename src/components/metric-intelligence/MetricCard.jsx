@@ -1,6 +1,8 @@
 import React from 'react';
 import { getScoreStatus, getScoreBarColor } from '@/lib/metricIntelligenceEngine';
 import { openMetricDrawer } from '@/lib/metricDrawerStore';
+import { logMetricOpened } from '@/lib/metricActivityLogger';
+import { getMetricById } from '@/lib/metricIntelligenceEngine';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 /**
@@ -35,6 +37,8 @@ export default function MetricCard({
     if (onClick) {
       onClick();
     } else if (metricId) {
+      const def = getMetricById(metricId);
+      if (def) logMetricOpened(def, score);
       openMetricDrawer(metricId, score, previous, label);
     }
   };

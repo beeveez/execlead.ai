@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { getAllEnrichedMetrics, getScoreStatus, getScoreBarColor, METRIC_CATEGORIES } from '@/lib/metricIntelligenceEngine';
+import { useAuth } from '@/lib/AuthContext';
+import { getAllEnrichedMetrics, getScoreStatus, getScoreBarColor, METRIC_CATEGORIES, getWorkspaces } from '@/lib/metricIntelligenceEngine';
+import { getMetricAnalytics } from '@/lib/metricActivityLogger';
 import { openMetricDrawer } from '@/lib/metricDrawerStore';
 import { toast } from '@/components/ui/use-toast';
 import {
   BarChart3, Filter, Download, TrendingUp, AlertTriangle,
-  CheckCircle2, ArrowRight, Loader2, Target, Search,
+  CheckCircle2, ArrowRight, Loader2, Target, Search, Activity,
 } from 'lucide-react';
 
 const PRIORITY_FILTERS = [
@@ -18,17 +20,21 @@ const PRIORITY_FILTERS = [
 ];
 
 export default function PlatformImprovementCenter() {
+  const { user } = useAuth();
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const [groupBy, setGroupBy] = useState('category');
+  const [groupBy, setGroupBy] = useState('workspace');
+  const [activeTab, setActiveTab] = useState('metrics');
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const enriched = await getAllEnrichedMetrics(base44);
+        const enriched = await getAllEnrichedMetrics(base44, user?.role);
         setMetrics(enriched);
       } catch (err) {
         setMetrics([]);
@@ -37,7 +43,17 @@ export default function PlatformImprovementCenter() {
       }
     };
     load();
-  }, []);
+  }, [user?.role]);
+
+  useEffect(() => {
+    if (activeTab === 'analytics' && !analytics) {
+      setAnalyticsLoading(true);
+      getMetricAnalytics(base44).then((data) => {
+        setAnalytics(data);
+        setAnalyticsLoading(false);
+      });
+    }
+  }, [activeTab, analytics]);
 
   // Summary stats
   const stats = useMemo(() => {
@@ -137,7 +153,29 @@ export default function PlatformImprovementCenter() {
         <SummaryStat label="Avg Score" value={`${stats.avgScore}%`} icon={CheckCircle2} color="text-emerald-400" bg="bg-emerald-500/10" />
       </div>
 
+      {/* Tabs */}
+      <div className="flex items-center gap-1 bg-white/[0.02] border border-white/5 rounded-xl p-1">
+        {[
+          { id: 'metrics', label: 'Metrics', icon: BarChart3 },
+          { id: 'analytics', label: 'Metric Analytics', icon: Activity },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === tab.id ? 'bg-indigo-500/10 text-indigo-300' : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              <Icon size={14} /> {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filters */}
+      {activeTab === 'metrics' && (
       <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
@@ -158,13 +196,18 @@ export default function PlatformImprovementCenter() {
         <div className="flex items-center gap-1.5">
           <Filter size={12} className="text-white/30" />
           <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none">
+            <option value="workspace">Group by Workspace</option>
             <option value="category">Group by Category</option>
             <option value="none">No Grouping</option>
           </select>
         </div>
       </div>
 
+      )}
+
       {/* Metrics */}
+      {activeTab === 'metrics' && (
+      <>
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <CheckCircle2 size={32} className="text-emerald-400/50 mx-auto mb-3" />
@@ -188,6 +231,13 @@ export default function PlatformImprovementCenter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((m) => <MetricRow key={m.id} metric={m} />)}
         </div>
+      )}
+      </>
+      )}
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <AnalyticsPanel analytics={analytics} loading={analyticsLoading} />
       )}
     </div>
   );
@@ -243,5 +293,81 @@ function MetricRow({ metric }) {
         </div>
       )}
     </button>
+  );
+}
+
+function AnalyticsPanel({ analytics, loading }) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+      </div>
+    );
+  }
+
+  if (!analytics || analytics.totalInteractions === 0) {
+    return (
+      <div className="text-center py-16">
+        <Activity size={32} className="text-white/10 mx-auto mb-3" />
+        <p className="text-white/40 text-sm">No metric interactions recorded yet.</p>
+        <p className="text-white/30 text-xs mt-1">Click on metrics across the platform to populate analytics.</p>
+      </div>
+    );
+  }
+
+  const { totalInteractions, mostClicked, mostCommonActions } = analytics;
+
+  return (
+    <div className="space-y-4">
+      {/* Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <SummaryStat label="Total Interactions" value={totalInteractions} icon={Activity} color="text-indigo-400" bg="bg-indigo-500/10" />
+        <SummaryStat label="Metrics Clicked" value={mostClicked.length} icon={BarChart3} color="text-blue-400" bg="bg-blue-500/10" />
+        <SummaryStat label="Tasks Created" value={mostClicked.reduce((s, m) => s + (m.tasksCreated || 0), 0)} icon={CheckCircle2} color="text-emerald-400" bg="bg-emerald-500/10" />
+        <SummaryStat label="Action Types" value={mostCommonActions.length} icon={TrendingUp} color="text-amber-400" bg="bg-amber-500/10" />
+      </div>
+
+      {/* Most Clicked Metrics */}
+      <div>
+        <h3 className="text-white/60 text-sm font-semibold mb-2 flex items-center gap-1.5">
+          <TrendingUp size={14} className="text-indigo-400" /> Most Clicked Metrics
+        </h3>
+        <div className="space-y-2">
+          {mostClicked.map((m, idx) => (
+            <div key={m.id} className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-lg px-4 py-2.5">
+              <span className="text-white/20 text-sm font-mono w-6">#{idx + 1}</span>
+              <span className="text-white/70 text-sm flex-1 truncate">{m.name}</span>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-white/40">{m.clicks} clicks</span>
+                {m.tasksCreated > 0 && (
+                  <span className="text-emerald-400">{m.tasksCreated} tasks</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Interaction Breakdown */}
+      <div>
+        <h3 className="text-white/60 text-sm font-semibold mb-2 flex items-center gap-1.5">
+          <BarChart3 size={14} className="text-blue-400" /> Interaction Breakdown
+        </h3>
+        <div className="space-y-2">
+          {mostCommonActions.map((a) => {
+            const pct = Math.round((a.count / totalInteractions) * 100);
+            return (
+              <div key={a.action} className="flex items-center gap-3">
+                <span className="text-white/50 text-sm w-40 capitalize">{a.action.replace('metric_', '').replace(/_/g, ' ')}</span>
+                <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                </div>
+                <span className="text-white/40 text-xs w-16 text-right">{a.count} ({pct}%)</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

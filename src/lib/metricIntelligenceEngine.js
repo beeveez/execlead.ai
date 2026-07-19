@@ -12,6 +12,8 @@
  *   <75     → Critical Action Required (red)
  */
 
+import { additionalMetrics, WORKSPACES, CATEGORY_TO_WORKSPACE } from './metrics/additionalMetrics';
+
 // ═══════════════════════════════════════════════════════════
 // SCORE STATUS HELPERS
 // ═══════════════════════════════════════════════════════════
@@ -49,7 +51,7 @@ export const METRIC_CATEGORIES = [
   { id: 'launch', label: 'Launch Readiness' },
 ];
 
-export const METRIC_DEFINITIONS = [
+const baseMetricDefinitions = [
   // ── PLATFORM ──
   {
     id: 'platform_health',
@@ -474,6 +476,30 @@ export const METRIC_DEFINITIONS = [
 ];
 
 // ═══════════════════════════════════════════════════════════
+// METRIC REGISTRY — Merged base + additional with workspace resolution
+// ═══════════════════════════════════════════════════════════
+
+export const METRIC_DEFINITIONS = [...baseMetricDefinitions, ...additionalMetrics].map((m) => ({
+  ...m,
+  workspace: m.workspace || CATEGORY_TO_WORKSPACE[m.category] || 'platform',
+}));
+
+export const WORKSPACE_LIST = WORKSPACES;
+
+export function getWorkspaces() {
+  return WORKSPACES;
+}
+
+export function getMetricsForRole(role) {
+  if (!role) return METRIC_DEFINITIONS;
+  return METRIC_DEFINITIONS.filter((m) => {
+    const ws = WORKSPACES.find((w) => w.id === m.workspace);
+    if (!ws) return true;
+    return ws.roles.includes(role);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
 // METRIC RESOLUTION
 // ═══════════════════════════════════════════════════════════
 
@@ -548,6 +574,9 @@ export function enrichMetric(metricId, score, previousScore, breakdownData) {
 
   return {
     ...def,
+    owner: def.owner || 'Developer',
+    calculation: def.calculation || 'Composite score based on component breakdown.',
+    lastUpdated: new Date().toISOString(),
     current: score,
     previous: previousScore,
     target: 100,
@@ -721,9 +750,10 @@ export async function computeMetricScores(base44) {
 /**
  * Get all enriched metrics — used by the Platform Improvement Center.
  */
-export async function getAllEnrichedMetrics(base44) {
+export async function getAllEnrichedMetrics(base44, role = null) {
   const scores = await computeMetricScores(base44);
-  return METRIC_DEFINITIONS.map((def) => {
+  const metrics = role ? getMetricsForRole(role) : METRIC_DEFINITIONS;
+  return metrics.map((def) => {
     const scoreData = scores[def.id] || { score: 0, previous: 0, breakdownData: null };
     return enrichMetric(def.id, scoreData.score, scoreData.previous, scoreData.breakdownData);
   }).filter(Boolean);

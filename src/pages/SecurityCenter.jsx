@@ -13,6 +13,7 @@ import SecurityEventsPanel from "@/components/security/SecurityEventsPanel";
 import ThreatDetectionPanel from "@/components/security/ThreatDetectionPanel";
 import ConnectedApplications from "@/components/security/ConnectedApplications";
 import DataExportHistory from "@/components/security/DataExportHistory";
+import RecoverySection from "@/components/security/RecoverySection";
 
 const ADMIN_ROLES = ["admin", "super_admin", "platform_admin", "developer", "enterprise_admin"];
 
@@ -113,7 +114,7 @@ export default function SecurityCenter() {
       {tab === "threats" && <ThreatDetectionPanel isAdmin={isAdmin} />}
       {tab === "apps" && <ConnectedApplications />}
       {tab === "exports" && <DataExportHistory />}
-      {tab === "recovery" && <RecoveryOptions />}
+      {tab === "recovery" && <RecoverySection />}
     </div>
   );
 }
@@ -215,35 +216,7 @@ function LoginHistory({ sessions, loading }) {
   );
 }
 
-function RecoveryOptions() {
-  const options = [
-    { label: "Recovery Email", value: "Verified", status: "ok", desc: "Used for account recovery and security alerts" },
-    { label: "Recovery Phone", value: "Not set", status: "warn", desc: "Add a phone for SMS-based recovery" },
-    { label: "Backup Codes", value: "Available", status: "ok", desc: "Single-use codes for when you lose your device" },
-    { label: "Account Deletion", value: "Available", status: "info", desc: "Permanently delete your account and data", link: "/settings" },
-  ];
-  return (
-    <div className="space-y-3">
-      {options.map(o => (
-        <div key={o.label} className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-white/80">{o.label}</h3>
-            <p className="text-[11px] text-white/30 mt-0.5">{o.desc}</p>
-          </div>
-          {o.link ? (
-            <Link to={o.link} className="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-              Manage <ArrowRight size={10} />
-            </Link>
-          ) : (
-            <span className={`text-[11px] px-2 py-0.5 rounded-full ${o.status === "ok" ? "text-emerald-400 bg-emerald-500/10" : o.status === "warn" ? "text-amber-400 bg-amber-500/10" : "text-white/40 bg-white/5"}`}>
-              {o.value}
-            </span>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
+
 
 function computePersonalScore(sessions, devices) {
   let score = 40;

@@ -48,12 +48,67 @@ const FINDING_TYPES = {
   incomplete_metadata: { id: 'incomplete_metadata', label: 'Incomplete Route Metadata', severity: 'info', icon: 'Info' },
 };
 
-const SEVERITY_WEIGHTS = {
-  critical: 25,
-  error: 15,
-  warning: 8,
-  info: 2,
+// ── Configurable Scoring Weights ──
+// Critical issues have the highest impact; warnings are minimal;
+// info findings never reduce the score.
+const SCORING_CONFIG = {
+  severityWeights: {
+    critical: 20,
+    error: 10,
+    warning: 1,
+    info: 0,
+  },
+  gateBonusPerPassed: 0.5,
+  gateBonusMax: 5,
 };
+
+const SEVERITY_WEIGHTS = SCORING_CONFIG.severityWeights;
+
+const HEALTH_GRADES = [
+  { grade: 'A', min: 90, color: 'emerald', label: 'Excellent' },
+  { grade: 'B', min: 80, color: 'amber', label: 'Good' },
+  { grade: 'C', min: 70, color: 'orange', label: 'Fair' },
+  { grade: 'D', min: 60, color: 'red', label: 'Poor' },
+  { grade: 'F', min: 0, color: 'red', label: 'Critical' },
+];
+
+function computeHealthGrade(score) {
+  return HEALTH_GRADES.find(g => score >= g.min) || HEALTH_GRADES[HEALTH_GRADES.length - 1];
+}
+
+function computeReleaseImpact(score, blockingIssues) {
+  if (blockingIssues > 0) return { label: 'Blocked', color: 'red', description: `${blockingIssues} blocking issue(s) must be resolved before release` };
+  if (score >= 90) return { label: 'Release Ready', color: 'emerald', description: 'Platform meets all quality standards for release' };
+  if (score >= 75) return { label: 'Ready with Minor Issues', color: 'amber', description: 'Non-blocking issues should be addressed post-release' };
+  return { label: 'Needs Attention', color: 'orange', description: 'Address remaining issues before scheduling release' };
+}
+
+function buildExecutiveSummary(audit, healthScore, blockingIssues) {
+  const grade = computeHealthGrade(healthScore);
+  const gatesPassed = Object.values(audit.qualityGates).filter(Boolean).length;
+  const gatesTotal = Object.keys(audit.qualityGates).length;
+  const remainingWarnings = audit.bySeverity.warning || 0;
+  const releaseImpact = computeReleaseImpact(healthScore, blockingIssues);
+
+  const recommendations = [];
+  if (audit.bySeverity.critical > 0) recommendations.push(`Resolve ${audit.bySeverity.critical} critical issue(s) — these block release`);
+  if (audit.bySeverity.error > 0) recommendations.push(`Fix ${audit.bySeverity.error} error(s) in route configuration`);
+  if (remainingWarnings > 0) recommendations.push(`Review ${remainingWarnings} warning(s) — non-blocking but should be tracked`);
+  if (gatesPassed < gatesTotal) recommendations.push(`Pass ${gatesTotal - gatesPassed} remaining quality gate(s)`);
+  if (recommendations.length === 0) recommendations.push('No action required — platform is in excellent health');
+
+  return {
+    overallHealth: healthScore,
+    healthGrade: grade.grade,
+    healthGradeLabel: grade.label,
+    healthGradeColor: grade.color,
+    qualityGatesPassed: gatesPassed,
+    qualityGatesTotal: gatesTotal,
+    remainingWarnings,
+    releaseImpact,
+    recommendedActions: recommendations,
+  };
+}
 
 // ═══════════════════════════════════════════════════════════
 // AUDIT SCANS
@@ -289,17 +344,54 @@ export function runUXAudit() {
     byType[f.type.id] = (byType[f.type.id] || 0) + 1;
   }
 
+  // ── Calibrated Health Score ──
+  // Deductions are proportional to severity; info findings never reduce score.
   const totalDeduction = allFindings.reduce(
-    (sum, f) => sum + (SEVERITY_WEIGHTS[f.type.severity] || 0),
+    (sum, f) => sum + (SCORING_CONFIG.severityWeights[f.type.severity] || 0),
     0
   );
-  const healthScore = Math.max(0, 100 - totalDeduction);
+
+  // Quality gate bonus — each passed gate adds confidence, capped.
+  const gatesPassedCount = Object.values({
+    noDeadLinks: !byType.dead_link,
+    noOrphanNavRoutes: !byType.orphan_nav_route,
+    noUnclassifiedRoutes: !byType.unclassified_route,
+    noMissingParents: !byType.missing_parent,
+    noDuplicates: !byType.duplicate_route,
+    noMissingComponents: !byType.missing_component,
+    noDeprecatedInNav: !byType.deprecated_in_nav,
+    noIncompleteMetadata: !byType.incomplete_metadata,
+  }).filter(Boolean).length;
+
+  const gateBonus = Math.min(
+    gatesPassedCount * SCORING_CONFIG.gateBonusPerPassed,
+    SCORING_CONFIG.gateBonusMax
+  );
+
+  const healthScore = Math.max(0, Math.min(100, Math.round((100 - totalDeduction + gateBonus) * 10) / 10));
 
   const blockingIssues = allFindings.filter(
     f => f.type.severity === 'critical' || f.type.severity === 'error'
   ).length;
 
   const navigationReport = buildNavigationReport(allFindings);
+
+  const qualityGates = {
+    noDeadLinks: !byType.dead_link,
+    noOrphanNavRoutes: !byType.orphan_nav_route,
+    noUnclassifiedRoutes: !byType.unclassified_route,
+    noMissingParents: !byType.missing_parent,
+    noDuplicates: !byType.duplicate_route,
+    noMissingComponents: !byType.missing_component,
+    noDeprecatedInNav: !byType.deprecated_in_nav,
+    noIncompleteMetadata: !byType.incomplete_metadata,
+  };
+
+  const executiveSummary = buildExecutiveSummary(
+    { qualityGates, bySeverity },
+    healthScore,
+    blockingIssues
+  );
 
   return {
     auditVersion: AUDIT_VERSION,
@@ -313,19 +405,12 @@ export function runUXAudit() {
     healthScore,
     blockingIssues,
     passed: blockingIssues === 0,
-    qualityGates: {
-      noDeadLinks: !byType.dead_link,
-      noOrphanNavRoutes: !byType.orphan_nav_route,
-      noUnclassifiedRoutes: !byType.unclassified_route,
-      noMissingParents: !byType.missing_parent,
-      noDuplicates: !byType.duplicate_route,
-      noMissingComponents: !byType.missing_component,
-      noDeprecatedInNav: !byType.deprecated_in_nav,
-      noIncompleteMetadata: !byType.incomplete_metadata,
-    },
+    qualityGates,
     navigationReport,
     routeClassifications: ROUTE_CLASSIFICATIONS,
+    scoringConfig: SCORING_CONFIG,
+    executiveSummary,
   };
 }
 
-export { FINDING_TYPES, SEVERITY_WEIGHTS, ROUTE_CLASSIFICATIONS };
+export { FINDING_TYPES, SEVERITY_WEIGHTS, ROUTE_CLASSIFICATIONS, SCORING_CONFIG };

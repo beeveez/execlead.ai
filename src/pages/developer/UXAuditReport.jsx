@@ -2,7 +2,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   ShieldCheck, AlertTriangle, AlertCircle, Info, Unlink, FileQuestion,
-  Copy, Tag, RefreshCw, CheckCircle2, XCircle, ArrowRight, Filter
+  Copy, Tag, RefreshCw, CheckCircle2, XCircle, ArrowRight, Filter,
+  TrendingUp, Award, Rocket, ListChecks
 } from 'lucide-react';
 import { runUXAudit, FINDING_TYPES } from '@/lib/uxAuditEngine';
 import { base44 } from '@/api/base44Client';
@@ -153,6 +154,16 @@ export default function UXAuditReport() {
               <div className="flex items-baseline gap-2">
                 <span className={`text-5xl font-bold ${healthColor}`}>{audit.healthScore}</span>
                 <span className="text-white/30 text-lg">/ 100</span>
+                {audit.executiveSummary && (
+                  <span className={`ml-2 px-2.5 py-0.5 rounded-full text-sm font-bold ${
+                    audit.executiveSummary.healthGradeColor === 'emerald' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' :
+                    audit.executiveSummary.healthGradeColor === 'amber' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/20' :
+                    audit.executiveSummary.healthGradeColor === 'orange' ? 'bg-orange-500/15 text-orange-400 border border-orange-500/20' :
+                    'bg-red-500/15 text-red-400 border border-red-500/20'
+                  }`}>
+                    Grade {audit.executiveSummary.healthGrade}
+                  </span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -170,6 +181,71 @@ export default function UXAuditReport() {
             </div>
           </div>
         </div>
+
+        {/* Executive Summary */}
+        {audit.executiveSummary && (
+          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Award size={16} className="text-amber-400" />
+              <h2 className="text-white font-semibold text-sm">Executive Summary</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <TrendingUp size={14} className="text-indigo-400" />
+                  <span className="text-white/40 text-[10px] uppercase tracking-wider">Overall Health</span>
+                </div>
+                <p className={`text-2xl font-bold ${healthColor}`}>{audit.executiveSummary.overallHealth}</p>
+                <p className="text-white/30 text-xs mt-0.5">{audit.executiveSummary.healthGradeLabel}</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <ListChecks size={14} className="text-emerald-400" />
+                  <span className="text-white/40 text-[10px] uppercase tracking-wider">Gates Passed</span>
+                </div>
+                <p className="text-2xl font-bold text-white">{audit.executiveSummary.qualityGatesPassed}<span className="text-white/30 text-base">/{audit.executiveSummary.qualityGatesTotal}</span></p>
+                <p className="text-white/30 text-xs mt-0.5">Quality checks</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <AlertCircle size={14} className="text-amber-400" />
+                  <span className="text-white/40 text-[10px] uppercase tracking-wider">Remaining Warnings</span>
+                </div>
+                <p className="text-2xl font-bold text-amber-400">{audit.executiveSummary.remainingWarnings}</p>
+                <p className="text-white/30 text-xs mt-0.5">Non-blocking</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Rocket size={14} className={
+                    audit.executiveSummary.releaseImpact.color === 'emerald' ? 'text-emerald-400' :
+                    audit.executiveSummary.releaseImpact.color === 'amber' ? 'text-amber-400' :
+                    audit.executiveSummary.releaseImpact.color === 'orange' ? 'text-orange-400' :
+                    'text-red-400'
+                  } />
+                  <span className="text-white/40 text-[10px] uppercase tracking-wider">Release Impact</span>
+                </div>
+                <p className={`text-lg font-bold ${
+                  audit.executiveSummary.releaseImpact.color === 'emerald' ? 'text-emerald-400' :
+                  audit.executiveSummary.releaseImpact.color === 'amber' ? 'text-amber-400' :
+                  audit.executiveSummary.releaseImpact.color === 'orange' ? 'text-orange-400' :
+                  'text-red-400'
+                }`}>{audit.executiveSummary.releaseImpact.label}</p>
+                <p className="text-white/30 text-xs mt-0.5">{audit.executiveSummary.releaseImpact.description}</p>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-white/5">
+              <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Recommended Actions</p>
+              <ul className="space-y-1.5">
+                {audit.executiveSummary.recommendedActions.map((action, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-white/60">
+                    <ArrowRight size={14} className="text-indigo-400 shrink-0 mt-0.5" />
+                    {action}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* Severity Summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">

@@ -96,7 +96,11 @@ export default function SyncSuccessPanel({ result }) {
       )}
 
       <button
-        onClick={() => openMetricDrawer("guardian_validation", guardianPassed ? 100 : 58, null, "Guardian Validation")}
+        onClick={() => {
+          const guardianComponent = components.find((c) => c.name === "Guardian Validation");
+          const guardianScore = guardianPassed ? 100 : (guardianComponent?.score ?? 0);
+          openMetricDrawer("guardian_validation", guardianScore, null, "Guardian Validation");
+        }}
         className="flex items-center gap-2 text-xs bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2 w-full hover:border-white/15 hover:bg-white/[0.04] transition-all cursor-pointer"
       >
         <Shield size={12} className={guardianPassed ? "text-emerald-400" : "text-amber-400"} />

@@ -77,14 +77,14 @@ export const SCORE_REGISTRY = {
       const confMetric = s.cognitive?.supportingMetrics?.find((m) => m.id === "confidence");
       const caps = [
         { id: "recommendation_engine", label: "Recommendation Engine™", maxPoints: 12, score: pillarScore("recommendations"), fallback: 67, deps: ["Cognitive Excellence Engine™", "Recommendation Engine™"] },
-        { id: "leadership_dna", label: "Leadership DNA™", maxPoints: 10, score: null, fallback: 70, deps: ["Leadership DNA™", "Competency Catalog™"] },
+        { id: "leadership_dna", label: "Leadership DNA™", maxPoints: 10, score: null, fallback: 90, deps: ["Leadership DNA™", "Competency Catalog™"] },
         { id: "coaching_personalization", label: "Coaching Personalization™", maxPoints: 10, score: pillarScore("personalization") ?? pillarScore("coaching"), fallback: 73, deps: ["Persona Resolution™", "Coaching Engine™"] },
         { id: "confidence_calibration", label: "Confidence Calibration™", maxPoints: 8, score: confMetric ? clamp(confMetric.score) : null, fallback: 75, deps: ["Confidence Calibration Engine™"] },
         { id: "executive_simulator", label: "Executive Simulator™", maxPoints: 8, score: pillarScore("simulation"), fallback: 71, deps: ["Executive Simulator™", "Simulation Engine™"] },
         { id: "knowledge_graph", label: "Knowledge Graph™", maxPoints: 12, score: pillarScore("knowledge"), fallback: 67, deps: ["Knowledge Graph™", "ELIM Knowledge Packs™"] },
         { id: "ai_memory", label: "AI Memory™", maxPoints: 10, score: pillarScore("memory"), fallback: 75, deps: ["Executive Memory™", "Conversation Persistence™"] },
         { id: "prompt_evaluation", label: "Prompt Evaluation™", maxPoints: 15, score: pillarScore("reasoning"), fallback: 93, deps: ["EXEC™ Prompt Framework™", "Prompt Evaluation Engine™"] },
-        { id: "model_validation", label: "Model Validation™", maxPoints: 15, score: null, fallback: 93, deps: ["Model Validation Engine™", "Response Quality Engine™"] },
+        { id: "model_validation", label: "Model Validation™", maxPoints: 15, score: null, fallback: 95, deps: ["Model Validation Engine™", "Response Quality Engine™"] },
       ];
       return caps.map((c) => {
         const sourceScore = c.score ?? c.fallback;

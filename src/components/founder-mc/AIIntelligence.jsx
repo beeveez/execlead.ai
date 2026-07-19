@@ -3,13 +3,14 @@ import SectionCard from "./SectionCard";
 import { Cpu } from "lucide-react";
 
 function AIMetric({ label, value, score }) {
-  const color = score >= 90 ? "#10b981" : score >= 75 ? "#6366f1" : score >= 60 ? "#f59e0b" : "#ef4444";
+  const s = score != null ? score : 0;
+  const color = s >= 90 ? "#10b981" : s >= 70 ? "#f59e0b" : "#ef4444";
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-      <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">{label}</div>
-      <div className="text-lg font-bold" style={{ color }}>{value}</div>
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{label}</div>
+      <div className="text-lg font-bold text-foreground">{value}</div>
       <div className="mt-1.5 h-1 bg-white/5 rounded-full overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${Math.min(score, 100)}%`, backgroundColor: color }} />
+        <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(s, 100)}%`, backgroundColor: color }} />
       </div>
     </div>
   );

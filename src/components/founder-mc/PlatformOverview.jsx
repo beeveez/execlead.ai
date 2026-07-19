@@ -3,13 +3,13 @@ import SectionCard from "./SectionCard";
 import { Activity, Rocket, Server, GitBranch } from "lucide-react";
 
 function Metric({ label, value, icon: Icon, accent }) {
-  const colors = { green: "text-emerald-400", amber: "text-amber-400", red: "text-red-400", blue: "text-cyan-400", indigo: "text-indigo-400" };
+  const iconColors = { green: "text-emerald-400", amber: "text-amber-400", red: "text-red-400", blue: "text-cyan-400", indigo: "text-indigo-400" };
   return (
     <div className="flex items-center gap-2">
-      {Icon && <Icon size={13} className={colors[accent] || "text-white/40"} />}
+      {Icon && <Icon size={13} className={iconColors[accent] || "text-white/40"} />}
       <div>
-        <div className="text-[10px] text-white/30 uppercase tracking-wider">{label}</div>
-        <div className={`text-sm font-medium ${colors[accent] || "text-white"}`}>{value}</div>
+        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
+        <div className="text-sm font-medium text-foreground">{value}</div>
       </div>
     </div>
   );

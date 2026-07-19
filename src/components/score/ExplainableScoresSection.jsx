@@ -21,15 +21,15 @@ function ScoreCard({ scoreId, snapshot, onClick }) {
         <ChevronRight size={12} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
       </div>
       <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold" style={{ color }}>{exp.currentScore}</span>
-        <span className="text-xs text-white/30">/{exp.target}</span>
+        <span className="text-2xl font-bold text-foreground">{exp.currentScore}</span>
+        <span className="text-xs text-muted-foreground">/{exp.target}</span>
       </div>
       <div className="mt-2 h-1 bg-white/5 rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all" style={{ width: `${exp.currentScore}%`, backgroundColor: color }} />
       </div>
       <div className="flex items-center justify-between mt-1.5">
-        <span className="text-[9px] text-white/30">{exp.contributions.length} contributions</span>
-        <span className="text-[9px] text-white/30">{exp.remaining > 0 ? `${exp.remaining} pts remaining` : "At target"}</span>
+        <span className="text-[9px] text-muted-foreground">{exp.contributions.length} contributions</span>
+        <span className="text-[9px] font-semibold" style={{ color }}>{exp.remaining > 0 ? `${exp.remaining} pts remaining` : "At target"}</span>
       </div>
     </button>
   );

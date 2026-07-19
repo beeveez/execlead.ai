@@ -191,6 +191,7 @@ import ExecutiveProductBoard from '@/pages/developer/ExecutiveProductBoard';
 import CommercialGovernanceCenter from '@/pages/developer/CommercialGovernanceCenter';
 import PlatformHardeningDashboard from '@/pages/developer/PlatformHardeningDashboard';
 import UXAuditReport from '@/pages/developer/UXAuditReport';
+import BetaExperienceCertification from '@/pages/BetaExperienceCertification';
 import InteractiveMigrationReport from '@/pages/developer/InteractiveMigrationReport';
 import ArticleCMS from '@/pages/articles/ArticleCMS';
 import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
@@ -489,6 +490,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/commercial-governance" element={<CommercialGovernanceCenter />} />
           <Route path="/developer/hardening" element={<PlatformHardeningDashboard />} />
           <Route path="/developer/ux-audit" element={<UXAuditReport />} />
+          <Route path="/developer/beta-certification" element={<BetaExperienceCertification />} />
           <Route path="/developer/migration-report" element={<InteractiveMigrationReport />} />
           <Route path="/developer/articles" element={<ArticleCMS />} />
           <Route path="/developer/ai-optimization" element={<AIOptimizationDashboard />} />

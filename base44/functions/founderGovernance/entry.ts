@@ -118,14 +118,23 @@ async function logAudit(base44, entry) {
 
 async function notifyUser(base44, userId, title, message, metadata) {
   try {
-    await base44.asServiceRole.entities.Notification.create({
-      user_id: userId,
-      title,
-      message,
-      type: 'governance',
-      metadata_json: JSON.stringify(metadata || {}),
-      read: false,
-      created_at: new Date().toISOString(),
+    // Route through the Governance Notification Engine™ — single source of truth
+    const users = await safeFilter(base44, 'User', { id: userId }, null, 1);
+    const recipient = users[0];
+    await base44.asServiceRole.functions.invoke('governanceNotificationEngine', {
+      action: 'notify',
+      recipient_user_id: userId,
+      recipient_email: recipient?.email || '',
+      recipient_name: recipient?.full_name || '',
+      notification_type: metadata?.notification_type || 'request_submitted',
+      subject: title,
+      body: message,
+      priority: metadata?.priority || 'normal',
+      request_id: metadata?.request_id || '',
+      request_action: metadata?.request_action || '',
+      risk_level: metadata?.risk_level,
+      deep_link: '/founder-governance',
+      send_email: metadata?.send_email || false,
     });
   } catch {}
 }
@@ -133,10 +142,13 @@ async function notifyUser(base44, userId, title, message, metadata) {
 async function sendFounderEmail(base44, config, subject, body) {
   if (!config?.email_notifications_enabled || !config?.founder_email) return;
   try {
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: config.founder_email,
+    await base44.asServiceRole.functions.invoke('governanceNotificationEngine', {
+      action: 'notify_founder',
+      notification_type: 'request_submitted',
       subject,
       body,
+      priority: 'high',
+      send_email: true,
     });
   } catch {}
 }

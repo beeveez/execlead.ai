@@ -11,6 +11,7 @@ import {
 import GovernanceRequestForm from "@/components/governance/GovernanceRequestForm";
 import GovernanceRequestDetails from "@/components/governance/GovernanceRequestDetails";
 import GovernanceAnalytics from "@/components/governance/GovernanceAnalytics";
+import NotificationHealth from "@/components/governance/NotificationHealth";
 
 const TABS = [
   { value: "pending", label: "Pending", icon: Clock, color: "text-amber-400" },
@@ -145,6 +146,9 @@ export default function FounderReviewCenter() {
         <StatCard icon={CheckCircle2} label="Total Requests" value={requests.length} color="text-indigo-400" bg="bg-indigo-500/10" />
         <StatCard icon={Shield} label="Your Role" value={isFounder ? "Founder" : "Admin"} color="text-white/60" bg="bg-white/5" />
       </div>
+
+      {/* Notification Engine Health */}
+      <NotificationHealth />
 
       {/* Analytics */}
       {showAnalytics && analytics && <GovernanceAnalytics analytics={analytics} />}

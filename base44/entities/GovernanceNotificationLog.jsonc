@@ -1,0 +1,185 @@
+{
+  "name": "GovernanceNotificationLog",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "notification_id": {
+      "type": "string",
+      "description": "Unique notification tracking ID"
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Linked GovernanceRequest ID"
+    },
+    "recipient_user_id": {
+      "type": "string"
+    },
+    "recipient_email": {
+      "type": "string"
+    },
+    "recipient_name": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "in_app",
+        "email",
+        "audit"
+      ],
+      "description": "Notification delivery channel"
+    },
+    "notification_type": {
+      "type": "string",
+      "enum": [
+        "request_submitted",
+        "high_risk_request",
+        "critical_risk_request",
+        "approval_reminder",
+        "escalation_reminder",
+        "request_approved",
+        "request_rejected",
+        "revision_requested",
+        "unauthorized_attempt",
+        "repeated_unauthorized",
+        "test_notification"
+      ],
+      "description": "Type of governance notification"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "default": "normal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "sending",
+        "delivered",
+        "opened",
+        "failed",
+        "retried"
+      ],
+      "default": "queued"
+    },
+    "delivery_attempts": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of delivery attempts made"
+    },
+    "max_attempts": {
+      "type": "number",
+      "default": 3
+    },
+    "failure_reason": {
+      "type": "string"
+    },
+    "message_id": {
+      "type": "string",
+      "description": "Provider message ID or internal tracking ID"
+    },
+    "deep_link": {
+      "type": "string",
+      "description": "In-app deep link to the governance request"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "next_retry_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled retry time (exponential backoff)"
+    },
+    "reminder_number": {
+      "type": "number",
+      "default": 0,
+      "description": "Reminder sequence number (0 = initial, 1+ = reminders)"
+    },
+    "request_risk_level": {
+      "type": "string"
+    },
+    "request_action": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "notification_id",
+    "recipient_user_id",
+    "channel",
+    "notification_type"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.recipient_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

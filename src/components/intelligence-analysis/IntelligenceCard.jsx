@@ -54,11 +54,11 @@ export default function IntelligenceCard({ metric, onClick, index = 0, children 
         )}
       </div>
       <div className="flex items-baseline gap-1.5 mb-1">
-        <span className={`text-2xl font-bold ${isPerfect ? 'text-emerald-400' : 'text-amber-400'}`}>
+        <span className="text-2xl font-bold text-foreground">
           {metric.score}{metric.unit || ''}
         </span>
         {metric.target != null && (
-          <span className="text-white/30 text-xs">/ {metric.target}{metric.unit || ''}</span>
+          <span className="text-muted-foreground text-xs">/ {metric.target}{metric.unit || ''}</span>
         )}
       </div>
       <div className="flex items-center justify-between">

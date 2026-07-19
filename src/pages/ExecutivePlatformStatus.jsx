@@ -92,8 +92,8 @@ export default function ExecutivePlatformStatus() {
         {showDevWidgets && (
           <div className="flex flex-col items-end gap-1">
             <div className="text-[10px] text-white/30 uppercase tracking-wider">Launch Readiness</div>
-            <div className="text-2xl font-bold" style={{ color: launch.color }}>{launch.score}%</div>
-            <div className="text-[10px]" style={{ color: launch.color }}>{launch.launchReady ? "✓ Launch Ready" : "Not Yet Ready"}</div>
+            <div className="text-2xl font-bold text-foreground">{launch.score}%</div>
+            <div className="text-[10px] font-semibold" style={{ color: launch.color }}>{launch.launchReady ? "✓ Launch Ready" : "Not Yet Ready"}</div>
           </div>
         )}
       </div>

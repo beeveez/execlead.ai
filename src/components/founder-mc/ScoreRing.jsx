@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function ScoreRing({ score, size = 80, label, color }) {
-  const c = color || (score >= 90 ? "#10b981" : score >= 75 ? "#6366f1" : score >= 60 ? "#f59e0b" : "#ef4444");
+  const c = color || (score >= 90 ? "#10b981" : score >= 70 ? "#f59e0b" : "#ef4444");
   const radius = 38;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;

@@ -6,6 +6,7 @@ import {
   FileCheck, GitBranch, Scale, Eye, ArrowRight, Clock, RefreshCw, Layers,
 } from 'lucide-react';
 import { computeRC2Confidence } from '@/lib/rc2ConfidenceEngine';
+import { useIntelligenceDrillDown } from '@/lib/useIntelligenceDrillDown';
 
 const METRIC_ICONS = {
   telemetry_completeness: Activity,
@@ -27,16 +28,22 @@ const TREND_ICONS = {
 function MetricCard({ metric, index }) {
   const Icon = METRIC_ICONS[metric.id] || Activity;
   const TrendIcon = TREND_ICONS[metric.trend] || Minus;
+  const openDrillDown = useIntelligenceDrillDown();
   const statusColor = metric.status === 'passing' ? 'text-emerald-400' : metric.status === 'attention' ? 'text-amber-400' : 'text-red-400';
   const statusBg = metric.status === 'passing' ? 'bg-emerald-500/10 border-emerald-500/20' : metric.status === 'attention' ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20';
   const scoreColor = metric.score >= metric.target ? 'text-emerald-400' : 'text-amber-400';
+  const isClickable = metric.score < 100;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className={`border ${statusBg} rounded-xl p-4`}
+      onClick={() => isClickable && openDrillDown(metric)}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onKeyDown={(e) => { if (isClickable && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openDrillDown(metric); } }}
+      className={`border ${statusBg} rounded-xl p-4 transition-all ${isClickable ? 'cursor-pointer hover:shadow-[0_0_20px_-4px_rgba(245,158,11,0.25)] hover:border-amber-500/30 group' : ''}`}
     >
       <div className="flex items-center justify-between mb-3">
         <div className={`w-9 h-9 rounded-lg ${statusBg} border flex items-center justify-center`}>
@@ -53,6 +60,12 @@ function MetricCard({ metric, index }) {
         <span className="text-white/30 text-sm">/ target {metric.target}</span>
       </div>
       <p className="text-white/50 text-xs leading-snug">{metric.details}</p>
+      {isClickable && (
+        <div className="flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-amber-400 text-[10px] font-medium">View Intelligence Analysis</span>
+          <ArrowRight size={10} className="text-amber-400" />
+        </div>
+      )}
     </motion.div>
   );
 }

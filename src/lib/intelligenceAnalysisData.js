@@ -545,6 +545,170 @@ const ANALYSIS_DATA = {
     healthyStatus: null,
   },
 
+  // ═══ ADDITIONAL RC2 CONFIDENCE METRICS (reusing existing RC2 engine data) ═══
+  telemetry_completeness: {
+    metricId: 'telemetry_completeness',
+    label: 'Telemetry Completeness',
+    executiveSummary: { currentScore: 98, target: 100, gap: 2, status: 'Attention Required', severity: 'low', confidence: '97%', lastUpdated: '5m ago', trend: 'stable', change: 0, recoveryEstimate: '3 days' },
+    concerns: [
+      { title: '2 Modules Below 100% Telemetry', description: '2 modules still need full telemetry event coverage — 10+ modules already publishing.', severity: 'Low', pointsLost: '-2 points', confidence: '97%', status: 'In Progress', owner: 'Engineering Team', workspace: 'Developer Command Center™' },
+    ],
+    businessImpact: {
+      customer: ['No customer-facing impact — telemetry is internal observability'],
+      executive: ['Platform intelligence coverage near-complete at 98%'],
+      platform: ['Telemetry Completeness below 100% — 2 modules need full event coverage'],
+      operational: ['Engineering team adding telemetry events to 2 remaining modules'],
+      deployment: ['Deployment not blocked — telemetry exceeds 95% threshold'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: ['2 modules have incomplete telemetry — may miss edge-case events'], rollbackRisks: ['No rollback risk'], complianceRisks: [] },
+    evidence: [
+      { source: 'Telemetry Audit', detail: '10+ modules publishing standardized evidence events. Coverage exceeds 95% threshold.', timestamp: '2026-07-19 15:00' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Add telemetry events to 2 remaining modules', description: 'Complete standardized evidence events for 2 modules below 100%.', owner: 'Developer', estimatedEffort: '3 days', expectedImprovement: '+2 points', blockingDependency: 'Telemetry Engine', confidence: '97%', action: 'Start', to: '/developer/system-health' },
+    ],
+    forecast: [
+      { label: 'Current', score: 98 },
+      { label: 'After Telemetry Complete', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Telemetry Engine', to: '/developer/system-health' },
+      { name: 'Platform Manifest™', to: '/developer/migrations' },
+    ],
+    relatedModules: [
+      { label: 'System Health', to: '/developer/system-health' },
+      { label: 'RC2 Confidence', to: '/rc2-confidence' },
+    ],
+    historicalTrend: { previousScore: 96, currentScore: 98, trend: 'stable', resolvedIssues: 1, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 94, timestamp: '2026-07-10' }, { score: 96, timestamp: '2026-07-15' }, { score: 98, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  explainability_coverage: {
+    metricId: 'explainability_coverage',
+    label: 'Explainability Coverage',
+    executiveSummary: { currentScore: 99, target: 100, gap: 1, status: 'Attention Required', severity: 'low', confidence: '98%', lastUpdated: '3m ago', trend: 'stable', change: 0, recoveryEstimate: '2 days' },
+    concerns: [
+      { title: '1% of Scores Missing Explainability Field', description: '7 required explainability fields enforced on every score — 1% still incomplete.', severity: 'Low', pointsLost: '-1 point', confidence: '98%', status: 'In Progress', owner: 'Intelligence Team', workspace: 'EELM™ Dashboard' },
+    ],
+    businessImpact: {
+      customer: ['No customer-facing impact — 99% of scores fully explainable'],
+      executive: ['Explainability near-perfect — no opaque scores permitted'],
+      platform: ['Explainability Coverage at 99% — 1% need final field completion'],
+      operational: ['Intelligence team completing final explainability fields'],
+      deployment: ['Deployment not blocked — coverage exceeds 98% threshold'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: ['1% of scores may lack full explainability'], rollbackRisks: ['No rollback risk'], complianceRisks: [] },
+    evidence: [
+      { source: 'Explainability Audit', detail: '7 required explainability fields enforced on every score. No opaque scores permitted.', timestamp: '2026-07-19 15:05' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Complete explainability fields on 1% of scores', description: 'Fill in the 7 required explainability fields on remaining scores.', owner: 'Developer', estimatedEffort: '2 days', expectedImprovement: '+1 point', blockingDependency: 'EELM™ Dashboard', confidence: '98%', action: 'Start', to: '/eelm' },
+    ],
+    forecast: [
+      { label: 'Current', score: 99 },
+      { label: 'After Field Completion', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'EELM™ Dashboard', to: '/eelm' },
+      { name: 'Evidence Engine™', to: '/evidence-vault' },
+    ],
+    relatedModules: [
+      { label: 'EELM™ Dashboard', to: '/eelm' },
+      { label: 'RC2 Confidence', to: '/rc2-confidence' },
+    ],
+    historicalTrend: { previousScore: 98, currentScore: 99, trend: 'stable', resolvedIssues: 0, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 97, timestamp: '2026-07-10' }, { score: 98, timestamp: '2026-07-15' }, { score: 99, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  benchmark_health: {
+    metricId: 'benchmark_health',
+    label: 'Benchmark Health',
+    executiveSummary: { currentScore: 95, target: 100, gap: 5, status: 'Attention Required', severity: 'low', confidence: '94%', lastUpdated: '8m ago', trend: 'stable', change: 0, recoveryEstimate: '2 weeks' },
+    concerns: [
+      { title: 'Industry Cohorts Below Sample Threshold', description: '7 industry cohorts populated but 2 below optimal sample size.', severity: 'Low', pointsLost: '-3 points', confidence: '94%', status: 'In Progress', owner: 'Intelligence Team', workspace: 'EELM™ Dashboard' },
+      { title: '1 Benchmark Population Incomplete', description: '1 of 6 leadership-level benchmarks needs additional population data.', severity: 'Low', pointsLost: '-2 points', confidence: '92%', status: 'In Progress', owner: 'Intelligence Team', workspace: 'EELM™ Dashboard' },
+    ],
+    businessImpact: {
+      customer: ['Benchmarking comparisons slightly less precise for 2 industry cohorts'],
+      executive: ['Benchmark health strong at 95% — minor population gaps'],
+      platform: ['Benchmark Health below 100% — 2 cohorts need more data'],
+      operational: ['Intelligence team gathering additional benchmark population data'],
+      deployment: ['Deployment not blocked — benchmarks exceed 90% threshold'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: ['2 industry cohorts have smaller sample sizes — comparisons less precise'], rollbackRisks: ['No rollback risk'], complianceRisks: [] },
+    evidence: [
+      { source: 'Benchmark Audit', detail: '6 leadership-level benchmarks + 7 industry cohorts populated. Sample sizes meet minimum thresholds.', timestamp: '2026-07-19 14:50' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Expand 2 industry cohort populations', description: 'Gather additional benchmark data for 2 below-threshold cohorts.', owner: 'Intelligence Team', estimatedEffort: '2 weeks', expectedImprovement: '+3 points', blockingDependency: 'Benchmark Engine', confidence: '90%', action: 'Start', to: '/eelm' },
+      { priority: 2, title: 'Complete 1 benchmark population', description: 'Add population data to 1 incomplete leadership-level benchmark.', owner: 'Intelligence Team', estimatedEffort: '1 week', expectedImprovement: '+2 points', blockingDependency: 'Benchmark Engine', confidence: '92%', action: 'Start', to: '/eelm' },
+    ],
+    forecast: [
+      { label: 'Current', score: 95 },
+      { label: 'After Cohort Expansion', score: 98 },
+      { label: 'After Benchmark Complete', score: 100 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Benchmark Engine', to: '/eelm' },
+      { name: 'EELM™ Dashboard', to: '/eelm' },
+    ],
+    relatedModules: [
+      { label: 'EELM™ Dashboard', to: '/eelm' },
+      { label: 'RC2 Confidence', to: '/rc2-confidence' },
+    ],
+    historicalTrend: { previousScore: 93, currentScore: 95, trend: 'stable', resolvedIssues: 1, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 91, timestamp: '2026-07-10' }, { score: 93, timestamp: '2026-07-15' }, { score: 95, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
+  overall_intelligence_confidence: {
+    metricId: 'overall_intelligence_confidence',
+    label: 'Overall Intelligence Confidence',
+    executiveSummary: { currentScore: 94, target: 100, gap: 6, status: 'Attention Required', severity: 'low', confidence: '96%', lastUpdated: '1m ago', trend: 'up', change: 1, recoveryEstimate: '14 days' },
+    concerns: [
+      { title: 'Drift Health Below Target', description: 'Drift Health at 88% — below 90% target due to active behavioral regression.', severity: 'Medium', pointsLost: '-3 points', confidence: '95%', status: 'Intervention Active', owner: 'Intelligence Team', workspace: 'EELM™ Dashboard' },
+      { title: 'Human Alignment Below 100%', description: 'Expert reviewer agreement at 91% — 4 open review cases.', severity: 'Low', pointsLost: '-2 points', confidence: '93%', status: 'Under Review', owner: 'Intelligence Team', workspace: 'Verification Center™' },
+      { title: 'Evidence Confidence Below 100%', description: '3% low-confidence scores under review.', severity: 'Low', pointsLost: '-1 point', confidence: '96%', status: 'Under Review', owner: 'Intelligence Team', workspace: 'EELM™ Dashboard' },
+    ],
+    businessImpact: {
+      customer: ['Overall intelligence confidence at 94% — exceeds RC2 threshold of 92%'],
+      executive: ['Platform intelligence reliable and explainable — RC2 ready'],
+      platform: ['Overall Intelligence Confidence below 100% — drift and alignment need attention'],
+      operational: ['Intelligence team running interventions and resolving review cases'],
+      deployment: ['Deployment not blocked — confidence exceeds RC2 threshold'],
+    },
+    deploymentRisks: { deploymentReady: true, blockingIssues: [], deploymentRisks: ['Drift health below target may affect scoring reliability'], rollbackRisks: ['No rollback risk'], complianceRisks: [] },
+    evidence: [
+      { source: 'RC2 Confidence Engine', detail: 'Composite score of all 7 sub-metrics. Exceeds RC2 target threshold of 92%.', timestamp: '2026-07-19 15:30' },
+      { source: 'Drift Detection Engine™', detail: '1 active regression (Stakeholder Management) — intervention INTV-001 in progress', timestamp: '2026-07-19 15:25' },
+    ],
+    recommendations: [
+      { priority: 1, title: 'Complete INTV-001 drift intervention', description: 'Resolve Stakeholder Management regression to recover drift health.', owner: 'Executive User', estimatedEffort: '14 days', expectedImprovement: '+3 points', blockingDependency: 'Executive Simulator™', confidence: '95%', action: 'Launch Simulation', to: '/simulator' },
+      { priority: 2, title: 'Resolve 4 human alignment review cases', description: 'Close open reviewer disagreement cases.', owner: 'Intelligence Team', estimatedEffort: '3 days', expectedImprovement: '+2 points', blockingDependency: 'Verification Center™', confidence: '92%', action: 'View Reviews', to: '/verification-center' },
+      { priority: 3, title: 'Gather evidence for low-confidence models', description: 'Improve evidence confidence from 94% to 100%.', owner: 'Intelligence Team', estimatedEffort: '2 weeks', expectedImprovement: '+1 point', blockingDependency: 'Evidence Engine™', confidence: '96%', action: 'View Evidence Vault', to: '/evidence-vault' },
+    ],
+    forecast: [
+      { label: 'Current', score: 94 },
+      { label: 'After INTV-001', score: 97 },
+      { label: 'After Alignment', score: 99 },
+      { label: 'Target', score: 100 },
+    ],
+    dependencies: [
+      { name: 'Drift Detection Engine™', to: '/rc2-confidence' },
+      { name: 'Verification Center™', to: '/verification-center' },
+      { name: 'Evidence Engine™', to: '/evidence-vault' },
+    ],
+    relatedModules: [
+      { label: 'RC2 Confidence', to: '/rc2-confidence' },
+      { label: 'EELM™ Dashboard', to: '/eelm' },
+      { label: 'Executive Simulator', to: '/simulator' },
+    ],
+    historicalTrend: { previousScore: 93, currentScore: 94, trend: 'up', resolvedIssues: 1, newIssues: 0, regressionEvents: 0, validationHistory: [{ score: 91, timestamp: '2026-07-10' }, { score: 93, timestamp: '2026-07-15' }, { score: 94, timestamp: '2026-07-19' }] },
+    healthyStatus: null,
+  },
+
   // ═══ HEALTHY METRICS (score == 100) — open Healthy Status panel ═══
   security: {
     metricId: 'security',

@@ -21,6 +21,7 @@ import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
 import { SessionSecurityProvider } from '@/components/security/SessionSecurityProvider';
 import { TelemetryProvider } from '@/lib/TelemetryContext';
 import ExecConcierge from '@/components/concierge/ExecConcierge';
+import MetricIntelligenceRoot from '@/components/metric-intelligence/MetricIntelligenceRoot';
 import { RepairWorkflowProvider } from '@/components/developer/repair/RepairWorkflowProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -196,6 +197,7 @@ import CPQQuoteView from '@/pages/CPQQuoteView';
 import ProductCommandCenter from '@/pages/operations/ProductCommandCenter';
 import OperationsDomain from '@/pages/operations/OperationsDomain';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
+import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
 import EnterpriseDomain from '@/pages/enterprise/EnterpriseDomain';
 import EnterprisePortal from '@/pages/EnterprisePortal';
@@ -432,6 +434,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/security-intelligence" element={<SecurityIntelligenceCenter />} />
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
           <Route path="/platform/activity" element={<PlatformActivityCenter />} />
+          <Route path="/platform-improvement-center" element={<PlatformImprovementCenter />} />
           <Route path="/operations" element={<ProductCommandCenter />} />
           <Route path="/operations/customer-intelligence" element={<OperationsDomain domain="customer-intelligence" />} />
           <Route path="/operations/product-intelligence" element={<OperationsDomain domain="product-intelligence" />} />
@@ -550,6 +553,7 @@ function App() {
                 <AuthenticatedApp />
                 </SessionSecurityProvider>
                 <ExecConcierge />
+                <MetricIntelligenceRoot />
                 <FeedbackWidget />
                 <CommandPalette />
                 <KeyboardShortcuts />

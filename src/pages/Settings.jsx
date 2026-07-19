@@ -1,215 +1,235 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import React from "react";
+import { Link } from "react-router-dom";
 import {
-  COMPANIES, CAREER_PATHS, AI_PERSONALITIES, COUNTRIES, INDUSTRIES, LEARNING_STYLES
-} from "@/lib/constants";
-import { Settings as SettingsIcon, Save, Loader2, User, Sliders } from "lucide-react";
-import { motion } from "framer-motion";
+  Settings as SettingsIcon, User, ShieldCheck, KeyRound, Mail, Fingerprint,
+  Monitor, Bell, Lock, Link2, CreditCard, Receipt, Database, AlertTriangle,
+  ChevronRight, Check, X, ArrowRight,
+} from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import AppearanceSection from "@/components/settings/AppearanceSection";
-import MobileSelect from "@/components/ui/mobile-select";
 import DangerZone from "@/components/account/DangerZone";
 
-export default function Settings() {
-  const { profile, refreshProfile } = useSubscription();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    full_name: "", country: "", industry: "", years_experience: 0,
-    current_role: "", current_company: "", target_company: "", target_role: "",
-    leadership_experience: "", certifications: "", career_goals: "",
-    preferred_learning_style: "", ai_personality: "executive_mentor",
-  });
+const NAV_SECTIONS = [
+  { id: "profile", label: "Profile", icon: User, desc: "Personal information, executive identity, resume, and career details", to: "/profile", group: "Identity" },
+  { id: "email", label: "Email", icon: Mail, desc: "Email address and verification status", group: "Identity", inline: true },
+  { id: "password", label: "Password", icon: KeyRound, desc: "Change or reset your password", group: "Identity", inline: true },
+  { id: "connected", label: "Connected Accounts", icon: Link2, desc: "Google, Microsoft, Apple OAuth connections", to: "/connected-accounts", group: "Identity" },
+  { id: "security", label: "Security", icon: ShieldCheck, desc: "Security overview, threat detection, recovery", to: "/security", group: "Security" },
+  { id: "authentication", label: "Authentication", icon: Fingerprint, desc: "Multi-factor authentication, recovery codes, passkeys", to: "/security", group: "Security" },
+  { id: "sessions", label: "Sessions", icon: Monitor, desc: "View and manage active sessions across devices", to: "/security", group: "Security" },
+  { id: "notifications", label: "Notifications", icon: Bell, desc: "Platform updates, executive insights, security alerts", to: "/notifications", group: "Preferences" },
+  { id: "privacy", label: "Privacy", icon: Lock, desc: "Privacy settings, consent management, data subject rights", to: "/privacy-compliance", group: "Preferences" },
+  { id: "subscription", label: "Subscription", icon: CreditCard, desc: "Your subscription plan, features, and usage", to: "/billing", group: "Billing" },
+  { id: "billing", label: "Billing", icon: Receipt, desc: "Invoices, payment methods, billing history", to: "/billing", group: "Billing" },
+  { id: "data", label: "Data & Privacy", icon: Database, desc: "Export personal data, download profile, manage consent", to: "/privacy-compliance", group: "Account" },
+  { id: "actions", label: "Account Actions", icon: AlertTriangle, desc: "Deactivate, delete, or download your data", group: "Account", inline: true },
+];
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        full_name: profile.full_name || "",
-        country: profile.country || "",
-        industry: profile.industry || "",
-        years_experience: profile.years_experience || 0,
-        current_role: profile.current_role || "",
-        current_company: profile.current_company || "",
-        target_company: profile.target_company || "",
-        target_role: profile.target_role || "",
-        leadership_experience: profile.leadership_experience || "",
-        certifications: profile.certifications || "",
-        career_goals: profile.career_goals || "",
-        preferred_learning_style: profile.preferred_learning_style || "",
-        ai_personality: profile.ai_personality || "executive_mentor",
-      });
-    }
-    setLoading(false);
-  }, [profile]);
+const GROUP_ORDER = ["Identity", "Security", "Preferences", "Billing", "Account"];
 
-  const handleSave = async () => {
-    if (!profile) return;
-    setSaving(true);
-    await base44.entities.UserProfile.update(profile.id, form);
-    await refreshProfile();
-    setSaving(false);
-  };
-
-  if (loading || !profile) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />
+function LinkCard({ section }) {
+  const Icon = section.icon;
+  return (
+    <Link
+      to={section.to}
+      className="flex items-center gap-4 p-5 bg-white/[0.03] border border-white/5 rounded-xl hover:bg-white/[0.05] hover:border-white/10 transition-all group"
+    >
+      <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
+        <Icon size={18} className="text-indigo-400" />
       </div>
-    );
-  }
+      <div className="flex-1 min-w-0">
+        <div className="text-white font-medium text-sm">{section.label}</div>
+        <div className="text-white/40 text-xs mt-0.5 leading-relaxed">{section.desc}</div>
+      </div>
+      <ChevronRight size={16} className="text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all shrink-0" />
+    </Link>
+  );
+}
 
-  const inputClass = "w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-indigo-500/50";
-  const labelClass = "text-white/40 text-xs uppercase tracking-wider mb-2 block";
+function EmailSection({ user, profile }) {
+  const isVerified = user?.email_verified ?? true;
+  return (
+    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <Mail size={16} className="text-indigo-400" />
+        <h2 className="text-white font-semibold text-sm">Email Address</h2>
+      </div>
+      <div className="flex items-center gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-lg">
+        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+          <Mail size={15} className="text-white/40" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-white/80 text-sm font-medium truncate">{user?.email || "—"}</div>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            {isVerified ? (
+              <>
+                <Check size={11} className="text-emerald-400" />
+                <span className="text-emerald-400 text-xs">Verified</span>
+              </>
+            ) : (
+              <>
+                <X size={11} className="text-amber-400" />
+                <span className="text-amber-400 text-xs">Not Verified</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <p className="text-white/30 text-xs leading-relaxed">
+        Your email address is your primary login credential. To change it, contact support — email changes require identity verification to prevent unauthorized account takeover.
+      </p>
+    </div>
+  );
+}
+
+function PasswordSection() {
+  return (
+    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <KeyRound size={16} className="text-indigo-400" />
+        <h2 className="text-white font-semibold text-sm">Password Management</h2>
+      </div>
+      <div className="space-y-3">
+        <Link
+          to="/forgot-password"
+          className="flex items-center gap-3 p-4 bg-white/[0.02] border border-white/5 hover:border-indigo-500/20 rounded-lg transition-colors group"
+        >
+          <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+            <KeyRound size={15} className="text-indigo-400" />
+          </div>
+          <div className="flex-1">
+            <div className="text-white/80 text-sm font-medium">Change Password</div>
+            <div className="text-white/30 text-xs mt-0.5">Secure reset via email verification link</div>
+          </div>
+          <ArrowRight size={14} className="text-white/20 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
+      </div>
+      <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4">
+        <div className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2">Password Requirements</div>
+        <ul className="space-y-1.5 text-xs text-white/50">
+          <li className="flex items-center gap-2"><Check size={11} className="text-emerald-400" /> Minimum 8 characters</li>
+          <li className="flex items-center gap-2"><Check size={11} className="text-emerald-400" /> Mix of uppercase and lowercase letters</li>
+          <li className="flex items-center gap-2"><Check size={11} className="text-emerald-400" /> At least one number or special character</li>
+          <li className="flex items-center gap-2"><Check size={11} className="text-emerald-400" /> One-time reset token (expires in 60 minutes)</li>
+          <li className="flex items-center gap-2"><Check size={11} className="text-emerald-400" /> Previous tokens automatically invalidated</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default function Settings() {
+  const { user } = useAuth();
+  const { profile } = useSubscription();
+  const [activeSection, setActiveSection] = React.useState("profile");
+
+  const groupedNav = GROUP_ORDER.map(group => ({
+    group,
+    items: NAV_SECTIONS.filter(s => s.group === group),
+  }));
+
+  const activeItem = NAV_SECTIONS.find(s => s.id === activeSection);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
+    <div className="max-w-6xl mx-auto">
+      <div className="mb-6">
         <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
           <SettingsIcon size={12} className="text-white/50" />
-          Settings
+          Account & Identity Management
         </div>
-        <h1 className="text-2xl font-bold text-white">Account & Preferences</h1>
+        <h1 className="text-2xl font-bold text-white">Account Settings</h1>
+        <p className="text-white/40 text-sm mt-1">Securely manage your account, authentication, security, and privacy.</p>
       </div>
 
-      <AppearanceSection />
-
-      {/* Personal Info */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/[0.03] border border-white/5 rounded-xl p-6 space-y-5">
-        <h2 className="flex items-center gap-2 text-white font-semibold"><User size={16} className="text-indigo-400" /> Personal Information</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Full Name</label>
-            <input value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Your name" className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>Country</label>
-            <MobileSelect
-              value={form.country}
-              onChange={e => setForm(f => ({ ...f, country: e.target.value }))}
-              placeholder="Select country"
-              options={COUNTRIES.map(c => ({ value: c, label: c }))}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Industry</label>
-            <MobileSelect
-              value={form.industry}
-              onChange={e => setForm(f => ({ ...f, industry: e.target.value }))}
-              placeholder="Select industry"
-              options={INDUSTRIES.map(c => ({ value: c, label: c }))}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Years of Experience</label>
-            <input type="number" value={form.years_experience} onChange={e => setForm(f => ({ ...f, years_experience: parseInt(e.target.value) || 0 }))} className={inputClass} />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Career Info */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/[0.03] border border-white/5 rounded-xl p-6 space-y-5">
-        <h2 className="flex items-center gap-2 text-white font-semibold"><Sliders size={16} className="text-cyan-400" /> Career Information</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Current Role</label>
-            <input value={form.current_role} onChange={e => setForm(f => ({ ...f, current_role: e.target.value }))} placeholder="e.g. Service Delivery Manager" className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>Current Company</label>
-            <input value={form.current_company} onChange={e => setForm(f => ({ ...f, current_company: e.target.value }))} placeholder="Current employer" className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>Target Company</label>
-            <MobileSelect
-              value={form.target_company}
-              onChange={e => setForm(f => ({ ...f, target_company: e.target.value }))}
-              placeholder="Select company"
-              options={COMPANIES.map(c => ({ value: c, label: c }))}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Target Role</label>
-            <MobileSelect
-              value={form.target_role}
-              onChange={e => setForm(f => ({ ...f, target_role: e.target.value }))}
-              placeholder="Select role"
-              options={CAREER_PATHS.map(r => ({ value: r, label: r }))}
-              className={inputClass}
-            />
-          </div>
-        </div>
-        <div>
-          <label className={labelClass}>Leadership Experience</label>
-          <textarea value={form.leadership_experience} onChange={e => setForm(f => ({ ...f, leadership_experience: e.target.value }))} placeholder="Describe your leadership experience..." rows={2} className={`${inputClass} resize-none`} />
-        </div>
-        <div>
-          <label className={labelClass}>Certifications</label>
-          <input value={form.certifications} onChange={e => setForm(f => ({ ...f, certifications: e.target.value }))} placeholder="e.g. ITIL v4, PMP, AWS, Six Sigma" className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Career Goals</label>
-          <textarea value={form.career_goals} onChange={e => setForm(f => ({ ...f, career_goals: e.target.value }))} placeholder="What are your executive career goals?" rows={2} className={`${inputClass} resize-none`} />
-        </div>
-        <div>
-          <label className={labelClass}>Preferred Learning Style</label>
-          <MobileSelect
-            value={form.preferred_learning_style}
-            onChange={e => setForm(f => ({ ...f, preferred_learning_style: e.target.value }))}
-            placeholder="Select style"
-            options={LEARNING_STYLES.map(s => ({ value: s, label: s }))}
-            className={inputClass}
-          />
-        </div>
-      </motion.div>
-
-      {/* AI Personality */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/[0.03] border border-white/5 rounded-xl p-6 space-y-4">
-        <h2 className="text-white font-semibold">AI Coach Personality</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {AI_PERSONALITIES.map(p => (
-            <button
-              key={p.id}
-              onClick={() => setForm(f => ({ ...f, ai_personality: p.id }))}
-              className={`px-3 py-3 rounded-lg text-left transition-all ${
-                form.ai_personality === p.id ? "bg-indigo-500/15 text-indigo-400 ring-1 ring-indigo-500/30" : "bg-white/5 text-white/40 hover:bg-white/10"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{p.icon}</span>
-                <div>
-                  <div className="text-sm font-medium">{p.name}</div>
-                  <div className="text-xs opacity-50">{p.subtitle} · {p.difficulty}</div>
+      <div className="flex gap-8">
+        {/* Sidebar */}
+        <div className="hidden lg:block w-60 flex-shrink-0">
+          <div className="sticky top-20 space-y-4">
+            {groupedNav.map(({ group, items }) => (
+              <div key={group}>
+                <div className="text-white/20 text-[10px] font-medium uppercase tracking-wider mb-2 px-3">{group}</div>
+                <div className="space-y-0.5">
+                  {items.map(section => {
+                    const Icon = section.icon;
+                    const isActive = activeSection === section.id;
+                    return (
+                      <button
+                        key={section.id}
+                        onClick={() => setActiveSection(section.id)}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
+                          isActive
+                            ? "bg-indigo-500/10 text-indigo-300 font-medium"
+                            : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                        }`}
+                      >
+                        <Icon size={14} className={isActive ? "text-indigo-400" : "text-white/30"} />
+                        {section.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </button>
-          ))}
+            ))}
+          </div>
         </div>
-      </motion.div>
 
-      {/* Stats */}
-      <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
-        <h2 className="text-white font-semibold mb-4">Statistics</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div><div className="text-2xl font-bold text-white">{profile?.challenges_completed || 0}</div><div className="text-white/30 text-xs">Challenges</div></div>
-          <div><div className="text-2xl font-bold text-white">{profile?.sessions_completed || 0}</div><div className="text-white/30 text-xs">Simulations</div></div>
-          <div><div className="text-2xl font-bold text-white">{profile?.streak_days || 0}</div><div className="text-white/30 text-xs">Day Streak</div></div>
-          <div><div className="text-2xl font-bold text-white">{profile?.promotion_readiness || 0}%</div><div className="text-white/30 text-xs">Promotion Ready</div></div>
+        {/* Mobile section selector */}
+        <div className="lg:hidden w-full mb-4">
+          <div className="flex gap-1.5 overflow-x-auto pb-2">
+            {NAV_SECTIONS.map(section => {
+              const Icon = section.icon;
+              const isActive = activeSection === section.id;
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-colors ${
+                    isActive ? "bg-indigo-500/10 text-indigo-300 font-medium" : "text-white/40 bg-white/5"
+                  }`}
+                >
+                  <Icon size={12} />
+                  {section.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 space-y-6">
+          {activeSection === "profile" && (
+            <>
+              <AppearanceSection />
+              <LinkCard section={NAV_SECTIONS.find(s => s.id === "profile")} />
+            </>
+          )}
+
+          {activeSection === "email" && <EmailSection user={user} profile={profile} />}
+
+          {activeSection === "password" && <PasswordSection />}
+
+          {activeSection === "connected" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "connected")} />}
+
+          {activeSection === "security" && (
+            <div className="space-y-4">
+              <LinkCard section={NAV_SECTIONS.find(s => s.id === "security")} />
+              <LinkCard section={NAV_SECTIONS.find(s => s.id === "authentication")} />
+              <LinkCard section={NAV_SECTIONS.find(s => s.id === "sessions")} />
+            </div>
+          )}
+
+          {activeSection === "authentication" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "authentication")} />}
+          {activeSection === "sessions" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "sessions")} />}
+          {activeSection === "notifications" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "notifications")} />}
+          {activeSection === "privacy" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "privacy")} />}
+          {activeSection === "subscription" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "subscription")} />}
+          {activeSection === "billing" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "billing")} />}
+          {activeSection === "data" && <LinkCard section={NAV_SECTIONS.find(s => s.id === "data")} />}
+
+          {activeSection === "actions" && <DangerZone />}
         </div>
       </div>
-
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-      >
-        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-        Save Changes
-      </button>
-
-      <DangerZone />
     </div>
   );
 }

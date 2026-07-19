@@ -740,6 +740,59 @@ export async function computeMetricScores(base44) {
         },
       };
     }
+
+    // ── Enterprise Readiness from SSO, Identity, RBAC, Compliance, SCIM ──
+    const [ssoConfigs, identityProviders, organizations, departments, teams, consentRecords, dsrRecords] = await Promise.all([
+      base44.entities.SSOConfig.filter({}).catch(() => []),
+      base44.entities.IdentityProvider.filter({}).catch(() => []),
+      base44.entities.Organization.filter({}).catch(() => []),
+      base44.entities.Department.filter({}).catch(() => []),
+      base44.entities.Team.filter({}).catch(() => []),
+      base44.entities.ConsentRecord.filter({}).catch(() => []),
+      base44.entities.DataSubjectRequest.filter({}).catch(() => []),
+    ]);
+
+    // Identity & SSO: SSOConfig configured + IdentityProvider records
+    const ssoConfigured = (ssoConfigs?.length || 0) > 0;
+    const idpCount = identityProviders?.length || 0;
+    const identityScore = ssoConfigured
+      ? Math.min(100, 60 + idpCount * 20)
+      : Math.min(40, idpCount * 15);
+
+    // RBAC: Organizations with departments/teams structure
+    const orgCount = organizations?.length || 0;
+    const deptCount = departments?.length || 0;
+    const teamCount = teams?.length || 0;
+    const rbacScore = orgCount === 0
+      ? 0
+      : Math.min(100, Math.round(((deptCount + teamCount) / (orgCount * 2)) * 100));
+
+    // Compliance: Consent records present + DSR resolution rate
+    const consentCount = consentRecords?.length || 0;
+    const dsrTotal = dsrRecords?.length || 0;
+    const dsrResolved = dsrRecords?.filter((r) => r.status === 'completed' || r.status === 'resolved')?.length || 0;
+    const complianceScore = Math.round(
+      (Math.min(100, consentCount * 10) * 0.4) +
+      (dsrTotal === 0 ? 60 : Math.round((dsrResolved / dsrTotal) * 100) * 0.6)
+    );
+
+    // SCIM: IdentityProvider records with SCIM/provisioning type
+    const scimProviders = identityProviders?.filter((p) =>
+      p.provider_type === 'scim' || p.provider_type === 'saml' || p.scim_enabled === true
+    )?.length || 0;
+    const scimScore = scimProviders > 0 ? 100 : 0;
+
+    const enterpriseOverall = Math.round((identityScore + rbacScore + complianceScore + scimScore) / 4);
+    results.enterprise_readiness = {
+      score: enterpriseOverall,
+      previous: 0,
+      breakdownData: {
+        identity_readiness: identityScore,
+        rbac_readiness: rbacScore,
+        compliance_readiness: complianceScore,
+        scim_readiness: scimScore,
+      },
+    };
   } catch (err) {
     // Graceful degradation — return what we have
   }

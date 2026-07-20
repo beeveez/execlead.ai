@@ -265,6 +265,7 @@ import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelli
 import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
 import BetaApply from '@/pages/BetaApply';
 import FoundingAdmissionsAdmin from '@/pages/FoundingAdmissionsAdmin';
+import AdmissionsOperationsCenter from '@/pages/AdmissionsOperationsCenter';
 import FounderDashboard from '@/pages/FounderDashboard';
 import BetaProgramCenter from '@/pages/BetaProgramCenter';
 import FounderReviewCenter from '@/pages/FounderReviewCenter';
@@ -448,6 +449,7 @@ const AuthenticatedApp = () => {
           <Route path="/identity-verification-admin" element={<IdentityVerificationAdmin />} />
           <Route path="/beta-launch" element={<BetaLaunchDashboard />} />
           <Route path="/founding-admissions" element={<FoundingAdmissionsAdmin />} />
+          <Route path="/admissions-operations" element={<AdmissionsOperationsCenter />} />
           <Route path="/founder-dashboard" element={<FounderDashboard />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />

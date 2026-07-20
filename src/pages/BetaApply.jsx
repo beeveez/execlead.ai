@@ -66,8 +66,17 @@ export default function BetaApply() {
           </div>
 
           {capacity && !isFull && !showForm && !submittedApp && (
-            <div className="max-w-xs">
-              <CapacityDisplay capacity={capacity.capacity} accepted={capacity.accepted} remaining={capacity.remaining} />
+            <div className="max-w-sm">
+              <CapacityDisplay
+                capacity={capacity.capacity}
+                accepted={capacity.accepted}
+                remaining={capacity.remaining}
+                underReview={capacity.underReview}
+                approved={capacity.approved}
+                invited={capacity.invited}
+                activated={capacity.activated}
+                applicationsReceived={capacity.applicationsReceived}
+              />
             </div>
           )}
 

@@ -182,18 +182,34 @@ export async function getCapacityInfo() {
   const capacity = stage?.maxUsers || 100;
   try {
     const all = await base44.entities.BetaApplication.list("-created_date", 500);
-    const activeCount = all.filter((a) => ["approved", "invitation_sent", "account_activated"].includes(a.status)).length;
+    const approvedCount = all.filter((a) => a.status === "approved").length;
+    const invitedCount = all.filter((a) => a.status === "invitation_sent").length;
+    const activatedCount = all.filter((a) => a.status === "account_activated").length;
+    const underReviewCount = all.filter((a) => a.status === "under_review").length;
     const submittedCount = all.filter((a) => !["declined", "withdrawn"].includes(a.status)).length;
+    const acceptedCount = approvedCount + invitedCount + activatedCount;
+    const seatsRemaining = Math.max(capacity - approvedCount, 0);
     return {
       capacity,
-      accepted: activeCount,
-      remaining: Math.max(capacity - activeCount, 0),
-      isFull: activeCount >= capacity,
+      accepted: acceptedCount,
+      remaining: seatsRemaining,
+      isFull: approvedCount >= capacity,
       totalApplications: all.length,
       activeApplications: submittedCount,
+      applicationsReceived: all.length,
+      underReview: underReviewCount,
+      approved: approvedCount,
+      invited: invitedCount,
+      activated: activatedCount,
+      seatsRemaining,
     };
   } catch {
-    return { capacity, accepted: 0, remaining: capacity, isFull: false, totalApplications: 0, activeApplications: 0 };
+    return {
+      capacity, accepted: 0, remaining: capacity, isFull: false,
+      totalApplications: 0, activeApplications: 0,
+      applicationsReceived: 0, underReview: 0, approved: 0, invited: 0, activated: 0,
+      seatsRemaining: capacity,
+    };
   }
 }
 

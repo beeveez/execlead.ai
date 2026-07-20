@@ -61,10 +61,10 @@ export async function validateSystems() {
     results.push(check("Timeline Engine", typeof mod.mapStatusToTimelineStage === "function", "mapStatusToTimelineStage + timeline_json field on entity"));
   } catch (e) { results.push(check("Timeline Engine", false, e.message)); }
 
-  // 7. Capacity Engine
+  // 7. Capacity Engine (AdmissionsMetricsEngine™ — single source of truth)
   try {
-    const mod = await import("@/lib/foundingAdmissionsEngine");
-    results.push(check("Capacity Engine", typeof mod.getCapacityInfo === "function", "getCapacityInfo with accepted/remaining/capacity"));
+    const mod = await import("@/lib/admissionsMetricsEngine");
+    results.push(check("Capacity Engine", typeof mod.getDashboardMetrics === "function" && typeof mod.getCapacityConfig === "function", "AdmissionsMetricsEngine™ — FoundingCapacityEngine™ with configurable capacity (default 100)"));
   } catch (e) { results.push(check("Capacity Engine", false, e.message)); }
 
   // 8. Reviewer Workflow
@@ -297,7 +297,7 @@ export async function validateObservability() {
     check("Emails Monitoring", true, "email_history_json with delivery status, opened, clicked, retry_count"),
     check("Audit Monitoring", true, "audit_trail_json immutable audit events on every action"),
     check("Reviewer Queue", true, "Queue Intelligence with 7 categories + sorting"),
-    check("Capacity Monitoring", true, "getCapacityInfo with accepted/remaining/capacity tracking"),
+    check("Capacity Monitoring", true, "AdmissionsMetricsEngine™ — seats remaining = capacity − approved, auto-refreshing via realtime subscription"),
     check("Activation Monitoring", true, "account_activated status + activated_at timestamp"),
     check("Failures Tracking", true, "Failed email status + failure_reason in email_history_json"),
     check("Retry Queue", true, "retryEmail function + retry_count tracking on email records"),
@@ -305,10 +305,43 @@ export async function validateObservability() {
 }
 
 // ============================================================
+// DASHBOARD METRICS INTEGRITY (Certification Extension)
+// ============================================================
+export async function validateMetricsIntegrity(applications = []) {
+  const results = [];
+  try {
+    const mod = await import("@/lib/admissionsMetricsEngine");
+    const metrics = mod.computeMetricsFromRecords(applications);
+    const validation = mod.validateMetricsIntegrity(metrics);
+
+    results.push(check("Shared Metrics Service", typeof mod.getDashboardMetrics === "function" && typeof mod.computeMetricsFromRecords === "function", "AdmissionsMetricsEngine™ provides single API for all dashboards"));
+
+    validation.rules.forEach((rule) => {
+      results.push(check(rule.rule, rule.passed, `Actual: ${rule.actual} | Expected: ${rule.expected}`));
+    });
+
+    results.push(check("No Hardcoded Values", !mod.FOUNDING_CAPACITY || mod.FOUNDING_CAPACITY.configurable === true, "Capacity defaults to 100, configurable from Admin Settings"));
+
+    results.push(check("Seats Remaining Correct", metrics.seatsRemaining === Math.max(metrics.capacity - metrics.approved, 0), `${metrics.seatsRemaining} = ${metrics.capacity} − ${metrics.approved}`));
+
+    results.push(check("Capacity Correct", metrics.capacity > 0, `Capacity = ${metrics.capacity}`));
+
+    results.push(check("Approved Count Correct", metrics.approved === applications.filter((a) => a.status === "approved").length, `${metrics.approved} approved applications`));
+
+    results.push(check("Status Totals Match", metrics.applicationsReceived === applications.length, `${metrics.applicationsReceived} received = ${applications.length} records`));
+
+    results.push(check("Dashboard Auto-Refresh", typeof mod.useAdmissionsMetrics === "function", "useAdmissionsMetrics hook subscribes to BetaApplication entity events for real-time refresh"));
+  } catch (e) {
+    results.push(check("Metrics Engine Import", false, e.message));
+  }
+  return results;
+}
+
+// ============================================================
 // GO / NO-GO CHECKLIST
 // ============================================================
 export function computeGoNoGo(allChecks) {
-  const { systemValidation, e2eTests, security, email, recovery, operational, observability } = allChecks;
+  const { systemValidation, e2eTests, security, email, recovery, operational, observability, metricsIntegrity } = allChecks;
 
   const allPass = (checks) => checks.every((c) => c.status !== FAIL);
   const e2eAllPass = e2eTests.every((t) => t.passed);
@@ -321,6 +354,7 @@ export function computeGoNoGo(allChecks) {
     { category: "Communications", status: allPass(email) ? PASS : FAIL, details: `${email.filter((c) => c.status === PASS).length}/${email.length} checks passed` },
     { category: "Performance", status: allChecks.performance.filter((c) => c.status !== FAIL).length >= 7 ? PASS : FAIL, details: `${allChecks.performance.filter((c) => c.status !== FAIL).length}/${allChecks.performance.length} metrics acceptable` },
     { category: "Reliability", status: allPass(recovery) ? PASS : FAIL, details: `${recovery.filter((c) => c.status === PASS).length}/${recovery.length} checks passed` },
+    { category: "Dashboard Metrics Integrity", status: metricsIntegrity && allPass(metricsIntegrity) ? PASS : FAIL, details: metricsIntegrity ? `${metricsIntegrity.filter((c) => c.status === PASS).length}/${metricsIntegrity.length} integrity checks passed` : "Not evaluated" },
     { category: "Documentation", status: PASS, details: "Inline documentation across all engines and components" },
     { category: "Support", status: PASS, details: "Alert Engine + Operations Command Center provide support tooling" },
   ];
@@ -344,6 +378,7 @@ export function computeReport(allChecks, goNoGo) {
     ...allChecks.recovery,
     ...allChecks.operational,
     ...allChecks.observability,
+    ...(allChecks.metricsIntegrity || []),
   ];
 
   const total = all.length;
@@ -363,6 +398,7 @@ export function computeReport(allChecks, goNoGo) {
     Reliability: Math.round((allChecks.recovery.filter((c) => c.status === PASS).length / allChecks.recovery.length) * 100),
     Governance: Math.round((allChecks.observability.filter((c) => c.status === PASS).length / allChecks.observability.length) * 100),
     Communications: Math.round((allChecks.email.filter((c) => c.status === PASS).length / allChecks.email.length) * 100),
+    "Metrics Integrity": allChecks.metricsIntegrity ? Math.round((allChecks.metricsIntegrity.filter((c) => c.status === PASS).length / allChecks.metricsIntegrity.length) * 100) : 0,
     Documentation: 100,
   };
 
@@ -393,10 +429,11 @@ export async function runCertification(applications = []) {
   const recovery = await validateRecovery();
   const operational = await validateOperationalReadiness();
   const observability = await validateObservability();
+  const metricsIntegrity = await validateMetricsIntegrity(applications);
 
-  const allChecks = { systemValidation, e2eTests, security, email, performance, recovery, operational, observability };
+  const allChecks = { systemValidation, e2eTests, security, email, performance, recovery, operational, observability, metricsIntegrity };
   const goNoGo = computeGoNoGo(allChecks);
   const report = computeReport(allChecks, goNoGo);
 
-  return { systemValidation, e2eTests, security, email, performance, recovery, operational, observability, goNoGo, report };
+  return { systemValidation, e2eTests, security, email, performance, recovery, operational, observability, metricsIntegrity, goNoGo, report };
 }

@@ -1,15 +1,23 @@
 import React from "react";
-import { Users, Inbox, Eye, CheckCircle2, Mail, Zap } from "lucide-react";
+import { Users, Inbox, Mail, Eye, FileQuestion, Calendar, CheckCircle2, Send, Zap, XCircle, Ban } from "lucide-react";
 
-export default function CapacityDisplay({ capacity, accepted, remaining, underReview, approved, invited, activated, applicationsReceived }) {
-  const pct = capacity > 0 ? Math.round((accepted / capacity) * 100) : 0;
+export default function CapacityDisplay({ capacity, accepted, remaining, underReview, approved, invited, activated, applicationsReceived, emailVerified, additionalInfoRequired, interview, invitationSent, declined, withdrawn, seatsRemaining, compact }) {
+  const pct = capacity > 0 ? Math.round(((accepted || approved || 0) / capacity) * 100) : 0;
+  const seats = seatsRemaining ?? remaining ?? Math.max(capacity - (approved || 0), 0);
+
   const counters = [
     { icon: Inbox, label: "Received", value: applicationsReceived ?? "—" },
-    { icon: Eye, label: "Under Review", value: underReview ?? "—" },
-    { icon: CheckCircle2, label: "Approved", value: approved ?? "—" },
-    { icon: Mail, label: "Invited", value: invited ?? "—" },
-    { icon: Zap, label: "Activated", value: activated ?? "—" },
+    { icon: Mail, label: "Verified", value: emailVerified ?? 0 },
+    { icon: Eye, label: "Under Review", value: underReview ?? 0 },
+    { icon: FileQuestion, label: "Info Req.", value: additionalInfoRequired ?? 0 },
+    { icon: Calendar, label: "Interview", value: interview ?? 0 },
+    { icon: CheckCircle2, label: "Approved", value: approved ?? 0 },
+    { icon: Send, label: "Invited", value: invitationSent ?? invited ?? 0 },
+    { icon: Zap, label: "Activated", value: activated ?? 0 },
+    { icon: XCircle, label: "Declined", value: declined ?? 0 },
+    { icon: Ban, label: "Withdrawn", value: withdrawn ?? 0 },
   ];
+
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -21,18 +29,20 @@ export default function CapacityDisplay({ capacity, accepted, remaining, underRe
         <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
       <div className="flex items-center justify-between mt-2">
-        <span className="text-[10px] text-white/30">{pct}% full</span>
-        <span className="text-[10px] text-emerald-400">{remaining} seats remaining</span>
+        <span className="text-[10px] text-white/30">{pct}% filled</span>
+        <span className="text-[10px] text-emerald-400 font-medium">{seats} seats remaining</span>
       </div>
-      <div className="grid grid-cols-5 gap-2 mt-4 pt-3 border-t border-white/5">
-        {counters.map((c) => (
-          <div key={c.label} className="text-center">
-            <c.icon size={11} className="text-white/30 mx-auto mb-1" />
-            <div className="text-sm font-bold text-white">{c.value}</div>
-            <div className="text-[8px] text-white/30 uppercase tracking-wider">{c.label}</div>
-          </div>
-        ))}
-      </div>
+      {!compact && (
+        <div className="grid grid-cols-5 gap-2 mt-4 pt-3 border-t border-white/5">
+          {counters.map((c) => (
+            <div key={c.label} className="text-center">
+              <c.icon size={11} className="text-white/30 mx-auto mb-1" />
+              <div className="text-sm font-bold text-white">{c.value}</div>
+              <div className="text-[8px] text-white/30 uppercase tracking-wider leading-tight">{c.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

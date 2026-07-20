@@ -6,6 +6,7 @@ import { runCertification } from "@/lib/admissionsCertificationEngine";
 import {
   ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Loader2, Award,
   FileCheck, Lock, Mail, Gauge, RefreshCw, Eye, ClipboardCheck, Play,
+  BarChart3,
 } from "lucide-react";
 
 const ADMIN_ROLES = ["super_admin", "platform_admin", "admin", "developer"];
@@ -26,6 +27,7 @@ const TABS = [
   { id: "recovery", label: "Recovery", icon: RefreshCw },
   { id: "ops", label: "Operational Readiness", icon: FileCheck },
   { id: "observability", label: "Observability", icon: Eye },
+  { id: "metrics", label: "Metrics Integrity", icon: BarChart3 },
   { id: "gongo", label: "GO / NO-GO", icon: ClipboardCheck },
 ];
 
@@ -98,6 +100,7 @@ export default function AdmissionsCertification() {
       {cert && activeTab === "recovery" && <CheckList title="Recovery Testing" checks={cert.recovery} />}
       {cert && activeTab === "ops" && <CheckList title="Operational Readiness" checks={cert.operational} />}
       {cert && activeTab === "observability" && <CheckList title="Observability" checks={cert.observability} />}
+      {cert && activeTab === "metrics" && <CheckList title="Dashboard Metrics Integrity" checks={cert.metricsIntegrity || []} />}
       {cert && activeTab === "gongo" && <GoNoGoTab goNoGo={cert.goNoGo} report={cert.report} />}
     </div>
   );

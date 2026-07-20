@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
@@ -11,6 +11,7 @@ import {
   computeHealthScore,
   validateCompliance,
 } from "@/lib/admissionsOperationsEngine";
+import { useAdmissionsMetrics } from "@/lib/admissionsMetricsEngine";
 import SlaHealthPanel from "@/components/admissions-ops/SlaHealthPanel";
 import QueueIntelligencePanel from "@/components/admissions-ops/QueueIntelligencePanel";
 import WorkloadBalancerPanel from "@/components/admissions-ops/WorkloadBalancerPanel";
@@ -42,13 +43,27 @@ export default function AdmissionsOperationsCenter() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("command");
+  // Auto-refreshing metrics — ensures this dashboard shows identical values
+  // to Beta, Admissions, and Analytics dashboards
+  const { refresh: refreshMetrics } = useAdmissionsMetrics();
+
+  const load = useCallback(async () => {
+    try {
+      const recs = await base44.entities.BetaApplication.list("-created_date", 200);
+      setApplications(recs || []);
+    } catch { /* graceful */ }
+    finally { setLoading(false); }
+  }, []);
 
   useEffect(() => {
-    base44.entities.BetaApplication.list("-created_date", 200)
-      .then((recs) => setApplications(recs || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    load();
+    // Auto-refresh on any BetaApplication entity event (create/update/delete)
+    const unsubscribe = base44.entities.BetaApplication.subscribe(() => {
+      load();
+      refreshMetrics();
+    });
+    return unsubscribe;
+  }, [load, refreshMetrics]);
 
   const metrics = useMemo(() => {
     if (!applications.length) return null;
@@ -126,12 +141,13 @@ function CommandCenter({ summary, alerts }) {
     { label: "Received", value: s.received, color: "text-cyan-400" },
     { label: "Pending Review", value: s.pending_review, color: "text-amber-400" },
     { label: "Awaiting Applicant", value: s.awaiting_applicant, color: "text-orange-400" },
-    { label: "Interview Scheduled", value: s.interview_scheduled, color: "text-purple-400" },
+    { label: "Interview", value: s.interview_scheduled, color: "text-purple-400" },
     { label: "Approved", value: s.approved, color: "text-emerald-400" },
     { label: "Invited", value: s.invited, color: "text-teal-400" },
     { label: "Activated", value: s.activated, color: "text-emerald-400" },
     { label: "Declined", value: s.declined, color: "text-red-400" },
-    { label: "Waitlisted", value: s.waitlisted, color: "text-amber-400" },
+    { label: "Withdrawn", value: s.withdrawn, color: "text-slate-400" },
+    { label: "Seats Remaining", value: s.seats_remaining, color: "text-amber-400" },
   ];
 
   const healthScore = s.health_score;
@@ -198,8 +214,8 @@ function CommandCenter({ summary, alerts }) {
 
       {/* Status Pipeline */}
       <div>
-        <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-3">Application Pipeline</h3>
-        <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
+        <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-3">Application Pipeline · Capacity {s.capacity} · Remaining {s.seats_remaining}</h3>
+        <div className="grid grid-cols-3 md:grid-cols-10 gap-2">
           {stats.map((stat, i) => (
             <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-center">
               <div className={`text-lg font-bold ${stat.color}`}>{stat.value}</div>

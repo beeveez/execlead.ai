@@ -7,7 +7,13 @@
  *
  * All functions are pure — they take BetaApplication records
  * and return computed metrics. No SDK calls.
+ *
+ * Status counts are sourced from AdmissionsMetricsEngine™ so that
+ * Operations, Beta, Admissions, and Analytics dashboards all
+ * display identical values.
  */
+
+import { computeMetricsFromRecords } from "./admissionsMetricsEngine";
 
 // ============================================================
 // SLA CONFIGURATION
@@ -491,16 +497,22 @@ export function generateReport(applications, period = "weekly") {
 // OPERATIONS SUMMARY (Command Center)
 // ============================================================
 export function computeOperationsSummary(applications) {
+  // Status counts sourced from AdmissionsMetricsEngine™ — same values
+  // as every other dashboard (Beta, Admissions, Analytics).
+  const metrics = computeMetricsFromRecords(applications);
   return {
-    received: applications.length,
-    pending_review: applications.filter((a) => ["submitted", "email_verified", "under_review"].includes(a.status)).length,
-    awaiting_applicant: applications.filter((a) => a.status === "additional_info_required").length,
-    interview_scheduled: applications.filter((a) => a.status === "interview").length,
-    approved: applications.filter((a) => a.status === "approved").length,
-    invited: applications.filter((a) => ["invitation_sent", "account_activated"].includes(a.status)).length,
-    activated: applications.filter((a) => a.status === "account_activated").length,
-    declined: applications.filter((a) => a.status === "declined").length,
+    received: metrics.applicationsReceived,
+    pending_review: (metrics.statusCounts.submitted || 0) + metrics.emailVerified + metrics.underReview,
+    awaiting_applicant: metrics.additionalInfoRequired,
+    interview_scheduled: metrics.interview,
+    approved: metrics.approved,
+    invited: metrics.invitationSent + metrics.activated,
+    activated: metrics.activated,
+    declined: metrics.declined,
+    withdrawn: metrics.withdrawn,
     waitlisted: applications.filter((a) => a.on_hold).length,
+    seats_remaining: metrics.seatsRemaining,
+    capacity: metrics.capacity,
     sla_health: computeSlaHealth(applications),
     health_score: computeHealthScore(applications),
   };

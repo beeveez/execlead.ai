@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
-import { ADMISSIONS_STATUSES, getCapacityInfo } from "@/lib/foundingAdmissionsEngine";
+import { ADMISSIONS_STATUSES } from "@/lib/foundingAdmissionsEngine";
+import { useAdmissionsMetrics } from "@/lib/admissionsMetricsEngine";
 import { computePriorityScore, getPriorityLevel } from "@/lib/admissionsIntelligenceEngine";
 import { syncReviewerAction } from "@/lib/admissionsCommunicationEngine";
 import IntelligenceDashboard from "@/components/beta/admissions/IntelligenceDashboard";
@@ -25,17 +26,26 @@ export default function FoundingAdmissionsAdmin() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(null);
   const [activeTab, setActiveTab] = useState("queue");
-  const [capacity, setCapacity] = useState(null);
+  // Auto-refreshing metrics — subscribes to BetaApplication entity events
+  const { metrics: capacity, refresh: refreshMetrics } = useAdmissionsMetrics();
+
+  const loadRecords = useCallback(async () => {
+    try {
+      const recs = await base44.entities.BetaApplication.list("-created_date", 500);
+      setRecords(recs || []);
+    } catch { /* graceful */ }
+    finally { setLoading(false); }
+  }, []);
 
   useEffect(() => {
-    Promise.all([
-      base44.entities.BetaApplication.list("-created_date", 500),
-      getCapacityInfo(),
-    ])
-      .then(([recs, cap]) => { setRecords(recs || []); setCapacity(cap); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    loadRecords();
+    // Auto-refresh records on any BetaApplication entity event
+    const unsubscribe = base44.entities.BetaApplication.subscribe(() => {
+      loadRecords();
+      refreshMetrics();
+    });
+    return unsubscribe;
+  }, [loadRecords, refreshMetrics]);
 
   const filtered = useMemo(() => {
     const result = records.filter((r) => {

@@ -7,7 +7,7 @@ import DuplicateApplicationNotice from "@/components/beta/DuplicateApplicationNo
 import CapacityDisplay from "@/components/beta/CapacityDisplay";
 import WaitlistForm from "@/components/beta/WaitlistForm";
 import { getCurrentBetaStage } from "@/lib/betaProgramEngine";
-import { getCapacityInfo } from "@/lib/foundingAdmissionsEngine";
+import { useAdmissionsMetrics } from "@/lib/admissionsMetricsEngine";
 import { BrandRegistry } from "@/lib/brandRegistry";
 
 const BENEFITS = [
@@ -23,11 +23,9 @@ export default function BetaApply() {
   const [showForm, setShowForm] = useState(false);
   const [submittedApp, setSubmittedApp] = useState(null);
   const [duplicateApp, setDuplicateApp] = useState(null);
-  const [capacity, setCapacity] = useState(null);
-
-  useEffect(() => {
-    getCapacityInfo().then(setCapacity).catch(() => {});
-  }, []);
+  // Auto-refreshing metrics from AdmissionsMetricsEngine™ — subscribes to
+  // BetaApplication entity events so capacity updates in real time.
+  const { metrics: capacity } = useAdmissionsMetrics();
 
   const isFull = capacity?.isFull;
 
@@ -71,11 +69,18 @@ export default function BetaApply() {
                 capacity={capacity.capacity}
                 accepted={capacity.accepted}
                 remaining={capacity.remaining}
+                seatsRemaining={capacity.seatsRemaining}
                 underReview={capacity.underReview}
                 approved={capacity.approved}
                 invited={capacity.invited}
                 activated={capacity.activated}
                 applicationsReceived={capacity.applicationsReceived}
+                emailVerified={capacity.emailVerified}
+                additionalInfoRequired={capacity.additionalInfoRequired}
+                interview={capacity.interview}
+                invitationSent={capacity.invitationSent}
+                declined={capacity.declined}
+                withdrawn={capacity.withdrawn}
               />
             </div>
           )}

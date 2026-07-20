@@ -9,6 +9,7 @@
 import { base44 } from "@/api/base44Client";
 import { CURRENT_BETA_STAGE, BETA_STAGES } from "./betaProgramEngine";
 import { dispatchAdmissionsNotifications } from "./notificationRoutingEngine";
+import { computeMetricsFromRecords, getDashboardMetrics } from "./admissionsMetricsEngine";
 
 // ============================================================
 // ADMISSIONS STATUSES (10-status workflow)
@@ -178,39 +179,10 @@ export async function submitFoundingApplication(formData) {
 // CAPACITY MANAGEMENT
 // ============================================================
 export async function getCapacityInfo() {
-  const stage = BETA_STAGES[CURRENT_BETA_STAGE];
-  const capacity = stage?.maxUsers || 100;
-  try {
-    const all = await base44.entities.BetaApplication.list("-created_date", 500);
-    const approvedCount = all.filter((a) => a.status === "approved").length;
-    const invitedCount = all.filter((a) => a.status === "invitation_sent").length;
-    const activatedCount = all.filter((a) => a.status === "account_activated").length;
-    const underReviewCount = all.filter((a) => a.status === "under_review").length;
-    const submittedCount = all.filter((a) => !["declined", "withdrawn"].includes(a.status)).length;
-    const acceptedCount = approvedCount + invitedCount + activatedCount;
-    const seatsRemaining = Math.max(capacity - approvedCount, 0);
-    return {
-      capacity,
-      accepted: acceptedCount,
-      remaining: seatsRemaining,
-      isFull: approvedCount >= capacity,
-      totalApplications: all.length,
-      activeApplications: submittedCount,
-      applicationsReceived: all.length,
-      underReview: underReviewCount,
-      approved: approvedCount,
-      invited: invitedCount,
-      activated: activatedCount,
-      seatsRemaining,
-    };
-  } catch {
-    return {
-      capacity, accepted: 0, remaining: capacity, isFull: false,
-      totalApplications: 0, activeApplications: 0,
-      applicationsReceived: 0, underReview: 0, approved: 0, invited: 0, activated: 0,
-      seatsRemaining: capacity,
-    };
-  }
+  // Delegates to AdmissionsMetricsEngine™ — the single shared service.
+  // All dashboards (Beta, Admissions, Operations, Analytics) use the
+  // same source of truth for capacity, seats remaining, and status counts.
+  return getDashboardMetrics();
 }
 
 // ============================================================
@@ -293,12 +265,15 @@ export async function updateApplicationStatus(applicationId, newStatus, { review
 // ANALYTICS
 // ============================================================
 export function computeAdmissionsAnalytics(records = []) {
-  const total = records.length;
-  const approved = records.filter((r) => ["approved", "invitation_sent", "account_activated"].includes(r.status)).length;
-  const declined = records.filter((r) => r.status === "declined").length;
-  const pending = records.filter((r) => ["submitted", "email_verified", "under_review", "additional_info_required", "interview"].includes(r.status)).length;
-  const invited = records.filter((r) => ["invitation_sent", "account_activated"].includes(r.status)).length;
-  const activated = records.filter((r) => r.status === "account_activated").length;
+  // Status counts sourced from AdmissionsMetricsEngine™ for consistency
+  const metrics = computeMetricsFromRecords(records);
+
+  const total = metrics.applicationsReceived;
+  const approved = metrics.accepted; // approved + invited + activated
+  const declined = metrics.declined;
+  const pending = metrics.emailVerified + metrics.underReview + metrics.additionalInfoRequired + metrics.interview + (metrics.statusCounts.submitted || 0);
+  const invited = metrics.invitationSent + metrics.activated;
+  const activated = metrics.activated;
 
   const reviewTimes = records
     .filter((r) => r.created_date && r.reviewed_at)

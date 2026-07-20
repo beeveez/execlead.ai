@@ -248,6 +248,7 @@ import VerificationApply from '@/pages/verification/VerificationApply';
 import VerificationStatus from '@/pages/verification/VerificationStatus';
 import VerificationHistory from '@/pages/verification/VerificationHistory';
 import VerificationEvidence from '@/pages/verification/VerificationEvidence';
+import VerificationHealth from '@/pages/verification/VerificationHealth';
 import VerificationAdmin from '@/pages/VerificationAdmin';
 import ExecOSDashboard from '@/pages/ExecOSDashboard';
 import Feedback from '@/pages/Feedback';
@@ -559,6 +560,7 @@ const AuthenticatedApp = () => {
           <Route path="/verification/status" element={<VerificationStatus />} />
           <Route path="/verification/history" element={<VerificationHistory />} />
           <Route path="/verification/evidence" element={<VerificationEvidence />} />
+          <Route path="/verification/health" element={<VerificationHealth />} />
           <Route path="/admin/verifications" element={<VerificationAdmin />} />
         </Route>
         </Route>

@@ -4,7 +4,9 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useExecVerified } from "@/hooks/useExecVerified";
 import { VERIFICATION_STATUSES, WORKFLOW_STAGES } from "@/lib/execVerifiedCatalog";
-import { ShieldCheck, Clock, CheckCircle2, XCircle, Eye, Loader2, ChevronRight } from "lucide-react";
+import { ShieldCheck, Clock, CheckCircle2, XCircle, Eye, Loader2, ChevronRight, BarChart3, TrendingUp } from "lucide-react";
+import AdminMetricsDashboard from "@/components/verification/AdminMetricsDashboard";
+import ProductIntelligencePanel from "@/components/verification/ProductIntelligencePanel";
 
 const ADMIN_ROLES = ["super_admin", "platform_admin", "admin", "developer"];
 
@@ -15,6 +17,7 @@ export default function VerificationAdmin() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [acting, setActing] = useState(false);
+  const [activeTab, setActiveTab] = useState("queue");
 
   useEffect(() => {
     if (!enabled) { setLoading(false); return; }
@@ -104,7 +107,21 @@ export default function VerificationAdmin() {
         <StatCard label="Rejected" value={stats.rejected} icon={XCircle} color="red" />
       </div>
 
+      {/* Tab Switcher */}
+      <div className="flex items-center gap-1">
+        <button onClick={() => setActiveTab("queue")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "queue" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><Eye size={14} /> Queue</button>
+        <button onClick={() => setActiveTab("metrics")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "metrics" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><BarChart3 size={14} /> Admin Metrics</button>
+        <button onClick={() => setActiveTab("intelligence")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "intelligence" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><TrendingUp size={14} /> Product Intelligence</button>
+      </div>
+
+      {/* Metrics Dashboard */}
+      {activeTab === "metrics" && <AdminMetricsDashboard records={records} />}
+
+      {/* Product Intelligence */}
+      {activeTab === "intelligence" && <ProductIntelligencePanel records={records} />}
+
       {/* Queue */}
+      {activeTab === "queue" && (
       <div className="bg-white/[0.02] border border-white/5 rounded-xl overflow-hidden">
         {records.length === 0 ? (
           <div className="text-center py-12">
@@ -143,6 +160,7 @@ export default function VerificationAdmin() {
           </div>
         )}
       </div>
+      )}
 
       {/* Review Modal */}
       {selected && (

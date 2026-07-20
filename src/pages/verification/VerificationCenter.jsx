@@ -5,6 +5,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { useExecVerified } from "@/hooks/useExecVerified";
 import { VERIFICATION_LEVELS, VERIFICATION_STATUSES, WORKFLOW_STAGES } from "@/lib/execVerifiedCatalog";
 import { ShieldCheck, Fingerprint, Briefcase, Building2, Mail, ArrowRight, Clock, FileText, Award, ChevronRight } from "lucide-react";
+import VerificationIntelligence from "@/components/verification/VerificationIntelligence";
+import VerifiedBenefits from "@/components/verification/VerifiedBenefits";
 
 const LEVEL_ICONS = { Mail, Fingerprint, Briefcase, ShieldCheck, Building2 };
 
@@ -91,6 +93,12 @@ export default function VerificationCenter() {
           </div>
         )}
       </div>
+
+      {/* Verification Intelligence™ */}
+      {verification && <VerificationIntelligence verification={verification} />}
+
+      {/* Verified Benefits */}
+      {verification && <VerifiedBenefits verificationLevel={verification.verification_level_number || 1} />}
 
       {/* Verification Level Progress */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">

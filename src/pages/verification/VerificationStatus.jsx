@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useExecVerified } from "@/hooks/useExecVerified";
 import { VERIFICATION_STATUSES, SUB_STATUSES, SUB_STATUS_FIELDS } from "@/lib/execVerifiedCatalog";
 import { ShieldCheck, ArrowLeft, Fingerprint, Briefcase, Award, Users, Building2, Clock } from "lucide-react";
+import VerificationIntelligence from "@/components/verification/VerificationIntelligence";
 
 const SUB_ICONS = { identity_status: Fingerprint, employment_status: Briefcase, certification_status: Award, executive_status: Users, enterprise_status: Building2 };
 
@@ -102,6 +103,9 @@ export default function VerificationStatus() {
           })}
         </div>
       </div>
+
+      {/* Verification Intelligence™ */}
+      <VerificationIntelligence verification={verification} />
 
       {/* Evidence Confidence */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">

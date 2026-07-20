@@ -2,11 +2,17 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
-import { ADMISSIONS_STATUSES } from "@/lib/foundingAdmissionsEngine";
-import { computeAdmissionsAnalytics, updateApplicationStatus } from "@/lib/foundingAdmissionsEngine";
-import AdmissionsAnalytics from "@/components/beta/admissions/AdmissionsAnalytics";
+import { ADMISSIONS_STATUSES, getCapacityInfo, updateApplicationStatus } from "@/lib/foundingAdmissionsEngine";
+import { computePriorityScore, getPriorityLevel } from "@/lib/admissionsIntelligenceEngine";
+import IntelligenceDashboard from "@/components/beta/admissions/IntelligenceDashboard";
+import CohortManagement from "@/components/beta/admissions/CohortManagement";
+import DiversityDashboard from "@/components/beta/admissions/DiversityDashboard";
+import ReviewerPerformance from "@/components/beta/admissions/ReviewerPerformance";
+import FounderDirectory from "@/components/beta/admissions/FounderDirectory";
+import ActivationDashboard from "@/components/beta/admissions/ActivationDashboard";
+import ProductInsights from "@/components/beta/admissions/ProductInsights";
 import ApplicationReviewDrawer from "@/components/beta/admissions/ApplicationReviewDrawer";
-import { Search, ClipboardList, BarChart3, Users, Loader2, ShieldCheck } from "lucide-react";
+import { Search, ClipboardList, Zap, Users, Globe, Clock, Award, Activity, BarChart3, Loader2, ShieldCheck } from "lucide-react";
 
 const ADMIN_ROLES = ["super_admin", "platform_admin", "admin", "developer"];
 
@@ -18,18 +24,20 @@ export default function FoundingAdmissionsAdmin() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(null);
   const [activeTab, setActiveTab] = useState("queue");
+  const [capacity, setCapacity] = useState(null);
 
   useEffect(() => {
-    base44.entities.BetaApplication.list("-created_date", 500)
-      .then((recs) => setRecords(recs || []))
+    Promise.all([
+      base44.entities.BetaApplication.list("-created_date", 500),
+      getCapacityInfo(),
+    ])
+      .then(([recs, cap]) => { setRecords(recs || []); setCapacity(cap); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const analytics = useMemo(() => computeAdmissionsAnalytics(records), [records]);
-
   const filtered = useMemo(() => {
-    return records.filter((r) => {
+    const result = records.filter((r) => {
       const matchSearch = !search ||
         r.application_id?.toLowerCase().includes(search.toLowerCase()) ||
         r.email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,6 +45,9 @@ export default function FoundingAdmissionsAdmin() {
       const matchStatus = statusFilter === "all" || r.status === statusFilter;
       return matchSearch && matchStatus;
     });
+    return result
+      .map((r) => ({ ...r, _priorityScore: computePriorityScore(r, records) }))
+      .sort((a, b) => b._priorityScore - a._priorityScore);
   }, [records, search, statusFilter]);
 
   if (!ADMIN_ROLES.includes(user?.role)) return <Navigate to="/dashboard" replace />;
@@ -49,6 +60,17 @@ export default function FoundingAdmissionsAdmin() {
 
   const reviewer = { id: user?.id, full_name: user?.full_name || user?.email, email: user?.email };
 
+  const TABS = [
+    { id: "queue", label: "Queue", icon: ClipboardList },
+    { id: "intelligence", label: "Intelligence", icon: Zap },
+    { id: "cohorts", label: "Cohorts", icon: Users },
+    { id: "diversity", label: "Diversity", icon: Globe },
+    { id: "reviewers", label: "Reviewers", icon: Clock },
+    { id: "directory", label: "Directory", icon: Award },
+    { id: "activation", label: "Activation", icon: Activity },
+    { id: "insights", label: "Insights", icon: BarChart3 },
+  ];
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
@@ -56,15 +78,27 @@ export default function FoundingAdmissionsAdmin() {
           <ShieldCheck size={12} className="text-amber-400" /> Founding Member Admissions
         </div>
         <h1 className="text-2xl font-bold text-white">Admissions Console</h1>
-        <p className="text-white/40 text-sm mt-1">Review and manage Founding Member applications.</p>
+        <p className="text-white/40 text-sm mt-1">Executive admissions intelligence, cohort management, and reviewer operations.</p>
       </div>
 
-      <div className="flex items-center gap-1">
-        <TabBtn active={activeTab === "queue"} onClick={() => setActiveTab("queue")} icon={ClipboardList} label="Queue" count={filtered.length} />
-        <TabBtn active={activeTab === "analytics"} onClick={() => setActiveTab("analytics")} icon={BarChart3} label="Analytics" />
+      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        {TABS.map((t) => (
+          <button key={t.id} onClick={() => setActiveTab(t.id)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === t.id ? "bg-amber-500/15 text-amber-400" : "text-white/40 hover:text-white/70"
+            }`}>
+            <t.icon size={14} /> {t.label}
+          </button>
+        ))}
       </div>
 
-      {activeTab === "analytics" && <AdmissionsAnalytics analytics={analytics} />}
+      {activeTab === "intelligence" && <IntelligenceDashboard records={records} capacityInfo={capacity} />}
+      {activeTab === "cohorts" && <CohortManagement records={records} />}
+      {activeTab === "diversity" && <DiversityDashboard records={records} />}
+      {activeTab === "reviewers" && <ReviewerPerformance records={records} />}
+      {activeTab === "directory" && <FounderDirectory records={records} />}
+      {activeTab === "activation" && <ActivationDashboard records={records} />}
+      {activeTab === "insights" && <ProductInsights records={records} />}
 
       {activeTab === "queue" && (
         <div className="space-y-4">
@@ -90,8 +124,10 @@ export default function FoundingAdmissionsAdmin() {
               <div className="divide-y divide-white/5">
                 {filtered.map((app) => {
                   const status = ADMISSIONS_STATUSES[app.status] || ADMISSIONS_STATUSES.submitted;
+                  const priority = getPriorityLevel(app._priorityScore);
                   return (
                     <div key={app.id} className="flex items-center gap-3 p-3 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => setSelected(app)}>
+                      <div className="w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: priority.color }} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-white/80 font-medium">{app.full_name}</span>
@@ -99,9 +135,18 @@ export default function FoundingAdmissionsAdmin() {
                         </div>
                         <div className="text-[10px] text-white/30 mt-0.5">{app.email} · {app.current_role || "—"} · {app.country || "—"}</div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <div className={`text-[10px] px-2 py-0.5 rounded-full ${status.color === "#10b981" ? "text-emerald-400 bg-emerald-500/10" : status.color === "#ef4444" ? "text-red-400 bg-red-500/10" : status.color === "#6366f1" ? "text-indigo-400 bg-indigo-500/10" : "text-amber-400 bg-amber-500/10"}`}>{status.label}</div>
-                        {app.application_score > 0 && <div className="text-[10px] text-white/30 mt-1">Score: {app.application_score}</div>}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${priority.badge}`}>{priority.label}</span>
+                        <span className="text-[10px] text-white/30">{app._priorityScore}</span>
+                        <div className="text-right">
+                          <div className={`text-[10px] px-2 py-0.5 rounded-full ${
+                            status.color === "#10b981" ? "text-emerald-400 bg-emerald-500/10" :
+                            status.color === "#ef4444" ? "text-red-400 bg-red-500/10" :
+                            status.color === "#6366f1" ? "text-indigo-400 bg-indigo-500/10" :
+                            "text-amber-400 bg-amber-500/10"
+                          }`}>{status.label}</div>
+                          {app.application_score > 0 && <div className="text-[10px] text-white/30 mt-1">Score: {app.application_score}</div>}
+                        </div>
                       </div>
                     </div>
                   );
@@ -114,13 +159,5 @@ export default function FoundingAdmissionsAdmin() {
 
       {selected && <ApplicationReviewDrawer application={selected} reviewer={reviewer} onDecision={handleDecision} onClose={() => setSelected(null)} />}
     </div>
-  );
-}
-
-function TabBtn({ active, onClick, icon: Icon, label, count }) {
-  return (
-    <button onClick={onClick} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${active ? "bg-amber-500/15 text-amber-400" : "text-white/40 hover:text-white/70"}`}>
-      <Icon size={14} /> {label}{count !== undefined && <span className="text-[9px] text-white/30 ml-1">{count}</span>}
-    </button>
   );
 }

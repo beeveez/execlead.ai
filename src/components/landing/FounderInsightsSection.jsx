@@ -1,12 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Compass, Rocket, Eye, Map, ArrowUpRight } from "lucide-react";
+import { Compass, Rocket, Eye, Map } from "lucide-react";
 
 const INSIGHTS = [
-  { icon: Compass, title: "Latest Articles", desc: "Founder perspectives on executive leadership and AI", tag: "Weekly" },
-  { icon: Rocket, title: "Platform Updates", desc: "New features, capabilities, and product releases", tag: "Ongoing" },
-  { icon: Eye, title: "Vision", desc: "The future of executive leadership development", tag: "Mission" },
-  { icon: Map, title: "Roadmap", desc: "Behind-the-scenes development and what's coming next", tag: "Transparent" },
+  { icon: Compass, title: "Latest Articles", desc: "Founder perspectives on executive leadership and AI", status: "Coming Soon" },
+  { icon: Rocket, title: "Platform Updates", desc: "New features, capabilities, and product releases", status: "In Development" },
+  { icon: Eye, title: "Vision", desc: "The future of executive leadership development", status: "Launching with GA" },
+  { icon: Map, title: "Roadmap", desc: "Behind-the-scenes development and what's coming next", status: "Available After Beta" },
 ];
 
 export default function FounderInsightsSection() {
@@ -30,19 +30,20 @@ export default function FounderInsightsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 hover:bg-white/[0.04] hover:border-amber-500/20 transition-all cursor-default group"
+              role="article"
+              aria-label={`${item.title} — ${item.status}`}
+              className="bg-white/[0.02] border border-white/5 rounded-2xl p-6"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center">
                   <item.icon size={20} className="text-amber-400" />
                 </div>
-                <span className="text-[10px] text-amber-400/60 font-medium uppercase tracking-wider">{item.tag}</span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/5 border border-amber-500/10 text-amber-400/50 font-medium uppercase tracking-wider">
+                  {item.status}
+                </span>
               </div>
-              <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors">{item.title}</h3>
+              <h3 className="font-semibold text-white mb-2">{item.title}</h3>
               <p className="text-white/40 text-sm leading-relaxed">{item.desc}</p>
-              <div className="mt-4 flex items-center gap-1 text-xs text-accent-orange opacity-0 group-hover:opacity-100 transition-opacity">
-                Read more <ArrowUpRight size={12} />
-              </div>
             </motion.div>
           ))}
         </div>
@@ -60,6 +61,16 @@ export default function FounderInsightsSection() {
           </blockquote>
           <p className="text-amber-400 text-sm font-medium mt-4">— EXECLEAD.AI Founding Team</p>
         </motion.div>
+
+        {/* Founder's Desk Launch Notice */}
+        <div className="max-w-2xl mx-auto mt-12 text-center border-t border-white/5 pt-8">
+          <p className="text-white/30 text-sm leading-relaxed">
+            Founder's Desk™ will launch with General Availability.
+          </p>
+          <p className="text-white/20 text-xs leading-relaxed mt-2">
+            During the Founding Beta, platform updates, engineering progress, roadmap milestones, and founder letters will be shared directly with Founding Members.
+          </p>
+        </div>
       </div>
     </section>
   );

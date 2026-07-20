@@ -2,6 +2,7 @@ import React from 'react';
 import MetricCard from '@/components/shared/MetricCard';
 import BetaCapacityDashboard from '@/components/operations/BetaCapacityDashboard';
 import RolloutReadinessPanel from '@/components/operations/RolloutReadinessPanel';
+import OperationsScoreBreakdown from '@/components/operations/OperationsScoreBreakdown';
 import { useNavigate } from 'react-router-dom';
 import {
   Gauge, Activity, Users, Rocket, Flag, BarChart3, Cpu,
@@ -97,6 +98,9 @@ export default function ProductCommandCenter() {
           </div>
         </div>
       </div>
+
+      {/* Score Breakdown — Explainability™ (Executive KPI Interaction Standard™) */}
+      <OperationsScoreBreakdown />
 
       {/* Rollout Readiness Score™ */}
       <RolloutReadinessPanel />

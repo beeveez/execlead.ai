@@ -2,8 +2,9 @@ import React from "react";
 import { Users, Inbox, Mail, Eye, FileQuestion, Calendar, CheckCircle2, Send, Zap, XCircle, Ban } from "lucide-react";
 
 export default function CapacityDisplay({ capacity, accepted, remaining, underReview, approved, invited, activated, applicationsReceived, emailVerified, additionalInfoRequired, interview, invitationSent, declined, withdrawn, seatsRemaining, compact }) {
-  const pct = capacity > 0 ? Math.round(((accepted || approved || 0) / capacity) * 100) : 0;
-  const seats = seatsRemaining ?? remaining ?? Math.max(capacity - (approved || 0), 0);
+  const acceptedCount = accepted ?? (approved || 0) + (invitationSent || invited || 0) + (activated || 0);
+  const pct = capacity > 0 ? Math.round((acceptedCount / capacity) * 100) : 0;
+  const seats = seatsRemaining ?? remaining ?? Math.max(capacity - acceptedCount, 0);
 
   const counters = [
     { icon: Inbox, label: "Received", value: applicationsReceived ?? "—" },
@@ -23,7 +24,7 @@ export default function CapacityDisplay({ capacity, accepted, remaining, underRe
       <div className="flex items-center gap-2 mb-3">
         <Users size={14} className="text-amber-400" />
         <span className="text-xs text-white/50 font-medium">Founding Member Capacity</span>
-        <span className="text-[10px] text-white/30 ml-auto">{approved ?? 0} / {capacity} approved</span>
+        <span className="text-[10px] text-white/30 ml-auto">{acceptedCount} / {capacity} accepted</span>
       </div>
       <div className="h-2 rounded-full bg-white/5 overflow-hidden">
         <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500" style={{ width: `${pct}%` }} />

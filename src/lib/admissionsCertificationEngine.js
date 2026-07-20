@@ -297,7 +297,7 @@ export async function validateObservability() {
     check("Emails Monitoring", true, "email_history_json with delivery status, opened, clicked, retry_count"),
     check("Audit Monitoring", true, "audit_trail_json immutable audit events on every action"),
     check("Reviewer Queue", true, "Queue Intelligence with 7 categories + sorting"),
-    check("Capacity Monitoring", true, "AdmissionsMetricsEngine™ — seats remaining = capacity − approved, auto-refreshing via realtime subscription"),
+    check("Capacity Monitoring", true, "AdmissionsMetricsEngine™ — seats remaining = capacity − accepted (approved + invitation_sent + account_activated), auto-refreshing via realtime subscription"),
     check("Activation Monitoring", true, "account_activated status + activated_at timestamp"),
     check("Failures Tracking", true, "Failed email status + failure_reason in email_history_json"),
     check("Retry Queue", true, "retryEmail function + retry_count tracking on email records"),
@@ -322,15 +322,21 @@ export async function validateMetricsIntegrity(applications = []) {
 
     results.push(check("No Hardcoded Values", !mod.FOUNDING_CAPACITY || mod.FOUNDING_CAPACITY.configurable === true, "Capacity defaults to 100, configurable from Admin Settings"));
 
-    results.push(check("Seats Remaining Correct", metrics.seatsRemaining === Math.max(metrics.capacity - metrics.approved, 0), `${metrics.seatsRemaining} = ${metrics.capacity} − ${metrics.approved}`));
+    results.push(check("Seats Remaining Correct", metrics.seatsRemaining === Math.max(metrics.capacity - metrics.accepted, 0), `${metrics.seatsRemaining} = ${metrics.capacity} − ${metrics.accepted} (accepted)`));
 
     results.push(check("Capacity Correct", metrics.capacity > 0, `Capacity = ${metrics.capacity}`));
 
-    results.push(check("Approved Count Correct", metrics.approved === applications.filter((a) => a.status === "approved").length, `${metrics.approved} approved applications`));
+    results.push(check("Accepted Count Correct", metrics.accepted === (metrics.statusCounts.approved + metrics.statusCounts.invitation_sent + metrics.statusCounts.account_activated), `${metrics.accepted} accepted = ${metrics.statusCounts.approved} approved + ${metrics.statusCounts.invitation_sent} invited + ${metrics.statusCounts.account_activated} activated`));
 
     results.push(check("Status Totals Match", metrics.applicationsReceived === applications.length, `${metrics.applicationsReceived} received = ${applications.length} records`));
 
     results.push(check("Dashboard Auto-Refresh", typeof mod.useAdmissionsMetrics === "function", "useAdmissionsMetrics hook subscribes to BetaApplication entity events for real-time refresh"));
+
+    // Public Dashboard Metrics Alignment — public counter must match seat allocation rule
+    const acceptedSum = metrics.statusCounts.approved + metrics.statusCounts.invitation_sent + metrics.statusCounts.account_activated;
+    results.push(check("Public Dashboard — Accepted Members = Approved + Invitation Sent + Account Activated", metrics.accepted === acceptedSum, `${metrics.accepted} = ${metrics.statusCounts.approved} + ${metrics.statusCounts.invitation_sent} + ${metrics.statusCounts.account_activated}`));
+
+    results.push(check("Public Dashboard — Seats Remaining = Capacity − Accepted Members", metrics.seatsRemaining === Math.max(metrics.capacity - metrics.accepted, 0), `${metrics.seatsRemaining} = ${metrics.capacity} − ${metrics.accepted}`));
   } catch (e) {
     results.push(check("Metrics Engine Import", false, e.message));
   }

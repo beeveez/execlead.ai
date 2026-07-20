@@ -1,11 +1,16 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Rocket, Shield, Clock, CheckCircle2, ArrowRight, Eye } from "lucide-react";
+import { Rocket, Shield, Clock, CheckCircle2, ArrowRight, Eye, Info } from "lucide-react";
 import { BETA_METRICS_MODE } from "@/lib/betaProgramEngine";
 import { getCurrentPlatformMode } from "@/lib/launchMode";
 import { useAdmissionsMetrics } from "@/lib/admissionsMetricsEngine";
 
-const DEMO_STATS = { total: 247, pending: 38, approved: 12, seatsRemaining: 88 };
+const DEMO_STATS = { total: 247, pending: 38, accepted: 12, seatsRemaining: 88 };
+
+const TOOLTIPS = {
+  accepted: "The number of applicants officially accepted into the Founding Private Beta program. This includes members who have been approved, invited, or already activated.",
+  seatsRemaining: "The number of remaining Founding Member places available before applications close.",
+};
 
 const STATUS_INDICATORS = [
   { label: "Program Status", value: "Applications Open", isText: true },
@@ -24,15 +29,15 @@ export default function BetaHero({ onApply }) {
   const liveCounters = [
     { label: "Applications Received", value: metrics?.applicationsReceived ?? "—", isText: false },
     { label: "Under Review", value: metrics?.underReview ?? "—", isText: false },
-    { label: "Beta Members Approved", value: metrics?.approved ?? "—", isText: false },
-    { label: "Seats Remaining", value: metrics?.seatsRemaining ?? "—", isText: false },
+    { label: "Accepted Members", value: metrics?.accepted ?? "—", isText: false, tooltip: TOOLTIPS.accepted },
+    { label: "Seats Remaining", value: metrics?.seatsRemaining ?? "—", isText: false, tooltip: TOOLTIPS.seatsRemaining },
   ];
 
   const demoCounters = [
     { label: "Applications Received", value: DEMO_STATS.total, isText: false },
     { label: "Under Review", value: DEMO_STATS.pending, isText: false },
-    { label: "Beta Members Approved", value: DEMO_STATS.approved, isText: false },
-    { label: "Seats Remaining", value: DEMO_STATS.seatsRemaining, isText: false },
+    { label: "Accepted Members", value: DEMO_STATS.accepted, isText: false, tooltip: TOOLTIPS.accepted },
+    { label: "Seats Remaining", value: DEMO_STATS.seatsRemaining, isText: false, tooltip: TOOLTIPS.seatsRemaining },
   ];
 
   const counters = isDemoMode
@@ -88,7 +93,17 @@ export default function BetaHero({ onApply }) {
             <div className={`${c.isText ? "text-sm md:text-base font-semibold" : "text-2xl md:text-3xl font-bold tabular-nums"} ${useMutedValues ? "text-white/40" : "text-amber-200"}`}>
               {c.value}
             </div>
-            <div className="text-white/30 text-[10px] uppercase tracking-wider mt-1">{c.label}</div>
+            <div className="text-white/30 text-[10px] uppercase tracking-wider mt-1 flex items-center justify-center gap-1">
+              {c.label}
+              {c.tooltip && (
+                <span className="group relative inline-flex">
+                  <Info size={10} className="text-white/20 hover:text-white/40 cursor-help" />
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded-lg text-[10px] font-normal text-white/60 normal-case tracking-normal leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    {c.tooltip}
+                  </span>
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>

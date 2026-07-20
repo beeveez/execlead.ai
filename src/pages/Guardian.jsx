@@ -3,7 +3,9 @@ import { useGuardian } from "@/lib/GuardianContext";
 import HealthScoreDashboard from "@/components/admin/HealthScoreDashboard";
 import GuardianActivityLog from "@/components/admin/GuardianActivityLog";
 import GuardianPendingApprovals from "@/components/admin/GuardianPendingApprovals";
-import { ShieldCheck, Activity, Clock, Wrench, AlertTriangle, Play, Settings as SettingsIcon, Loader2 } from "lucide-react";
+import { ShieldCheck, Activity, Clock, Wrench, AlertTriangle, Play, Settings as SettingsIcon, Loader2, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
+import InteractiveKpiCard from "@/components/shared/InteractiveKpiCard";
 
 export default function Guardian() {
   const g = useGuardian();
@@ -29,16 +31,19 @@ export default function Guardian() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-            <ShieldCheck size={12} className="text-emerald-400" /> Guardian™ Self-Healing Platform
+            <ShieldCheck size={12} className="text-emerald-400" /> Executive Auto-Remediation Platform™
           </div>
           <h1 className="text-2xl font-bold text-white">Guardian</h1>
-          <p className="text-white/40 text-sm mt-1">Continuously validates and repairs platform configuration integrity.</p>
+          <p className="text-white/40 text-sm mt-1">Detect → Explain → Generate Patch → Review → Impact Analysis → Approve → Apply → Validate → Certify → Report.</p>
         </div>
         <div className="flex items-center gap-2">
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium ${g.status === "scanning" ? "bg-indigo-500/20 text-indigo-300" : "bg-emerald-500/10 text-emerald-400"}`}>
             {g.status === "scanning" ? <Loader2 size={12} className="animate-spin" /> : <Activity size={12} />}
             {g.status === "scanning" ? "Scanning…" : "Active"}
           </div>
+          <Link to="/remediation-center" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors">
+            <Zap size={14} /> Auto-Remediation
+          </Link>
           <button onClick={() => g.runScan("manual")} disabled={g.status === "scanning"} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-white text-sm font-medium transition-colors">
             <Play size={14} /> Run Scan
           </button>
@@ -47,10 +52,18 @@ export default function Guardian() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard icon={Clock} label="Last Scan" value={g.lastScan ? new Date(g.lastScan.scannedAt).toLocaleTimeString() : "—"} color="#6366f1" sub={g.lastScan ? g.lastScan.trigger : "not run"} />
-        <StatCard icon={Wrench} label="Issues Fixed" value={g.lastScan?.issuesFixed ?? 0} color="#10b981" sub={g.lastScan?.rolledBack ? "rolled back" : "auto-resolved"} />
-        <StatCard icon={AlertTriangle} label="Pending Review" value={g.pending.length} color="#f59e0b" sub="queued approvals" />
-        <StatCard icon={AlertTriangle} label="Alerts" value={g.lastScan?.alertsCount ?? 0} color="#ef4444" sub="need manual fix" />
+        <InteractiveKpiCard metricId="guardian_last_scan" score={g.lastScan?.issuesFixed ?? 0} label="Last Scan">
+          <StatCard icon={Clock} label="Last Scan" value={g.lastScan ? new Date(g.lastScan.scannedAt).toLocaleTimeString() : "—"} color="#6366f1" sub={g.lastScan ? g.lastScan.trigger : "not run"} />
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="guardian_issues_fixed" score={g.lastScan?.issuesFixed ?? 0} label="Issues Fixed">
+          <StatCard icon={Wrench} label="Issues Fixed" value={g.lastScan?.issuesFixed ?? 0} color="#10b981" sub={g.lastScan?.rolledBack ? "rolled back" : "auto-resolved"} />
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="guardian_pending_review" score={g.pending.length} label="Pending Review">
+          <StatCard icon={AlertTriangle} label="Pending Review" value={g.pending.length} color="#f59e0b" sub="queued approvals" />
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="guardian_alerts" score={g.lastScan?.alertsCount ?? 0} label="Alerts">
+          <StatCard icon={AlertTriangle} label="Alerts" value={g.lastScan?.alertsCount ?? 0} color="#ef4444" sub="need manual fix" />
+        </InteractiveKpiCard>
       </div>
 
       {/* Config */}

@@ -132,6 +132,7 @@ import CommunityPolls from '@/pages/community/CommunityPolls';
 import CommunityLeaderboard from '@/pages/community/CommunityLeaderboard';
 import CommunityModeration from '@/pages/community/CommunityModeration';
 import Guardian from '@/pages/Guardian';
+import RemediationCenter from '@/pages/RemediationCenter';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
@@ -440,6 +441,7 @@ const AuthenticatedApp = () => {
             <Route path="moderation" element={<CommunityModeration />} />
           </Route>
           <Route path="/guardian" element={<Guardian />} />
+          <Route path="/remediation-center" element={<RemediationCenter />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/security" element={<SecurityCenter />} />
           <Route path="/identity-verification" element={<IdentityVerification />} />

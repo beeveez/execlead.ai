@@ -1,0 +1,282 @@
+{
+  "name": "RemediationPatch",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "patch_id": {
+      "type": "string",
+      "description": "Unique remediation patch identifier"
+    },
+    "blocker_rule_id": {
+      "type": "string",
+      "description": "Guardian validation rule ID that this patch remediates"
+    },
+    "blocker_name": {
+      "type": "string"
+    },
+    "blocker_domain": {
+      "type": "string"
+    },
+    "blocker_severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "generated",
+        "reviewed",
+        "approved",
+        "applying",
+        "applied",
+        "validating",
+        "validated",
+        "certifying",
+        "certified",
+        "failed",
+        "rolled_back"
+      ],
+      "default": "draft",
+      "description": "Current lifecycle stage of the remediation patch"
+    },
+    "problem_summary": {
+      "type": "string",
+      "description": "Concise description of the blocking issue"
+    },
+    "root_cause": {
+      "type": "string"
+    },
+    "affected_files_json": {
+      "type": "string",
+      "description": "JSON array of affected file paths"
+    },
+    "affected_components_json": {
+      "type": "string",
+      "description": "JSON array of affected platform components"
+    },
+    "affected_capabilities_json": {
+      "type": "string",
+      "description": "JSON array of affected platform capabilities"
+    },
+    "dependencies_json": {
+      "type": "string",
+      "description": "JSON array of dependency identifiers"
+    },
+    "estimated_changes_json": {
+      "type": "string",
+      "description": "JSON array of estimated change descriptions"
+    },
+    "complexity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "estimated_time": {
+      "type": "string"
+    },
+    "rollback_available": {
+      "type": "boolean",
+      "default": true
+    },
+    "expected_outcome": {
+      "type": "string"
+    },
+    "patch_preview_json": {
+      "type": "string",
+      "description": "JSON: { current_state, proposed_state, diff_summary, files_changed, components_changed, capability_changes, risk_assessment, rollback_strategy }"
+    },
+    "impact_analysis_json": {
+      "type": "string",
+      "description": "JSON: { security, performance, commercial, executive, certification, user_experience, dependency, overall_risk }"
+    },
+    "ai_explanation_json": {
+      "type": "string",
+      "description": "JSON: { why_exists, why_blocks_certification, business_impact, platform_impact, recommended_fix, expected_improvement }"
+    },
+    "validation_results_json": {
+      "type": "string",
+      "description": "JSON array of post-patch validation results"
+    },
+    "certification_results_json": {
+      "type": "string",
+      "description": "JSON: { guardian, certification, release_integrity, platform_health, commercial_governance, executive_trust, passed }"
+    },
+    "rollback_snapshot_json": {
+      "type": "string",
+      "description": "JSON: { snapshot_id, created_at, previous_state, files_snapshot, config_snapshot, reason }"
+    },
+    "rollback_reason": {
+      "type": "string"
+    },
+    "rolled_back_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rollback_history_json": {
+      "type": "string",
+      "description": "JSON array of rollback records"
+    },
+    "executive_report_json": {
+      "type": "string",
+      "description": "JSON: { blockers_resolved, remaining_blockers, capabilities_updated, files_modified, dependencies_updated, certification_results, health_improvement, commercial_improvement, risk_summary, executive_summary }"
+    },
+    "audit_trail_json": {
+      "type": "string",
+      "description": "JSON array of audit events [{event, timestamp, actor, workspace, details}]"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "validated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "certified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approved_by_id": {
+      "type": "string"
+    },
+    "approved_by_name": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Developer who generated/applied the patch"
+    },
+    "user_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "patch_id",
+    "blocker_rule_id",
+    "blocker_name",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

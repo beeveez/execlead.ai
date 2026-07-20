@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { BarChart3, Clock, CheckCircle2, XCircle, RefreshCw, Users, TrendingUp, AlertTriangle } from "lucide-react";
-import { computeEvidenceConfidence } from "@/lib/verificationIntelligenceEngine";
+import { computeEvidenceConfidence, computeVerificationReadiness } from "@/lib/verificationIntelligenceEngine";
 
 function MetricCard({ label, value, icon: Icon, color = "text-white/70" }) {
   return (
@@ -55,10 +55,24 @@ export default function AdminMetricsDashboard({ records = [] }) {
     });
     const topEvidence = Object.entries(evidenceTypes).sort((a, b) => b[1] - a[1]);
 
+    const manualReviews = records.filter((r) => r.reviewer_id && r.review_decision).length;
+    const autoApprovals = records.filter((r) => r.verification_status === "verified" && !r.reviewer_id).length;
+    const readinessScores = records.map((r) => computeVerificationReadiness(r).score).filter((s) => s > 0);
+    const avgReadiness = readinessScores.length > 0 ? Math.round(readinessScores.reduce((a, b) => a + b, 0) / readinessScores.length) : 0;
+    const confidenceScores = records.map((r) => computeEvidenceConfidence(r).score).filter((s) => s > 0);
+    const avgConfidence = confidenceScores.length > 0 ? Math.round(confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length) : 0;
+    const rejectionReasons = {};
+    records.filter((r) => r.verification_status === "rejected").forEach((r) => {
+      const reason = r.review_decision_reason || r.review_decision || "Unspecified";
+      rejectionReasons[reason] = (rejectionReasons[reason] || 0) + 1;
+    });
+    const topRejectionReasons = Object.entries(rejectionReasons).sort((a, b) => b[1] - a[1]);
+
     return {
       total, pending, underReview, verified, rejected, expired, renewed,
       approvalRate, renewalRate, avgReviewHours, reviewerWorkload,
       confidenceBuckets, topEvidence,
+      manualReviews, autoApprovals, avgReadiness, avgConfidence, topRejectionReasons,
     };
   }, [records]);
 
@@ -73,6 +87,10 @@ export default function AdminMetricsDashboard({ records = [] }) {
         <MetricCard label="Renewals" value={metrics.renewed} icon={RefreshCw} />
         <MetricCard label="Renewal Rate" value={`${metrics.renewalRate}%`} icon={TrendingUp} />
         <MetricCard label="Total Processed" value={metrics.total} icon={BarChart3} />
+        <MetricCard label="Manual Reviews" value={metrics.manualReviews} icon={Users} />
+        <MetricCard label="Auto Approvals" value={metrics.autoApprovals} icon={CheckCircle2} />
+        <MetricCard label="Avg Readiness" value={`${metrics.avgReadiness}%`} icon={BarChart3} color="text-indigo-400" />
+        <MetricCard label="Avg Confidence" value={`${metrics.avgConfidence}%`} icon={TrendingUp} color="text-indigo-400" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -135,6 +153,27 @@ export default function AdminMetricsDashboard({ records = [] }) {
               <span key={type} className="text-xs text-white/50 bg-white/5 px-3 py-1 rounded-full">
                 {type} <span className="text-white/30">({count})</span>
               </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Rejection Reasons */}
+      {metrics.topRejectionReasons.length > 0 && (
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <XCircle size={16} className="text-indigo-400" />
+            <h3 className="text-sm font-semibold text-white/80">Rejection Reasons</h3>
+          </div>
+          <div className="space-y-2">
+            {metrics.topRejectionReasons.map(([reason, count]) => (
+              <div key={reason} className="flex items-center gap-2 text-xs">
+                <span className="text-white/50 flex-1 truncate">{reason}</span>
+                <div className="w-32 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                  <div className="h-full bg-red-500/40" style={{ width: `${(count / metrics.rejected) * 100}%` }} />
+                </div>
+                <span className="text-white/40 w-6 text-right">{count}</span>
+              </div>
             ))}
           </div>
         </div>

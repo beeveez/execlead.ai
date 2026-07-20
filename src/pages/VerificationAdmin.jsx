@@ -4,9 +4,10 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useExecVerified } from "@/hooks/useExecVerified";
 import { VERIFICATION_STATUSES, WORKFLOW_STAGES } from "@/lib/execVerifiedCatalog";
-import { ShieldCheck, Clock, CheckCircle2, XCircle, Eye, Loader2, ChevronRight, BarChart3, TrendingUp } from "lucide-react";
+import { ShieldCheck, Clock, CheckCircle2, XCircle, Eye, Loader2, ChevronRight, BarChart3, TrendingUp, Network } from "lucide-react";
 import AdminMetricsDashboard from "@/components/verification/AdminMetricsDashboard";
 import ProductIntelligencePanel from "@/components/verification/ProductIntelligencePanel";
+import GovernancePanel from "@/components/verification/GovernancePanel";
 
 const ADMIN_ROLES = ["super_admin", "platform_admin", "admin", "developer"];
 
@@ -112,6 +113,7 @@ export default function VerificationAdmin() {
         <button onClick={() => setActiveTab("queue")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "queue" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><Eye size={14} /> Queue</button>
         <button onClick={() => setActiveTab("metrics")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "metrics" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><BarChart3 size={14} /> Admin Metrics</button>
         <button onClick={() => setActiveTab("intelligence")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "intelligence" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><TrendingUp size={14} /> Product Intelligence</button>
+        <button onClick={() => setActiveTab("governance")} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activeTab === "governance" ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"}`}><Network size={14} /> Governance</button>
       </div>
 
       {/* Metrics Dashboard */}
@@ -119,6 +121,9 @@ export default function VerificationAdmin() {
 
       {/* Product Intelligence */}
       {activeTab === "intelligence" && <ProductIntelligencePanel records={records} />}
+
+      {/* Governance */}
+      {activeTab === "governance" && <GovernancePanel />}
 
       {/* Queue */}
       {activeTab === "queue" && (

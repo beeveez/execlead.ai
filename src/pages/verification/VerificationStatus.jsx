@@ -6,6 +6,9 @@ import { useExecVerified } from "@/hooks/useExecVerified";
 import { VERIFICATION_STATUSES, SUB_STATUSES, SUB_STATUS_FIELDS } from "@/lib/execVerifiedCatalog";
 import { ShieldCheck, ArrowLeft, Fingerprint, Briefcase, Award, Users, Building2, Clock } from "lucide-react";
 import VerificationIntelligence from "@/components/verification/VerificationIntelligence";
+import VerificationExpirationStatus from "@/components/verification/VerificationExpirationStatus";
+import TrustScoreHistory from "@/components/verification/TrustScoreHistory";
+import EnterpriseAuditTrail from "@/components/verification/EnterpriseAuditTrail";
 
 const SUB_ICONS = { identity_status: Fingerprint, employment_status: Briefcase, certification_status: Award, executive_status: Users, enterprise_status: Building2 };
 
@@ -106,6 +109,15 @@ export default function VerificationStatus() {
 
       {/* Verification Intelligence™ */}
       <VerificationIntelligence verification={verification} />
+
+      {/* v2.1: Verification Expiration Engine */}
+      <VerificationExpirationStatus verification={verification} />
+
+      {/* v2.1: Trust Score History */}
+      <TrustScoreHistory verification={verification} />
+
+      {/* v2.1: Enterprise Audit Trail */}
+      <EnterpriseAuditTrail verification={verification} />
 
       {/* Evidence Confidence */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">

@@ -187,6 +187,10 @@
       "type": "string",
       "description": "Final review decision"
     },
+    "review_decision_reason": {
+      "type": "string",
+      "description": "Governance-mandated decision reason \u2014 part of permanent audit record"
+    },
     "review_date": {
       "type": "string",
       "format": "date-time"
@@ -220,6 +224,47 @@
     "last_renewal_date": {
       "type": "string",
       "format": "date-time"
+    },
+    "policy_version": {
+      "type": "string",
+      "description": "Policy Version\u2122 \u2014 which verification policy governed this record"
+    },
+    "review_version": {
+      "type": "string",
+      "description": "Review Version \u2014 iteration of the review workflow applied"
+    },
+    "evidence_version": {
+      "type": "string",
+      "description": "Evidence Version \u2014 snapshot version of evidence set at decision time"
+    },
+    "confidence_algorithm_version": {
+      "type": "string",
+      "description": "Confidence Algorithm Version \u2014 which scoring algorithm produced the confidence score"
+    },
+    "risk_algorithm_version": {
+      "type": "string",
+      "description": "Risk Algorithm Version \u2014 which risk algorithm produced the risk score"
+    },
+    "trust_score_history_json": {
+      "type": "string",
+      "description": "JSON array of Trust Score History\u2122 snapshots [{timestamp, trust_score, evidence_confidence, verification_readiness, risk_score, verification_level, policy_version}]"
+    },
+    "expiration_lifecycle_status": {
+      "type": "string",
+      "enum": [
+        "not_applicable",
+        "active",
+        "upcoming_renewal_30",
+        "upcoming_renewal_14",
+        "upcoming_renewal_7",
+        "expired",
+        "grace_period",
+        "suspended",
+        "renewed",
+        "archived"
+      ],
+      "default": "not_applicable",
+      "description": "Verification Expiration Engine\u2122 lifecycle status"
     }
   },
   "required": [

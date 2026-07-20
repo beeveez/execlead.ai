@@ -7,6 +7,10 @@ import { VERIFICATION_LEVELS, VERIFICATION_STATUSES, WORKFLOW_STAGES } from "@/l
 import { ShieldCheck, Fingerprint, Briefcase, Building2, Mail, ArrowRight, Clock, FileText, Award, ChevronRight } from "lucide-react";
 import VerificationIntelligence from "@/components/verification/VerificationIntelligence";
 import VerifiedBenefits from "@/components/verification/VerifiedBenefits";
+import VerificationPolicyDisplay from "@/components/verification/VerificationPolicyDisplay";
+import TrustScoreHistory from "@/components/verification/TrustScoreHistory";
+import VerificationExpirationStatus from "@/components/verification/VerificationExpirationStatus";
+import EnterpriseAuditTrail from "@/components/verification/EnterpriseAuditTrail";
 
 const LEVEL_ICONS = { Mail, Fingerprint, Briefcase, ShieldCheck, Building2 };
 
@@ -99,6 +103,18 @@ export default function VerificationCenter() {
 
       {/* Verified Benefits */}
       {verification && <VerifiedBenefits verificationLevel={verification.verification_level_number || 1} />}
+
+      {/* v2.1: Verification Policy Engine */}
+      {verification && <VerificationPolicyDisplay verification={verification} />}
+
+      {/* v2.1: Expiration Status */}
+      {verification && <VerificationExpirationStatus verification={verification} />}
+
+      {/* v2.1: Trust Score History */}
+      {verification && <TrustScoreHistory verification={verification} />}
+
+      {/* v2.1: Enterprise Audit Trail */}
+      {verification && <EnterpriseAuditTrail verification={verification} />}
 
       {/* Verification Level Progress */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">

@@ -11,6 +11,7 @@ import { evaluateConstitution, evaluateAllConstitutions, getConstitutionSummary,
 import { LIFECYCLE_STAGES, getLifecycleStage, getLifecycleProgress, getLifecycleHistory, getLifecycleDistribution, canAdvance } from '@/lib/commercial/commercialLifecycle';
 import { evaluateReadinessGate, evaluateAllReadinessGates, getGateSummary, READINESS_GATES, GATE_STATUS_META, GATE_STATUS } from '@/lib/commercial/commercialReadinessGate';
 import { getCapabilityMetrics, mergeCapabilitiesWithMetrics } from '@/lib/commercial/productAnalytics';
+import InteractiveKpiCard from '@/components/shared/InteractiveKpiCard';
 
 const PRINCIPLE_ICONS = { Heart: Heart, ShieldCheck: ShieldCheck, Settings: Settings, DollarSign: DollarSign, Compass: Compass };
 const GATE_ICONS = { CheckCircle2, Users, Star, Cpu, LifeBuoy, FileText, ShieldCheck, Scale, Settings };
@@ -56,31 +57,31 @@ function ConstitutionTab({ evaluations, summary }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+        <InteractiveKpiCard metricId="commercial_total_evaluated" score={summary.total} label="Total Evaluated" className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
           <Target size={12} className="text-violet-400 mb-1" />
           <div className="text-lg font-bold text-white">{summary.total}</div>
           <div className="text-[9px] text-white/30">Total Evaluated</div>
-        </div>
-        <div className="bg-white/[0.02] border border-emerald-500/10 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_constitution_approved" score={summary.approved} label="Approved" className="bg-white/[0.02] border border-emerald-500/10 rounded-xl p-3">
           <CheckCircle2 size={12} className="text-emerald-400 mb-1" />
           <div className="text-lg font-bold text-emerald-400">{summary.approved}</div>
           <div className="text-[9px] text-white/30">Approved</div>
-        </div>
-        <div className="bg-white/[0.02] border border-amber-500/10 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_constitution_conditional" score={summary.conditional} label="Conditional" className="bg-white/[0.02] border border-amber-500/10 rounded-xl p-3">
           <AlertTriangle size={12} className="text-amber-400 mb-1" />
           <div className="text-lg font-bold text-amber-400">{summary.conditional}</div>
           <div className="text-[9px] text-white/30">Conditional</div>
-        </div>
-        <div className="bg-white/[0.02] border border-red-500/10 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_constitution_rejected" score={summary.rejected} label="Rejected" className="bg-white/[0.02] border border-red-500/10 rounded-xl p-3">
           <XCircle size={12} className="text-red-400 mb-1" />
           <div className="text-lg font-bold text-red-400">{summary.rejected}</div>
           <div className="text-[9px] text-white/30">Rejected</div>
-        </div>
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_constitution_avg_score" score={summary.avgScore} label="Avg Score" className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
           <Scale size={12} className="text-indigo-400 mb-1" />
           <div className="text-lg font-bold text-white">{summary.avgScore}</div>
           <div className="text-[9px] text-white/30">Avg Score</div>
-        </div>
+        </InteractiveKpiCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -250,31 +251,31 @@ function GateTab({ evaluations, summary }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+        <InteractiveKpiCard metricId="commercial_total_evaluated" score={summary.total} label="Total Evaluated" className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
           <ShieldCheck size={12} className="text-violet-400 mb-1" />
           <div className="text-lg font-bold text-white">{summary.total}</div>
           <div className="text-[9px] text-white/30">Total Evaluated</div>
-        </div>
-        <div className="bg-white/[0.02] border border-emerald-500/10 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_ready" score={summary.ready} label="Ready to Commercialize" className="bg-white/[0.02] border border-emerald-500/10 rounded-xl p-3">
           <CheckCircle2 size={12} className="text-emerald-400 mb-1" />
           <div className="text-lg font-bold text-emerald-400">{summary.ready}</div>
           <div className="text-[9px] text-white/30">Ready to Commercialize</div>
-        </div>
-        <div className="bg-white/[0.02] border border-amber-500/10 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_needs_validation" score={summary.validate} label="Needs Validation" className="bg-white/[0.02] border border-amber-500/10 rounded-xl p-3">
           <AlertTriangle size={12} className="text-amber-400 mb-1" />
           <div className="text-lg font-bold text-amber-400">{summary.validate}</div>
           <div className="text-[9px] text-white/30">Needs Validation</div>
-        </div>
-        <div className="bg-white/[0.02] border border-red-500/10 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_blocked" score={summary.blocked} label="Blocked" className="bg-white/[0.02] border border-red-500/10 rounded-xl p-3">
           <XCircle size={12} className="text-red-400 mb-1" />
           <div className="text-lg font-bold text-red-400">{summary.blocked}</div>
           <div className="text-[9px] text-white/30">Blocked</div>
-        </div>
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+        </InteractiveKpiCard>
+        <InteractiveKpiCard metricId="commercial_avg_readiness" score={summary.avgScore} label="Avg Readiness Score" className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
           <TrendingUp size={12} className="text-indigo-400 mb-1" />
           <div className="text-lg font-bold text-white">{summary.avgScore}</div>
           <div className="text-[9px] text-white/30">Avg Readiness Score</div>
-        </div>
+        </InteractiveKpiCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

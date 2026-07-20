@@ -28,7 +28,10 @@ export const CATEGORY_TO_WORKSPACE = {
   launch: 'operations',
 };
 
+import { commercialGovernanceMetrics } from './commercialGovernanceMetrics';
+
 export const additionalMetrics = [
+  ...commercialGovernanceMetrics,
   // ═══════════════════════════════════════════════════
   // EXECUTIVE WORKSPACE
   // ═══════════════════════════════════════════════════

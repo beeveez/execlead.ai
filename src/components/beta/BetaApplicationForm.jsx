@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Rocket, Loader2, CheckCircle2, Mail } from "lucide-react";
-import { submitBetaApplication } from "@/lib/betaProgramEngine";
+import { Rocket, Loader2, AlertCircle } from "lucide-react";
+import { submitFoundingApplication, checkDuplicateEmail } from "@/lib/foundingAdmissionsEngine";
 
 const PRIMARY_GOALS = [
   { value: "promotion", label: "Promotion" },
@@ -10,9 +10,9 @@ const PRIMARY_GOALS = [
   { value: "other", label: "Other" },
 ];
 
-export default function BetaApplicationForm({ onSuccess, defaultTier = "founding_beta" }) {
+export default function BetaApplicationForm({ onSuccess, onDuplicate, defaultTier = "founding_beta" }) {
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
   const [error, setError] = useState(null);
   const [form, setForm] = useState({
     first_name: "",
@@ -35,38 +35,32 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
     setError(null);
     try {
       const full_name = [form.first_name, form.last_name].filter(Boolean).join(" ");
-      await submitBetaApplication({
+
+      setCheckingDuplicate(true);
+      const existing = await checkDuplicateEmail(form.email);
+      setCheckingDuplicate(false);
+      if (existing) {
+        onDuplicate?.(existing);
+        return;
+      }
+
+      const created = await submitFoundingApplication({
         ...form,
         full_name,
         years_of_experience: form.years_of_experience ? Number(form.years_of_experience) : null,
         beta_tier: defaultTier,
       });
-      setSubmitted(true);
-      onSuccess?.();
+      onSuccess?.(created);
     } catch (err) {
+      if (err.message === "DUPLICATE_APPLICATION") {
+        const existing = await checkDuplicateEmail(form.email);
+        if (existing) { onDuplicate?.(existing); return; }
+      }
       setError(err.message || "Failed to submit application. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (submitted) {
-    return (
-      <div className="text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 size={24} className="text-emerald-400" />
-        </div>
-        <h3 className="text-lg font-bold text-white mb-2">Application Received</h3>
-        <p className="text-sm text-white/50 leading-relaxed mb-4">
-          Thank you for your interest in the EXECLEAD.AI Founding Beta. Our team will review your application
-          and reach out via email within 3–5 business days.
-        </p>
-        <div className="inline-flex items-center gap-1.5 text-xs text-white/30 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2">
-          <Mail size={12} /> We'll contact you at <strong className="text-white/60 ml-1">{form.email}</strong>
-        </div>
-      </div>
-    );
-  }
 
   const inputClass = "w-full bg-white/[0.02] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-amber-500/40 transition-colors";
   const labelClass = "block text-[11px] font-medium text-white/60 mb-1.5";
@@ -87,6 +81,7 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
       <div>
         <label className={labelClass}>Email *</label>
         <input required type="email" value={form.email} onChange={update("email")} className={inputClass} placeholder="jane@company.com" />
+        <p className="text-[10px] text-white/30 mt-1">A verification email will be sent to this address.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -145,8 +140,8 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
       </div>
 
       {error && (
-        <div className="text-xs text-red-400 bg-red-500/5 border border-red-500/15 rounded-lg px-3 py-2">
-          {error}
+        <div className="flex items-start gap-2 text-xs text-red-400 bg-red-500/5 border border-red-500/15 rounded-lg px-3 py-2">
+          <AlertCircle size={14} className="shrink-0 mt-0.5" /> {error}
         </div>
       )}
 
@@ -156,7 +151,7 @@ export default function BetaApplicationForm({ onSuccess, defaultTier = "founding
         className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-white text-sm font-medium px-4 py-3 rounded-lg transition-colors"
       >
         {submitting ? <Loader2 size={16} className="animate-spin" /> : <Rocket size={16} />}
-        {submitting ? "Submitting..." : "Request Beta Access"}
+        {submitting ? (checkingDuplicate ? "Checking..." : "Submitting...") : "Request Beta Access"}
       </button>
 
       <p className="text-[10px] text-white/30 text-center">

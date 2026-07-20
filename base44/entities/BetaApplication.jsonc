@@ -6,6 +6,10 @@
       "type": "string",
       "maxLength": 1000
     },
+    "application_id": {
+      "type": "string",
+      "description": "Unique Application ID (FB-YYYY-NNNNNN) \u2014 generated on submission, stored permanently"
+    },
     "first_name": {
       "type": "string",
       "description": "Applicant first name"
@@ -116,16 +120,28 @@
     "status": {
       "type": "string",
       "enum": [
-        "pending",
+        "submitted",
+        "email_verified",
+        "under_review",
+        "additional_info_required",
+        "interview",
         "approved",
-        "waitlisted",
-        "rejected",
-        "invited",
-        "activated",
+        "invitation_sent",
+        "account_activated",
+        "declined",
         "withdrawn"
       ],
-      "default": "pending",
-      "description": "Application review status"
+      "default": "submitted",
+      "description": "Admissions workflow status \u2014 every change is timestamped in timeline_json"
+    },
+    "email_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the applicant has verified their email"
+    },
+    "email_verified_at": {
+      "type": "string",
+      "format": "date-time"
     },
     "beta_tier": {
       "type": "string",
@@ -150,6 +166,18 @@
       "default": "founding_private_beta",
       "description": "Beta release stage when this application was submitted"
     },
+    "application_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Application Assessment Score 0-100 \u2014 computed on submission"
+    },
+    "assigned_reviewer_id": {
+      "type": "string",
+      "description": "Admin reviewer assigned to this application"
+    },
+    "assigned_reviewer_name": {
+      "type": "string"
+    },
     "reviewed_by_id": {
       "type": "string"
     },
@@ -162,9 +190,47 @@
     },
     "review_notes": {
       "type": "string",
-      "description": "Internal admin review notes"
+      "description": "Reviewer notes visible in decision history"
+    },
+    "internal_comments": {
+      "type": "string",
+      "description": "Internal reviewer comments \u2014 not shown to applicant"
+    },
+    "approval_reason": {
+      "type": "string",
+      "description": "Reason recorded when application is approved"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason recorded when application is declined"
+    },
+    "additional_info_requested": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether additional information has been requested from the applicant"
+    },
+    "additional_info_details": {
+      "type": "string",
+      "description": "What additional information was requested"
+    },
+    "interview_scheduled": {
+      "type": "boolean",
+      "default": false
+    },
+    "interview_date": {
+      "type": "string",
+      "format": "date-time"
     },
     "invitation_sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "invitation_accepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the invitation was accepted by the applicant"
+    },
+    "invitation_accepted_at": {
       "type": "string",
       "format": "date-time"
     },
@@ -175,6 +241,45 @@
     "user_id": {
       "type": "string",
       "description": "Linked user account ID once activated"
+    },
+    "founding_member_number": {
+      "type": "string",
+      "description": "Assigned founding member number on approval (FM-YYYY-NNNNNN)"
+    },
+    "beta_cohort": {
+      "type": "string",
+      "description": "Beta cohort assignment (e.g. Batch #1)"
+    },
+    "founding_badge_eligible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Eligible for Founding Member Badge \u2014 hidden until approval"
+    },
+    "founding_pricing_eligible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Eligible for Founding Member pricing \u2014 hidden until approval"
+    },
+    "founding_member_assigned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether founding member recognition has been assigned"
+    },
+    "timeline_json": {
+      "type": "string",
+      "description": "JSON array of timeline stages [{stage, status, timestamp, note}]"
+    },
+    "audit_trail_json": {
+      "type": "string",
+      "description": "JSON array of immutable audit events [{timestamp, event, actor, reviewer, reason}]"
+    },
+    "decision_history_json": {
+      "type": "string",
+      "description": "JSON array of decision records [{decision, reason, reviewer, timestamp}]"
+    },
+    "notification_history_json": {
+      "type": "string",
+      "description": "JSON array of notification delivery records [{template, channel, sent_at, status}]"
     },
     "nps_score": {
       "type": "number",

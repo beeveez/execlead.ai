@@ -76,8 +76,12 @@ export function computeMetricsFromRecords(records = []) {
 
   const applicationsReceived = records.length;
   const approved = statusCounts.approved;
-  const seatsRemaining = Math.max(capacity - approved, 0);
+  // Seat consumption rule: a seat is consumed when an application is ACCEPTED
+  // (approved + invitation_sent + account_activated). Once approved, the seat
+  // is held through the remainder of the onboarding pipeline — progressing to
+  // invitation_sent or account_activated must NOT free the seat.
   const accepted = statusCounts.approved + statusCounts.invitation_sent + statusCounts.account_activated;
+  const seatsRemaining = Math.max(capacity - accepted, 0);
   const activeApplications = records.filter((r) => !["declined", "withdrawn"].includes(r.status)).length;
 
   return {

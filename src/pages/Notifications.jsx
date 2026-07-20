@@ -158,7 +158,8 @@ export default function Notifications() {
                 <Link
                   to={n.action_url || "#"}
                   onClick={() => !n.read && markRead(n.id)}
-                  className={`block bg-white/[0.02] border rounded-xl border-l-2 transition-all hover:bg-white/[0.04] ${n.read ? "border-white/5" : sev.border + " " + sev.bg.replace("/10", "/[0.03]")}`}
+                  aria-label={`${n.title}: ${n.message}`}
+                  className={`block bg-white/[0.02] border border-white/5 rounded-xl border-l-2 transition-all duration-200 hover:bg-white/[0.04] hover:border-white/15 hover:shadow-lg hover:shadow-black/20 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 ${n.read ? "" : sev.border + " " + sev.bg.replace("/10", "/[0.03]")}`}
                 >
                   <div className="flex items-start gap-3 px-4 py-3">
                     <span className="text-xl flex-shrink-0">{n.icon || catMeta?.icon || "🔔"}</span>

@@ -19,7 +19,8 @@
         "feedback",
         "enterprise",
         "platform",
-        "developer"
+        "developer",
+        "admissions"
       ]
     },
     "category": {
@@ -48,7 +49,8 @@
       "default": false
     },
     "action_url": {
-      "type": "string"
+      "type": "string",
+      "description": "Deep link URL \u2014 clicking the notification navigates here"
     },
     "icon": {
       "type": "string"
@@ -85,6 +87,18 @@
     "role_scope": {
       "type": "string",
       "description": "Comma-separated role keys that can see this notification. Empty means all roles in scope."
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Type of the originating entity (e.g. beta_application, referral, achievement, payment)"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the originating entity \u2014 enables deep linking to the source record"
+    },
+    "routing_audit_json": {
+      "type": "string",
+      "description": "JSON array of routing audit steps [{step, timestamp, workspace, audience, deep_link, validation}]"
     }
   },
   "required": [

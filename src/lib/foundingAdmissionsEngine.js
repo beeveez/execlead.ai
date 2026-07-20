@@ -8,6 +8,7 @@
 
 import { base44 } from "@/api/base44Client";
 import { CURRENT_BETA_STAGE, BETA_STAGES } from "./betaProgramEngine";
+import { dispatchAdmissionsNotifications } from "./notificationRoutingEngine";
 
 // ============================================================
 // ADMISSIONS STATUSES (10-status workflow)
@@ -169,6 +170,7 @@ export async function submitFoundingApplication(formData) {
     audit_trail_json: buildInitialAuditTrail(formData.full_name),
     notification_history_json: JSON.stringify([{ template: "application_received", channel: "email", sent_at: now, status: "pending" }]),
   });
+  try { await dispatchAdmissionsNotifications("beta_application_submitted", created); } catch {}
   return created;
 }
 
@@ -262,7 +264,13 @@ export async function updateApplicationStatus(applicationId, newStatus, { review
     update.decision_history_json = JSON.stringify(decisionHistory);
   }
 
-  return await base44.entities.BetaApplication.update(applicationId, update);
+  const updated = await base44.entities.BetaApplication.update(applicationId, update);
+  try {
+    const eventMap = { under_review: "beta_application_under_review", approved: "beta_application_approved", invitation_sent: "beta_application_invitation_sent", declined: "beta_application_declined" };
+    const evt = eventMap[newStatus];
+    if (evt) await dispatchAdmissionsNotifications(evt, { ...app, ...update });
+  } catch {}
+  return updated;
 }
 
 // ============================================================

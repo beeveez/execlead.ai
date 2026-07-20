@@ -8,35 +8,28 @@
     },
     "application_id": {
       "type": "string",
-      "description": "Unique Application ID (FB-YYYY-NNNNNN) \u2014 generated on submission, stored permanently"
+      "description": "Unique Application ID (FB-YYYY-NNNNNN)"
     },
     "first_name": {
-      "type": "string",
-      "description": "Applicant first name"
+      "type": "string"
     },
     "last_name": {
-      "type": "string",
-      "description": "Applicant last name"
+      "type": "string"
     },
     "full_name": {
-      "type": "string",
-      "description": "Applicant full name (derived from first + last)"
+      "type": "string"
     },
     "email": {
-      "type": "string",
-      "description": "Applicant email \u2014 used for invitation"
+      "type": "string"
     },
     "company": {
-      "type": "string",
-      "description": "Current company"
+      "type": "string"
     },
     "current_role": {
-      "type": "string",
-      "description": "Current job title"
+      "type": "string"
     },
     "years_of_experience": {
-      "type": "number",
-      "description": "Total years of professional experience"
+      "type": "number"
     },
     "leadership_level": {
       "type": "string",
@@ -53,12 +46,10 @@
         "founder",
         "consultant",
         "other"
-      ],
-      "description": "Leadership level in organization"
+      ]
     },
     "country": {
-      "type": "string",
-      "description": "Applicant country of residence"
+      "type": "string"
     },
     "team_size": {
       "type": "string",
@@ -72,16 +63,13 @@
         "101_250",
         "251_500",
         "500_plus"
-      ],
-      "description": "Size of team the applicant leads or works in"
+      ]
     },
     "linkedin_url": {
-      "type": "string",
-      "description": "LinkedIn profile URL (optional)"
+      "type": "string"
     },
     "why_join": {
-      "type": "string",
-      "description": "Why the applicant wants to join the beta program"
+      "type": "string"
     },
     "primary_goal": {
       "type": "string",
@@ -91,12 +79,10 @@
         "executive_interview",
         "career_transition",
         "other"
-      ],
-      "description": "Primary goal for joining EXECLEAD.AI"
+      ]
     },
     "interested_capabilities": {
-      "type": "string",
-      "description": "JSON array of capability strings the applicant is interested in"
+      "type": "string"
     },
     "how_heard": {
       "type": "string",
@@ -114,8 +100,7 @@
         "newsletter",
         "direct_invitation",
         "other"
-      ],
-      "description": "How the applicant heard about EXECLEAD.AI"
+      ]
     },
     "status": {
       "type": "string",
@@ -131,13 +116,11 @@
         "declined",
         "withdrawn"
       ],
-      "default": "submitted",
-      "description": "Admissions workflow status \u2014 every change is timestamped in timeline_json"
+      "default": "submitted"
     },
     "email_verified": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether the applicant has verified their email"
+      "default": false
     },
     "email_verified_at": {
       "type": "string",
@@ -152,8 +135,7 @@
         "enterprise_beta",
         "commercial_beta"
       ],
-      "default": "founding_beta",
-      "description": "Beta feature flag tier assigned to this applicant"
+      "default": "founding_beta"
     },
     "beta_stage": {
       "type": "string",
@@ -163,17 +145,14 @@
         "open_beta",
         "general_availability"
       ],
-      "default": "founding_private_beta",
-      "description": "Beta release stage when this application was submitted"
+      "default": "founding_private_beta"
     },
     "application_score": {
       "type": "number",
-      "default": 0,
-      "description": "Application Assessment Score 0-100 \u2014 computed on submission"
+      "default": 0
     },
     "assigned_reviewer_id": {
-      "type": "string",
-      "description": "Admin reviewer assigned to this application"
+      "type": "string"
     },
     "assigned_reviewer_name": {
       "type": "string"
@@ -189,29 +168,23 @@
       "format": "date-time"
     },
     "review_notes": {
-      "type": "string",
-      "description": "Reviewer notes visible in decision history"
+      "type": "string"
     },
     "internal_comments": {
-      "type": "string",
-      "description": "Internal reviewer comments \u2014 not shown to applicant"
+      "type": "string"
     },
     "approval_reason": {
-      "type": "string",
-      "description": "Reason recorded when application is approved"
+      "type": "string"
     },
     "rejection_reason": {
-      "type": "string",
-      "description": "Reason recorded when application is declined"
+      "type": "string"
     },
     "additional_info_requested": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether additional information has been requested from the applicant"
+      "default": false
     },
     "additional_info_details": {
-      "type": "string",
-      "description": "What additional information was requested"
+      "type": "string"
     },
     "interview_scheduled": {
       "type": "boolean",
@@ -227,8 +200,7 @@
     },
     "invitation_accepted": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether the invitation was accepted by the applicant"
+      "default": false
     },
     "invitation_accepted_at": {
       "type": "string",
@@ -239,31 +211,39 @@
       "format": "date-time"
     },
     "user_id": {
-      "type": "string",
-      "description": "Linked user account ID once activated"
+      "type": "string"
     },
     "founding_member_number": {
-      "type": "string",
-      "description": "Assigned founding member number on approval (FM-YYYY-NNNNNN)"
+      "type": "string"
     },
     "beta_cohort": {
-      "type": "string",
-      "description": "Beta cohort assignment (e.g. Batch #1)"
+      "type": "string"
     },
     "founding_badge_eligible": {
       "type": "boolean",
-      "default": false,
-      "description": "Eligible for Founding Member Badge \u2014 hidden until approval"
+      "default": false
     },
     "founding_pricing_eligible": {
       "type": "boolean",
-      "default": false,
-      "description": "Eligible for Founding Member pricing \u2014 hidden until approval"
+      "default": false
     },
     "founding_member_assigned": {
       "type": "boolean",
+      "default": false
+    },
+    "on_hold": {
+      "type": "boolean",
       "default": false,
-      "description": "Whether founding member recognition has been assigned"
+      "description": "Whether the application is on hold"
+    },
+    "on_hold_reason": {
+      "type": "string",
+      "description": "Reason the application was put on hold"
+    },
+    "response_deadline": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Deadline for applicant to respond to information request"
     },
     "timeline_json": {
       "type": "string",
@@ -271,7 +251,7 @@
     },
     "audit_trail_json": {
       "type": "string",
-      "description": "JSON array of immutable audit events [{timestamp, event, actor, reviewer, reason}]"
+      "description": "JSON array of immutable audit events [{timestamp, event, actor, reviewer, previous_status, new_status, reason, message_sent, email_status}]"
     },
     "decision_history_json": {
       "type": "string",
@@ -281,29 +261,32 @@
       "type": "string",
       "description": "JSON array of notification delivery records [{template, channel, sent_at, status}]"
     },
+    "email_history_json": {
+      "type": "string",
+      "description": "JSON array of email delivery records [{subject, recipient, provider, template, sent_at, status, opened, clicked, retry_count, failure_reason, message_id}]"
+    },
+    "communications_json": {
+      "type": "string",
+      "description": "JSON array of reviewer-applicant communications [{type, direction, subject, message, reviewer, sent_at, email_status}]"
+    },
     "nps_score": {
-      "type": "number",
-      "description": "Net Promoter Score from beta feedback (0-10)"
+      "type": "number"
     },
     "feedback_count": {
       "type": "number",
-      "default": 0,
-      "description": "Number of feedback submissions"
+      "default": 0
     },
     "bug_report_count": {
       "type": "number",
-      "default": 0,
-      "description": "Number of bug reports submitted"
+      "default": 0
     },
     "feature_request_count": {
       "type": "number",
-      "default": 0,
-      "description": "Number of feature requests submitted"
+      "default": 0
     },
     "is_active_beta_user": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether this user is currently active in the beta program"
+      "default": false
     }
   },
   "required": [

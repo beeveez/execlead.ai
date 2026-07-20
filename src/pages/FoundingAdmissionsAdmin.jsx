@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
-import { ADMISSIONS_STATUSES, getCapacityInfo, updateApplicationStatus } from "@/lib/foundingAdmissionsEngine";
+import { ADMISSIONS_STATUSES, getCapacityInfo } from "@/lib/foundingAdmissionsEngine";
 import { computePriorityScore, getPriorityLevel } from "@/lib/admissionsIntelligenceEngine";
+import { syncReviewerAction } from "@/lib/admissionsCommunicationEngine";
 import IntelligenceDashboard from "@/components/beta/admissions/IntelligenceDashboard";
 import CohortManagement from "@/components/beta/admissions/CohortManagement";
 import DiversityDashboard from "@/components/beta/admissions/DiversityDashboard";
@@ -52,9 +53,9 @@ export default function FoundingAdmissionsAdmin() {
 
   if (!ADMIN_ROLES.includes(user?.role)) return <Navigate to="/dashboard" replace />;
 
-  const handleDecision = async (applicationId, decision, { reviewer, reason, notes }) => {
-    await updateApplicationStatus(applicationId, decision, { reviewer, reason, notes });
-    setRecords((prev) => prev.map((r) => r.id === applicationId ? { ...r, status: decision, review_notes: notes, reviewed_by_name: reviewer?.full_name } : r));
+  const handleAction = async (applicationId, action, data) => {
+    const result = await syncReviewerAction(applicationId, action, data);
+    setRecords((prev) => prev.map((r) => r.id === applicationId ? { ...result, _priorityScore: computePriorityScore(result, prev) } : r));
     setSelected(null);
   };
 
@@ -157,7 +158,7 @@ export default function FoundingAdmissionsAdmin() {
         </div>
       )}
 
-      {selected && <ApplicationReviewDrawer application={selected} reviewer={reviewer} onDecision={handleDecision} onClose={() => setSelected(null)} />}
+      {selected && <ApplicationReviewDrawer application={selected} reviewer={reviewer} onAction={handleAction} onClose={() => setSelected(null)} />}
     </div>
   );
 }

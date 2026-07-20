@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, Outlet, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
@@ -278,10 +278,15 @@ import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
 
+const PUBLIC_AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const location = useLocation();
+  const isPublicAuthPath = PUBLIC_AUTH_PATHS.includes(location.pathname);
 
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  // Public auth pages render immediately — no loading gate, no auth redirect
+  if (!isPublicAuthPath && (isLoadingPublicSettings || isLoadingAuth)) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[#0a0a0f]">
         <div className="w-8 h-8 border-4 border-indigo-900 border-t-indigo-400 rounded-full animate-spin"></div>
@@ -289,7 +294,7 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (authError) {
+  if (!isPublicAuthPath && authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {

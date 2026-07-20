@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Rocket, Shield, Clock, CheckCircle2, ArrowRight, Eye } from "lucide-react";
-import { getBetaProgramStats, BETA_METRICS_MODE } from "@/lib/betaProgramEngine";
+import { BETA_METRICS_MODE } from "@/lib/betaProgramEngine";
 import { getCurrentPlatformMode } from "@/lib/launchMode";
+import { useAdmissionsMetrics } from "@/lib/admissionsMetricsEngine";
 
 const DEMO_STATS = { total: 247, pending: 38, approved: 12, seatsRemaining: 88 };
 
@@ -15,33 +16,16 @@ const STATUS_INDICATORS = [
 
 export default function BetaHero({ onApply }) {
   const mode = getCurrentPlatformMode();
-  const [stats, setStats] = useState(null);
-  const [hasLiveData, setHasLiveData] = useState(false);
-
   const isDemoMode = BETA_METRICS_MODE === "demo";
-
-  useEffect(() => {
-    if (isDemoMode) return;
-    getBetaProgramStats()
-      .then((s) => {
-        if (s.total > 0) {
-          setHasLiveData(true);
-          setStats({
-            total: s.total,
-            pending: s.pending,
-            approved: s.approved + s.invited + s.activated,
-            seatsRemaining: Math.max(0, (s.capacity || 100) - s.activated),
-          });
-        }
-      })
-      .catch(() => {});
-  }, [isDemoMode]);
+  // Shared metrics from AdmissionsMetricsEngine™ — single source of truth
+  const { metrics } = useAdmissionsMetrics();
+  const hasLiveData = metrics && metrics.applicationsReceived > 0;
 
   const liveCounters = [
-    { label: "Applications Received", value: stats?.total ?? "—", isText: false },
-    { label: "Under Review", value: stats?.pending ?? "—", isText: false },
-    { label: "Beta Members Approved", value: stats?.approved ?? "—", isText: false },
-    { label: "Seats Remaining", value: stats?.seatsRemaining ?? "—", isText: false },
+    { label: "Applications Received", value: metrics?.applicationsReceived ?? "—", isText: false },
+    { label: "Under Review", value: metrics?.underReview ?? "—", isText: false },
+    { label: "Beta Members Approved", value: metrics?.approved ?? "—", isText: false },
+    { label: "Seats Remaining", value: metrics?.seatsRemaining ?? "—", isText: false },
   ];
 
   const demoCounters = [

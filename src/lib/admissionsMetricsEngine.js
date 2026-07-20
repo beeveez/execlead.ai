@@ -104,10 +104,10 @@ export function computeMetricsFromRecords(records = []) {
     // Raw status map for dashboards that need it
     statusCounts,
 
-    // Capacity derived
+    // Capacity derived — seats consumed by ACCEPTED applications
     seatsRemaining,
-    isFull: approved >= capacity,
-    capacityUsedPct: capacity > 0 ? Math.round((approved / capacity) * 100) : 0,
+    isFull: accepted >= capacity,
+    capacityUsedPct: capacity > 0 ? Math.round((accepted / capacity) * 100) : 0,
 
     // Backward-compatible aliases (existing code expects these)
     accepted,
@@ -142,10 +142,11 @@ export function validateMetricsIntegrity(metrics) {
     expected: `≤ ${metrics.applicationsReceived}`,
   });
 
-  // Rule 3: Remaining Seats = Capacity − Approved
-  const expectedRemaining = Math.max(metrics.capacity - metrics.approved, 0);
+  // Rule 3: Remaining Seats = Capacity − Accepted
+  // Accepted = approved + invitation_sent + account_activated (seats held through pipeline)
+  const expectedRemaining = Math.max(metrics.capacity - metrics.accepted, 0);
   rules.push({
-    rule: "Remaining Seats = Capacity − Approved",
+    rule: "Remaining Seats = Capacity − Accepted",
     passed: metrics.seatsRemaining === expectedRemaining,
     actual: `${metrics.seatsRemaining}`,
     expected: `${expectedRemaining}`,
@@ -159,11 +160,11 @@ export function validateMetricsIntegrity(metrics) {
     expected: "≥ 0",
   });
 
-  // Rule 5: Approved cannot exceed Capacity
+  // Rule 5: Accepted cannot exceed Capacity
   rules.push({
-    rule: "Approved ≤ Capacity",
-    passed: metrics.approved <= metrics.capacity,
-    actual: `${metrics.approved}`,
+    rule: "Accepted ≤ Capacity",
+    passed: metrics.accepted <= metrics.capacity,
+    actual: `${metrics.accepted}`,
     expected: `≤ ${metrics.capacity}`,
   });
 

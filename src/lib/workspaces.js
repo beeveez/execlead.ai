@@ -185,6 +185,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/cognitive", label: "Cognitive Excellence Engine™", icon: Brain },
       { path: "/developer/cognitive/memory", label: "AI Memory Intelligence™", icon: Brain },
       { path: "/developer/cognitive/personalization", label: "Personalization Intelligence™", icon: UserCircle },
+      { path: "/responsible-ai", label: "Responsible AI Framework™", icon: Brain },
     ]},
     { label: "Executive Intelligence", items: [
       { path: "/developer/promotion-forecast", label: "Promotion Forecast Engine™", icon: TrendingUp },
@@ -200,6 +201,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/security-intelligence", label: "Security Intelligence™", icon: Shield },
       { path: "/guardian", label: "Guardian™", icon: ShieldCheck },
       { path: "/developer/privacy-compliance", label: "Platform Privacy & Compliance™", icon: Lock },
+      { path: "/security-baseline", label: "Security Baseline™", icon: ShieldCheck },
     ]},
     { label: "Data & Knowledge", items: [
       { path: "/developer/knowledge-sync", label: "EXEC™ Knowledge Sync™", icon: Brain },
@@ -346,6 +348,8 @@ const ROUTE_WORKSPACE = {
   "/developer/performance": ["developer"],
   "/developer/cognitive": ["developer"], "/developer/cognitive/memory": ["developer"],
   "/developer/cognitive/personalization": ["developer"],
+  "/responsible-ai": ["developer"],
+  "/security-baseline": ["developer"],
   "/developer/knowledge-sync": ["developer"],
   "/developer/diagnostics": ["developer"],
   "/developer/experience-audit": ["developer"],

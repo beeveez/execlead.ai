@@ -22,7 +22,17 @@ export default function LocalizationExportBar({ onExport }) {
         <FileText size={12} /> Gap Report™
       </button>
       <button onClick={() => onExport('executive')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-xs text-emerald-300 transition-colors">
-        <FileText size={12} /> Executive Report™
+        <FileText size={12} /> Executive Localization Report™
+      </button>
+      <div className="w-px h-4 bg-white/10 mx-1" />
+      <button onClick={() => onExport('language_pack')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 text-xs text-violet-300 transition-colors">
+        <FileText size={12} /> Language Pack Report™
+      </button>
+      <button onClick={() => onExport('ai_localization')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-xs text-cyan-300 transition-colors">
+        <FileText size={12} /> AI Localization Report™
+      </button>
+      <button onClick={() => onExport('certification')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-xs text-amber-300 transition-colors">
+        <FileText size={12} /> Certification Report™
       </button>
     </div>
   );

@@ -1,0 +1,48 @@
+import React from 'react';
+import { Award, CheckCircle2, XCircle } from 'lucide-react';
+
+export default function LanguagePackCertification({ cert }) {
+  if (!cert) return null;
+  const { requirements, allPassed, blockingCount, certificationStatus, coverage } = cert;
+  const statusColor = certificationStatus === 'Certified' ? '#10b981' : certificationStatus === 'Blocked' ? '#ef4444' : '#f59e0b';
+
+  return (
+    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+      <div className="flex items-center gap-4 mb-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Award size={20} style={{ color: statusColor }} />
+          <div>
+            <h3 className="text-sm font-semibold text-white">Language Pack Certification™</h3>
+            <p className="text-[10px] text-white/30">{cert.language}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 ml-auto">
+          <div className="text-center">
+            <div className="text-xl font-bold" style={{ color: statusColor }}>{certificationStatus}</div>
+          </div>
+          {blockingCount > 0 && <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400">{blockingCount} blocking</span>}
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        {requirements.map((req) => {
+          const passed = req.passed;
+          const color = passed ? '#10b981' : req.severity === 'high' ? '#ef4444' : '#f59e0b';
+          return (
+            <div key={req.id} className="flex items-center gap-3 bg-white/[0.02] rounded-lg p-3 border border-white/5">
+              {passed ? <CheckCircle2 size={16} className="text-emerald-400 shrink-0" /> : <XCircle size={16} className="text-rose-400 shrink-0" />}
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-white font-medium">{req.label}</div>
+                <div className="text-[10px] text-white/30">Threshold: {req.threshold}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-bold" style={{ color }}>{req.value}</div>
+                {req.severity === 'high' && !passed && <div className="text-[9px] text-rose-400">Blocking</div>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

@@ -25,6 +25,7 @@ import MetricIntelligenceRoot from '@/components/metric-intelligence/MetricIntel
 import { RepairWorkflowProvider } from '@/components/developer/repair/RepairWorkflowProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import EXECursorRoot from '@/components/exec-cursor/EXECursorRoot';
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -265,6 +266,7 @@ import DeveloperPortal from '@/pages/DeveloperPortal';
 import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelligenceDashboard';
 import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
 import BetaApply from '@/pages/BetaApply';
+import LocalizationDashboardPage from '@/pages/LocalizationDashboard';
 import FoundingAdmissionsAdmin from '@/pages/FoundingAdmissionsAdmin';
 import AdmissionsOperationsCenter from '@/pages/AdmissionsOperationsCenter';
 import AdmissionsCertification from '@/pages/AdmissionsCertification';
@@ -443,6 +445,7 @@ const AuthenticatedApp = () => {
           <Route path="/guardian" element={<Guardian />} />
           <Route path="/remediation-center" element={<RemediationCenter />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/localization" element={<LocalizationDashboardPage />} />
           <Route path="/security" element={<SecurityCenter />} />
           <Route path="/identity-verification" element={<IdentityVerification />} />
           <Route path="/verification-center" element={<VerificationCenter />} />
@@ -596,30 +599,13 @@ function App() {
       <SubscriptionProvider>
       <WorkspaceProvider>
       <QueryClientProvider client={queryClientInstance}>
+        <LanguageProvider>
         <ErrorBoundary>
           <EXECursorRoot>
-          <Router>
-            <ScrollToTop />
-            <RouteTracker />
-            <RepairWorkflowProvider>
-              <TelemetryProvider>
-              <ExecConciergeProvider>
-                <SessionSecurityProvider>
-                <AuthenticatedApp />
-                </SessionSecurityProvider>
-                <ExecConcierge />
-                <MetricIntelligenceRoot />
-                <FeedbackWidget />
-                <CommandPalette />
-                <KeyboardShortcuts />
-                <IntelligenceAnalysisRoot />
-              </ExecConciergeProvider>
-              </TelemetryProvider>
-            </RepairWorkflowProvider>
-          </Router>
-          <Toaster />
+...
           </EXECursorRoot>
         </ErrorBoundary>
+        </LanguageProvider>
       </QueryClientProvider>
       </WorkspaceProvider>
       </SubscriptionProvider>

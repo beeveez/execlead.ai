@@ -9,6 +9,7 @@ import WorkspaceSwitcher from "@/components/layout/WorkspaceSwitcher";
 import ShareButton from "@/components/social/ShareButton";
 import { Bell, CreditCard, Crown, Sparkles } from "lucide-react";
 import ThemeToggle from "@/components/layout/ThemeToggle";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import StatusHub from "@/components/layout/StatusHub";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 
@@ -77,6 +78,7 @@ export default function TopBar() {
         </Link>
       )}
       <ThemeToggle />
+      <LanguageSwitcher compact />
       <div className="relative">
         <button onClick={() => setShowNotifs(!showNotifs)} className="relative p-2 rounded-lg hover:bg-white/5 transition-colors">
           <Bell size={16} className="text-white/40" />

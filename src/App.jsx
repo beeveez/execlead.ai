@@ -268,6 +268,7 @@ import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
 import BetaApply from '@/pages/BetaApply';
 import LocalizationDashboardPage from '@/pages/LocalizationDashboard';
 import SecurityBaselineDashboard from '@/pages/SecurityBaselineDashboard';
+import ResponsibleAIDashboard from '@/pages/ResponsibleAIDashboard';
 import FoundingAdmissionsAdmin from '@/pages/FoundingAdmissionsAdmin';
 import AdmissionsOperationsCenter from '@/pages/AdmissionsOperationsCenter';
 import AdmissionsCertification from '@/pages/AdmissionsCertification';
@@ -448,6 +449,7 @@ const AuthenticatedApp = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/localization" element={<LocalizationDashboardPage />} />
           <Route path="/security-baseline" element={<SecurityBaselineDashboard />} />
+          <Route path="/responsible-ai" element={<ResponsibleAIDashboard />} />
           <Route path="/security" element={<SecurityCenter />} />
           <Route path="/identity-verification" element={<IdentityVerification />} />
           <Route path="/verification-center" element={<VerificationCenter />} />

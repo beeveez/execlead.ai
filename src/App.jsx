@@ -602,21 +602,23 @@ function App() {
         <LanguageProvider>
         <ErrorBoundary>
           <EXECursorRoot>
-            <ScrollToTop />
-            <RouteTracker />
-            <SessionSecurityProvider>
-              <TelemetryProvider>
-                <RepairWorkflowProvider>
-                  <AuthenticatedApp />
-                  <MetricIntelligenceRoot />
-                  <ExecConcierge />
-                  <FeedbackWidget />
-                  <BetaBanner />
-                  <CommandPalette />
-                  <KeyboardShortcuts />
-                </RepairWorkflowProvider>
-              </TelemetryProvider>
-            </SessionSecurityProvider>
+            <Router>
+              <ScrollToTop />
+              <RouteTracker />
+              <SessionSecurityProvider>
+                <TelemetryProvider>
+                  <RepairWorkflowProvider>
+                    <AuthenticatedApp />
+                    <MetricIntelligenceRoot />
+                    <ExecConcierge />
+                    <FeedbackWidget />
+                    <BetaBanner />
+                    <CommandPalette />
+                    <KeyboardShortcuts />
+                  </RepairWorkflowProvider>
+                </TelemetryProvider>
+              </SessionSecurityProvider>
+            </Router>
             <Toaster />
           </EXECursorRoot>
         </ErrorBoundary>

@@ -1,16 +1,37 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n/languages';
 import {
-  generateLocalizationReport,
-  computeLocalizationHealthScore,
-  computeLocalizationReadiness,
-} from '@/lib/i18n/localizationHealthEngine';
+  getLocalizationIntelligenceSnapshot,
+  getLocalizationIntelligence,
+} from '@/lib/i18n/localizationIntelligenceEngine';
 import {
-  Globe, CheckCircle2, AlertCircle, TrendingUp, Languages,
-  ShieldCheck, Type, ArrowLeftRight, FileText,
+  Globe, LayoutGrid, BarChart3, Database, Activity, ShieldCheck,
 } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
+import LocalizationExportBar from './sections/LocalizationExportBar';
+import TranslationCoverageSection from './sections/TranslationCoverageSection';
+import ModuleCoverageSection from './sections/ModuleCoverageSection';
+import LocalizationHealthSection from './sections/LocalizationHealthSection';
+import MissingTranslationRegistry from './sections/MissingTranslationRegistry';
+import HardcodedStringDetector from './sections/HardcodedStringDetector';
+import LocalizationQualitySection from './sections/LocalizationQualitySection';
+import RuntimeLanguageAnalytics from './sections/RuntimeLanguageAnalytics';
+import EnterpriseLanguageGovernance from './sections/EnterpriseLanguageGovernance';
+import LocalizationReadinessSection from './sections/LocalizationReadinessSection';
+import LocalizationCertification from './sections/LocalizationCertification';
+import GuardianIntegration from './sections/GuardianIntegration';
+import TrendHistorySection from './sections/TrendHistorySection';
+import LocalizationIntelligenceDrawer from './sections/LocalizationIntelligenceDrawer';
+
+const TABS = [
+  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'coverage', label: 'Coverage', icon: BarChart3 },
+  { id: 'registry', label: 'Registry', icon: Database },
+  { id: 'analytics', label: 'Analytics', icon: Activity },
+  { id: 'governance', label: 'Governance', icon: ShieldCheck },
+  { id: 'guardian', label: 'Guardian™', icon: Globe },
+];
 
 function StatCard({ icon: Icon, label, value, sub, color = '#6366f1' }) {
   return (
@@ -23,37 +44,57 @@ function StatCard({ icon: Icon, label, value, sub, color = '#6366f1' }) {
   );
 }
 
-function CoverageBar({ percent }) {
-  const color = percent >= 80 ? '#10b981' : percent >= 50 ? '#f59e0b' : '#ef4444';
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percent}%`, backgroundColor: color }} />
-      </div>
-      <span className="text-xs text-white/60 w-10 text-right">{percent}%</span>
-    </div>
-  );
+function handleExport(type, snapshot) {
+  let data, filename, mime;
+  const ts = new Date().toISOString().split('T')[0];
+
+  if (type === 'json' || type === 'audit' || type === 'executive') {
+    data = JSON.stringify(snapshot, null, 2);
+    filename = `localization-${type}-${ts}.json`;
+    mime = 'application/json';
+  } else {
+    const isGapReport = type === 'gap' || type === 'missing';
+    const rows = isGapReport
+      ? snapshot.missingRegistry.map((r) => [r.key, r.englishText, r.missingLanguage, r.module, r.priority, r.owner])
+      : snapshot.translationCoverage.map((l) => [l.name, l.code, l.coveragePercent, l.translated, l.missing, l.status]);
+    const headers = isGapReport
+      ? ['Key', 'English', 'Missing Language', 'Module', 'Priority', 'Owner']
+      : ['Language', 'Code', 'Coverage %', 'Translated', 'Missing', 'Status'];
+    data = [headers, ...rows].map((r) => r.join(',')).join('\n');
+    filename = `localization-${type}-${ts}.csv`;
+    mime = 'text/csv';
+  }
+
+  const blob = new Blob([data], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export default function LocalizationDashboard() {
   const { t, language, timezoneName } = useTranslation();
+  const [tab, setTab] = useState('overview');
+  const [drawerIssue, setDrawerIssue] = useState(null);
 
-  const report = useMemo(() => generateLocalizationReport(), []);
-  const health = useMemo(() => computeLocalizationHealthScore(), []);
-  const readiness = useMemo(() => computeLocalizationReadiness(), []);
+  const snapshot = useMemo(() => getLocalizationIntelligenceSnapshot(), []);
+  const intelligence = useMemo(() => drawerIssue ? getLocalizationIntelligence(drawerIssue) : null, [drawerIssue]);
 
-  const healthColor = health.healthScore >= 80 ? '#10b981' : health.healthScore >= 60 ? '#f59e0b' : '#ef4444';
+  const h = snapshot.health;
+  const healthColor = h.healthScore >= 80 ? '#10b981' : h.healthScore >= 60 ? '#f59e0b' : '#ef4444';
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">
-            <Globe size={12} className="text-indigo-400" /> Enterprise Internationalization™ & Localization Platform
+            <Globe size={12} className="text-indigo-400" /> Localization Intelligence Platform™ · v2.0
           </div>
           <h1 className="text-2xl font-bold text-white">{t('localization.title')}</h1>
-          <p className="text-white/40 text-sm mt-1">{t('localization.subtitle')}</p>
+          <p className="text-white/40 text-sm mt-1">Translation coverage, localization quality, governance, and certification</p>
         </div>
         <div className="flex items-center gap-3">
           <LanguageSwitcher compact />
@@ -62,154 +103,97 @@ export default function LocalizationDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard icon={Languages} label={t('localization.supported_languages')} value={health.totalLanguages} sub={`${health.phase1Languages} Phase 1 active`} color="#6366f1" />
-        <StatCard icon={TrendingUp} label={t('localization.translation_coverage')} value={`${health.avgCoverage}%`} sub={`${health.totalKeys} translation keys`} color="#10b981" />
-        <StatCard icon={AlertCircle} label={t('localization.missing_strings')} value={health.criticalMissing} sub="critical keys missing" color="#f59e0b" />
-        <StatCard icon={ShieldCheck} label={t('localization.health_score')} value={health.healthScore} sub={readiness.ready ? 'Certified Ready' : 'Needs Attention'} color={healthColor} />
+        <StatCard icon={Globe} label="Supported Languages" value={h.totalLanguages} sub={`${h.phase1Languages} Phase 1 active`} color="#6366f1" />
+        <StatCard icon={BarChart3} label="Avg Translation Coverage" value={`${h.avgCoverage}%`} sub={`${h.totalKeys} translation keys`} color="#10b981" />
+        <StatCard icon={Database} label="Missing Translations" value={snapshot.missingRegistry.length} sub={`${h.criticalMissing} critical`} color="#f59e0b" />
+        <StatCard icon={ShieldCheck} label="Health Score" value={h.healthScore} sub={snapshot.readiness.status} color={healthColor} />
       </div>
 
-      {/* Localization Readiness™ */}
-      <div className={`rounded-xl p-5 border ${readiness.ready ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20'}`}>
-        <div className="flex items-center gap-3">
-          {readiness.ready ? (
-            <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
-          ) : (
-            <AlertCircle size={20} className="text-amber-400 shrink-0" />
-          )}
-          <div>
-            <h3 className="text-sm font-semibold text-white">{t('localization.readiness')}</h3>
-            <p className="text-xs text-white/50 mt-0.5">
-              {readiness.ready
-                ? 'Localization framework is certified and production-ready.'
-                : `Not ready: ${readiness.failures.join(', ')}`}
-            </p>
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-white/5 overflow-x-auto">
+        {TABS.map((tb) => (
+          <button key={tb.id} onClick={() => setTab(tb.id)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-medium border-b-2 transition-colors whitespace-nowrap ${
+              tab === tb.id ? 'border-indigo-400 text-indigo-400' : 'border-transparent text-white/40 hover:text-white/70'
+            }`}>
+            <tb.icon size={14} /> {tb.label}
+          </button>
+        ))}
       </div>
 
-      {/* Translation Coverage by Language */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Globe size={16} className="text-indigo-400" />
-          <h3 className="text-sm font-semibold text-white">{t('localization.translation_coverage')}</h3>
-        </div>
-        <div className="space-y-3">
-          {report.languages.map((lang) => (
-            <div key={lang.code} className="flex items-center gap-3">
-              <span className="text-xl w-8">{lang.flag}</span>
-              <div className="w-40 shrink-0">
-                <div className="text-sm text-white">{lang.nativeName}</div>
-                <div className="text-[10px] text-white/30">
-                  {lang.code.toUpperCase()} {lang.canonical && `· ${t('localization.canonical')}`}
-                  {lang.rtl && ' · RTL'}
-                </div>
-              </div>
-              <div className="flex-1">
-                <CoverageBar percent={lang.coveragePercent} />
-              </div>
-              <span className="text-xs text-white/40 w-20 text-right">
-                {lang.translated}/{lang.total}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Export Bar */}
+      <LocalizationExportBar onExport={(type) => handleExport(type, snapshot)} />
 
-      {/* Health Breakdown */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <ShieldCheck size={16} className="text-emerald-400" />
-          <h3 className="text-sm font-semibold text-white">{t('localization.health_score')} — Breakdown</h3>
+      {/* Tab Content */}
+      {tab === 'overview' && (
+        <div className="space-y-4">
+          <LocalizationReadinessSection readiness={snapshot.readiness} />
+          <LocalizationHealthSection health={h} />
+          <LocalizationQualitySection quality={snapshot.quality} />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {[
-            { label: t('localization.translation_coverage'), value: health.breakdown.coverage, icon: TrendingUp, color: '#10b981' },
-            { label: 'Critical Keys', value: health.breakdown.criticalKeys, icon: AlertCircle, color: '#f59e0b' },
-            { label: t('localization.rtl_ready'), value: health.breakdown.rtl, icon: ArrowLeftRight, color: '#8b5cf6' },
-            { label: t('localization.font_support'), value: health.breakdown.fonts, icon: Type, color: '#06b6d4' },
-            { label: 'Fallback Integrity', value: health.breakdown.fallback, icon: ShieldCheck, color: '#6366f1' },
-          ].map((item) => (
-            <div key={item.label} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-              <item.icon size={14} style={{ color: item.color }} />
-              <div className="text-lg font-bold text-white mt-1">{item.value}%</div>
-              <div className="text-[10px] text-white/40">{item.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Runtime Environment */}
+      {tab === 'coverage' && (
+        <div className="space-y-4">
+          <TranslationCoverageSection coverage={snapshot.translationCoverage} />
+          <ModuleCoverageSection modules={snapshot.moduleCoverage} onModuleClick={(m) => setDrawerIssue('blocking_modules')} />
+        </div>
+      )}
+
+      {tab === 'registry' && (
+        <div className="space-y-4">
+          <MissingTranslationRegistry registry={snapshot.missingRegistry} onExport={(type) => handleExport(type, snapshot)} />
+          <HardcodedStringDetector data={snapshot.hardcodedStrings} />
+        </div>
+      )}
+
+      {tab === 'analytics' && (
+        <div className="space-y-4">
+          <RuntimeLanguageAnalytics data={snapshot.runtime} />
+          <TrendHistorySection trends={snapshot.trends} />
+        </div>
+      )}
+
+      {tab === 'governance' && (
+        <div className="space-y-4">
+          <EnterpriseLanguageGovernance data={snapshot.governance} />
+          <LocalizationCertification cert={snapshot.certification} />
+        </div>
+      )}
+
+      {tab === 'guardian' && (
+        <div className="space-y-4">
+          <GuardianIntegration guardian={snapshot.guardian} onIssueClick={(id) => setDrawerIssue(id)} />
+        </div>
+      )}
+
+      {/* Runtime Environment + Language Preference (always visible) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Type size={16} className="text-cyan-400" />
+            <Globe size={16} className="text-cyan-400" />
             <h3 className="text-sm font-semibold text-white">Runtime Environment</h3>
           </div>
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-white/40">{t('language.label')}</span>
-              <span className="text-white">{LANGUAGES[language]?.nativeName || 'English'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">Locale</span>
-              <span className="text-white/80">{LANGUAGES[language]?.locale || 'en-US'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">Text Direction</span>
-              <span className="text-white/80">{LANGUAGES[language]?.rtl ? 'RTL (Right-to-Left)' : 'LTR (Left-to-Right)'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">Timezone</span>
-              <span className="text-white/80">{timezoneName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">Font Stack</span>
-              <span className="text-white/60 text-[10px] max-w-[200px] truncate">{LANGUAGES[language]?.fontStack}</span>
-            </div>
+            <div className="flex justify-between"><span className="text-white/40">{t('language.label')}</span><span className="text-white">{LANGUAGES[language]?.nativeName || 'English'}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Locale</span><span className="text-white/80">{LANGUAGES[language]?.locale || 'en-US'}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Text Direction</span><span className="text-white/80">{LANGUAGES[language]?.rtl ? 'RTL' : 'LTR'}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Timezone</span><span className="text-white/80">{timezoneName}</span></div>
+            <div className="flex justify-between"><span className="text-white/40">Pack Version</span><span className="text-white/80">{snapshot.runtime.languagePackVersion}</span></div>
           </div>
         </div>
-
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <FileText size={16} className="text-amber-400" />
-            <h3 className="text-sm font-semibold text-white">{t('localization.enterprise_governance')}</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <Globe size={16} className="text-indigo-400" />
+            <h3 className="text-sm font-semibold text-white">{t('language.select')}</h3>
           </div>
-          <div className="space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-white/40">{t('localization.default_language')}</span>
-              <span className="text-white/80">English (Canonical)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">{t('localization.allowed_languages')}</span>
-              <span className="text-white/80">{health.totalLanguages}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">Multi-Currency Support</span>
-              <span className="text-white/80">{health.supportedCurrencies} currencies</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">RTL Architecture</span>
-              <span className="text-white/80">{health.rtlReady ? '✓ Ready' : 'In Progress'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/40">{t('localization.last_update')}</span>
-              <span className="text-white/80">{new Date().toLocaleDateString()}</span>
-            </div>
-          </div>
+          <LanguageSwitcher />
+          <p className="text-[10px] text-white/30 mt-2">{t('language.preference_saved')}. Runtime switching — no refresh required.</p>
         </div>
       </div>
 
-      {/* Language Preference */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Globe size={16} className="text-indigo-400" />
-          <h3 className="text-sm font-semibold text-white">{t('language.select')}</h3>
-        </div>
-        <LanguageSwitcher />
-        <p className="text-[10px] text-white/30 mt-2">
-          {t('language.preference_saved')}. Runtime switching — no logout or refresh required.
-        </p>
-      </div>
+      {/* Intelligence Drawer */}
+      {intelligence && <LocalizationIntelligenceDrawer intelligence={intelligence} onClose={() => setDrawerIssue(null)} />}
     </div>
   );
 }

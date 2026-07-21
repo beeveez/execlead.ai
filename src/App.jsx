@@ -15,6 +15,7 @@ import { SubscriptionProvider } from '@/lib/SubscriptionContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import RouteTracker from './components/RouteTracker';
+import WebViewBackHandler from '@/components/WebViewBackHandler';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import SessionRoutingManager from '@/components/SessionRoutingManager';
 import { ExecConciergeProvider } from '@/lib/ExecConciergeContext';
@@ -609,6 +610,7 @@ function App() {
             <Router>
               <ScrollToTop />
               <RouteTracker />
+              <WebViewBackHandler />
               <SessionSecurityProvider>
                 <TelemetryProvider>
                   <RepairWorkflowProvider>

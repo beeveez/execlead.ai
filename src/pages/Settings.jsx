@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Settings as SettingsIcon, User, ShieldCheck, KeyRound, Mail, Fingerprint,
   Monitor, Bell, Lock, Link2, CreditCard, Receipt, Database, AlertTriangle,
-  ChevronRight, Check, X, ArrowRight, LayoutGrid,
+  ChevronRight, Check, X, ArrowRight, LayoutGrid, Globe,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
@@ -16,6 +16,7 @@ import QuickActions from "@/components/settings/QuickActions";
 import RecentActivity from "@/components/settings/RecentActivity";
 import DangerZone from "@/components/account/DangerZone";
 import ExecVerifiedSection from "@/components/settings/ExecVerifiedSection";
+import LanguageRegionSection from "@/components/settings/LanguageRegionSection";
 
 const NAV_SECTIONS = [
   { id: "profile", label: "Profile", icon: User, desc: "Personal information, executive identity, resume, and career details", to: "/profile", group: "Identity" },
@@ -25,6 +26,7 @@ const NAV_SECTIONS = [
   { id: "security", label: "Security Center", icon: ShieldCheck, desc: "Security overview, threat detection, recovery", to: "/security", group: "Security" },
   { id: "authentication", label: "Authentication", icon: Fingerprint, desc: "Multi-factor authentication, recovery codes, passkeys", to: "/security", group: "Security" },
   { id: "sessions", label: "Sessions", icon: Monitor, desc: "View and manage active sessions across devices", to: "/security", group: "Security" },
+  { id: "language", label: "Language & Region", icon: Globe, desc: "Interface language, text direction, timezone, and locale formatting", group: "Preferences", inline: true },
   { id: "notifications", label: "Notifications", icon: Bell, desc: "Platform updates, executive insights, security alerts", to: "/notifications", group: "Preferences" },
   { id: "privacy", label: "Privacy", icon: Lock, desc: "Privacy settings, consent management, data subject rights", to: "/privacy-compliance", group: "Preferences" },
   { id: "subscription", label: "Subscription", icon: CreditCard, desc: "Your subscription plan, features, and usage", to: "/billing", group: "Commercial" },
@@ -234,6 +236,8 @@ export default function Settings() {
         return <LinkCard section={NAV_SECTIONS.find(s => s.id === "authentication")} />;
       case "sessions":
         return <LinkCard section={NAV_SECTIONS.find(s => s.id === "sessions")} />;
+      case "language":
+        return <LanguageRegionSection />;
       case "notifications":
         return <LinkCard section={NAV_SECTIONS.find(s => s.id === "notifications")} />;
       case "privacy":

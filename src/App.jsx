@@ -216,6 +216,7 @@ import ProductCommandCenter from '@/pages/operations/ProductCommandCenter';
 import OperationsDomain from '@/pages/operations/OperationsDomain';
 import UserIntelligence from '@/pages/operations/UserIntelligence';
 import GeographicIntelligence from '@/pages/operations/GeographicIntelligence';
+import MarketOpportunity from '@/pages/operations/MarketOpportunity';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
@@ -491,6 +492,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/product-intelligence" element={<OperationsDomain domain="product-intelligence" />} />
           <Route path="/operations/user-intelligence" element={<UserIntelligence />} />
           <Route path="/operations/product-intelligence/geographic" element={<GeographicIntelligence />} />
+          <Route path="/operations/product-intelligence/market-opportunity" element={<MarketOpportunity />} />
           <Route path="/operations/beta" element={<OperationsDomain domain="beta" />} />
           <Route path="/operations/strategy" element={<OperationsDomain domain="strategy" />} />
           <Route path="/operations/launch" element={<OperationsDomain domain="launch" />} />

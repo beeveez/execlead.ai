@@ -147,6 +147,7 @@ export const WORKSPACE_NAV = {
       { path: "/operations/product-intelligence", label: "Product Intelligence", icon: BarChart3 },
       { path: "/operations/user-intelligence", label: "User Intelligence™", icon: Users },
       { path: "/operations/product-intelligence/geographic", label: "Geographic Intelligence™", icon: Globe },
+      { path: "/operations/product-intelligence/market-opportunity", label: "Market Opportunity™", icon: Target },
     ]},
     { label: "Beta Operations", items: [
       { path: "/operations/beta", label: "Beta Operations", icon: Rocket },

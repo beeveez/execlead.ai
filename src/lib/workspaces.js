@@ -145,6 +145,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Product Intelligence", items: [
       { path: "/operations/product-intelligence", label: "Product Intelligence", icon: BarChart3 },
+      { path: "/operations/user-intelligence", label: "User Intelligence™", icon: Users },
     ]},
     { label: "Beta Operations", items: [
       { path: "/operations/beta", label: "Beta Operations", icon: Rocket },

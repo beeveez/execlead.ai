@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info, Globe,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -146,6 +146,7 @@ export const WORKSPACE_NAV = {
     { label: "Product Intelligence", items: [
       { path: "/operations/product-intelligence", label: "Product Intelligence", icon: BarChart3 },
       { path: "/operations/user-intelligence", label: "User Intelligence™", icon: Users },
+      { path: "/operations/product-intelligence/geographic", label: "Geographic Intelligence™", icon: Globe },
     ]},
     { label: "Beta Operations", items: [
       { path: "/operations/beta", label: "Beta Operations", icon: Rocket },

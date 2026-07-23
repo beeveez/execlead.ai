@@ -158,6 +158,9 @@ export const WORKSPACE_NAV = {
     { label: "Launch Operations", items: [
       { path: "/operations/launch", label: "Launch Operations", icon: Flag },
     ]},
+    { label: "Security Operations", items: [
+      { path: "/operations/security", label: "Security Operations Center™", icon: ShieldCheck },
+    ]},
     { label: "Reports", items: [
       { path: "/operations/reports", label: "Reports", icon: FileText },
     ]},

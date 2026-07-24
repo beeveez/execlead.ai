@@ -135,6 +135,7 @@ export const WORKSPACE_NAV = {
   operations: [
     { label: "Platform", items: [
       { path: "/operations", label: "Product Command Center™", icon: LayoutDashboard },
+      { path: "/operations/ai", label: "AI Operations Center™", icon: Brain },
     ]},
     { label: "Commercial Intelligence", items: [
       { path: "/commercial-command-center", label: "Commercial Command Center™", icon: DollarSign },

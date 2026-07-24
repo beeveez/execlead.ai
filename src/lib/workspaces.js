@@ -163,6 +163,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "AI Model Management", items: [
       { path: "/operations/ai-models", label: "AI Model Management Center™", icon: Brain },
+      { path: "/operations/ai-compute", label: "AI Compute Center™", icon: Zap },
     ]},
     { label: "Reports", items: [
       { path: "/operations/reports", label: "Reports", icon: FileText },

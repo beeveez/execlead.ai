@@ -219,6 +219,7 @@ import GeographicIntelligence from '@/pages/operations/GeographicIntelligence';
 import MarketOpportunity from '@/pages/operations/MarketOpportunity';
 import SecurityOperations from '@/pages/operations/SecurityOperations';
 import AIModelManagement from '@/pages/operations/AIModelManagement';
+import AIComputeCenter from '@/pages/operations/AIComputeCenter';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
@@ -497,6 +498,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/product-intelligence/market-opportunity" element={<MarketOpportunity />} />
           <Route path="/operations/security" element={<SecurityOperations />} />
           <Route path="/operations/ai-models" element={<AIModelManagement />} />
+          <Route path="/operations/ai-compute" element={<AIComputeCenter />} />
           <Route path="/operations/beta" element={<OperationsDomain domain="beta" />} />
           <Route path="/operations/strategy" element={<OperationsDomain domain="strategy" />} />
           <Route path="/operations/launch" element={<OperationsDomain domain="launch" />} />

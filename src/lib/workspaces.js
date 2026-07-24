@@ -161,6 +161,9 @@ export const WORKSPACE_NAV = {
     { label: "Security Operations", items: [
       { path: "/operations/security", label: "Security Operations Center™", icon: ShieldCheck },
     ]},
+    { label: "AI Model Management", items: [
+      { path: "/operations/ai-models", label: "AI Model Management Center™", icon: Brain },
+    ]},
     { label: "Reports", items: [
       { path: "/operations/reports", label: "Reports", icon: FileText },
     ]},

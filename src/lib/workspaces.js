@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info, Globe,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info, Globe, Mic,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -49,6 +49,7 @@ export const WORKSPACE_NAV = {
       { path: "/executive-portfolio", label: "Executive Portfolio™", icon: Briefcase },
       { path: "/executive-credentials", label: "Executive Credentials™", icon: Award },
       { path: "/career-studio", label: "Career Studio", icon: Briefcase, feature: "career_studio" },
+      { path: "/voice-interview", label: "Voice Interview™", icon: Mic },
       { path: "/resume", label: "Resume AI", icon: FileText, feature: "resume_intelligence" },
       { path: "/companies", label: "Companies", icon: Building2, feature: "company_intelligence" },
       { path: "/journal", label: "Journal", icon: PenLine, feature: "executive_journal" },

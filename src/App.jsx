@@ -220,6 +220,7 @@ import MarketOpportunity from '@/pages/operations/MarketOpportunity';
 import SecurityOperations from '@/pages/operations/SecurityOperations';
 import AIModelManagement from '@/pages/operations/AIModelManagement';
 import AIComputeCenter from '@/pages/operations/AIComputeCenter';
+import VoiceInterview from '@/pages/VoiceInterview';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
@@ -355,6 +356,7 @@ const AuthenticatedApp = () => {
           <Route path="/challenge" element={<FeatureGate featureId="daily_executive_challenge"><Challenge /></FeatureGate>} />
           <Route path="/coach" element={<Coach />} />
           <Route path="/simulator" element={<FeatureGate featureId="executive_simulator"><Simulator /></FeatureGate>} />
+          <Route path="/voice-interview" element={<VoiceInterview />} />
           <Route path="/debate" element={<FeatureGate featureId="executive_debate"><Debate /></FeatureGate>} />
           <Route path="/council" element={<FeatureGate featureId="executive_council"><ExecutiveCouncil /></FeatureGate>} />
           <Route path="/marketplace" element={<FeatureGate featureId="marketplace"><Marketplace /></FeatureGate>} />

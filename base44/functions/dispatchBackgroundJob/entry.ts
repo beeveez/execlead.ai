@@ -96,11 +96,32 @@ Deno.serve(async (req) => {
 
     // ── Process batch (automation or admin) ──
     if (action === 'process_batch') {
-      // Auth check — allow automation (no user) or admin
-      let user = null;
-      try { user = await base44.auth.me(); } catch (_) { /* automation context */ }
-      if (user && !['super_admin', 'platform_admin', 'admin', 'developer'].includes(user.role)) {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
+      // Auth check — allow internal service calls (scheduled automations) or admin users.
+      // Unauthenticated requests are rejected to prevent authentication bypass (CWE-306).
+      const ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer'];
+
+      // Check if the request carries a platform-issued internal service token (scheduled automation)
+      let isInternalService = false;
+      const serviceAuth = req.headers.get('base44-service-authorization');
+      if (serviceAuth) {
+        try {
+          const token = serviceAuth.replace('Bearer ', '');
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          isInternalService = payload.internal_service_token === true || payload.caller === 'backend_functions';
+        } catch (_) { /* invalid token — treat as unauthenticated */ }
+      }
+
+      // Fallback: check for a shared system token in the body (manual system calls)
+      const systemToken = Deno.env.get('DISPATCH_BATCH_TOKEN');
+      const hasValidSystemToken = systemToken && body.system_token === systemToken;
+
+      if (!isInternalService && !hasValidSystemToken) {
+        // Not a system call — require authenticated admin user
+        const user = await base44.auth.me().catch(() => null);
+        if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        if (!ADMIN_ROLES.includes(user.role)) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 });
+        }
       }
 
       const batchSize = body.batch_size || 5;

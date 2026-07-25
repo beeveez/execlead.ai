@@ -164,6 +164,9 @@ export const WORKSPACE_NAV = {
       { path: "/operations/security", label: "Security Operations Center™", icon: ShieldCheck },
       { path: "/operations/security-execution", label: "Security Execution Framework™", icon: Lock },
     ]},
+    { label: "Performance Operations", items: [
+      { path: "/operations/performance", label: "Performance Operations Center™", icon: Gauge },
+    ]},
     { label: "AI Model Management", items: [
       { path: "/operations/ai-models", label: "AI Model Management Center™", icon: Brain },
       { path: "/operations/ai-compute", label: "AI Compute Center™", icon: Zap },

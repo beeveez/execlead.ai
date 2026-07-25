@@ -26,7 +26,11 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
     if (!ALLOWED_ROLES.includes(user.role)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
-    const allFeedback = await base44.asServiceRole.entities.Feedback.list("-created_date", 500);
+    // Defense-in-depth: scope feedback to the caller's organization when present
+    const userOrgName = user.data?.organization_name;
+    const allFeedback = userOrgName
+      ? await base44.asServiceRole.entities.Feedback.filter({ organization_name: userOrgName }, "-created_date", 500)
+      : await base44.asServiceRole.entities.Feedback.list("-created_date", 500);
     const releases = await base44.asServiceRole.entities.ProductRelease.list("-release_date", 100);
 
     const now = new Date();

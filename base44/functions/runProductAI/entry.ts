@@ -28,8 +28,16 @@ Deno.serve(async (req) => {
       const item = await base44.asServiceRole.entities.Feedback.get(feedbackId);
       if (!item) return Response.json({ error: "Feedback not found" }, { status: 404 });
 
-      // Fetch existing titles for duplicate detection
-      const recent = await base44.asServiceRole.entities.Feedback.list("-created_date", 50);
+      // Verify organizational ownership (CWE-639 defense-in-depth)
+      const userOrgName = user.data?.organization_name;
+      if (userOrgName && item.organization_name && item.organization_name !== userOrgName) {
+        return Response.json({ error: "Access denied: feedback belongs to another organization" }, { status: 403 });
+      }
+
+      // Fetch existing titles for duplicate detection (scoped to caller's org)
+      const recent = userOrgName
+        ? await base44.asServiceRole.entities.Feedback.filter({ organization_name: userOrgName }, "-created_date", 50)
+        : await base44.asServiceRole.entities.Feedback.list("-created_date", 50);
       const existingTitles = recent.filter(f => f.id !== feedbackId).map(f => f.title).filter(Boolean).slice(0, 40);
 
       const prompt = `You are the AI product analyst for EXECLEAD.AI, an executive leadership development platform with modules: Executive Coach, Simulator, Academy, Debate, Executive Council, Company Intelligence, Career Advisor, Marketplace, Brand Center, Analytics, Billing, and more.
@@ -105,7 +113,10 @@ Produce a complete product-management analysis:
     // MODE: insights — corpus-level AI product insights
     // ============================================================
     if (mode === "insights") {
-      const allFeedback = await base44.asServiceRole.entities.Feedback.list("-created_date", 300);
+      const userOrgName = user.data?.organization_name;
+      const allFeedback = userOrgName
+        ? await base44.asServiceRole.entities.Feedback.filter({ organization_name: userOrgName }, "-created_date", 300)
+        : await base44.asServiceRole.entities.Feedback.list("-created_date", 300);
 
       // Build a compact corpus summary for the LLM
       const summaries = allFeedback.slice(0, 200).map(f => ({

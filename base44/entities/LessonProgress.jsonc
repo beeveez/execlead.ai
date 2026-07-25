@@ -129,11 +129,6 @@
         },
         {
           "user_condition": {
-            "role": "enterprise_admin"
-          }
-        },
-        {
-          "user_condition": {
             "role": "developer"
           }
         }
@@ -141,6 +136,9 @@
     },
     "update": {
       "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
         {
           "user_condition": {
             "role": "super_admin"

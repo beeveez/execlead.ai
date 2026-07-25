@@ -201,7 +201,7 @@
     "read": {
       "$or": [
         {
-          "data.id": "{{user.data.organization_id}}"
+          "id": "{{user.data.organization_id}}"
         },
         {
           "data.admin_user_id": "{{user.id}}"

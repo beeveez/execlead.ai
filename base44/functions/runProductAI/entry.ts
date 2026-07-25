@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-const ALLOWED_ROLES = ["developer", "super_admin", "platform_admin", "product_manager", "enterprise_admin", "organization_owner", "support"];
+const ALLOWED_ROLES = ["developer", "super_admin", "platform_admin", "product_manager", "support"];
 
 function safeParse(json, fallback) {
   if (!json) return fallback;

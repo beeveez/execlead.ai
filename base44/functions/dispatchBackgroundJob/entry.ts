@@ -7,10 +7,17 @@ Deno.serve(async (req) => {
     // Scheduled automations call with no payload — default to process_batch
     const { action } = { action: body.action ?? 'process_batch' };
 
-    // ── Queue a background job (user-scoped) ──
+    // ── Queue a background job (admin-only — all job types invoke privileged backend functions) ──
     if (action === 'queue') {
       const user = await base44.auth.me();
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer'];
+      const isAdmin = ADMIN_ROLES.includes(user.role);
+      // All processable job types dispatch privileged backend functions as service role
+      if (!isAdmin) {
+        return Response.json({ error: 'Forbidden: job queuing requires administrative privileges' }, { status: 403 });
+      }
 
       // Check for existing job with same idempotency key
       if (body.idempotency_key) {

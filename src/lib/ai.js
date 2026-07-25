@@ -1,5 +1,5 @@
 import { base44 } from "@/api/base44Client";
-import { getExecutiveContextPrompt } from "@/lib/executiveContextEngine";
+import { getExecutiveContextPrompt, getExecutiveContext } from "@/lib/executiveContextEngine";
 import { deriveProvider } from "@/lib/aiOperations";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
 
@@ -41,11 +41,14 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
 
   // ── Model Router™ — every request passes through the router ──
   const routingIntent = intent || MODULE_INTENT_MAP[module] || "general_inquiry";
+  const ctx = getExecutiveContext();
+  const subscription = ctx?.identity?.subscription || "free";
   const routingDecision = routeModel({
     intent: routingIntent,
     contextSize: Math.ceil(fullPrompt.length / 4),
     webSearchRequired: options.add_context_from_internet || false,
     streamingPreferred: false,
+    subscription,
   });
 
   const modelChain = [routingDecision.selectedModel, ...routingDecision.fallbackChain];

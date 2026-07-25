@@ -71,9 +71,9 @@ export const MODEL_REGISTRY = {
     streamingSupported: true,
     webSearchSupported: false,
   },
-  gpt_5_5: {
-    id: "gpt_5_5",
-    label: "GPT-5.5",
+  gpt_5_6_sol: {
+    id: "gpt_5_6_sol",
+    label: "GPT-5.6 Sol",
     provider: "openai",
     tier: 2,
     maxContext: 64000,

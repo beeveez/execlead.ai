@@ -25,14 +25,17 @@ Deno.serve(async (req) => {
       const feedbackId = body.feedback_id;
       if (!feedbackId) return Response.json({ error: "feedback_id required" }, { status: 400 });
 
-      const item = await base44.asServiceRole.entities.Feedback.get(feedbackId);
-      if (!item) return Response.json({ error: "Feedback not found" }, { status: 404 });
-
-      // Verify organizational ownership (CWE-639 defense-in-depth)
+      // Scope the query at the database level: when caller has an org, only feedback
+      // matching both the requested ID and the caller's organization_name is returned (CWE-639)
       const userOrgName = user.data?.organization_name;
-      if (userOrgName && item.organization_name && item.organization_name !== userOrgName) {
-        return Response.json({ error: "Access denied: feedback belongs to another organization" }, { status: 403 });
+      let item;
+      if (userOrgName) {
+        const scoped = await base44.asServiceRole.entities.Feedback.filter({ id: feedbackId, organization_name: userOrgName });
+        item = scoped[0];
+      } else {
+        item = await base44.asServiceRole.entities.Feedback.get(feedbackId);
       }
+      if (!item) return Response.json({ error: "Feedback not found" }, { status: 404 });
 
       // Fetch existing titles for duplicate detection (scoped to caller's org)
       const recent = userOrgName

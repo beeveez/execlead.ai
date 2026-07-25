@@ -1,4 +1,22 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import {
+  authenticateRequest,
+  enforceAuth,
+  logAuditRecord,
+  logSecurityEvent,
+  securityResponse,
+  getClientIp,
+} from '../../shared/auth.ts';
+
+// Founder identity is resolved dynamically from GovernanceConfig — never hardcoded
+// (Standard: ✗ Hardcode Founder Email → ✓ Verify Identity dynamically)
+async function getFounderUserId(base44) {
+  try {
+    const configs = await base44.asServiceRole.entities.GovernanceConfig.list('-created_date', 1);
+    if (configs.length > 0 && configs[0].founder_user_id) return configs[0].founder_user_id;
+  } catch {}
+  return null;
+}
 
 const RETENTION_YEARS = 7;
 const CODE_EXPIRY_MINUTES = 10;
@@ -298,14 +316,14 @@ function getAvailableModes(maxGraceDays) {
 }
 
 // ---- Founder & Last-of-Kind Protection ----
-const FOUNDER_EMAIL = 'dev.rayvaldez@gmail.com';
 const PLATFORM_ADMIN_ROLES = ['super_admin', 'platform_admin'];
 const DEVELOPER_ROLES = ['developer'];
 const OPERATIONS_ROLES = ['admin'];
 const covers = (u, roles) => u.role === 'super_admin' || roles.includes(u.role);
 
 async function checkDeletionProtection(base44, user) {
-  if (user.email === FOUNDER_EMAIL) {
+  const founderId = await getFounderUserId(base44);
+  if (founderId && user.id === founderId) {
     return { blocked: true, message: 'This is the protected Founder account and cannot be deleted.' };
   }
   try {
@@ -640,10 +658,15 @@ Deno.serve(async (req) => {
       return Response.json({ restored: true });
     }
 
-    // ---- process_scheduled: execute deletions past grace period (admin/automation) ----
+    // ---- process_scheduled: execute deletions past grace period (admin or system automation) ----
     if (action === 'process_scheduled') {
-      const user = await base44.auth.me();
-      if (!user || user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+      });
+      const authError = await enforceAuth(base44, auth, 'process_scheduled_deletions', getClientIp(req));
+      if (authError) return authError;
 
       const now = new Date();
       const pending = await base44.asServiceRole.entities.AccountDeletionRequest.filter({ status: 'pending_deletion' }, 'scheduled_deletion_at', 200);
@@ -664,12 +687,26 @@ Deno.serve(async (req) => {
         }
       }
 
+      await logAuditRecord(base44, {
+        category: 'operations',
+        action: 'process_scheduled_deletions',
+        authMethod: auth.authMethod,
+        performedById: auth.user?.id || 'system',
+        performedByName: auth.user?.full_name || 'System',
+        targetEntity: 'AccountDeletionRequest',
+        status: 'completed',
+        severity: results.some(r => r.status === 'error') ? 'warning' : 'success',
+        requestId: auth.requestId,
+        ipAddress: getClientIp(req),
+        metadata: { processed: results.length, completed: results.filter(r => r.status === 'completed').length, errors: results.filter(r => r.status === 'error').length },
+      });
+
       return Response.json({ processed: results.length, results });
     }
 
     return Response.json({ error: 'Unknown action: ' + (action || 'none') }, { status: 400 });
   } catch (error) {
     console.error('accountDeletion error:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    return securityResponse(500);
   }
 });

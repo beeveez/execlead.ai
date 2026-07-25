@@ -1,4 +1,12 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import {
+  authenticateRequest,
+  enforceAuth,
+  logAuditRecord,
+  logSecurityEvent,
+  securityResponse,
+  getClientIp,
+} from '../../shared/auth.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -6,18 +14,17 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     // Scheduled automations call with no payload — default to process_batch
     const { action } = { action: body.action ?? 'process_batch' };
+    const clientIp = getClientIp(req);
 
     // ── Queue a background job (admin-only — all job types invoke privileged backend functions) ──
     if (action === 'queue') {
-      const user = await base44.auth.me();
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
-      const ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer'];
-      const isAdmin = ADMIN_ROLES.includes(user.role);
-      // All processable job types dispatch privileged backend functions as service role
-      if (!isAdmin) {
-        return Response.json({ error: 'Forbidden: job queuing requires administrative privileges' }, { status: 403 });
-      }
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: false,
+      });
+      const authError = await enforceAuth(base44, auth, 'queue_job', clientIp);
+      if (authError) return authError;
 
       // Check for existing job with same idempotency key
       if (body.idempotency_key) {
@@ -31,51 +38,94 @@ Deno.serve(async (req) => {
         }
       }
 
-      const job = await base44.entities.PerformanceJob.create({
+      const jobEntity = auth.isSystemCall
+        ? base44.asServiceRole.entities.PerformanceJob
+        : base44.entities.PerformanceJob;
+
+      const job = await jobEntity.create({
         job_id: crypto.randomUUID(),
         job_type: body.job_type,
-        target_user_id: body.target_user_id || user.id,
-        target_user_name: user.full_name || '',
+        target_user_id: body.target_user_id || (auth.user?.id || ''),
+        target_user_name: body.target_user_name || auth.user?.full_name || '',
         target_entity: body.target_entity || '',
         target_entity_id: body.target_entity_id || '',
         status: 'queued',
         priority: body.priority || 'medium',
         payload_json: JSON.stringify(body.payload || {}),
         queued_at: new Date().toISOString(),
-        triggered_by: body.triggered_by || 'user',
-        triggered_by_name: user.full_name || '',
+        triggered_by: auth.isSystemCall ? (body.triggered_by || 'automation') : (body.triggered_by || 'user'),
+        triggered_by_name: auth.user?.full_name || 'System',
         idempotency_key: body.idempotency_key || crypto.randomUUID(),
+      });
+
+      await logAuditRecord(base44, {
+        category: 'operations',
+        action: 'queue_background_job',
+        authMethod: auth.authMethod,
+        performedById: auth.user?.id || 'system',
+        performedByName: auth.user?.full_name || 'System',
+        targetEntity: 'PerformanceJob',
+        targetEntityId: job.id,
+        status: 'completed',
+        severity: 'success',
+        requestId: auth.requestId,
+        ipAddress: clientIp,
+        metadata: { job_type: body.job_type, priority: body.priority || 'medium' },
       });
 
       return Response.json({ job_id: job.id, status: 'queued' });
     }
 
-    // ── Get job status (owner or admin) ──
+    // ── Get job status (authenticated user — any role) ──
     if (action === 'status') {
-      const user = await base44.auth.me();
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-      const job = await base44.entities.PerformanceJob.get(body.job_id);
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: false,
+        allowSystemSecret: false,
+      });
+      const authError = await enforceAuth(base44, auth, 'get_job_status', clientIp);
+      if (authError) return authError;
+
+      const jobEntity = auth.isSystemCall
+        ? base44.asServiceRole.entities.PerformanceJob
+        : base44.entities.PerformanceJob;
+      const job = await jobEntity.get(body.job_id);
       return Response.json(job);
     }
 
     // ── Queue stats (admin/dev only) ──
     if (action === 'stats') {
-      const user = await base44.auth.me();
-      if (!user || !['super_admin', 'platform_admin', 'admin', 'developer'].includes(user.role)) {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-      }
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: false,
+      });
+      const authError = await enforceAuth(base44, auth, 'get_queue_stats', clientIp);
+      if (authError) return authError;
+
       const queued = await base44.asServiceRole.entities.PerformanceJob.filter({ status: 'queued' });
       const running = await base44.asServiceRole.entities.PerformanceJob.filter({ status: 'running' });
       const completed = await base44.asServiceRole.entities.PerformanceJob.filter({ status: 'completed' }, '-completed_at', 10);
       const failed = await base44.asServiceRole.entities.PerformanceJob.filter({ status: 'failed' });
       const deadLetter = await base44.asServiceRole.entities.PerformanceJob.filter({ status: 'dead_letter' });
 
-      const recentDurations = completed
-        .map((j) => j.duration_ms || 0)
-        .filter((d) => d > 0);
+      const recentDurations = completed.map((j) => j.duration_ms || 0).filter((d) => d > 0);
       const avgDuration = recentDurations.length > 0
         ? Math.round(recentDurations.reduce((s, d) => s + d, 0) / recentDurations.length)
         : 0;
+
+      await logAuditRecord(base44, {
+        category: 'operations',
+        action: 'get_queue_stats',
+        authMethod: auth.authMethod,
+        performedById: auth.user?.id || 'system',
+        performedByName: auth.user?.full_name || 'System',
+        status: 'completed',
+        severity: 'information',
+        requestId: auth.requestId,
+        ipAddress: clientIp,
+        metadata: { queued: queued.length, running: running.length, failed: failed.length },
+      });
 
       return Response.json({
         queued: queued.length,
@@ -94,35 +144,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── Process batch (automation or admin) ──
+    // ── Process batch (system call or admin) ──
     if (action === 'process_batch') {
-      // Auth check — allow internal service calls (scheduled automations) or admin users.
-      // Unauthenticated requests are rejected to prevent authentication bypass (CWE-306).
-      const ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer'];
-
-      // Check if the request carries a platform-issued internal service token (scheduled automation)
-      let isInternalService = false;
-      const serviceAuth = req.headers.get('base44-service-authorization');
-      if (serviceAuth) {
-        try {
-          const token = serviceAuth.replace('Bearer ', '');
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          isInternalService = payload.internal_service_token === true || payload.caller === 'backend_functions';
-        } catch (_) { /* invalid token — treat as unauthenticated */ }
-      }
-
-      // Fallback: check for a shared system token in the body (manual system calls)
-      const systemToken = Deno.env.get('DISPATCH_BATCH_TOKEN');
-      const hasValidSystemToken = systemToken && body.system_token === systemToken;
-
-      if (!isInternalService && !hasValidSystemToken) {
-        // Not a system call — require authenticated admin user
-        const user = await base44.auth.me().catch(() => null);
-        if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        if (!ADMIN_ROLES.includes(user.role)) {
-          return Response.json({ error: 'Forbidden' }, { status: 403 });
-        }
-      }
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+      });
+      const authError = await enforceAuth(base44, auth, 'process_batch', clientIp);
+      if (authError) return authError;
 
       const batchSize = body.batch_size || 5;
       const queuedJobs = await base44.asServiceRole.entities.PerformanceJob.filter(
@@ -202,11 +232,28 @@ Deno.serve(async (req) => {
         }
       }
 
+      await logAuditRecord(base44, {
+        category: 'operations',
+        action: 'process_batch',
+        authMethod: auth.authMethod,
+        performedById: auth.user?.id || 'system',
+        performedByName: auth.user?.full_name || 'System',
+        targetEntity: 'PerformanceJob',
+        status: 'completed',
+        severity: 'success',
+        requestId: auth.requestId,
+        ipAddress: clientIp,
+        metadata: { batch_size: batchSize, processed: results.length, results_summary: results.map((r) => ({ status: r.status })) },
+      });
+
       return Response.json({ processed: results.length, results });
     }
 
-    return Response.json({ error: 'Unknown action' }, { status: 400 });
+    // Unknown action — deny by default
+    return securityResponse(400);
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Never expose internal error details, secrets, or stack traces
+    console.error('dispatchBackgroundJob error:', error.message);
+    return securityResponse(500);
   }
 });

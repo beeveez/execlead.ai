@@ -1,6 +1,22 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import {
+  authenticateRequest,
+  enforceAuth,
+  logAuditRecord,
+  logSecurityEvent,
+  securityResponse,
+  getClientIp,
+} from '../../shared/auth.ts';
 
-const FOUNDER_EMAIL = 'dev.rayvaldez@gmail.com';
+// Founder identity is resolved dynamically from GovernanceConfig — never hardcoded
+// (Standard: ✗ Hardcode Founder Email → ✓ Verify Identity dynamically)
+async function getFounderUserId(base44) {
+  try {
+    const configs = await base44.asServiceRole.entities.GovernanceConfig.list('-created_date', 1);
+    if (configs.length > 0 && configs[0].founder_user_id) return configs[0].founder_user_id;
+  } catch {}
+  return null;
+}
 const PLATFORM_ADMIN_ROLES = ['super_admin', 'platform_admin'];
 const DEVELOPER_ROLES = ['developer'];
 const OPERATIONS_ROLES = ['admin'];
@@ -39,9 +55,9 @@ async function logAuditEvent(base44, event) {
   } catch {}
 }
 
-function checkProtection(target, allUsers) {
-  // Founder protection — absolute, can never be deleted
-  if (target.email === FOUNDER_EMAIL) {
+function checkProtection(target, allUsers, founderId) {
+  // Founder protection — absolute, can never be deleted (resolved dynamically from GovernanceConfig)
+  if (founderId && target.id === founderId) {
     return { protected: true, reason: 'This is the protected Founder account and cannot be deleted.' };
   }
   // Last-of-kind protection (super_admin covers all categories)
@@ -98,29 +114,36 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const { action } = body;
 
-    // Auth — admin only
-    let user = null;
-    try { user = await base44.auth.me(); } catch (_) {}
-    if (!user || !['super_admin', 'platform_admin', 'admin', 'developer'].includes(user.role)) {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Auth — admin only (Standard: deny by default, explicit authentication, no try/catch bypass)
+    const clientIp = getClientIp(req);
+    const auth = await authenticateRequest(req, base44, {
+      body,
+      requireAdmin: true,
+      allowSystemSecret: false,
+    });
+    const authError = await enforceAuth(base44, auth, 'admin_user_management', clientIp);
+    if (authError) return authError;
+    // System calls (platform automations) have no user — provide a safe fallback for audit logging
+    const user = auth.user || { id: 'system', email: 'system@execlead.ai', full_name: 'System', role: 'system' };
 
     // ── check_protection: is a user protected from deletion? ──
     if (action === 'check_protection') {
       const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 500);
       const target = allUsers.find(u => u.id === body.target_user_id || u.email === body.target_email);
       if (!target) return Response.json({ error: 'User not found' }, { status: 404 });
-      const protection = checkProtection(target, allUsers);
+      const founderId = await getFounderUserId(base44);
+      const protection = checkProtection(target, allUsers, founderId);
       return Response.json({ user: { id: target.id, email: target.email, role: target.role }, ...protection });
     }
 
     // ── cleanup_test_users: delete all non-protected users ──
     if (action === 'cleanup_test_users') {
       const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 500);
+      const founderId = await getFounderUserId(base44);
       const results = [];
 
       for (const target of allUsers) {
-        const protection = checkProtection(target, allUsers);
+        const protection = checkProtection(target, allUsers, founderId);
         if (protection.protected) {
           results.push({ email: target.email, status: 'protected', reason: protection.reason });
           continue;
@@ -166,7 +189,8 @@ Deno.serve(async (req) => {
       const target = allUsers.find(u => u.id === body.target_user_id);
       if (!target) return Response.json({ error: 'User not found' }, { status: 404 });
 
-      const protection = checkProtection(target, allUsers);
+      const founderId = await getFounderUserId(base44);
+      const protection = checkProtection(target, allUsers, founderId);
       if (protection.protected) {
         await logAuditEvent(base44, {
           description: `Blocked deletion of protected user: ${target.email}`,
@@ -194,6 +218,8 @@ Deno.serve(async (req) => {
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Never expose internal error details (Standard: generic security responses)
+    console.error('adminUserManagement error:', error.message);
+    return securityResponse(500);
   }
 });

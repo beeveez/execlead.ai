@@ -1,4 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import {
+  logAuditRecord,
+  securityResponse,
+  getClientIp,
+} from '../../shared/auth.ts';
 
 async function safeFilter(base44, entityName, filterObj, sort, limit) {
   try {
@@ -97,6 +102,21 @@ Deno.serve(async (req) => {
       if (profile.id !== newOwner.id) {
         await base44.asServiceRole.entities.UserProfile.update(profile.id, { custom_role: 'Enterprise Admin' });
       }
+      await logAuditRecord(base44, {
+        category: 'operations',
+        action: 'organization_transfer_ownership',
+        authMethod: 'admin_user',
+        performedById: user.id,
+        performedByName: user.full_name || user.email,
+        targetEntity: 'Organization',
+        targetEntityId: org.id,
+        status: 'completed',
+        severity: 'high',
+        requestId: crypto.randomUUID(),
+        ipAddress: getClientIp(req),
+        metadata: { old_owner: user.email, new_owner_id: body.new_owner_user_id, new_owner_name: newOwner.full_name },
+      });
+
       return Response.json({ success: true, new_owner: newOwner.full_name });
     }
 
@@ -121,6 +141,22 @@ Deno.serve(async (req) => {
       }
       try { await base44.asServiceRole.entities.Department.deleteMany({ organization_id: org.id }); } catch {}
       await base44.asServiceRole.entities.Organization.delete(org.id);
+
+      await logAuditRecord(base44, {
+        category: 'operations',
+        action: 'organization_delete',
+        authMethod: 'admin_user',
+        performedById: user.id,
+        performedByName: user.full_name || user.email,
+        targetEntity: 'Organization',
+        targetEntityId: org.id,
+        status: 'completed',
+        severity: 'critical',
+        requestId: crypto.randomUUID(),
+        ipAddress: getClientIp(req),
+        metadata: { org_name: org.name, members_cleaned: members.length },
+      });
+
       return Response.json({ success: true, deleted: true });
     }
 
@@ -141,6 +177,8 @@ Deno.serve(async (req) => {
 
     return Response.json({ error: 'Unknown action: ' + (action || 'none') }, { status: 400 });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Never expose internal error details (Standard: generic security responses)
+    console.error('organizationDangerZone error:', error.message);
+    return securityResponse(500);
   }
 });

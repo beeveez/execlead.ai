@@ -162,6 +162,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Security Operations", items: [
       { path: "/operations/security", label: "Security Operations Center™", icon: ShieldCheck },
+      { path: "/operations/security-execution", label: "Security Execution Framework™", icon: Lock },
     ]},
     { label: "AI Model Management", items: [
       { path: "/operations/ai-models", label: "AI Model Management Center™", icon: Brain },

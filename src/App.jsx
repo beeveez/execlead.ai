@@ -222,6 +222,7 @@ import AIModelManagement from '@/pages/operations/AIModelManagement';
 import AIComputeCenter from '@/pages/operations/AIComputeCenter';
 import VoiceInterview from '@/pages/VoiceInterview';
 import AIOperationsCenter from '@/pages/operations/AIOperationsCenter';
+import SecurityExecution from '@/pages/operations/SecurityExecution';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
@@ -503,6 +504,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/ai-models" element={<AIModelManagement />} />
           <Route path="/operations/ai-compute" element={<AIComputeCenter />} />
           <Route path="/operations/ai" element={<AIOperationsCenter />} />
+          <Route path="/operations/security-execution" element={<SecurityExecution />} />
           <Route path="/operations/beta" element={<OperationsDomain domain="beta" />} />
           <Route path="/operations/strategy" element={<OperationsDomain domain="strategy" />} />
           <Route path="/operations/launch" element={<OperationsDomain domain="launch" />} />

@@ -39,11 +39,13 @@ export default function InterventionPanel({ interventions = [], stats }) {
                     <div className={`text-xs font-semibold ${style.color}`}>{intv.name}</div>
                     <div className="text-[10px] text-white/40 mt-0.5">{intv.description}</div>
                     <div className="text-[10px] text-white/50 mt-1 italic">{intv.action.message}</div>
-                    <div className="flex gap-3 mt-1.5 text-[9px] text-white/30">
-                      <span>Readiness: {intv.context.readiness}%</span>
-                      <span>Momentum: {intv.context.momentum}</span>
-                      <span>Overdue: {intv.context.overdueActions}</span>
-                    </div>
+                    {intv.displayContext && intv.displayContext.length > 0 && (
+                      <div className="flex flex-wrap gap-3 mt-1.5 text-[9px] text-white/30">
+                        {intv.displayContext.map((f) => (
+                          <span key={f.key}>{f.label}: {f.value}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

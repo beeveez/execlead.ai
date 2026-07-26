@@ -16,6 +16,8 @@ import { publish } from "./eventBus";
 // INTERVENTION RULES
 // ============================================================
 
+const fmtDays = (d) => (d >= 999 ? "Never" : `${d}d`);
+
 const INTERVENTION_RULES = [
   {
     id: "momentum_declining",
@@ -29,6 +31,9 @@ const INTERVENTION_RULES = [
       message: "Your career momentum is declining. The Coach has been updated to focus on regaining momentum.",
       path: "/coach",
     },
+    contextFields: [
+      { key: "momentum", label: "Momentum", format: (ctx) => ctx.forecast?.momentum || "stable" },
+    ],
   },
   {
     id: "leadership_gap_widening",
@@ -42,6 +47,10 @@ const INTERVENTION_RULES = [
       message: "Your leadership readiness is below target. Your journey has been reprioritized to focus on key gaps.",
       path: "/journey-orchestrator",
     },
+    contextFields: [
+      { key: "readiness", label: "Readiness", format: (ctx) => `${ctx.forecast?.readiness_score || 0}%` },
+      { key: "momentum", label: "Momentum", format: (ctx) => ctx.forecast?.momentum || "stable" },
+    ],
   },
   {
     id: "no_simulations",
@@ -55,6 +64,9 @@ const INTERVENTION_RULES = [
       message: "You haven't run a simulation recently. A simulation recommendation has been added to your Action Center.",
       path: "/simulator",
     },
+    contextFields: [
+      { key: "sinceLastSim", label: "Since Last Sim", format: (ctx) => fmtDays(ctx.daysSinceLastSimulation) },
+    ],
   },
   {
     id: "learning_stalled",
@@ -68,6 +80,9 @@ const INTERVENTION_RULES = [
       message: "Your learning has stalled. Your next briefing will explain why and suggest next steps.",
       path: "/academy",
     },
+    contextFields: [
+      { key: "sinceLastLearn", label: "Since Last Learning", format: (ctx) => fmtDays(ctx.daysSinceLastLearning) },
+    ],
   },
   {
     id: "low_coaching_engagement",
@@ -81,6 +96,9 @@ const INTERVENTION_RULES = [
       message: "It's been a while since your last coaching session. Consider scheduling one.",
       path: "/coach",
     },
+    contextFields: [
+      { key: "sinceLastCoach", label: "Since Last Coaching", format: (ctx) => fmtDays(ctx.daysSinceLastCoaching) },
+    ],
   },
   {
     id: "pending_actions_overdue",
@@ -94,6 +112,9 @@ const INTERVENTION_RULES = [
       message: "You have overdue actions. Consider rescheduling or completing them to maintain momentum.",
       path: "/action-center",
     },
+    contextFields: [
+      { key: "overdue", label: "Overdue", format: (ctx) => ctx.overdueActions },
+    ],
   },
   {
     id: "profile_incomplete",
@@ -107,6 +128,9 @@ const INTERVENTION_RULES = [
       message: "Your profile is incomplete. Complete it to unlock better recommendations.",
       path: "/profile",
     },
+    contextFields: [
+      { key: "profile", label: "Profile", format: (ctx) => `${ctx.profileCompleteness}%` },
+    ],
   },
 ];
 
@@ -194,7 +218,13 @@ export async function detectInterventions(userId) {
             daysSinceLastLearning: ctx.daysSinceLastLearning,
             daysSinceLastCoaching: ctx.daysSinceLastCoaching,
             overdueActions: ctx.overdueActions,
+            profileCompleteness: ctx.profileCompleteness,
           },
+          displayContext: (rule.contextFields || []).map((f) => ({
+            key: f.key,
+            label: f.label,
+            value: f.format(ctx),
+          })),
         });
       }
     } catch {}

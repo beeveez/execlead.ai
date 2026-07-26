@@ -1,5 +1,4 @@
 import React from "react";
-import { Lock, Unlock } from "lucide-react";
 import DomainCard from "./DomainCard";
 
 export default function DomainGrid({ domains }) {

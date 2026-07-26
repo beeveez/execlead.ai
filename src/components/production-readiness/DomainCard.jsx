@@ -7,7 +7,6 @@ const ICONS = { pass: CheckCircle, warning: AlertTriangle, fail: XCircle, pendin
 export default function DomainCard({ domain }) {
   const [expanded, setExpanded] = useState(false);
   const passed = domain.passedGate;
-  const Icon = ICONS;
 
   return (
     <div className={`bg-[#0d0d14] border rounded-xl overflow-hidden transition-all ${passed ? "border-emerald-500/20" : domain.score >= 50 ? "border-amber-500/20" : "border-red-500/20"}`}>

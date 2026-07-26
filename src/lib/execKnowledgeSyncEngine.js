@@ -162,7 +162,7 @@ export function validateKnowledgeSync(assets) {
   const findings = [];
 
   // Missing metadata — routes without workspace assignment
-  const WS_EXEMPT = ["/onboarding", "/home", "/reset-password", "/forgot-password"];
+  const WS_EXEMPT = ["/onboarding", "/home", "/reset-password", "/forgot-password", "/voice-interview"];
   assets.routes.forEach((r) => {
     if (WS_EXEMPT.includes(r.path)) return;
     if (!r.public && !r.path.includes(":") && !r.workspace) {
@@ -218,6 +218,7 @@ export function validateKnowledgeSync(assets) {
     "/beta-program", "/exec-observability", "/product-intelligence", "/beta-operations",
     "/customer-lifecycle", "/release-readiness", "/feature-flags", "/system-status",
     "/developer/product",
+    "/operations/production-readiness",
   ];
   assets.routes.forEach((r) => {
     if (r.public || NAV_EXEMPT.includes(r.path) || r.path.includes(":")) return;

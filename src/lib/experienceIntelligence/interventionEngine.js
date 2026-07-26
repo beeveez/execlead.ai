@@ -40,7 +40,7 @@ const INTERVENTION_RULES = [
     name: "Leadership Gap Widening",
     description: "Readiness score below 50 with declining momentum",
     severity: "critical",
-    check: (ctx) => (ctx.forecast?.readiness_score || 0) < 50 && ctx.forecast?.momentum !== "increasing",
+    check: (ctx) => !!ctx.forecast && (ctx.forecast.readiness_score || 0) < 50 && ctx.forecast.momentum !== "increasing",
     action: {
       module: "journey",
       action: "reprioritize",

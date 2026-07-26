@@ -213,6 +213,7 @@ import CPQWizard from '@/pages/CPQWizard';
 import CPQDashboard from '@/pages/CPQDashboard';
 import CPQQuoteView from '@/pages/CPQQuoteView';
 import ProductCommandCenter from '@/pages/operations/ProductCommandCenter';
+import ProductionReadiness from '@/pages/operations/ProductionReadiness';
 import OperationsDomain from '@/pages/operations/OperationsDomain';
 import UserIntelligence from '@/pages/operations/UserIntelligence';
 import GeographicIntelligence from '@/pages/operations/GeographicIntelligence';
@@ -496,6 +497,7 @@ const AuthenticatedApp = () => {
           <Route path="/platform/activity" element={<PlatformActivityCenter />} />
           <Route path="/platform-improvement-center" element={<PlatformImprovementCenter />} />
           <Route path="/operations" element={<ProductCommandCenter />} />
+          <Route path="/operations/production-readiness" element={<ProductionReadiness />} />
           <Route path="/operations/customer-intelligence" element={<OperationsDomain domain="customer-intelligence" />} />
           <Route path="/operations/product-intelligence" element={<OperationsDomain domain="product-intelligence" />} />
           <Route path="/operations/user-intelligence" element={<UserIntelligence />} />

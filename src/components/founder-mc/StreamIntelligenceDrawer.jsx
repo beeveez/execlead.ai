@@ -352,11 +352,19 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
                       const isVerifyStep = si === 2;
                       const isRefreshStep = si === rec.steps.length - 1;
                       const linkedBlocker = rec.blockerId ? intel.blockers.find((b) => b.id === rec.blockerId) : null;
-                      const canRepair = !!linkedBlocker;
-                      const disabled = (isRepairStep && !canRepair) || refreshing;
                       const handleClick = () => {
-                        if (isRepairStep && canRepair) {
-                          openRepairWorkflow(linkedBlocker, { source: intel.streamName });
+                        if (isRepairStep) {
+                          const finding = linkedBlocker || {
+                            id: rec.id,
+                            title: rec.text,
+                            issue: rec.text,
+                            recommendedFix: rec.text,
+                            estimatedEffort: intel.estimatedEffort,
+                            priority: rec.priority,
+                            owner: intel.owner,
+                            source: intel.streamName,
+                          };
+                          openRepairWorkflow(finding, { source: intel.streamName });
                           handleRepaired();
                         } else if (isVerifyStep) {
                           handleVerified();
@@ -368,7 +376,7 @@ export default function StreamIntelligenceDrawer({ streamId, snapshot, user, onC
                         <React.Fragment key={si}>
                           <button
                             onClick={handleClick}
-                            disabled={disabled}
+                            disabled={refreshing}
                             className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer ${
                               isRefreshStep
                                 ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20"

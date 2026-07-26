@@ -633,6 +633,7 @@ function App() {
               <ScrollToTop />
               <RouteTracker />
               <WebViewBackHandler />
+              <ExecConciergeProvider>
               <SessionSecurityProvider>
                 <TelemetryProvider>
                   <RepairWorkflowProvider>
@@ -646,6 +647,7 @@ function App() {
                   </RepairWorkflowProvider>
                 </TelemetryProvider>
               </SessionSecurityProvider>
+              </ExecConciergeProvider>
             </Router>
             <Toaster />
           </EXECursorRoot>

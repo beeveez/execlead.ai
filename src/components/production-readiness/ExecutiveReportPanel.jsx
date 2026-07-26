@@ -1,5 +1,6 @@
 import React from "react";
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, FileSpreadsheet, FileType } from "lucide-react";
+import { jsPDF } from "jspdf";
 
 export default function ExecutiveReportPanel({ result }) {
   const { summary, overallScore, status, recommendation, evaluatedAt } = result;
@@ -10,6 +11,8 @@ export default function ExecutiveReportPanel({ result }) {
       downloadFile(JSON.stringify(report, null, 2), "production-readiness-report.json", "application/json");
     } else if (format === "csv") {
       downloadFile(toCSV(report), "production-readiness-report.csv", "text/csv");
+    } else if (format === "pdf") {
+      exportPDF(report);
     }
   };
 
@@ -24,18 +27,25 @@ export default function ExecutiveReportPanel({ result }) {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => handleExport("json")}
+            onClick={() => handleExport("pdf")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-white/70 transition-colors"
           >
-            <Download className="w-3.5 h-3.5" />
-            JSON
+            <FileType className="w-3.5 h-3.5" />
+            PDF
           </button>
           <button
             onClick={() => handleExport("csv")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-white/70 transition-colors"
           >
-            <FileText className="w-3.5 h-3.5" />
-            CSV
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            Excel
+          </button>
+          <button
+            onClick={() => handleExport("json")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-white/70 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            JSON
           </button>
         </div>
       </div>
@@ -131,4 +141,128 @@ function downloadFile(content, filename, mimeType) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function exportPDF(report) {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 40;
+  let y = margin;
+
+  // Header
+  doc.setFontSize(16);
+  doc.setFont(undefined, "bold");
+  doc.text("Production Readiness Certification Report", margin, y);
+  y += 24;
+
+  doc.setFontSize(9);
+  doc.setFont(undefined, "normal");
+  doc.setTextColor(100);
+  doc.text(`Framework v${report.version}  |  Evaluated: ${new Date(report.evaluated_at).toLocaleString()}`, margin, y);
+  y += 20;
+
+  // Overall metrics
+  doc.setFontSize(11);
+  doc.setFont(undefined, "bold");
+  doc.setTextColor(0);
+  doc.text("Executive Summary", margin, y);
+  y += 16;
+
+  doc.setFontSize(9);
+  doc.setFont(undefined, "normal");
+  const statusLabel = report.certification_status === "certified" ? "Certified" : report.certification_status === "requires_attention" ? "Requires Attention" : "Release Blocked";
+  const summaryRows = [
+    `Overall Readiness Score: ${report.overall_readiness_score}%`,
+    `Certification Status: ${statusLabel}`,
+    `Launch Recommendation: ${report.launch_recommendation.replace(/_/g, " ")}`,
+    `Release Gate: ${report.release_gate.passed}/${report.release_gate.total} domains passed`,
+    `Checks: ${report.summary.totalPassed} passed, ${report.summary.totalFailed} failed, ${report.summary.totalPending} pending`,
+    `Critical Issues: ${report.summary.criticalIssues}  |  Open Risks: ${report.summary.openRisks}  |  Blocked Items: ${report.summary.blockedItems}`,
+  ];
+  summaryRows.forEach((row) => {
+    doc.text(row, margin, y);
+    y += 14;
+  });
+  y += 10;
+
+  // Domain scores table
+  doc.setFontSize(11);
+  doc.setFont(undefined, "bold");
+  doc.text("Domain Scores", margin, y);
+  y += 16;
+
+  doc.setFontSize(8);
+  doc.setFont(undefined, "bold");
+  doc.setFillColor(240, 240, 240);
+  doc.rect(margin, y - 8, pageWidth - margin * 2, 16, "F");
+  doc.text("Domain", margin + 4, y + 2);
+  doc.text("Score", pageWidth - margin - 80, y + 2);
+  doc.text("Target", pageWidth - margin - 50, y + 2);
+  doc.text("Status", pageWidth - margin - 20, y + 2);
+  y += 16;
+
+  doc.setFont(undefined, "normal");
+  report.domains.forEach((d) => {
+    if (y > doc.internal.pageSize.getHeight() - margin) {
+      doc.addPage();
+      y = margin;
+    }
+    const passedLabel = d.passed ? "PASS" : "FAIL";
+    doc.setTextColor(d.passed ? 0 : 200, 0, 0);
+    doc.text(`${d.id}. ${d.name}`, margin + 4, y + 2);
+    doc.text(String(d.score), pageWidth - margin - 80, y + 2);
+    doc.text(d.target, pageWidth - margin - 50, y + 2);
+    doc.text(passedLabel, pageWidth - margin - 20, y + 2);
+    y += 14;
+  });
+
+  // Mitigation plan
+  const failedDomains = report.domains.filter((d) => !d.passed);
+  if (failedDomains.length > 0) {
+    y += 16;
+    if (y > doc.internal.pageSize.getHeight() - margin * 2) {
+      doc.addPage();
+      y = margin;
+    }
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.setTextColor(0);
+    doc.text("Mitigation Plan", margin, y);
+    y += 16;
+
+    doc.setFontSize(8);
+    doc.setFont(undefined, "normal");
+    failedDomains.forEach((d) => {
+      if (y > doc.internal.pageSize.getHeight() - margin * 2) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.setFont(undefined, "bold");
+      doc.setTextColor(200, 0, 0);
+      doc.text(`${d.name} — Score: ${d.score}/${d.target_value}`, margin, y);
+      y += 12;
+      doc.setFont(undefined, "normal");
+      doc.setTextColor(80, 80, 80);
+      const failedChecks = d.checks.filter((c) => c.status === "fail" || c.status === "pending");
+      failedChecks.forEach((c) => {
+        const lines = doc.splitTextToSize(`  • [${c.status.toUpperCase()}] ${c.label}`, pageWidth - margin * 2 - 20);
+        lines.forEach((line) => {
+          if (y > doc.internal.pageSize.getHeight() - margin) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.text(line, margin + 4, y);
+          y += 11;
+        });
+      });
+      y += 6;
+    });
+  }
+
+  // Footer
+  doc.setFontSize(7);
+  doc.setTextColor(150);
+  doc.text("EXECLEAD.AI Production Readiness Certification Framework — One Leadership Journey. One AI Platform. One Production Standard.", margin, doc.internal.pageSize.getHeight() - 20);
+
+  doc.save("production-readiness-report.pdf");
 }

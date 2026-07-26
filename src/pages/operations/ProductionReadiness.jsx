@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Award } from "lucide-react";
 import { runCertification } from "@/lib/productionReadinessCertificationEngine";
 import ReadinessHero from "@/components/production-readiness/ReadinessHero";
+import ExecutiveDashboardPanel from "@/components/production-readiness/ExecutiveDashboardPanel";
 import DomainGrid from "@/components/production-readiness/DomainGrid";
 import ReleaseGatePanel from "@/components/production-readiness/ReleaseGatePanel";
 import ExecutiveReportPanel from "@/components/production-readiness/ExecutiveReportPanel";
@@ -27,6 +28,9 @@ export default function ProductionReadiness() {
 
         {/* Hero — Overall Score + Status + Recommendation */}
         <ReadinessHero result={result} />
+
+        {/* Executive Dashboard — Key Domain Scores + Incidents */}
+        <ExecutiveDashboardPanel result={result} />
 
         {/* Release Gate */}
         <ReleaseGatePanel result={result} />

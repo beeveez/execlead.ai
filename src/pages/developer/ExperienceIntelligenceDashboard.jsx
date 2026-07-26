@@ -22,9 +22,14 @@ export default function ExperienceIntelligenceDashboard() {
   const loadHealth = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const data = await getExperienceHealth(user);
-    setHealth(data);
-    setLoading(false);
+    try {
+      const data = await getExperienceHealth(user);
+      setHealth(data);
+    } catch {
+      setHealth(null);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
   useEffect(() => { loadHealth(); }, [loadHealth]);
@@ -36,12 +41,6 @@ export default function ExperienceIntelligenceDashboard() {
     setRefreshing(false);
   };
 
-  const interventionStats = getInterventionStats();
-  const rhythmStats = getRhythmStats();
-  const graphHealth = getGraphHealth();
-  const registryHealth = getRegistryHealth();
-  const recStats = getRecommendationStats();
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -49,6 +48,24 @@ export default function ExperienceIntelligenceDashboard() {
       </div>
     );
   }
+
+  if (!health) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <Brain size={24} className="text-white/20" />
+        <p className="text-white/30 text-sm">Unable to load experience health data.</p>
+        <button onClick={handleRefresh} className="text-indigo-400 text-xs hover:text-indigo-300">
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  const interventionStats = getInterventionStats();
+  const rhythmStats = getRhythmStats();
+  const graphHealth = getGraphHealth();
+  const registryHealth = getRegistryHealth();
+  const recStats = getRecommendationStats();
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-6">

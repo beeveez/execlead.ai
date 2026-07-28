@@ -2,6 +2,7 @@ import { base44 } from "@/api/base44Client";
 import { getExecutiveContextPrompt, getExecutiveContext } from "@/lib/executiveContextEngine";
 import { deriveProvider } from "@/lib/aiOperations";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
+import { getCachedAIResponse, cacheAIResponse, recordMetric } from "@/lib/creditOptimizer";
 
 // Module → intent mapping for Model Router™ routing
 const MODULE_INTENT_MAP = {
@@ -54,6 +55,16 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
   const modelChain = [routingDecision.selectedModel, ...routingDecision.fallbackChain];
   const startedAt = Date.now();
 
+  // ── Credit Optimizer™ — AI Deduplication Cache ──
+  // If this exact prompt + model was already processed, return the cached
+  // response. Zero AI credits consumed on cache hit.
+  recordMetric("aiCalls.total");
+  const cachedResponse = getCachedAIResponse(fullPrompt, routingDecision.selectedModel);
+  if (cachedResponse) {
+    recordMetric("aiCalls.cached");
+    return cachedResponse;
+  }
+
   let res = null;
   let actualModel = routingDecision.selectedModel;
   let fallbackFrom = null;
@@ -98,6 +109,9 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
   }
 
   // Success
+  // ── Credit Optimizer™ — Cache AI Response for future deduplication ──
+  cacheAIResponse(fullPrompt, actualModel, res);
+
   const responseLength = typeof res === "string" ? res.length : JSON.stringify(res || {}).length;
   const outputTokens = Math.ceil(responseLength / 4);
   const tokensEstimate = inputTokens + outputTokens;

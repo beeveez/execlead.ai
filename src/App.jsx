@@ -205,6 +205,7 @@ import ReleaseGovernanceDashboard from '@/pages/ReleaseGovernanceDashboard';
 import InteractiveMigrationReport from '@/pages/developer/InteractiveMigrationReport';
 import ArticleCMS from '@/pages/articles/ArticleCMS';
 import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
+import IntegrationCreditOptimizer from '@/pages/developer/IntegrationCreditOptimizer';
 import AIPolicyDashboard from '@/pages/developer/AIPolicyDashboard';
 import ModelRouterDashboard from '@/pages/developer/ModelRouterDashboard';
 import AIObservabilityCenter from '@/pages/developer/AIObservabilityCenter';
@@ -556,6 +557,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/migration-report" element={<InteractiveMigrationReport />} />
           <Route path="/developer/articles" element={<ArticleCMS />} />
           <Route path="/developer/ai-optimization" element={<AIOptimizationDashboard />} />
+          <Route path="/developer/credit-optimizer" element={<IntegrationCreditOptimizer />} />
           <Route path="/developer/ai-policy" element={<AIPolicyDashboard />} />
           <Route path="/developer/model-router" element={<ModelRouterDashboard />} />
           <Route path="/developer/ai-observability" element={<AIObservabilityCenter />} />

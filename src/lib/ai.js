@@ -2,7 +2,7 @@ import { base44 } from "@/api/base44Client";
 import { getExecutiveContextPrompt, getExecutiveContext } from "@/lib/executiveContextEngine";
 import { deriveProvider } from "@/lib/aiOperations";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
-import { getCachedAIResponse, cacheAIResponse, recordMetric } from "@/lib/creditOptimizer";
+import { getCachedAIResponse, cacheAIResponse, recordMetric } from "@/lib/creditOptimizer/index.js";
 
 // Module → intent mapping for Model Router™ routing
 const MODULE_INTENT_MAP = {

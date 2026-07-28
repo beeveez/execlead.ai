@@ -9,9 +9,9 @@
  *   Import → Dedup → AI Dedup → Cache → Guard → Bulk → Metrics
  *
  * Usage:
- *   import { getCachedAIResponse, cacheAIResponse } from "@/lib/creditOptimizer";
- *   import { guardedUpdate } from "@/lib/creditOptimizer";
- *   import { getCachedOrCompute } from "@/lib/creditOptimizer";
+ *   import { getCachedAIResponse, cacheAIResponse } from "@/lib/creditOptimizer/index.js";
+ *   import { guardedUpdate } from "@/lib/creditOptimizer/index.js";
+ *   import { getCachedOrCompute } from "@/lib/creditOptimizer/index.js";
  */
 
 export {

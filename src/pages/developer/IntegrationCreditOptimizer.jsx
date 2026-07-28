@@ -7,7 +7,7 @@ import {
   getMetrics, resetMetrics, calculateSavings, CREDIT_COSTS,
   getAICacheStats, getDashboardCacheStats, getImportCacheStats,
   clearAICache, invalidateDashboard, clearImportCache,
-} from "@/lib/creditOptimizer";
+} from "@/lib/creditOptimizer/index.js";
 
 function MetricCard({ icon: Icon, label, value, sublabel, color = "#8b5cf6" }) {
   return (

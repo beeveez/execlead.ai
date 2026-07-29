@@ -279,6 +279,7 @@ const CATEGORY_TO_FRAMEWORK = {
   "Core": "ejf",
   "Administration": "ejf",
   "Developer": "ejf",
+  "Operations": "ejf",
 };
 
 // Map module IDs to their primary AI persona
@@ -651,6 +652,13 @@ const EXEMPT_ROUTE_PATTERNS = [
   "/developer-portal", "/beta",
   "/evidence-vault", "/digital-twin", "/decision-intelligence",
   "/commercial-command-center", "/commercial-automation", "/business-intelligence",
+  // Operations sub-routes — covered by parent /operations module
+  "/operations/ai", "/operations/user-intelligence",
+  "/operations/product-intelligence/geographic", "/operations/product-intelligence/market-opportunity",
+  "/operations/security", "/operations/security-execution", "/operations/performance",
+  "/operations/ai-models", "/operations/ai-compute", "/operations/production-readiness",
+  // Standalone intelligence & security routes — covered by parent modules
+  "/voice-interview", "/responsible-ai", "/security-baseline",
 ];
 
 function isRouteExempt(path) {

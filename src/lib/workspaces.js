@@ -159,6 +159,7 @@ export const WORKSPACE_NAV = {
     ]},
     { label: "Launch Operations", items: [
       { path: "/operations/launch", label: "Launch Operations", icon: Flag },
+      { path: "/operations/production-readiness", label: "Production Readiness™", icon: ShieldCheck },
     ]},
     { label: "Security Operations", items: [
       { path: "/operations/security", label: "Security Operations Center™", icon: ShieldCheck },
@@ -326,6 +327,8 @@ const ROUTE_WORKSPACE = {
   "/operations/strategy": ["operations"],
   "/operations/launch": ["operations"],
   "/operations/reports": ["operations"],
+  "/operations/production-readiness": ["operations"],
+  "/voice-interview": ["executive"],
   "/enterprise/command-center": ["enterprise"],
   "/enterprise/organization-domain": ["enterprise"],
   "/enterprise/workforce": ["enterprise"],

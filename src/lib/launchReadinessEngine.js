@@ -84,19 +84,89 @@ export function computeLaunchReadiness() {
 
   // ════════════════════════════════════════════════════════════
   // PHASE 1 — Guardian™ Certification (target 100%)
+  // Weighted category model — every point is traceable to a check.
+  // Total = Σ earned points across 7 categories (max 100).
   // ════════════════════════════════════════════════════════════
-  const guardianReqs = [
-    { label: "Runtime consistency", passed: scores.runtimeConsistency === 100, detail: `${scores.runtimeConsistency}%` },
-    { label: "Platform Manifest validated", passed: orphanRoutes === 0, detail: `${orphanRoutes} orphan route(s)` },
-    { label: "Platform State synchronized", passed: true, detail: "Live" },
-    { label: "Knowledge Packs healthy", passed: scores.knowledgeResolution === 100, detail: `${scores.knowledgeResolution}%` },
-    { label: "Framework Registry complete", passed: meta.frameworkCoverage?.pct === 100, detail: `${meta.frameworkCoverage?.pct ?? 0}%` },
-    { label: "Feature Flags validated", passed: scores.configurationConsistency === 100, detail: `${scores.configurationConsistency}%` },
-    { label: "Deployment verification passed", passed: cert.certified, detail: cert.certified ? "Certified" : "Blocked" },
-    { label: "Zero critical security warnings", passed: consistency.counts.critical === 0, detail: `${consistency.counts.critical} critical` },
+  const criticalCertIssues = cert.verification.issues.filter((i) => i.severity === "Critical").length;
+
+  const guardianCategories = [
+    {
+      id: "runtime", label: "Runtime", maxPoints: 20,
+      checks: [
+        { id: "runtimeConsistency", label: "Runtime Consistency = 100%", weight: 10, passed: scores.runtimeConsistency === 100, detail: `${scores.runtimeConsistency}%` },
+        { id: "platformState", label: "Platform State synchronized", weight: 10, passed: true, detail: "Live" },
+      ],
+    },
+    {
+      id: "security", label: "Security", maxPoints: 20,
+      checks: [
+        { id: "zeroCritical", label: "Zero critical security warnings", weight: 20, passed: consistency.counts.critical === 0, detail: `${consistency.counts.critical} critical` },
+      ],
+    },
+    {
+      id: "registry", label: "Registry", maxPoints: 15,
+      checks: [
+        { id: "manifest", label: "Platform Manifest validated (0 orphan routes)", weight: 8, passed: orphanRoutes === 0, detail: `${orphanRoutes} orphan route(s)` },
+        { id: "framework", label: "Framework Registry complete (100%)", weight: 7, passed: meta.frameworkCoverage?.pct === 100, detail: `${meta.frameworkCoverage?.pct ?? 0}%` },
+      ],
+    },
+    {
+      id: "knowledge", label: "Knowledge Packs", maxPoints: 10,
+      checks: [
+        { id: "knowledgeResolution", label: "Knowledge Resolution = 100%", weight: 10, passed: scores.knowledgeResolution === 100, detail: `${scores.knowledgeResolution}%` },
+      ],
+    },
+    {
+      id: "deployment", label: "Deployment Verification", maxPoints: 15,
+      checks: [
+        { id: "certified", label: "Foundation Certification certified", weight: 6, passed: cert.certified, detail: cert.certified ? "Certified" : "Blocked" },
+        { id: "foundationScore", label: "Foundation Score ≥ 95%", weight: 5, passed: cert.foundationScore >= 95, detail: `${cert.foundationScore}% / 95%` },
+        { id: "noCritical", label: "No critical certification issues", weight: 4, passed: criticalCertIssues === 0, detail: `${criticalCertIssues} critical` },
+      ],
+      // Proportional progress credit while Foundation Certification is in
+      // progress — reflects how close the Foundation Score is to the 95%
+      // threshold. Capped at 14 until certification actually passes.
+      proportional: { source: "Foundation Score", current: cert.foundationScore, target: 95 },
+    },
+    {
+      id: "compliance", label: "Compliance", maxPoints: 10,
+      checks: [
+        { id: "configConsistency", label: "Configuration Consistency = 100%", weight: 10, passed: scores.configurationConsistency === 100, detail: `${scores.configurationConsistency}%` },
+      ],
+    },
+    {
+      id: "performance", label: "Performance", maxPoints: 10,
+      checks: [
+        { id: "architectureHealth", label: "Architecture Health ≥ 95%", weight: 10, passed: scores.architectureHealth >= 95, detail: `${scores.architectureHealth}%` },
+      ],
+    },
   ];
-  const guardianScore = clamp(
-    (guardianReqs.filter((r) => r.passed).length / guardianReqs.length) * 100
+
+  const guardianCategoryScores = guardianCategories.map((cat) => {
+    let earned;
+    let formula;
+    if (cat.id === "deployment") {
+      if (cert.certified) {
+        earned = cat.maxPoints;
+        formula = "Certified → full credit";
+      } else {
+        const ratio = cat.proportional.target > 0 ? Math.min(1, cat.proportional.current / cat.proportional.target) : 0;
+        earned = Math.min(cat.maxPoints - 1, Math.round(ratio * cat.maxPoints));
+        formula = `min(15, round((${cat.proportional.current} / ${cat.proportional.target}) × 15)) → ${earned} (capped at 14 until certified)`;
+      }
+    } else {
+      earned = cat.checks.reduce((s, c) => s + (c.passed ? c.weight : 0), 0);
+      formula = `Σ passed check weights → ${earned}`;
+    }
+    return { ...cat, earnedPoints: earned, gap: cat.maxPoints - earned, passed: earned >= cat.maxPoints, formula };
+  });
+  const guardianScore = clamp(guardianCategoryScores.reduce((s, c) => s + c.earnedPoints, 0));
+  const guardianShortCategories = guardianCategoryScores.filter((c) => c.gap > 0);
+  const guardianDeploymentCategory = guardianCategoryScores.find((c) => c.id === "deployment");
+
+  // Legacy flat requirement list (for backward-compatible checklists)
+  const guardianReqs = guardianCategoryScores.flatMap((c) =>
+    c.checks.map((chk) => ({ label: `${c.label} — ${chk.label}`, passed: chk.passed, detail: chk.detail }))
   );
 
   // ════════════════════════════════════════════════════════════
@@ -178,6 +248,28 @@ export function computeLaunchReadiness() {
       score: guardianScore,
       passed: guardianScore >= PHASE_TARGETS.guardian,
       requirements: guardianReqs,
+      categories: guardianCategoryScores,
+      shortCategories: guardianShortCategories,
+      deploymentCategory: guardianDeploymentCategory,
+      platformHealthExplanation: {
+        platformHealth: consistency.health?.overall ?? 100,
+        platformHealthMeasures: "Runtime route / navigation / permissions / feature-flag consistency (Guardian consistency scan). 100% = every registered route exists, nav matches, and permissions are configured.",
+        certificationMeasures: "A broader release gate: Runtime + Security + Registry + Knowledge Packs + Deployment Verification + Compliance + Performance. Deployment Verification requires Foundation Certification™ to pass (Foundation Score ≥ 95% and zero critical issues).",
+        whyDiverge: consistency.health?.overall >= 100 && !cert.certified
+          ? "Platform Health is 100% because runtime consistency is perfect. Guardian Certification is below 100 because Foundation Certification™ (Deployment Verification) is still blocked — a stricter, independent gate that Platform Health does not measure."
+          : "Scores are aligned.",
+      },
+      deploymentBlocked: {
+        blocked: !cert.certified,
+        reason: !cert.certified
+          ? `Foundation Certification™ is not yet certified. Foundation Score is ${cert.foundationScore}% (threshold 95%)${criticalCertIssues > 0 ? ` with ${criticalCertIssues} critical issue(s) open` : ""}. Deployment Verification cannot pass until the Foundation Score reaches 95% AND all critical certification issues are resolved.`
+          : "Foundation Certification passed — Deployment Verification is not blocked.",
+        foundationScore: cert.foundationScore,
+        threshold: 95,
+        criticalIssues: criticalCertIssues,
+        blockingDomains: cert.blockingDomains.map((d) => d.label),
+        deepLink: "/developer/diagnostics",
+      },
       deepLink: PHASE_DEEP_LINKS.guardian,
     },
     {

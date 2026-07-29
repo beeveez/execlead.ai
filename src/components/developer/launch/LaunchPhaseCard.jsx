@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, XCircle, ChevronRight, AlertTriangle } from "lucide-react";
 import { useIntelligenceDrillDown } from "@/lib/useIntelligenceDrillDown";
+import GuardianScoreBreakdown from "./GuardianScoreBreakdown";
 
 /**
  * Launch Phase Card — reusable card for one launch-readiness phase.
@@ -72,8 +73,11 @@ export default function LaunchPhaseCard({ phase, icon: Icon, accent }) {
         </span>
       </div>
 
-      {/* Requirements checklist */}
-      {phase.requirements && (
+      {/* Guardian phase — transparent weighted score breakdown */}
+      {phase.categories && <div className="mb-3"><GuardianScoreBreakdown phase={phase} /></div>}
+
+      {/* Requirements checklist (non-guardian phases) */}
+      {phase.requirements && !phase.categories && (
         <div className="space-y-1.5 mb-3">
           {phase.requirements.map((req, i) => (
             <div

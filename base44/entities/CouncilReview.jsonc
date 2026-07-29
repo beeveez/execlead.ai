@@ -115,6 +115,9 @@
     "create": {
       "$or": [
         {
+          "data.user_id": "{{user.id}}"
+        },
+        {
           "user_condition": {
             "role": "super_admin"
           }
@@ -134,6 +137,12 @@
     "read": {
       "$or": [
         {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
           "user_condition": {
             "role": "super_admin"
           }
@@ -152,6 +161,9 @@
     },
     "update": {
       "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
         {
           "user_condition": {
             "role": "super_admin"

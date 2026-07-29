@@ -655,6 +655,7 @@ function App() {
                   <RepairWorkflowProvider>
                     <AuthenticatedApp />
                     <MetricIntelligenceRoot />
+                    <IntelligenceAnalysisRoot />
                     <ExecConcierge />
                     <FeedbackWidget />
                     <BetaBanner />

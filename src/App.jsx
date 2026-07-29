@@ -3,6 +3,20 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet, useLocation } from 'react-router-dom';
+
+// Auto-reload on stale dynamic-chunk fetch failures (post-deploy hash mismatch).
+// Tries a full reload once before surfacing the error to the user.
+const lazyRetry = (importFn) => lazy(() =>
+  importFn().catch((err) => {
+    if (err?.message?.includes('Failed to fetch dynamically imported module') && !location.href.includes('retry=1')) {
+      const url = new URL(location.href);
+      url.searchParams.set('retry', '1');
+      location.replace(url.toString());
+      return new Promise(() => {}); // stall until reload completes
+    }
+    throw err;
+  })
+);
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
@@ -38,7 +52,7 @@ import { LandingSkeleton, PricingSkeleton, LeaderboardSkeleton } from '@/compone
 import ArticleHub from '@/pages/articles/ArticleHub';
 import ArticleDetail from '@/pages/articles/ArticleDetail';
 
-const Landing = lazy(() => import('@/pages/Landing'));
+const Landing = lazyRetry(() => import('@/pages/Landing'));
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import SectionHome from '@/pages/SectionHome';
@@ -140,7 +154,7 @@ import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
 import BillingAdmin from '@/pages/BillingAdmin';
 import PaymentSettings from '@/pages/PaymentSettings';
-const Pricing = lazy(() => import('@/pages/Pricing'));
+const Pricing = lazyRetry(() => import('@/pages/Pricing'));
 import Reputation from '@/pages/Reputation';
 import ExecutiveCouncil from '@/pages/ExecutiveCouncil';
 import LeadershipDNA from '@/pages/LeadershipDNA';
@@ -254,7 +268,7 @@ import EnterprisePrivacy from '@/pages/enterprise/EnterprisePrivacy';
 import VendorDueDiligence from '@/pages/VendorDueDiligence';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
-const Leaderboard = lazy(() => import('@/pages/Leaderboard'));
+const Leaderboard = lazyRetry(() => import('@/pages/Leaderboard'));
 import ExecutiveRankings from '@/pages/ExecutiveRankings';
 import IdentityTransfer from '@/pages/IdentityTransfer';
 import ExecutiveBrandCenter from '@/pages/ExecutiveBrandCenter';

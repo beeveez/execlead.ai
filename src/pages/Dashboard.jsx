@@ -18,6 +18,7 @@ import EvidenceDashboardSummary from "@/components/readiness-evidence/EvidenceDa
 import EvidenceCompositionPanel from "@/components/readiness-evidence/EvidenceCompositionPanel";
 import ExecutiveInsightPanel from "@/components/readiness-evidence/ExecutiveInsightPanel";
 import ReadinessEvidenceTimeline from "@/components/readiness-evidence/ReadinessEvidenceTimeline";
+import ExplainMyScorePanel from "@/components/readiness-evidence/ExplainMyScorePanel";
 
 /**
  * Dashboard — Executive Command Center.
@@ -103,6 +104,9 @@ export default function Dashboard() {
         <ExecutiveInsightPanel insights={insights} />
       </div>
       <ReadinessEvidenceTimeline timeline={timeline} compact />
+
+      {/* Phase 2 — Evidence Provenance Standard™: Explain My Score */}
+      <ExplainMyScorePanel />
 
       {/* Focus areas — what to improve next */}
       {command.focusAreas.length > 0 && (

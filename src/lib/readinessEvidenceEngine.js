@@ -121,9 +121,43 @@ export function recordEvidence(input) {
   }
 
   const score = input.score ?? level.baseScore;
+  const readinessContribution = Math.round(score * level.weight * 10) / 10;
+  const confidenceBase = input.aiValidation ? 0.95 : level.level >= 3 ? 0.85 : level.level === 2 ? 0.6 : 0.3;
+  const confidenceContribution = Math.round(confidenceBase * 100) / 100; // 0.042 style
+  const now = Date.now();
+  const year = new Date().getUTCFullYear();
+  const yearCount = records.filter((r) => r.evidenceId && r.evidenceId.includes(`EVD-${year}-`)).length + 1;
+  const evidenceId = input.evidenceId || `EVD-${year}-${String(yearCount).padStart(6, "0")}`;
+
+  // ── Evidence Provenance Standard™ fields ──
+  const isAI = input.aiMetadata || input.evidenceOrigin === "AI Generated";
+  const validationMethod = input.validationMethod || (level.level === 3 ? "Simulation Evaluated" : input.evidenceType === "journal_entry" ? "User Submitted" : input.evidenceType === "assessment_passed" ? "Assessment Passed" : input.aiValidation ? "System Verified" : "System Generated");
+  const evidenceOrigin = input.evidenceOrigin || (isAI ? "AI Generated" : input.evidenceType === "journal_entry" ? "User Generated" : "System Generated");
+  const evidenceClassification = input.evidenceClassification || (isAI ? "Inferred" : level.level >= 3 ? "Calculated" : "Direct Observation");
+
   const record = {
+    // Identity
     id: uid(),
-    timestamp: Date.now(),
+    evidenceId,
+    immutable: true,
+    corrected: false,
+    // Provenance
+    sourceModule: input.sourceModule || input.module || contribution.title || "Platform",
+    sourceWorkspace: input.workspace || "executive",
+    collectionTimestamp: new Date(now).toISOString(),
+    evidenceTimestamp: input.evidenceTimestamp ? new Date(input.evidenceTimestamp).toISOString() : new Date(now).toISOString(),
+    validationMethod,
+    evidenceOrigin,
+    evidenceClassification,
+    // Contributions (stored permanently — never recalculated for audit)
+    confidenceContribution,
+    readinessContribution,
+    competenciesImpacted: input.competenciesImpacted || [competency],
+    scoringModelVersion: input.scoringModelVersion || "Executive Readiness Model v1.0",
+    // AI transparency
+    aiMetadata: input.aiMetadata || null, // { model, persona, promptVersion, confidence, validationStatus }
+    // Core evidence (legacy fields retained for compatibility)
+    timestamp: now,
     workspace: input.workspace || "executive",
     module: input.module || contribution.title || "Platform",
     competency,
@@ -132,8 +166,8 @@ export function recordEvidence(input) {
     evidenceLevelLabel: level.label,
     evidenceScore: score,
     journeyStage: contribution.journeyStage?.id || "emerging",
-    readinessGain: Math.round(score * level.weight * 10) / 10,
-    confidence: input.aiValidation ? 0.95 : level.level >= 3 ? 0.85 : level.level === 2 ? 0.6 : 0.3,
+    readinessGain: readinessContribution,
+    confidence: confidenceBase,
     source: input.source || type?.source || "platform",
     aiValidation: input.aiValidation ?? (level.level >= 2),
     outcome: input.outcome || (level.level >= 3 ? "demonstrated" : level.level === 2 ? "completed" : "viewed"),

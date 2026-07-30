@@ -31,6 +31,8 @@ import PortfolioAnalytics from '@/components/portfolio/PortfolioAnalytics';
 import VersionHistory from '@/components/portfolio/VersionHistory';
 import ReadinessEvidenceTimeline from '@/components/readiness-evidence/ReadinessEvidenceTimeline';
 import EvidenceCompositionPanel from '@/components/readiness-evidence/EvidenceCompositionPanel';
+import EvidenceProvenanceTimeline from '@/components/readiness-evidence/EvidenceProvenanceTimeline';
+import ExplainMyScorePanel from '@/components/readiness-evidence/ExplainMyScorePanel';
 import { useReadinessEvidence } from '@/hooks/useReadinessEvidence';
 import { BookOpen, Star, FileCheck, Users, Globe, Landmark, Award, UploadCloud, Clock } from 'lucide-react';
 
@@ -129,6 +131,8 @@ export default function ExecutivePortfolio() {
           <div className="space-y-4">
             <EvidenceCompositionPanel readiness={portfolioReadiness} />
             <ReadinessEvidenceTimeline timeline={evidenceTimeline} />
+            <ExplainMyScorePanel />
+            <EvidenceProvenanceTimeline limit={50} />
           </div>
         </div>
         <LinkSection section={{ id: 'credentials', number: 20, title: 'Executive Credentials™', icon: Award, color: '#f59e0b' }} link="/executive-credentials" description="Verified leadership credentials earned through evidence-based achievement. Cannot be purchased — only earned." />

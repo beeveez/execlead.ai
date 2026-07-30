@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ShieldCheck, LayoutGrid, AlertTriangle, Award, Eye, Package, Lock, Download } from 'lucide-react';
+import { ShieldCheck, Shield, LayoutGrid, AlertTriangle, Award, Eye, Package, Lock, Download } from 'lucide-react';
 import { getSecurityBaselineSnapshot } from '@/lib/securityBaselineEngine';
 import SecurityBaselineHero from '@/components/security-baseline/SecurityBaselineHero';
 import SecurityDomainGrid from '@/components/security-baseline/SecurityDomainGrid';
@@ -9,6 +9,7 @@ import SecurityGuardianIntegration from '@/components/security-baseline/Security
 import SecurityFindingsTable from '@/components/security-baseline/SecurityFindingsTable';
 import ZeroTrustOverview from '@/components/security-baseline/ZeroTrustOverview';
 import DependencySecurityPanel from '@/components/security-baseline/DependencySecurityPanel';
+import RLSValidationReport from '@/components/security-baseline/RLSValidationReport';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -16,6 +17,7 @@ const TABS = [
   { id: 'findings', label: 'Findings', icon: AlertTriangle },
   { id: 'certification', label: 'Certification', icon: Award },
   { id: 'guardian', label: 'Guardian™', icon: Eye },
+  { id: 'rls', label: 'RLS Hardening', icon: Shield },
   { id: 'zero_trust', label: 'Zero Trust', icon: Lock },
 ];
 
@@ -100,6 +102,10 @@ export default function SecurityBaselineDashboard() {
 
       {tab === 'guardian' && (
         <SecurityGuardianIntegration guardian={snapshot.guardian} />
+      )}
+
+      {tab === 'rls' && (
+        <RLSValidationReport />
       )}
 
       {tab === 'zero_trust' && (

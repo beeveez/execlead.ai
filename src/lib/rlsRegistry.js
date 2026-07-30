@@ -339,7 +339,7 @@ export const RLS_REGISTRY = [
   { name: "FounderTimeCapsule", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "NetworkBadge", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
   { name: "CommunityMembership", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
-  { name: "CouncilReview", classification: "user", scope: "user_id", status: "open", sensitive: false, rule: "no restrictions — empty RLS block; needs configuration" },
+  { name: "CouncilReview", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "subject (user_id) + initiator (created_by_id) read; subject create (appeal); initiator/admin update; super_admin/platform_admin delete" },
   { name: "LetterComment", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin (platform default)" },
   { name: "LetterInteraction", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
   { name: "ReputationAppeal", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "owner + admin" },
@@ -374,7 +374,7 @@ export const RLS_REGISTRY = [
   { name: "Feature", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
   { name: "ProductRelease", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
   { name: "JobSource", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
-  { name: "ELIMKnowledgePack", classification: "platform", scope: "created_by_id", status: "open", sensitive: false, rule: "no restrictions — empty RLS block; needs configuration" },
+  { name: "ELIMKnowledgePack", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "all authenticated read non-draft; admin/dev read all; super_admin/platform_admin create/delete; admin/dev update" },
 ];
 
 // ── Score Computation ──

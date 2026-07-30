@@ -187,6 +187,20 @@ export const VALIDATION_RULES = [
     'All security regression tests pass.', 'Security Center', 'enterprise', 'Security Admin',
     ['security_score']),
 
+  F('rls_coverage_validation', 'security', 'RLS Coverage Validation', 8, 'FAIL',
+    'Row-Level Security coverage is below 100% — some entities lack least-privilege enforcement.', 'Security Baseline', 'enterprise', 'Security Admin', '1 hour', true,
+    {
+      customer: 'Cross-tenant or cross-user data leakage risk — one user may see another private records.',
+      executive: 'Regulatory and contractual data isolation guarantees cannot be certified.',
+      platform: 'RLS Validation Engine™ reports entities without full least-privilege enforcement.',
+      operational: 'Support cannot guarantee data isolation when troubleshooting cross-user issues.',
+      deployment: 'Cannot deploy to production with open or partial RLS on any registered entity.',
+    },
+    'RLS Validation Engine™ detected entities without protected RLS policies — least-privilege not enforced platform-wide.',
+    'Apply the 4-class RLS policy template (public/user/organization/platform) to every open or partial entity',
+    'RLS coverage validation failed — entities lack least-privilege enforcement.',
+    ['RLS Validation Engine™', 'RLS Registry™'], ['security_score', 'launch_readiness'], '2026-07-30'),
+
   // ═══ Compliance ═══
   F('privacy_control_implementation', 'compliance', 'Privacy Control Implementation', 3, 'WARNING',
     'Some privacy controls are incomplete.', 'Privacy Compliance', 'enterprise', 'Developer', '4 hours', false,

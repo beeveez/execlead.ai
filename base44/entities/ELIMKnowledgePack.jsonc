@@ -61,9 +61,6 @@
     "research_references_json": {
       "type": "string"
     },
-    "created_by_id": {
-      "type": "string"
-    },
     "created_by_name": {
       "type": "string"
     },

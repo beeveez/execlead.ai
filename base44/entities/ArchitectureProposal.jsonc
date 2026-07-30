@@ -65,7 +65,7 @@
     },
     "impact_navigation_registry": {
       "type": "string",
-      "description": "Impact on Navigation Registry\u2122"
+      "description": "Impact on Navigation Registry™"
     },
     "impact_feature_flags": {
       "type": "string",
@@ -90,47 +90,47 @@
     "complexity_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Complexity (0-100)"
+      "description": "Architecture Impact Score™ dimension: Complexity (0-100)"
     },
     "reusability_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Reusability (0-100)"
+      "description": "Architecture Impact Score™ dimension: Reusability (0-100)"
     },
     "maintainability_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Maintainability (0-100)"
+      "description": "Architecture Impact Score™ dimension: Maintainability (0-100)"
     },
     "scalability_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Scalability (0-100)"
+      "description": "Architecture Impact Score™ dimension: Scalability (0-100)"
     },
     "performance_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Performance (0-100)"
+      "description": "Architecture Impact Score™ dimension: Performance (0-100)"
     },
     "security_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Security (0-100)"
+      "description": "Architecture Impact Score™ dimension: Security (0-100)"
     },
     "ux_consistency_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: UX Consistency (0-100)"
+      "description": "Architecture Impact Score™ dimension: UX Consistency (0-100)"
     },
     "technical_debt_score": {
       "type": "number",
       "default": 0,
-      "description": "Architecture Impact Score\u2122 dimension: Technical Debt (0-100)"
+      "description": "Architecture Impact Score™ dimension: Technical Debt (0-100)"
     },
     "overall_score": {
       "type": "number",
       "default": 0,
-      "description": "Computed Architecture Impact Score\u2122 (0-100)"
+      "description": "Computed Architecture Impact Score™ (0-100)"
     },
     "recommendation": {
       "type": "string",
@@ -208,6 +208,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -237,6 +242,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -261,6 +271,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -274,6 +289,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

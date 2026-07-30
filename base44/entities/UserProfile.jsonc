@@ -84,7 +84,7 @@
     },
     "career_intelligence_json": {
       "type": "string",
-      "description": "JSON: Career Intelligence Profile\u2122 from Master Registries"
+      "description": "JSON: Career Intelligence Profile™ from Master Registries"
     },
     "linkedin_url": {
       "type": "string"
@@ -477,6 +477,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -499,6 +504,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -515,6 +525,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

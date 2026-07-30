@@ -8,7 +8,7 @@
     },
     "user_id": {
       "type": "string",
-      "description": "Executive user ID \u2014 one identity, many affiliations"
+      "description": "Executive user ID — one identity, many affiliations"
     },
     "user_name": {
       "type": "string"
@@ -142,6 +142,11 @@
         {
           "user_condition": {
             "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

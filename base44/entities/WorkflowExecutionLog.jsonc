@@ -132,6 +132,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -159,6 +164,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -177,6 +187,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

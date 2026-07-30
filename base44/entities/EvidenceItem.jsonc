@@ -42,7 +42,7 @@
         "presentation"
       ],
       "default": "certificate",
-      "description": "Type of evidence \u2014 the 15 canonical types plus legacy categories"
+      "description": "Type of evidence — the 15 canonical types plus legacy categories"
     },
     "category": {
       "type": "string",
@@ -83,7 +83,7 @@
     },
     "source": {
       "type": "string",
-      "description": "Source of the evidence \u2014 issuer, provider, or self-reported"
+      "description": "Source of the evidence — issuer, provider, or self-reported"
     },
     "source_type": {
       "type": "string",
@@ -127,27 +127,27 @@
     "confidence": {
       "type": "number",
       "default": 0,
-      "description": "Confidence score 0-100 \u2014 how reliable the evidence source is"
+      "description": "Confidence score 0-100 — how reliable the evidence source is"
     },
     "evidence_quality": {
       "type": "number",
       "default": 0,
-      "description": "Evidence Quality Score 0-100 \u2014 document quality, completeness"
+      "description": "Evidence Quality Score 0-100 — document quality, completeness"
     },
     "authenticity": {
       "type": "number",
       "default": 0,
-      "description": "Authenticity score 0-100 \u2014 likelihood the evidence is genuine"
+      "description": "Authenticity score 0-100 — likelihood the evidence is genuine"
     },
     "freshness": {
       "type": "number",
       "default": 0,
-      "description": "Freshness score 0-100 \u2014 how current the evidence is"
+      "description": "Freshness score 0-100 — how current the evidence is"
     },
     "overall_quality": {
       "type": "number",
       "default": 0,
-      "description": "Overall Evidence Quality Score 0-100 \u2014 weighted composite"
+      "description": "Overall Evidence Quality Score 0-100 — weighted composite"
     },
     "expiration_date": {
       "type": "string",
@@ -210,7 +210,7 @@
     "is_immutable": {
       "type": "boolean",
       "default": true,
-      "description": "Whether this evidence record is immutable \u2014 once verified, cannot be edited"
+      "description": "Whether this evidence record is immutable — once verified, cannot be edited"
     },
     "encryption_status": {
       "type": "string",
@@ -261,6 +261,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -283,6 +288,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -299,6 +309,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

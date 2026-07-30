@@ -14,7 +14,7 @@
     },
     "parent_department_id": {
       "type": "string",
-      "description": "Parent department for hierarchy (Business Unit \u2192 Department \u2192 Team)"
+      "description": "Parent department for hierarchy (Business Unit → Department → Team)"
     },
     "department_type": {
       "type": "string",
@@ -70,6 +70,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -97,6 +102,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -121,6 +131,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -139,6 +154,11 @@
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

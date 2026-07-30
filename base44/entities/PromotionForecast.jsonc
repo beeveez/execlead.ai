@@ -16,12 +16,12 @@
     "readiness_score": {
       "type": "number",
       "default": 0,
-      "description": "Promotion Readiness\u2122 0-100"
+      "description": "Promotion Readiness™ 0-100"
     },
     "probability_score": {
       "type": "number",
       "default": 0,
-      "description": "Promotion Probability\u2122 0-100"
+      "description": "Promotion Probability™ 0-100"
     },
     "momentum": {
       "type": "string",
@@ -31,7 +31,7 @@
         "declining"
       ],
       "default": "stable",
-      "description": "Career Momentum\u2122"
+      "description": "Career Momentum™"
     },
     "timeline_estimate": {
       "type": "string",
@@ -56,7 +56,7 @@
     "confidence_score": {
       "type": "number",
       "default": 0,
-      "description": "Forecast Confidence\u2122 0-100"
+      "description": "Forecast Confidence™ 0-100"
     },
     "current_level": {
       "type": "string"
@@ -74,7 +74,7 @@
     },
     "strengths_json": {
       "type": "string",
-      "description": "JSON array of Executive Strength Index\u2122"
+      "description": "JSON array of Executive Strength Index™"
     },
     "improvement_priorities_json": {
       "type": "string",
@@ -125,6 +125,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -147,6 +152,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -163,6 +173,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

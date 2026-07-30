@@ -96,7 +96,7 @@
     },
     "identity_document_uri": {
       "type": "string",
-      "description": "Private file URI \u2014 never exposed publicly"
+      "description": "Private file URI — never exposed publicly"
     },
     "identity_status": {
       "type": "string",
@@ -404,6 +404,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -431,6 +436,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -447,6 +457,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

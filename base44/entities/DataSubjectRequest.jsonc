@@ -13,7 +13,7 @@
         "manage_personalization",
         "manage_marketing"
       ],
-      "description": "Type of data subject request (RA 10173 \u00a716 rights)"
+      "description": "Type of data subject request (RA 10173 §16 rights)"
     },
     "status": {
       "type": "string",
@@ -86,6 +86,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -108,6 +113,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -121,6 +131,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

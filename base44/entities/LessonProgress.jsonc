@@ -52,37 +52,37 @@
     "quiz_score": {
       "type": "number",
       "default": 0,
-      "description": "System-controlled \u2014 updated by Quiz Engine\u2122 only"
+      "description": "System-controlled — updated by Quiz Engine™ only"
     },
     "time_spent_minutes": {
       "type": "number",
       "default": 0,
-      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
+      "description": "System-controlled — updated by Learning Engine™ only"
     },
     "xp_earned": {
       "type": "number",
       "default": 0,
-      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
+      "description": "System-controlled — updated by Learning Engine™ only"
     },
     "certification_earned": {
       "type": "boolean",
       "default": false,
-      "description": "System-controlled \u2014 updated by Certification Engine\u2122 only"
+      "description": "System-controlled — updated by Certification Engine™ only"
     },
     "competency_gain": {
       "type": "number",
       "default": 0,
-      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
+      "description": "System-controlled — updated by Learning Engine™ only"
     },
     "completion_percentage": {
       "type": "number",
       "default": 0,
-      "description": "System-controlled \u2014 updated by Learning Engine\u2122 only"
+      "description": "System-controlled — updated by Learning Engine™ only"
     },
     "is_archived": {
       "type": "boolean",
       "default": false,
-      "description": "Soft-delete flag \u2014 platform admin only"
+      "description": "Soft-delete flag — platform admin only"
     },
     "archived_at": {
       "type": "string",
@@ -131,6 +131,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -153,13 +158,27 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "super_admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
     }
   }
 }

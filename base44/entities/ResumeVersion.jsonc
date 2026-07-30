@@ -21,7 +21,7 @@
     },
     "content_hash": {
       "type": "string",
-      "description": "Fingerprint of normalized resume content \u2014 used for deduplication"
+      "description": "Fingerprint of normalized resume content — used for deduplication"
     },
     "created_by": {
       "type": "string",
@@ -90,6 +90,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -112,6 +117,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -128,6 +138,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

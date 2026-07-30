@@ -103,7 +103,7 @@
     },
     "exec_recommendation": {
       "type": "string",
-      "description": "EXEC\u2122 AI recommendation for this task"
+      "description": "EXEC™ AI recommendation for this task"
     },
     "metadata_json": {
       "type": "string",
@@ -147,6 +147,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -170,6 +175,11 @@
         {
           "user_condition": {
             "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]
@@ -195,6 +205,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -208,6 +223,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

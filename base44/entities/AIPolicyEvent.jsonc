@@ -12,7 +12,7 @@
     },
     "intent": {
       "type": "string",
-      "description": "Classified intent from AI Optimization Layer\u2122"
+      "description": "Classified intent from AI Optimization Layer™"
     },
     "status": {
       "type": "string",
@@ -129,6 +129,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -148,6 +153,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -161,6 +171,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

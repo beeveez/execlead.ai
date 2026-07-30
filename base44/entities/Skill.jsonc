@@ -38,7 +38,7 @@
         "customer_success"
       ],
       "default": "technology",
-      "description": "Executive Capability Domain\u2122"
+      "description": "Executive Capability Domain™"
     },
     "proficiency": {
       "type": "string",
@@ -86,12 +86,12 @@
         "enterprise_verified"
       ],
       "default": "self_reported",
-      "description": "Verification Engine\u2122 state"
+      "description": "Verification Engine™ state"
     },
     "confidence_score": {
       "type": "number",
       "default": 0,
-      "description": "Skill Confidence Score\u2122 0-100"
+      "description": "Skill Confidence Score™ 0-100"
     },
     "confidence_level": {
       "type": "string",
@@ -114,7 +114,7 @@
         "deprecated"
       ],
       "default": "healthy",
-      "description": "Executive Skill Health\u2122 status"
+      "description": "Executive Skill Health™ status"
     },
     "source": {
       "type": "string",
@@ -140,7 +140,7 @@
         "legacy"
       ],
       "default": "stable",
-      "description": "Market Intelligence\u2122 demand level"
+      "description": "Market Intelligence™ demand level"
     },
     "evidence_json": {
       "type": "string",
@@ -148,15 +148,15 @@
     },
     "related_skills_json": {
       "type": "string",
-      "description": "JSON array of related skill names for Executive Skill Graph\u2122"
+      "description": "JSON array of related skill names for Executive Skill Graph™"
     },
     "change_history_json": {
       "type": "string",
-      "description": "JSON array of { timestamp, event, details } \u2014 immutable audit trail"
+      "description": "JSON array of { timestamp, event, details } — immutable audit trail"
     },
     "skill_impact_json": {
       "type": "string",
-      "description": "JSON object of Executive Skill Impact\u2122 \u2014 contribution to each module"
+      "description": "JSON object of Executive Skill Impact™ — contribution to each module"
     },
     "recommendation_reason": {
       "type": "string",
@@ -198,6 +198,11 @@
         {
           "user_condition": {
             "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

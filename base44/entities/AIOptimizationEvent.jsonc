@@ -34,7 +34,7 @@
         "general_inquiry"
       ],
       "default": "general_inquiry",
-      "description": "Classified intent category from the Intent Router\u2122"
+      "description": "Classified intent category from the Intent Router™"
     },
     "source": {
       "type": "string",
@@ -64,7 +64,7 @@
     "ai_required": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the Decision Engine\u2122 determined AI was needed"
+      "description": "Whether the Decision Engine™ determined AI was needed"
     },
     "cache_hit": {
       "type": "boolean",
@@ -169,6 +169,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -188,6 +193,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -201,6 +211,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

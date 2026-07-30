@@ -8,7 +8,7 @@
     },
     "report_name": {
       "type": "string",
-      "description": "Report name (e.g. Platform Validation\u2122)"
+      "description": "Report name (e.g. Platform Validation™)"
     },
     "report_type": {
       "type": "string",
@@ -135,6 +135,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -159,6 +164,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -178,6 +188,11 @@
           "user_condition": {
             "role": "admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -191,6 +206,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

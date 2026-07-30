@@ -11,7 +11,7 @@
     },
     "founder_number": {
       "type": "string",
-      "description": "Permanent Founder Identity Seal\u2122 number (e.g. FM-000001). Immutable \u2014 can never be edited, reassigned, or recycled."
+      "description": "Permanent Founder Identity Seal™ number (e.g. FM-000001). Immutable — can never be edited, reassigned, or recycled."
     },
     "founder_rank": {
       "type": "number",
@@ -24,7 +24,7 @@
     "lifetime_founder": {
       "type": "boolean",
       "default": false,
-      "description": "Permanent lifetime founder status \u2014 never expires"
+      "description": "Permanent lifetime founder status — never expires"
     },
     "founding_member": {
       "type": "boolean",
@@ -39,7 +39,7 @@
     "founder_locked": {
       "type": "boolean",
       "default": false,
-      "description": "Founder Identity Seal\u2122 \u2014 locks the entire founder record"
+      "description": "Founder Identity Seal™ — locks the entire founder record"
     },
     "identity_locked": {
       "type": "boolean",
@@ -54,7 +54,7 @@
     "founder_record_locked": {
       "type": "boolean",
       "default": false,
-      "description": "Entire founder record is sealed \u2014 no modifications permitted"
+      "description": "Entire founder record is sealed — no modifications permitted"
     },
     "user_id": {
       "type": "string"
@@ -239,7 +239,7 @@
         "lifetime_founder"
       ],
       "default": "application",
-      "description": "Current lifecycle stage in the Founding Member Lifecycle Engine\u2122"
+      "description": "Current lifecycle stage in the Founding Member Lifecycle Engine™"
     },
     "entered_stage_date": {
       "type": "string",
@@ -321,6 +321,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -353,6 +358,11 @@
           "user_condition": {
             "role": "enterprise_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -380,6 +390,11 @@
           "user_condition": {
             "role": "developer"
           }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
         }
       ]
     },
@@ -393,6 +408,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

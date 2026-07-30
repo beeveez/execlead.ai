@@ -4,13 +4,15 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import {
   ArrowRight, Brain, Swords, MessageSquare, GraduationCap, BarChart3,
-  Building2, BookOpen, Shield, Zap, Target, TrendingUp, Crown, Check,
+  Building2, BookOpen, Shield, Target, TrendingUp, Crown, Check,
   Compass, Settings, KeyRound, ShieldCheck, FileText, Rocket, Play
 } from "lucide-react";
 import { LEARNING_PATHS } from "@/lib/constants";
 import Logo from "@/components/layout/Logo";
 import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
 import ScrollIndicator from "@/components/landing/ScrollIndicator";
+import HeroSection from "@/components/landing/HeroSection";
+import ProductDemo from "@/components/landing/ProductDemo";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
 import { captureReferralAttribution } from "@/lib/referralEngine";
@@ -65,6 +67,7 @@ const FAQS = [
 
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const { plans: pricingPlans, cycle, setCycle, getPrice } = usePricingCatalog();
   const { isBeta } = usePlatformLaunchMode();
 
@@ -85,133 +88,8 @@ export default function Landing() {
     <>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-6 lg:px-8">
-        {/* Animated background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-orange/20 rounded-full blur-[120px]"
-            animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute top-1/3 right-1/4 w-96 h-96 bg-amber-500/15 rounded-full blur-[120px]"
-            animate={{ x: [0, -40, 0], y: [0, 50, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px]"
-            animate={{ x: [0, 30, 0], y: [0, -40, 0] }}
-            transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full text-xs text-amber-400 font-semibold tracking-wide mb-6"
-          >
-            <Crown size={12} />
-            Executive Leadership Operating System™
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-orange/10 border border-accent-orange/20 rounded-full text-xs text-accent-orange mb-8"
-          >
-            <Zap size={12} />
-            🚀 Founding Private Beta™ — Invitation Only
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
-          >
-            Become the Executive
-            <br />
-            <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-              Every Company Wants to Hire.
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="text-lg md:text-xl font-medium text-white/60 max-w-3xl mx-auto mb-4 leading-relaxed"
-            >
-            {BrandRegistry.description}
-            </motion.p>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-base md:text-lg text-white/40 max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            {BrandRegistry.tagline}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            {authed ? (
-              <Link
-                to="/home"
-                className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
-              >
-                Go to Dashboard <ArrowRight size={18} />
-              </Link>
-            ) : (
-              <Link
-                to="/beta"
-                className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
-              >
-                Apply for Private Beta™ <ArrowRight size={18} />
-              </Link>
-            )}
-            {!authed && (
-              <a
-                href="#founding-members"
-                className="w-full sm:w-auto bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 text-amber-400 font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
-              >
-                <Crown size={16} /> Become a Founding Member™
-              </a>
-            )}
-            <a
-              href="#features"
-              className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 font-medium px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
-            >
-              Learn More™
-            </a>
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            className="text-white/20 text-xs mt-6"
-          >
-            {BrandRegistry.secondaryTagline}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.7 }}
-          >
-            <ScrollIndicator targetSection="#features" />
-          </motion.div>
-        </div>
-      </section>
+      <HeroSection authed={authed} onWatchDemo={() => setShowDemo(true)} />
+      <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} />
 
       {/* Stats bar */}
       <section className="border-y border-white/5 py-12 px-6 lg:px-8">

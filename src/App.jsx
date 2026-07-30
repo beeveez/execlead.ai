@@ -167,6 +167,7 @@ import AIGovernanceCenter from '@/pages/AIGovernanceCenter';
 import LaunchDefenseCenter from '@/pages/LaunchDefenseCenter';
 import ExecutiveDecisionLab from '@/pages/ExecutiveDecisionLab';
 import PlatformKnowledgeCenter from '@/pages/PlatformKnowledgeCenter';
+import PlatformGovernanceCenter from '@/pages/PlatformGovernanceCenter';
 import PlatformDigitalTwin from '@/pages/PlatformDigitalTwin';
 import ExecutivePassport from '@/pages/ExecutivePassport';
 import EnterpriseIntelligence from '@/pages/EnterpriseIntelligence';
@@ -417,6 +418,7 @@ const AuthenticatedApp = () => {
           <Route path="/launch-defense" element={<LaunchDefenseCenter />} />
           <Route path="/decision-lab" element={<ExecutiveDecisionLab />} />
           <Route path="/platform-knowledge" element={<PlatformKnowledgeCenter />} />
+          <Route path="/platform-governance" element={<PlatformGovernanceCenter />} />
           <Route path="/platform-digital-twin" element={<PlatformDigitalTwin />} />
           <Route path="/executive-passport" element={<ExecutivePassport />} />
           <Route path="/enterprise-intelligence" element={<EnterpriseIntelligence />} />

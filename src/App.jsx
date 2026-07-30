@@ -300,6 +300,10 @@ import DeveloperPortal from '@/pages/DeveloperPortal';
 import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelligenceDashboard';
 import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
 import BetaApply from '@/pages/BetaApply';
+import ExecutiveSuccessStories from '@/pages/ExecutiveSuccessStories';
+import SuccessStoryDetail from '@/pages/SuccessStoryDetail';
+import SuccessStoryGallery from '@/pages/SuccessStoryGallery';
+import SuccessStoryPublic from '@/pages/SuccessStoryPublic';
 import LocalizationDashboardPage from '@/pages/LocalizationDashboard';
 import SecurityBaselineDashboard from '@/pages/SecurityBaselineDashboard';
 import ResponsibleAIDashboard from '@/pages/ResponsibleAIDashboard';
@@ -353,6 +357,8 @@ const AuthenticatedApp = () => {
         <Route path="/company-library/:id" element={<div className="pt-20"><CompanyDetail /></div>} />
         <Route path="/articles" element={<ArticleHub />} />
         <Route path="/articles/:slug" element={<ArticleDetail />} />
+        <Route path="/success-stories" element={<SuccessStoryGallery />} />
+        <Route path="/success-stories/:id" element={<SuccessStoryPublic />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -423,6 +429,8 @@ const AuthenticatedApp = () => {
           <Route path="/resume-import" element={<ResumeImport />} />
           <Route path="/career-studio" element={<FeatureGate featureId="career_studio"><CareerStudio /></FeatureGate>} />
           <Route path="/executive-portfolio" element={<ExecutivePortfolio />} />
+          <Route path="/executive-success-stories" element={<ExecutiveSuccessStories />} />
+          <Route path="/executive-success-stories/:id" element={<SuccessStoryDetail />} />
           <Route path="/executive-credentials" element={<ExecutiveCredentials />} />
           <Route path="/compare-plans" element={<ComparePlans />} />
           <Route path="/profile" element={<Profile />} />

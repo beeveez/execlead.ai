@@ -17,6 +17,7 @@
  * one continuous leadership development journey.
  */
 import { getLevelFromPoints } from "./journeyEngine";
+import { getModuleEngagement } from "./readinessContributionRegistry";
 
 // ── Executive Readiness Loop™ ──
 // The platform's operating rhythm. Every module participates.
@@ -120,6 +121,9 @@ export function buildCommandCenter(intelligence, profile) {
 
   const mission = generateTodaysMission(intelligence, profile);
 
+  // Aggregate module engagement — proves every module feeds the engine.
+  const engagement = getModuleEngagement();
+
   return {
     readinessScore: overallScore,
     readinessTrend: readiness.trend || "Stable",
@@ -144,6 +148,16 @@ export function buildCommandCenter(intelligence, profile) {
     },
     loop: READINESS_LOOP,
     evidenceMap: MODULE_EVIDENCE_MAP,
+    // Module engagement signals — breadth of modules and competencies
+    // engaged, plus Readiness Loop™ coverage. The dashboard surfaces this
+    // as "Engagement Breadth" — a leading indicator of readiness velocity.
+    engagement: {
+      modulesEngaged: engagement.modulesEngaged,
+      competencyBreadth: engagement.competencyBreadth,
+      loopCoverage: engagement.loopCoverage,
+      loopCoveragePct: Math.round((engagement.loopCoverage / READINESS_LOOP.length) * 100),
+      recentEntries: engagement.entries,
+    },
   };
 }
 

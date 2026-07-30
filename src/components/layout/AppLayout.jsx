@@ -19,6 +19,7 @@ import DeveloperBadge from "@/components/developer/DeveloperBadge";
 import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 import SimulationBanner from "@/components/developer/SimulationBanner";
 import GracePeriodBanner from "@/components/identity/GracePeriodBanner";
+import ReadinessContributionBanner from "@/components/shared/ReadinessContributionBanner";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -132,6 +133,7 @@ export default function AppLayout() {
         <TopBar />
         <div className="px-4 md:px-8 pt-2 max-w-7xl mx-auto">
           <GlobalBreadcrumbs />
+          <ReadinessContributionBanner />
         </div>
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
           <RoleRoute>

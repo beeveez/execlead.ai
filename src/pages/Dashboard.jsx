@@ -12,6 +12,7 @@ import LeadershipJourneyCard from "@/components/dashboard/command-center/Leaders
 import GrowthTimelineCard from "@/components/dashboard/command-center/GrowthTimelineCard";
 import ReadinessLoop from "@/components/dashboard/command-center/ReadinessLoop";
 import ModuleEvidenceMap from "@/components/dashboard/command-center/ModuleEvidenceMap";
+import EngagementBreadthCard from "@/components/dashboard/command-center/EngagementBreadthCard";
 
 /**
  * Dashboard — Executive Command Center.
@@ -83,6 +84,9 @@ export default function Dashboard() {
 
       {/* Module Evidence Map — every module builds readiness */}
       <ModuleEvidenceMap evidenceMap={command.evidenceMap} />
+
+      {/* Engagement breadth — proves every module feeds the engine */}
+      <EngagementBreadthCard engagement={command.engagement} loopLength={command.loop?.length} />
 
       {/* Focus areas — what to improve next */}
       {command.focusAreas.length > 0 && (

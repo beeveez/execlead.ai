@@ -216,7 +216,7 @@ export async function createSuccessStory(user, options = {}) {
     }),
     charts_json: JSON.stringify(charts),
     timeline_json: JSON.stringify(ai.timeline || []),
-    version: '1.0',
+    version: options.version || '1.0',
     industry: options.industry || '',
     target_role: options.target_role || '',
     share_url: published ? `/success-stories/${story_id}` : '',

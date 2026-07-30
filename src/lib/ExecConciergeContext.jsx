@@ -37,6 +37,8 @@ import {
   answerTransparencyQuestion,
 } from "@/lib/decisionTransparencyEngine";
 import { analyzeAllGaps } from "@/lib/evidenceGapEngine";
+import { loadLatestStory, formatStoryContextForPrompt, buildStoryContext } from "@/lib/executiveStoryIntelligence";
+import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest, formatExplainability } from "@/lib/executiveBioGenerator";
 
 const ExecConciergeContext = createContext(null);
 
@@ -198,7 +200,9 @@ export function ExecConciergeProvider({ children }) {
   const [contextSwitchAt, setContextSwitchAt] = useState(null);
   const [learnedPreferences, setLearnedPreferences] = useState(null);
   const [executiveMemory, setExecutiveMemory] = useState(null);
+  const [latestStory, setLatestStory] = useState(null);
   const userContextRef = useRef(null);
+  const latestStoryRef = useRef(null);
   const greetedWorkspaceRef = useRef(null);
   const executiveMemoryRef = useRef(null);
   const learnedPreferencesRef = useRef(null);
@@ -327,6 +331,13 @@ export function ExecConciergeProvider({ children }) {
       loadExecutiveMemory(user.id);
     }
   }, [user?.id, fetchUserContext, loadExecutiveMemory]);
+
+  // Load the member's latest Executive Success Story so EXEC™ can ground every
+  // professional summary, biography, and portfolio in verified evidence.
+  useEffect(() => {
+    if (!user?.id) { setLatestStory(null); latestStoryRef.current = null; return; }
+    loadLatestStory(user.id).then((s) => { setLatestStory(s); latestStoryRef.current = s; });
+  }, [user?.id]);
 
   const initConversation = useCallback(async () => {
     if (user) {
@@ -461,6 +472,47 @@ export function ExecConciergeProvider({ children }) {
         }
       }
 
+      // Executive Story Intelligence™ — answer story/biography requests locally
+      // from the member's verified Success Story with full explainability, then
+      // fall through to the AI for everything else.
+      const lowerContent = content.toLowerCase();
+      const story = latestStoryRef.current;
+      if (story && (isStorySummaryRequest(lowerContent) || isStoryBioRequest(lowerContent))) {
+        try {
+          let answerText;
+          if (isStorySummaryRequest(lowerContent)) {
+            const sctx = buildStoryContext(story);
+            const ex = {
+              storySource: story.title,
+              verifiedEvidence: {
+                evidenceRecords: sctx.evidenceCount,
+                coachingSessions: sctx.sessionCounts?.coachSessions || 0,
+                simulations: sctx.sessionCounts?.simulations || 0,
+                decisionLabs: sctx.sessionCounts?.decisionLabs || 0,
+                outcomes: sctx.sessionCounts?.outcomes || 0,
+                achievements: (story.achievements || []).length,
+              },
+              readinessChange: sctx.readiness,
+              aiInsights: sctx.aiInsights,
+              confidence: sctx.storyConfidence,
+              lastUpdated: story.generated_date,
+              version: story.version,
+            };
+            answerText = `**${story.title}**\n\n${story.summary}\n\n**Executive Readiness™:** ${sctx.readiness.beginning ?? '—'} → ${sctx.readiness.current ?? '—'} (+${sctx.readiness.improvement || 0})  \n**Journey Stage:** ${sctx.journeyStage || '—'}  \n**Evidence:** ${sctx.evidenceCount} verified records  \n**Story Confidence:** ${sctx.storyConfidence}%\n\n---\n${formatExplainability(ex)}`;
+          } else {
+            const fmt = detectBioFormat(content);
+            const result = await generateBio(story, fmt);
+            answerText = `${result.text}\n\n---\n${formatExplainability(result.explainability)}`;
+          }
+          setMessages((prev) => [...prev, { role: "assistant", content: answerText }]);
+          setLoading(false);
+          base44.analytics.track({ eventName: "exec_story_intelligence_used", properties: { type: isStorySummaryRequest(lowerContent) ? "summary" : detectBioFormat(content) } });
+          return;
+        } catch {
+          // fall through to the AI on any error
+        }
+      }
+
       try {
         const prompt = buildExecPrompt(
           newMessages,
@@ -468,7 +520,8 @@ export function ExecConciergeProvider({ children }) {
           matchPageContext(location.pathname),
           userContextRef.current || userContext,
           workspacePersona,
-          learnedPreferencesRef.current
+          learnedPreferencesRef.current,
+          formatStoryContextForPrompt(latestStoryRef.current)
         );
         const res = await callAI("exec_concierge", { prompt });
         const initialResponse =

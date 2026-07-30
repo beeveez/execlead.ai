@@ -305,6 +305,7 @@ import ExecutiveSuccessStories from '@/pages/ExecutiveSuccessStories';
 import SuccessStoryDetail from '@/pages/SuccessStoryDetail';
 import SuccessStoryGallery from '@/pages/SuccessStoryGallery';
 import SuccessStoryPublic from '@/pages/SuccessStoryPublic';
+import ExecutiveStoryIntelligence from '@/pages/ExecutiveStoryIntelligence';
 import LocalizationDashboardPage from '@/pages/LocalizationDashboard';
 import SecurityBaselineDashboard from '@/pages/SecurityBaselineDashboard';
 import ResponsibleAIDashboard from '@/pages/ResponsibleAIDashboard';
@@ -433,6 +434,7 @@ const AuthenticatedApp = () => {
           <Route path="/executive-portfolio" element={<ExecutivePortfolio />} />
           <Route path="/executive-success-stories" element={<ExecutiveSuccessStories />} />
           <Route path="/executive-success-stories/:id" element={<SuccessStoryDetail />} />
+          <Route path="/executive-story-intelligence" element={<ExecutiveStoryIntelligence />} />
           <Route path="/executive-credentials" element={<ExecutiveCredentials />} />
           <Route path="/compare-plans" element={<ComparePlans />} />
           <Route path="/profile" element={<Profile />} />

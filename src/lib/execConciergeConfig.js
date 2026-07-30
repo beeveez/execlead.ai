@@ -42,6 +42,7 @@ export const EXEC_QUICK_ACTIONS = [
   { label: "What is EXECLEAD.AI?", message: "What is EXECLEAD.AI and what makes it unique?", icon: Sparkles },
   { label: "Recommend a Plan", message: "Can you recommend the right membership plan for me?", icon: Crown },
   { label: "Enterprise", message: "Tell me about enterprise solutions for my organization.", icon: Building2 },
+  { label: "My Success Story", message: "Summarize my leadership journey using my Executive Success Story.", icon: Trophy },
   { label: "Ask Anything", message: "", icon: MessageCircle, focusOnly: true },
 ];
 
@@ -54,6 +55,9 @@ export const EXEC_SUGGESTED_QUESTIONS = [
   "Which membership should I choose?",
   "Where can I find Executive Rankings?",
   "Where is Career Studio?",
+  "Summarize my leadership journey",
+  "Generate my executive biography",
+  "Write my LinkedIn About section",
 ];
 
 export function getSuggestedQuestions(messageCount) {
@@ -116,6 +120,8 @@ export const PAGE_CONTEXT_MAP = [
   { path: "/founders", module: "Founding Membership", icon: Crown, prompt: "Founding Membership is a limited-time lifetime offering. Would you like to learn about the benefits or reserve your spot?" },
   { path: "/developer", module: "Developer Workspace", icon: Building2, prompt: "I can explain developer tools, feature flags, or system health monitoring." },
   { path: "/pricing", module: "Pricing", icon: CreditCard, prompt: "I can help you compare plans, explain pricing, or recommend the right membership for you." },
+  { path: "/executive-success-stories", module: "Executive Success Stories™", icon: BookOpen, prompt: "I can generate an AI case study of your leadership journey or help you share it." },
+  { path: "/executive-story-intelligence", module: "Executive Story Intelligence™", icon: Sparkles, prompt: "I can generate executive biographies, LinkedIn sections, and board intros from your verified Success Story." },
   { path: "/", module: "Home", icon: Home, prompt: null },
 ];
 
@@ -143,6 +149,7 @@ export const EXEC_TASKS = [
   { label: "Academy", path: "/academy", icon: GraduationCap },
   { label: "Compare Plans", path: "/compare-plans", icon: GitCompare },
   { label: "Coaching", path: "/coach", icon: MessageSquare },
+  { label: "Success Story", path: "/executive-success-stories", icon: BookOpen },
 ];
 
 export const EXEC_GLOBAL_COMMANDS = [
@@ -154,6 +161,7 @@ export const EXEC_GLOBAL_COMMANDS = [
   { label: "Marketplace", path: "/marketplace", icon: Store, action: "navigate" },
   { label: "Executive Rankings", path: "/executive/rankings", icon: Trophy, action: "navigate" },
   { label: "Search the Platform", icon: Search, action: "search" },
+  { label: "Executive Success Story", path: "/executive-success-stories", icon: Trophy, action: "navigate" },
 ];
 
 export const EXEC_KNOWLEDGE_BASE = [
@@ -583,7 +591,7 @@ IMPORTANT LINKS:
 - Contact: /contact
 - About: /about`;
 
-export function buildExecPrompt(messages, user, pageContext, userContext, persona, learnedPreferences) {
+export function buildExecPrompt(messages, user, pageContext, userContext, persona, learnedPreferences, storyContextPrompt) {
   let context = user
     ? `\n\nVISITOR CONTEXT: The user is logged in as ${user.full_name || "a registered user"}.`
     : `\n\nVISITOR CONTEXT: The visitor is not logged in (a public visitor). If they show interest, suggest creating a free account at /register or booking a demo at /contact.`;
@@ -641,6 +649,10 @@ export function buildExecPrompt(messages, user, pageContext, userContext, person
   } else if (user) {
     context += `\n\nEXECUTIVE RUNTIME PROFILE™: Not loaded. If the user asks about their personal data, acknowledge that their profile is still loading and suggest refreshing the conversation.`;
   }
+
+  // ── Executive Story Context™ — EXEC™ treats the member's Success Story as the
+  // primary source of truth for professional summaries, biographies, and portfolios.
+  if (storyContextPrompt) context += storyContextPrompt;
 
   context += `\n\nPLATFORM KNOWLEDGE INDEX (use for "where is" and feature questions):\n${buildKnowledgeIndexSummary()}`;
 

@@ -1,0 +1,173 @@
+{
+  "name": "LaunchQuestion",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "question_id": {
+      "type": "string",
+      "description": "Unique question ID (LQ-NNN)"
+    },
+    "question": {
+      "type": "string",
+      "description": "The launch question text"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Founder",
+        "Vision",
+        "Product",
+        "Technology",
+        "Leadership",
+        "Enterprise",
+        "Security",
+        "AI",
+        "Ethics",
+        "Competition",
+        "Business",
+        "Commercial",
+        "Revenue",
+        "Pricing",
+        "Investment",
+        "Roadmap",
+        "Media",
+        "Conference",
+        "Recruitment",
+        "Government",
+        "Universities"
+      ]
+    },
+    "audience": {
+      "type": "string",
+      "description": "Primary audience (Investor, Enterprise CIO, Journalist, ...)"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "default": "intermediate"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Why people ask this / what interviewers evaluate"
+    },
+    "suggested_answer": {
+      "type": "string",
+      "description": "Excellent answer"
+    },
+    "alternative_answer": {
+      "type": "string",
+      "description": "Alternative angle"
+    },
+    "short_answer": {
+      "type": "string",
+      "description": "60-second answer"
+    },
+    "long_answer": {
+      "type": "string",
+      "description": "3-minute answer"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supporting evidence references"
+    },
+    "follow_up_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "common_mistakes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommended_reading": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "question_id",
+    "question",
+    "category"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

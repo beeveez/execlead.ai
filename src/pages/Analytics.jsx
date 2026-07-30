@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { SCORE_DIMENSIONS } from "@/lib/constants";
 import { BarChart3, TrendingUp, Loader2, Award } from "lucide-react";
 import { motion } from "framer-motion";
+import GrowthIntelligencePanel from "@/components/analytics/GrowthIntelligencePanel";
 import {
   RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, Cell
@@ -97,6 +98,9 @@ export default function Analytics() {
         </div>
       ) : (
         <>
+          {/* Growth Intelligence — momentum, consistency, trajectory */}
+          <GrowthIntelligencePanel results={results} />
+
           {/* Top stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-white/[0.03] border border-white/5 rounded-xl p-4">

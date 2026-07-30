@@ -6,6 +6,7 @@ import { PORTFOLIO_SECTIONS, computeCompleteness } from '@/lib/portfolioEngine';
 import { isSectionVisible } from '@/lib/portfolioEngineV2';
 import SectionNavigator from '@/components/portfolio/SectionNavigator';
 import PortfolioHero from '@/components/portfolio/PortfolioHero';
+import GrowthRecordHero from '@/components/portfolio/GrowthRecordHero';
 import PortfolioScoreboard from '@/components/portfolio/PortfolioScoreboard';
 import RecommendationPanel from '@/components/portfolio/RecommendationPanel';
 import IdentityLayer from '@/components/portfolio/IdentityLayer';
@@ -98,6 +99,7 @@ export default function ExecutivePortfolio() {
           <span className="text-xs text-indigo-400 group-hover:translate-x-1 transition-transform">Start →</span>
         </Link>
       </div>
+      <GrowthRecordHero />
       <IdentityLayer data={data} completeness={completeness} />
       <PortfolioScoreboard data={data} completeness={completeness} />
       <RecommendationPanel data={data} completeness={completeness} />

@@ -103,6 +103,16 @@ export default function RLSValidationReport() {
               : `RLS Certification blocked — ${report.findingsBySeverity.critical} critical, ${report.findingsBySeverity.high} high findings require remediation. Security Health Score™ reduced.`}
           </span>
         </div>
+
+        {/* Platform-limitation distinction */}
+        {report.totalPlatformLimitations > 0 && (
+          <div className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/10">
+            <FileCode size={12} className="text-white/40" />
+            <span className="text-[11px] text-white/50">
+              <span className="text-white/70 font-medium">{report.totalPlatformLimitations}</span> platform-capability limitation{report.totalPlatformLimitations !== 1 ? "s" : ""} documented (service-role, environment policies) — <span className="text-white/40">not counted as EXECLEAD.AI defects</span>. Guardian™ does not penalize platform limitations.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Filters */}

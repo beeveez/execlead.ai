@@ -201,6 +201,34 @@ export const VALIDATION_RULES = [
     'RLS coverage validation failed — entities lack least-privilege enforcement.',
     ['RLS Validation Engine™', 'RLS Registry™'], ['security_score', 'launch_readiness'], '2026-07-30'),
 
+  F('rls_tenant_isolation', 'security', 'RLS Tenant Isolation', 7, 'FAIL',
+    'Organization-owned entities must enforce tenant isolation (organization_id match).', 'Security Baseline', 'enterprise', 'Security Admin', '1 hour', true,
+    {
+      customer: 'A user in Organization A could read Organization B private data — a critical breach of trust.',
+      executive: 'Enterprise contracts guarantee tenant isolation; a violation terminates the agreement.',
+      platform: 'RLS Validation Engine™ detected organization-scoped entities without organization_id match rules.',
+      operational: 'Support cannot guarantee cross-tenant data boundaries when investigating access issues.',
+      deployment: 'Cannot deploy multi-tenant features without verified tenant isolation on every org-scoped entity.',
+    },
+    'Organization-owned entities must scope read/update/delete by data.organization_id == {{user.data.organization_id}}. Missing this rule enables cross-tenant leakage.',
+    'Apply Organization Match policy to every organization-scoped entity via the RLS Policy Editor™',
+    'RLS tenant isolation validation failed — org-scoped entities lack organization_id match.',
+    ['RLS Validation Engine™', 'RLS Policy Builder™'], ['security_score', 'launch_readiness'], '2026-07-30'),
+
+  F('rls_least_privilege', 'security', 'RLS Least Privilege', 6, 'WARNING',
+    'Some entities grant broader access than necessary (public read on sensitive data, open update).', 'Security Baseline', 'enterprise', 'Security Admin', '2 hours', true,
+    {
+      customer: 'Sensitive executive data may be exposed to users who should not see it.',
+      executive: 'Overly permissive access weakens the security posture and regulatory standing.',
+      platform: 'RLS Validation Engine™ detected entities where access exceeds the minimum required.',
+      operational: 'Support cannot confidently scope data access during incident response.',
+      deployment: 'Excessive permissions are a deployment risk and should be tightened before launch.',
+    },
+    'Least-privilege requires each operation scoped to the narrowest necessary audience. Sensitive entities with public read or open update violate this principle.',
+    'Narrow access using the RLS Policy Editor™ — scope sensitive reads to owner/org and restrict updates to owner/admin',
+    'RLS least-privilege validation warning — some entities grant excessive access.',
+    ['RLS Validation Engine™', 'RLS Policy Builder™'], ['security_score'], '2026-07-30'),
+
   // ═══ Compliance ═══
   F('privacy_control_implementation', 'compliance', 'Privacy Control Implementation', 3, 'WARNING',
     'Some privacy controls are incomplete.', 'Privacy Compliance', 'enterprise', 'Developer', '4 hours', false,

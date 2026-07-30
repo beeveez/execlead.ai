@@ -117,7 +117,7 @@ function deriveCrudStatus(entry) {
  */
 function runGuardianChecks(entry, crudStatus) {
   const checks = [];
-  const { classification, scope, sensitive, status } = entry;
+  const { classification, scope, sensitive, status, rule } = entry;
   const isPublic = classification === "public";
 
   // 1. Missing CRUD rules
@@ -126,6 +126,7 @@ function runGuardianChecks(entry, crudStatus) {
     checks.push({
       id: "missing_crud",
       severity: "critical",
+      findingType: "application_defect",
       message: `Missing CRUD rules for: ${missingOps.join(", ")}.`,
       remediation: "Define explicit Create, Read, Update, Delete permissions.",
     });
@@ -136,6 +137,7 @@ function runGuardianChecks(entry, crudStatus) {
     checks.push({
       id: "open_read",
       severity: sensitive ? "critical" : "high",
+      findingType: "application_defect",
       message: `Read permission is open — any authenticated user can read this ${classification} entity.`,
       remediation: `Scope read by ${classification === "user" ? "owner (user_id/created_by_id)" : classification === "organization" ? "organization_id" : "admin role"}.`,
     });
@@ -146,6 +148,7 @@ function runGuardianChecks(entry, crudStatus) {
     checks.push({
       id: "permissive_update",
       severity: sensitive ? "critical" : "high",
+      findingType: "application_defect",
       message: `Update permission is open — any authenticated user can modify records.`,
       remediation: "Restrict update to owner or administrator role only.",
     });
@@ -156,26 +159,42 @@ function runGuardianChecks(entry, crudStatus) {
     checks.push({
       id: "unrestricted_delete",
       severity: "critical",
+      findingType: "application_defect",
       message: `Delete permission is unrestricted — any authenticated user can delete records.`,
       remediation: "Restrict delete to Platform Administrators or Entity Administrators only.",
     });
   }
 
-  // 5. Missing ownership validation (user/org entity without owner/org scope)
+  // 5. Missing ownership validation (user entity without owner scope)
   if (classification === "user" && (!scope || scope === "—")) {
     checks.push({
       id: "missing_ownership",
       severity: "high",
+      findingType: "application_defect",
       message: `User-owned entity has no owner scope field (user_id / created_by_id).`,
       remediation: "Add user_id or rely on created_by_id and scope read/update by owner.",
     });
   }
+
+  // 5b. Missing organization isolation (org entity without organization_id scope)
   if (classification === "organization" && (!scope || scope === "—")) {
     checks.push({
-      id: "missing_org_scope",
+      id: "missing_org_isolation",
       severity: "high",
-      message: `Organization-owned entity has no organization_id scope field.`,
-      remediation: "Add organization_id and scope read/update by same-org membership.",
+      findingType: "application_defect",
+      message: `Organization-owned entity has no organization_id scope — no tenant isolation enforced.`,
+      remediation: "Add organization_id and scope read/update by same-org membership (record.organization_id == user.organization_id).",
+    });
+  }
+
+  // 5c. Missing tenant isolation (org entity with scope but rule lacks org match)
+  if (classification === "organization" && scope && scope !== "—" && status !== "protected") {
+    checks.push({
+      id: "missing_tenant_isolation",
+      severity: "high",
+      findingType: "application_defect",
+      message: `Organization-owned entity does not enforce tenant isolation — cross-tenant data leakage risk.`,
+      remediation: "Apply Organization Match policy: data.organization_id == {{user.data.organization_id}}.",
     });
   }
 
@@ -184,12 +203,51 @@ function runGuardianChecks(entry, crudStatus) {
     checks.push({
       id: "missing_admin_policy",
       severity: "critical",
+      findingType: "application_defect",
       message: `System-owned entity has no administrator policy — unrestricted access.`,
       remediation: "Restrict all CRUD to platform admin / developer roles.",
     });
   }
 
+  // 6b. Missing least privilege (protected entity still too broad — sensitive entity readable by all)
+  if (status === "protected" && sensitive && isPublic && crudStatus.read === "public") {
+    checks.push({
+      id: "missing_least_privilege",
+      severity: "medium",
+      findingType: "application_defect",
+      message: `Sensitive entity is public-read — least-privilege not satisfied.`,
+      remediation: "Narrow read to authenticated owner/org scope; keep public read only for non-sensitive catalog data.",
+    });
+  }
+
   return checks;
+}
+
+/**
+ * Generate platform-capability-limitation advisories for an entity.
+ * These are NOT application defects — they document Base44 capabilities
+ * that are not exposed in RLS. Guardian™ must not penalize EXECLEAD.AI
+ * for these.
+ */
+function runPlatformLimitationChecks(entry) {
+  const advisories = [];
+  // Service-role policies are a platform limitation for all entities.
+  advisories.push({
+    id: "service_role_limitation",
+    severity: "info",
+    findingType: "platform_limitation",
+    message: `Service-role access (Guardian™, EXEC™, Background Jobs) cannot be expressed in RLS — enforced at backend-function layer.`,
+    remediation: "No action required — platform limitation. Service operations run via base44.asServiceRole which bypasses RLS.",
+  });
+  // Environment-specific policies are a platform limitation.
+  advisories.push({
+    id: "environment_limitation",
+    severity: "info",
+    findingType: "platform_limitation",
+    message: `Environment-specific RLS policies (dev/staging/prod) are not supported by Base44.`,
+    remediation: "No action required — platform limitation. Use feature flags or separate entities per environment.",
+  });
+  return advisories;
 }
 
 /**
@@ -213,20 +271,24 @@ function computeAuditProtection(entry) {
 function validateEntity(entry) {
   const crudStatus = deriveCrudStatus(entry);
   const guardianChecks = runGuardianChecks(entry, crudStatus);
+  const platformLimitations = runPlatformLimitationChecks(entry);
   const auditProtection = computeAuditProtection(entry);
   const securityClass = getEntitySecurityClass(entry.name);
   const typeInfo = ENTITY_TYPE_MAP[entry.classification] || ENTITY_TYPE_MAP.platform;
 
-  // Aggregate findings from Guardian checks + audit
+  // Aggregate findings from Guardian checks + audit (application defects)
   const findings = [...guardianChecks];
   if (!auditProtection.protected) {
     findings.push({
       id: "audit_protection",
       severity: "medium",
+      findingType: "application_defect",
       message: auditProtection.note,
       remediation: "Enforce immutable update rules for audit fields (created_by_id, created_date).",
     });
   }
+  // Platform-limitation advisories tracked separately (not defects)
+  const platformLimitationAdvisories = platformLimitations;
 
   // Per-operation warnings
   const warnings = [];
@@ -269,6 +331,7 @@ function validateEntity(entry) {
     auditProtection,
     guardianChecks,
     findings,
+    platformLimitations: platformLimitationAdvisories,
     warnings,
     missingRules,
     riskLevel,
@@ -286,11 +349,18 @@ export function runRLSValidation() {
 
   const allFindings = entityResults.flatMap((e) => e.findings.map((f) => ({ ...f, entity: e.name })));
 
+  // Separate application defects from platform limitations — Guardian™ must
+  // not penalize EXECLEAD.AI for Base44 capabilities that are not exposed.
+  const applicationDefects = allFindings.filter((f) => f.findingType !== "platform_limitation");
+  const platformLimitations = entityResults.flatMap((e) =>
+    (e.platformLimitations || []).map((a) => ({ ...a, entity: e.name }))
+  );
+
   const bySeverity = {
-    critical: allFindings.filter((f) => f.severity === "critical").length,
-    high: allFindings.filter((f) => f.severity === "high").length,
-    medium: allFindings.filter((f) => f.severity === "medium").length,
-    low: allFindings.filter((f) => f.severity === "low").length,
+    critical: applicationDefects.filter((f) => f.severity === "critical").length,
+    high: applicationDefects.filter((f) => f.severity === "high").length,
+    medium: applicationDefects.filter((f) => f.severity === "medium").length,
+    low: applicationDefects.filter((f) => f.severity === "low").length,
   };
 
   const total = RLS_REGISTRY.length;
@@ -323,10 +393,12 @@ export function runRLSValidation() {
     certified,
     riskLevel,
     findingsBySeverity: bySeverity,
-    totalFindings: allFindings.length,
+    totalFindings: applicationDefects.length,
+    totalPlatformLimitations: platformLimitations.length,
     typeDistribution,
     entities: entityResults,
-    findings: allFindings,
+    findings: applicationDefects,
+    platformLimitations,
     principles: ["Least Privilege", "Zero Trust", "Default Deny", "Explicit Authorization", "User Ownership", "Organization Isolation", "Auditability"],
   };
 }

@@ -10,6 +10,7 @@ import SecurityFindingsTable from '@/components/security-baseline/SecurityFindin
 import ZeroTrustOverview from '@/components/security-baseline/ZeroTrustOverview';
 import DependencySecurityPanel from '@/components/security-baseline/DependencySecurityPanel';
 import RLSValidationReport from '@/components/security-baseline/RLSValidationReport';
+import RLSPolicyEditor from '@/components/security-baseline/RLSPolicyEditor';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -105,7 +106,17 @@ export default function SecurityBaselineDashboard() {
       )}
 
       {tab === 'rls' && (
-        <RLSValidationReport />
+        <div className="space-y-4">
+          <RLSValidationReport />
+          <div className="pt-2">
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <Shield size={14} className="text-indigo-400" />
+              <h2 className="text-sm font-semibold text-white">RLS Policy Editor™</h2>
+              <span className="text-[10px] text-white/30">Compose &amp; generate enterprise RLS policies</span>
+            </div>
+            <RLSPolicyEditor />
+          </div>
+        </div>
       )}
 
       {tab === 'zero_trust' && (

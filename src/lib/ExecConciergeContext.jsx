@@ -24,8 +24,30 @@ import {
   mergeLongTermMemory,
   hasLongTermRecall,
 } from "@/lib/executiveMemoryEngine";
+import { computeOutcomeIntelligence, answerOutcomeQuestion } from "@/lib/executiveOutcomeIntelligenceEngine";
+import { computeReadinessFromEvidence } from "@/lib/readinessEvidenceEngine";
 
 const ExecConciergeContext = createContext(null);
+
+// Keywords that signal an Executive Outcome Intelligence™ question — answered
+// locally from observed outcomes instead of consuming an AI credit.
+const OUTCOME_Q_KEYWORDS = [
+  "activities helped",
+  "helped me most",
+  "coaching session",
+  "produced result",
+  "improved fastest",
+  "should i repeat",
+  "what should i repeat",
+  "recommendation",
+  "ineffective",
+  "not working",
+  "which competency",
+];
+function isOutcomeQuestion(text) {
+  const t = (text || "").toLowerCase();
+  return OUTCOME_Q_KEYWORDS.some((k) => t.includes(k));
+}
 
 export function useExecConcierge() {
   const ctx = useContext(ExecConciergeContext);
@@ -312,6 +334,24 @@ export function ExecConciergeProvider({ children }) {
         eventName: "exec_concierge_message_sent",
         properties: { length: content.length },
       });
+
+      // Executive Outcome Intelligence™ — answer outcome questions locally
+      // from observed results (no AI credit), then fall through to the AI.
+      if (isOutcomeQuestion(content)) {
+        try {
+          const records = await base44.entities.ExecutiveOutcome.filter({}, "-outcome_date", 50);
+          const intel = computeOutcomeIntelligence(records, computeReadinessFromEvidence());
+          const answer = answerOutcomeQuestion(content, intel);
+          if (answer && !answer.startsWith("I can answer:")) {
+            setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+            setLoading(false);
+            return;
+          }
+        } catch {
+          // fall through to the AI on any error
+        }
+      }
+
       try {
         const prompt = buildExecPrompt(
           newMessages,

@@ -16,6 +16,8 @@ import ScenarioPractice from "@/components/coach/ScenarioPractice";
 import LeadershipHomework from "@/components/coach/LeadershipHomework";
 import SavedInsights from "@/components/coach/SavedInsights";
 import PreviousSessions from "@/components/coach/PreviousSessions";
+import { useOutcomeIntelligence } from "@/hooks/useOutcomeIntelligence";
+import { generateOutcomeCoachAdvice } from "@/lib/executiveOutcomeIntelligenceEngine";
 
 export default function Coach() {
   const { user } = useAuth();
@@ -27,6 +29,9 @@ export default function Coach() {
   const [coachingFocus, setCoachingFocus] = useState(null);
   const bottomRef = useRef(null);
   const [resumeData, setResumeData] = useState(null);
+  const { intelligence } = useOutcomeIntelligence();
+  const intelligenceRef = useRef(null);
+  useEffect(() => { intelligenceRef.current = intelligence; }, [intelligence]);
 
   useEffect(() => {
     const load = async () => {
@@ -66,8 +71,22 @@ export default function Coach() {
       const history = messages.map(m => `${m.role === "user" ? "USER" : personality.name.toUpperCase()}: ${m.content}`).join("\n\n");
 
       const companyCtx = getCachedCompanyContext();
+
+      // Executive Outcome Intelligence™ — ground coaching in observed results.
+      let outcomeCtx = "";
+      const oi = intelligenceRef.current;
+      if (oi && oi.summary.totalOutcomes > 0) {
+        const improved = (oi.mostImprovedCompetencies || []).slice(0, 3)
+          .map((c) => `${c.competency} (+${c.totalGain} across ${c.outcomes} outcome${c.outcomes === 1 ? "" : "s"})`)
+          .join("; ");
+        const advice = generateOutcomeCoachAdvice(oi).map((a) => `- ${a.text}`).join("\n");
+        outcomeCtx = `EXECUTIVE OUTCOME INTELLIGENCE (observed results, cite when relevant):\n` +
+          `Total outcomes: ${oi.summary.totalOutcomes} · Executive Momentum: ${oi.summary.executiveMomentum}/100 · Outcome Confidence: ${oi.summary.outcomeConfidence}%.\n` +
+          `Most improved competencies: ${improved || "none yet"}.\n${advice}\n\n`;
+      }
+
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}You are "${personality.name}" - ${personality.description}
+        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}${outcomeCtx}You are "${personality.name}" - ${personality.description}
 Communication style: ${personality.communication_style}
 Leadership style: ${personality.leadership_style}
 Question style: ${personality.question_style}

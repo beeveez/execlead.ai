@@ -23,6 +23,7 @@ import EvidenceQualityDashboard from "@/components/readiness-evidence/EvidenceQu
 import CompetencyReliabilityPanel from "@/components/readiness-evidence/CompetencyReliabilityPanel";
 import EvidenceGapDashboard from "@/components/readiness-evidence/EvidenceGapDashboard";
 import CompetencyCoveragePanel from "@/components/readiness-evidence/CompetencyCoveragePanel";
+import OutcomeIntelligenceSummary from "@/components/outcome-intelligence/OutcomeIntelligenceSummary";
 
 /**
  * Dashboard — Executive Command Center.
@@ -125,6 +126,9 @@ export default function Dashboard() {
 
       {/* Competency Coverage™ — per-competency gap detail */}
       <CompetencyCoveragePanel />
+
+      {/* Phase 4 — Executive Outcome Intelligence™: from evidence to outcomes */}
+      <OutcomeIntelligenceSummary />
 
       {/* Focus areas — what to improve next */}
       {command.focusAreas.length > 0 && (

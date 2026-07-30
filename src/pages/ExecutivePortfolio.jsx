@@ -37,6 +37,7 @@ import EvidenceQualityDashboard from '@/components/readiness-evidence/EvidenceQu
 import CompetencyReliabilityPanel from '@/components/readiness-evidence/CompetencyReliabilityPanel';
 import EvidenceGapDashboard from '@/components/readiness-evidence/EvidenceGapDashboard';
 import CompetencyCoveragePanel from '@/components/readiness-evidence/CompetencyCoveragePanel';
+import OutcomeIntelligenceSummary from '@/components/outcome-intelligence/OutcomeIntelligenceSummary';
 import { useReadinessEvidence } from '@/hooks/useReadinessEvidence';
 import { BookOpen, Star, FileCheck, Users, Globe, Landmark, Award, UploadCloud, Clock } from 'lucide-react';
 
@@ -139,6 +140,7 @@ export default function ExecutivePortfolio() {
             <CompetencyReliabilityPanel competencies={(portfolioReadiness?.competencyBreakdown || []).map((c) => c.competency)} />
             <EvidenceGapDashboard />
             <CompetencyCoveragePanel />
+            <OutcomeIntelligenceSummary />
             <ExplainMyScorePanel />
             <EvidenceProvenanceTimeline limit={50} />
           </div>

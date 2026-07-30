@@ -1,0 +1,216 @@
+{
+  "name": "ExecutiveOutcome",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "outcome_id": {
+      "type": "string",
+      "description": "Unique outcome identifier (OC-YYYY-NNNNNN)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization for enterprise analytics"
+    },
+    "department": {
+      "type": "string"
+    },
+    "outcome_category": {
+      "type": "string",
+      "enum": [
+        "career",
+        "learning",
+        "leadership",
+        "behavior"
+      ],
+      "description": "Outcome category"
+    },
+    "outcome_type": {
+      "type": "string",
+      "description": "Specific outcome (promotion, certification_earned, better_decision_making, ...)"
+    },
+    "outcome_title": {
+      "type": "string"
+    },
+    "outcome_description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "outcome_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "baseline_value": {
+      "type": "number",
+      "default": 0
+    },
+    "resulting_value": {
+      "type": "number",
+      "default": 0
+    },
+    "outcome_value": {
+      "type": "number",
+      "default": 0,
+      "description": "Magnitude of the outcome (gain)"
+    },
+    "outcome_unit": {
+      "type": "string",
+      "enum": [
+        "readiness_points",
+        "percent",
+        "dollars",
+        "count",
+        "level",
+        "score"
+      ]
+    },
+    "competencies_json": {
+      "type": "string",
+      "description": "JSON array of competency names involved"
+    },
+    "contributing_evidence_json": {
+      "type": "string",
+      "description": "JSON array of evidence IDs"
+    },
+    "contributing_activities_json": {
+      "type": "string",
+      "description": "JSON array of {activity_type, count}"
+    },
+    "attribution_json": {
+      "type": "string",
+      "description": "JSON: {primaryDrivers, contributingCompetencies, contributingActivities, confidence, narrative}"
+    },
+    "attribution_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "predicted",
+        "achieved",
+        "superseded"
+      ],
+      "default": "observed"
+    },
+    "verification_source": {
+      "type": "string",
+      "enum": [
+        "self_reported",
+        "system_detected",
+        "enterprise_verified",
+        "ai_inferred"
+      ],
+      "default": "self_reported"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "linked_recommendations_json": {
+      "type": "string",
+      "description": "JSON array of recommendation IDs linked to this outcome"
+    },
+    "metadata_json": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "outcome_id",
+    "user_id",
+    "outcome_category",
+    "outcome_type",
+    "outcome_date"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

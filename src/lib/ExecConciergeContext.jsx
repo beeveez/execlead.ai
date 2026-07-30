@@ -26,6 +26,11 @@ import {
 } from "@/lib/executiveMemoryEngine";
 import { computeOutcomeIntelligence, answerOutcomeQuestion } from "@/lib/executiveOutcomeIntelligenceEngine";
 import { computeReadinessFromEvidence } from "@/lib/readinessEvidenceEngine";
+import {
+  computeRecommendationIntelligence,
+  answerRecommendationQuestion,
+  attributionFromOutcomeIntelligence,
+} from "@/lib/recommendationIntelligenceEngine";
 
 const ExecConciergeContext = createContext(null);
 
@@ -64,6 +69,27 @@ const OUTCOME_Q_KEYWORDS = [
 function isOutcomeQuestion(text) {
   const t = (text || "").toLowerCase();
   return OUTCOME_Q_KEYWORDS.some((k) => t.includes(k));
+}
+
+// Recommendation Intelligence™ questions — answered locally from tracked
+// recommendation effectiveness + model calibration.
+const REC_Q_KEYWORDS = [
+  "recommendation works best",
+  "works best for me",
+  "biggest impact",
+  "recommendation had the biggest",
+  "largest impact",
+  "recommendations were ineffective",
+  "ineffective recommendation",
+  "predicted gains",
+  "prediction accuracy",
+  "how accurate",
+  "calibration",
+  "model calibration",
+];
+function isRecommendationQuestion(text) {
+  const t = (text || "").toLowerCase();
+  return REC_Q_KEYWORDS.some((k) => t.includes(k));
 }
 
 export function useExecConcierge() {
@@ -352,17 +378,29 @@ export function ExecConciergeProvider({ children }) {
         properties: { length: content.length },
       });
 
-      // Executive Outcome Intelligence™ — answer outcome questions locally
-      // from observed results (no AI credit), then fall through to the AI.
-      if (isOutcomeQuestion(content)) {
+      // Executive Outcome Intelligence™ + Recommendation Intelligence™ — answer
+      // outcome/recommendation questions locally from observed results (no AI
+      // credit), then fall through to the AI.
+      if (isOutcomeQuestion(content) || isRecommendationQuestion(content)) {
         try {
           const records = await base44.entities.ExecutiveOutcome.filter({}, "-outcome_date", 50);
-          const intel = computeOutcomeIntelligence(records, computeReadinessFromEvidence());
-          const answer = answerOutcomeQuestion(content, intel);
-          if (answer && !answer.startsWith("I can answer:")) {
-            setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
-            setLoading(false);
-            return;
+          const outcomeIntel = computeOutcomeIntelligence(records, computeReadinessFromEvidence());
+          if (isOutcomeQuestion(content)) {
+            const answer = answerOutcomeQuestion(content, outcomeIntel);
+            if (answer && !answer.startsWith("I can answer:")) {
+              setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+              setLoading(false);
+              return;
+            }
+          }
+          if (isRecommendationQuestion(content)) {
+            const recIntel = computeRecommendationIntelligence(attributionFromOutcomeIntelligence(outcomeIntel));
+            const answer = answerRecommendationQuestion(content, recIntel);
+            if (answer && !answer.startsWith("I can answer:")) {
+              setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+              setLoading(false);
+              return;
+            }
           }
         } catch {
           // fall through to the AI on any error

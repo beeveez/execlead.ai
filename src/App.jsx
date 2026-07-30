@@ -162,6 +162,7 @@ import ExecutiveIntelligenceCenter from '@/pages/intelligence/ExecutiveIntellige
 import Journey from '@/pages/Journey';
 import ExecutiveReadiness from '@/pages/ExecutiveReadiness';
 import ExecutiveOutcomeIntelligence from '@/pages/ExecutiveOutcomeIntelligence';
+import RecommendationIntelligence from '@/pages/RecommendationIntelligence';
 import ExecutivePassport from '@/pages/ExecutivePassport';
 import EnterpriseIntelligence from '@/pages/EnterpriseIntelligence';
 import Marketplace from '@/pages/Marketplace';
@@ -400,6 +401,7 @@ const AuthenticatedApp = () => {
           <Route path="/journey" element={<Journey />} />
           <Route path="/executive-readiness" element={<ExecutiveReadiness />} />
           <Route path="/outcome-intelligence" element={<ExecutiveOutcomeIntelligence />} />
+          <Route path="/recommendation-intelligence" element={<RecommendationIntelligence />} />
           <Route path="/executive-passport" element={<ExecutivePassport />} />
           <Route path="/enterprise-intelligence" element={<EnterpriseIntelligence />} />
           <Route path="/leadership-dna" element={<FeatureGate featureId="leadership_dna"><LeadershipDNA /></FeatureGate>} />

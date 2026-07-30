@@ -18,6 +18,7 @@ import SavedInsights from "@/components/coach/SavedInsights";
 import PreviousSessions from "@/components/coach/PreviousSessions";
 import { useOutcomeIntelligence } from "@/hooks/useOutcomeIntelligence";
 import { generateOutcomeCoachAdvice } from "@/lib/executiveOutcomeIntelligenceEngine";
+import { computeRecommendationIntelligence, attributionFromOutcomeIntelligence, getProvenRecommendations } from "@/lib/recommendationIntelligenceEngine";
 
 export default function Coach() {
   const { user } = useAuth();
@@ -85,8 +86,19 @@ export default function Coach() {
           `Most improved competencies: ${improved || "none yet"}.\n${advice}\n\n`;
       }
 
+      // Recommendation Intelligence™ — prioritize proven recommendations.
+      let provenCtx = "";
+      if (oi) {
+        const recIntel = computeRecommendationIntelligence(attributionFromOutcomeIntelligence(oi));
+        const proven = getProvenRecommendations(recIntel);
+        if (proven.length) {
+          provenCtx = `RECOMMENDATION INTELLIGENCE (prioritize proven activities for this user):\n` +
+            proven.map((p) => `- ${p.narrative}`).join("\n") + `\n\n`;
+        }
+      }
+
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}${outcomeCtx}You are "${personality.name}" - ${personality.description}
+        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}${outcomeCtx}${provenCtx}You are "${personality.name}" - ${personality.description}
 Communication style: ${personality.communication_style}
 Leadership style: ${personality.leadership_style}
 Question style: ${personality.question_style}

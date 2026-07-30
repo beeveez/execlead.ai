@@ -1,0 +1,151 @@
+{
+  "name": "DecisionProfile",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "Unique profile ID (DP-NNNNNN)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "archetypes_json": {
+      "type": "string",
+      "description": "JSON array of {name, score}"
+    },
+    "dominant_archetype": {
+      "type": "string",
+      "description": "Top Decision DNA\u2122 archetype"
+    },
+    "dimension_averages_json": {
+      "type": "string",
+      "description": "JSON of avg dimension scores"
+    },
+    "total_scenarios": {
+      "type": "number",
+      "default": 0
+    },
+    "avg_decision_quality": {
+      "type": "number",
+      "default": 0
+    },
+    "decision_patterns_json": {
+      "type": "string"
+    },
+    "recurring_strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recurring_weaknesses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "favorite_strategies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "learning_progress": {
+      "type": "number",
+      "default": 0
+    },
+    "decision_diversity": {
+      "type": "number",
+      "default": 0
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "profile_id",
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

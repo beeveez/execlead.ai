@@ -1,0 +1,211 @@
+{
+  "name": "DecisionScenario",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "scenario_id": {
+      "type": "string",
+      "description": "Unique scenario ID (DS-NNN)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Scenario title"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Leadership",
+        "Finance",
+        "Operations",
+        "Technology",
+        "Cybersecurity",
+        "AI Governance",
+        "Digital Transformation",
+        "Crisis Management",
+        "Board Relations",
+        "HR",
+        "Mergers",
+        "Product Strategy",
+        "Customer Experience",
+        "Innovation",
+        "Compliance",
+        "Government"
+      ]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "default": "intermediate"
+    },
+    "background": {
+      "type": "string",
+      "description": "Situation background"
+    },
+    "business_context": {
+      "type": "string",
+      "description": "Business context"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unknown_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "time_pressure": {
+      "type": "string",
+      "description": "Time pressure / deadline context"
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strategy_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "trade_offs": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Decision strategy choices"
+    },
+    "expert_strategy": {
+      "type": "string",
+      "description": "Expert strategy for comparison"
+    },
+    "ai_recommendation": {
+      "type": "string",
+      "description": "AI recommended strategy"
+    },
+    "perspectives_seed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Roles whose viewpoints to surface"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Owning org for enterprise custom scenarios"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "estimated_time": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "title",
+    "category",
+    "background"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "name": "DecisionAttempt",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "attempt_id": {
+      "type": "string",
+      "description": "Unique attempt ID (DA-NNNNNN)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "scenario_title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "difficulty": {
+      "type": "string"
+    },
+    "chosen_strategy_id": {
+      "type": "string"
+    },
+    "chosen_strategy_name": {
+      "type": "string"
+    },
+    "explanation": {
+      "type": "string",
+      "maxLength": 8000,
+      "description": "User's decision rationale"
+    },
+    "scores_json": {
+      "type": "string",
+      "description": "JSON of per-dimension scores"
+    },
+    "overall_score": {
+      "type": "number",
+      "default": 0
+    },
+    "strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blind_spots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "missed_opportunities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "alternative_strategies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "business_impact": {
+      "type": "string"
+    },
+    "confidence_level": {
+      "type": "number",
+      "default": 0
+    },
+    "evidence_quality": {
+      "type": "number",
+      "default": 0
+    },
+    "challenge_questions_json": {
+      "type": "string",
+      "description": "JSON array of {question, focus}"
+    },
+    "perspectives_json": {
+      "type": "string",
+      "description": "JSON array of {role, viewpoint}"
+    },
+    "comparison_json": {
+      "type": "string",
+      "description": "JSON of decision comparison"
+    },
+    "reflection_json": {
+      "type": "string",
+      "description": "JSON of reflection answers"
+    },
+    "feedback": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "attempt_id",
+    "user_id",
+    "scenario_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        }
+      ]
+    }
+  }
+}

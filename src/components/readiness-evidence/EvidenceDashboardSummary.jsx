@@ -1,5 +1,5 @@
 import React from "react";
-import { Database, TrendingUp, Award, AlertCircle, Gauge, Zap, Calendar } from "lucide-react";
+import { Database, TrendingUp, Award, AlertCircle, Gauge, Zap, Calendar, ShieldCheck } from "lucide-react";
 
 /**
  * EvidenceDashboardSummary — the Phase 2 dashboard metrics:
@@ -12,6 +12,7 @@ export default function EvidenceDashboardSummary({ summary }) {
 
   const cards = [
     { icon: Database, label: "Evidence this week", value: summary.evidenceThisWeek, hint: "items recorded", color: "#6366f1" },
+    { icon: ShieldCheck, label: "Avg reliability", value: summary.averageReliability != null ? summary.averageReliability : "—", hint: "ERI trust score", color: "#f59e0b" },
     { icon: TrendingUp, label: "Competencies improved", value: summary.competenciesImprovedCount, hint: summary.competenciesImproved?.slice(0, 2).join(", ") || "—", color: "#10b981" },
     { icon: Award, label: "Strongest growth", value: summary.strongestGrowthArea || "—", hint: summary.strongestGrowthArea ? "this week" : "complete an activity", color: "#f59e0b", isText: true },
     { icon: AlertCircle, label: "Needs more evidence", value: summary.needsMoreEvidence || "—", hint: summary.needsMoreEvidence ? "demonstrate this" : "all covered", color: "#ef4444", isText: true },

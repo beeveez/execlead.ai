@@ -19,6 +19,8 @@ import EvidenceCompositionPanel from "@/components/readiness-evidence/EvidenceCo
 import ExecutiveInsightPanel from "@/components/readiness-evidence/ExecutiveInsightPanel";
 import ReadinessEvidenceTimeline from "@/components/readiness-evidence/ReadinessEvidenceTimeline";
 import ExplainMyScorePanel from "@/components/readiness-evidence/ExplainMyScorePanel";
+import EvidenceQualityDashboard from "@/components/readiness-evidence/EvidenceQualityDashboard";
+import CompetencyReliabilityPanel from "@/components/readiness-evidence/CompetencyReliabilityPanel";
 
 /**
  * Dashboard — Executive Command Center.
@@ -107,6 +109,14 @@ export default function Dashboard() {
 
       {/* Phase 2 — Evidence Provenance Standard™: Explain My Score */}
       <ExplainMyScorePanel />
+
+      {/* ERI — Evidence Quality Dashboard™ */}
+      <EvidenceQualityDashboard />
+
+      {/* ERI — Competency Reliability™ */}
+      {readiness?.competencyBreakdown?.length > 0 && (
+        <CompetencyReliabilityPanel competencies={readiness.competencyBreakdown.map((c) => c.competency)} />
+      )}
 
       {/* Focus areas — what to improve next */}
       {command.focusAreas.length > 0 && (

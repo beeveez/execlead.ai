@@ -19,6 +19,7 @@
  * evidence. Every competency has measurable proof.
  */
 import { getReadinessContribution } from "./readinessContributionRegistry";
+import { computeReliability, computeWeightedContribution } from "./evidenceReliabilityEngine";
 
 // ── Evidence Levels ──
 export const EVIDENCE_LEVELS = {
@@ -135,6 +136,25 @@ export function recordEvidence(input) {
   const evidenceOrigin = input.evidenceOrigin || (isAI ? "AI Generated" : input.evidenceType === "journal_entry" ? "User Generated" : "System Generated");
   const evidenceClassification = input.evidenceClassification || (isAI ? "Inferred" : level.level >= 3 ? "Calculated" : "Direct Observation");
 
+  // ── Evidence Reliability Index™ (ERI) — trust model per evidence item ──
+  const repeatedCount = records.filter((r) => r.evidenceType === (input.evidenceType || "page_visit")).length + 1;
+  const eri = computeReliability({
+    evidenceType: input.evidenceType || "page_visit",
+    evidenceLevel: levelId,
+    aiValidation: input.aiValidation ?? (level.level >= 2),
+    evidenceOrigin,
+    validationMethod,
+    difficulty: level.level >= 4 ? "high" : level.level === 3 ? "medium" : "low",
+    repeatedCount,
+    verified: input.aiValidation ?? (level.level >= 2),
+    humanVerified: input.humanVerified ?? false,
+    enterpriseVerified: input.enterpriseVerified ?? (input.evidenceType === "achievement_unlocked"),
+    aiConfidence: input.aiMetadata?.confidence ?? null,
+    timestamp: now,
+    streak: activeDayStreak(),
+  });
+  const weightedContribution = computeWeightedContribution(readinessContribution, confidenceBase, eri.score);
+
   const record = {
     // Identity
     id: uid(),
@@ -172,6 +192,13 @@ export function recordEvidence(input) {
     aiValidation: input.aiValidation ?? (level.level >= 2),
     outcome: input.outcome || (level.level >= 3 ? "demonstrated" : level.level === 2 ? "completed" : "viewed"),
     dedupeKey: input.dedupeKey || null,
+    // ── Evidence Reliability Index™ (ERI) — stored immutably, versioned ──
+    reliabilityScore: eri.score,
+    reliabilityGrade: eri.grade,
+    reliabilityFactors: eri.factors,
+    reliabilityReason: eri.reason,
+    weightedContribution,
+    eriModelVersion: eri.modelVersion,
   };
   records.push(record);
   writeLedger(records);
@@ -228,14 +255,21 @@ export function computeReadinessFromEvidence() {
   const lastWeek = all.filter((r) => r.timestamp >= Date.now() - 2 * WEEK_MS && r.timestamp < Date.now() - WEEK_MS);
 
   const byLevel = (level) => all.filter((r) => r.evidenceLevel === level);
+  const avgReliability = (recs) => recs.length ? recs.reduce((a, r) => a + (typeof r.reliabilityScore === "number" ? r.reliabilityScore : 75), 0) / recs.length : 75;
 
-  // Component scores (each normalized 0-100)
-  const exposure = clamp(byLevel("exposure").length * 1.5, 0, 100);
-  const participation = clamp(byLevel("participation").length * 6, 0, 100);
-  const competencyDemonstration = clamp(sumScores(byLevel("demonstrated")) * 1.5, 0, 100);
+  // Component scores — weighted by average evidence reliability (ERI)
+  const exposureRecs = byLevel("exposure");
+  const participationRecs = byLevel("participation");
+  const demoRecs = byLevel("demonstrated");
+  const reflectionRecs = all.filter((r) => REFLECTION_TYPES.has(r.evidenceType));
+  const practiceRecs = all.filter((r) => PRACTICE_TYPES.has(r.evidenceType));
+
+  const exposure = clamp(exposureRecs.length * 1.5 * (avgReliability(exposureRecs) / 100), 0, 100);
+  const participation = clamp(participationRecs.length * 6 * (avgReliability(participationRecs) / 100), 0, 100);
+  const competencyDemonstration = clamp(sumScores(demoRecs) * 1.5 * (avgReliability(demoRecs) / 100), 0, 100);
   const consistency = clamp(activeDayStreak() * 12, 0, 100);
-  const reflection = clamp(all.filter((r) => REFLECTION_TYPES.has(r.evidenceType)).length * 10, 0, 100);
-  const practice = clamp(all.filter((r) => PRACTICE_TYPES.has(r.evidenceType)).length * 7, 0, 100);
+  const reflection = clamp(reflectionRecs.length * 10 * (avgReliability(reflectionRecs) / 100), 0, 100);
+  const practice = clamp(practiceRecs.length * 7 * (avgReliability(practiceRecs) / 100), 0, 100);
 
   // Improvement trend: weekly evidence score delta, scaled
   const weekScore = sumScores(thisWeek);
@@ -257,12 +291,20 @@ export function computeReadinessFromEvidence() {
   // Per-competency evidence
   const competencyMap = {};
   all.forEach((r) => {
-    if (!competencyMap[r.competency]) competencyMap[r.competency] = { competency: r.competency, score: 0, count: 0, levels: { exposure: 0, participation: 0, demonstrated: 0, mastery: 0 } };
+    if (!competencyMap[r.competency]) competencyMap[r.competency] = { competency: r.competency, score: 0, count: 0, reliabilitySum: 0, confidenceSum: 0, levels: { exposure: 0, participation: 0, demonstrated: 0, mastery: 0 } };
     competencyMap[r.competency].score += r.evidenceScore;
     competencyMap[r.competency].count += 1;
+    competencyMap[r.competency].reliabilitySum += typeof r.reliabilityScore === "number" ? r.reliabilityScore : 75;
+    competencyMap[r.competency].confidenceSum += r.confidence || 0.5;
     competencyMap[r.competency].levels[r.evidenceLevel] += 1;
   });
-  Object.values(competencyMap).forEach((c) => { c.score = clamp(c.score, 0, 100); });
+  Object.values(competencyMap).forEach((c) => {
+    c.score = clamp(c.score, 0, 100);
+    c.reliability = Math.round(c.reliabilitySum / c.count);
+    c.confidence = Math.round((c.confidenceSum / c.count) * 100);
+    delete c.reliabilitySum;
+    delete c.confidenceSum;
+  });
 
   // Confidence: blend of evidence volume, competency breadth, validation ratio
   const validated = all.filter((r) => r.aiValidation).length;
@@ -273,8 +315,13 @@ export function computeReadinessFromEvidence() {
     0, 100
   );
 
+  const averageReliability = all.length ? Math.round(all.reduce((a, r) => a + (typeof r.reliabilityScore === "number" ? r.reliabilityScore : 75), 0) / all.length) : 0;
+  const totalWeightedContribution = Math.round(all.reduce((a, r) => a + (r.weightedContribution || 0), 0) * 100) / 100;
+
   return {
     totalScore,
+    averageReliability,
+    totalWeightedContribution,
     components: {
       exposure: Math.round(exposure),
       participation: Math.round(participation),
@@ -413,6 +460,10 @@ export function getReadinessTimeline(limit = 50) {
       source: r.source,
       outcome: r.outcome,
       validated: r.aiValidation,
+      reliabilityScore: r.reliabilityScore,
+      reliabilityGrade: r.reliabilityGrade,
+      reliabilityReason: r.reliabilityReason,
+      weightedContribution: r.weightedContribution,
     }));
 }
 
@@ -430,6 +481,7 @@ export function getDashboardEvidenceSummary() {
 
   return {
     evidenceThisWeek: thisWeek.length,
+    averageReliability: readiness.averageReliability,
     competenciesImproved: improved,
     competenciesImprovedCount: improved.length,
     strongestGrowthArea: strongest?.competency || null,

@@ -171,20 +171,34 @@ export function explainMyScore() {
   const byCompetency = {};
   records.forEach((r) => {
     (r.competenciesImpacted || [r.competency]).forEach((comp) => {
-      if (!byCompetency[comp]) byCompetency[comp] = { competency: comp, evidenceCount: 0, readinessContribution: 0, confidenceContribution: 0, items: [] };
+      if (!byCompetency[comp]) byCompetency[comp] = { competency: comp, evidenceCount: 0, readinessContribution: 0, confidenceContribution: 0, reliabilitySum: 0, weightedContribution: 0, items: [] };
       byCompetency[comp].evidenceCount += 1;
       byCompetency[comp].readinessContribution += r.readinessContribution || 0;
       byCompetency[comp].confidenceContribution += r.confidenceContribution || 0;
+      byCompetency[comp].reliabilitySum += typeof r.reliabilityScore === "number" ? r.reliabilityScore : 75;
+      byCompetency[comp].weightedContribution += r.weightedContribution || 0;
       if (byCompetency[comp].items.length < 5) byCompetency[comp].items.push(r);
     });
+  });
+  Object.values(byCompetency).forEach((c) => {
+    c.averageReliability = Math.round(c.reliabilitySum / c.evidenceCount);
+    c.weightedContribution = Math.round(c.weightedContribution * 100) / 100;
+    delete c.reliabilitySum;
   });
 
   const topCompetency = Object.values(byCompetency).sort((a, b) => b.readinessContribution - a.readinessContribution)[0];
   const lowConfidence = records.filter((r) => (r.confidenceContribution || 0) < 0.5).slice(-5);
   const aiEvidence = records.filter((r) => r.aiMetadata);
 
+  const averageReliability = records.length ? Math.round(records.reduce((a, r) => a + (typeof r.reliabilityScore === "number" ? r.reliabilityScore : 75), 0) / records.length) : 0;
+  const totalWeightedContribution = Math.round(records.reduce((a, r) => a + (r.weightedContribution || 0), 0) * 100) / 100;
+  const eriModelVersion = records.find((r) => r.eriModelVersion)?.eriModelVersion || "ERI v1.0";
+
   return {
     scoringModel: { id: activeModel.id, version: activeModel.version, weights: activeModel.weights, description: activeModel.description },
+    averageReliability,
+    totalWeightedContribution,
+    eriModelVersion,
     evidenceUsed: records.length,
     evidenceByLevel: {
       exposure: byLevel("exposure").length,
@@ -192,7 +206,7 @@ export function explainMyScore() {
       demonstrated: byLevel("demonstrated").length,
       mastery: byLevel("mastery").length,
     },
-    topCompetency: topCompetency ? { competency: topCompetency.competency, contribution: Math.round(topCompetency.readinessContribution * 10) / 10, evidenceCount: topCompetency.evidenceCount } : null,
+    topCompetency: topCompetency ? { competency: topCompetency.competency, contribution: Math.round(topCompetency.readinessContribution * 10) / 10, evidenceCount: topCompetency.evidenceCount, averageReliability: topCompetency.averageReliability, weightedContribution: topCompetency.weightedContribution } : null,
     lowConfidenceEvidence: lowConfidence.map((r) => ({ evidenceId: r.evidenceId, module: r.sourceModule, competency: r.competency, confidence: r.confidenceContribution, reason: r.validationMethod })),
     aiEvidenceCount: aiEvidence.length,
     aiModels: [...new Set(aiEvidence.map((r) => r.aiMetadata.model).filter(Boolean))],
@@ -216,6 +230,11 @@ export function exportAuditLedger(format = "json") {
     evidenceClassification: r.evidenceClassification,
     confidenceContribution: r.confidenceContribution,
     readinessContribution: r.readinessContribution,
+    reliabilityScore: r.reliabilityScore,
+    reliabilityGrade: r.reliabilityGrade?.label || "",
+    reliabilityReason: r.reliabilityReason || "",
+    weightedContribution: r.weightedContribution,
+    eriModelVersion: r.eriModelVersion || "",
     competenciesImpacted: (r.competenciesImpacted || []).join("; "),
     scoringModelVersion: r.scoringModelVersion,
     evidenceLevel: r.evidenceLevelLabel,

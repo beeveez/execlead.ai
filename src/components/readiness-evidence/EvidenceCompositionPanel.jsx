@@ -15,7 +15,7 @@ const LEVEL_ORDER = ["exposure", "participation", "demonstrated", "mastery"];
 export default function EvidenceCompositionPanel({ readiness }) {
   if (!readiness) return null;
 
-  const { components, totalScore, confidence, evidenceCount, streak } = readiness;
+  const { components, totalScore, confidence, evidenceCount, streak, averageReliability } = readiness;
   const c = components;
 
   const compositionRows = [
@@ -76,10 +76,11 @@ export default function EvidenceCompositionPanel({ readiness }) {
       </div>
 
       {/* Footer stats */}
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        <FooterStat label="Evidence items" value={evidenceCount} color="#6366f1" />
+      <div className="grid grid-cols-4 gap-2 mt-4">
+        <FooterStat label="Evidence" value={evidenceCount} color="#6366f1" />
+        <FooterStat label="Reliability" value={averageReliability != null ? `${averageReliability}` : "—"} color="#f59e0b" />
         <FooterStat label="Confidence" value={`${confidence}%`} color="#10b981" />
-        <FooterStat label="Active streak" value={`${streak}d`} color="#f59e0b" />
+        <FooterStat label="Streak" value={`${streak}d`} color="#8b5cf6" />
       </div>
 
       {/* Evidence level legend */}

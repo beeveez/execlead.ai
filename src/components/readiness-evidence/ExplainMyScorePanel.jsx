@@ -61,6 +61,30 @@ export default function ExplainMyScorePanel() {
             <Stat label="Mastery" value={e.evidenceByLevel.mastery} color="#f59e0b" />
           </div>
 
+          {/* Evidence Reliability Index™ (ERI) */}
+          {e.averageReliability != null && (
+            <div className="bg-gradient-to-br from-amber-500/10 to-emerald-500/5 border border-amber-500/20 rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck size={13} className="text-amber-400" />
+                <span className="text-[11px] text-white/70 font-medium">Evidence Reliability Index™ (ERI)</span>
+                <span className="text-[10px] text-white/30 ml-auto">{e.eriModelVersion}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <div className="text-2xl font-bold text-white">{e.averageReliability}<span className="text-[10px] text-white/30 font-normal">/100</span></div>
+                  <div className="text-[9px] text-white/40 uppercase tracking-wider">Avg Reliability</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-emerald-400">{e.totalWeightedContribution}</div>
+                  <div className="text-[9px] text-white/40 uppercase tracking-wider">Weighted Contribution</div>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-[9px] text-white/50 leading-tight">Contribution × Confidence × Reliability = Readiness</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Top competency */}
           {e.topCompetency && (
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
@@ -69,7 +93,7 @@ export default function ExplainMyScorePanel() {
                 <span className="text-[11px] text-white/70 font-medium">Strongest evidence</span>
               </div>
               <div className="text-sm text-white">{e.topCompetency.competency}</div>
-              <div className="text-[10px] text-white/40 mt-0.5">{e.topCompetency.evidenceCount} evidence items · +{e.topCompetency.contribution} readiness contribution</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{e.topCompetency.evidenceCount} evidence items · +{e.topCompetency.contribution} contribution · {e.topCompetency.averageReliability || "—"} reliability</div>
             </div>
           )}
 
@@ -115,7 +139,7 @@ export default function ExplainMyScorePanel() {
               {e.competencyExplanations.map((c) => (
                 <div key={c.competency} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg px-2.5 py-1.5">
                   <span className="text-[11px] text-white/70">{c.competency}</span>
-                  <span className="text-[10px] text-white/40">{c.evidenceCount} items · +{Math.round(c.readinessContribution * 10) / 10}</span>
+                  <span className="text-[10px] text-white/40">{c.evidenceCount} items · +{Math.round(c.readinessContribution * 10) / 10} · {c.averageReliability || "—"}R</span>
                 </div>
               ))}
             </div>

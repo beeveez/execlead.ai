@@ -30,19 +30,36 @@ import { computeReadinessFromEvidence } from "@/lib/readinessEvidenceEngine";
 const ExecConciergeContext = createContext(null);
 
 // Keywords that signal an Executive Outcome Intelligence™ question — answered
-// locally from observed outcomes instead of consuming an AI credit.
+// locally from observed outcomes (structured: outcome · evidence · confidence ·
+// next action) instead of consuming an AI credit. Kept specific to avoid
+// hijacking normal conversation; answerOutcomeQuestion does the real matching.
 const OUTCOME_Q_KEYWORDS = [
-  "activities helped",
-  "helped me most",
+  "readiness improve",
+  "readiness improved",
+  "readiness grow",
+  "why did my readiness",
   "coaching session",
-  "produced result",
+  "coaching helped",
+  "sessions helped",
+  "helped me most",
+  "help me most",
+  "biggest improvement",
+  "recommendation produced",
+  "what recommendation",
+  "improving fastest",
   "improved fastest",
-  "should i repeat",
+  "competency is improving",
+  "which competency",
   "what should i repeat",
-  "recommendation",
+  "should i repeat",
+  "what should repeat",
+  "isn't working",
+  "isnt working",
+  "recommendation isn",
+  "recommendation isnt",
+  "which recommendation",
   "ineffective",
   "not working",
-  "which competency",
 ];
 function isOutcomeQuestion(text) {
   const t = (text || "").toLowerCase();

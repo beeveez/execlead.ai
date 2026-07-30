@@ -186,39 +186,165 @@ export function predictOutcomes(readiness, enriched = []) {
 
 /**
  * EXEC™ Concierge — outcome questions.
+ *
+ * Answers natural questions with a structured, evidence-backed response:
+ * Outcome · Supporting evidence · Attribution confidence · Recommended next action.
  */
+
+function structuredAnswer(outcome, evidence, confidence, action, path) {
+  const conf = confidence != null && confidence !== 0 ? `${confidence}%` : "insufficient evidence";
+  const actionLine = path ? `${action} [Start →](${path})` : action;
+  return `**Outcome:** ${outcome}\n\n**Supporting evidence:** ${evidence}\n\n**Attribution confidence:** ${conf}\n\n**Recommended next action:** ${actionLine}`;
+}
+
+function pathForActivity(activityType) {
+  const map = {
+    coaching_session: "/coach",
+    simulation_completed: "/simulator",
+    challenge_solved: "/challenge",
+    debate_completed: "/debate",
+    journal_entry: "/journal",
+    lesson_completed: "/academy",
+    voice_session: "/voice-interview",
+    council_session: "/council",
+  };
+  return map[activityType] || "/outcome-intelligence";
+}
+
 export function answerOutcomeQuestion(question, intelligence) {
   const q = (question || "").toLowerCase();
+  const enriched = intelligence?.enriched || [];
+  const improved = intelligence?.mostImprovedCompetencies || [];
   const eff = intelligence?.effectiveness;
   const coach = intelligence?.coachEffectiveness;
-  const improved = intelligence?.mostImprovedCompetencies || [];
+  const readiness = intelligence?.readiness;
+  const now = Date.now();
+  const recent = enriched.filter((o) => now - new Date(o.outcome_date).getTime() < 30 * 86400000);
+  const recentGain = recent.reduce((a, o) => a + (o.outcome_value || 0), 0);
 
-  if (q.includes("help") || q.includes("most") && q.includes("activ")) {
-    const top = (eff?.byActivityType || []).slice(0, 3);
-    if (!top.length) return "Complete a few activities and record outcomes to see which helped you most.";
-    return `Your most effective activities: ${top.map((t) => `${t.label} (${t.effectivenessScore}/100, ${t.grade.label})`).join(", ")}.`;
+  const recentDrivers = {};
+  recent.forEach((o) =>
+    (o._attribution?.primaryDrivers || []).forEach((d) => {
+      recentDrivers[d.label] = (recentDrivers[d.label] || 0) + 1;
+    })
+  );
+  const topRecentDrivers = Object.entries(recentDrivers).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k} (${v})`).join(", ");
+  const recentConf = recent.length ? Math.round(avg(recent.map((o) => o._attribution?.confidence || 0))) : 0;
+  const recentEvidence = recent.reduce((a, o) => a + (o._attribution?.evidenceCount || 0), 0);
+
+  // Q: Why did my Executive Readiness improve this month?
+  if (q.includes("readiness") && (q.includes("improve") || q.includes("improved") || q.includes("grow") || q.includes("why"))) {
+    const score = readiness?.totalScore ?? 0;
+    const nextAct = (eff?.byActivityType || []).find((r) => r.grade.id === "high");
+    return structuredAnswer(
+      `Your Executive Readiness is now **${score}/100**. This month you recorded **${recent.length} outcome${recent.length === 1 ? "" : "s"}** contributing **+${recentGain}** in demonstrated growth.`,
+      recent.length ? `Recent outcomes driven by: ${topRecentDrivers || "baseline engagement"}, backed by ${recentEvidence} evidence item${recentEvidence === 1 ? "" : "s"}.` : "No outcomes recorded this month yet — complete a simulation, challenge, or coaching session to generate evidence.",
+      recentConf,
+      nextAct ? `Repeat **${nextAct.label}** — your highest-effectiveness activity (${nextAct.effectivenessScore}/100).` : "Run an Executive Simulation to generate your first outcome evidence this month.",
+      nextAct ? pathForActivity(nextAct.activityType) : "/simulator"
+    );
   }
-  if (q.includes("coaching") || q.includes("session")) {
+
+  // Q: Which coaching sessions helped me most?
+  if (q.includes("coaching") || q.includes("sessions helped")) {
     const t = coach?.mostEffectiveTopic;
-    if (!t) return "No coaching-linked outcomes yet. Complete coaching sessions and record leadership outcomes to measure impact.";
-    return `Coaching produced the strongest results in ${t.topic} (+${t.totalGain} across ${t.outcomes} outcome${t.outcomes === 1 ? "" : "s"}, ${t.avgConfidence}% confidence).`;
+    const coachingOutcomes = enriched.filter((o) => (o._attribution?.primaryDrivers || []).some((d) => d.source === "coaching_session"));
+    if (!t) return structuredAnswer(
+      "No coaching-linked outcomes recorded yet.",
+      "Complete coaching sessions and record leadership outcomes to measure their impact.",
+      0,
+      "Open the Executive Coach and complete a session to start measuring coaching effectiveness.",
+      "/coach"
+    );
+    return structuredAnswer(
+      `Coaching produced the strongest results in **${t.topic}** — **+${t.totalGain}** across **${t.outcomes} outcome${t.outcomes === 1 ? "" : "s"}**.`,
+      `${coachingOutcomes.length} outcome${coachingOutcomes.length === 1 ? "" : "s"} attributed to Executive Coaching, backed by ${coachingOutcomes.reduce((a, o) => a + (o._attribution?.evidenceCount || 0), 0)} evidence item${coachingOutcomes.reduce((a, o) => a + (o._attribution?.evidenceCount || 0), 0) === 1 ? "" : "s"}.`,
+      t.avgConfidence,
+      `Continue coaching on **${t.topic}** — book your next session to compound these gains.`,
+      "/coach"
+    );
   }
-  if (q.includes("fastest") || q.includes("improved fastest")) {
+
+  // Q: What recommendation produced the biggest improvement?
+  if (q.includes("biggest") || (q.includes("recommendation") && (q.includes("improve") || q.includes("produce")))) {
+    const top = (eff?.byActivityType || []).find((r) => r.outcomes > 0);
+    if (!top) return structuredAnswer(
+      "No recommendation has produced a recorded improvement yet.",
+      "Accept and complete Next Best Evidence™ recommendations, then record the outcome to measure their impact.",
+      0,
+      "Open Outcome Intelligence and accept your top recommendation.",
+      "/outcome-intelligence"
+    );
+    return structuredAnswer(
+      `**${top.label}** produced the biggest improvement — **${top.outcomes} outcome${top.outcomes === 1 ? "" : "s"}**, average gain **+${top.avgGain}**, effectiveness **${top.effectivenessScore}/100 (${top.grade.label})**.`,
+      `Outcome improvement rate: ${top.outcomeImprovementRate}%. Completion rate: ${top.completionRate}%.`,
+      top.avgConfidence,
+      `Repeat **${top.label}** to sustain this improvement.`,
+      pathForActivity(top.activityType)
+    );
+  }
+
+  // Q: Which competency is improving fastest?
+  if (q.includes("fastest") || q.includes("improving fastest") || q.includes("competency is improving")) {
     const f = coach?.fastestImprovement || improved.find((c) => c.daysSpan);
-    if (!f) return "Not enough outcome history yet to identify the fastest-improving competency.";
-    return `${f.competency || f.topic} improved fastest — ${f.outcomes} outcome${f.outcomes === 1 ? "" : "s"} over ${f.daysSpan || f.daysToOutcome} day${(f.daysSpan || f.daysToOutcome) === 1 ? "" : "s"}.`;
+    if (!f) return structuredAnswer(
+      "Not enough outcome history yet to identify the fastest-improving competency.",
+      "Record outcomes across multiple dates to measure improvement velocity.",
+      0,
+      "Record your first outcome to start measuring velocity.",
+      "/outcome-intelligence"
+    );
+    const compName = f.competency || f.topic;
+    const compOutcomes = enriched.filter((o) => (o._parsedCompetencies || []).includes(compName));
+    const span = f.daysSpan || f.daysToOutcome;
+    return structuredAnswer(
+      `**${compName}** is improving fastest — **${f.outcomes} outcome${f.outcomes === 1 ? "" : "s"}** over **${span} day${span === 1 ? "" : "s"}**, total gain **+${f.totalGain}**.`,
+      `${compOutcomes.length} outcome${compOutcomes.length === 1 ? "" : "s"} touch this competency, backed by ${compOutcomes.reduce((a, o) => a + (o._attribution?.evidenceCount || 0), 0)} evidence item${compOutcomes.length === 1 ? "" : "s"}.`,
+      compOutcomes.length ? Math.round(avg(compOutcomes.map((o) => o._attribution?.confidence || 0))) : 0,
+      `Double down on **${compName}** — it's your fastest growth area.`,
+      "/coach"
+    );
   }
-  if (q.includes("repeat") || q.includes("should i")) {
+
+  // Q: What should I repeat?
+  if (q.includes("should i repeat") || q.includes("what should i repeat") || q.includes("what should repeat")) {
     const top = (eff?.byActivityType || []).filter((r) => r.grade.id === "high");
-    if (!top.length) return "Keep practicing simulations and reflections — once outcomes are recorded, I'll pinpoint what to repeat.";
-    return `Repeat: ${top.map((t) => t.label).join(", ")}. These show the highest outcome improvement rate.`;
+    if (!top.length) return structuredAnswer(
+      "No high-effectiveness activity identified yet.",
+      "Complete activities and record outcomes to learn what's worth repeating.",
+      0,
+      "Run an Executive Simulation — it consistently produces strong evidence.",
+      "/simulator"
+    );
+    return structuredAnswer(
+      `Repeat **${top[0].label}** — highest effectiveness at **${top[0].effectivenessScore}/100** with **${top[0].outcomeImprovementRate}%** outcome improvement.`,
+      top.length > 1 ? `Also effective: ${top.slice(1).map((t) => t.label).join(", ")}. Backed by ${top[0].outcomes} attributed outcome${top[0].outcomes === 1 ? "" : "s"}.` : `Backed by ${top[0].outcomes} attributed outcome${top[0].outcomes === 1 ? "" : "s"}.`,
+      top[0].avgConfidence || 70,
+      `Go to ${top[0].label} now and run a session.`,
+      pathForActivity(top[0].activityType)
+    );
   }
-  if (q.includes("ineffective") || q.includes("not working") || q.includes("poor")) {
+
+  // Q: Which recommendation isn't working?
+  if (q.includes("ineffective") || q.includes("not working") || q.includes("isn't working") || q.includes("isnt working") || q.includes("isn't") || q.includes("isnt") || q.includes("poor")) {
     const low = eff?.underperformers || [];
-    if (!low.length) return "No ineffective recommendations detected yet — every tracked activity is producing outcomes.";
-    return `Underperforming: ${low.map((t) => `${t.label} (${t.effectivenessScore}/100)`).join(", ")}. Consider deprioritizing these.`;
+    if (!low.length) return structuredAnswer(
+      "No ineffective recommendations detected — every tracked activity is producing outcomes.",
+      "All tracked recommendations show acceptable effectiveness.",
+      eff?.overall?.effectivenessScore || 0,
+      "Keep practicing your current mix; revisit if a recommendation stalls.",
+      "/outcome-intelligence"
+    );
+    return structuredAnswer(
+      `**${low[0].label}** is underperforming — effectiveness **${low[0].effectivenessScore}/100 (${low[0].grade.label})**, outcome improvement **${low[0].outcomeImprovementRate}%**.`,
+      `Completion rate: ${low[0].completionRate}%. Accepted: ${low[0].accepted}.`,
+      low[0].avgConfidence || 40,
+      `Deprioritize ${low[0].label} and redirect effort to your highest-effectiveness activity instead.`,
+      "/outcome-intelligence"
+    );
   }
-  return "I can answer: What activities helped me most? Which coaching sessions produced results? Which competency improved fastest? What should I repeat? What recommendations were ineffective?";
+
+  return "I can answer: Why did my readiness improve? Which coaching sessions helped most? What recommendation produced the biggest improvement? Which competency is improving fastest? What should I repeat? Which recommendation isn't working?";
 }
 
 /**

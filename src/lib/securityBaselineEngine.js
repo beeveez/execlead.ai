@@ -19,6 +19,7 @@
  */
 
 import { computeRLSScores, RLS_REGISTRY, getEntitiesByStatus, getEntitiesByClassification } from './rlsRegistry';
+import { getRLSValidationSummary } from './rlsValidationEngine';
 import {
   ZERO_TRUST_PRINCIPLES, WAF_RULES, FILE_SECURITY_STEPS, COMPLIANCE_FRAMEWORKS,
   SECRET_CATEGORIES, API_SECURITY_CONTROLS, MFA_METHODS, SECURITY_HEALTH_CATEGORIES,
@@ -95,6 +96,7 @@ function computeServerSideAuthz() {
 
 function computeRLSDomain() {
   const scores = computeRLSScores();
+  const validation = getRLSValidationSummary();
   const controls = [
     { id: 'user_isolation', label: 'User isolation enforced', passed: scores.userIsolation },
     { id: 'org_isolation', label: 'Organization isolation enforced', passed: scores.orgIsolation },
@@ -102,6 +104,10 @@ function computeRLSDomain() {
     { id: 'cross_tenant_blocked', label: 'Cross-tenant data leakage blocked', passed: scores.crossTenantTests },
     { id: 'rls_coverage', label: `RLS coverage ${scores.rlsCoverage}%`, passed: scores.rlsCoverage >= 95 },
     { id: 'no_open_sensitive', label: 'No sensitive entities with open RLS', passed: !scores.blocker.includes('sensitive') },
+    { id: 'crud_complete', label: 'Every entity has explicit CRUD policies', passed: validation.totalFindings === 0 },
+    { id: 'guardian_validated', label: 'Guardian™ RLS validation passed (6 checks)', passed: validation.criticalFindings === 0 && validation.highFindings === 0 },
+    { id: 'audit_protection', label: 'Audit fields immutable (created_by_id, created_date)', passed: validation.mediumFindings === 0 },
+    { id: 'health_score', label: `Security Health Score™ ${validation.healthScore}/100`, passed: validation.healthScore >= 95 },
   ];
   const findings = [];
   const openEntities = getEntitiesByStatus('open');
@@ -113,7 +119,7 @@ function computeRLSDomain() {
       remediation: 'Add explicit RLS policy with least-privilege rules for all CRUD operations.',
     });
   });
-  return { ...buildDomainResult(controls), findings, metrics: scores };
+  return { ...buildDomainResult(controls), findings, metrics: { ...scores, validation } };
 }
 
 function computeAISecurity() {

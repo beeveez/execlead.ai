@@ -13,6 +13,11 @@ import GrowthTimelineCard from "@/components/dashboard/command-center/GrowthTime
 import ReadinessLoop from "@/components/dashboard/command-center/ReadinessLoop";
 import ModuleEvidenceMap from "@/components/dashboard/command-center/ModuleEvidenceMap";
 import EngagementBreadthCard from "@/components/dashboard/command-center/EngagementBreadthCard";
+import { useReadinessEvidence } from "@/hooks/useReadinessEvidence";
+import EvidenceDashboardSummary from "@/components/readiness-evidence/EvidenceDashboardSummary";
+import EvidenceCompositionPanel from "@/components/readiness-evidence/EvidenceCompositionPanel";
+import ExecutiveInsightPanel from "@/components/readiness-evidence/ExecutiveInsightPanel";
+import ReadinessEvidenceTimeline from "@/components/readiness-evidence/ReadinessEvidenceTimeline";
 
 /**
  * Dashboard — Executive Command Center.
@@ -38,6 +43,7 @@ export default function Dashboard() {
   const { profile, loading: loadingProfile } = useSubscription();
   const [intelligence, setIntelligence] = useState(null);
   const [loadingIntelligence, setLoadingIntelligence] = useState(true);
+  const { readiness, insights, timeline, summary } = useReadinessEvidence();
 
   useEffect(() => {
     (async () => {
@@ -67,6 +73,9 @@ export default function Dashboard() {
     <div className="space-y-6">
       <ExecutiveStatusBar />
 
+      {/* Phase 2 — Evidence-based readiness summary */}
+      {summary && <EvidenceDashboardSummary summary={summary} />}
+
       {/* 1. Where am I today? + How much have I improved? */}
       <ReadinessCommandHero command={command} />
 
@@ -87,6 +96,13 @@ export default function Dashboard() {
 
       {/* Engagement breadth — proves every module feeds the engine */}
       <EngagementBreadthCard engagement={command.engagement} loopLength={command.loop?.length} />
+
+      {/* Phase 2 — Evidence composition + insight engine + timeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <EvidenceCompositionPanel readiness={readiness} />
+        <ExecutiveInsightPanel insights={insights} />
+      </div>
+      <ReadinessEvidenceTimeline timeline={timeline} compact />
 
       {/* Focus areas — what to improve next */}
       {command.focusAreas.length > 0 && (

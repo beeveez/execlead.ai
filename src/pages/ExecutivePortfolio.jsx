@@ -29,7 +29,10 @@ import CareerAssets from '@/components/portfolio/CareerAssets';
 import ImpactDashboard from '@/components/portfolio/ImpactDashboard';
 import PortfolioAnalytics from '@/components/portfolio/PortfolioAnalytics';
 import VersionHistory from '@/components/portfolio/VersionHistory';
-import { BookOpen, Star, FileCheck, Users, Globe, Landmark, Award, UploadCloud } from 'lucide-react';
+import ReadinessEvidenceTimeline from '@/components/readiness-evidence/ReadinessEvidenceTimeline';
+import EvidenceCompositionPanel from '@/components/readiness-evidence/EvidenceCompositionPanel';
+import { useReadinessEvidence } from '@/hooks/useReadinessEvidence';
+import { BookOpen, Star, FileCheck, Users, Globe, Landmark, Award, UploadCloud, Clock } from 'lucide-react';
 
 export default function ExecutivePortfolio() {
   const { user } = useAuth();
@@ -37,6 +40,7 @@ export default function ExecutivePortfolio() {
   const [data, setData] = useState({});
   const [active, setActive] = useState('snapshot');
   const [viewMode, setViewMode] = useState('private');
+  const { readiness: portfolioReadiness, timeline: evidenceTimeline } = useReadinessEvidence();
 
   useEffect(() => {
     (async () => {
@@ -114,6 +118,19 @@ export default function ExecutivePortfolio() {
         {vis('journey') && <ExecutiveJourney data={data} />}
         {vis('achievements') && <VerifiedAchievements data={data} />}
         {vis('evidence') && <EvidenceVault user={user} data={data} />}
+
+        {/* Phase 2 — Evidence-based growth record */}
+        <div id="evidence-timeline" className="scroll-mt-20">
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <Clock size={16} className="text-indigo-400" />
+            <h2 className="text-sm font-semibold text-white">Evidence-Based Growth Record</h2>
+            <span className="text-[10px] text-white/30">Readiness earned through demonstrated competency</span>
+          </div>
+          <div className="space-y-4">
+            <EvidenceCompositionPanel readiness={portfolioReadiness} />
+            <ReadinessEvidenceTimeline timeline={evidenceTimeline} />
+          </div>
+        </div>
         <LinkSection section={{ id: 'credentials', number: 20, title: 'Executive Credentials™', icon: Award, color: '#f59e0b' }} link="/executive-credentials" description="Verified leadership credentials earned through evidence-based achievement. Cannot be purchased — only earned." />
         {vis('case-studies') && <LinkSection section={S[5]} link="/legacy-library" description="Professional leadership stories with situation, challenge, actions, results, and lessons learned." icon={BookOpen} />}
         {vis('reputation') && <LinkSection section={S[6]} link="/reputation" description="Your executive reputation score, trend, community contributions, and thought leadership." icon={Star} />}

@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Target, TrendingUp, Sparkles, ChevronDown } from "lucide-react";
 import { getReadinessContribution, logReadinessEngagement } from "@/lib/readinessContributionRegistry";
+import { recordEvidence } from "@/lib/readinessEvidenceEngine";
 
 /**
  * Readiness Contribution Banner™
@@ -24,9 +25,21 @@ export default function ReadinessContributionBanner() {
     setDismissed(localStorage.getItem(key) === "1");
   }, [location.pathname]);
 
-  // Log this screen's engagement as readiness evidence
+  // Log this screen's engagement as readiness evidence.
+  // Phase 2: page visits are Level 1 Exposure (very low weight) — they feed
+  // the evidence ledger but do not meaningfully increase readiness. Real
+  // readiness is earned through demonstrated competency (Levels 2–4).
   useEffect(() => {
     logReadinessEngagement(contribution, location.pathname);
+    recordEvidence({
+      evidenceType: "page_visit",
+      module: location.pathname,
+      competency: contribution.competencies?.[0] || "Leadership",
+      evidenceLevel: "exposure",
+      source: "navigation",
+      aiValidation: false,
+      outcome: "viewed",
+    });
   }, [contribution, location.pathname]);
 
   function handleDismiss() {

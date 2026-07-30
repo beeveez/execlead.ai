@@ -8,6 +8,7 @@ import {
   getDashboardEvidenceSummary,
   entityToEvidence,
 } from "@/lib/readinessEvidenceEngine";
+import { analyzeAllGaps, getNextBestActivities, generateCoachAdvice } from "@/lib/evidenceGapEngine";
 
 /**
  * useReadinessEvidence — syncs entity-derived evidence into the ledger,
@@ -25,6 +26,9 @@ export function useReadinessEvidence() {
   const [insights, setInsights] = useState([]);
   const [timeline, setTimeline] = useState([]);
   const [summary, setSummary] = useState(null);
+  const [gaps, setGaps] = useState(null);
+  const [nextBest, setNextBest] = useState(null);
+  const [coachAdvice, setCoachAdvice] = useState([]);
   const syncedRef = useRef(false);
 
   useEffect(() => {
@@ -52,10 +56,14 @@ export function useReadinessEvidence() {
     async function load() {
       await syncEntities();
       if (cancelled) return;
-      setReadiness(computeReadinessFromEvidence());
+      const r = computeReadinessFromEvidence();
+      setReadiness(r);
       setInsights(generateInsights());
       setTimeline(getReadinessTimeline(40));
       setSummary(getDashboardEvidenceSummary());
+      setGaps(analyzeAllGaps(r));
+      setNextBest(getNextBestActivities(8, r));
+      setCoachAdvice(generateCoachAdvice(r));
       setLoading(false);
     }
 
@@ -63,15 +71,19 @@ export function useReadinessEvidence() {
       syncedRef.current = true;
       load();
     } else {
-      setReadiness(computeReadinessFromEvidence());
+      const r = computeReadinessFromEvidence();
+      setReadiness(r);
       setInsights(generateInsights());
       setTimeline(getReadinessTimeline(40));
       setSummary(getDashboardEvidenceSummary());
+      setGaps(analyzeAllGaps(r));
+      setNextBest(getNextBestActivities(8, r));
+      setCoachAdvice(generateCoachAdvice(r));
       setLoading(false);
     }
 
     return () => { cancelled = true; };
   }, []);
 
-  return { loading, syncing, readiness, insights, timeline, summary };
+  return { loading, syncing, readiness, insights, timeline, summary, gaps, nextBest, coachAdvice };
 }

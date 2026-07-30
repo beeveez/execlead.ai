@@ -21,6 +21,8 @@ import ReadinessEvidenceTimeline from "@/components/readiness-evidence/Readiness
 import ExplainMyScorePanel from "@/components/readiness-evidence/ExplainMyScorePanel";
 import EvidenceQualityDashboard from "@/components/readiness-evidence/EvidenceQualityDashboard";
 import CompetencyReliabilityPanel from "@/components/readiness-evidence/CompetencyReliabilityPanel";
+import EvidenceGapDashboard from "@/components/readiness-evidence/EvidenceGapDashboard";
+import CompetencyCoveragePanel from "@/components/readiness-evidence/CompetencyCoveragePanel";
 
 /**
  * Dashboard — Executive Command Center.
@@ -117,6 +119,12 @@ export default function Dashboard() {
       {readiness?.competencyBreakdown?.length > 0 && (
         <CompetencyReliabilityPanel competencies={readiness.competencyBreakdown.map((c) => c.competency)} />
       )}
+
+      {/* Evidence Gap Analysis™ — proactive readiness development */}
+      <EvidenceGapDashboard />
+
+      {/* Competency Coverage™ — per-competency gap detail */}
+      <CompetencyCoveragePanel />
 
       {/* Focus areas — what to improve next */}
       {command.focusAreas.length > 0 && (

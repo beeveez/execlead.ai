@@ -74,9 +74,8 @@ export default function HeroSection({ authed, onWatchDemo }) {
             >
               The AI Executive Leadership
               <br className="hidden sm:block" />{" "}
-              Operating System for{" "}
               <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-                Technology Leaders.
+                Operating System.
               </span>
             </motion.h1>
 
@@ -84,15 +83,16 @@ export default function HeroSection({ authed, onWatchDemo }) {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }}
               className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-3 leading-relaxed"
             >
-              Measure, develop, and prove your executive readiness through evidence-based AI coaching,
-              realistic executive simulations, and continuous leadership intelligence.
+              Measure, develop, and prove your Executive Readiness™ through evidence-based AI coaching,
+              realistic executive simulations, personalized leadership development, and continuous executive intelligence.
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }}
               className="text-sm md:text-base text-white/40 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed"
             >
-              Designed for IT professionals preparing for leadership roles including IT Managers, Service Delivery
-              Managers, Enterprise Architects, Directors, Heads of IT, and future CIOs and CTOs.
+              Designed for ambitious technology professionals preparing for leadership roles—from IT Managers and
+              Enterprise Architects to Directors, CIOs, and CTOs—with a platform designed to grow beyond technology
+              into broader executive leadership.
             </motion.p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">

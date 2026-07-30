@@ -31,6 +31,12 @@ import {
   answerRecommendationQuestion,
   attributionFromOutcomeIntelligence,
 } from "@/lib/recommendationIntelligenceEngine";
+import {
+  buildDecisionExplanation,
+  computeAITrustScore,
+  answerTransparencyQuestion,
+} from "@/lib/decisionTransparencyEngine";
+import { analyzeAllGaps } from "@/lib/evidenceGapEngine";
 
 const ExecConciergeContext = createContext(null);
 
@@ -90,6 +96,26 @@ const REC_Q_KEYWORDS = [
 function isRecommendationQuestion(text) {
   const t = (text || "").toLowerCase();
   return REC_Q_KEYWORDS.some((k) => t.includes(k));
+}
+
+// AI Decision Transparency™ questions — "Why did the AI recommend this?"
+const TRANSPARENCY_Q_KEYWORDS = [
+  "why did you recommend",
+  "why recommend",
+  "why this recommendation",
+  "what evidence supports",
+  "evidence supports",
+  "how confident are you",
+  "how confident",
+  "what alternatives",
+  "what alternative",
+  "alternatives exist",
+  "why not another",
+  "why not a different",
+];
+function isTransparencyQuestion(text) {
+  const t = (text || "").toLowerCase();
+  return TRANSPARENCY_Q_KEYWORDS.some((k) => t.includes(k));
 }
 
 export function useExecConcierge() {
@@ -381,10 +407,15 @@ export function ExecConciergeProvider({ children }) {
       // Executive Outcome Intelligence™ + Recommendation Intelligence™ — answer
       // outcome/recommendation questions locally from observed results (no AI
       // credit), then fall through to the AI.
-      if (isOutcomeQuestion(content) || isRecommendationQuestion(content)) {
+      if (
+        isOutcomeQuestion(content) ||
+        isRecommendationQuestion(content) ||
+        isTransparencyQuestion(content)
+      ) {
         try {
           const records = await base44.entities.ExecutiveOutcome.filter({}, "-outcome_date", 50);
-          const outcomeIntel = computeOutcomeIntelligence(records, computeReadinessFromEvidence());
+          const readiness = computeReadinessFromEvidence();
+          const outcomeIntel = computeOutcomeIntelligence(records, readiness);
           if (isOutcomeQuestion(content)) {
             const answer = answerOutcomeQuestion(content, outcomeIntel);
             if (answer && !answer.startsWith("I can answer:")) {
@@ -393,9 +424,32 @@ export function ExecConciergeProvider({ children }) {
               return;
             }
           }
+          const recIntel = computeRecommendationIntelligence(
+            attributionFromOutcomeIntelligence(outcomeIntel)
+          );
           if (isRecommendationQuestion(content)) {
-            const recIntel = computeRecommendationIntelligence(attributionFromOutcomeIntelligence(outcomeIntel));
             const answer = answerRecommendationQuestion(content, recIntel);
+            if (answer && !answer.startsWith("I can answer:")) {
+              setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+              setLoading(false);
+              return;
+            }
+          }
+          if (isTransparencyQuestion(content)) {
+            const gaps = analyzeAllGaps(readiness);
+            const top = recIntel.topPerformers?.[0] || recIntel.byActivityType?.[0];
+            const explanation = top
+              ? buildDecisionExplanation({
+                  activityType: top.activityType,
+                  competency: top.competency,
+                  recIntel,
+                  outcomeIntel,
+                  readiness,
+                  gapAnalysis: gaps,
+                })
+              : null;
+            const trustScore = computeAITrustScore({ recIntel, outcomeIntel, readiness });
+            const answer = answerTransparencyQuestion(content, explanation, trustScore);
             if (answer && !answer.startsWith("I can answer:")) {
               setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
               setLoading(false);

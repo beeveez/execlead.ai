@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecommendationIntelligence } from "@/hooks/useRecommendationIntelligence";
+import { useDecisionTransparency } from "@/hooks/useDecisionTransparency";
+import AITrustScorePanel from "@/components/transparency/AITrustScorePanel";
+import DecisionExplanationPanel from "@/components/transparency/DecisionExplanationPanel";
 import {
   Sparkles,
   TrendingUp,
@@ -32,6 +35,7 @@ export default function RecommendationIntelligence() {
     rollbackTo,
     refresh,
   } = useRecommendationIntelligence();
+  const { explanation, trustScore, exportTrace } = useDecisionTransparency();
   const [newVersion, setNewVersion] = useState("");
   const [genOpen, setGenOpen] = useState(false);
 
@@ -90,6 +94,9 @@ export default function RecommendationIntelligence() {
         <Kpi icon={Gauge} label="Prediction Accuracy" value={`${o.predictionAccuracy}%`} color="#8b5cf6" />
         <Kpi icon={Sparkles} label="Effectiveness" value={`${o.effectivenessScore}/100`} color="#ec4899" />
       </div>
+
+      {/* AI Trust Score™ */}
+      <AITrustScorePanel trustScore={trustScore} />
 
       {/* Generate panel */}
       {genOpen && (
@@ -171,6 +178,9 @@ export default function RecommendationIntelligence() {
           ))}
         </div>
       </div>
+
+      {/* AI Decision Transparency™ — why this recommendation */}
+      <DecisionExplanationPanel explanation={explanation} onExport={exportTrace} />
 
       {/* Model Calibration */}
       <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">

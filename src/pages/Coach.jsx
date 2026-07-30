@@ -98,7 +98,7 @@ export default function Coach() {
       }
 
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}${outcomeCtx}${provenCtx}You are "${personality.name}" - ${personality.description}
+        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}${outcomeCtx}${provenCtx}AI DECISION TRANSPARENCY: Every recommendation you make must cite the evidence it relies on, your reasoning, your confidence level, and the expected impact. Never give advice without explaining why.\n\nYou are "${personality.name}" - ${personality.description}
 Communication style: ${personality.communication_style}
 Leadership style: ${personality.leadership_style}
 Question style: ${personality.question_style}

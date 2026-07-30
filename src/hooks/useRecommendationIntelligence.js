@@ -64,6 +64,7 @@ export function useRecommendationIntelligence() {
     loading: !intelligence,
     records,
     intelligence,
+    outcomeIntel,
     activeModel,
     challenger,
     refresh,

@@ -1,0 +1,83 @@
+// Architecture: engineering phases, ADRs, releases, layers, dependency edges.
+export const ENGINEERING_PHASES = [
+  { id: 'e1', name: 'Engineering 1 — Foundation', description: 'Core platform foundation: auth, profile, basic engagement', features: ['Daily Challenge', 'Leadership Analytics', 'Leadership Metrics', 'Executive Academy', 'Profile', 'Onboarding'] },
+  { id: 'e2', name: 'Engineering 2 — Intelligence', description: 'AI coaching, readiness, outcomes, recommendations', features: ['AI Executive Coach', 'Truth Engine', 'Executive Simulator', 'Executive Debate', 'Executive Council', 'Executive Journey', 'Readiness Engine', 'Outcome Intelligence', 'Recommendation Intelligence', 'Career Advisor', 'Company Intelligence', 'Resume Intelligence', 'Promotion Forecast', 'Journey Orchestrator'] },
+  { id: 'e3', name: 'Engineering 3 — Governance', description: 'AI governance, ELIM, responsible AI', features: ['AI Governance Center', 'AI Decision Transparency', 'Responsible AI Dashboard', 'ELIM Management Center'] },
+  { id: 'e4', name: 'Engineering 4 — Operational Excellence', description: 'Verification, evidence, guardian, security', features: ['Executive Portfolio', 'Executive Credentials', 'Evidence Vault', 'Verification Center', 'Guardian', 'Remediation Center', 'Security Baseline', 'Executive Briefing', 'Action Center', 'Career Studio', 'Resume Auto-Population'] },
+  { id: 'e5', name: 'Engineering 5 — AI Evolution', description: 'Decision Lab, Launch Defense, Concierge, Digital Twin', features: ['Executive Decision Lab', 'Launch Defense Center', 'Executive Concierge', 'Executive Digital Twin'] },
+  { id: 'e6', name: 'Engineering 6 — Enterprise Scale', description: 'Commercial, enterprise, community', features: ['CPQ Engine', 'Commercial Command Center', 'Business Intelligence', 'Enterprise Dashboard', 'Enterprise Intelligence', 'HR Dashboard', 'Executive Passport', 'Executive Network', 'Reputation', 'Legacy Library', 'Founder Portal'] },
+  { id: 'e7', name: 'Engineering 7 — Global Platform', description: 'Platform knowledge, global scale', features: ['Platform Knowledge Center'] },
+];
+
+export const ADRS = [
+  { id: 'ADR-001', title: 'Evidence-Based Readiness Scoring', problem: 'Readiness scores based on page views were gameable and unmeaningful', decision: 'Transition readiness to evidence levels (Exposure→Participation→Competency→Mastery)', alternatives: ['Keep view-based scoring', 'Self-assessment scoring'], reasoning: 'Evidence levels map to demonstrated competency and resist gaming', tradeoffs: 'Requires more evidence collection; slower to score', status: 'accepted', date: '2026-05-10', approver: 'Founder', impactedModules: ['readiness-engine', 'executive-portfolio', 'dashboard'], futureReview: 'Review after 6 months of evidence data' },
+  { id: 'ADR-002', title: 'Evidence Provenance Standard™', problem: 'Evidence needed immutable IDs and auditability', decision: 'Immutable EVD-YYYY-NNNNNN IDs, append-only corrections, scoring model versioning', alternatives: ['Mutable evidence records', 'No versioning'], reasoning: 'Trust requires immutable provenance and reproducibility', tradeoffs: 'More storage; corrections are append-only', status: 'accepted', date: '2026-05-20', approver: 'Founder', impactedModules: ['evidence-vault', 'readiness-engine'], futureReview: 'N/A' },
+  { id: 'ADR-003', title: 'Single-Write Architecture for Reviews', problem: 'Intermediate DB writes caused inconsistency and credit waste', decision: 'Hold all process state in memory, persist final review once', alternatives: ['Per-stage writes', 'Transactional writes'], reasoning: 'Memory-first pipeline avoids redundant writes and AI calls', tradeoffs: 'Lost state on crash; single write point', status: 'accepted', date: '2026-04-15', approver: 'Founder', impactedModules: ['guardian', 'remediation-center'], futureReview: 'N/A' },
+  { id: 'ADR-004', title: 'AI Deduplication Cache', problem: 'Redundant AI calls wasted credits', decision: 'Hash(model + fullPrompt) cache with 30-minute TTL', alternatives: ['No caching', 'Per-user cache'], reasoning: 'Same prompts return same results; cache saves credits', tradeoffs: 'Stale results within TTL window', status: 'accepted', date: '2026-06-01', approver: 'Founder', impactedModules: ['ai-optimization', 'model-router'], futureReview: 'Review TTL based on hit rate' },
+  { id: 'ADR-005', title: 'Readiness Contribution Banner Injection', problem: 'Engagement evidence wasn\'t logged per screen', decision: 'Inject banner into AppLayout to log engagement evidence for every screen', alternatives: ['Per-page logging', 'No engagement evidence'], reasoning: 'Automatic coverage without per-page code', tradeoffs: 'Banner adds UI weight', status: 'accepted', date: '2026-05-15', approver: 'Founder', impactedModules: ['readiness-engine'], futureReview: 'N/A' },
+  { id: 'ADR-006', title: 'Explicit File Path Imports', problem: 'Vite resolution ambiguities caused import failures', decision: 'Use explicit file path imports for all new modules', alternatives: ['Barrel exports', 'Alias-only imports'], reasoning: 'Explicit paths resolve reliably', tradeoffs: 'More verbose imports', status: 'accepted', date: '2026-06-10', approver: 'Founder', impactedModules: ['all'], futureReview: 'N/A' },
+  { id: 'ADR-007', title: 'Auto-Retry for Lazy-Loaded Chunks', problem: 'Post-deploy stale chunks broke navigation', decision: 'Auto-retry with full reload once on dynamic import failure', alternatives: ['No retry', 'Hard cache busting'], reasoning: 'Single reload recovers without user friction', tradeoffs: 'One reload on deploy', status: 'accepted', date: '2026-06-20', approver: 'Founder', impactedModules: ['App.jsx'], futureReview: 'N/A' },
+  { id: 'ADR-008', title: 'Champion/Challenger Recommendation Models', problem: 'Recommendation models couldn\'t be safely improved', decision: 'Versioned champion/challenger with effectiveness scoring and promotion', alternatives: ['Single model', 'Manual versioning'], reasoning: 'Data-driven promotion with rollback safety', tradeoffs: 'Dual model overhead', status: 'accepted', date: '2026-06-25', approver: 'Founder', impactedModules: ['recommendation-intelligence'], futureReview: 'Review promotion cadence' },
+];
+
+export const RELEASES = [
+  { version: 'v2.4', date: '2026-07-30', featuresAdded: ['Executive Decision Lab', 'Platform Knowledge Center'], featuresImproved: ['Dashboard command center', 'Coach outcome grounding'], breakingChanges: [], bugFixes: ['Lazy chunk retry'], performanceImprovements: ['AI dedup cache'], securityImprovements: ['RLS validation'], migrationNotes: 'Add DecisionScenario, DecisionAttempt, DecisionProfile entities' },
+  { version: 'v2.3', date: '2026-07-15', featuresAdded: ['Launch Defense Center'], featuresImproved: ['Executive Portfolio'], breakingChanges: [], bugFixes: [], performanceImprovements: [], securityImprovements: [], migrationNotes: 'Add LaunchQuestion, InterviewScenario, PracticeSession, AnswerAttempt, FounderStory' },
+  { version: 'v2.2', date: '2026-06-20', featuresAdded: ['AI Governance Center', 'AI Decision Transparency'], featuresImproved: ['Recommendation Intelligence'], breakingChanges: [], bugFixes: ['AI timeout enforcement'], performanceImprovements: ['Bulk DB operations'], securityImprovements: ['Immutable audit logs'], migrationNotes: 'Add AIPolicyEvent, AIRequestTrace entities' },
+  { version: 'v2.1', date: '2026-05-30', featuresAdded: ['Evidence Provenance Standard', 'Evidence Reliability Index', 'Evidence Gap Analysis'], featuresImproved: ['Executive Portfolio', 'Dashboard'], breakingChanges: ['Readiness scoring model v2'], bugFixes: [], performanceImprovements: ['Memory-first pipeline'], securityImprovements: [], migrationNotes: 'Readiness recomputation required' },
+  { version: 'v2.0', date: '2026-05-01', featuresAdded: ['Executive Outcome Intelligence', 'Recommendation Intelligence'], featuresImproved: ['Coach'], breakingChanges: [], bugFixes: [], performanceImprovements: ['AI deduplication'], securityImprovements: ['RLS registry'], migrationNotes: 'Add ExecutiveOutcome entity' },
+  { version: 'v1.9', date: '2026-04-15', featuresAdded: ['Guardian', 'Remediation Center', 'Verification Center', 'Evidence Vault'], featuresImproved: [], breakingChanges: [], bugFixes: [], performanceImprovements: [], securityImprovements: ['Zero trust baseline'], migrationNotes: 'Add ReleaseBlocker, RemediationPatch, ExecVerification, EvidenceItem' },
+];
+
+export const ARCHITECTURE_LAYERS = [
+  { id: 'frontend', name: 'Frontend', description: 'React + Tailwind UI layer', components: ['Pages (150+)', 'Components (500+)', 'App.jsx router', 'Layout', 'Concierge overlay'] },
+  { id: 'backend', name: 'Backend', description: 'Base44 functions and server logic', components: ['50+ backend functions', 'Shared modules', 'Auth', 'Background jobs'] },
+  { id: 'ai', name: 'AI Layer', description: 'AI engines, model router, governance', components: ['InvokeLLM', 'Model Router', 'AI Governance', 'AI Optimization', 'Credit Optimizer', 'AI Memory'] },
+  { id: 'recommendation', name: 'Recommendation Layer', description: 'Recommendation intelligence and effectiveness', components: ['Recommendation Intelligence Engine', 'Effectiveness Engine', 'Champion/Challenger'] },
+  { id: 'evidence', name: 'Evidence Layer', description: 'Evidence provenance, reliability, gaps', components: ['Evidence Vault', 'Evidence Provenance', 'Evidence Reliability Index', 'Evidence Gap Analysis', 'Readiness Contribution Registry'] },
+  { id: 'database', name: 'Database Layer', description: '150+ entities and RLS', components: ['Entities', 'RLS policies', 'Indexes', 'Bulk operations'] },
+  { id: 'security', name: 'Security Layer', description: 'Zero trust, RLS, verification', components: ['Security Baseline', 'RLS Validation', 'Identity Verification', 'Verification Center', 'Trusted Devices'] },
+  { id: 'governance', name: 'Governance Layer', description: 'AI and platform governance', components: ['AI Governance', 'Decision Transparency', 'Governance Requests', 'Audit Logs', 'Council'] },
+  { id: 'commercial', name: 'Commercial Layer', description: 'Billing, CPQ, marketplace', components: ['CPQ Engine', 'Billing', 'Marketplace', 'Subscriptions', 'Wallet', 'Referrals'] },
+  { id: 'enterprise', name: 'Enterprise Layer', description: 'Organizations, HR, SSO', components: ['Enterprise Dashboard', 'HR Dashboard', 'Succession', 'SSO', 'SCIM', 'Procurement'] },
+  { id: 'analytics', name: 'Analytics Layer', description: 'Telemetry, BI, product intelligence', components: ['Platform Activity', 'Telemetry', 'Business Intelligence', 'Product Intelligence', 'Experience Intelligence'] },
+  { id: 'platform', name: 'Platform Layer', description: 'Guardian, hardening, deployment', components: ['Guardian', 'Self-Healing', 'Hardening', 'Deployment Pipeline', 'Feature Flags', 'System Status'] },
+];
+
+export const DEPENDENCY_EDGES = [
+  { from: 'readiness-engine', to: 'evidence-vault', type: 'reads' },
+  { from: 'recommendation-intelligence', to: 'outcome-intelligence', type: 'depends' },
+  { from: 'recommendation-intelligence', to: 'readiness-engine', type: 'uses' },
+  { from: 'coach', to: 'outcome-intelligence', type: 'grounds' },
+  { from: 'coach', to: 'recommendation-intelligence', type: 'prioritizes' },
+  { from: 'coach', to: 'truth-engine', type: 'uses' },
+  { from: 'executive-portfolio', to: 'readiness-engine', type: 'displays' },
+  { from: 'executive-portfolio', to: 'evidence-vault', type: 'displays' },
+  { from: 'executive-portfolio', to: 'credentials', type: 'links' },
+  { from: 'dashboard', to: 'readiness-engine', type: 'renders' },
+  { from: 'dashboard', to: 'recommendation-intelligence', type: 'renders' },
+  { from: 'decision-lab', to: 'decision-transparency', type: 'uses' },
+  { from: 'decision-lab', to: 'digital-twin', type: 'related' },
+  { from: 'launch-defense', to: 'coach', type: 'related' },
+  { from: 'verification-center', to: 'evidence-vault', type: 'uses' },
+  { from: 'credentials', to: 'evidence-vault', type: 'requires' },
+  { from: 'guardian', to: 'remediation-center', type: 'triggers' },
+  { from: 'security-baseline', to: 'guardian', type: 'feeds' },
+  { from: 'promotion-forecast', to: 'readiness-engine', type: 'depends' },
+  { from: 'career', to: 'company-intelligence', type: 'depends' },
+  { from: 'career-studio', to: 'resume-intelligence', type: 'depends' },
+  { from: 'resume-intelligence', to: 'truth-engine', type: 'uses' },
+  { from: 'executive-briefing', to: 'action-center', type: 'feeds' },
+  { from: 'journey-orchestrator', to: 'readiness-engine', type: 'uses' },
+  { from: 'enterprise-dashboard', to: 'hr-dashboard', type: 'related' },
+  { from: 'hr-dashboard', to: 'readiness-engine', type: 'uses' },
+  { from: 'commercial-command-center', to: 'business-intelligence', type: 'related' },
+  { from: 'cpq', to: 'commercial-command-center', type: 'feeds' },
+  { from: 'reputation', to: 'network', type: 'related' },
+  { from: 'legacy-library', to: 'reputation', type: 'related' },
+  { from: 'concierge', to: 'journey-orchestrator', type: 'related' },
+  { from: 'digital-twin', to: 'readiness-engine', type: 'uses' },
+  { from: 'executive-passport', to: 'verification-center', type: 'depends' },
+  { from: 'executive-passport', to: 'credentials', type: 'depends' },
+  { from: 'elim', to: 'readiness-engine', type: 'informs' },
+];

@@ -8,6 +8,7 @@ import { buildCommandCenter } from "@/lib/executiveReadinessEngine";
 import ExecutiveStatusBar from "@/components/shared/ExecutiveStatusBar";
 import ReadinessCommandHero from "@/components/dashboard/command-center/ReadinessCommandHero";
 import TodaysExecutiveMission from "@/components/dashboard/command-center/TodaysExecutiveMission";
+import MissionFirstHero from "@/components/dashboard/MissionFirstHero";
 import LeadershipJourneyCard from "@/components/dashboard/command-center/LeadershipJourneyCard";
 import GrowthTimelineCard from "@/components/dashboard/command-center/GrowthTimelineCard";
 import ReadinessLoop from "@/components/dashboard/command-center/ReadinessLoop";
@@ -78,6 +79,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <MissionFirstHero mission={command.mission} />
       <ExecutiveStatusBar />
 
       <ReadinessAssessmentCTA />

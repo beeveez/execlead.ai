@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { usePricingCatalog } from '@/hooks/usePricingCatalog';
 import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
+import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
 import ProductPreviewCarousel from '@/components/landing/v3/ProductPreviewCarousel';
 import HowItWorks from '@/components/landing/v3/HowItWorks';
 import WhyExecLead from '@/components/landing/v3/WhyExecLead';
@@ -45,6 +46,9 @@ export default function Landing() {
       {/* S1 — Hero */}
       <NewHero authed={authed} onWatchDemo={openDemo} />
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
+
+      {/* S1.5 — Two Front Doors™ */}
+      <TwoFrontDoors authed={authed} />
 
       {/* S2 — Product Experience */}
       <ProductPreviewCarousel authed={authed} onWatchDemo={openDemo} />

@@ -1,33 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Target, Shield, RefreshCw, TrendingUp, ArrowRight } from 'lucide-react';
+import { Activity, GitBranch, MessageSquare, Users, TrendingUp, Gauge, ArrowRight } from 'lucide-react';
 import ExecutiveReadinessSample from '../../readiness-assessment/ExecutiveReadinessSample';
 
-const ATTRIBUTES = [
-  { icon: Target, title: 'Personalized', desc: 'Every question adapts to your selected Leadership Track and target executive role.' },
-  { icon: Shield, title: 'Evidence-Based', desc: 'Your score reflects demonstrated competency — not time spent or pages viewed.' },
-  { icon: RefreshCw, title: 'Adaptive', desc: 'The assessment evolves as your leadership context and responsibilities grow.' },
-  { icon: TrendingUp, title: 'Outcome-Focused', desc: 'You leave with a roadmap and a forecast — not just a number.' },
+const MEASURES = [
+  { icon: Gauge, title: 'Leadership Capability', desc: 'Delegation, coaching, conflict resolution, and team leadership.' },
+  { icon: GitBranch, title: 'Executive Decision Quality', desc: 'How you decide with incomplete data and competing priorities.' },
+  { icon: TrendingUp, title: 'Strategic Thinking', desc: 'Connecting your work to business strategy over 12–24 months.' },
+  { icon: MessageSquare, title: 'Executive Communication', desc: 'Influence, board presence, and stakeholder alignment.' },
+  { icon: Users, title: 'Influence', desc: 'Moving stakeholders who do not report to you.' },
+  { icon: Activity, title: 'Leadership Growth', desc: 'Measured improvement across every dimension over time.' },
 ];
 
 export default function ExecutiveReadinessFeature({ authed }) {
   return (
     <section className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5 bg-white/[0.015]">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">Executive Readiness</div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">The Assessment That Starts Everything.</h2>
-          <p className="text-white/45 max-w-2xl mx-auto text-sm">A 10-minute, evidence-based assessment that reveals your leadership gaps and unlocks your personalized journey.</p>
+        <div className="text-center mb-10">
+          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">The Executive Readiness Difference</div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">Not a Personality Test. A Leadership Readiness Measurement.</h2>
+          <p className="text-white/45 max-w-2xl mx-auto text-sm">Not another personality test. Not another learning assessment. The Executive Readiness Assessment™ measures what actually determines executive readiness.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {ATTRIBUTES.map((a, i) => {
-            const Icon = a.icon;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-12 max-w-5xl mx-auto">
+          {MEASURES.map((m, i) => {
+            const Icon = m.icon;
             return (
-              <motion.div key={a.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }} className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
-                <div className="w-10 h-10 rounded-xl bg-accent-orange/15 flex items-center justify-center mb-3"><Icon size={18} className="text-accent-orange" /></div>
-                <div className="text-[13px] font-semibold text-white mb-1.5">{a.title}</div>
-                <p className="text-[11.5px] text-white/45 leading-relaxed">{a.desc}</p>
+              <motion.div key={m.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-4">
+                <div className="w-9 h-9 rounded-lg bg-accent-orange/15 flex items-center justify-center shrink-0"><Icon size={16} className="text-accent-orange" /></div>
+                <div>
+                  <div className="text-[13px] font-semibold text-white mb-1">{m.title}</div>
+                  <p className="text-[11.5px] text-white/45 leading-relaxed">{m.desc}</p>
+                </div>
               </motion.div>
             );
           })}

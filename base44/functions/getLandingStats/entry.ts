@@ -7,19 +7,19 @@ export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
     const LIMIT = 100;
-    const [assessments, attempts, evidence, stories, identities] = await Promise.all([
-      base44.asServiceRole.entities.ReadinessAssessment.filter({}, undefined, LIMIT),
-      base44.asServiceRole.entities.DecisionAttempt.filter({}, undefined, LIMIT),
-      base44.asServiceRole.entities.EvidenceItem.filter({}, undefined, LIMIT),
+    const [scenarios, companies, stories, identities, evidence] = await Promise.all([
+      base44.asServiceRole.entities.DecisionScenario.filter({}, undefined, LIMIT),
+      base44.asServiceRole.entities.Company.filter({}, undefined, LIMIT),
       base44.asServiceRole.entities.ExecutiveSuccessStory.filter({}, undefined, LIMIT),
       base44.asServiceRole.entities.ExecutiveIdentity.filter({}, undefined, LIMIT),
+      base44.asServiceRole.entities.EvidenceItem.filter({}, undefined, LIMIT),
     ]);
     return Response.json({
-      readinessJourneys: assessments.length,
-      simulationsCompleted: attempts.length,
-      evidenceRecords: evidence.length,
-      executiveStories: stories.length,
-      executiveIdentities: identities.length,
+      simulations: scenarios.length,
+      companies: companies.length,
+      stories: stories.length,
+      identities: identities.length,
+      evidence: evidence.length,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -1,12 +1,12 @@
 import React from 'react';
 import { X, Check } from 'lucide-react';
 
-const TRADITIONAL = ['Courses completed', 'Certificates earned', 'Hours spent learning'];
-const EXECLEAD = ['Executive Readiness™', 'Demonstrated Competency', 'Verified Leadership Evidence', 'Executive Identity', 'Leadership Growth', 'Outcome Intelligence'];
+const TRADITIONAL = ['Learning Hours', 'Certificates', 'Courses', 'Generic Coaching', 'Static Profiles'];
+const EXECLEAD = ['Executive Readiness™', 'Demonstrated Competency', 'Verified Leadership Evidence', 'Executive Identity™', 'Outcome Intelligence™', 'Continuous Leadership Intelligence™'];
 
 export default function WhyExecLead() {
   return (
-    <section className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5 bg-white/[0.015]">
+    <section className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <div className="text-[11px] uppercase tracking-wider text-indigo-400/80 font-semibold mb-2">Why EXECLEAD.AI</div>
@@ -15,7 +15,7 @@ export default function WhyExecLead() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-            <div className="text-[11px] uppercase tracking-wider text-white/35 font-semibold mb-4">Traditional Platforms</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/35 font-semibold mb-4">Traditional Leadership Development</div>
             <div className="space-y-3">
               {TRADITIONAL.map((t) => (
                 <div key={t} className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export default function WhyExecLead() {
             <p className="text-[11px] text-white/30 mt-5 leading-relaxed">Activity metrics tell you what was consumed — never what was learned or how leadership changed.</p>
           </div>
           <div className="rounded-2xl border border-accent-orange/25 bg-gradient-to-br from-accent-orange/[0.06] to-transparent p-6">
-            <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-4">EXECLEAD.AI Measures</div>
+            <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-4">EXECLEAD.AI</div>
             <div className="space-y-3">
               {EXECLEAD.map((t) => (
                 <div key={t} className="flex items-center gap-3">

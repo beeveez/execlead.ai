@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Network, BookOpen, FolderOpen, Award, RefreshCw, ArrowRight } from 'lucide-react';
+import { Network, BookOpen, Cpu, FolderOpen, Award, RefreshCw, ArrowRight } from 'lucide-react';
 
 const PILLARS = [
   { icon: BookOpen, title: 'Executive Success Stories™', desc: 'Transform verified achievements into executive narratives.', to: '/executive-success-stories' },
   { icon: Network, title: 'Executive Identity Graph™', desc: 'One verified identity powering every professional experience.', to: '/executive-identity-graph' },
+  { icon: Cpu, title: 'Executive Identity Operating System™', desc: 'The engine that keeps your identity consistent across every audience.', to: '/executive-identity-graph' },
   { icon: FolderOpen, title: 'Executive Portfolio™', desc: 'A shareable, evidence-backed executive portfolio.', to: '/executive-portfolio' },
   { icon: Award, title: 'Executive Brand™', desc: 'A consistent, audience-specific executive positioning.', to: '/brand-center' },
   { icon: RefreshCw, title: 'Living Executive Profile™', desc: 'An identity that evolves with every coaching session and simulation.', to: '/executive-identity-graph' },
@@ -18,7 +19,7 @@ export default function ExecutiveIdentityFeature({ authed }) {
         <div className="text-center mb-12">
           <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">Executive Identity</div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Your Executive Identity Evolves With You.</h2>
-          <p className="text-white/45 max-w-2xl mx-auto text-sm">Not a static profile. A living, evidence-based executive identity that compounds with every leadership action.</p>
+          <p className="text-white/45 max-w-2xl mx-auto text-sm">Not a static profile. A living, evidence-based executive identity — with real analytics and a real timeline — that compounds with every leadership action.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {PILLARS.map((p, i) => {

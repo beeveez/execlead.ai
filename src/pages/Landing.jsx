@@ -6,22 +6,23 @@ import { usePricingCatalog } from '@/hooks/usePricingCatalog';
 import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
 import ProductPreviewCarousel from '@/components/landing/v3/ProductPreviewCarousel';
-import WhyExecLead from '@/components/landing/v3/WhyExecLead';
 import HowItWorks from '@/components/landing/v3/HowItWorks';
+import WhyExecLead from '@/components/landing/v3/WhyExecLead';
 import ExecutiveReadinessFeature from '@/components/landing/v3/ExecutiveReadinessFeature';
-import ExecutiveCoachFeature from '@/components/landing/v3/ExecutiveCoachFeature';
-import ExecutiveSimulationsFeature from '@/components/landing/v3/ExecutiveSimulationsFeature';
+import EvidenceEngineSection from '@/components/landing/v3/EvidenceEngineSection';
+import ExecutiveAISection from '@/components/landing/v3/ExecutiveAISection';
 import ExecutiveIdentityFeature from '@/components/landing/v3/ExecutiveIdentityFeature';
 import OutcomeIntelligenceFeature from '@/components/landing/v3/OutcomeIntelligenceFeature';
-import FoundingBetaSection from '@/components/landing/v3/FoundingBetaSection';
+import WhoIsItForSection from '@/components/landing/v3/WhoIsItForSection';
 import SocialProofLive from '@/components/landing/v3/SocialProofLive';
+import FoundingBetaBenefits from '@/components/landing/v3/FoundingBetaBenefits';
 import FinalCTA from '@/components/landing/v3/FinalCTA';
 import ProductDemo from '@/components/landing/ProductDemo';
 import PricingTiers from '@/components/pricing/PricingTiers';
 
 /**
- * Landing v3.0 — Product-first experience.
- * A guided tour of the Executive Leadership Operating System™.
+ * Landing Experience 4.0™ — Product-Led Growth Architecture.
+ * A guided product experience demonstrating the Executive Leadership Operating System™.
  */
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
@@ -37,37 +38,40 @@ export default function Landing() {
       <NewHero authed={authed} onWatchDemo={() => setShowDemo(true)} />
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} />
 
-      {/* S2 — Product preview carousel */}
-      <ProductPreviewCarousel authed={authed} />
+      {/* S2 — Product Experience */}
+      <ProductPreviewCarousel authed={authed} onWatchDemo={() => setShowDemo(true)} />
 
-      {/* S3 — Why EXECLEAD.AI */}
-      <WhyExecLead />
-
-      {/* S4 — How it works */}
+      {/* S3 — How EXECLEAD.AI Works */}
       <HowItWorks authed={authed} />
 
-      {/* S5 — Executive Readiness */}
+      {/* S4 — Why EXECLEAD.AI */}
+      <WhyExecLead />
+
+      {/* S5 — The Executive Readiness Difference */}
       <ExecutiveReadinessFeature authed={authed} />
 
-      {/* S6 — Executive AI Coach */}
-      <ExecutiveCoachFeature authed={authed} />
+      {/* S6 — The Evidence Engine */}
+      <EvidenceEngineSection />
 
-      {/* S7 — Executive Simulations */}
-      <ExecutiveSimulationsFeature authed={authed} />
+      {/* S7 — Executive AI */}
+      <ExecutiveAISection authed={authed} />
 
       {/* S8 — Executive Identity */}
       <ExecutiveIdentityFeature authed={authed} />
 
-      {/* S9 — Outcome Intelligence */}
+      {/* S9 — Executive Outcomes */}
       <OutcomeIntelligenceFeature authed={authed} />
 
-      {/* S10 — Founding Private Beta */}
-      <FoundingBetaSection authed={authed} />
+      {/* S10 — Who Is It For? */}
+      <WhoIsItForSection />
 
-      {/* S11 — Social proof / live stats */}
+      {/* S11 — Live Platform Metrics */}
       <SocialProofLive />
 
-      {/* S12 — Pricing */}
+      {/* S12 — Founding Private Beta */}
+      <FoundingBetaBenefits authed={authed} />
+
+      {/* S13 — Pricing */}
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -87,7 +91,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* S13 — Final CTA */}
+      {/* S14 — Final CTA */}
       <FinalCTA authed={authed} />
     </>
   );

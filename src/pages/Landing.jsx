@@ -12,6 +12,7 @@ import Logo from "@/components/layout/Logo";
 import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenceShowcase";
 import ScrollIndicator from "@/components/landing/ScrollIndicator";
 import HeroSection from "@/components/landing/HeroSection";
+import LandingValueProposition from "@/components/landing/LandingValueProposition";
 import ProductDemo from "@/components/landing/ProductDemo";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
@@ -126,6 +127,9 @@ export default function Landing() {
           <span className="text-sm font-medium text-white/50">Develop Executive Excellence Through AI</span>
         </div>
       </section>
+
+      {/* Product definition · value proposition · personalization */}
+      <LandingValueProposition />
 
       {/* Founders Wall CTA */}
       <FoundersWallCTA />

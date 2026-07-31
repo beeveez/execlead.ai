@@ -5,6 +5,7 @@ import {
   ArrowRight, Play, Check, Brain, Swords, TrendingUp, Zap,
 } from "lucide-react";
 import HeroProductPreview from "./HeroProductPreview";
+import LeadershipTrackCallout from "./LeadershipTrackCallout";
 
 const VALUE_CARDS = [
   { icon: Brain, title: "Develop Like an Executive", desc: "Learn how executive leaders think through AI coaching, structured learning, and executive guidance." },
@@ -84,15 +85,15 @@ export default function HeroSection({ authed, onWatchDemo }) {
               className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-3 leading-relaxed"
             >
               EXECLEAD.AI assesses your executive readiness, identifies the leadership gaps holding you back, and
-              creates a personalized AI-powered development journey to accelerate your path toward executive leadership.
+              creates a personalized AI-powered leadership development journey that accelerates your path toward executive leadership.
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }}
               className="text-sm md:text-base text-white/40 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed"
             >
-              Designed for ambitious technology professionals preparing for leadership roles—from IT Managers and
-              Enterprise Architects to Directors, CIOs, and CTOs—with a platform designed to grow beyond technology
-              into broader executive leadership.
+              Designed for ambitious professionals across technology, business, finance, human resources, sales,
+              healthcare, education, government, and more. Choose your Leadership Track and follow a personalized
+              AI-powered journey toward becoming the executive every organization wants to hire.
             </motion.p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
@@ -111,12 +112,7 @@ export default function HeroSection({ authed, onWatchDemo }) {
               ))}
             </div>
 
-            <motion.p
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.5 }}
-              className="text-xs text-white/35 mb-4 max-w-xl mx-auto lg:mx-0 italic"
-            >
-              Join a limited group of founding members helping shape the future of executive leadership.
-            </motion.p>
+            <LeadershipTrackCallout />
 
             <motion.div
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.55 }}
@@ -134,7 +130,7 @@ export default function HeroSection({ authed, onWatchDemo }) {
                 onClick={onWatchDemo}
                 className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors"
               >
-                <Play size={16} /> Watch 90-Second Platform Demo
+                <Play size={16} /> Watch Demo
               </button>
             </motion.div>
 

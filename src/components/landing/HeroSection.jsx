@@ -72,10 +72,10 @@ export default function HeroSection({ authed, onWatchDemo }) {
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold tracking-tight leading-[1.08] mb-5"
             >
-              Get Promoted to Director, VP,
+              Become the Executive Every
               <br className="hidden sm:block" />{" "}
               <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-                CIO, or CTO.
+                Organization Wants to Hire.
               </span>
             </motion.h1>
 
@@ -83,8 +83,8 @@ export default function HeroSection({ authed, onWatchDemo }) {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }}
               className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-3 leading-relaxed"
             >
-              EXECLEAD.AI assesses your executive readiness, identifies what's holding you back, and creates a
-              personalized AI leadership development system that accelerates your journey into senior technology leadership.
+              EXECLEAD.AI assesses your executive readiness, identifies the leadership gaps holding you back, and
+              creates a personalized AI-powered development journey to accelerate your path toward executive leadership.
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }}

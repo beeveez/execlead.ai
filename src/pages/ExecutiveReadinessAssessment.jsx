@@ -5,8 +5,9 @@ import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import {
-  QUESTIONS, ASSESSMENT_CATEGORIES, computeFullResults, ASSESSMENT_STORAGE_KEY,
+  QUESTIONS, ASSESSMENT_CATEGORIES, computeFullResults, ASSESSMENT_STORAGE_KEY, LEADERSHIP_TRACKS,
 } from '@/lib/readinessAssessmentEngine';
+import LeadershipTrackSelector from '@/components/readiness-assessment/LeadershipTrackSelector';
 import {
   Loader2, ChevronLeft, ChevronRight, Sparkles, Award, Trophy, Crown, Check, ArrowRight, RefreshCw, Gauge, Home,
 } from 'lucide-react';
@@ -21,12 +22,29 @@ const BADGE_ICON = { Award, Trophy, Crown, Sparkles };
 export default function ExecutiveReadinessAssessment() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [phase, setPhase] = useState('quiz');
+  const [phase, setPhase] = useState('track');
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
   const [persisting, setPersisting] = useState(false);
   const [savedAssessment, setSavedAssessment] = useState(null);
+  const [track, setTrack] = useState(null);
+  const [targetRole, setTargetRole] = useState(null);
+  const [savingTrack, setSavingTrack] = useState(false);
+
+  // Preselect track from profile so returning users skip straight to the assessment.
+  useEffect(() => {
+    (async () => {
+      try {
+        const me = await base44.auth.me();
+        if (me?.data?.leadership_track) {
+          setTrack(me.data.leadership_track);
+          setTargetRole(me.data.target_executive_role || null);
+          setPhase('quiz');
+        }
+      } catch (e) {}
+    })();
+  }, []);
 
   // Restore in-progress answers
   useEffect(() => {
@@ -56,8 +74,23 @@ export default function ExecutiveReadinessAssessment() {
   const next = () => { if (idx < total - 1) setIdx(idx + 1); };
   const prev = () => { if (idx > 0) setIdx(idx - 1); };
 
+  const selectTrack = async (trackKey, roleLabel) => {
+    setSavingTrack(true);
+    setTrack(trackKey);
+    setTargetRole(roleLabel);
+    try {
+      // Persist to the user profile so the Executive Context Engine™ personalizes the whole platform.
+      await base44.auth.updateMe({ leadership_track: trackKey, target_executive_role: roleLabel });
+    } catch (e) {
+      toast({ title: 'Could not save leadership track', description: e.message, variant: 'destructive' });
+    } finally { setSavingTrack(false); }
+    setPhase('quiz');
+  };
+
   const finish = useCallback(async () => {
     const r = computeFullResults(answers);
+    // Personalize the promotion forecast with the selected target role.
+    if (targetRole) r.forecast.targetLevel = targetRole;
     setResults(r);
     setPhase('results');
     localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
@@ -77,6 +110,8 @@ export default function ExecutiveReadinessAssessment() {
         roadmap_json: JSON.stringify(r.roadmap),
         xp_awarded: r.gamification.xp,
         badges_json: JSON.stringify(r.gamification.badges),
+        leadership_track: track,
+        target_executive_role: targetRole,
         answers_json: JSON.stringify(answers),
         completed_at: new Date().toISOString(),
       };
@@ -85,9 +120,9 @@ export default function ExecutiveReadinessAssessment() {
     } catch (e) {
       toast({ title: 'Could not save assessment', description: e.message, variant: 'destructive' });
     } finally { setPersisting(false); }
-  }, [answers, user?.id, toast]);
+  }, [answers, user?.id, toast, targetRole, track]);
 
-  const restart = () => { setAnswers({}); setIdx(0); setPhase('quiz'); setResults(null); localStorage.removeItem(ASSESSMENT_STORAGE_KEY); };
+  const restart = () => { setAnswers({}); setIdx(0); setPhase('track'); setResults(null); localStorage.removeItem(ASSESSMENT_STORAGE_KEY); };
 
   // ── RESULTS ──
   if (phase === 'results' && results) {
@@ -145,6 +180,11 @@ export default function ExecutiveReadinessAssessment() {
         </div>
       </div>
     );
+  }
+
+  // ── TRACK SELECTION ──
+  if (phase === 'track') {
+    return <LeadershipTrackSelector onSelect={selectTrack} saving={savingTrack} />;
   }
 
   // ── QUIZ ──

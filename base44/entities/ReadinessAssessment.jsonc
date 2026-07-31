@@ -71,6 +71,14 @@
     "share_slug": {
       "type": "string"
     },
+    "leadership_track": {
+      "type": "string",
+      "description": "Selected leadership track key"
+    },
+    "target_executive_role": {
+      "type": "string",
+      "description": "Target executive role selected by the user"
+    },
     "answers_json": {
       "type": "string",
       "description": "JSON of answered option indices"

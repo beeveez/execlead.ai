@@ -10,6 +10,19 @@ export const ASSESSMENT_CATEGORIES = [
   { key: 'business', label: 'Business & Financial Acumen', color: '#0ea5e9', desc: 'Budget ownership, ROI, KPIs, business strategy.' },
 ];
 
+export const LEADERSHIP_TRACKS = [
+  { key: 'technology', label: 'Technology Leadership', roles: ['CIO', 'CTO', 'VP of Engineering', 'IT Director', 'Enterprise Architect', 'Digital Transformation Leader'] },
+  { key: 'business', label: 'Business Leadership', roles: ['COO', 'General Manager', 'Operations Director'] },
+  { key: 'finance', label: 'Finance Leadership', roles: ['CFO', 'Finance Director'] },
+  { key: 'hr', label: 'Human Resources', roles: ['CHRO', 'HR Director', 'Talent Leader'] },
+  { key: 'sales_marketing', label: 'Sales & Marketing Leadership', roles: ['Chief Marketing Officer', 'VP Sales', 'Commercial Director'] },
+  { key: 'product', label: 'Product & Innovation Leadership', roles: ['Chief Product Officer', 'VP Product', 'Head of Innovation'] },
+  { key: 'government', label: 'Government & Public Sector', roles: ['Department Head', 'Public Sector Executive'] },
+  { key: 'healthcare', label: 'Healthcare Leadership', roles: ['Hospital Executive', 'Clinical Director'] },
+  { key: 'education', label: 'Education Leadership', roles: ['Dean', 'School Administrator', 'University Executive'] },
+  { key: 'custom', label: 'Custom Leadership Goal', roles: [] },
+];
+
 export const QUESTIONS = [
   // Leadership
   { id: 1, category: 'leadership', type: 'scenario', question: 'Your top performer is overloaded and missing deadlines. What do you do first?',

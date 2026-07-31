@@ -72,10 +72,10 @@ export default function HeroSection({ authed, onWatchDemo }) {
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold tracking-tight leading-[1.08] mb-5"
             >
-              The AI Executive Leadership
+              Get Promoted to Director, VP,
               <br className="hidden sm:block" />{" "}
               <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-                Operating System.
+                CIO, or CTO.
               </span>
             </motion.h1>
 
@@ -83,8 +83,8 @@ export default function HeroSection({ authed, onWatchDemo }) {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }}
               className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-3 leading-relaxed"
             >
-              Measure, develop, and prove your Executive Readiness™ through evidence-based AI coaching,
-              realistic executive simulations, personalized leadership development, and continuous executive intelligence.
+              EXECLEAD.AI assesses your executive readiness, identifies what's holding you back, and creates a
+              personalized AI leadership development system that accelerates your journey into senior technology leadership.
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }}
@@ -123,10 +123,10 @@ export default function HeroSection({ authed, onWatchDemo }) {
               className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8"
             >
               <Link
-                to={authed ? "/home" : "/beta"}
+                to={authed ? "/assessment" : "/beta"}
                 className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
               >
-                {authed ? "Go to Dashboard" : "Apply for Founding Private Beta"}
+                {authed ? "Take Executive Readiness Assessment" : "Take Executive Readiness Assessment"}
                 <ArrowRight size={17} />
               </Link>
               <button

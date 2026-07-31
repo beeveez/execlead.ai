@@ -1,0 +1,180 @@
+{
+  "name": "ReadinessAssessment",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "assessment_id": {
+      "type": "string",
+      "description": "Unique assessment ID (RA-YYYY-NNNNNN)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "overall_score": {
+      "type": "number",
+      "default": 0
+    },
+    "classification": {
+      "type": "string",
+      "enum": [
+        "emerging_leader",
+        "team_lead",
+        "manager_ready",
+        "director_ready",
+        "executive_ready"
+      ]
+    },
+    "classification_label": {
+      "type": "string"
+    },
+    "category_scores_json": {
+      "type": "string",
+      "description": "JSON map of category -> 0-100"
+    },
+    "strengths_json": {
+      "type": "string",
+      "description": "JSON array of strength categories"
+    },
+    "growth_opportunities_json": {
+      "type": "string",
+      "description": "JSON array of growth areas"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Developing"
+      ],
+      "default": "Medium"
+    },
+    "promotion_forecast_json": {
+      "type": "string",
+      "description": "JSON: currentLevel, targetLevel, estimatedMonths, confidence, explanation"
+    },
+    "roadmap_json": {
+      "type": "string",
+      "description": "JSON array of 12 weekly roadmaps"
+    },
+    "xp_awarded": {
+      "type": "number",
+      "default": 0
+    },
+    "badges_json": {
+      "type": "string",
+      "description": "JSON array of earned badges"
+    },
+    "share_slug": {
+      "type": "string"
+    },
+    "answers_json": {
+      "type": "string",
+      "description": "JSON of answered option indices"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "assessment_id",
+    "user_id",
+    "overall_score",
+    "classification"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

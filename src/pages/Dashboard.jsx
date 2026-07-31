@@ -24,6 +24,7 @@ import CompetencyReliabilityPanel from "@/components/readiness-evidence/Competen
 import EvidenceGapDashboard from "@/components/readiness-evidence/EvidenceGapDashboard";
 import CompetencyCoveragePanel from "@/components/readiness-evidence/CompetencyCoveragePanel";
 import OutcomeIntelligenceSummary from "@/components/outcome-intelligence/OutcomeIntelligenceSummary";
+import ReadinessAssessmentCTA from "@/components/readiness-assessment/ReadinessAssessmentCTA";
 
 /**
  * Dashboard — Executive Command Center.
@@ -78,6 +79,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <ExecutiveStatusBar />
+
+      <ReadinessAssessmentCTA />
 
       {/* Phase 2 — Evidence-based readiness summary */}
       {summary && <EvidenceDashboardSummary summary={summary} />}

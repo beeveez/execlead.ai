@@ -161,6 +161,7 @@ import LeadershipDNA from '@/pages/LeadershipDNA';
 import ExecutiveIntelligenceCenter from '@/pages/intelligence/ExecutiveIntelligenceCenter';
 import Journey from '@/pages/Journey';
 import ExecutiveReadiness from '@/pages/ExecutiveReadiness';
+import ExecutiveReadinessAssessment from '@/pages/ExecutiveReadinessAssessment';
 import ExecutiveOutcomeIntelligence from '@/pages/ExecutiveOutcomeIntelligence';
 import RecommendationIntelligence from '@/pages/RecommendationIntelligence';
 import AIGovernanceCenter from '@/pages/AIGovernanceCenter';
@@ -414,6 +415,7 @@ const AuthenticatedApp = () => {
           <Route path="/analytics" element={<FeatureGate featureId="leadership_analytics"><Analytics /></FeatureGate>} />
           <Route path="/journey" element={<Journey />} />
           <Route path="/executive-readiness" element={<ExecutiveReadiness />} />
+          <Route path="/assessment" element={<ExecutiveReadinessAssessment />} />
           <Route path="/outcome-intelligence" element={<ExecutiveOutcomeIntelligence />} />
           <Route path="/recommendation-intelligence" element={<RecommendationIntelligence />} />
           <Route path="/ai-governance" element={<AIGovernanceCenter />} />

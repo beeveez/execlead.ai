@@ -6,6 +6,7 @@ import { usePricingCatalog } from '@/hooks/usePricingCatalog';
 import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
 import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
+import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
 import ProductPreviewCarousel from '@/components/landing/v3/ProductPreviewCarousel';
 import HowItWorks from '@/components/landing/v3/HowItWorks';
 import WhyExecLead from '@/components/landing/v3/WhyExecLead';
@@ -50,7 +51,10 @@ export default function Landing() {
       {/* S1.5 — Two Front Doors™ */}
       <TwoFrontDoors authed={authed} />
 
-      {/* S2 — Product Experience */}
+      {/* S2 — The Solution: Interactive Simulation */}
+      <InteractiveSimulationPreview authed={authed} />
+
+      {/* S3 — Product Experience */}
       <ProductPreviewCarousel authed={authed} onWatchDemo={openDemo} />
 
       {/* S3 — Why EXECLEAD.AI */}

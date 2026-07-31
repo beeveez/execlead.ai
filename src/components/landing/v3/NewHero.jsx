@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Check } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import HeroProductPreview from '../HeroProductPreview';
 
 const TRUST = ['Personalized AI', 'Executive Simulations', 'Evidence-Based Growth', 'Executive Identity™', 'Private Beta'];
@@ -37,9 +37,9 @@ export default function NewHero({ authed, onWatchDemo }) {
             <Link to={authed ? '/assessment' : '/beta'} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25">
               Start Executive Readiness Assessment™ <ArrowRight size={17} />
             </Link>
-            <button onClick={onWatchDemo} className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
-              <Play size={16} /> Watch 90-Second Platform Demo
-            </button>
+            <Link to="/contact" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
+              Book Enterprise Demo <ArrowRight size={17} />
+            </Link>
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.45 }} className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2">
             {TRUST.map((t) => (

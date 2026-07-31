@@ -8,12 +8,12 @@ import { buildSignInUrl } from "@/lib/sessionRestore";
 import { Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Features", href: "/#features" },
-  { label: "Journey", href: "/#journey" },
-  { label: "Learning", href: "/#paths" },
-  { label: "Pricing", href: "/pricing", route: "/pricing" },
-  { label: "Leaderboard", href: "/leaderboard", route: "/leaderboard" },
-  { label: "Beta", href: "/beta", route: "/beta" },
+  { label: "Platform", route: "/platform" },
+  { label: "Solutions", href: "/#solution" },
+  { label: "Pricing", route: "/pricing" },
+  { label: "Enterprise", route: "/contact" },
+  { label: "Resources", route: "/articles" },
+  { label: "About", route: "/about" },
 ];
 
 export default function MarketingNav() {
@@ -60,7 +60,7 @@ export default function MarketingNav() {
           ) : (
             <>
               <Link to={buildSignInUrl(location.pathname + location.search)} className="hidden sm:inline text-sm text-white/50 hover:text-white transition-colors">Sign In</Link>
-              <Link to="/beta" className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Apply for Beta</Link>
+              <Link to="/beta" className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Get Started</Link>
             </>
           )}
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white/60 p-1">

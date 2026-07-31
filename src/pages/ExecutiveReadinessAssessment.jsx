@@ -22,6 +22,7 @@ export default function ExecutiveReadinessAssessment() {
   const [results, setResults] = useState(null);
   const [persisting, setPersisting] = useState(false);
   const [savedAssessment, setSavedAssessment] = useState(null);
+  const [history, setHistory] = useState([]);
   const [track, setTrack] = useState(null);
   const [targetRole, setTargetRole] = useState(null);
   const [savingTrack, setSavingTrack] = useState(false);
@@ -55,6 +56,17 @@ export default function ExecutiveReadinessAssessment() {
   useEffect(() => {
     if (phase === 'quiz') localStorage.setItem(ASSESSMENT_STORAGE_KEY, JSON.stringify({ answers, idx }));
   }, [answers, idx, phase]);
+
+  // Load the member's assessment history for the living report (What Changed, timeline, snapshots).
+  useEffect(() => {
+    if (phase !== 'results') return;
+    (async () => {
+      try {
+        const recs = await base44.entities.ReadinessAssessment.filter({ user_id: user?.id }, '-completed_date', 20);
+        setHistory(recs || []);
+      } catch (e) {}
+    })();
+  }, [phase, user?.id]);
 
   const q = QUESTIONS[idx];
   const total = QUESTIONS.length;
@@ -123,6 +135,7 @@ export default function ExecutiveReadinessAssessment() {
 
   // ── RESULTS — the signature Executive Readiness Report™ ──
   if (phase === 'results' && results) {
+    const previousRecord = history[0]?.id === savedAssessment?.id ? history[1] : history[0];
     return (
       <ExecutiveReadinessReport
         results={results}
@@ -130,6 +143,8 @@ export default function ExecutiveReadinessAssessment() {
         persisting={persisting}
         onRestart={restart}
         targetRole={targetRole}
+        history={history}
+        previousRecord={previousRecord}
       />
     );
   }

@@ -12,10 +12,18 @@ import PromotionForecast from "@/components/readiness-assessment/PromotionForeca
 import Roadmap90Day from "@/components/readiness-assessment/Roadmap90Day";
 import ReadinessShareReport from "@/components/readiness-assessment/ReadinessShareReport";
 import CoachingPlan7Day from "@/components/readiness-assessment/CoachingPlan7Day";
+import ExecutiveActionCenter from "@/components/readiness-assessment/ExecutiveActionCenter";
+import { ExecutiveMomentum, WhatChanged, WhatIfScenarios } from "@/components/readiness-assessment/LivingSignals";
+import ExecutiveMilestones from "@/components/readiness-assessment/ExecutiveMilestones";
+import PatternInsights from "@/components/readiness-assessment/PatternInsights";
+import ScoreExplanations from "@/components/readiness-assessment/ScoreExplanations";
+import EvidenceTimeline from "@/components/readiness-assessment/EvidenceTimeline";
 import {
   deriveMaturity, deriveConfidenceScore, deriveRiskIndicators, deriveExecutiveBenchmark,
   deriveIndustryBenchmark, deriveRecommendations, deriveJourneyPosition, deriveProgressForecast,
   deriveTargetRoleAlignment, deriveAIExecutiveSummary,
+  deriveTopPriorities, deriveMomentum, deriveWhatChanged, deriveWhatIf, deriveMilestone,
+  deriveScoreExplanations, derivePatternInsights, groupSnapshotsByQuarter,
 } from "@/lib/readinessReportEngine";
 
 const BADGE_ICON = { Award, Trophy, Crown, Sparkles };
@@ -36,7 +44,7 @@ function Section({ icon: Icon, title, kicker, children, className = "" }) {
   );
 }
 
-export default function ExecutiveReadinessReport({ results, savedAssessment, persisting, onRestart, targetRole }) {
+export default function ExecutiveReadinessReport({ results, savedAssessment, persisting, onRestart, targetRole, history, previousRecord }) {
   const { overall, classification, gap, forecast, roadmap, gamification } = results;
   const maturity = deriveMaturity(overall);
   const confidence = deriveConfidenceScore(results);
@@ -48,6 +56,14 @@ export default function ExecutiveReadinessReport({ results, savedAssessment, per
   const progress = deriveProgressForecast(results);
   const alignment = deriveTargetRoleAlignment(results, targetRole);
   const aiSummary = deriveAIExecutiveSummary(results, targetRole);
+  const priorities = deriveTopPriorities(results);
+  const momentum = deriveMomentum(results);
+  const changes = deriveWhatChanged(results, previousRecord);
+  const scenarios = deriveWhatIf(results);
+  const milestone = deriveMilestone(results, targetRole);
+  const explanations = deriveScoreExplanations(results);
+  const insights = derivePatternInsights(results);
+  const snapshots = groupSnapshotsByQuarter(history);
 
   return (
     <div className="max-w-5xl mx-auto px-4 lg:px-6 py-6 lg:py-10 space-y-5">
@@ -83,6 +99,10 @@ export default function ExecutiveReadinessReport({ results, savedAssessment, per
         </div>
       </motion.div>
 
+      {/* ── Executive Action Center + EXEC™ Pattern Insights ── */}
+      <ExecutiveActionCenter priorities={priorities} />
+      <PatternInsights insights={insights} />
+
       {/* ── Maturity + Target alignment + Confidence ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Section icon={Compass} kicker="Level" title="Leadership Maturity Level™">
@@ -102,6 +122,14 @@ export default function ExecutiveReadinessReport({ results, savedAssessment, per
           <p className="text-[10px] text-white/40 mt-1.5">Based on profile balance & evidence breadth</p>
         </Section>
       </div>
+
+      {/* ── Living signals: Momentum · What Changed · What If · Milestones ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <ExecutiveMomentum momentum={momentum} />
+        <WhatChanged changes={changes} />
+      </div>
+      <WhatIfScenarios scenarios={scenarios} />
+      <ExecutiveMilestones milestone={milestone} />
 
       {/* ── Radar + Forecast + Gap ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -163,6 +191,9 @@ export default function ExecutiveReadinessReport({ results, savedAssessment, per
           <p className="text-[11px] text-white/45 leading-relaxed">{indBench.delta >= 0 ? "You are outperforming the industry average for your track." : "Focused development will move you above the industry average."}</p>
         </Section>
       </div>
+
+      {/* ── Score Explanations ── */}
+      <ScoreExplanations explanations={explanations} />
 
       {/* ── Risk indicators ── */}
       {risks.length > 0 && (
@@ -234,6 +265,9 @@ export default function ExecutiveReadinessReport({ results, savedAssessment, per
           <Home size={14} /> Enter Executive Workspace <ArrowRight size={14} />
         </Link>
       </motion.div>
+
+      {/* ── Evidence Timeline + Quarterly Snapshots ── */}
+      <EvidenceTimeline history={history} snapshots={snapshots} />
 
       {/* ── Share ── */}
       <ReadinessShareReport results={results} shareSlug={savedAssessment?.share_slug} />

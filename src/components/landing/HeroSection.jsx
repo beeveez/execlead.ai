@@ -14,9 +14,12 @@ const VALUE_CARDS = [
 ];
 
 const TRUST_ITEMS = [
-  "Takes only 10 minutes",
-  "Personalized with AI",
-  "Immediate Executive Readiness Report™",
+  "10-minute assessment",
+  "Personalized AI analysis",
+  "Executive Readiness Report™",
+  "Promotion Forecast™",
+  "7-Day Coaching Plan™",
+  "No credit card required during beta",
 ];
 
 export default function HeroSection({ authed, onWatchDemo }) {

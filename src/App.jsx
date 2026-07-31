@@ -53,6 +53,7 @@ import ArticleHub from '@/pages/articles/ArticleHub';
 import ArticleDetail from '@/pages/articles/ArticleDetail';
 
 const Landing = lazyRetry(() => import('@/pages/Landing'));
+import PlatformOverview from '@/pages/PlatformOverview';
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import SectionHome from '@/pages/SectionHome';
@@ -355,6 +356,7 @@ const AuthenticatedApp = () => {
       {/* Public — marketing pages share a persistent layout (nav + footer always visible) */}
       <Route element={<MarketingLayout />}>
         <Route path="/" element={<Suspense fallback={<LandingSkeleton />}><Landing /></Suspense>} />
+        <Route path="/platform" element={<PlatformOverview />} />
         <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><Pricing /></Suspense>} />
         <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
         <Route path="/company-library" element={<div className="pt-20"><Companies /></div>} />

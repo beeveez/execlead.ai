@@ -62,6 +62,10 @@ export const EXEC_SUGGESTED_QUESTIONS = [
   "Describe my executive brand",
   "What makes me different?",
   "Generate my executive elevator pitch",
+  "Describe my executive identity",
+  "What should I improve?",
+  "How has my brand evolved?",
+  "How consistent is my executive brand?",
 ];
 
 export function getSuggestedQuestions(messageCount) {

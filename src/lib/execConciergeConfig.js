@@ -9,6 +9,7 @@ import { findModule, buildKnowledgeIndexSummary } from "@/lib/execKnowledgeBase"
 import { buildEnforcementDirective, WORKSPACE_CONTEXT_LABELS } from "@/lib/workspaceContextEnforcement";
 import { computeEvidenceCoverage, formatEvidenceForPrompt, formatEvidenceBriefing } from "@/lib/evidenceCompletenessEngine";
 import { formatRuntimeProfileForPrompt } from "@/lib/executiveRuntimeProfile";
+import { getRoleGreeting } from "@/lib/roleLaunchpad";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -196,6 +197,8 @@ export function formatTier(tier) {
 }
 
 export function generateBriefing(firstName, userContext, pageContext, persona) {
+  const roleGreeting = getRoleGreeting();
+  const rolePrefix = roleGreeting ? `${roleGreeting}\n\n` : "";
   // Use workspace persona greeting if available
   if (persona && persona.greeting) {
     const personaGreeting = persona.greeting(firstName);
@@ -218,10 +221,10 @@ export function generateBriefing(firstName, userContext, pageContext, persona) {
       if (insights.length > 0) {
         const evidence = userContext.evidence || computeEvidenceCoverage(userContext);
         const evidenceLine = formatEvidenceBriefing(evidence);
-        return `${personaGreeting}\n\n**Your Executive Briefing:**\n${insights.map(i => `• ${i}`).join("\n")}\n\n${evidenceLine}`;
+        return `${rolePrefix}${personaGreeting}\n\n**Your Executive Briefing:**\n${insights.map(i => `• ${i}`).join("\n")}\n\n${evidenceLine}`;
       }
     }
-    return personaGreeting;
+    return rolePrefix ? `${rolePrefix}${personaGreeting}` : personaGreeting;
   }
   const greeting = firstName ? `Welcome back, ${firstName}.` : "Welcome back.";
   const insights = [];
@@ -254,7 +257,7 @@ export function generateBriefing(firstName, userContext, pageContext, persona) {
     }
   }
 
-  let message = `${greeting}\n\nHere's today's executive briefing:\n\n${insights.map((i) => `• ${i}`).join("\n")}`;
+  let message = `${rolePrefix}${greeting}\n\nHere's today's executive briefing:\n\n${insights.map((i) => `• ${i}`).join("\n")}`;
 
   if (pageContext?.prompt) {
     message += `\n\n${pageContext.prompt}`;

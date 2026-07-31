@@ -11,11 +11,15 @@ import { markOnboardingCompleted } from "@/lib/sessionRestore";
 import { evaluateOnboardingState } from "@/lib/onboardingStateManager";
 import { useAuth } from "@/lib/AuthContext";
 import { Target, ArrowRight, Check, Search, FileUp, Loader2, Sparkles, SkipForward, ShieldAlert, Zap } from "lucide-react";
+import RoleLaunchpad from "@/components/onboarding/RoleLaunchpad";
+import { setSelectedRoleId } from "@/lib/roleLaunchpad";
 import ReactMarkdown from "react-markdown";
 
 export default function Onboarding() {
   const { user } = useAuth();
-  const [step, setStep] = useState("welcome");
+  const [step, setStep] = useState(() => {
+    try { return localStorage.getItem("execlead_leadership_role") ? "welcome" : "launchpad"; } catch { return "launchpad"; }
+  });
   const [form, setForm] = useState({ full_name: "", country: "", target_company: "", target_role: "", career_stage: "" });
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -71,6 +75,20 @@ export default function Onboarding() {
           <Loader2 size={28} className="animate-spin text-indigo-400" />
           <p className="text-white/40 text-sm">Checking your executive profile...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Role-Based Launchpad™ — the first personalized experience after registration.
+  if (step === "launchpad") {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] py-12 px-4">
+        <RoleLaunchpad onContinue={(role) => {
+          setSelectedRoleId(role.id);
+          try { base44.auth.updateMe({ leadership_role: role.id }).catch(() => {}); } catch {}
+          try { base44.analytics.track({ eventName: "launchpad_role_selected", properties: { role: role.id } }); } catch {}
+          setStep("welcome");
+        }} />
       </div>
     );
   }

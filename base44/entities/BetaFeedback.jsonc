@@ -4,7 +4,11 @@
   "properties": {
     "description": {
       "type": "string",
-      "maxLength": 1000
+      "maxLength": 4000
+    },
+    "feedback_id": {
+      "type": "string",
+      "description": "Public tracking ID (BF-NNNNNN)"
     },
     "user_id": {
       "type": "string",
@@ -16,37 +20,291 @@
     "user_email": {
       "type": "string"
     },
-    "assessment_value_rating": {
-      "type": "number",
-      "description": "How valuable was your assessment? (1-5)",
-      "minimum": 1,
-      "maximum": 5
+    "organization_id": {
+      "type": "string"
     },
-    "what_surprised_you": {
+    "department": {
+      "type": "string"
+    },
+    "leadership_path": {
       "type": "string",
-      "description": "What surprised you about your assessment?"
+      "description": "Selected leadership track"
     },
-    "what_confused_you": {
-      "type": "string",
-      "description": "What confused you?"
+    "platform_version": {
+      "type": "string"
     },
-    "would_recommend": {
-      "type": "number",
-      "description": "Would you recommend EXECLEAD.AI? (0-10 NPS)",
-      "minimum": 0,
-      "maximum": 10
+    "build_version": {
+      "type": "string"
     },
-    "what_should_improve": {
-      "type": "string",
-      "description": "What should EXEC improve?"
+    "browser": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
     },
     "submitted_at": {
       "type": "string",
       "format": "date-time"
     },
-    "session_context": {
+    "category": {
       "type": "string",
-      "description": "What the user was doing when asked (e.g. 'post_assessment')"
+      "enum": [
+        "UX",
+        "Executive Readiness Assessment\u2122",
+        "Executive Coach\u2122",
+        "Executive Simulations\u2122",
+        "Executive Decision Lab\u2122",
+        "Executive Identity\u2122",
+        "Executive Portfolio\u2122",
+        "Executive Success Stories\u2122",
+        "Executive Outcomes\u2122",
+        "Marketing",
+        "Performance",
+        "Security",
+        "AI Quality",
+        "Bug",
+        "Feature Request",
+        "Enhancement",
+        "Other"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "Medium"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "Immediate",
+        "Next Sprint",
+        "Backlog",
+        "Future"
+      ],
+      "default": "Backlog"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Triaged",
+        "Investigating",
+        "Planned",
+        "In Development",
+        "Testing",
+        "Resolved",
+        "Released",
+        "Rejected",
+        "Duplicate"
+      ],
+      "default": "New"
+    },
+    "title": {
+      "type": "string"
+    },
+    "expected_behavior": {
+      "type": "string"
+    },
+    "actual_behavior": {
+      "type": "string"
+    },
+    "suggested_improvement": {
+      "type": "string"
+    },
+    "business_impact": {
+      "type": "string"
+    },
+    "current_route": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string"
+    },
+    "last_action": {
+      "type": "string"
+    },
+    "session_duration": {
+      "type": "number",
+      "default": 0
+    },
+    "journey_stage": {
+      "type": "string"
+    },
+    "readiness_level": {
+      "type": "string"
+    },
+    "executive_persona": {
+      "type": "string"
+    },
+    "attachments_json": {
+      "type": "string",
+      "description": "JSON array of {type, url, label}"
+    },
+    "feedback_confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "Feedback Confidence\u2122 0-100"
+    },
+    "impact_score": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+        ""
+      ],
+      "default": ""
+    },
+    "impact_score_number": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_summary": {
+      "type": "string"
+    },
+    "ai_root_cause": {
+      "type": "string"
+    },
+    "ai_affected_modules": {
+      "type": "string",
+      "description": "JSON array of module names"
+    },
+    "ai_suggested_resolution": {
+      "type": "string"
+    },
+    "ai_engineering_complexity": {
+      "type": "string"
+    },
+    "ai_customer_value": {
+      "type": "string"
+    },
+    "ai_release_recommendation": {
+      "type": "string"
+    },
+    "ai_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_related_feedback": {
+      "type": "string",
+      "description": "JSON array of feedback ids"
+    },
+    "ai_possible_duplicate": {
+      "type": "string",
+      "description": "feedback_id of likely duplicate"
+    },
+    "vote_count": {
+      "type": "number",
+      "default": 0
+    },
+    "voter_ids_json": {
+      "type": "string",
+      "description": "JSON array of user ids who voted"
+    },
+    "watcher_count": {
+      "type": "number",
+      "default": 0
+    },
+    "watcher_ids_json": {
+      "type": "string",
+      "description": "JSON array of user ids watching"
+    },
+    "comments_json": {
+      "type": "string",
+      "description": "JSON array of {user_id, user_name, text, created_at}"
+    },
+    "engineer_notes": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "status_history_json": {
+      "type": "string",
+      "description": "JSON array of {status, by_name, at, note}"
+    },
+    "related_features_json": {
+      "type": "string",
+      "description": "JSON array of feature labels"
+    },
+    "related_releases_json": {
+      "type": "string",
+      "description": "JSON array of {version, name, date}"
+    },
+    "roadmap_recommendation": {
+      "type": "string",
+      "enum": [
+        "Ship Immediately",
+        "Next Sprint",
+        "Future Release",
+        "Needs Investigation",
+        "Duplicate",
+        "Won't Fix",
+        ""
+      ],
+      "default": ""
+    },
+    "roadmap_reason": {
+      "type": "string"
+    },
+    "release_version": {
+      "type": "string",
+      "description": "Version where this feedback was released"
+    },
+    "duplicate_of": {
+      "type": "string",
+      "description": "feedback_id this duplicates"
+    },
+    "acknowledged": {
+      "type": "boolean",
+      "default": false
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "estimated_review": {
+      "type": "string"
+    },
+    "nps_score": {
+      "type": "number"
+    },
+    "assessment_value_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "what_surprised_you": {
+      "type": "string"
+    },
+    "what_confused_you": {
+      "type": "string"
+    },
+    "would_recommend": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "what_should_improve": {
+      "type": "string"
+    },
+    "session_context": {
+      "type": "string"
     }
   },
   "required": [
@@ -83,6 +341,11 @@
         },
         {
           "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -106,6 +369,11 @@
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
           }
         },
         {

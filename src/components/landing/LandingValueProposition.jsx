@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 import { Gauge, GraduationCap, Award, TrendingUp, Check, Sparkles } from "lucide-react";
 
 const OUTCOMES = [
-  { icon: Gauge, title: "Assess", desc: "Measure your Executive Readiness using AI-powered leadership assessment." },
-  { icon: GraduationCap, title: "Develop", desc: "Receive personalized coaching, simulations, and learning paths." },
-  { icon: Award, title: "Demonstrate", desc: "Build an evidence-based Executive Identity and leadership portfolio." },
-  { icon: TrendingUp, title: "Advance", desc: "Track your growth and prepare for your next executive opportunity." },
+  { icon: Gauge, title: "Assess", desc: "Measure your executive readiness." },
+  { icon: GraduationCap, title: "Develop", desc: "Receive AI-powered coaching and simulations." },
+  { icon: Award, title: "Demonstrate", desc: "Build an evidence-based executive portfolio." },
+  { icon: TrendingUp, title: "Advance", desc: "Track measurable progress toward executive leadership." },
 ];
 
 const PERSONALIZATION = [

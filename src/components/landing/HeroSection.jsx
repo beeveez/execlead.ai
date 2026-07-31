@@ -14,13 +14,9 @@ const VALUE_CARDS = [
 ];
 
 const TRUST_ITEMS = [
-  "11 AI Executive Personas",
-  "15+ Executive Simulations",
-  "18 Learning Paths",
-  "126+ Company Intelligence Profiles",
-  "Evidence-Based AI",
-  "Explainable Recommendations",
-  "AI Governance Built In",
+  "Takes only 10 minutes",
+  "Personalized with AI",
+  "Immediate Executive Readiness Report™",
 ];
 
 export default function HeroSection({ authed, onWatchDemo }) {
@@ -84,8 +80,8 @@ export default function HeroSection({ authed, onWatchDemo }) {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }}
               className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-3 leading-relaxed"
             >
-              EXECLEAD.AI assesses your executive readiness, identifies the leadership gaps holding you back, and
-              creates a personalized AI-powered leadership development journey that accelerates your path toward executive leadership.
+              Measure your Executive Readiness, discover the leadership gaps holding you back, and receive a
+              personalized AI-powered development plan that accelerates your journey toward executive leadership.
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }}
@@ -122,7 +118,7 @@ export default function HeroSection({ authed, onWatchDemo }) {
                 to={authed ? "/assessment" : "/beta"}
                 className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25"
               >
-                {authed ? "Take Executive Readiness Assessment" : "Take Executive Readiness Assessment"}
+                Take the Executive Readiness Assessment™
                 <ArrowRight size={17} />
               </Link>
               <button

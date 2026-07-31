@@ -13,6 +13,10 @@ import CompanyIntelligenceShowcase from "@/components/landing/CompanyIntelligenc
 import ScrollIndicator from "@/components/landing/ScrollIndicator";
 import HeroSection from "@/components/landing/HeroSection";
 import LandingValueProposition from "@/components/landing/LandingValueProposition";
+import OutcomeCardsSection from "@/components/landing/OutcomeCardsSection";
+import ExecutiveTransformation from "@/components/landing/ExecutiveTransformation";
+import PlatformRepositionSection from "@/components/landing/PlatformRepositionSection";
+import WhyProfessionalsUseSection from "@/components/landing/WhyProfessionalsUseSection";
 import ProductDemo from "@/components/landing/ProductDemo";
 import ShareButton from "@/components/social/ShareButton";
 import { usePricingCatalog } from "@/hooks/usePricingCatalog";
@@ -92,6 +96,12 @@ export default function Landing() {
       <HeroSection authed={authed} onWatchDemo={() => setShowDemo(true)} />
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} />
 
+      {/* In just 10 minutes you'll receive */}
+      <OutcomeCardsSection />
+
+      {/* The executive transformation */}
+      <ExecutiveTransformation />
+
       {/* Stats bar */}
       <section className="border-y border-white/5 py-12 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -130,6 +140,9 @@ export default function Landing() {
 
       {/* Product definition · value proposition · personalization */}
       <LandingValueProposition />
+
+      {/* Reposition the platform */}
+      <PlatformRepositionSection />
 
       {/* Founders Wall CTA */}
       <FoundersWallCTA />
@@ -211,6 +224,9 @@ export default function Landing() {
 
       {/* Founder Insights */}
       <FounderInsightsSection />
+
+      {/* Why professionals use EXECLEAD.AI */}
+      <WhyProfessionalsUseSection />
 
       {/* Social Proof */}
       <SocialProofSection />

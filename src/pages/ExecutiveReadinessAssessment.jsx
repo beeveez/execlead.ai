@@ -16,6 +16,7 @@ import GapAnalysisPanel from '@/components/readiness-assessment/GapAnalysisPanel
 import PromotionForecast from '@/components/readiness-assessment/PromotionForecast';
 import Roadmap90Day from '@/components/readiness-assessment/Roadmap90Day';
 import ReadinessShareReport from '@/components/readiness-assessment/ReadinessShareReport';
+import CoachingPlan7Day from '@/components/readiness-assessment/CoachingPlan7Day';
 
 const BADGE_ICON = { Award, Trophy, Crown, Sparkles };
 
@@ -155,7 +156,10 @@ export default function ExecutiveReadinessAssessment() {
             <div>
               <div className="text-xs font-semibold text-white mb-1">EXEC Concierge™</div>
               <p className="text-sm text-white/70 leading-relaxed">
-                Congratulations. Based on your assessment, you're already performing at approximately <span className="text-white font-medium">{overall}% of {forecast.targetLevel.split('→').pop().trim()} expectations</span>. Your strongest capability is <span className="text-emerald-400 font-medium">{gap.strengths[0]?.label}</span>. Your biggest opportunity is <span className="text-amber-400 font-medium">{gap.opportunities[0]?.label || 'continuous practice'}</span>. Let's build your personalized promotion roadmap.
+                Congratulations on completing your Executive Readiness Assessment. Your strongest capability is
+                <span className="text-emerald-400 font-medium"> {gap.strengths[0]?.label}</span>. Your greatest opportunity is
+                <span className="text-amber-400 font-medium"> {gap.opportunities[0]?.label || 'continuous practice'}</span>.
+                I've prepared a personalized 7-day coaching plan to help you begin improving immediately. Let's start with Day 1.
               </p>
             </div>
           </div>
@@ -170,6 +174,18 @@ export default function ExecutiveReadinessAssessment() {
         </div>
 
         <Roadmap90Day roadmap={roadmap} />
+
+        <CoachingPlan7Day opportunity={gap.opportunities[0]?.label} />
+
+        {/* Welcome to your executive workspace */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-indigo-500/12 to-transparent border border-indigo-500/20 rounded-2xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-widest text-indigo-400 mb-1">You're Ready</div>
+          <h3 className="text-lg font-bold text-white mb-1.5">Welcome to Your Executive Workspace</h3>
+          <p className="text-sm text-white/55 max-w-lg mx-auto mb-4">Your 10-minute transformation is complete. Now continue your Executive Leadership Journey — every capability is personalized to your goals.</p>
+          <Link to="/dashboard" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-sm text-white font-semibold transition-colors">
+            <Home size={14} /> Enter Executive Workspace <ArrowRight size={14} />
+          </Link>
+        </motion.div>
 
         <ReadinessShareReport results={results} shareSlug={savedAssessment?.share_slug} />
 

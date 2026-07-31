@@ -16,6 +16,7 @@ import OutcomeIntelligenceFeature from '@/components/landing/v3/OutcomeIntellige
 import WhoIsItForSection from '@/components/landing/v3/WhoIsItForSection';
 import SocialProofLive from '@/components/landing/v3/SocialProofLive';
 import FoundingBetaBenefits from '@/components/landing/v3/FoundingBetaBenefits';
+import EnterpriseTrustSection from '@/components/landing/v3/EnterpriseTrustSection';
 import FinalCTA from '@/components/landing/v3/FinalCTA';
 import ProductDemo from '@/components/landing/ProductDemo';
 import PricingTiers from '@/components/pricing/PricingTiers';
@@ -41,11 +42,11 @@ export default function Landing() {
       {/* S2 — Product Experience */}
       <ProductPreviewCarousel authed={authed} onWatchDemo={() => setShowDemo(true)} />
 
-      {/* S3 — How EXECLEAD.AI Works */}
-      <HowItWorks authed={authed} />
-
-      {/* S4 — Why EXECLEAD.AI */}
+      {/* S3 — Why EXECLEAD.AI */}
       <WhyExecLead />
+
+      {/* S4 — How EXECLEAD.AI Works */}
+      <HowItWorks authed={authed} />
 
       {/* S5 — The Executive Readiness Difference */}
       <ExecutiveReadinessFeature authed={authed} />
@@ -68,7 +69,10 @@ export default function Landing() {
       {/* S11 — Live Platform Metrics */}
       <SocialProofLive />
 
-      {/* S12 — Founding Private Beta */}
+      {/* S12 — Enterprise Trust */}
+      <EnterpriseTrustSection />
+
+      {/* S13 — Founding Private Beta */}
       <FoundingBetaBenefits authed={authed} />
 
       {/* S13 — Pricing */}

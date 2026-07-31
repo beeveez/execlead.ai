@@ -50,8 +50,8 @@ export default function ProductPreviewModal({ item, open, onClose, authed, onWat
               </div>
               <div className="flex flex-col sm:flex-row gap-2.5">
                 <button onClick={() => { onWatchDemo?.(); onClose(); }} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-transparent border border-white/15 hover:bg-white/5 text-white/80 text-sm font-medium transition-colors"><Play size={14} /> Watch Demo</button>
-                <Link to={authed ? item.to : '/beta'} onClick={onClose} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-sm font-semibold transition-colors">
-                  {authed ? 'Open Workspace' : 'Apply for Beta'} <ArrowRight size={14} />
+                <Link to={authed ? item.to : '/platform'} onClick={onClose} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-sm font-semibold transition-colors">
+                  {authed ? 'Open Workspace' : 'Open Interactive Preview'} <ArrowRight size={14} />
                 </Link>
               </div>
             </div>

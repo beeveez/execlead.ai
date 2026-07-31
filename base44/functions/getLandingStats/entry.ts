@@ -7,12 +7,14 @@ export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
     const LIMIT = 100;
-    const [scenarios, companies, stories, identities, evidence] = await Promise.all([
+    const [scenarios, companies, stories, identities, evidence, journeys, conversations] = await Promise.all([
       base44.asServiceRole.entities.DecisionScenario.filter({}, undefined, LIMIT),
       base44.asServiceRole.entities.Company.filter({}, undefined, LIMIT),
       base44.asServiceRole.entities.ExecutiveSuccessStory.filter({}, undefined, LIMIT),
       base44.asServiceRole.entities.ExecutiveIdentity.filter({}, undefined, LIMIT),
       base44.asServiceRole.entities.EvidenceItem.filter({}, undefined, LIMIT),
+      base44.asServiceRole.entities.JourneyEvent.filter({}, undefined, LIMIT),
+      base44.asServiceRole.entities.AnswerAttempt.filter({}, undefined, LIMIT),
     ]);
     return Response.json({
       simulations: scenarios.length,
@@ -20,6 +22,8 @@ export default async function (req) {
       stories: stories.length,
       identities: identities.length,
       evidence: evidence.length,
+      journeys: journeys.length,
+      conversations: conversations.length,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

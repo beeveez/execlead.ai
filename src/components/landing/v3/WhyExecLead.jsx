@@ -1,8 +1,8 @@
 import React from 'react';
 import { X, Check } from 'lucide-react';
 
-const TRADITIONAL = ['Learning Hours', 'Certificates', 'Courses', 'Generic Coaching', 'Static Profiles'];
-const EXECLEAD = ['Executive Readiness™', 'Demonstrated Competency', 'Verified Leadership Evidence', 'Executive Identity™', 'Outcome Intelligence™', 'Continuous Leadership Intelligence™'];
+const TRADITIONAL = ['Learning hours', 'Certificates', 'Static assessments', 'Generic coaching', 'One-size-fits-all learning'];
+const EXECLEAD = ['Executive Readiness™', 'Verified leadership evidence', 'Executive Identity™', 'Outcome Intelligence™', 'Continuous executive development', 'Explainable AI recommendations'];
 
 export default function WhyExecLead() {
   return (
@@ -39,6 +39,7 @@ export default function WhyExecLead() {
             <p className="text-[11px] text-white/40 mt-5 leading-relaxed">Evidence-based outcomes that demonstrate real executive development — and travel with you.</p>
           </div>
         </div>
+        <p className="text-center text-sm text-white/55 mt-8 max-w-2xl mx-auto">Leadership should be measured by <span className="text-white font-semibold">demonstrated capability</span>, not completed courses.</p>
       </div>
     </section>
   );

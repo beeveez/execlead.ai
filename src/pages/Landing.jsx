@@ -15,6 +15,7 @@ import ExecutiveIdentityFeature from '@/components/landing/v3/ExecutiveIdentityF
 import OutcomeIntelligenceFeature from '@/components/landing/v3/OutcomeIntelligenceFeature';
 import WhoIsItForSection from '@/components/landing/v3/WhoIsItForSection';
 import SocialProofLive from '@/components/landing/v3/SocialProofLive';
+import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
 import FoundingBetaBenefits from '@/components/landing/v3/FoundingBetaBenefits';
 import EnterpriseTrustSection from '@/components/landing/v3/EnterpriseTrustSection';
 import FinalCTA from '@/components/landing/v3/FinalCTA';
@@ -74,6 +75,9 @@ export default function Landing() {
 
       {/* S11 — Live Platform Metrics */}
       <SocialProofLive />
+
+      {/* S11b — Executive Outcome Wall™ (evidence-generated) */}
+      <ExecutiveOutcomeWall />
 
       {/* S12 — Enterprise Trust */}
       <EnterpriseTrustSection />

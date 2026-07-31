@@ -8,6 +8,10 @@ import {
 } from 'lucide-react';
 import { LEADERSHIP_TRACKS } from '@/lib/readinessAssessmentEngine';
 import ProductDemo from '@/components/landing/ProductDemo';
+import ExecPersonalizedPreview from '@/components/readiness-assessment/ExecPersonalizedPreview';
+import ExecutiveJourneyVisual from '@/components/readiness-assessment/ExecutiveJourneyVisual';
+import ExecActivationSequence from '@/components/readiness-assessment/ExecActivationSequence';
+import ExecutiveReadinessSample from '@/components/readiness-assessment/ExecutiveReadinessSample';
 
 const ICONS = {
   technology: Cpu, digital_transformation: Sparkles, business: Briefcase, finance: DollarSign,
@@ -57,22 +61,50 @@ const OUTCOMES = [
 
 const CONFIDENCE = ['Personalized Assessment', 'Adaptive AI Coaching', 'Secure & Private', 'Update Goals Anytime'];
 
-const STEPS = [
-  { n: 1, label: 'Choose Leadership Path' },
-  { n: 2, label: 'Executive Readiness Assessment' },
-  { n: 3, label: 'Personalized Executive Dashboard' },
-  { n: 4, label: 'Begin Your Leadership Journey' },
+const PATH_COMPETENCIES = {
+  technology: ['Strategic Technology Leadership', 'Executive Communication', 'Enterprise Decision Making', 'Digital Transformation', 'Executive Presence', 'Organizational Leadership'],
+  digital_transformation: ['Digital Strategy', 'Change Leadership', 'AI Adoption', 'Executive Communication', 'Innovation Leadership', 'Organizational Transformation'],
+  business: ['Business Strategy', 'Operational Leadership', 'Executive Communication', 'Enterprise Decision Making', 'Financial Acumen', 'Organizational Leadership'],
+  finance: ['Financial Strategy', 'Capital Allocation', 'Executive Communication', 'Enterprise Risk', 'Business Acumen', 'Organizational Leadership'],
+  hr: ['Talent Strategy', 'Organizational Design', 'Executive Communication', 'Culture Leadership', 'Change Management', 'People Analytics'],
+  sales_marketing: ['Commercial Strategy', 'Revenue Leadership', 'Brand & Go-to-Market', 'Executive Communication', 'Customer Insight', 'Organizational Leadership'],
+  product: ['Product Vision', 'Innovation Leadership', 'Customer Insight', 'Executive Communication', 'Strategic Thinking', 'Organizational Leadership'],
+  government: ['Public-Sector Strategy', 'Policy Leadership', 'Executive Communication', 'Stakeholder Engagement', 'Citizen Impact', 'Organizational Leadership'],
+  healthcare: ['Clinical Leadership', 'Operational Transformation', 'Executive Communication', 'Patient-Centered Strategy', 'Change Leadership', 'Organizational Leadership'],
+  education: ['Academic Leadership', 'Institutional Strategy', 'Executive Communication', 'Learning Transformation', 'Stakeholder Engagement', 'Organizational Leadership'],
+  custom: ['Executive Communication', 'Strategic Thinking', 'Enterprise Decision Making', 'Leadership Presence', 'Organizational Leadership', 'Business Acumen'],
+};
+
+const EXEC_PROMISE = [
+  'Executive Readiness Score™', 'Leadership Gap Analysis™', 'Executive Competency Radar™', 'AI Executive Roadmap™',
+  'Personalized Executive Dashboard™', 'Executive Identity Profile™', 'Executive Coach™', 'Executive Journey™', 'Promotion Readiness™',
 ];
+
+function deriveDestination(trackKey, role) {
+  if (role) {
+    const r = role.toLowerCase();
+    if (/(chief|\bcio\b|\bcto\b|\bcfo\b|\bcmo\b|\bcpo\b|\bcoo\b|\bchro\b|\bcdo\b|c-level)/.test(r)) return 'C-Level Executive';
+    if (/(vp|vice president)/.test(r)) return 'Vice President';
+    if (/director/.test(r)) return 'Director';
+    if (/head/.test(r)) return 'Director';
+    if (/manager/.test(r)) return 'Manager';
+    if (/lead/.test(r)) return 'Team Lead';
+  }
+  const defaults = { technology: 'C-Level Executive', digital_transformation: 'C-Level Executive', business: 'Vice President', finance: 'C-Level Executive', hr: 'C-Level Executive', sales_marketing: 'Vice President', product: 'Vice President', government: 'Director', healthcare: 'Director', education: 'Director', custom: 'Director' };
+  return defaults[trackKey] || 'Director';
+}
 
 export default function LeadershipTrackSelector({ onSelect, saving }) {
   const [track, setTrack] = useState(null);
   const [role, setRole] = useState(null);
   const [customRole, setCustomRole] = useState('');
   const [showDemo, setShowDemo] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const [explainerOpen, setExplainerOpen] = useState(false);
 
   const handlePickTrack = (key) => { setTrack(key); setRole(null); setCustomRole(''); };
   const handlePickRole = (r) => setRole(r);
-  const handleContinue = () => {
+  const commit = () => {
     if (track === 'custom') {
       if (!customRole.trim()) return;
       onSelect('custom', customRole.trim());
@@ -80,11 +112,16 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
       onSelect(track, role);
     }
   };
+  const handleContinue = () => {
+    if (track === 'custom' && !customRole.trim()) return;
+    if (track !== 'custom' && !role) return;
+    setActivating(true);
+  };
 
   const featuredTracks = FEATURED.map((k) => LEADERSHIP_TRACKS.find((t) => t.key === k)).filter(Boolean);
   const additionalTracks = LEADERSHIP_TRACKS.filter((t) => !FEATURED.includes(t.key));
   const selectedTrack = LEADERSHIP_TRACKS.find((t) => t.key === track);
-  const currentStep = track ? (role || customRole.trim() ? 2 : 2) : 1;
+  const destination = deriveDestination(track, role || customRole);
 
   const TrackCard = ({ t, featured }) => {
     const Icon = ICONS[t.key] || Target;
@@ -127,22 +164,8 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
         </p>
       </div>
 
-      {/* Progress expectation */}
-      <div className="mb-9 flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
-        {STEPS.map((s, i) => {
-          const done = currentStep > s.n;
-          const active = currentStep === s.n;
-          return (
-            <React.Fragment key={s.n}>
-              <div className="flex items-center gap-1.5">
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${done ? 'bg-emerald-500/20 text-emerald-400' : active ? 'bg-accent-orange/20 text-accent-orange' : 'bg-white/5 text-white/40'}`}>{done ? <Check size={10} /> : s.n}</span>
-                <span className={`text-[10.5px] ${active ? 'text-white' : 'text-white/40'}`}>{s.label}</span>
-              </div>
-              {i < STEPS.length - 1 && <span className="text-white/15 text-[10px]">↓</span>}
-            </React.Fragment>
-          );
-        })}
-      </div>
+      {/* Executive Journey Visual */}
+      <ExecutiveJourneyVisual destination={destination} />
 
       {/* Personalization preview — interactive module cards */}
       <div className="mb-9">
@@ -153,7 +176,7 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
           {MODULE_CARDS.map((m, i) => (
             <motion.div key={m.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-              className={`group relative rounded-xl border p-3 transition-all duration-300 hover:-translate-y-0.5 ${track ? 'bg-accent-orange/[0.05] border-accent-orange/20' : 'bg-white/[0.03] border-white/8 hover:border-indigo-500/25'}`}>
+              className={`group relative rounded-xl border p-3 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] ${track ? 'bg-accent-orange/[0.05] border-accent-orange/20' : 'bg-white/[0.03] border-white/8 hover:border-indigo-500/25'}`}>
               {track && <span className="absolute top-1.5 right-1.5 text-[8px] font-semibold text-accent-orange/70">✓</span>}
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 ${track ? 'bg-accent-orange/15' : 'bg-white/5 group-hover:bg-indigo-500/15'}`}>
                 <m.icon size={15} className={track ? 'text-accent-orange' : 'text-white/65 group-hover:text-indigo-400'} />
@@ -194,6 +217,9 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
                 </p>
               </div>
             </div>
+
+            {/* EXEC™ Personalized Preview */}
+            <ExecPersonalizedPreview trackLabel={selectedTrack.label} competencies={PATH_COMPETENCIES[track]} />
 
             {/* Journey summary */}
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -246,6 +272,16 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
               </div>
             )}
 
+            {/* Executive Promise™ */}
+            <div className="mb-4 rounded-xl bg-white/[0.03] border border-white/8 p-4">
+              <div className="text-[10px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">By the end of your assessment you'll receive</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4">
+                {EXEC_PROMISE.map((p) => (
+                  <div key={p} className="flex items-center gap-2 text-[11.5px] text-white/65"><Check size={12} className="text-emerald-400/80 shrink-0" /> {p}</div>
+                ))}
+              </div>
+            </div>
+
             <button onClick={handleContinue} disabled={saving || (track === 'custom' ? !customRole.trim() : !role)}
               className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none">
               {saving ? <Loader2 size={15} className="animate-spin" /> : <>Start Executive Readiness Assessment™ <ArrowRight size={15} /></>}
@@ -269,6 +305,15 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
             </motion.div>
           ))}
         </div>
+      </div>
+
+      {/* Executive Readiness Preview™ — sample report */}
+      <div className="mb-9">
+        <div className="text-center mb-4">
+          <h3 className="text-base font-bold text-white mb-1">A Glimpse of Your Report</h3>
+          <p className="text-[12px] text-white/45">Every member receives a personalized Executive Readiness Report™.</p>
+        </div>
+        <ExecutiveReadinessSample />
       </div>
 
       {/* Social proof */}
@@ -311,6 +356,27 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
         </div>
       </div>
 
+      {/* AI Personalization Explainer */}
+      <div className="mb-5 max-w-2xl mx-auto">
+        <button onClick={() => setExplainerOpen((o) => !o)}
+          className="w-full flex items-center justify-between rounded-xl bg-white/[0.02] border border-white/8 px-4 py-2.5 text-left hover:bg-white/[0.04] transition-colors">
+          <span className="flex items-center gap-2 text-[12px] text-white/70 font-medium"><Sparkles size={13} className="text-indigo-400" /> How does EXEC™ personalize my experience?</span>
+          <span className="text-white/40 text-[14px]">{explainerOpen ? '−' : '+'}</span>
+        </button>
+        {explainerOpen && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            className="rounded-b-xl bg-white/[0.02] border border-t-0 border-white/8 px-4 py-3 -mt-px">
+            <p className="text-[11.5px] text-white/55 leading-relaxed mb-2">Your leadership path influences:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {['Assessment questions', 'Executive Coach™', 'Leadership simulations', 'Company Intelligence', 'Career roadmap', 'Executive Identity™', 'Executive Success Stories™', 'Promotion Forecast™'].map((x) => (
+                <span key={x} className="px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/8 text-[10px] text-white/55">{x}</span>
+              ))}
+            </div>
+            <p className="text-[11px] text-white/40 leading-relaxed mt-2.5">Recommendations evolve continuously based on verified leadership evidence.</p>
+          </motion.div>
+        )}
+      </div>
+
       {/* Trust message */}
       <div className="flex items-center justify-center gap-2 mb-3">
         <Shield size={13} className="text-white/30" />
@@ -330,6 +396,7 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
       </div>
 
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} />
+      <ExecActivationSequence open={activating} onFinish={commit} />
     </div>
   );
 }

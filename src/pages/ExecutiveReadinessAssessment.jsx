@@ -8,17 +8,10 @@ import {
   QUESTIONS, ASSESSMENT_CATEGORIES, computeFullResults, ASSESSMENT_STORAGE_KEY, LEADERSHIP_TRACKS,
 } from '@/lib/readinessAssessmentEngine';
 import LeadershipTrackSelector from '@/components/readiness-assessment/LeadershipTrackSelector';
+import ExecutiveReadinessReport from '@/components/readiness-assessment/ExecutiveReadinessReport';
 import {
-  Loader2, ChevronLeft, ChevronRight, Sparkles, Award, Trophy, Crown, Check, ArrowRight, RefreshCw, Gauge, Home,
+  Loader2, ChevronLeft, ChevronRight, Sparkles, Award, Check, Gauge, PauseCircle,
 } from 'lucide-react';
-import ReadinessRadar from '@/components/readiness-assessment/ReadinessRadar';
-import GapAnalysisPanel from '@/components/readiness-assessment/GapAnalysisPanel';
-import PromotionForecast from '@/components/readiness-assessment/PromotionForecast';
-import Roadmap90Day from '@/components/readiness-assessment/Roadmap90Day';
-import ReadinessShareReport from '@/components/readiness-assessment/ReadinessShareReport';
-import CoachingPlan7Day from '@/components/readiness-assessment/CoachingPlan7Day';
-
-const BADGE_ICON = { Award, Trophy, Crown, Sparkles };
 
 export default function ExecutiveReadinessAssessment() {
   const { user } = useAuth();
@@ -66,6 +59,7 @@ export default function ExecutiveReadinessAssessment() {
   const q = QUESTIONS[idx];
   const total = QUESTIONS.length;
   const progress = Math.round(((idx) / total) * 100);
+  const remainingMin = Math.max(0, Math.ceil((total - idx) * 0.5));
   const selected = answers[q?.id];
 
   const select = (optionIndex) => {
@@ -74,6 +68,8 @@ export default function ExecutiveReadinessAssessment() {
 
   const next = () => { if (idx < total - 1) setIdx(idx + 1); };
   const prev = () => { if (idx > 0) setIdx(idx - 1); };
+
+  const pause = () => { toast({ title: 'Progress saved', description: 'Your answers are auto-saved — resume your assessment anytime.' }); };
 
   const selectTrack = async (trackKey, roleLabel) => {
     setSavingTrack(true);
@@ -125,76 +121,16 @@ export default function ExecutiveReadinessAssessment() {
 
   const restart = () => { setAnswers({}); setIdx(0); setPhase('track'); setResults(null); localStorage.removeItem(ASSESSMENT_STORAGE_KEY); };
 
-  // ── RESULTS ──
+  // ── RESULTS — the signature Executive Readiness Report™ ──
   if (phase === 'results' && results) {
-    const { overall, classification, gap, forecast, roadmap, gamification } = results;
     return (
-      <div className="max-w-5xl mx-auto px-4 lg:px-6 py-6 lg:py-10 space-y-5">
-        {/* Score hero */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-accent-orange/12 to-transparent border border-accent-orange/20 rounded-3xl p-6 md:p-8 text-center relative overflow-hidden">
-          <div className="text-[11px] uppercase tracking-widest text-accent-orange mb-1">Executive Readiness</div>
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.15, type: 'spring' }} className="text-6xl md:text-7xl font-bold text-white leading-none">
-            {overall}<span className="text-3xl text-white/40">%</span>
-          </motion.div>
-          <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-accent-orange/15 border border-accent-orange/30 text-sm font-medium text-accent-orange">{classification.label}</div>
-          {persisting && <div className="absolute top-4 right-4 flex items-center gap-1.5 text-[11px] text-white/50"><Loader2 size={12} className="animate-spin" /> Saving…</div>}
-
-          {/* Gamification */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/25 text-[11px] text-indigo-300"><Sparkles size={11} /> +{gamification.xp} Executive XP</span>
-            {gamification.badges.map((b) => {
-              const Icon = BADGE_ICON[b.icon] || Award;
-              return <span key={b.id} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-[11px] text-amber-300"><Icon size={11} /> {b.label}</span>;
-            })}
-          </div>
-        </motion.div>
-
-        {/* AI Coach message */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/[0.02] border border-white/8 rounded-2xl p-5">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0"><Sparkles size={16} className="text-emerald-400" /></div>
-            <div>
-              <div className="text-xs font-semibold text-white mb-1">EXEC Concierge™</div>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Congratulations on completing your Executive Readiness Assessment. Your strongest capability is
-                <span className="text-emerald-400 font-medium"> {gap.strengths[0]?.label}</span>. Your greatest opportunity is
-                <span className="text-amber-400 font-medium"> {gap.opportunities[0]?.label || 'continuous practice'}</span>.
-                I've prepared a personalized 7-day coaching plan to help you begin improving immediately. Let's start with Day 1.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <ReadinessRadar categoryResults={results.categoryResults} />
-          <div className="space-y-5">
-            <PromotionForecast forecast={forecast} />
-            <GapAnalysisPanel gap={gap} />
-          </div>
-        </div>
-
-        <Roadmap90Day roadmap={roadmap} />
-
-        <CoachingPlan7Day opportunity={gap.opportunities[0]?.label} />
-
-        {/* Welcome to your executive workspace */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-br from-indigo-500/12 to-transparent border border-indigo-500/20 rounded-2xl p-6 text-center">
-          <div className="text-[11px] uppercase tracking-widest text-indigo-400 mb-1">You're Ready</div>
-          <h3 className="text-lg font-bold text-white mb-1.5">Welcome to Your Executive Workspace</h3>
-          <p className="text-sm text-white/55 max-w-lg mx-auto mb-4">Your 10-minute transformation is complete. Now continue your Executive Leadership Journey — every capability is personalized to your goals.</p>
-          <Link to="/dashboard" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-sm text-white font-semibold transition-colors">
-            <Home size={14} /> Enter Executive Workspace <ArrowRight size={14} />
-          </Link>
-        </motion.div>
-
-        <ReadinessShareReport results={results} shareSlug={savedAssessment?.share_slug} />
-
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-          <button onClick={restart} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm text-white/70 font-medium transition-colors"><RefreshCw size={14} /> Retake Assessment</button>
-          <Link to="/coach" className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-sm text-white font-semibold transition-colors"><Sparkles size={14} /> Continue with AI Coach <ArrowRight size={14} /></Link>
-          <Link to="/dashboard" className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm text-white/70 font-medium transition-colors"><Home size={14} /> Go to Dashboard</Link>
-        </div>
-      </div>
+      <ExecutiveReadinessReport
+        results={results}
+        savedAssessment={savedAssessment}
+        persisting={persisting}
+        onRestart={restart}
+        targetRole={targetRole}
+      />
     );
   }
 
@@ -225,7 +161,13 @@ export default function ExecutiveReadinessAssessment() {
       <div className="h-1.5 bg-white/8 rounded-full overflow-hidden mb-1">
         <motion.div className="h-full bg-gradient-to-r from-accent-orange to-amber-400" animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />
       </div>
-      <div className="text-[10px] text-white/30 mb-5">{progress}% complete</div>
+      <div className="flex items-center justify-between mb-5">
+        <div className="text-[10px] text-white/30">{progress}% complete</div>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] text-white/30">~{remainingMin} min remaining</span>
+          <button onClick={pause} className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/70 transition-colors"><PauseCircle size={11} /> Save & resume later</button>
+        </div>
+      </div>
 
       <AnimatePresence mode="wait">
         <motion.div key={q.id} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.28 }}>

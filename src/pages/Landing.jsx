@@ -71,7 +71,7 @@ export default function Landing() {
       <OutcomeIntelligenceFeature authed={authed} />
 
       {/* S10 — Who Is It For? */}
-      <WhoIsItForSection />
+      <WhoIsItForSection authed={authed} onWatchDemo={openDemo} />
 
       {/* S11 — Live Platform Metrics */}
       <SocialProofLive />

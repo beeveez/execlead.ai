@@ -39,6 +39,8 @@ import {
 import { analyzeAllGaps } from "@/lib/evidenceGapEngine";
 import { loadLatestStory, formatStoryContextForPrompt, buildStoryContext } from "@/lib/executiveStoryIntelligence";
 import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest, formatExplainability } from "@/lib/executiveBioGenerator";
+import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
+import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 
 const ExecConciergeContext = createContext(null);
 
@@ -201,8 +203,10 @@ export function ExecConciergeProvider({ children }) {
   const [learnedPreferences, setLearnedPreferences] = useState(null);
   const [executiveMemory, setExecutiveMemory] = useState(null);
   const [latestStory, setLatestStory] = useState(null);
+  const [latestIdentity, setLatestIdentity] = useState(null);
   const userContextRef = useRef(null);
   const latestStoryRef = useRef(null);
+  const latestIdentityRef = useRef(null);
   const greetedWorkspaceRef = useRef(null);
   const executiveMemoryRef = useRef(null);
   const learnedPreferencesRef = useRef(null);
@@ -337,6 +341,13 @@ export function ExecConciergeProvider({ children }) {
   useEffect(() => {
     if (!user?.id) { setLatestStory(null); latestStoryRef.current = null; return; }
     loadLatestStory(user.id).then((s) => { setLatestStory(s); latestStoryRef.current = s; });
+  }, [user?.id]);
+
+  // Load the member's canonical Executive Identity Graph™ so EXEC™ can ground
+  // executive brand, differentiator, and elevator-pitch requests in one identity.
+  useEffect(() => {
+    if (!user?.id) { setLatestIdentity(null); latestIdentityRef.current = null; return; }
+    loadLatestIdentity(user.id).then((id) => { setLatestIdentity(id); latestIdentityRef.current = id; });
   }, [user?.id]);
 
   const initConversation = useCallback(async () => {
@@ -513,6 +524,29 @@ export function ExecConciergeProvider({ children }) {
         }
       }
 
+      // Executive Identity Graph™ — answer identity / brand / elevator-pitch
+      // questions locally from the member's canonical verified identity.
+      const ident = latestIdentityRef.current;
+      if (ident && isIdentityCommand(content)) {
+        try {
+          let brandObj = null;
+          try { brandObj = ident.brand_json ? JSON.parse(ident.brand_json) : null; } catch {}
+          let answer = answerIdentityCommand(content, ident, brandObj);
+          if (answer === null && content.toLowerCase().includes("elevator pitch")) {
+            const b = await generateIdentityBrand(ident);
+            answer = b?.elevator_pitch ? `**Executive Elevator Pitch**\n\n${b.elevator_pitch}` : null;
+          }
+          if (answer) {
+            setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+            setLoading(false);
+            base44.analytics.track({ eventName: "exec_identity_graph_used", properties: {} });
+            return;
+          }
+        } catch {
+          // fall through to the AI
+        }
+      }
+
       try {
         const prompt = buildExecPrompt(
           newMessages,
@@ -521,7 +555,8 @@ export function ExecConciergeProvider({ children }) {
           userContextRef.current || userContext,
           workspacePersona,
           learnedPreferencesRef.current,
-          formatStoryContextForPrompt(latestStoryRef.current)
+          formatStoryContextForPrompt(latestStoryRef.current),
+          formatIdentityContextForPrompt(latestIdentityRef.current)
         );
         const res = await callAI("exec_concierge", { prompt });
         const initialResponse =

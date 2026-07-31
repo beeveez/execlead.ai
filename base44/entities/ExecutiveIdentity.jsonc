@@ -1,0 +1,235 @@
+{
+  "name": "ExecutiveIdentity",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "identity_id": {
+      "type": "string",
+      "description": "Unique identity ID (EI-NNNNNN)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "current_version": {
+      "type": "string",
+      "description": "Active version label"
+    },
+    "professional_headline": {
+      "type": "string",
+      "description": "AI-generated headline"
+    },
+    "executive_summary": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Verified executive summary"
+    },
+    "leadership_narrative": {
+      "type": "string",
+      "description": "Verified leadership narrative"
+    },
+    "core_value_proposition": {
+      "type": "string"
+    },
+    "leadership_philosophy": {
+      "type": "string"
+    },
+    "executive_brand_statement": {
+      "type": "string"
+    },
+    "top_competencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "leadership_strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "executive_differentiators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "career_highlights": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "achievements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "executive_readiness": {
+      "type": "number",
+      "default": 0
+    },
+    "story_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "evidence_count": {
+      "type": "number",
+      "default": 0
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "not_verified",
+        "pending",
+        "verified",
+        "enterprise_verified"
+      ],
+      "default": "not_verified"
+    },
+    "primary_industry": {
+      "type": "string"
+    },
+    "primary_function": {
+      "type": "string"
+    },
+    "target_executive_role": {
+      "type": "string"
+    },
+    "preferred_geography": {
+      "type": "string"
+    },
+    "source_verification_json": {
+      "type": "string",
+      "description": "JSON map of section -> verified | ai_assisted | ai_generated"
+    },
+    "brand_json": {
+      "type": "string",
+      "description": "JSON: tagline, value_proposition, mission, philosophy, keywords, positioning, signature_intro, elevator_pitch"
+    },
+    "health_json": {
+      "type": "string",
+      "description": "JSON: completeness, consistency, evidence_coverage, verification_level, story_confidence, brand_consistency, professional_readiness, recommendations"
+    },
+    "change_history_json": {
+      "type": "string",
+      "description": "JSON array of identity change events"
+    },
+    "presentations_json": {
+      "type": "string",
+      "description": "JSON map of audience -> generated presentation"
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    }
+  },
+  "required": [
+    "identity_id",
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

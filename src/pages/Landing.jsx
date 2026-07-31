@@ -28,7 +28,13 @@ import PricingTiers from '@/components/pricing/PricingTiers';
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  const [demoStartScene, setDemoStartScene] = useState(null);
   const { plans: pricingPlans, cycle, setCycle, getPrice } = usePricingCatalog();
+  const openDemo = (sceneId) => {
+    setDemoStartScene(sceneId || null);
+    if (sceneId) { try { base44.analytics.track({ eventName: 'demo_related', properties: { scene: sceneId } }); } catch (e) {} }
+    setShowDemo(true);
+  };
 
   useEffect(() => { (async () => { try { setAuthed(await base44.auth.isAuthenticated()); } catch (e) {} })(); }, []);
   useEffect(() => { captureReferralAttribution(); }, []);
@@ -36,11 +42,11 @@ export default function Landing() {
   return (
     <>
       {/* S1 — Hero */}
-      <NewHero authed={authed} onWatchDemo={() => setShowDemo(true)} />
-      <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} />
+      <NewHero authed={authed} onWatchDemo={openDemo} />
+      <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
 
       {/* S2 — Product Experience */}
-      <ProductPreviewCarousel authed={authed} onWatchDemo={() => setShowDemo(true)} />
+      <ProductPreviewCarousel authed={authed} onWatchDemo={openDemo} />
 
       {/* S3 — Why EXECLEAD.AI */}
       <WhyExecLead />

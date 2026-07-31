@@ -20,6 +20,8 @@ import ImpersonationBanner from "@/components/developer/ImpersonationBanner";
 import SimulationBanner from "@/components/developer/SimulationBanner";
 import GracePeriodBanner from "@/components/identity/GracePeriodBanner";
 import ReadinessContributionBanner from "@/components/shared/ReadinessContributionBanner";
+import OutcomeSidebar from "@/components/layout/OutcomeSidebar";
+import { isEnterpriseUser } from "@/lib/navigationIntelligence";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -44,6 +46,7 @@ export default function AppLayout() {
   const { user } = useAuth();
   const { subscription, loading: loadingSub, profile } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isEnterprise = isEnterpriseUser(user?.role);
 
   const { navGroups: workspaceNavGroups, activeWorkspace } = useWorkspace();
   const { brokenNavPaths } = useGuardian() || {};
@@ -62,20 +65,12 @@ export default function AppLayout() {
         <div className="p-6 border-b border-white/5">
           <Logo />
         </div>
-        <nav className="flex-1 p-3 overflow-y-auto">
-          {navGroups.map((group) =>
-          <div key={group.label} className="mb-1 mt-4 first:mt-0">
-              <div className="px-3 pb-1.5 mb-1 border-b border-white/[0.06]">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#A1AAB8" }}>{group.label}</span>
-              </div>
-              <div className="space-y-0.5 mt-1.5">
-                {group.items.map((item) =>
-              <NavItem key={`${item.path}-${item.label}`} item={item} active={location.pathname === item.path} />
-              )}
-              </div>
-            </div>
-          )}
-        </nav>
+        <OutcomeSidebar
+          navGroups={navGroups}
+          brokenNavPaths={brokenNavPaths}
+          pathname={location.pathname}
+          isEnterprise={isEnterprise}
+        />
         <div className="p-3 border-t border-white/5">
           <div className="mb-2 space-y-2">
             <DeveloperBadge />
@@ -100,20 +95,14 @@ export default function AppLayout() {
             <div className="mb-6 pb-4 border-b border-white/5">
               <Logo showAiTag={false} />
             </div>
-            <nav>
-              {navGroups.map((group) =>
-            <div key={group.label} className="mb-1 mt-4 first:mt-0">
-                  <div className="px-3 pb-1.5 mb-1 border-b border-white/[0.06]">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#A1AAB8" }}>{group.label}</span>
-                  </div>
-                  <div className="space-y-0.5 mt-1.5">
-                    {group.items.map((item) =>
-                <NavItem key={`${item.path}-${item.label}`} item={item} active={location.pathname === item.path} onClick={() => setMobileOpen(false)} />
-                )}
-                  </div>
-                </div>
-            )}
-            </nav>
+            <OutcomeSidebar
+              navGroups={navGroups}
+              brokenNavPaths={brokenNavPaths}
+              pathname={location.pathname}
+              isEnterprise={isEnterprise}
+              onNavigate={() => setMobileOpen(false)}
+              mobile
+            />
             <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2.5 mt-6 rounded-lg text-sm text-white/30 hover:text-red-400 w-full">

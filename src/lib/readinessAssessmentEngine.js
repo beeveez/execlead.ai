@@ -12,6 +12,7 @@ export const ASSESSMENT_CATEGORIES = [
 
 export const LEADERSHIP_TRACKS = [
   { key: 'technology', label: 'Technology Leadership', roles: ['CIO', 'CTO', 'VP of Engineering', 'IT Director', 'Enterprise Architect', 'Digital Transformation Leader'] },
+  { key: 'digital_transformation', label: 'Digital Transformation', roles: ['Chief Digital Officer', 'VP of Digital Transformation', 'Head of AI Transformation', 'Digital Innovation Leader'] },
   { key: 'business', label: 'Business Leadership', roles: ['COO', 'General Manager', 'Operations Director'] },
   { key: 'finance', label: 'Finance Leadership', roles: ['CFO', 'Finance Director'] },
   { key: 'hr', label: 'Human Resources', roles: ['CHRO', 'HR Director', 'Talent Leader'] },

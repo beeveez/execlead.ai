@@ -1,32 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Building2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { usePricingCatalog } from '@/hooks/usePricingCatalog';
 import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
-import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
-import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
-import ProductPreviewCarousel from '@/components/landing/v3/ProductPreviewCarousel';
-import HowItWorks from '@/components/landing/v3/HowItWorks';
-import WhyExecLead from '@/components/landing/v3/WhyExecLead';
-import ExecutiveReadinessFeature from '@/components/landing/v3/ExecutiveReadinessFeature';
-import EvidenceEngineSection from '@/components/landing/v3/EvidenceEngineSection';
-import ExecutiveAISection from '@/components/landing/v3/ExecutiveAISection';
-import ExecutiveIdentityFeature from '@/components/landing/v3/ExecutiveIdentityFeature';
-import OutcomeIntelligenceFeature from '@/components/landing/v3/OutcomeIntelligenceFeature';
-import WhoIsItForSection from '@/components/landing/v3/WhoIsItForSection';
-import SocialProofLive from '@/components/landing/v3/SocialProofLive';
-import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
-import FoundingBetaBenefits from '@/components/landing/v3/FoundingBetaBenefits';
-import EnterpriseTrustSection from '@/components/landing/v3/EnterpriseTrustSection';
-import FinalCTA from '@/components/landing/v3/FinalCTA';
 import ProductDemo from '@/components/landing/ProductDemo';
+import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
+import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
+import OutcomeExperienceCards from '@/components/landing/v3/OutcomeExperienceCards';
+import WhyExecLead from '@/components/landing/v3/WhyExecLead';
+import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
 import PricingTiers from '@/components/pricing/PricingTiers';
 
 /**
- * Landing Experience 4.0™ — Product-Led Growth Architecture.
- * A guided product experience demonstrating the Executive Leadership Operating System™.
+ * Landing Experience — one continuous product narrative.
+ * Hero → Interactive Simulation → Individual vs Enterprise → Outcome Cards
+ * → Why EXECLEAD.AI → Success Stories → Pricing.
+ * No page directory, no internal indexes.
  */
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
@@ -44,56 +35,26 @@ export default function Landing() {
 
   return (
     <>
-      {/* S1 — Hero */}
+      {/* Hero */}
       <NewHero authed={authed} onWatchDemo={openDemo} />
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
 
-      {/* S1.5 — Two Front Doors™ */}
-      <TwoFrontDoors authed={authed} />
-
-      {/* S2 — The Solution: Interactive Simulation */}
+      {/* Interactive Executive Simulation */}
       <InteractiveSimulationPreview authed={authed} />
 
-      {/* S3 — Product Experience */}
-      <ProductPreviewCarousel authed={authed} onWatchDemo={openDemo} />
+      {/* Individual vs Enterprise */}
+      <TwoFrontDoors authed={authed} />
 
-      {/* S3 — Why EXECLEAD.AI */}
+      {/* Three outcome paths */}
+      <OutcomeExperienceCards authed={authed} />
+
+      {/* Why EXECLEAD.AI */}
       <WhyExecLead />
 
-      {/* S4 — How EXECLEAD.AI Works */}
-      <HowItWorks authed={authed} />
-
-      {/* S5 — The Executive Readiness Difference */}
-      <ExecutiveReadinessFeature authed={authed} />
-
-      {/* S6 — The Evidence Engine */}
-      <EvidenceEngineSection />
-
-      {/* S7 — Executive AI */}
-      <ExecutiveAISection authed={authed} />
-
-      {/* S8 — Executive Identity */}
-      <ExecutiveIdentityFeature authed={authed} />
-
-      {/* S9 — Executive Outcomes */}
-      <OutcomeIntelligenceFeature authed={authed} />
-
-      {/* S10 — Who Is It For? */}
-      <WhoIsItForSection authed={authed} onWatchDemo={openDemo} />
-
-      {/* S11 — Live Platform Metrics */}
-      <SocialProofLive />
-
-      {/* S11b — Executive Outcome Wall™ (evidence-generated) */}
+      {/* Success Stories (evidence-generated) */}
       <ExecutiveOutcomeWall />
 
-      {/* S12 — Enterprise Trust */}
-      <EnterpriseTrustSection />
-
-      {/* S13 — Founding Private Beta */}
-      <FoundingBetaBenefits authed={authed} />
-
-      {/* S13 — Pricing */}
+      {/* Pricing */}
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -108,13 +69,9 @@ export default function Landing() {
           <PricingTiers plans={pricingPlans} cycle={cycle} getPrice={getPrice} authed={authed} />
           <div className="text-center mt-8">
             <Link to="/pricing" className="inline-flex items-center gap-1 text-sm text-accent-orange hover:text-accent-orange/80 transition-colors">Compare all features <ArrowRight size={14} /></Link>
-            <Link to="/platform" className="ml-4 inline-flex items-center gap-1 text-sm text-white/40 hover:text-white/70 transition-colors"><Building2 size={14} /> Explore the full platform</Link>
           </div>
         </div>
       </section>
-
-      {/* S14 — Final CTA */}
-      <FinalCTA authed={authed} />
     </>
   );
 }

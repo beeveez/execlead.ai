@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { callAI } from "@/lib/ai";
 import { buildSimulatorPrompt } from "@/lib/resume";
+import { evaluateSimulation, buildSimulationEvidenceRecord } from "@/lib/simulationIntelligenceEngine";
+import SimulationIntelligenceReport from "@/components/simulation-intelligence/SimulationIntelligenceReport";
 
 export default function Simulator() {
   const [profile, setProfile] = useState(null);
@@ -111,54 +113,72 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
 
   const endSession = async () => {
     setLoading(true);
-    const history = messages.map(m => `${m.role === "user" ? "CANDIDATE" : "INTERVIEWER"}: ${m.content}`).join("\n\n");
+    setStep("summary");
+    setSummary(null);
+    const history = messages.map(m => `${m.role === "user" ? "CANDIDATE" : interviewer.toUpperCase()}: ${m.content}`).join("\n\n");
     const typeLabel = SESSION_TYPES.find(s => s.id === sessionType)?.label || sessionType;
 
     try {
-      const res = await callAI("simulator", {
-        prompt: `Evaluate this complete ${typeLabel} session (${difficulty} difficulty).
-
-FULL TRANSCRIPT:
-${history}
-
-Provide a comprehensive evaluation.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            overall_score: { type: "number" },
-            executive_score: { type: "number" },
-            leadership_score: { type: "number" },
-            commercial_score: { type: "number" },
-            communication_score: { type: "number" },
-            strategic_score: { type: "number" },
-            presence_score: { type: "number" },
-            truthfulness_score: { type: "number" },
-            summary: { type: "string" },
-            strengths: { type: "array", "items": { "type": "string" } },
-            improvements: { type: "array", "items": { "type": "string" } },
-            verdict: { type: "string" }
-          }
-        }
+      // Executive Simulation Intelligence™ — every simulation becomes an
+      // executive coaching experience, not an exam grade. Produces per-
+      // competency explainable scores, decision intelligence dimensions,
+      // stakeholder council reactions, verified evidence, and personalized
+      // coaching recommendations.
+      const report = await evaluateSimulation({
+        type: "simulator",
+        scenario: {
+          title: `${typeLabel} — ${interviewer}`,
+          domain: interviewer,
+          difficulty: difficulty.toLowerCase(),
+          description: `A ${difficulty} ${typeLabel} simulation conducted by ${interviewer} at ${profile?.target_company || "a target organization"}.`,
+        },
+        decision: `Completed a ${typeLabel} with ${interviewer} (${difficulty} difficulty). Full transcript provided in rationale.`,
+        explanation: history,
+        leadershipPath: profile?.leadership_track,
+        userContext: {
+          target_role: profile?.target_role,
+          target_company: profile?.target_company,
+          leadership_track: profile?.leadership_track,
+        },
+        includeCouncil: true,
       });
 
-      setSummary(res);
-      setStep("summary");
+      setSummary(report);
+
+      const avg = report.competencyEvaluations?.length
+        ? Math.round(report.competencyEvaluations.reduce((s, c) => s + (c.score || 0), 0) / report.competencyEvaluations.length)
+        : 0;
 
       if (session) {
         await base44.entities.SimulationSession.update(session.id, {
           status: "completed",
-          overall_score: res.overall_score,
-          summary: res.summary,
-          scores_json: JSON.stringify(res),
+          overall_score: avg,
+          summary: report.decisionSummary,
+          scores_json: JSON.stringify(report),
         });
       }
+
+      // Persist verified evidence to the Evidence Ledger™ — Executive
+      // Readiness rewards demonstrated capability, not page visits.
+      try {
+        const evidenceRecord = buildSimulationEvidenceRecord(report, {
+          scenarioTitle: `${typeLabel} — ${interviewer}`,
+          simType: "Executive Simulator™",
+        });
+        if (evidenceRecord) {
+          await base44.entities.EvidenceItem.create(evidenceRecord);
+        }
+      } catch (e) {
+        console.error("[Simulator] evidence persist failed:", e.message);
+      }
+
       if (profile) {
         await base44.entities.UserProfile.update(profile.id, {
           sessions_completed: (profile.sessions_completed || 0) + 1,
         });
       }
     } catch (e) {
-      console.error(e);
+      console.error("[Simulator] evaluation failed:", e);
     }
     setLoading(false);
   };
@@ -274,49 +294,18 @@ Provide a comprehensive evaluation.`,
           </motion.div>
         )}
 
-        {step === "summary" && summary && (
+        {step === "summary" && (
           <motion.div key="summary" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="text-center py-6">
-              <div className={`text-5xl font-bold mb-2 ${summary.overall_score >= 70 ? "text-emerald-400" : summary.overall_score >= 40 ? "text-amber-400" : "text-red-400"}`}>{summary.overall_score}</div>
-              <p className="text-white/40 text-sm">Overall Score</p>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[
-                { label: "Executive", value: summary.executive_score },
-                { label: "Leadership", value: summary.leadership_score },
-                { label: "Commercial", value: summary.commercial_score },
-                { label: "Communication", value: summary.communication_score },
-                { label: "Strategic", value: summary.strategic_score },
-                { label: "Presence", value: summary.presence_score },
-                { label: "Truthfulness", value: summary.truthfulness_score },
-              ].map(s => (
-                <div key={s.label} className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
-                  <div className="text-xl font-bold text-white">{s.value || 0}</div>
-                  <div className="text-white/30 text-xs mt-1">{s.label}</div>
-                </div>
-              ))}
-            </div>
-            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
-              <h3 className="text-white font-semibold mb-3">Summary</h3>
-              <p className="text-white/60 text-sm leading-relaxed">{summary.summary}</p>
-            </div>
-            {summary.strengths?.length > 0 && (
-              <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-6">
-                <h3 className="text-emerald-400 font-semibold mb-3">Strengths</h3>
-                <ul className="space-y-2">{summary.strengths.map((s, i) => (<li key={i} className="text-white/60 text-sm flex items-start gap-2"><span className="text-emerald-400 mt-0.5">•</span> {s}</li>))}</ul>
+            <SimulationIntelligenceReport result={summary} loading={loading} />
+            {!loading && !summary && (
+              <div className="bg-rose-500/5 border border-rose-500/15 rounded-xl p-6 text-center">
+                <p className="text-rose-400/80 text-sm mb-4">The executive evaluation couldn't be generated. Please try again.</p>
+                <button onClick={reset} className="px-5 py-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-medium rounded-lg transition-colors">Back to Setup</button>
               </div>
             )}
-            {summary.improvements?.length > 0 && (
-              <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-6">
-                <h3 className="text-amber-400 font-semibold mb-3">Areas for Improvement</h3>
-                <ul className="space-y-2">{summary.improvements.map((s, i) => (<li key={i} className="text-white/60 text-sm flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span> {s}</li>))}</ul>
-              </div>
+            {summary && (
+              <button onClick={reset} className="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-medium py-3 rounded-lg transition-colors">Run Another Simulation</button>
             )}
-            <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-6">
-              <h3 className="text-indigo-400 font-semibold mb-3">Verdict</h3>
-              <p className="text-white/70 text-sm">{summary.verdict}</p>
-            </div>
-            <button onClick={reset} className="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-medium py-3 rounded-lg transition-colors">Run Another Simulation</button>
           </motion.div>
         )}
       </AnimatePresence>

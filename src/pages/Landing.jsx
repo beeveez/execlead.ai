@@ -7,6 +7,8 @@ import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
 import ProductDemo from '@/components/landing/ProductDemo';
 import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
+import FlagshipSimulationHero from '@/components/landing/v3/FlagshipSimulationHero';
+import SimulationDifferentiation from '@/components/landing/v3/SimulationDifferentiation';
 import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
 import OutcomeExperienceCards from '@/components/landing/v3/OutcomeExperienceCards';
 import WhyExecLead from '@/components/landing/v3/WhyExecLead';
@@ -35,12 +37,19 @@ export default function Landing() {
 
   return (
     <>
-      {/* Hero */}
+      {/* Brand hero */}
       <NewHero authed={authed} onWatchDemo={openDemo} />
+
+      {/* Flagship Executive Simulation — primary product demonstration */}
+      <FlagshipSimulationHero authed={authed} />
+
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
 
       {/* Interactive Executive Simulation */}
       <InteractiveSimulationPreview authed={authed} />
+
+      {/* Why this is different */}
+      <SimulationDifferentiation />
 
       {/* Individual vs Enterprise */}
       <TwoFrontDoors authed={authed} />

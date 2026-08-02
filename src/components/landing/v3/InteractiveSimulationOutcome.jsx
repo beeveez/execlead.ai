@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
 import {
   Zap, CalendarDays, Compass, DollarSign, Users, CheckCircle2,
   AlertTriangle, Sparkles, ShieldCheck, Award, ArrowRight, RotateCcw,
@@ -154,7 +155,7 @@ export default function InteractiveSimulationOutcome({ choice, onReset, ctaTo })
           <button onClick={onReset} className="inline-flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors">
             <RotateCcw size={12} /> Try another decision
           </button>
-          <Link to={ctaTo} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-[13px] font-semibold transition-colors">
+          <Link to={ctaTo} onClick={() => { try { base44.analytics.track({ eventName: "assessment_started", properties: { source: "post_simulation" } }); } catch (e) {} }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-[13px] font-semibold transition-colors">
             See Your Full Readiness Report <ArrowRight size={15} />
           </Link>
         </div>

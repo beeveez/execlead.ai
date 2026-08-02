@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Building2, Brain, Users } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import InteractiveSimulationOutcome from "./InteractiveSimulationOutcome";
 
 // Interactive Simulation Preview — "show, don't tell".
@@ -140,6 +141,20 @@ export default function InteractiveSimulationPreview({ authed }) {
   const [choice, setChoice] = useState(null);
   const selected = CHOICES.find((c) => c.id === choice);
   const ctaTo = authed ? "/assessment" : "/beta";
+  const completedRef = useRef(false);
+
+  // Funnel: Simulation Completed fires once when the Executive Debrief renders.
+  useEffect(() => {
+    if (selected && !completedRef.current) {
+      completedRef.current = true;
+      try { base44.analytics.track({ eventName: "flagship_simulation_completed", properties: { choice: selected.id } }); } catch (e) {}
+    }
+  }, [selected]);
+
+  const selectChoice = (id) => {
+    setChoice(id);
+    try { base44.analytics.track({ eventName: "flagship_simulation_started", properties: { choice: id } }); } catch (e) {}
+  };
 
   return (
     <section id="solution" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
@@ -178,7 +193,7 @@ export default function InteractiveSimulationPreview({ authed }) {
                 const active = choice === c.id;
                 return (
                   <button key={c.id}
-                    onClick={() => setChoice(c.id)}
+                    onClick={() => selectChoice(c.id)}
                     className={`text-left rounded-xl border p-4 transition-all ${active ? "border-accent-orange/50 bg-accent-orange/[0.06] ring-1 ring-accent-orange/30" : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]"}`}>
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[12px] font-bold ${active ? "bg-accent-orange text-white" : "bg-white/8 text-white/60"}`}>{c.id}</span>

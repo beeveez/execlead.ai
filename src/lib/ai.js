@@ -3,6 +3,7 @@ import { getExecutiveContextPrompt, getExecutiveContext } from "@/lib/executiveC
 import { deriveProvider } from "@/lib/aiOperations";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
 import { getCachedAIResponse, cacheAIResponse, recordMetric } from "@/lib/creditOptimizer/index.js";
+import { logStage } from "@/lib/execReliabilityEngine";
 
 // Module → intent mapping for Model Router™ routing
 const MODULE_INTENT_MAP = {
@@ -36,21 +37,41 @@ const classifyError = (err) => {
   return { status: "error", error_type: "provider_error" };
 };
 
-export const callAI = async (module, { prompt, intent, ...options }) => {
-  const contextPrompt = getExecutiveContextPrompt();
+export const callAI = async (module, { prompt, intent, correlationId, ...options }) => {
+  // ── Executive Context Engine™ — must NEVER crash an AI call ──
+  // If the context engine or model router throws (e.g. a registry lookup
+  // failure), fall back to the bare prompt instead of failing the entire
+  // request. This was the root cause of EXEC™ always returning the fallback
+  // message: a thrown context builder propagated through every callAI.
+  let contextPrompt = "";
+  let ctx = null;
+  try {
+    contextPrompt = getExecutiveContextPrompt();
+    ctx = getExecutiveContext();
+    if (correlationId) logStage({ correlationId, stage: "executive_context", status: "success" });
+  } catch (e) {
+    if (correlationId) logStage({ correlationId, stage: "executive_context", status: "failure", error: e?.message || String(e) });
+    console.error("[callAI] Executive Context Engine threw — proceeding without context:", e);
+  }
   const fullPrompt = contextPrompt ? `${contextPrompt}\n\n${prompt}` : prompt;
 
   // ── Model Router™ — every request passes through the router ──
   const routingIntent = intent || MODULE_INTENT_MAP[module] || "general_inquiry";
-  const ctx = getExecutiveContext();
   const subscription = ctx?.identity?.subscription || "free";
-  const routingDecision = routeModel({
-    intent: routingIntent,
-    contextSize: Math.ceil(fullPrompt.length / 4),
-    webSearchRequired: options.add_context_from_internet || false,
-    streamingPreferred: false,
-    subscription,
-  });
+  let routingDecision;
+  try {
+    routingDecision = routeModel({
+      intent: routingIntent,
+      contextSize: Math.ceil(fullPrompt.length / 4),
+      webSearchRequired: options.add_context_from_internet || false,
+      streamingPreferred: false,
+      subscription,
+    });
+    if (correlationId) logStage({ correlationId, stage: "model_routing", status: "success", extra: { model: routingDecision.selectedModel, provider: routingDecision.selectedProvider } });
+  } catch (e) {
+    if (correlationId) logStage({ correlationId, stage: "model_routing", status: "failure", error: e?.message || String(e) });
+    throw e;
+  }
 
   const modelChain = [routingDecision.selectedModel, ...routingDecision.fallbackChain];
   const startedAt = Date.now();
@@ -62,6 +83,7 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
   const cachedResponse = getCachedAIResponse(fullPrompt, routingDecision.selectedModel);
   if (cachedResponse) {
     recordMetric("aiCalls.cached");
+    if (correlationId) logStage({ correlationId, stage: "ai_call", status: "success", latencyMs: 0, extra: { cached: true, model: routingDecision.selectedModel, provider: routingDecision.selectedProvider } });
     return cachedResponse;
   }
 
@@ -71,17 +93,33 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
   let retryCount = 0;
   let lastError = null;
 
-  // Try primary model, then fallback chain
-  for (let i = 0; i < modelChain.length; i++) {
-    const tryModel = modelChain[i];
-    try {
-      res = await base44.integrations.Core.InvokeLLM({ prompt: fullPrompt, model: tryModel, ...options });
-      actualModel = tryModel;
-      if (i > 0) { fallbackFrom = modelChain[0]; retryCount = i; }
+  const attemptChain = async () => {
+    for (let i = 0; i < modelChain.length; i++) {
+      const tryModel = modelChain[i];
+      try {
+        res = await base44.integrations.Core.InvokeLLM({ prompt: fullPrompt, model: tryModel, ...options });
+        actualModel = tryModel;
+        if (i > 0) { fallbackFrom = modelChain[0]; retryCount = i; }
+        lastError = null;
+        return true;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    return false;
+  };
+
+  await attemptChain();
+
+  // ── Retry once for transient provider errors (timeout / network / rate limit) ──
+  // Per EXEC™ Reliability spec: retry transient errors automatically before
+  // surfacing a failure. Persistent/validation errors fall through.
+  if (lastError) {
+    const { error_type } = classifyError(lastError);
+    if (error_type === "timeout" || error_type === "network" || error_type === "rate_limit") {
+      retryCount++;
       lastError = null;
-      break;
-    } catch (err) {
-      lastError = err;
+      await attemptChain();
     }
   }
 
@@ -91,6 +129,7 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
   // Failed after all fallbacks
   if (lastError) {
     const { status, error_type } = classifyError(lastError);
+    if (correlationId) logStage({ correlationId, stage: "ai_call", status: "failure", latencyMs: latency, error: lastError?.message || String(lastError), extra: { model: actualModel, provider: deriveProvider(actualModel), error_type } });
     trackRoutingEvent(routingDecision, {
       intent: routingIntent, success: false, latencyMs: latency,
       cost: routingDecision.estimatedCost, tokenInput: inputTokens,
@@ -117,6 +156,7 @@ export const callAI = async (module, { prompt, intent, ...options }) => {
   const tokensEstimate = inputTokens + outputTokens;
   const costEstimate = (tokensEstimate / 1000) * 0.002;
 
+  if (correlationId) logStage({ correlationId, stage: "ai_call", status: "success", latencyMs: latency, extra: { model: actualModel, provider: deriveProvider(actualModel), fallbackFrom, retryCount } });
   trackRoutingEvent(routingDecision, {
     intent: routingIntent, success: true, latencyMs: latency,
     cost: costEstimate, tokenInput: inputTokens, tokenOutput: outputTokens,

@@ -41,6 +41,7 @@ import { loadLatestStory, formatStoryContextForPrompt, buildStoryContext } from 
 import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest, formatExplainability } from "@/lib/executiveBioGenerator";
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
+import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
 
 const ExecConciergeContext = createContext(null);
 
@@ -204,6 +205,11 @@ export function ExecConciergeProvider({ children }) {
   const [executiveMemory, setExecutiveMemory] = useState(null);
   const [latestStory, setLatestStory] = useState(null);
   const [latestIdentity, setLatestIdentity] = useState(null);
+  const [healthTick, setHealthTick] = useState(0);
+  const refreshHealth = useCallback(() => setHealthTick((t) => t + 1), []);
+  const health = useMemo(() => getExecHealth(), [healthTick]);
+  const execEvents = useMemo(() => getExecEvents(30), [healthTick]);
+  const lastFailure = useMemo(() => getLastFailure(), [healthTick]);
   const userContextRef = useRef(null);
   const latestStoryRef = useRef(null);
   const latestIdentityRef = useRef(null);
@@ -418,6 +424,11 @@ export function ExecConciergeProvider({ children }) {
     async (text) => {
       const content = (text ?? "").trim();
       if (!content || loading) return;
+      const correlationId = newCorrelationId();
+      logStage({ correlationId, stage: "message_received", status: "success", extra: { length: content.length } });
+      logStage({ correlationId, stage: "auth", status: user ? "success" : "failure", extra: { userId: user?.id || null } });
+      logStage({ correlationId, stage: "workspace", status: "success", extra: { workspace: activeWorkspace } });
+      logStage({ correlationId, stage: "persona", status: workspacePersona ? "success" : "failure", extra: { persona: workspacePersona?.id || null } });
       const newMessages = [...messages, { role: "user", content }];
       setMessages(newMessages);
       setLoading(true);
@@ -558,12 +569,15 @@ export function ExecConciergeProvider({ children }) {
           formatStoryContextForPrompt(latestStoryRef.current),
           formatIdentityContextForPrompt(latestIdentityRef.current)
         );
-        const res = await callAI("exec_concierge", { prompt });
+        logStage({ correlationId, stage: "executive_context", status: userContextRef.current ? "success" : "failure", extra: { hasContext: !!userContextRef.current } });
+        const res = await callAI("exec_concierge", { prompt, correlationId });
         const initialResponse =
           typeof res === "string"
             ? res
             : res?.response || res?.text || "I apologize, I couldn't generate a response. Please try again.";
+        logStage({ correlationId, stage: "response_parse", status: "success" });
         const { response, review, revised } = await runQualityGate(content, initialResponse);
+        logStage({ correlationId, stage: "quality_gate", status: "success", extra: { passed: review.passed, revised } });
         base44.analytics.track({
           eventName: "exec_response_quality_review",
           properties: {
@@ -603,7 +617,15 @@ export function ExecConciergeProvider({ children }) {
           Object.assign(memUpdates, merged);
         }
         saveExecutiveMemory(memUpdates);
-      } catch {
+        logStage({ correlationId, stage: "render", status: "success" });
+        refreshHealth();
+      } catch (err) {
+        // Root-cause traceable failure. Log the exact failing stage + error
+        // for the Developer Workspace; show users a friendly message only.
+        const errMsg = err?.message || String(err);
+        logStage({ correlationId, stage: "render", status: "failure", error: errMsg });
+        refreshHealth();
+        base44.analytics.track({ eventName: "exec_concierge_failure", properties: { correlationId, error: errMsg } });
         setMessages((prev) => [
           ...prev,
           {
@@ -649,6 +671,10 @@ export function ExecConciergeProvider({ children }) {
     executiveMemory,
     hasExecutiveMemory: !!executiveMemory,
     hasLongTermRecall: hasLongTermRecall(executiveMemory),
+    health,
+    execEvents,
+    lastFailure,
+    refreshHealth,
   };
 
   return (

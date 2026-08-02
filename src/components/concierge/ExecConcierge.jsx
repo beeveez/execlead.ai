@@ -12,6 +12,7 @@ import { getWorkspaceSuggestedQuestions } from "@/lib/execWorkspacePersonas";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
+import ExecHealthPanel from "./ExecHealthPanel";
 import ConciergeDiagnosticsPanel from "./ConciergeDiagnosticsPanel";
 import EvidenceCompletenessPanel from "./EvidenceCompletenessPanel";
 import ContextualActions from "./ContextualActions";
@@ -243,14 +244,17 @@ export default function ExecConcierge() {
             )}
 
             {activeWorkspace === "developer" && (
-              <ExecDebugPanel
-                workspacePersona={workspacePersona}
-                activeWorkspace={activeWorkspace}
-                pageContext={pageContext}
-                pathname={location.pathname}
-                messages={messages}
-                contextSwitchAt={contextSwitchAt}
-              />
+              <>
+                <ExecHealthPanel />
+                <ExecDebugPanel
+                  workspacePersona={workspacePersona}
+                  activeWorkspace={activeWorkspace}
+                  pageContext={pageContext}
+                  pathname={location.pathname}
+                  messages={messages}
+                  contextSwitchAt={contextSwitchAt}
+                />
+              </>
             )}
 
             {/* Global Commands — always accessible */}

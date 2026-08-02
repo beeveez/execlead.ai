@@ -1,85 +1,144 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Building2, ArrowRight, Sparkles, Brain, Users, Shield, TrendingUp,
-  RotateCcw, CheckCircle2, AlertTriangle,
-} from "lucide-react";
+import { Building2, Brain, Users } from "lucide-react";
+import InteractiveSimulationOutcome from "./InteractiveSimulationOutcome";
 
 // Interactive Simulation Preview — "show, don't tell".
-// Lets a visitor experience an executive decision before creating an account,
-// then reveals the AI coaching, council feedback, competency analysis, and
-// readiness impact EXECLEAD.AI produces after every simulation.
+// Lets a visitor make a real executive decision before creating an account,
+// then reveals the executive-level analysis EXECLEAD.AI produces after every
+// simulation: consequence timeline, stakeholder reactions, financial
+// implications, leadership strengths/blind spots, evidence-based readiness
+// gain, and one personalized coaching recommendation.
 const SCENARIO = {
-  setting: "Board Meeting",
+  setting: "Board Meeting · Q3 Budget Crisis",
+  context: "Atrius Health Systems — 14,000 employees · $2.1B revenue · healthcare + fintech exposure",
   prompt:
-    "The CFO recommends reducing cybersecurity investment by 30% to meet quarterly targets. The CIO warns this will leave critical systems exposed. The board is watching. What do you do?",
+    "The CFO recommends cutting cybersecurity investment 30% ($2.4M) to hit Q3 EPS. The CIO warns critical systems go exposed. The audit committee flags rising threat activity. The board is watching. What do you decide?",
+  stakeholders: ["CFO", "CIO / CTO", "Audit Committee", "Board", "Customers", "Employees"],
 };
 
 const CHOICES = [
   {
     id: "A",
-    label: "Approve",
-    summary: "Accept the cut to protect quarterly performance.",
-    coaching:
-      "You protected short-term financials, but you accepted significant enterprise risk without a mitigation plan. Strong executives don't trade durable capability for a single quarter.",
+    label: "Approve the cut",
+    summary: "Accept the reduction to protect quarterly performance.",
+    verdict: "Short-term win, long-term exposure.",
+    consequences: {
+      immediate: "Quarterly target met. The CIO escalates the risk register; the security roadmap is frozen; the audit committee records its dissent.",
+      thirtyDay: "Critical patches slip. SOC morale drops. One major vendor contract auto-renews at a lower tier, reducing coverage on your most exposed surface.",
+      twelveMonth: "A preventable breach is now materially likely. The board faces a disclosure obligation. Customer trust and your personal credibility erode.",
+    },
     council: [
       { persona: "CFO", sentiment: "support", note: "Pragmatic — protects the quarter and signals fiscal discipline." },
-      { persona: "CTO / CIO", sentiment: "oppose", note: "Exposes critical systems; the breach cost will dwarf the savings." },
+      { persona: "CIO / CTO", sentiment: "oppose", note: "Exposes critical systems; the eventual breach cost will dwarf the savings." },
+      { persona: "Audit Committee", sentiment: "oppose", note: "Approval without a mitigation plan is a governance failure we must record." },
       { persona: "Board", sentiment: "caution", note: "Approval without a risk plan is a governance concern." },
     ],
+    financial: "Saves ~$2.4M this quarter. Expected loss exposure rises to ~$9M–$14M (breach + remediation + churn). Net position: negative.",
     competencies: [
       { name: "Business Acumen", delta: +8 },
       { name: "Risk Leadership", delta: -18 },
       { name: "Strategic Thinking", delta: -10 },
     ],
-    readiness: -2,
-    verdict: "Short-term win, long-term exposure.",
+    strengths: ["Fiscal discipline under board scrutiny", "Decisive under pressure"],
+    blindSpots: [
+      "Accepted unmitigated enterprise risk",
+      "Treated security as a cost center, not a capability",
+      "No mitigation or phased plan offered",
+    ],
+    evidenceGained: {
+      level: "Emerging",
+      competencies: ["Business Acumen"],
+      confidence: 52,
+      summary: "Commercial instinct demonstrated, but risk leadership and strategic thinking were insufficiently evidenced by this decision.",
+    },
+    coachingRecommendation:
+      "Before approving any capability cut, pair every 'yes' with a written mitigation plan and a 90-day risk review — protect the quarter without gambling the enterprise.",
   },
   {
     id: "B",
-    label: "Reject",
-    summary: "Preserve investment; defend the capability.",
-    coaching:
-      "You protected a critical capability — that's instinct many leaders lack. But rejecting without an alternative leaves the CFO's legitimate concern unaddressed. Pair the 'no' with a plan.",
+    label: "Reject the cut",
+    summary: "Preserve the investment; defend the capability.",
+    verdict: "Courageous, but incomplete without a plan.",
+    consequences: {
+      immediate: "Investment preserved. The CIO is reassured. The CFO logs the missed target and formally requests an alternative path.",
+      thirtyDay: "The quarter misses by ~6%. You're asked to present a phased cybersecurity ROI model at the next board meeting.",
+      twelveMonth: "Security posture holds — but without a reframe, cyber remains a defended cost center rather than an enabled capability.",
+    },
     council: [
-      { persona: "CTO / CIO", sentiment: "support", note: "Protects the organization's most exposed surface." },
+      { persona: "CIO / CTO", sentiment: "support", note: "Protects the organization's most exposed surface." },
       { persona: "CFO", sentiment: "caution", note: "Defensible — but the quarter still needs an answer." },
-      { persona: "Board", sentiment: "support", note: "Risk-aware leadership; ask for the counter-proposal." },
+      { persona: "Audit Committee", sentiment: "support", note: "Risk-aware; we'll expect the counter-proposal at the next meeting." },
+      { persona: "Board", sentiment: "support", note: "Risk-aware leadership; now ask for the counter-proposal." },
     ],
+    financial: "Q3 misses ~$2.4M target. Breach exposure held flat. Opportunity cost: unfunded modernization delays revenue-enabling security work by ~9 months.",
     competencies: [
       { name: "Risk Leadership", delta: +14 },
       { name: "Stakeholder Management", delta: +9 },
       { name: "Strategic Thinking", delta: +6 },
     ],
-    readiness: +4,
-    verdict: "Courageous, but incomplete without a plan.",
+    strengths: ["Protected a critical capability under fiscal pressure", "Risk-aware when it mattered"],
+    blindSpots: [
+      "Rejected without a counter-proposal",
+      "Left the CFO's legitimate concern unaddressed",
+      "Offered no phased path forward",
+    ],
+    evidenceGained: {
+      level: "Demonstrated",
+      competencies: ["Risk Leadership", "Stakeholder Management"],
+      confidence: 71,
+      summary: "Risk leadership and stakeholder management clearly demonstrated. Strategic reframe and financial alignment still developing.",
+    },
+    coachingRecommendation:
+      "Every 'no' to a fiscal leader should carry a 'here's how': pair the rejection with a phased, risk-tiered investment plan the board can approve today.",
   },
   {
     id: "C",
     label: "Propose an alternative",
-    summary: "Reframe: phased investment tied to risk-tiered outcomes.",
-    coaching:
-      "Excellent. You refused the false binary and reframed the decision around outcomes the whole board can rally behind. This is the move that separates managers from executives.",
+    summary: "Reframe: phased, risk-tiered investment tied to outcomes.",
+    verdict: "Executive-grade thinking.",
+    consequences: {
+      immediate: "The board aligns on a phased, risk-tiered plan. The CFO gets quarterly relief. The CIO keeps critical coverage. You're asked to own the program.",
+      thirtyDay: "Risk-tiered funding model approved. Highest-exposure systems funded first. A measurable security ROI dashboard goes live for the board.",
+      twelveMonth: "Security is reframed as a capability. Breach exposure drops ~40%. You're recognized as the leader who turned a budget fight into enterprise alignment.",
+    },
     council: [
       { persona: "CFO", sentiment: "support", note: "Phased spend preserves the quarter while building capability." },
-      { persona: "CTO / CIO", sentiment: "support", note: "Risk-tiered funding protects what matters most." },
+      { persona: "CIO / CTO", sentiment: "support", note: "Risk-tiered funding protects what matters most." },
+      { persona: "Audit Committee", sentiment: "support", note: "Outcome-based and defensible — exactly the governance we expect." },
       { persona: "Board", sentiment: "support", note: "A unifying outcome — exactly what we expect of a future executive." },
     ],
+    financial: "Phased spend defers ~$1.6M into Q4–Q5, protecting the quarter. Breach exposure reduced ~$5M. Two revenue projects previously blocked by security gaps are now unblocked.",
     competencies: [
       { name: "Strategic Thinking", delta: +16 },
       { name: "Innovation Leadership", delta: +12 },
       { name: "Decision Quality", delta: +11 },
+      { name: "Stakeholder Management", delta: +9 },
     ],
-    readiness: +6,
-    verdict: "Executive-grade thinking.",
+    strengths: [
+      "Reframed a false binary",
+      "Aligned divergent stakeholders around shared outcomes",
+      "Outcome-based decision making under pressure",
+      "Strategic courage",
+    ],
+    blindSpots: [
+      "Execution now depends on disciplined phasing",
+      "Must prevent scope creep under board enthusiasm",
+    ],
+    evidenceGained: {
+      level: "Verified",
+      competencies: ["Strategic Thinking", "Innovation Leadership", "Decision Quality", "Stakeholder Management"],
+      confidence: 86,
+      summary: "Executive-grade decision making demonstrated across strategy, innovation, decision quality, and stakeholder alignment.",
+    },
+    coachingRecommendation:
+      "Own the rollout: publish the phased milestones publicly and tie every gate to a measurable risk reduction — turn the board's enthusiasm into accountability.",
   },
 ];
 
 export default function InteractiveSimulationPreview({ authed }) {
   const [choice, setChoice] = useState(null);
   const selected = CHOICES.find((c) => c.id === choice);
-
   const ctaTo = authed ? "/assessment" : "/beta";
 
   return (
@@ -90,7 +149,7 @@ export default function InteractiveSimulationPreview({ authed }) {
             <Brain size={13} /><span className="text-[11px] uppercase tracking-wider font-semibold">The Solution · Experience It</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Practice the moments that matter — before they happen.</h2>
-          <p className="text-white/45 text-sm max-w-xl mx-auto">Don't read about a feature. Make an executive decision right now and see exactly what EXECLEAD.AI gives you back.</p>
+          <p className="text-white/45 text-sm max-w-xl mx-auto">Don't read about a feature. Make an executive decision right now and see exactly what EXECLEAD.AI gives you back — this is what separates us from a generic AI chatbot.</p>
         </div>
 
         {/* Scenario */}
@@ -101,7 +160,17 @@ export default function InteractiveSimulationPreview({ authed }) {
             <span className="ml-auto text-[10px] text-white/30">Executive Simulator™</span>
           </div>
           <div className="p-6">
-            <p className="text-[15px] text-white/80 leading-relaxed mb-6">{SCENARIO.prompt}</p>
+            <p className="text-[11px] text-white/35 mb-2">{SCENARIO.context}</p>
+            <p className="text-[15px] text-white/80 leading-relaxed mb-4">{SCENARIO.prompt}</p>
+
+            {/* Stakeholders */}
+            <div className="flex items-center gap-2 flex-wrap mb-6">
+              <Users size={12} className="text-white/40" />
+              <span className="text-[10px] uppercase tracking-wider text-white/30">Stakeholders</span>
+              {SCENARIO.stakeholders.map((s) => (
+                <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/8 text-white/55">{s}</span>
+              ))}
+            </div>
 
             {/* Choices */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -121,86 +190,10 @@ export default function InteractiveSimulationPreview({ authed }) {
               })}
             </div>
 
-            {/* Outcome */}
+            {/* Outcome — flagship executive analysis */}
             <AnimatePresence mode="wait">
               {selected && (
-                <motion.div key={selected.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="mt-6 space-y-5">
-                  {/* Verdict + Readiness */}
-                  <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {selected.readiness > 0 ? <CheckCircle2 size={15} className="text-emerald-400" /> : <AlertTriangle size={15} className="text-amber-400" />}
-                      <span className="text-[13px] font-medium text-white/85">{selected.verdict}</span>
-                    </div>
-                    <span className={`text-[13px] font-bold ${selected.readiness > 0 ? "text-emerald-400" : "text-amber-400"}`}>
-                      {selected.readiness > 0 ? "+" : ""}{selected.readiness} Executive Readiness™
-                    </span>
-                  </div>
-
-                  {/* AI Coaching */}
-                  <div className="rounded-xl border border-accent-orange/20 bg-accent-orange/[0.04] p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles size={14} className="text-accent-orange" />
-                      <span className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold">AI Executive Coaching</span>
-                    </div>
-                    <p className="text-[13px] text-white/70 leading-relaxed">{selected.coaching}</p>
-                  </div>
-
-                  {/* Council + Competencies */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Users size={14} className="text-indigo-400" />
-                        <span className="text-[11px] uppercase tracking-wider text-white/50 font-semibold">Executive Council Feedback</span>
-                      </div>
-                      <div className="space-y-2.5">
-                        {selected.council.map((p) => (
-                          <div key={p.persona} className="flex items-start gap-2">
-                            <SentimentDot sentiment={p.sentiment} />
-                            <div>
-                              <span className="text-[12px] font-medium text-white/75">{p.persona}</span>
-                              <p className="text-[11px] text-white/45 leading-snug">{p.note}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp size={14} className="text-emerald-400" />
-                        <span className="text-[11px] uppercase tracking-wider text-white/50 font-semibold">Competency Analysis</span>
-                      </div>
-                      <div className="space-y-3">
-                        {selected.competencies.map((c) => (
-                          <div key={c.name}>
-                            <div className="flex items-center justify-between text-[12px] mb-1">
-                              <span className="text-white/65">{c.name}</span>
-                              <span className={`font-semibold ${c.delta > 0 ? "text-emerald-400" : "text-rose-400"}`}>{c.delta > 0 ? "+" : ""}{c.delta}</span>
-                            </div>
-                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                              <div className={`h-full rounded-full ${c.delta > 0 ? "bg-emerald-500/70" : "bg-rose-500/60"}`} style={{ width: `${50 + c.delta}%` }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* CTA */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-white/10 bg-gradient-to-r from-accent-orange/[0.06] to-transparent p-4">
-                    <div className="flex items-center gap-2 text-[12px] text-white/55">
-                      <Shield size={14} className="text-accent-orange/70" /> This is a fraction of what your full report includes.
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => setChoice(null)} className="inline-flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/70 transition-colors">
-                        <RotateCcw size={12} /> Try another
-                      </button>
-                      <Link to={ctaTo} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-[13px] font-semibold transition-colors">
-                        See Your Full Readiness Report <ArrowRight size={15} />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
+                <InteractiveSimulationOutcome choice={selected} onReset={() => setChoice(null)} ctaTo={ctaTo} />
               )}
             </AnimatePresence>
           </div>
@@ -208,9 +201,4 @@ export default function InteractiveSimulationPreview({ authed }) {
       </div>
     </section>
   );
-}
-
-function SentimentDot({ sentiment }) {
-  const color = { support: "bg-emerald-400", caution: "bg-amber-400", oppose: "bg-rose-400" }[sentiment] || "bg-white/40";
-  return <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${color}`} />;
 }

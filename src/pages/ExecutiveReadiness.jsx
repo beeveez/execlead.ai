@@ -5,6 +5,9 @@ import { base44 } from "@/api/base44Client";
 import ReadinessScoreCard from "@/components/intelligence/ReadinessScoreCard";
 import ReadinessDimensions from "@/components/intelligence/ReadinessDimensions";
 import PromotionForecast from "@/components/intelligence/PromotionForecast";
+import ExecutiveTrustLayer from "@/components/trust/ExecutiveTrustLayer";
+import { buildReadinessTrust } from "@/lib/executiveTrustEngine";
+import { explainMyScore } from "@/lib/readinessEvidenceProvenance";
 
 export default function ExecutiveReadiness() {
   const [data, setData] = useState(null);
@@ -31,6 +34,7 @@ export default function ExecutiveReadiness() {
 
   const { readiness, profile, forecast } = data;
   const estimatedGain = readiness?.estimatedGain || 0;
+  const trust = buildReadinessTrust(explainMyScore(), readiness);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -46,6 +50,9 @@ export default function ExecutiveReadiness() {
 
       {/* Readiness Score */}
       <ReadinessScoreCard readiness={readiness} profile={profile} />
+
+      {/* Executive Trust Layer™ — explainable intelligence */}
+      {trust && <ExecutiveTrustLayer trust={trust} />}
 
       {/* AI Readiness Coach */}
       {readiness && (

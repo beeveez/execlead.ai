@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import CompetencyRadar from "@/components/leadership-dna/CompetencyRadar";
 import LeadershipJourneyPath from "@/components/brand/LeadershipJourneyPath";
+import ExecutiveTrustLayer from "@/components/trust/ExecutiveTrustLayer";
+import { buildLeadershipDNATrust } from "@/lib/executiveTrustEngine";
+import { explainMyScore } from "@/lib/readinessEvidenceProvenance";
 
 export default function LeadershipDNA() {
   const [profile, setProfile] = useState(null);
@@ -246,6 +249,11 @@ Generate a comprehensive Leadership DNA profile. Identify their leadership arche
             {generating ? <><Loader2 size={16} className="animate-spin" /> Generating...</> : <><Dna size={16} /> Generate Leadership DNA</>}
           </button>
         </div>
+      )}
+
+      {/* Executive Trust Layer™ — evidence-derived profile */}
+      {dna && (
+        <ExecutiveTrustLayer trust={buildLeadershipDNATrust(dna, competencies, stats, explainMyScore())} />
       )}
     </div>
   );

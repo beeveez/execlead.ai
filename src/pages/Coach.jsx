@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { getFlatSkills } from "@/lib/resume";
 import { getCachedCompanyContext } from "@/lib/companyContext";
 import ExecutiveStatusBar from "@/components/shared/ExecutiveStatusBar";
+import ExecutiveTrustLayer from "@/components/trust/ExecutiveTrustLayer";
+import { buildCoachTrust } from "@/lib/executiveTrustEngine";
 import CoachingFocusCard from "@/components/coach/CoachingFocusCard";
 import LeadershipReflection from "@/components/coach/LeadershipReflection";
 import ExecutiveExercise from "@/components/coach/ExecutiveExercise";
@@ -131,10 +133,13 @@ Respond as ${personality.name}. Be direct, insightful, and challenging. Push the
     }
   };
 
+  const coachTrust = buildCoachTrust({ coachingFocus, intelligence });
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 p-4 md:p-6">
       <ExecutiveStatusBar />
       <CoachingFocusCard focus={coachingFocus} />
+      {coachTrust && <ExecutiveTrustLayer trust={coachTrust} />}
 
       {/* AI Coaching Conversation — primary experience */}
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">

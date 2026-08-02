@@ -10,6 +10,8 @@ import ForecastHero from '@/components/promotion/ForecastHero';
 import LeadershipDimensions from '@/components/promotion/LeadershipDimensions';
 import ImprovementPriorities from '@/components/promotion/ImprovementPriorities';
 import ExecutiveStatusBar from '@/components/shared/ExecutiveStatusBar';
+import ExecutiveTrustLayer from '@/components/trust/ExecutiveTrustLayer';
+import { buildPromotionForecastTrust } from '@/lib/executiveTrustEngine';
 import { RefreshCw, Brain, TrendingUp } from 'lucide-react';
 
 export default function PromotionForecast() {
@@ -100,6 +102,9 @@ export default function PromotionForecast() {
         <>
           <ExecutiveStatusBar />
           <ForecastHero forecast={forecast} />
+
+          {/* Executive Trust Layer™ — forecast explainability */}
+          <ExecutiveTrustLayer trust={buildPromotionForecastTrust(forecast)} />
 
           {/* Leadership Dimensions */}
           <LeadershipDimensions

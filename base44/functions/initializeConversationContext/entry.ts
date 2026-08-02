@@ -20,15 +20,21 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json().catch(() => ({}));
-    const { event, app_user } = body;
 
-    const userId = app_user?.id;
-    if (!userId) {
-      return Response.json({ error: 'No app_user.id in payload' }, { status: 400 });
+    // Authenticate the caller — the user id is derived from the verified
+    // session, never from a client-supplied field. This prevents an
+    // unauthenticated attacker from forging {"app_user":{"id":"victim"}} to
+    // mutate another user's memory/agent state or exfiltrate their metrics.
+    const user = await base44.auth.me().catch(() => null);
+    if (!user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const userId = user.id;
 
-    const userName = app_user?.name || app_user?.full_name || '';
+    const body = await req.json().catch(() => ({}));
+    const { event } = body;
+
+    const userName = user.full_name || user.name || '';
     const conversationId = event?.conversation_id || '';
     const agentName = event?.agent_name || 'executive_concierge';
     const channel = event?.channel || 'web';

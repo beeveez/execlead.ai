@@ -175,11 +175,11 @@ Deno.serve(async (req) => {
       const { target_user_id, reason, notify_member } = body;
       if (!target_user_id) return Response.json({ error: 'target_user_id required' }, { status: 400 });
 
-      // Founder & last-of-kind protection
+      // Founder (role-based) & last-of-kind protection
       let tUser = null;
       try { tUser = await base44.asServiceRole.entities.User.get(target_user_id); } catch (_) {}
       if (tUser) {
-        if (tUser.email === 'dev.rayvaldez@gmail.com') {
+        if (tUser.role === 'founder_root_admin') {
           return Response.json({ error: 'This is the protected Founder account and cannot be deleted.' }, { status: 400 });
         }
         const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 500);

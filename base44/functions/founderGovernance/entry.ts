@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
-// ── Founder initial assignment email (used ONLY during init, never for auth checks) ──
-const FOUNDER_INIT_EMAIL = 'dev.rayvaldez@gmail.com';
+// Founder is identified by role (RBAC), never by a hardcoded email address.
+const FOUNDER_ROLE = 'founder_root_admin';
 
 // ── Risk scoring weights ──
 const ACTION_BASE_RISK: Record<string, number> = {
@@ -174,10 +174,10 @@ Deno.serve(async (req) => {
         return Response.json({ config: { founder_user_id: existing.founder_user_id, founder_name: existing.founder_name, initialized: existing.initialized }, already_initialized: true });
       }
 
-      // Find founder by email (only place email is used)
-      const users = await safeFilter(base44, 'User', { email: FOUNDER_INIT_EMAIL }, null, 1);
+      // Find founder by role — RBAC, never by a hardcoded email.
+      const users = await safeFilter(base44, 'User', { role: FOUNDER_ROLE }, null, 1);
       if (users.length === 0) {
-        return Response.json({ error: 'Founder user not found with email ' + FOUNDER_INIT_EMAIL }, { status: 404 });
+        return Response.json({ error: 'No user with the founder_root_admin role was found. Assign the role in the database and retry.' }, { status: 404 });
       }
       const founder = users[0];
       const config = await base44.asServiceRole.entities.GovernanceConfig.create({

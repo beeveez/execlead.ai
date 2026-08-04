@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 // ── Constants ──
-const FOUNDER_INIT_EMAIL = 'dev.rayvaldez@gmail.com';
+// Founder detection is role-based (RBAC); no hardcoded identity in source code.
 const MAX_RETRY_ATTEMPTS = 3;
 
 // ── Helpers ──

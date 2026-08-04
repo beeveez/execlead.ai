@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 // ── Constants ──
-// Founder detection is role-based (RBAC); no hardcoded identity in source code.
+// Founder detection is role-based (RBAC); no hardcoded identity in source code. (deploy retry)
 const MAX_RETRY_ATTEMPTS = 3;
 
 // ── Helpers ──

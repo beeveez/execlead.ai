@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
       const { target_user_id, reason, notify_member } = body;
       if (!target_user_id) return Response.json({ error: 'target_user_id required' }, { status: 400 });
 
-      // Founder (role-based) & last-of-kind protection
+      // Founder (role-based) & last-of-kind protection (deploy retry)
       let tUser = null;
       try { tUser = await base44.asServiceRole.entities.User.get(target_user_id); } catch (_) {}
       if (tUser) {

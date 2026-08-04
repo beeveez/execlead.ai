@@ -16,7 +16,7 @@ export default function SuccessStoryPublic() {
   }, [id]);
 
   return (
-    <div className="pt-16">
+    <div className="pt-28">
       <SuccessStoryView
         story={story}
         loading={loading}

@@ -362,8 +362,8 @@ const AuthenticatedApp = () => {
         <Route path="/platform" element={<PlatformOverview />} />
         <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><Pricing /></Suspense>} />
         <Route path="/leaderboard" element={<Suspense fallback={<LeaderboardSkeleton />}><Leaderboard /></Suspense>} />
-        <Route path="/company-library" element={<div className="pt-20"><Companies /></div>} />
-        <Route path="/company-library/:id" element={<div className="pt-20"><CompanyDetail /></div>} />
+        <Route path="/company-library" element={<div className="pt-28"><Companies /></div>} />
+        <Route path="/company-library/:id" element={<div className="pt-28"><CompanyDetail /></div>} />
         <Route path="/articles" element={<ArticleHub />} />
         <Route path="/articles/:slug" element={<ArticleDetail />} />
         <Route path="/success-stories" element={<SuccessStoryGallery />} />

@@ -106,7 +106,7 @@ export default function ArticleDetail() {
       <ArticleReadingProgress />
 
       {/* Back Bar */}
-      <div className="sticky top-0 z-40 bg-[#0a0a0f]/90 backdrop-blur border-b border-white/5">
+      <div className="sticky top-[104px] z-40 bg-[#0a0a0f]/90 backdrop-blur border-b border-white/5">
         <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link to="/articles" className="flex items-center gap-2 text-white/50 hover:text-white/80 text-sm transition-colors">
             <ArrowLeft size={14} /> Back to Insights

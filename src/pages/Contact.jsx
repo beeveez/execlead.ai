@@ -21,7 +21,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="pt-24 pb-20 px-6 lg:px-8">
+    <div className="pt-28 pb-20 px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Contact Us</h1>
         <p className="text-white/40 text-lg mb-10">

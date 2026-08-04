@@ -5,7 +5,7 @@ import { BrandRegistry } from "@/lib/brandRegistry";
 
 export default function About() {
   return (
-    <div className="pt-24 pb-20 px-6 lg:px-8">
+    <div className="pt-28 pb-20 px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white/80 transition-colors mb-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 rounded-lg">
           <ArrowLeft size={14} /> Back to Home

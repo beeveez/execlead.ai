@@ -54,7 +54,7 @@ export default function SuccessStoryGallery() {
   const selectCls = 'bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none focus:border-accent-orange/40';
 
   return (
-    <div className="pt-20 pb-20 px-6 lg:px-8">
+    <div className="pt-28 pb-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent-orange/10 border border-accent-orange/20 rounded-full text-xs text-accent-orange font-semibold uppercase tracking-wider mb-4">

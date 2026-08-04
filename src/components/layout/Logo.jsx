@@ -5,8 +5,8 @@ import { BrandRegistry } from "@/lib/brandRegistry";
 import ExecutiveMark from "@/components/layout/ExecutiveMark";
 
 export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2", showMark = true }) {
-  const sizeClass = size === "sm" ? "text-base" : "text-lg";
-  const markSize = size === "sm" ? 18 : 22;
+  const sizeClass = size === "sm" ? "text-base" : size === "xl" ? "text-xl" : "text-lg";
+  const markSize = size === "sm" ? 18 : size === "xl" ? 28 : 22;
 
   return (
     <Link

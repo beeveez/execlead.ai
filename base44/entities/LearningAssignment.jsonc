@@ -87,13 +87,7 @@
     "read": {
       "$or": [
         {
-          "data.assignee_name": "{{user.full_name}}"
-        },
-        {
           "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.manager_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -130,13 +124,7 @@
     "update": {
       "$or": [
         {
-          "data.assignee_name": "{{user.full_name}}"
-        },
-        {
           "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.manager_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -169,9 +157,6 @@
       "$or": [
         {
           "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.manager_id": "{{user.id}}"
         },
         {
           "user_condition": {

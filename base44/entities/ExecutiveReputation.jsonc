@@ -275,11 +275,58 @@
     "user_id"
   ],
   "rls": {
-    "create": {
-      "data.user_id": "{{user.id}}"
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
     },
-    "read": {},
-    "update": {},
-    "delete": {}
+    "update": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "__immutable__"
+      }
+    }
   }
 }

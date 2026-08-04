@@ -33,5 +33,13 @@
   },
   "required": [
     "owner_username"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "data.owner_user_id": "{{user.id}}"
+    },
+    "update": false,
+    "delete": false
+  }
 }

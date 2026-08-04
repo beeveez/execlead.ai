@@ -34,7 +34,14 @@ function computeExpiration(postedDate, explicit) {
 
 function stripHtml(str) {
   if (!str) return '';
-  return String(str).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+  return String(str).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace('&amp;', '&').trim();
+}
+
+// Secure secret accessor — centralizes environment access so credentials are
+// never hardcoded, logged, or returned to the client. Returns '' when unset so
+// callers can skip the source gracefully via their existing falsy checks.
+function getRequiredSecret(name) {
+  try { return Deno.env.get(name) || ''; } catch { return ''; }
 }
 
 async function fetchRemoteOK(config) {
@@ -388,12 +395,12 @@ Deno.serve(async (req) => {
         } else if (source.source_type === 'themuse') {
           jobs = await fetchTheMuse(config);
         } else if (source.source_type === 'adzuna') {
-          const appId = Deno.env.get('ADZUNA_APP_ID');
-          const appKey = Deno.env.get('ADZUNA_APP_KEY');
+          const appId = getRequiredSecret('ADZUNA_APP_ID');
+          const appKey = getRequiredSecret('ADZUNA_APP_KEY');
           if (!appId || !appKey) { results.push({ source: source.name, skipped: 'No API credentials' }); continue; }
           jobs = await fetchAdzuna(config, appId, appKey);
         } else if (source.source_type === 'jsearch') {
-          const rapidKey = Deno.env.get('RAPIDAPI_KEY');
+          const rapidKey = getRequiredSecret('RAPIDAPI_KEY');
           if (!rapidKey) { results.push({ source: source.name, skipped: 'No API key' }); continue; }
           jobs = await fetchJSearch(config, rapidKey);
         } else if (source.source_type === 'greenhouse') {

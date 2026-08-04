@@ -1,6 +1,13 @@
 // Executive Readiness Assessment Engine™
-// 20-question flagship assessment → score, classification, gap analysis,
-// radar, promotion forecast, 90-day roadmap, gamification, share report data.
+// Adaptive assessment → 16 universal questions (Executive Leadership Framework™)
+// + 4 adaptive questions (Role-Specific Readiness™) per selected leadership path.
+// Scoring: Universal Leadership Score™ (80%) + Role-Specific Readiness™ (20%).
+// The category-based 0-100 scoring architecture is unchanged; the adaptive layer
+// adds a sixth category (`role_specific`) and an 80/20 overall weighting.
+
+import {
+  ADAPTIVE_QUESTIONS, ROLE_CATEGORY, ROLE_FOCUS, ROLE_COACHING, buildAssessmentSet as buildAdaptiveSet,
+} from './readinessAdaptiveQuestions';
 
 export const ASSESSMENT_CATEGORIES = [
   { key: 'leadership', label: 'Leadership', color: '#6366f1', desc: 'Delegation, coaching, conflict resolution, decision making.' },
@@ -24,7 +31,11 @@ export const LEADERSHIP_TRACKS = [
   { key: 'custom', label: 'Custom Leadership Goal', roles: [] },
 ];
 
-export const QUESTIONS = [
+// ── Universal Questions (16) ──
+// The 4 most personality-test-style likert items were removed so the universal
+// section resembles an executive assessment center: scenario-led, evidence-oriented.
+// All 5 universal competencies (incl. Business Acumen) remain represented.
+export const UNIVERSAL_QUESTIONS = [
   // Leadership
   { id: 1, category: 'leadership', type: 'scenario', question: 'Your top performer is overloaded and missing deadlines. What do you do first?',
     options: [
@@ -32,10 +43,6 @@ export const QUESTIONS = [
       { label: 'Extend their deadlines and shield them from escalation', score: 2 },
       { label: 'Let them manage it — high performers figure it out', score: 1 },
       { label: 'Escalate to HR for performance management', score: 0 },
-    ] },
-  { id: 2, category: 'leadership', type: 'likert', question: 'I regularly coach team members rather than just assigning tasks.',
-    options: [
-      { label: 'Almost always', score: 4 }, { label: 'Often', score: 3 }, { label: 'Sometimes', score: 2 }, { label: 'Rarely', score: 1 }, { label: 'Almost never', score: 0 },
     ] },
   { id: 3, category: 'leadership', type: 'scenario', question: 'Two senior engineers are in open conflict over architecture. Your move?',
     options: [
@@ -64,10 +71,6 @@ export const QUESTIONS = [
       { label: 'Decline — the roadmap is full', score: 2 },
       { label: 'Ask the team to work weekends', score: 0 },
     ] },
-  { id: 7, category: 'strategic', type: 'likert', question: 'I think in 12–24 month horizons, not just the current sprint.',
-    options: [
-      { label: 'Almost always', score: 4 }, { label: 'Often', score: 3 }, { label: 'Sometimes', score: 2 }, { label: 'Rarely', score: 1 }, { label: 'Almost never', score: 0 },
-    ] },
   { id: 8, category: 'strategic', type: 'scenario', question: 'A new technology could disrupt your space in 18 months. You:',
     options: [
       { label: 'Charter a small exploration with a clear learning hypothesis', score: 4 },
@@ -95,10 +98,6 @@ export const QUESTIONS = [
       { label: 'Deflect to a colleague', score: 1 },
       { label: 'Say “I’ll get back to you” and forget', score: 0 },
     ] },
-  { id: 12, category: 'communication', type: 'likert', question: 'I am told I have executive presence in high-stakes settings.',
-    options: [
-      { label: 'Almost always', score: 4 }, { label: 'Often', score: 3 }, { label: 'Sometimes', score: 2 }, { label: 'Rarely', score: 1 }, { label: 'Almost never', score: 0 },
-    ] },
 
   // Organizational Leadership
   { id: 13, category: 'organization', type: 'scenario', question: 'Your team must triple in scale over a year. You start by:',
@@ -107,10 +106,6 @@ export const QUESTIONS = [
       { label: 'Hiring fast and figuring out structure later', score: 1 },
       { label: 'Promoting everyone to “senior”', score: 0 },
       { label: 'Holding off — growth will sort itself', score: 0 },
-    ] },
-  { id: 14, category: 'organization', type: 'likert', question: 'I have a repeatable, evidence-based hiring process.',
-    options: [
-      { label: 'Almost always', score: 4 }, { label: 'Often', score: 3 }, { label: 'Sometimes', score: 2 }, { label: 'Rarely', score: 1 }, { label: 'Almost never', score: 0 },
     ] },
   { id: 15, category: 'organization', type: 'scenario', question: 'An underperformer has been coached for 6 months with no change.',
     options: [
@@ -149,6 +144,14 @@ export const QUESTIONS = [
     ] },
 ];
 
+// Backward-compat alias — some legacy code imports `QUESTIONS`.
+export const QUESTIONS = UNIVERSAL_QUESTIONS;
+
+// Build the 20-question adaptive set: 16 universal + 4 path-specific adaptive.
+export function buildAssessmentSet(track) {
+  return buildAdaptiveSet(track, UNIVERSAL_QUESTIONS);
+}
+
 export function classifyReadiness(score) {
   if (score >= 90) return { key: 'executive_ready', label: 'Executive Ready', level: 'Executive' };
   if (score >= 75) return { key: 'director_ready', label: 'Director Ready', level: 'Director' };
@@ -157,27 +160,37 @@ export function classifyReadiness(score) {
   return { key: 'emerging_leader', label: 'Emerging Leader', level: 'Emerging' };
 }
 
-export function scoreAssessment(answers) {
+export function scoreAssessment(answers, questions = UNIVERSAL_QUESTIONS) {
   // answers: { [questionId]: selectedOptionIndex }
   const categoryScores = {};
   ASSESSMENT_CATEGORIES.forEach((c) => { categoryScores[c.key] = { raw: 0, count: 0 }; });
-  QUESTIONS.forEach((q) => {
+  categoryScores[ROLE_CATEGORY.key] = { raw: 0, count: 0 };
+  questions.forEach((q) => {
     const sel = answers[q.id];
     if (sel == null) return;
     const opt = q.options[sel];
     const s = opt ? opt.score : 0;
-    categoryScores[q.category].raw += s;
-    categoryScores[q.category].count += 1;
+    const key = q.category === 'role_specific' ? ROLE_CATEGORY.key : q.category;
+    categoryScores[key].raw += s;
+    categoryScores[key].count += 1;
   });
   const categoryResults = {};
   Object.entries(categoryScores).forEach(([k, v]) => {
     const max = v.count * 4;
     categoryResults[k] = max > 0 ? Math.round((v.raw / max) * 100) : 0;
   });
-  const overall = Math.round(
-    Object.values(categoryResults).reduce((a, b) => a + b, 0) / ASSESSMENT_CATEGORIES.length
+  // Universal Leadership Score™ = average of the 5 universal categories.
+  const universalScore = Math.round(
+    ASSESSMENT_CATEGORIES.reduce((sum, c) => sum + (categoryResults[c.key] || 0), 0) / ASSESSMENT_CATEGORIES.length
   );
-  return { overall, categoryResults };
+  const roleScore = categoryResults[ROLE_CATEGORY.key] || 0;
+  const hasAdaptive = (categoryScores[ROLE_CATEGORY.key].count || 0) > 0;
+  // Adaptive weighting: 80% universal + 20% role-specific when adaptive present.
+  // Falls back to the universal average (original behavior) for legacy/no-track data.
+  const overall = hasAdaptive
+    ? Math.round(universalScore * 0.8 + roleScore * 0.2)
+    : universalScore;
+  return { overall, categoryResults, universalScore, roleScore, hasAdaptive };
 }
 
 export function buildGapAnalysis(categoryResults) {
@@ -219,7 +232,7 @@ export function buildPromotionForecast(score, classification) {
   };
 }
 
-export function build90DayRoadmap(gap) {
+export function build90DayRoadmap(gap, track) {
   const focusAreas = gap.opportunities.length
     ? gap.opportunities.map((o) => o.label)
     : ['Leadership', 'Strategic Thinking', 'Executive Communication'];
@@ -281,15 +294,24 @@ export function build90DayRoadmap(gap) {
     'Business KPIs adopted',
     'Unit-economics diagnosis shared',
   ];
-  return rotations.map((focus, i) => ({
-    week: i + 1,
-    focus,
-    objective: `Strengthen ${focus.toLowerCase()} through deliberate practice.`,
-    coaching: coachingPrompts[i],
-    simulation: simulations[i],
-    reflection: reflections[i],
-    metric: metrics[i],
-  }));
+  // Role-specific focus + coaching woven into weeks 3, 6, 9, 12 (indices 2,5,8,11).
+  const roleFocus = ROLE_FOCUS[track] || [];
+  const roleCoaching = ROLE_COACHING[track] || [];
+  const roleWeeks = [2, 5, 8, 11];
+  return rotations.map((focus, i) => {
+    const roleIdx = roleWeeks.indexOf(i);
+    const isRoleWeek = roleIdx >= 0 && roleFocus[roleIdx];
+    return {
+      week: i + 1,
+      focus: isRoleWeek ? `${focus} + ${roleFocus[roleIdx]}` : focus,
+      roleFocus: isRoleWeek ? roleFocus[roleIdx] : null,
+      objective: `Strengthen ${focus.toLowerCase()}${isRoleWeek ? ` and ${roleFocus[roleIdx].toLowerCase()}` : ''} through deliberate practice.`,
+      coaching: isRoleWeek && roleCoaching[roleIdx] ? roleCoaching[roleIdx] : coachingPrompts[i],
+      simulation: simulations[i],
+      reflection: reflections[i],
+      metric: metrics[i],
+    };
+  });
 }
 
 export function buildGamification(score, classification) {
@@ -315,15 +337,16 @@ export function buildShareReport(score, classification, gap, forecast) {
   };
 }
 
-export function computeFullResults(answers) {
-  const { overall, categoryResults } = scoreAssessment(answers);
+export function computeFullResults(answers, track) {
+  const questions = buildAssessmentSet(track);
+  const { overall, categoryResults, universalScore, roleScore, hasAdaptive } = scoreAssessment(answers, questions);
   const classification = classifyReadiness(overall);
   const gap = buildGapAnalysis(categoryResults);
   const forecast = buildPromotionForecast(overall, classification);
-  const roadmap = build90DayRoadmap(gap);
+  const roadmap = build90DayRoadmap(gap, track);
   const gamification = buildGamification(overall, classification);
   const share = buildShareReport(overall, classification, gap, forecast);
-  return { overall, categoryResults, classification, gap, forecast, roadmap, gamification, share };
+  return { overall, categoryResults, universalScore, roleScore, hasAdaptive, classification, gap, forecast, roadmap, gamification, share, leadership_track: track };
 }
 
 export const ASSESSMENT_STORAGE_KEY = 'execlead:assessment:progress';

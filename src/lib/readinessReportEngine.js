@@ -95,14 +95,33 @@ const COACH_MAP = {
   business: 'The CFO Advisor (former CFO)',
 };
 
+const ROLE_SIM = {
+  technology: 'Simulator: Technology Investment & Cybersecurity Governance',
+  digital_transformation: 'Simulator: Digital Transformation Re-baseline',
+  business: 'Simulator: Operating Model & Growth Strategy',
+  finance: 'Simulator: Capital Allocation & Cash Flow Defense',
+  hr: 'Simulator: Succession & Culture Transformation',
+  sales_marketing: 'Simulator: Revenue Growth & Customer Strategy',
+  product: 'Simulator: Product Strategy & Innovation',
+  government: 'Simulator: Public Mandate & Stakeholder Accountability',
+  healthcare: 'Simulator: Clinical Governance & Patient Safety',
+  education: 'Simulator: Academic Strategy & Faculty Alignment',
+  custom: 'Simulator: Executive Strategy & Stakeholder Influence',
+};
+
 export function deriveRecommendations(results) {
   const focus = results.gap.opportunities.length
     ? results.gap.opportunities
     : [{ key: 'communication', label: 'Executive Communication' }, { key: 'business', label: 'Business Acumen' }];
   const top = focus.slice(0, 2);
+  const sims = top.map((o) => SIM_MAP[o.key] || 'Executive Simulator');
+  if (results.hasAdaptive && results.leadership_track) {
+    const roleSim = ROLE_SIM[results.leadership_track] || ROLE_SIM.custom;
+    if (!sims.includes(roleSim)) sims.push(roleSim);
+  }
   return {
     learningPaths: top.map((o) => LEARNING_PATH_MAP[o.key] || `Developing ${o.label}`),
-    simulations: top.map((o) => SIM_MAP[o.key] || 'Executive Simulator'),
+    simulations: sims,
     coach: COACH_MAP[top[0]?.key] || 'The Executive Coach (former CIO)',
   };
 }
@@ -164,7 +183,11 @@ export function deriveAIExecutiveSummary(results, targetRole) {
   const topStrength = results.gap.strengths[0]?.label || 'strategic thinking';
   const topOpportunity = results.gap.opportunities[0]?.label || 'executive communication';
   const maturity = deriveMaturity(results.overall);
-  return `You are currently performing at the ${maturity.level} maturity level with an Executive Readiness Score of ${results.overall}%. ` +
+  const trackLabel = LEADERSHIP_TRACKS.find((t) => t.key === results.leadership_track)?.label;
+  const roleLine = results.hasAdaptive
+    ? ` Your Universal Leadership Score is ${results.universalScore}% and your ${trackLabel || 'Role-Specific'} Readiness is ${results.roleScore}%.`
+    : '';
+  return `You are currently performing at the ${maturity.level} maturity level with an Executive Readiness Score of ${results.overall}%.${roleLine} ` +
     `You are performing above average in ${topStrength}, and your biggest opportunity is ${topOpportunity}. ` +
     `Your promotion forecast is ${results.forecast.estimatedMonths} toward ${targetRole || results.forecast.targetLevel}. ` +
     `I've prepared a personalized 90-day roadmap and 7-day coaching plan that will increase your readiness ` +

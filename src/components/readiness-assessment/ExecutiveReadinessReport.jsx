@@ -6,6 +6,7 @@ import {
   TrendingUp, Target, Shield, AlertTriangle, BookOpen, Swords, MessageSquare,
   Gauge, Compass, Rocket,
 } from "lucide-react";
+import { LEADERSHIP_TRACKS } from "@/lib/readinessAssessmentEngine";
 import ReadinessRadar from "@/components/readiness-assessment/ReadinessRadar";
 import GapAnalysisPanel from "@/components/readiness-assessment/GapAnalysisPanel";
 import PromotionForecast from "@/components/readiness-assessment/PromotionForecast";
@@ -45,7 +46,8 @@ function Section({ icon: Icon, title, kicker, children, className = "" }) {
 }
 
 export default function ExecutiveReadinessReport({ results, savedAssessment, persisting, onRestart, targetRole, history, previousRecord }) {
-  const { overall, classification, gap, forecast, roadmap, gamification } = results;
+  const { overall, classification, gap, forecast, roadmap, gamification, universalScore, roleScore, hasAdaptive, leadership_track } = results;
+  const trackLabel = LEADERSHIP_TRACKS.find((t) => t.key === leadership_track)?.label;
   const maturity = deriveMaturity(overall);
   const confidence = deriveConfidenceScore(results);
   const risks = deriveRiskIndicators(results);
@@ -83,6 +85,31 @@ export default function ExecutiveReadinessReport({ results, savedAssessment, per
           })}
         </div>
       </motion.div>
+
+      {/* ── Universal vs Role-Specific score breakdown ── */}
+      {hasAdaptive && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-4 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-white/30 mb-1">Overall Executive Readiness™</div>
+            <div className="text-3xl font-bold text-white">{overall}<span className="text-base text-white/40">%</span></div>
+            <div className="text-[10px] text-white/40 mt-1">80% universal + 20% role-specific</div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-4 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-white/30 mb-1">Universal Leadership Score™</div>
+            <div className="text-3xl font-bold text-white">{universalScore}<span className="text-base text-white/40">%</span></div>
+            <div className="h-1.5 bg-white/8 rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400" style={{ width: `${universalScore}%` }} />
+            </div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-4 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-white/30 mb-1">{trackLabel ? `${trackLabel} Readiness™` : 'Role-Specific Readiness™'}</div>
+            <div className="text-3xl font-bold text-white">{roleScore}<span className="text-base text-white/40">%</span></div>
+            <div className="h-1.5 bg-white/8 rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-400" style={{ width: `${roleScore}%` }} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── EXEC™ AI Executive Concierge handoff ── */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}

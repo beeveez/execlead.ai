@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import {
-  QUESTIONS, ASSESSMENT_CATEGORIES, computeFullResults, ASSESSMENT_STORAGE_KEY, LEADERSHIP_TRACKS,
+  QUESTIONS, ASSESSMENT_CATEGORIES, buildAssessmentSet, computeFullResults, ASSESSMENT_STORAGE_KEY, LEADERSHIP_TRACKS,
 } from '@/lib/readinessAssessmentEngine';
 import LeadershipTrackSelector from '@/components/readiness-assessment/LeadershipTrackSelector';
 import ExecutiveReadinessReport from '@/components/readiness-assessment/ExecutiveReadinessReport';
@@ -27,6 +27,9 @@ export default function ExecutiveReadinessAssessment() {
   const [targetRole, setTargetRole] = useState(null);
   const [savingTrack, setSavingTrack] = useState(false);
 
+  // Adaptive Question Engine™ — 16 universal + 4 path-specific questions.
+  const questions = useMemo(() => buildAssessmentSet(track), [track]);
+
   // Preselect track from profile so returning users skip straight to the assessment.
   useEffect(() => {
     (async () => {
@@ -47,7 +50,7 @@ export default function ExecutiveReadinessAssessment() {
       const saved = JSON.parse(localStorage.getItem(ASSESSMENT_STORAGE_KEY) || 'null');
       if (saved && saved.answers) {
         setAnswers(saved.answers);
-        setIdx(Math.min(saved.idx || 0, QUESTIONS.length - 1));
+        setIdx(Math.min(saved.idx || 0, questions.length - 1));
       }
     } catch (e) {}
   }, []);
@@ -68,8 +71,8 @@ export default function ExecutiveReadinessAssessment() {
     })();
   }, [phase, user?.id]);
 
-  const q = QUESTIONS[idx];
-  const total = QUESTIONS.length;
+  const q = questions[idx];
+  const total = questions.length;
   const progress = Math.round(((idx) / total) * 100);
   const remainingMin = Math.max(0, Math.ceil((total - idx) * 0.5));
   const selected = answers[q?.id];
@@ -93,15 +96,17 @@ export default function ExecutiveReadinessAssessment() {
     } catch (e) {
       toast({ title: 'Could not save leadership track', description: e.message, variant: 'destructive' });
     } finally { setSavingTrack(false); }
+    try { base44.analytics.track({ eventName: 'leadership_path_selected', properties: { path: trackKey } }); } catch (e) {}
     setPhase('quiz');
   };
 
   const finish = useCallback(async () => {
-    const r = computeFullResults(answers);
+    const r = computeFullResults(answers, track);
     // Personalize the promotion forecast with the selected target role.
     if (targetRole) r.forecast.targetLevel = targetRole;
     setResults(r);
     setPhase('results');
+    try { base44.analytics.track({ eventName: 'assessment_completed', properties: { path: track, overall: r.overall, universal: r.universalScore, role_specific: r.roleScore } }); } catch (e) {}
     localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
     setPersisting(true);
     try {

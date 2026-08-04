@@ -38,8 +38,15 @@ function base64urlDecode(str) {
 
 /**
  * Decode and validate a platform service JWT.
- * Checks: token structure, expiration, internal_service_token, caller.
- * Signature verification is handled by the Base44 platform API gateway.
+ * Checks: token structure, header alg (reject "none"/missing), non-empty signature,
+ * expiration, internal_service_token, caller.
+ *
+ * Defense-in-depth: full cryptographic signature verification is handled by the
+ * Base44 platform API gateway before the request reaches the function. These
+ * function-level checks reject unsigned/alg-none tokens and empty signatures so
+ * a forged header that bypasses the gateway cannot be trusted by payload claims
+ * alone. The payload is never trusted unless the header alg is a signing algorithm
+ * and a non-empty signature segment is present.
  */
 function decodeServiceToken(header) {
   if (!header) return { valid: false, payload: null };
@@ -47,6 +54,20 @@ function decodeServiceToken(header) {
   const token = header.startsWith('Bearer ') ? header.slice(7) : header;
   const parts = token.split('.');
   if (parts.length !== 3) return { valid: false, payload: null };
+
+  // Reject unsigned tokens: parse the JOSE header and require a signing algorithm.
+  // alg:"none" or a missing alg means no signature — must never be trusted.
+  try {
+    const joseHeader = JSON.parse(base64urlDecode(parts[0]));
+    const alg = typeof joseHeader.alg === 'string' ? joseHeader.alg.toLowerCase() : '';
+    if (!alg || alg === 'none') return { valid: false, payload: null };
+  } catch {
+    return { valid: false, payload: null };
+  }
+
+  // Require a non-empty signature segment. An empty signature with a signing alg
+  // still indicates an unsigned token (forged).
+  if (!parts[2] || parts[2].length === 0) return { valid: false, payload: null };
 
   try {
     const payload = JSON.parse(base64urlDecode(parts[1]));

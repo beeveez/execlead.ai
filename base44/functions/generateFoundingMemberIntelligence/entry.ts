@@ -5,9 +5,18 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 // per-member timelines, feedback, experience score, friction, weekly insights,
 // readiness impact, cohorts, release notes, feature impact, AI product advisor
 // recommendations, and a single Product Health Score™. Evidence-based; no fabrication.
+const ADMIN_ROLES = new Set(['founder_root_admin', 'super_admin', 'platform_admin', 'admin', 'developer']);
+
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
+
+    // ── RBAC: authenticate + authorize before querying sensitive member data ──
+    let user = null;
+    try { user = await base44.auth.me(); } catch (_) {}
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!ADMIN_ROLES.has(user.role)) return Response.json({ error: 'Forbidden' }, { status: 403 });
+
     const L = 150;
     const safe = async (name, filter = {}, sort = '-created_date') => {
       try { return await base44.asServiceRole.entities[name].filter(filter, sort, L); }

@@ -21,8 +21,17 @@ function safeParse(str: string | null | undefined, fallback: any) {
   try { const v = JSON.parse(str || ''); return v == null ? fallback : v; } catch { return fallback; }
 }
 
+const ADMIN_ROLES = new Set(['founder_root_admin', 'super_admin', 'platform_admin', 'admin', 'developer']);
+
 export default async function handleRequest(req, res) {
   const base44 = await createClientFromRequest(req);
+
+  // ── RBAC: authenticate + authorize before any data access or LLM invocation ──
+  let user = null;
+  try { user = await base44.auth.me(); } catch (_) {}
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  if (!ADMIN_ROLES.has(user.role)) return res.status(403).json({ error: 'Forbidden' });
+
   const { id } = req.body || {};
   if (!id) return res.status(400).json({ error: 'id is required' });
 

@@ -61,6 +61,8 @@ function synthesizeFromStory(story, userId) {
   };
 }
 
+const ADMIN_ROLES = new Set(['founder_root_admin', 'super_admin', 'platform_admin', 'admin', 'developer']);
+
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -68,6 +70,17 @@ export default async function(req) {
     // Entity automation payload shape: { event, data } where data is the story.
     let sourceStory = body.data || body.story || null;
     const userId = sourceStory?.user_id || body.user_id;
+
+    // ── Auth: entity-automation context (no user) is trusted; manual calls require auth ──
+    let caller = null;
+    try { caller = await base44.auth.me(); } catch (_) {}
+    const isAutomation = !!body.event && !!body.data;
+    if (!isAutomation) {
+      if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      const isOwner = !!userId && caller.id === userId;
+      const isAdmin = ADMIN_ROLES.has(caller.role);
+      if (!isOwner && !isAdmin) return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     // If no story provided (e.g. manual/test invocation), load the latest.
     if (!sourceStory && userId) {

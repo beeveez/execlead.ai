@@ -59,7 +59,7 @@ export default function TrustCenter() {
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Hero */}
       <div className="bg-gradient-to-br from-indigo-500/10 via-violet-500/5 to-transparent border-b border-white/5">
-        <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="max-w-5xl mx-auto px-6 pt-28 pb-16">
           <div className="flex items-center gap-2 text-indigo-400 text-xs uppercase tracking-widest mb-3">
             <ShieldCheck size={14} /> Enterprise Trust Center™ 2.0
           </div>
@@ -104,7 +104,7 @@ export default function TrustCenter() {
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
           {/* Sidebar */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
+          <div className="lg:sticky lg:top-20 lg:self-start">
             <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
               {SECTIONS.map((s) => (
                 <button

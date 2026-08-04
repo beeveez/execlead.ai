@@ -368,16 +368,16 @@ const AuthenticatedApp = () => {
         <Route path="/articles/:slug" element={<ArticleDetail />} />
         <Route path="/success-stories" element={<SuccessStoryGallery />} />
         <Route path="/success-stories/:id" element={<SuccessStoryPublic />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/trust-center" element={<TrustCenter />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/legal" element={<Legal />} />
-      <Route path="/trust-center" element={<TrustCenter />} />
       <Route path="/vendor-due-diligence" element={<VendorDueDiligence />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
       <Route path="/founders" element={<FoundersWall />} />
       <Route path="/founders-wall" element={<FoundersWall />} />
       <Route path="/verify/:verificationId" element={<CertificateVerify />} />

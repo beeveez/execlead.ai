@@ -8,27 +8,33 @@ import { BrandRegistry } from "@/lib/brandRegistry";
 // Standard enterprise footer — utility links only. No page directory.
 const COLUMNS = [
   {
+    title: "Quick Links",
+    links: [
+      { label: "Home", to: "/" },
+      { label: "About", to: "/about" },
+      { label: "Features", to: "/platform" },
+      { label: "Pricing", to: "/pricing" },
+      { label: "Success Stories", to: "/success-stories" },
+      { label: "Trust Center", to: "/trust-center" },
+      { label: "Contact", to: "/contact" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy", to: "/legal#privacy-policy" },
+      { label: "Terms", to: "/legal#terms-of-service" },
+      { label: "Cookies", to: "/legal#cookies" },
+      { label: "Security", to: "/trust-center" },
+    ],
+  },
+  {
     title: "Company",
     links: [
-      { label: "About", to: "/about" },
-      { label: "Contact", to: "/contact" },
-      { label: "Beta Program", to: "/beta" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
+      { label: "Mission", to: "/about" },
+      { label: "Founding Beta", to: "/beta" },
+      { label: "Founders Wall", to: "/founders" },
       { label: "Articles", to: "/articles" },
-      { label: "Trust Center", to: "/trust-center" },
-      { label: "Platform", to: "/platform" },
-    ],
-  },
-  {
-    title: "Enterprise",
-    links: [
-      { label: "Request Demo", to: "/contact" },
-      { label: "System Status", to: "/system-status" },
-      { label: "Responsible AI", to: "/responsible-ai" },
     ],
   },
 ];

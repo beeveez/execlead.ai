@@ -80,12 +80,7 @@
         },
         {
           "user_condition": {
-            "role": "developer"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "founder_root_admin"
+            "role": "security_officer"
           }
         }
       ]
@@ -112,13 +107,16 @@
         },
         {
           "user_condition": {
-            "role": "founder_root_admin"
+            "role": "security_officer"
           }
         }
       ]
     },
     "delete": {
       "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
         {
           "user_condition": {
             "role": "super_admin"
@@ -131,7 +129,7 @@
         },
         {
           "user_condition": {
-            "role": "founder_root_admin"
+            "role": "security_officer"
           }
         }
       ]

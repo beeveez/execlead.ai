@@ -34,7 +34,7 @@
         "general_inquiry"
       ],
       "default": "general_inquiry",
-      "description": "Classified intent category from the Intent Router™"
+      "description": "Classified intent category from the Intent Router\u2122"
     },
     "source": {
       "type": "string",
@@ -64,7 +64,7 @@
     "ai_required": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the Decision Engine™ determined AI was needed"
+      "description": "Whether the Decision Engine\u2122 determined AI was needed"
     },
     "cache_hit": {
       "type": "boolean",
@@ -144,7 +144,9 @@
     "source"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
     "read": {
       "$or": [
         {

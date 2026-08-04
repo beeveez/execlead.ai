@@ -62,7 +62,9 @@
   ],
   "rls": {
     "create": {
-      "data.owner_user_id": "{{user.id}}"
+      "user_condition": {
+        "role": "platform_admin"
+      }
     },
     "read": {
       "$or": [
@@ -104,6 +106,11 @@
         {
           "user_condition": {
             "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
           }
         },
         {

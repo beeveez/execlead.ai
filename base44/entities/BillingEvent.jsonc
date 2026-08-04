@@ -78,7 +78,11 @@
     "event_type"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "user_condition": {
+        "role": "platform_admin"
+      }
+    },
     "read": {
       "$or": [
         {

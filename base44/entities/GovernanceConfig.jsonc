@@ -8,7 +8,7 @@
     },
     "founder_email": {
       "type": "string",
-      "description": "Founder email for notifications (reference only — all checks use founder_user_id)"
+      "description": "Founder email for notifications (reference only \u2014 all checks use founder_user_id)"
     },
     "founder_name": {
       "type": "string"
@@ -44,23 +44,9 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "founder_root_admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "founder_root_admin"
+      }
     },
     "read": {
       "$or": [

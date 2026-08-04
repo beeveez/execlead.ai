@@ -63,7 +63,9 @@
   ],
   "rls": {
     "create": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "platform_admin"
+      }
     },
     "read": true,
     "update": {

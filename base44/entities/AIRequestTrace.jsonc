@@ -16,7 +16,7 @@
     },
     "intent": {
       "type": "string",
-      "description": "Classified intent from AI Optimization Layer™"
+      "description": "Classified intent from AI Optimization Layer\u2122"
     },
     "user_id": {
       "type": "string"
@@ -158,7 +158,9 @@
     "request_id"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
     "read": {
       "$or": [
         {

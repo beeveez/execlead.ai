@@ -165,6 +165,28 @@ Deno.serve(async (req) => {
     overallStatus: "Failed",
   };
 
+  // ── RBAC: authenticate + authorize BEFORE any Airtable API call ──
+  // No external operation may run before authentication succeeds. (deploy retry)
+  const ALLOWED_ROLES = new Set(["founder_root_admin", "platform_admin"]);
+  let authUser;
+  try {
+    const base44 = createClientFromRequest(req);
+    authUser = await base44.auth.me();
+  } catch (e) {
+    console.log(JSON.stringify({ event: "provisionAirtableCRM", action: "provision", result: "auth_error", error: String(e?.message || e), timestamp: new Date().toISOString() }));
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!authUser || !authUser.id) {
+    console.log(JSON.stringify({ event: "provisionAirtableCRM", action: "provision", result: "unauthenticated", timestamp: new Date().toISOString() }));
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const callerRole = authUser.role || "user";
+  if (!ALLOWED_ROLES.has(callerRole)) {
+    console.log(JSON.stringify({ event: "provisionAirtableCRM", action: "provision", result: "forbidden", userId: authUser.id, role: callerRole, timestamp: new Date().toISOString() }));
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+  console.log(JSON.stringify({ event: "provisionAirtableCRM", action: "provision", result: "authorized", userId: authUser.id, role: callerRole, timestamp: new Date().toISOString() }));
+
   try {
     // ── 0. Verify secrets ──
     if (!PAT || !BASE_ID) {
@@ -339,11 +361,13 @@ Deno.serve(async (req) => {
     }
 
     report.durationMs = Math.round(performance.now() - t0);
+    console.log(JSON.stringify({ event: "provisionAirtableCRM", action: "provision", result: "success", userId: authUser.id, role: callerRole, timestamp: new Date().toISOString(), overallStatus: report.overallStatus }));
     return Response.json(report, { status: 200 });
   } catch (error) {
     report.error = error.message;
     report.durationMs = Math.round(performance.now() - t0);
     report.overallStatus = "Failed";
+    console.log(JSON.stringify({ event: "provisionAirtableCRM", action: "provision", result: "error", userId: authUser?.id, role: callerRole, timestamp: new Date().toISOString(), error: String(error?.message || error) }));
     return Response.json(report, { status: 500 });
   }
 });

@@ -5,11 +5,36 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 // of verified platform intelligence. Nothing fabricated; every asset carries
 // provenance (source, verification, evidence confidence, generatedFrom, version).
 // scope: 'public' (anonymized, consent-safe) | 'admin' (named, internal).
+
+// Authorized administrative roles: Founder, Platform Administrator,
+// Commercial Administrator, Marketing Administrator (and super-admin override).
+const ADMIN_ROLES = new Set([
+  'founder_root_admin',
+  'super_admin',
+  'platform_admin',
+  'admin',
+  'commercial_admin',
+  'marketing_admin',
+]);
+
 export default async function (req) {
+  const base44 = createClientFromRequest(req);
+  const scope = (req.body && req.body.scope) || 'public';
+
+  // ── RBAC: authenticate + authorize before any data access ──
+  let user = null;
+  try { user = await base44.auth.me(); } catch (_) {}
+  if (!user) {
+    console.log(JSON.stringify({ event: 'generateMarketingIntelligence', result: 'unauthenticated', scope, timestamp: new Date().toISOString() }));
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  if (!ADMIN_ROLES.has(user.role)) {
+    console.log(JSON.stringify({ event: 'generateMarketingIntelligence', result: 'forbidden', userId: user.id, role: user.role, scope, timestamp: new Date().toISOString() }));
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   try {
-    const base44 = createClientFromRequest(req);
     const LIMIT = 200;
-    const scope = (req.body && req.body.scope) || 'public';
 
     const safe = async (name, filter = {}, sort = '-created_date') => {
       try { return await base44.asServiceRole.entities[name].filter(filter, sort, LIMIT); }
@@ -188,7 +213,7 @@ export default async function (req) {
       id: s.id, title: s.title, user_name: s.user_name, visibility: s.visibility, consentStatus: s.consent_status, published: s.published,
     })) : [];
 
-    return Response.json({
+    const result = {
       generated_at: now,
       scope,
       version,
@@ -201,8 +226,37 @@ export default async function (req) {
       platformMilestones,
       publishingQueue,
       trust: { source: 'platform_evidence', verification: 'aggregated', lastUpdated: now, generatedFrom: ['verified_platform_data'], aiAssisted: false, version },
-    });
+    };
+
+    const recordsReturned =
+      (result.executiveOutcomeWall?.length || 0) +
+      (result.caseStudyCandidates?.length || 0) +
+      (result.executiveLeadershipIndex?.length || 0) +
+      (result.foundingMemberHighlights?.length || 0) +
+      (result.platformMilestones?.length || 0) +
+      (result.publishingQueue?.length || 0);
+
+    console.log(JSON.stringify({
+      event: 'generateMarketingIntelligence',
+      result: 'success',
+      userId: user.id,
+      role: user.role,
+      scope,
+      recordsReturned,
+      timestamp: new Date().toISOString(),
+    }));
+
+    return Response.json(result);
   } catch (error) {
+    console.log(JSON.stringify({
+      event: 'generateMarketingIntelligence',
+      result: 'error',
+      userId: user?.id,
+      role: user?.role,
+      scope,
+      error: String(error?.message || error),
+      timestamp: new Date().toISOString(),
+    }));
     return Response.json({ error: error.message }, { status: 500 });
   }
 }

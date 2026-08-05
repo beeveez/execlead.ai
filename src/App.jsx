@@ -230,6 +230,7 @@ import UXAuditReport from '@/pages/developer/UXAuditReport';
 import BetaExperienceCertification from '@/pages/BetaExperienceCertification';
 import ReleaseGovernanceDashboard from '@/pages/ReleaseGovernanceDashboard';
 import InteractiveMigrationReport from '@/pages/developer/InteractiveMigrationReport';
+import MigrationReadinessDashboard from '@/pages/developer/MigrationReadinessDashboard';
 import ArticleCMS from '@/pages/articles/ArticleCMS';
 import AIOptimizationDashboard from '@/pages/developer/AIOptimizationDashboard';
 import IntegrationCreditOptimizer from '@/pages/developer/IntegrationCreditOptimizer';
@@ -607,6 +608,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/beta-certification" element={<BetaExperienceCertification />} />
           <Route path="/developer/release-governance" element={<ReleaseGovernanceDashboard />} />
           <Route path="/developer/migration-report" element={<InteractiveMigrationReport />} />
+          <Route path="/developer/migration-readiness" element={<MigrationReadinessDashboard />} />
           <Route path="/developer/articles" element={<ArticleCMS />} />
           <Route path="/developer/ai-optimization" element={<AIOptimizationDashboard />} />
           <Route path="/developer/credit-optimizer" element={<IntegrationCreditOptimizer />} />

@@ -67,7 +67,12 @@ export default function DependencyAuditTable({ report }) {
                   </div>
                   <div className="text-[12px] text-white/80 leading-snug">{d.description}</div>
                   <div className="text-[10px] text-white/30 mt-1">📍 {d.location}</div>
-                  <div className="text-[10px] text-indigo-300/70 mt-1">→ {d.recommendation}</div>
+                  {d.recommendedService && (
+                    <div className="text-[10px] text-indigo-300 mt-1 flex items-center gap-1.5">
+                      <span className="px-1.5 py-0.5 rounded bg-indigo-500/15 border border-indigo-500/25 font-medium">→ {d.recommendedService}</span>
+                    </div>
+                  )}
+                  <div className="text-[10px] text-white/40 mt-1">{d.recommendation}</div>
                 </div>
               </div>
             </div>

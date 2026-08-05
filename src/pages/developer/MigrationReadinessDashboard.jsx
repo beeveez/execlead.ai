@@ -2,11 +2,13 @@ import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Circle, Clock, Layers } from "lucide-react";
 import {
-  getCategoryScores, getOverallReadiness, getDependencyReport, MIGRATION_PHASES,
+  getCategoryScores, getOverallReadiness, getDependencyReport, getPlatformServicesAdoption, MIGRATION_PHASES,
 } from "@/lib/migrationReadinessEngine";
 import MigrationReadinessHero from "@/components/migration-readiness/MigrationReadinessHero";
 import CategoryScoreGrid from "@/components/migration-readiness/CategoryScoreGrid";
 import DependencyAuditTable from "@/components/migration-readiness/DependencyAuditTable";
+import PlatformServicesAdoption from "@/components/migration-readiness/PlatformServicesAdoption";
+import { listServices } from "@/lib/platformServices";
 
 const PHASE_ICON = { complete: CheckCircle2, scaffolded: Layers, partial: Clock, not_started: Circle };
 const PHASE_COLOR = {
@@ -20,6 +22,8 @@ export default function MigrationReadinessDashboard() {
   const overall = useMemo(() => getOverallReadiness(), []);
   const categories = useMemo(() => getCategoryScores(), []);
   const report = useMemo(() => getDependencyReport(), []);
+  const adoption = useMemo(() => getPlatformServicesAdoption(), []);
+  const services = useMemo(() => listServices(), []);
   const [selected, setSelected] = useState(null);
 
   return (
@@ -51,6 +55,9 @@ export default function MigrationReadinessDashboard() {
           </motion.div>
         )}
       </div>
+
+      {/* Platform Services Adoption™ */}
+      <PlatformServicesAdoption adoption={adoption} services={services} />
 
       {/* Migration phases strip */}
       <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-5">

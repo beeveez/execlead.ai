@@ -18,13 +18,14 @@ export const READINESS_CATEGORIES = [
 ];
 
 // Phase 1 — Dependency Audit findings (representative baseline of the current codebase).
+// Each violation carries the canonical Platform Service™ it should migrate to.
 export const DEPENDENCY_AUDIT = [
-  { id: 'DEP-001', type: 'entity', classification: 'Critical', location: '150+ pages/components', description: 'Direct base44.entities.<X> CRUD calls from UI components (Dashboard, Coach, Simulator, Landing, Profile, etc.).', status: 'open', recommendation: 'Route through Repository Layer™ (Phase 3) + Platform Services (Phase 2).' },
-  { id: 'DEP-002', type: 'ai', classification: 'Critical', location: 'Coach, Simulator, Concierge, ai.js, simulationIntelligenceEngine', description: 'Direct base44.integrations.Core.InvokeLLM calls with inline prompts.', status: 'open', recommendation: 'Route through AIService™ (Phase 4) + Prompt Registry™ (Phase 5).' },
-  { id: 'DEP-003', type: 'auth', classification: 'Medium', location: 'AuthContext, many pages', description: 'Direct base44.auth.me/isAuthenticated/updateMe/logout calls.', status: 'partial', recommendation: 'Wrap in UserService™ (Phase 2). Auth backend stays Base44.' },
-  { id: 'DEP-004', type: 'storage', classification: 'Medium', location: 'Resume, Identity, Evidence flows', description: 'Direct UploadFile + localStorage usage.', status: 'open', recommendation: 'Route file ops through a StorageService™; keep Base44 as backend.' },
-  { id: 'DEP-005', type: 'config', classification: 'Low', location: 'launchMode, modelRouterEngine, featureCatalog', description: 'Hard-coded provider/model/feature configuration.', status: 'open', recommendation: 'Centralize in Configuration Registry™ (Phase 7).' },
-  { id: 'DEP-006', type: 'connector', classification: 'Low', location: 'Airtable/Gmail backend functions', description: 'Direct connector usage in backend functions.', status: 'acceptable', recommendation: 'Already isolated in backend functions; keep as-is.' },
+  { id: 'DEP-001', type: 'entity', classification: 'Critical', location: '150+ pages/components', description: 'Direct base44.entities.<X> CRUD calls from UI components (Dashboard, Coach, Simulator, Landing, Profile, etc.).', status: 'open', recommendedService: 'Repository Layer™ → Platform Services (data access)', recommendation: 'Route through Repository Layer™ (Phase 3) + Platform Services (Phase 2).' },
+  { id: 'DEP-002', type: 'ai', classification: 'Critical', location: 'Coach, Simulator, Concierge, ai.js, simulationIntelligenceEngine', description: 'Direct base44.integrations.Core.InvokeLLM calls with inline prompts.', status: 'open', recommendedService: 'AIService™ + Prompt Registry™', recommendation: 'Route through AIService™ (Phase 4) + Prompt Registry™ (Phase 5).' },
+  { id: 'DEP-003', type: 'auth', classification: 'Medium', location: 'AuthContext, many pages', description: 'Direct base44.auth.me/isAuthenticated/updateMe/logout calls.', status: 'partial', recommendedService: 'UserService™', recommendation: 'Wrap in UserService™ (Phase 2). Auth backend stays Base44.' },
+  { id: 'DEP-004', type: 'storage', classification: 'Medium', location: 'Resume, Identity, Evidence flows', description: 'Direct UploadFile + localStorage usage.', status: 'open', recommendedService: 'StorageService™ (future)', recommendation: 'Route file ops through a StorageService™; keep Base44 as backend.' },
+  { id: 'DEP-005', type: 'config', classification: 'Low', location: 'launchMode, modelRouterEngine, featureCatalog', description: 'Hard-coded provider/model/feature configuration.', status: 'open', recommendedService: 'Configuration Registry™', recommendation: 'Centralize in Configuration Registry™ (Phase 7).' },
+  { id: 'DEP-006', type: 'connector', classification: 'Low', location: 'Airtable/Gmail backend functions', description: 'Direct connector usage in backend functions.', status: 'acceptable', recommendedService: 'Keep (already isolated)', recommendation: 'Already isolated in backend functions; keep as-is.' },
 ];
 
 // Layer existence flags — true once the abstraction module ships.
@@ -33,7 +34,7 @@ const LAYER_FLAGS = {
   ai_service: true,
   prompt_registry: true,
   configuration_registry: true,
-  platform_services: false,
+  platform_services: true,
   exec_context_engine: true,
   event_bus: true,
 };
@@ -57,7 +58,7 @@ export function getCategoryScores() {
       case 'dependency_audit': score = 100; break;
       case 'platform_coupling': score = 15; break;
       case 'repository_coverage': score = LAYER_FLAGS.repository_layer ? Math.max(5, pct(ADOPTION.repository_consumers)) : 0; break;
-      case 'service_coverage': score = LAYER_FLAGS.platform_services ? pct(ADOPTION.service_consumers) : 0; break;
+      case 'service_coverage': score = LAYER_FLAGS.platform_services ? Math.max(5, pct(ADOPTION.service_consumers)) : 0; break;
       case 'prompt_registry': score = LAYER_FLAGS.prompt_registry ? Math.max(10, pct(ADOPTION.prompt_consumers)) : 0; break;
       case 'configuration': score = pct(ADOPTION.config_consumers); break;
       case 'event_adoption': score = LAYER_FLAGS.event_bus ? pct(ADOPTION.event_consumers) : 0; break;
@@ -93,7 +94,7 @@ export function getDependencyReport() {
 
 export const MIGRATION_PHASES = [
   { phase: 1, name: 'Platform Dependency Audit', status: 'complete' },
-  { phase: 2, name: 'Platform Services Layer™', status: 'not_started' },
+  { phase: 2, name: 'Platform Services Layer™', status: 'scaffolded' },
   { phase: 3, name: 'Repository Layer™', status: 'scaffolded' },
   { phase: 4, name: 'AI Abstraction (AIService™)', status: 'scaffolded' },
   { phase: 5, name: 'Prompt Registry™', status: 'scaffolded' },
@@ -103,7 +104,26 @@ export const MIGRATION_PHASES = [
   { phase: 9, name: 'Migration Health Dashboard™', status: 'complete' },
 ];
 
+// Sprint 2.1 — Platform Services Adoption™ metrics.
+export function getPlatformServicesAdoption() {
+  const cats = getCategoryScores();
+  const findScore = (k) => cats.find((c) => c.key === k)?.score || 0;
+  const directCalls = DEPENDENCY_AUDIT.filter(
+    (d) => (d.status === 'open' || d.status === 'partial') && ['entity', 'ai', 'auth', 'storage'].includes(d.type)
+  ).length;
+  return {
+    totalServices: 6,
+    consumers: 0,
+    directBase44CallsRemaining: directCalls,
+    serviceCoverage: findScore('service_coverage'),
+    repositoryCoverage: findScore('repository_coverage'),
+    aiServiceAdoption: 0,
+    promptRegistryAdoption: findScore('prompt_registry'),
+    configurationRegistryAdoption: findScore('configuration'),
+  };
+}
+
 export default {
   READINESS_TARGET, READINESS_CATEGORIES, DEPENDENCY_AUDIT, MIGRATION_PHASES,
-  getCategoryScores, getOverallReadiness, getDependencyReport,
+  getCategoryScores, getOverallReadiness, getDependencyReport, getPlatformServicesAdoption,
 };

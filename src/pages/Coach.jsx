@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
 import { AI_PERSONALITIES } from "@/lib/constants";
+import { UserService } from "@/lib/platformServices/UserService";
+import { ExecutiveContextService } from "@/lib/platformServices/ExecutiveContextService";
+import { RecommendationService } from "@/lib/platformServices/RecommendationService";
+import AIService from "@/lib/aiService";
 import { useAuth } from "@/lib/AuthContext";
 import { orchestrateJourney } from "@/lib/journeyOrchestratorEngine";
 import { Send, Loader2, Bot, User, RotateCcw, MessageSquare } from "lucide-react";
@@ -38,19 +41,18 @@ export default function Coach() {
 
   useEffect(() => {
     const load = async () => {
-      const profiles = await base44.entities.UserProfile.list();
-      if (profiles.length > 0) {
-        setProfile(profiles[0]);
-        const p = AI_PERSONALITIES.find(a => a.id === profiles[0].ai_personality);
+      const profileRec = await UserService.getPreferences(user?.id);
+      if (profileRec) {
+        setProfile(profileRec);
+        const p = AI_PERSONALITIES.find(a => a.id === profileRec.ai_personality);
         if (p) setPersonality(p);
       }
-      const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
-      if (resumes.length > 0) {
-        try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
-      }
+      const ctx = await ExecutiveContextService.buildContext(user?.id);
+      if (ctx?.resume) setResumeData(ctx.resume);
+      RecommendationService.getRecommendations(user?.id).catch(() => {});
     };
     load();
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -99,23 +101,13 @@ export default function Coach() {
         }
       }
 
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `${companyCtx ? companyCtx + "\n\n" : ""}${outcomeCtx}${provenCtx}AI DECISION TRANSPARENCY: Every recommendation you make must cite the evidence it relies on, your reasoning, your confidence level, and the expected impact. Never give advice without explaining why.\n\nYou are "${personality.name}" - ${personality.description}
-Communication style: ${personality.communication_style}
-Leadership style: ${personality.leadership_style}
-Question style: ${personality.question_style}
+      const resumeBackground = resumeData
+        ? `Currently ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${getFlatSkills(resumeData).slice(0, 8).join(", ")}. Tailor your coaching to their actual experience.`
+        : "";
 
-You are coaching a professional targeting the role of "${profile?.target_role || 'Senior Manager'}" at "${profile?.target_company || 'a major IT services company'}".
-${resumeData ? `CANDIDATE BACKGROUND: Currently ${resumeData.career_history?.[0]?.job_title || "N/A"} at ${resumeData.career_history?.[0]?.employer || "N/A"}. Skills: ${getFlatSkills(resumeData).slice(0, 8).join(", ")}. Tailor your coaching to their actual experience.` : ""}
-
-TRUTH ENGINE ACTIVE: If the user makes any claims, analyze them for truthfulness. Challenge exaggerations, inflated metrics, false ownership, and vague claims. Always push for specifics and evidence.
-
-CONVERSATION SO FAR:
-${history}
-
-USER: ${userMsg}
-
-Respond as ${personality.name}. Be direct, insightful, and challenging. Push the user to think like an executive. If they give weak answers, call it out constructively. Use examples and frameworks when helpful.`,
+      const res = await AIService.coach({
+        promptId: "exec.coach.conversation",
+        context: { companyCtx, outcomeCtx, provenCtx, personality, profile, resumeBackground, history, userMessage: userMsg },
       });
 
       setMessages(prev => [...prev, { role: "assistant", content: res }]);
@@ -129,7 +121,7 @@ Respond as ${personality.name}. Be direct, insightful, and challenging. Push the
     setPersonality(p);
     setMessages([]);
     if (profile) {
-      await base44.entities.UserProfile.update(profile.id, { ai_personality: p.id });
+      await UserService.updatePreferences(profile.id, { ai_personality: p.id });
     }
   };
 

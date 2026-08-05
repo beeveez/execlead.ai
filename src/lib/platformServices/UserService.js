@@ -33,4 +33,7 @@ export const UserService = {
     } catch (e) { return null; }
   },
   async getCapabilities(userId) { return CapabilityService.getCapabilities(userId); },
+  async updatePreferences(profileId, patch) {
+    return getRepository('UserProfile').update(profileId, patch);
+  },
 };

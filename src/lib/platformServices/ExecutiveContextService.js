@@ -1,23 +1,28 @@
+import { getRepository } from '@/lib/repositories/Base44Repository';
 import { IdentityService } from './IdentityService';
 import { JourneyService } from './JourneyService';
 import { CapabilityService } from './CapabilityService';
 
-// ExecutiveContextService™ — Phase 2 facade only.
-// NOTE: This sprint provides a canonical entry point only. Do NOT consolidate
-// context logic yet (future sprint: Executive Context Engine™).
-// buildContext composes identity + journey + capabilities into one object
-// that AI modules will consume instead of touching platform internals directly.
+// ExecutiveContextService™ — Phase 2 facade.
+// Canonical entry point for AI context. Composes identity + journey + capabilities
+// + resume background into one object AI modules consume. Context logic itself
+// (executiveContextEngine.js) is NOT consolidated yet — future sprint.
 export const ExecutiveContextService = {
   name: 'ExecutiveContextService',
   _cache: null,
 
   async buildContext(userId) {
-    const [identity, journey, capabilities] = await Promise.all([
+    const [identity, journey, capabilities, resumeVersions] = await Promise.all([
       IdentityService.getIdentity(userId).catch(() => null),
       JourneyService.getJourney(userId).catch(() => ({ events: [], stage: 'emerging' })),
       CapabilityService.getCapabilities(userId).catch(() => ({ modules: [], flags: [] })),
+      getRepository('ResumeVersion').list('-created_date', 1).catch(() => []),
     ]);
-    this._cache = { userId, identity, journey, capabilities, builtAt: Date.now() };
+    let resume = null;
+    if (resumeVersions?.length) {
+      try { resume = JSON.parse(resumeVersions[0].extracted_data); } catch (e) {}
+    }
+    this._cache = { userId, identity, journey, capabilities, resume, builtAt: Date.now() };
     return this._cache;
   },
 

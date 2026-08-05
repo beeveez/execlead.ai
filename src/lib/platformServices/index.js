@@ -5,6 +5,7 @@ import { JourneyService } from './JourneyService';
 import { CapabilityService } from './CapabilityService';
 import { RecommendationService } from './RecommendationService';
 import { ExecutiveContextService } from './ExecutiveContextService';
+import { StorageService } from './StorageService';
 import AIService from '@/lib/aiService';
 import ConfigurationRegistry from '@/lib/configurationRegistry';
 import PromptRegistry from '@/lib/promptRegistry';
@@ -16,6 +17,7 @@ const REGISTRY = {
   CapabilityService,
   RecommendationService,
   ExecutiveContextService,
+  StorageService,
   AIService,
   ConfigurationRegistry,
   PromptRegistry,

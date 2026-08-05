@@ -1,26 +1,37 @@
 import { base44 } from '@/api/base44Client';
+import { recordRepositoryCall, recordError } from '@/lib/serviceObservability';
 
 // Base44Repository™ — Phase 3 Repository Layer™.
 // Generic data-access boundary over Base44 entities. No UI component should
 // know which repository (Base44 / Supabase / PostgreSQL / Azure) is active.
 // Swapping backends is a configuration decision, not a product rewrite.
+// All calls are observed via Service Observability™.
+
+function wrap(service, fn) {
+  return async (...args) => {
+    recordRepositoryCall(service);
+    try { return await fn(...args); }
+    catch (e) { recordError(service); throw e; }
+  };
+}
 
 export function createBase44Repository(entityName) {
   const entity = base44.entities[entityName];
   if (!entity) throw new Error(`[Base44Repository] Unknown entity: ${entityName}`);
+  const svc = `Repository:${entityName}`;
   return {
     name: entityName,
     backend: 'base44',
-    list: (sort, limit) => entity.list(sort, limit),
-    filter: (query, sort, limit) => entity.filter(query, sort, limit),
-    get: (id) => entity.get(id),
-    create: (data) => entity.create(data),
-    bulkCreate: (items) => entity.bulkCreate(items),
-    update: (id, data) => entity.update(id, data),
-    updateMany: (query, ops) => entity.updateMany(query, ops),
-    bulkUpdate: (items) => entity.bulkUpdate(items),
-    delete: (id) => entity.delete(id),
-    deleteMany: (query) => entity.deleteMany(query),
+    list: wrap(svc, entity.list.bind(entity)),
+    filter: wrap(svc, entity.filter.bind(entity)),
+    get: wrap(svc, entity.get.bind(entity)),
+    create: wrap(svc, entity.create.bind(entity)),
+    bulkCreate: wrap(svc, entity.bulkCreate.bind(entity)),
+    update: wrap(svc, entity.update.bind(entity)),
+    updateMany: wrap(svc, entity.updateMany.bind(entity)),
+    bulkUpdate: wrap(svc, entity.bulkUpdate.bind(entity)),
+    delete: wrap(svc, entity.delete.bind(entity)),
+    deleteMany: wrap(svc, entity.deleteMany.bind(entity)),
     subscribe: (cb) => entity.subscribe(cb),
   };
 }

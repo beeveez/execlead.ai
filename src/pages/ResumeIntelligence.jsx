@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
-import { callAI } from "@/lib/ai";
+import { useAuth } from "@/lib/AuthContext";
 import { EXTRACTION_SCHEMA, TRUTH_ENGINE_SCHEMA, buildExtractionPrompt, buildRoadmapPrompt, buildTruthEnginePrompt } from "@/lib/resume";
 import { saveResumeVersionSmart, setCurrentVersion, deduplicateVersions } from "@/lib/resumeVersioning";
+import { UserService } from "@/lib/platformServices/UserService";
+import { getRepository } from "@/lib/repositories/Base44Repository";
+import { StorageService } from "@/lib/platformServices/StorageService";
+import AIService from "@/lib/aiService";
 import ResumeUpload from "@/components/resume/ResumeUpload";
 import ExecutiveProfile from "@/components/resume/ExecutiveProfile";
 import CareerTimeline from "@/components/resume/CareerTimeline";
@@ -33,6 +36,8 @@ const PROCESSING_STEPS = [
 ];
 
 export default function ResumeIntelligence() {
+  const { user } = useAuth();
+  const resumeRepo = getRepository("ResumeVersion");
   const [profile, setProfile] = useState(null);
   const [versions, setVersions] = useState([]);
   const [current, setCurrent] = useState(null);
@@ -46,9 +51,9 @@ export default function ResumeIntelligence() {
   useEffect(() => {
     const load = async () => {
       try {
-        const profiles = await base44.entities.UserProfile.list();
-        if (profiles.length > 0) setProfile(profiles[0]);
-        const vs = await base44.entities.ResumeVersion.list("-created_date", 20);
+        const profileRec = await UserService.getPreferences(user?.id);
+        if (profileRec) setProfile(profileRec);
+        const vs = await resumeRepo.list("-created_date", 20);
         setVersions(vs);
         if (vs.length > 0) setCurrent(vs[0]);
       } catch (e) {}
@@ -65,7 +70,7 @@ export default function ResumeIntelligence() {
     try {
       await setCurrentVersion(version.id);
       setCurrent(version);
-      const vs = await base44.entities.ResumeVersion.list("-created_date", 20);
+      const vs = await resumeRepo.list("-created_date", 20);
       setVersions(vs);
     } catch (e) {}
   };
@@ -83,21 +88,22 @@ export default function ResumeIntelligence() {
     setUploading(true);
     setError("");
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const file_url = await StorageService.upload(file);
       setUploading(false);
       setProcessing(true);
 
-      const extracted = await callAI("resume", {
+      const extracted = await AIService.ask({
+        module: "resume",
         prompt: buildExtractionPrompt(profile?.target_role, profile?.target_company),
-        file_urls: [file_url],
-        response_json_schema: EXTRACTION_SCHEMA,
+        fileUrls: [file_url],
+        responseJsonSchema: EXTRACTION_SCHEMA,
       });
 
       setProcessStep(1);
 
       const [truth, road] = await Promise.all([
-        callAI("resume", { prompt: buildTruthEnginePrompt(profile?.target_role), file_urls: [file_url], response_json_schema: TRUTH_ENGINE_SCHEMA }),
-        callAI("resume", { prompt: buildRoadmapPrompt(extracted, profile) }),
+        AIService.ask({ module: "resume", prompt: buildTruthEnginePrompt(profile?.target_role), fileUrls: [file_url], responseJsonSchema: TRUTH_ENGINE_SCHEMA }),
+        AIService.ask({ module: "resume", prompt: buildRoadmapPrompt(extracted, profile) }),
       ]);
 
       setProcessStep(2);
@@ -115,9 +121,9 @@ export default function ResumeIntelligence() {
 
       setProcessStep(3);
 
-      if (profile) await base44.entities.UserProfile.update(profile.id, { resume_url: file_url });
+      if (profile) await UserService.updatePreferences(profile.id, { resume_url: file_url });
 
-      const vs = await base44.entities.ResumeVersion.list("-created_date", 20);
+      const vs = await resumeRepo.list("-created_date", 20);
       setVersions(vs);
       setCurrent(version);
       setProcessing(false);
@@ -131,7 +137,7 @@ export default function ResumeIntelligence() {
   };
 
   const handleDelete = async () => {
-    const vs = await base44.entities.ResumeVersion.list("-created_date", 20);
+    const vs = await resumeRepo.list("-created_date", 20);
     setVersions(vs);
     setCurrent(vs[0] || null);
     setActiveTab("profile");

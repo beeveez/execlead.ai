@@ -1,19 +1,21 @@
 import {
   Home, Compass, Swords, TrendingUp, Award, Building2, Settings as SettingsIcon,
-  Target, RotateCcw, Search,
+  Target, RotateCcw, Search, ShieldCheck, Activity, FileText, Brain, Sparkles,
+  Rocket, Gauge, Shield,
 } from "lucide-react";
 import { searchNavigation } from "@/lib/navigationRegistry";
 
 // ============================================================
-// NAVIGATION INTELLIGENCE™ — Outcome-First Navigation Standard
+// NAVIGATION INTELLIGENCE™ — Workspace Isolation™ Standard
 // ------------------------------------------------------------
-// Reorganizes every platform capability under 7 outcome-based
-// destinations. No capability is removed — advanced capabilities
-// are revealed progressively (by stage + engagement) and remain
-// reachable via Universal Search.
+// Each workspace owns its entire shell: sidebar, quick actions,
+// search scope, and AI prompts. Executive keeps its outcome-based
+// progressive-disclosure tree; Developer / Operations / Enterprise
+// render their own navigation. No workspace's content may appear
+// in another workspace's shell.
 // ============================================================
 
-// ── The 7 default destinations ──
+// ── Executive: the 7 outcome destinations ──
 export const OUTCOMES = [
   { id: "dashboard", label: "Dashboard", icon: Home, route: "/dashboard" },
   { id: "journey", label: "Leadership Journey", icon: Compass, route: "/executive-readiness" },
@@ -24,48 +26,117 @@ export const OUTCOMES = [
   { id: "settings", label: "Settings", icon: SettingsIcon, route: "/settings" },
 ];
 
-// ── Route → (outcome, stage) map ──
-// stage 1 = always visible | 2 = revealed after engagement | 3 = advanced
+// ── Executive: route → (outcome, stage) map ──
 export const ROUTE_MAP = {
-  // Leadership Journey
   "/executive-readiness": { outcome: "journey", stage: 1 },
   "/assessment": { outcome: "journey", stage: 1 },
   "/leadership-dna": { outcome: "journey", stage: 1 },
   "/journey": { outcome: "journey", stage: 1 },
   "/career": { outcome: "journey", stage: 2 },
   "/promotion-forecast": { outcome: "journey", stage: 2 },
-  // Practice
   "/coach": { outcome: "practice", stage: 1 },
   "/simulator": { outcome: "practice", stage: 1 },
   "/debate": { outcome: "practice", stage: 2 },
   "/council": { outcome: "practice", stage: 2 },
   "/decision-lab": { outcome: "practice", stage: 2 },
   "/voice-interview": { outcome: "practice", stage: 2 },
-  // Growth
   "/evidence-vault": { outcome: "growth", stage: 2 },
   "/skills": { outcome: "growth", stage: 2 },
   "/metrics": { outcome: "growth", stage: 2 },
   "/recommendation-intelligence": { outcome: "growth", stage: 2 },
   "/analytics": { outcome: "growth", stage: 3 },
   "/outcome-intelligence": { outcome: "growth", stage: 3 },
-  // Portfolio
   "/resume": { outcome: "portfolio", stage: 2 },
   "/career-studio": { outcome: "portfolio", stage: 2 },
   "/executive-portfolio": { outcome: "portfolio", stage: 3 },
   "/executive-identity-graph": { outcome: "portfolio", stage: 3 },
   "/executive-success-stories": { outcome: "portfolio", stage: 3 },
-  // Enterprise
   "/enterprise": { outcome: "enterprise", stage: 1, enterprise: true },
   "/succession-planning": { outcome: "enterprise", stage: 1, enterprise: true },
   "/hr-dashboard": { outcome: "enterprise", stage: 1, enterprise: true },
   "/enterprise-intelligence": { outcome: "enterprise", stage: 1, enterprise: true },
   "/trust-center": { outcome: "enterprise", stage: 1, enterprise: true },
-  // Settings
   "/settings": { outcome: "settings", stage: 1 },
 };
 
 const VISITED_KEY = "execlead_visited_routes";
 const LAST_ROUTE_KEY = "execlead_last_route";
+
+// ── Per-workspace quick actions (Workspace Isolation™) ──
+const QUICK_ACTIONS = {
+  executive: [
+    { label: "Complete Today's Mission", path: "/dashboard", icon: Target },
+    { label: "Practice Leadership", path: "/simulator", icon: Swords },
+    { label: "View My Progress", path: "/executive-readiness", icon: TrendingUp },
+  ],
+  developer: [
+    { label: "Run Platform Validation", path: "/developer/diagnostics", icon: ShieldCheck },
+    { label: "View Platform Health", path: "/developer/executive-platform-status", icon: Activity },
+    { label: "Review ADRs", path: "/architecture-decisions", icon: FileText },
+    { label: "Architecture Standards", path: "/architecture-governance", icon: Building2 },
+    { label: "Check Security Status", path: "/security-baseline", icon: Shield },
+    { label: "Platform Analytics", path: "/developer/performance", icon: Gauge },
+    { label: "Platform Knowledge Center", path: "/platform-knowledge", icon: Brain },
+    { label: "Digital Twin™", path: "/platform-digital-twin", icon: Sparkles },
+    { label: "Review Release Readiness", path: "/release-readiness", icon: Rocket },
+    { label: "Platform Governance Center™", path: "/developer/diagnostics", icon: Gauge },
+  ],
+  operations: [
+    { label: "Product Command Center™", path: "/operations", icon: Home },
+    { label: "AI Operations Center™", path: "/operations/ai", icon: Brain },
+    { label: "Commercial Command Center™", path: "/commercial-command-center", icon: TrendingUp },
+    { label: "Security Operations", path: "/operations/security", icon: ShieldCheck },
+    { label: "Performance Operations", path: "/operations/performance", icon: Gauge },
+    { label: "Release Readiness", path: "/release-readiness", icon: Rocket },
+  ],
+  enterprise: [
+    { label: "Enterprise Command Center™", path: "/enterprise/command-center", icon: Home },
+    { label: "Organization", path: "/enterprise/organization-domain", icon: Building2 },
+    { label: "Workforce Development", path: "/enterprise/workforce", icon: Award },
+    { label: "Governance", path: "/enterprise/governance-domain", icon: ShieldCheck },
+    { label: "Security & Identity", path: "/enterprise/security-identity", icon: Shield },
+    { label: "Reporting", path: "/enterprise/reporting", icon: TrendingUp },
+  ],
+};
+
+// ── Per-workspace Ask EXEC™ prompts (Workspace Isolation™) ──
+const EXEC_PROMPTS_BY_WS = {
+  executive: [
+    "What should I do next?",
+    "What's today's highest-impact activity?",
+    "How can I improve Executive Readiness?",
+    "Which competency needs attention?",
+    "Recommend my next leadership challenge.",
+  ],
+  developer: [
+    "Explain this architecture",
+    "Find a module",
+    "Locate an ADR",
+    "Show dependencies",
+    "Search platform documentation",
+    "Analyze technical debt",
+    "Run platform diagnostics",
+  ],
+  operations: [
+    "What's the platform health summary?",
+    "Show commercial performance",
+    "What needs launch attention?",
+    "Open customer intelligence",
+  ],
+  enterprise: [
+    "Show organization overview",
+    "Who needs workforce development?",
+    "What governance items need review?",
+    "Enterprise security status",
+  ],
+};
+
+// Backward-compatible default (executive).
+export const EXEC_PROMPTS = EXEC_PROMPTS_BY_WS.executive;
+
+export function getExecPrompts(activeWorkspace = "executive") {
+  return EXEC_PROMPTS_BY_WS[activeWorkspace] || EXEC_PROMPTS_BY_WS.executive;
+}
 
 // ── Enterprise detection ──
 export function isEnterpriseUser(role) {
@@ -77,7 +148,7 @@ export function isEnterpriseUser(role) {
   try { return localStorage.getItem("execlead_frontdoor") === "enterprise"; } catch { return false; }
 }
 
-// ── Progressive disclosure stage (1-3) from engagement ──
+// ── Progressive disclosure stage (1-3) from engagement (Executive only) ──
 export function computeStage() {
   let visited = [];
   try { visited = JSON.parse(localStorage.getItem(VISITED_KEY)) || []; } catch {}
@@ -115,7 +186,9 @@ export function flattenNavItems(navGroups) {
   return items;
 }
 
-// ── Build the outcome tree with progressive disclosure ──
+// ── Build the Executive outcome tree with progressive disclosure ──
+// Only the Executive workspace uses the outcome-based tree. Other
+// workspaces render their own section navigation (see OutcomeSidebar).
 export function buildOutcomeTree({ flatItems, stage, isEnterprise, brokenPaths, pathname }) {
   let visited = [];
   try { visited = JSON.parse(localStorage.getItem(VISITED_KEY)) || []; } catch {}
@@ -130,44 +203,38 @@ export function buildOutcomeTree({ flatItems, stage, isEnterprise, brokenPaths, 
         .filter((it) => {
           const meta = ROUTE_MAP[it.path];
           const itemStage = meta?.stage || 1;
-          if (itemStage <= stage) return true;          // revealed by stage
-          if (it.path === pathname) return true;        // never hide the active page
-          if (visited.includes(it.path)) return true;    // engaged → stays revealed
+          if (itemStage <= stage) return true;
+          if (it.path === pathname) return true;
+          if (visited.includes(it.path)) return true;
           return false;
         });
-      // Dedupe children by path (preserve first)
       const seen = new Set();
       const dedup = children.filter((c) => (seen.has(c.path) ? false : (seen.add(c.path), true)));
       return { ...outcome, children: dedup };
     });
 }
 
-// ── Contextual quick actions (adaptive) ──
-export function computeQuickActions(pathname) {
+// ── Contextual quick actions, scoped to the active workspace ──
+export function computeQuickActions(pathname, activeWorkspace = "executive") {
   const actions = [];
   const last = getLastRoute();
   if (last && last !== pathname && !["/dashboard", "/home"].includes(last)) {
     actions.push({ label: "Continue Last Session", path: last, icon: RotateCcw });
   }
-  actions.push({ label: "Complete Today's Mission", path: "/dashboard", icon: Target });
-  actions.push({ label: "Practice Leadership", path: "/simulator", icon: Swords });
-  actions.push({ label: "View My Progress", path: "/executive-readiness", icon: TrendingUp });
-  return actions.slice(0, 4);
+  const wsActions = QUICK_ACTIONS[activeWorkspace] || QUICK_ACTIONS.executive;
+  return [...actions, ...wsActions].slice(0, 4);
 }
 
-// ── EXEC™ guide prompts ──
-export const EXEC_PROMPTS = [
-  "What should I do next?",
-  "What's today's highest-impact activity?",
-  "How can I improve Executive Readiness?",
-  "Which competency needs attention?",
-  "Recommend my next leadership challenge.",
-];
-
-// ── Universal search wrapper ──
-export function universalSearch(query, limit = 8) {
+// ── Universal search, scoped to the active workspace (Workspace Isolation™) ──
+// Developer search returns only Developer entries; Executive only Executive;
+// etc. Leadership / career / practice content never leaks across workspaces.
+export function universalSearch(query, activeWorkspace, limit = 8) {
   if (!query || !query.trim()) return [];
-  return searchNavigation(query, limit).map((e) => ({
+  const results = searchNavigation(query, 50);
+  const scoped = activeWorkspace
+    ? results.filter((e) => e.workspace === activeWorkspace)
+    : results;
+  return scoped.slice(0, limit).map((e) => ({
     path: e.route, label: e.title, icon: e.icon, section: e.workspaceLabel,
   }));
 }

@@ -11,6 +11,7 @@ import { Search, CornerDownLeft, ArrowUp, ArrowDown, Command as CommandIcon, Clo
 import { base44 } from "@/api/base44Client";
 import { useUniversalRouter, storeGovernanceContext } from "@/lib/universalRouter";
 import { searchCommands, getRecentCommands } from "@/lib/execOS/commandRegistry";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function CommandPalette() {
   const inputRef = useRef(null);
   const listRef = useRef(null);
   const { navigateTo } = useUniversalRouter();
+  const { activeWorkspace } = useWorkspace();
 
   // Listen for toggle event from KeyboardShortcuts
   useEffect(() => {
@@ -37,14 +39,14 @@ export default function CommandPalette() {
   }, [open]);
 
   const results = useMemo(() => {
-    if (query.trim()) return searchCommands(query);
+    if (query.trim()) return searchCommands(query, activeWorkspace);
     return [];
-  }, [query]);
+  }, [query, activeWorkspace]);
 
   const recent = useMemo(() => {
     if (query.trim()) return [];
-    return getRecentCommands(6);
-  }, [query, open]);
+    return getRecentCommands(6, activeWorkspace);
+  }, [query, open, activeWorkspace]);
 
   const displayItems = query.trim() ? results : recent;
   const listLabel = query.trim() ? "Results" : "Recent";

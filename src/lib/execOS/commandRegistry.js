@@ -48,13 +48,20 @@ export function getCommandIndex() {
  * Fuzzy search across the command index.
  * Returns scored, sorted results.
  */
-export function searchCommands(query, limit = 14) {
+export function searchCommands(query, activeWorkspace, limit = 14) {
   const index = getCommandIndex();
   if (!query || !query.trim()) return [];
 
   const q = query.toLowerCase().trim();
 
-  return index
+  // Workspace Isolation™ — scope navigation results to the active
+  // workspace. Global commands (print, theme, signout, …) remain
+  // available regardless of workspace.
+  const scoped = activeWorkspace
+    ? index.filter((item) => item.type === "command" || item.workspace === activeWorkspace)
+    : index;
+
+  return scoped
     .map((item) => {
       const title = item.title.toLowerCase();
       const subtitle = (item.subtitle || "").toLowerCase();
@@ -91,7 +98,7 @@ export function searchCommands(query, limit = 14) {
 /**
  * Resolve recent history paths into full command items.
  */
-export function getRecentCommands(limit = 6) {
+export function getRecentCommands(limit = 6, activeWorkspace) {
   const recent = getRecent(limit);
   const index = getCommandIndex();
   return recent
@@ -99,5 +106,6 @@ export function getRecentCommands(limit = 6) {
       const item = index.find((i) => i.path === r.path);
       return item ? { ...item, timestamp: r.timestamp } : null;
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((item) => !activeWorkspace || item.type === "command" || item.workspace === activeWorkspace);
 }

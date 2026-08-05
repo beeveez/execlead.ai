@@ -70,6 +70,7 @@ export default function AppLayout() {
           brokenNavPaths={brokenNavPaths}
           pathname={location.pathname}
           isEnterprise={isEnterprise}
+          activeWorkspace={activeWorkspace}
         />
         <div className="p-3 border-t border-white/5">
           <div className="mb-2 space-y-2">
@@ -100,6 +101,7 @@ export default function AppLayout() {
               brokenNavPaths={brokenNavPaths}
               pathname={location.pathname}
               isEnterprise={isEnterprise}
+              activeWorkspace={activeWorkspace}
               onNavigate={() => setMobileOpen(false)}
               mobile
             />

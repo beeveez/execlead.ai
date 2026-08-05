@@ -1,17 +1,50 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, LayoutDashboard, GraduationCap, Users, UserCircle } from "lucide-react";
+import {
+  Home, LayoutDashboard, GraduationCap, Users, UserCircle,
+  Activity, ShieldCheck, BookOpen, Gauge, Brain, TrendingUp,
+  Rocket, Building2, BarChart3, Shield,
+} from "lucide-react";
+import { useWorkspace } from "@/lib/WorkspaceContext";
 
-const NAV_ITEMS = [
-  { path: "/home", label: "Home", icon: Home },
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/academy", label: "Academy", icon: GraduationCap },
-  { path: "/network", label: "Network", icon: Users },
-  { path: "/profile", label: "Profile", icon: UserCircle },
-];
+// MobileBottomNav — Workspace Isolation™
+// Each workspace owns its own mobile bottom nav. No executive
+// destinations appear in the Developer / Operations / Enterprise shells.
+const MOBILE_NAV = {
+  executive: [
+    { path: "/home", label: "Home", icon: Home },
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/academy", label: "Academy", icon: GraduationCap },
+    { path: "/network", label: "Network", icon: Users },
+    { path: "/profile", label: "Profile", icon: UserCircle },
+  ],
+  developer: [
+    { path: "/developer/executive-platform-status", label: "Status", icon: Activity },
+    { path: "/developer", label: "Console", icon: LayoutDashboard },
+    { path: "/developer/diagnostics", label: "Governance", icon: ShieldCheck },
+    { path: "/platform-knowledge", label: "Knowledge", icon: BookOpen },
+    { path: "/developer/performance", label: "Performance", icon: Gauge },
+  ],
+  operations: [
+    { path: "/operations", label: "Command", icon: LayoutDashboard },
+    { path: "/operations/ai", label: "AI Ops", icon: Brain },
+    { path: "/commercial-command-center", label: "Commercial", icon: TrendingUp },
+    { path: "/operations/security", label: "Security", icon: ShieldCheck },
+    { path: "/release-readiness", label: "Release", icon: Rocket },
+  ],
+  enterprise: [
+    { path: "/enterprise/command-center", label: "Command", icon: LayoutDashboard },
+    { path: "/enterprise/organization-domain", label: "Org", icon: Building2 },
+    { path: "/enterprise/workforce", label: "Workforce", icon: GraduationCap },
+    { path: "/enterprise/governance-domain", label: "Governance", icon: ShieldCheck },
+    { path: "/enterprise/reporting", label: "Reporting", icon: BarChart3 },
+  ],
+};
 
 export default function MobileBottomNav() {
   const location = useLocation();
+  const { activeWorkspace } = useWorkspace();
+  const items = MOBILE_NAV[activeWorkspace] || MOBILE_NAV.executive;
 
   const isActive = (path) =>
     location.pathname === path || location.pathname.startsWith(path + "/");
@@ -22,7 +55,7 @@ export default function MobileBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-center justify-around px-2 py-2">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const active = isActive(item.path);
           const Icon = item.icon;
           return (

@@ -29,18 +29,21 @@ export const STATUS_CONFIG = {
 // ════════════════════════════════════════════════════════════
 // SECTION 1 — PLATFORM SECURITY™
 // ════════════════════════════════════════════════════════════
+// Security Commitments™ — enterprise assurance commitments.
+// We describe what we commit to, not internal mechanisms or service names.
 export const PLATFORM_SECURITY = [
-  { name: "Authentication", status: "implemented", detail: "Email/password, Google OAuth, session token management via Base44 Auth" },
-  { name: "Multi-Factor Authentication", status: "in_progress", detail: "Authenticator apps, email OTP, backup codes — step-up auth on risk" },
-  { name: "Identity Verification", status: "implemented", detail: "Government ID upload, encrypted storage, AI-assisted review, 5-level trust framework" },
-  { name: "Encryption", status: "implemented", detail: "TLS 1.3 in transit, AES-256 at rest, encrypted document storage with signed URLs" },
-  { name: "Access Control", status: "implemented", detail: "Role-Based Access Control (RBAC), Row-Level Security (RLS) on all entities" },
-  { name: "Guardian™", status: "implemented", detail: "Client-side runtime validation, consistency checks, self-healing engine" },
-  { name: "Audit Logging", status: "implemented", detail: "Immutable audit trails for logins, admin actions, payments, security events" },
-  { name: "Platform Governance™", status: "implemented", detail: "Governance pipeline, certification, manifest validation, 16-stage pipeline" },
-  { name: "Platform State Manager™", status: "implemented", detail: "Centralized platform state, React context, real-time sync" },
-  { name: "Runtime Monitoring", status: "implemented", detail: "Platform Health monitoring, error boundaries, Guardian activity tracking" },
-  { name: "Deployment Verification", status: "implemented", detail: "Foundation verification, deployment readiness checks, release gate" },
+  { name: "Encryption in Transit", status: "implemented", detail: "All data transmitted between your devices and EXECLEAD.AI is encrypted to protect against interception." },
+  { name: "Encryption at Rest", status: "implemented", detail: "Stored data is encrypted at rest to safeguard confidentiality, even if underlying storage is compromised." },
+  { name: "Role-Based Access Control", status: "implemented", detail: "Access to data and functionality is granted strictly by role, with row-level isolation so users see only what they are authorized to see." },
+  { name: "Multi-Factor Authentication", status: "in_progress", detail: "Additional verification factors strengthen account protection, with step-up authentication on elevated risk." },
+  { name: "Secure Identity Management", status: "implemented", detail: "Identity verification and managed session lifecycle protect accounts from unauthorized access." },
+  { name: "Audit Logging", status: "implemented", detail: "Immutable audit trails record security-relevant actions for accountability and investigation." },
+  { name: "Responsible AI Governance", status: "implemented", detail: "AI behavior is governed with transparency, human oversight, and documented operating principles." },
+  { name: "Secure Software Development Lifecycle", status: "in_progress", detail: "Security is integrated across development, review, and release — with readiness checks before production." },
+  { name: "Continuous Security Monitoring", status: "implemented", detail: "The platform is monitored for security-relevant events and anomalous activity." },
+  { name: "Vulnerability Management", status: "in_progress", detail: "Reported vulnerabilities are triaged, validated, and remediated on a severity-based timeline." },
+  { name: "Incident Response Process", status: "implemented", detail: "A documented incident response process defines detection, escalation, containment, and disclosure." },
+  { name: "Principle of Least Privilege", status: "implemented", detail: "Users, services, and processes are granted only the access required for their function." },
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -117,15 +120,17 @@ export const ENTERPRISE_GOVERNANCE = [
 // ════════════════════════════════════════════════════════════
 // SECTION 5 — RESPONSIBLE AI™
 // ════════════════════════════════════════════════════════════
+// Responsible AI™ — customer-facing responsible AI commitments.
 export const RESPONSIBLE_AI = [
-  { name: "Explainable AI", status: "implemented", detail: "Every AI-generated score explains what it means, how it was calculated, and how to improve it" },
-  { name: "Evidence-based Recommendations", status: "implemented", detail: "Recommendations cite evidence sources — resume, experience, assessments, certifications" },
-  { name: "Framework Transparency", status: "implemented", detail: "ELIM™ frameworks, EECF™ competency model, and scoring methodology are documented" },
-  { name: "Confidence Scoring", status: "implemented", detail: "AI confidence scores displayed alongside intelligence outputs (0–100)" },
-  { name: "Knowledge Source Traceability", status: "implemented", detail: "EXEC™ responses trace to knowledge packs, frameworks, and evidence" },
-  { name: "Human Review Guidance", status: "implemented", detail: "AI recommendations guide development; humans make final career decisions" },
-  { name: "AI Safety Principles", status: "implemented", detail: "No guaranteed outcomes, human oversight, member data control, no data selling" },
-  { name: "Bias Awareness", status: "in_progress", detail: "Continuous monitoring for bias in scoring and recommendations — formal bias audit pending" },
+  { name: "AI Transparency", status: "implemented", detail: "AI outputs explain meaning, confidence, and how to improve." },
+  { name: "Human Oversight", status: "implemented", detail: "Consequential decisions require human action — AI never auto-publishes or auto-rejects where it matters." },
+  { name: "Bias Awareness", status: "in_progress", detail: "Bias-aware design with ongoing monitoring; formal bias audit part of our maturity program." },
+  { name: "Privacy Protection", status: "implemented", detail: "No training on individual user data; data is never sold." },
+  { name: "Responsible Recommendations", status: "implemented", detail: "Recommendations cite evidence sources and display confidence." },
+  { name: "Continuous Model Evaluation", status: "implemented", detail: "AI behavior is monitored, versioned, and refined over time." },
+  { name: "Executive Accountability", status: "implemented", detail: "Executive leadership is accountable for responsible AI practices." },
+  { name: "AI Safety", status: "implemented", detail: "No guaranteed outcomes; human review on consequential actions." },
+  { name: "Enterprise Governance", status: "implemented", detail: "Documented principles, review checkpoints, and continuous improvement." },
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -144,6 +149,32 @@ export const OPERATIONAL_RELIABILITY = [
   { name: "Release Readiness", status: "implemented", detail: "Pre-deployment checks and readiness gates validate stability before each production release." },
   { name: "Service Continuity", status: "implemented", detail: "Runtime validation and error containment keep the platform running even when individual components encounter issues." },
   { name: "Capacity Planning", status: "implemented", detail: "Ongoing capacity assessment ensures the platform grows in step with customer demand." },
+];
+
+// ════════════════════════════════════════════════════════════
+// TRUST PRINCIPLES™
+// ════════════════════════════════════════════════════════════
+export const TRUST_PRINCIPLES = [
+  { name: "Evidence", detail: "Every assurance statement is grounded in what the platform actually does today — not aspiration." },
+  { name: "Transparency", detail: "We are honest about what is implemented, in progress, and planned. We never imply certification that has not been earned." },
+  { name: "Responsible Governance", detail: "Independent governance validates integrity before every release reaches production." },
+  { name: "Continuous Improvement", detail: "The platform is continuously maintained, with automated detection and correction of drift." },
+  { name: "Enterprise Accountability", detail: "We commit to security, privacy, and responsible AI practices that meet enterprise buyer expectations." },
+];
+
+// ════════════════════════════════════════════════════════════
+// ENTERPRISE ASSURANCE™
+// ════════════════════════════════════════════════════════════
+export const ENTERPRISE_ASSURANCE = [
+  { name: "Security", detail: "Encryption, access control, audit logging, and vulnerability management protect customer data and accounts." },
+  { name: "Privacy", detail: "Data is processed only for stated purposes, with export, deletion, and consent controls available to every user." },
+  { name: "Availability", detail: "The platform is designed for high availability with automatic scaling and failover." },
+  { name: "Reliability", detail: "Runtime validation and error containment keep customer-facing services stable." },
+  { name: "Data Protection", detail: "Customer data is encrypted in transit and at rest, never sold, and access-controlled." },
+  { name: "Business Continuity", detail: "Durable storage and documented response processes support continuity during incidents." },
+  { name: "Operational Excellence", detail: "Pre-deployment readiness gates and continuous monitoring maintain production quality." },
+  { name: "Responsible AI", detail: "AI guidance is transparent, advisory, and kept under human oversight." },
+  { name: "Risk Management", detail: "Risks are identified, tracked, and mitigated through governance and review." },
 ];
 
 // ════════════════════════════════════════════════════════════

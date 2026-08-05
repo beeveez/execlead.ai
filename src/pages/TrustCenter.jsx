@@ -11,17 +11,19 @@ import StatusBadge from "@/components/trust/StatusBadge";
 import CapabilityCard from "@/components/trust/CapabilityCard";
 import CertificationTimeline from "@/components/trust/CertificationTimeline";
 import PlatformInformationCard from "@/components/trust/PlatformInformationCard";
-import LivePlatformStatus from "@/components/trust/LivePlatformStatus";
 import SecurityContacts from "@/components/trust/SecurityContacts";
 import CapacityDisclosure from "@/components/trust/CapacityDisclosure";
 import FoundationCertificationCard from "@/components/trust/FoundationCertificationCard";
 import CertificationRoadmapTable from "@/components/trust/CertificationRoadmapTable";
 import TrustScorecard from "@/components/trust/TrustScorecard";
-import LiveAuditLog from "@/components/trust/LiveAuditLog";
 import ResponsibleAIDisclosures from "@/components/trust/ResponsibleAIDisclosures";
 import ProcurementMode from "@/components/trust/ProcurementMode";
 import ExecTrustQA from "@/components/trust/ExecTrustQA";
 import DownloadCenter from "@/components/trust/DownloadCenter";
+import EnterpriseAssurance from "@/components/trust/EnterpriseAssurance";
+import TrustPrinciples from "@/components/trust/TrustPrinciples";
+import PublicOperationalStatus from "@/components/trust/PublicOperationalStatus";
+import PublicIncidentHistory from "@/components/trust/PublicIncidentHistory";
 import { useTrustTelemetry } from "@/hooks/useTrustTelemetry";
 import {
   PLATFORM_SECURITY, PRIVACY_DATA, COMPLIANCE_FRAMEWORKS,
@@ -30,19 +32,21 @@ import {
 } from "@/lib/trustCenterData";
 
 const SECTIONS = [
-  { id: "platform-info", label: "Platform Information", icon: Info },
-  { id: "status", label: "Live Platform Status", icon: Activity },
+  { id: "platform-info", label: "Platform Status", icon: Info },
+  { id: "status", label: "Operational Status", icon: Activity },
   { id: "scorecard", label: "Trust Scorecard", icon: Gauge },
-  { id: "security", label: "Platform Security", icon: ShieldCheck },
+  { id: "security", label: "Security Commitments", icon: ShieldCheck },
+  { id: "assurance", label: "Enterprise Assurance", icon: ShieldCheck },
   { id: "privacy", label: "Privacy & Data", icon: Lock },
   { id: "compliance", label: "Compliance Roadmap", icon: CheckCircle2 },
   { id: "governance", label: "Enterprise Governance", icon: Boxes },
   { id: "ai", label: "Responsible AI", icon: Brain },
+  { id: "principles", label: "Trust Principles", icon: Heart },
   { id: "reliability", label: "Operational Reliability", icon: Activity },
   { id: "certification", label: "Certification Roadmap", icon: Award },
   { id: "foundation", label: "Foundation Certification", icon: Award },
   { id: "capacity", label: "Capacity Disclosure", icon: TrendingUp },
-  { id: "audit-log", label: "Live Audit Log", icon: ScrollText },
+  { id: "audit-log", label: "Incident History", icon: ScrollText },
   { id: "contacts", label: "Security Contacts", icon: Mail },
   { id: "procurement", label: "Enterprise Procurement", icon: Building2 },
   { id: "downloads", label: "Download Center", icon: Download },
@@ -53,7 +57,7 @@ const SECTIONS = [
 export default function TrustCenter() {
   const [section, setSection] = useState("platform-info");
   const { isAuthenticated, isLoadingAuth } = useAuth();
-  const { platformState, certificate, guardian, auditEvents, trustScore, loading } = useTrustTelemetry();
+  const { trustScore } = useTrustTelemetry();
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -95,7 +99,7 @@ export default function TrustCenter() {
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
               <Cpu size={14} className="text-cyan-400" />
-              <span className="text-xs text-white/50">Platform v{platformState.platformVersion || "—"}</span>
+              <span className="text-xs text-white/50">Release Candidate 1 (RC1)</span>
             </div>
           </div>
         </div>
@@ -129,8 +133,8 @@ export default function TrustCenter() {
             )}
 
             {section === "status" && (
-              <SectionWrapper title="Live Platform Status™" description="Real-time operational status from the Platform Telemetry Service™ — the authoritative source shared across all dashboards. Every metric is explainable, traceable, and actionable.">
-                <LivePlatformStatus platformState={platformState} certificate={certificate} guardian={guardian} />
+              <SectionWrapper title="Operational Status" description="Current availability of customer-facing services. Internal operational dashboards remain available to authorized users inside the Platform Governance Center™.">
+                <PublicOperationalStatus />
               </SectionWrapper>
             )}
 
@@ -141,7 +145,7 @@ export default function TrustCenter() {
             )}
 
             {section === "security" && (
-              <SectionWrapper title="Platform Security™" description="Security capabilities implemented across the EXECLEAD.AI platform. Each capability supports 'View Evidence' for traceability.">
+              <SectionWrapper title="Security Commitments™" description="Enterprise security commitments. We describe what we commit to — not internal implementation mechanisms.">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {PLATFORM_SECURITY.map((item) => <CapabilityCard key={item.name} item={item} />)}
                 </div>
@@ -182,8 +186,20 @@ export default function TrustCenter() {
             )}
 
             {section === "ai" && (
-              <SectionWrapper title="Responsible AI™" description="Expanded disclosures covering AI limitations, human oversight, confidence methodology, evidence requirements, model governance, and bias monitoring.">
+              <SectionWrapper title="Responsible AI™" description="AI Transparency, Human Oversight, Bias Awareness, Privacy Protection, Responsible Recommendations, Continuous Model Evaluation, Executive Accountability, AI Safety, and Enterprise Governance.">
                 <ResponsibleAIDisclosures />
+              </SectionWrapper>
+            )}
+
+            {section === "assurance" && (
+              <SectionWrapper title="Enterprise Assurance™" description="Concise enterprise assurance statements across the dimensions that matter to security teams, procurement, and enterprise buyers.">
+                <EnterpriseAssurance />
+              </SectionWrapper>
+            )}
+
+            {section === "principles" && (
+              <SectionWrapper title="Trust Principles" description="The platform philosophy behind every assurance statement. EXECLEAD.AI earns trust through evidence, transparency, and responsible governance.">
+                <TrustPrinciples />
               </SectionWrapper>
             )}
 
@@ -214,8 +230,8 @@ export default function TrustCenter() {
             )}
 
             {section === "audit-log" && (
-              <SectionWrapper title="Live Audit Log™" description="Recent platform changes including governance pipeline runs, self-healing events, and state transitions.">
-                <LiveAuditLog auditEvents={auditEvents} loading={loading} />
+              <SectionWrapper title="Incident History" description="High-level incident history. Internal engineering event logs remain available to authorized users inside the Platform Governance Center™.">
+                <PublicIncidentHistory />
               </SectionWrapper>
             )}
 

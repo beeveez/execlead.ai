@@ -16,10 +16,10 @@
 export const CAPACITY_DISCLOSURE = {
   estimatedConcurrentUsers: 1000,
   basis: [
-    { factor: "Infrastructure", detail: "Serverless edge deployment with auto-scaling" },
-    { factor: "AI Provider Quota", detail: "Current LLM API rate limits and token quotas" },
-    { factor: "Database Capacity", detail: "Managed database with connection pooling" },
-    { factor: "Architecture", detail: "React SPA + serverless backend (Deno Deploy)" },
+    { factor: "Infrastructure", detail: "Scalable cloud deployment with automatic scaling" },
+    { factor: "AI Capacity", detail: "AI service capacity sized for current demand" },
+    { factor: "Data Storage", detail: "Managed, encrypted data storage" },
+    { factor: "Architecture", detail: "Cloud-native architecture designed for enterprise workloads" },
   ],
   note: "This estimate will increase as infrastructure and AI capacity scale.",
   lastAssessed: "2026-07-12",
@@ -232,43 +232,48 @@ export const TRUST_SCORECARD_DIMENSIONS = [
 // ════════════════════════════════════════════════════════════
 export const RESPONSIBLE_AI_DISCLOSURES = [
   {
-    topic: "AI Limitations",
-    detail: "EXEC™ provides guidance, not guaranteed outcomes. AI-generated scores are estimates based on available evidence. They do not predict actual career outcomes, promotion decisions, or hiring results. All AI recommendations are advisory — humans make final decisions.",
+    topic: "AI Transparency",
+    detail: "AI-generated scores and recommendations explain what they mean, how confidence was assessed, and how to improve. Every output is advisory — never a guaranteed outcome.",
     status: "implemented",
   },
   {
     topic: "Human Oversight",
-    detail: "Every AI-driven workflow includes human review points. Career decisions, reputation changes, and content moderation require human action. AI never auto-publishes, auto-promotes, or auto-rejects without human review where it matters.",
+    detail: "Career, reputation, and moderation decisions require human action. AI never auto-publishes, auto-promotes, or auto-rejects where it matters.",
     status: "implemented",
   },
   {
-    topic: "Confidence Methodology",
-    detail: "AI confidence scores (0–100) reflect evidence quantity and quality — not certainty of outcome. Higher confidence means more evidence supports the assessment, not that the assessment is guaranteed to be correct. Confidence is displayed alongside every intelligence output.",
-    status: "implemented",
-  },
-  {
-    topic: "Evidence Requirements",
-    detail: "AI recommendations cite evidence sources — resume data, experience entries, assessment results, certifications. Recommendations without sufficient evidence display low confidence and are flagged for human review. No recommendation is generated without a traceable evidence chain.",
-    status: "implemented",
-  },
-  {
-    topic: "Data Usage Policy",
-    detail: "User data is used only for the user's own executive development. AI models do not train on individual user data. Aggregated, anonymized data may be used for platform improvement. User data is never sold, shared with third parties for advertising, or used for purposes beyond stated platform functionality.",
-    status: "implemented",
-  },
-  {
-    topic: "Model Governance",
-    detail: "AI models are versioned (EXEC Prompt Version, Knowledge Pack Version). Model changes are tracked in the Platform Manifest™. The Knowledge Pack Engine™ ensures AI responses trace to specific knowledge packs and frameworks. Model behavior is monitored through the AI Operations dashboard.",
-    status: "implemented",
-  },
-  {
-    topic: "Bias Monitoring",
-    detail: "Continuous monitoring for bias in scoring and recommendations. The platform tracks score distributions across demographics where voluntarily disclosed. Formal bias audit is pending as part of the Responsible AI maturity program. Bias-aware design principles are applied to all scoring algorithms.",
+    topic: "Bias Awareness",
+    detail: "Scoring and recommendations are designed with bias-aware principles, and score distributions are monitored where voluntarily disclosed. A formal bias audit is part of our responsible AI maturity program.",
     status: "in_progress",
   },
   {
-    topic: "Known Limitations",
-    detail: "AI assessments are limited by the quality and completeness of user-provided data. Scores may be less accurate for non-traditional career paths, underrepresented industries, or emerging roles. The platform does not provide legal, financial, or medical advice. AI-generated content may contain inaccuracies — users should verify critical information.",
+    topic: "Privacy Protection",
+    detail: "User data is used only for the user's own development. Models do not train on individual user data, and data is never sold or used beyond stated platform functionality.",
+    status: "implemented",
+  },
+  {
+    topic: "Responsible Recommendations",
+    detail: "Recommendations cite evidence sources and display confidence. Recommendations without sufficient evidence are flagged for human review.",
+    status: "implemented",
+  },
+  {
+    topic: "Continuous Model Evaluation",
+    detail: "AI behavior is monitored and refined over time, with versioned guidance and traceable knowledge sources.",
+    status: "implemented",
+  },
+  {
+    topic: "Executive Accountability",
+    detail: "Executive leadership is accountable for responsible AI practices, with clear ownership of safety and governance commitments.",
+    status: "implemented",
+  },
+  {
+    topic: "AI Safety",
+    detail: "AI will not guarantee outcomes, make final decisions for users, or act without human review on consequential actions.",
+    status: "implemented",
+  },
+  {
+    topic: "Enterprise Governance",
+    detail: "Responsible AI practices are governed through documented principles, review checkpoints, and continuous improvement.",
     status: "implemented",
   },
 ];

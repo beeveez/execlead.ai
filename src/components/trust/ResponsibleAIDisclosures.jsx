@@ -9,8 +9,8 @@ export default function ResponsibleAIDisclosures() {
       <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4 flex items-start gap-3">
         <Brain size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
         <p className="text-xs text-white/50 leading-relaxed">
-          EXECLEAD.AI is committed to responsible AI. Our AI systems — EXEC™, Leadership DNA™, Executive Readiness —
-          are designed with transparency, fairness, and human oversight. These disclosures are expanded below.
+          EXECLEAD.AI is committed to responsible AI. Our AI systems are designed with
+          transparency, fairness, and human oversight. The commitments below are expanded in detail.
         </p>
       </div>
       {RESPONSIBLE_AI_DISCLOSURES.map((item) => (

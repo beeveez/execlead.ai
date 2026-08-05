@@ -1,44 +1,25 @@
 import React from "react";
 import {
-  ShieldCheck, Server, GitBranch, Activity, Cpu, Calendar, Layers, Rocket,
+  ShieldCheck, Server, GitBranch, Activity, Cpu, Calendar, Rocket,
 } from "lucide-react";
-import { PLATFORM_METADATA } from "@/lib/platformManifest";
 
 // Public Trust Center — customer-facing status card only.
 //
-// Design principle: "Transparent about commitments. Discrete about implementation."
-// Internal engineering metadata (Manifest, Knowledge, Framework, Prompt, Config,
-// Build, Schema, Repository versions, classification taxonomy, internal service
-// inventory) is NOT published here. Those live in the authenticated
-// Platform Governance Center™ for authorized users only.
-//
-// Customer-friendly value mapping (per Public Information Disclosure Standard):
-//   Manifest Version    → removed
-//   Knowledge Version   → removed
-//   Framework Version   → "Enterprise Framework · Current"
-//   Configuration Version → removed
-//   Build Number        → "Last Platform Update · <month year>"
-//   Internal Release #  → removed
-//   Platform Version    → "Platform Release · v<releaseVersion>"
-
-function formatLastUpdate(dateStr) {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "Recent";
-    return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  } catch {
-    return "Recent";
-  }
-}
+// Public Information Disclosure Standard v2.1:
+// "Transparent about commitments. Discrete about implementation."
+// Internal engineering metadata (Manifest, Knowledge, Framework, Prompt,
+// Config, Build, Schema, Repository versions, internal service inventory)
+// is NOT published here — it lives in the authenticated Platform Governance
+// Center™ for authorized users only.
 
 const STATUS_ITEMS = [
-  { label: "Platform Release", value: `v${PLATFORM_METADATA.releaseVersion}`, icon: GitBranch },
-  { label: "Release Channel", value: "Production", icon: Server },
-  { label: "Platform Status", value: "Healthy", icon: ShieldCheck, tone: "emerald" },
-  { label: "Availability", value: "Operational", icon: Activity, tone: "emerald" },
-  { label: "Enterprise Framework", value: "Current", icon: Layers },
-  { label: "Last Platform Update", value: formatLastUpdate(PLATFORM_METADATA.releaseDate), icon: Calendar },
-  { label: "Enterprise Readiness", value: "Private Beta", icon: Rocket, tone: "indigo" },
+  { label: "Platform Release", value: "Release Candidate 1 (RC1)", icon: GitBranch, tone: "indigo" },
+  { label: "Environment", value: "Enterprise Production", icon: Server },
+  { label: "Platform Status", value: "Operational", icon: ShieldCheck, tone: "emerald" },
+  { label: "Availability", value: "Available", icon: Activity, tone: "emerald" },
+  { label: "Enterprise Readiness", value: "Founding Executive Beta", icon: Rocket, tone: "indigo" },
+  { label: "Last Platform Update", value: "August 2026", icon: Calendar },
+  { label: "Operational Health", value: "Healthy", icon: Activity, tone: "emerald" },
 ];
 
 const toneClasses = {

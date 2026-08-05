@@ -1,0 +1,223 @@
+{
+  "name": "ArchitectureException",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "exception_id": {
+      "type": "string",
+      "description": "Unique exception ID (EXC-NNN)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short title of the exception"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owner accountable for the exception"
+    },
+    "workspace": {
+      "type": "string",
+      "description": "Affected workspace (executive, enterprise, platform, developer)"
+    },
+    "module": {
+      "type": "string",
+      "description": "Affected module / file"
+    },
+    "runtime_dependency": {
+      "type": "string",
+      "description": "Which Base44 runtime API is used (entity, InvokeLLM, UploadFile, auth, config)"
+    },
+    "alternative_considered": {
+      "type": "string",
+      "description": "Platform Service / Repository alternative that was considered and why it was insufficient"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "risk_assessment": {
+      "type": "string",
+      "description": "Architectural risk assessment"
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "approved",
+        "rejected",
+        "expired",
+        "revoked"
+      ],
+      "default": "submitted"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "Reviewer name"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approval_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expected_resolution": {
+      "type": "string",
+      "description": "How / when this exception will be removed"
+    },
+    "actual_resolution": {
+      "type": "string"
+    },
+    "current_state": {
+      "type": "string",
+      "enum": [
+        "active",
+        "resolved",
+        "expired",
+        "revoked"
+      ],
+      "default": "active"
+    },
+    "target_removal_version": {
+      "type": "string",
+      "description": "Target version where the exception is retired"
+    },
+    "migration_path": {
+      "type": "string",
+      "description": "Identified migration path to a Platform Service"
+    },
+    "supporting_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "exception_id",
+    "title",
+    "owner",
+    "module",
+    "approval_status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

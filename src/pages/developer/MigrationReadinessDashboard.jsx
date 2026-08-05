@@ -10,6 +10,7 @@ import DependencyAuditTable from "@/components/migration-readiness/DependencyAud
 import PlatformServicesAdoption from "@/components/migration-readiness/PlatformServicesAdoption";
 import ArchitectureValidation from "@/components/migration-readiness/ArchitectureValidation";
 import ServiceObservability from "@/components/migration-readiness/ServiceObservability";
+import PlatformExceptionGovernance from "@/components/developer/PlatformExceptionGovernance";
 import { listServices } from "@/lib/platformServices";
 import { getObservability } from "@/lib/serviceObservability";
 
@@ -70,6 +71,9 @@ export default function MigrationReadinessDashboard() {
 
       {/* Service Observability™ */}
       <ServiceObservability observability={observability} consumerCount={adoption.consumers} onRefresh={refreshObservability} />
+
+      {/* Platform Exception Governance™ */}
+      <PlatformExceptionGovernance />
 
       {/* Migration phases strip */}
       <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-5">

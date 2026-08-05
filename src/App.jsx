@@ -303,6 +303,7 @@ import ReleaseReadiness from '@/pages/ReleaseReadiness';
 import FeatureFlagCenter from '@/pages/FeatureFlagCenter';
 import SystemStatusCenter from '@/pages/SystemStatusCenter';
 import ArchitectureGovernanceBoard from '@/pages/ArchitectureGovernanceBoard';
+import ArchitectureDecisionRecords from '@/pages/ArchitectureDecisionRecords';
 import DeveloperPortal from '@/pages/DeveloperPortal';
 import ExperienceIntelligenceDashboard from '@/pages/developer/ExperienceIntelligenceDashboard';
 import PerformanceDashboard from '@/pages/developer/PerformanceDashboard';
@@ -650,6 +651,7 @@ const AuthenticatedApp = () => {
           <Route path="/feature-flags" element={<FeatureFlagCenter />} />
           <Route path="/system-status" element={<SystemStatusCenter />} />
           <Route path="/architecture-governance" element={<ArchitectureGovernanceBoard />} />
+          <Route path="/architecture-decisions" element={<ArchitectureDecisionRecords />} />
           <Route path="/developer-portal" element={<DeveloperPortal />} />
           <Route path="/developer/experience-intelligence" element={<ExperienceIntelligenceDashboard />} />
           <Route path="/developer/performance" element={<PerformanceDashboard />} />

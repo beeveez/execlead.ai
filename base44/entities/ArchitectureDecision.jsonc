@@ -1,0 +1,239 @@
+{
+  "name": "ArchitectureDecision",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "adr_id": {
+      "type": "string",
+      "description": "Unique ADR identifier (ADR-NNNN)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short, imperative title of the decision"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "platform",
+        "architecture",
+        "security",
+        "ai",
+        "identity",
+        "commercial",
+        "experience",
+        "data",
+        "infrastructure",
+        "developer_experience",
+        "performance"
+      ],
+      "default": "architecture"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "accepted",
+        "implemented",
+        "deprecated",
+        "superseded",
+        "rejected"
+      ],
+      "default": "proposed"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Accountable owner of the decision"
+    },
+    "decision_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "problem_statement": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "What problem does this decision solve?"
+    },
+    "decision": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "The decision that was made"
+    },
+    "alternatives_considered": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Alternatives evaluated and why they were not chosen"
+    },
+    "rationale": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Reasoning behind the decision"
+    },
+    "consequences": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Expected consequences, trade-offs, and follow-up work"
+    },
+    "affected_services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Platform Services\u2122 / capabilities impacted"
+    },
+    "affected_workspaces": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "executive",
+          "enterprise",
+          "platform",
+          "developer"
+        ]
+      }
+    },
+    "related_standards": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Related Architecture Standards\u2122 references"
+    },
+    "related_exception_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Linked ArchitectureException exception_id values"
+    },
+    "related_releases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Release versions where this decision shipped"
+    },
+    "migration_impact": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Impact on Migration Readiness\u2122 and migration path"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Next scheduled review date"
+    },
+    "superseded_by": {
+      "type": "string",
+      "description": "adr_id of the ADR that supersedes this one"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "File URLs (diagrams, docs, evidence)"
+    },
+    "trigger_source": {
+      "type": "string",
+      "description": "What triggered this ADR (manual, exception, standard, service, repository, policy, runtime)"
+    },
+    "source_ref_id": {
+      "type": "string",
+      "description": "ID of the triggering record (exception_id, standard id, service name, etc.)"
+    }
+  },
+  "required": [
+    "adr_id",
+    "title",
+    "category",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -98,15 +98,20 @@ export const COMPLIANCE_FRAMEWORKS = [
 // ════════════════════════════════════════════════════════════
 // SECTION 4 — ENTERPRISE GOVERNANCE™
 // ════════════════════════════════════════════════════════════
+// Enterprise Governance — customer-facing commitments only.
+// Internal service inventory (Platform Manifest™, Platform State Manager™,
+// Knowledge Pack Engine™, Registry Synchronization™, internal registries) is
+// intentionally omitted from public disclosure and reserved for the
+// authenticated Platform Governance Center™.
 export const ENTERPRISE_GOVERNANCE = [
-  { name: "Platform Manifest™", status: "implemented", detail: "Canonical source of truth for platform architecture, modules, and capabilities" },
-  { name: "Knowledge Pack Engine™", status: "implemented", detail: "Structured knowledge framework resolution for EXEC™ AI engine" },
-  { name: "Platform Governance Center™", status: "implemented", detail: "Governance pipeline, certification, manifest validation, findings" },
-  { name: "Foundation Certification™", status: "implemented", detail: "Internal architectural acceptance test — 7 threshold metrics, 10-phase verification" },
-  { name: "Platform Intelligence Quotient™", status: "implemented", detail: "8-domain weighted intelligence score measuring platform maturity" },
-  { name: "Enterprise Resilience™", status: "implemented", detail: "10-dimension resilience score covering performance, scalability, fault tolerance" },
-  { name: "Platform State Manager™", status: "implemented", detail: "Centralized runtime state management with real-time synchronization" },
-  { name: "Registry Synchronization™", status: "implemented", detail: "Module, framework, knowledge pack, and capability registry sync" },
+  { name: "Architectural Governance", status: "implemented", detail: "An independent governance pipeline validates architectural integrity and consistency before every release reaches production." },
+  { name: "Knowledge Integrity", status: "implemented", detail: "AI guidance is grounded in structured, version-controlled knowledge frameworks so responses stay consistent and auditable." },
+  { name: "Operational Intelligence", status: "implemented", detail: "Platform-wide telemetry continuously tracks reliability, coverage, and health across customer-facing services." },
+  { name: "Release Integrity", status: "implemented", detail: "Every release must pass certification checks and readiness gates before it is promoted to production." },
+  { name: "Responsible Change Management", status: "implemented", detail: "Changes to core systems are reviewed, documented, and traceable — architecture decisions are preserved for future teams." },
+  { name: "Continuous Improvement", status: "implemented", detail: "Automated detection and self-correction of platform drift keeps the production environment consistent without manual intervention." },
+  { name: "Compliance Posture", status: "implemented", detail: "Security and privacy controls are mapped to global frameworks with honest, evidence-based status — never implying certification that has not been earned." },
+  { name: "Transparency Commitment", status: "implemented", detail: "Public Trust Center disclosures are version-controlled and evidence-based, distinguishing commitments from implementation detail." },
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -126,15 +131,19 @@ export const RESPONSIBLE_AI = [
 // ════════════════════════════════════════════════════════════
 // SECTION 6 — OPERATIONAL RELIABILITY™
 // ════════════════════════════════════════════════════════════
+// Operational Reliability — customer-facing commitments only.
+// Internal runtime components and internal scores (Guardian™, Platform State
+// Manager™, PIQ™, ERS™, Foundation Certification™) are reserved for the
+// authenticated Platform Governance Center™ and not disclosed publicly.
 export const OPERATIONAL_RELIABILITY = [
-  { name: "Platform Health", status: "implemented", detail: "Real-time health monitoring, Platform State tracking, system status dashboard" },
-  { name: "Deployment Readiness", status: "implemented", detail: "Deployment readiness checks, release gate, foundation verification" },
-  { name: "Runtime Health", status: "implemented", detail: "Guardian runtime validation, error boundaries, consistency engine" },
-  { name: "Scalability", status: "implemented", detail: "Serverless edge auto-scaling, CDN, capacity assessment — ~1,000 concurrent users" },
-  { name: "Enterprise Readiness", status: "implemented", detail: "Enterprise Resilience Score™ (73/100), SSO, SCIM, audit logs on Enterprise plan" },
-  { name: "Foundation Certification™", status: "implemented", detail: "Internal certification pipeline — 7 thresholds, 10-phase verification" },
-  { name: "Platform Intelligence™", status: "implemented", detail: "Platform Intelligence Quotient™ (PIQ™) — 8-domain intelligence score" },
-  { name: "Guardian™", status: "implemented", detail: "Self-healing engine, runtime consistency, automated repair, audit logging" },
+  { name: "Production Monitoring", status: "implemented", detail: "Real-time health monitoring across all customer-facing services, with a public system status view." },
+  { name: "High Availability", status: "implemented", detail: "Serverless edge deployment with automatic scaling, CDN delivery, and failover handling." },
+  { name: "Incident Response", status: "implemented", detail: "Documented incident response process with severity-based escalation and post-incident review." },
+  { name: "Data Resilience", status: "implemented", detail: "Encrypted, durable storage protects customer data with secure backup and recovery practices." },
+  { name: "Scalability", status: "implemented", detail: "Architecture is designed to scale to enterprise workloads as demand grows." },
+  { name: "Release Readiness", status: "implemented", detail: "Pre-deployment checks and readiness gates validate stability before each production release." },
+  { name: "Service Continuity", status: "implemented", detail: "Runtime validation and error containment keep the platform running even when individual components encounter issues." },
+  { name: "Capacity Planning", status: "implemented", detail: "Ongoing capacity assessment ensures the platform grows in step with customer demand." },
 ];
 
 // ════════════════════════════════════════════════════════════

@@ -1,18 +1,51 @@
 import React from "react";
-import { Cpu, Calendar, Hash, GitBranch, Database, Settings, Server, FileText, ShieldCheck } from "lucide-react";
+import {
+  ShieldCheck, Server, GitBranch, Activity, Cpu, Calendar, Layers, Rocket,
+} from "lucide-react";
 import { PLATFORM_METADATA } from "@/lib/platformManifest";
-import { CLASSIFICATION_LEVELS } from "@/lib/trustCenterExtendedData";
 
-const META_ITEMS = [
-  { label: "Platform Version", value: PLATFORM_METADATA.platformVersion, icon: GitBranch },
-  { label: "Build Number", value: PLATFORM_METADATA.buildNumber, icon: Hash },
-  { label: "Manifest Version", value: PLATFORM_METADATA.manifestVersion, icon: Database },
-  { label: "Knowledge Pack Version", value: PLATFORM_METADATA.knowledgeVersion, icon: Cpu },
-  { label: "Framework Version", value: PLATFORM_METADATA.frameworkVersion, icon: FileText },
-  { label: "Configuration Version", value: PLATFORM_METADATA.configVersion, icon: Settings },
-  { label: "Environment", value: PLATFORM_METADATA.environment, icon: Server },
-  { label: "Release Version", value: PLATFORM_METADATA.releaseVersion, icon: GitBranch },
+// Public Trust Center — customer-facing status card only.
+//
+// Design principle: "Transparent about commitments. Discrete about implementation."
+// Internal engineering metadata (Manifest, Knowledge, Framework, Prompt, Config,
+// Build, Schema, Repository versions, classification taxonomy, internal service
+// inventory) is NOT published here. Those live in the authenticated
+// Platform Governance Center™ for authorized users only.
+//
+// Customer-friendly value mapping (per Public Information Disclosure Standard):
+//   Manifest Version    → removed
+//   Knowledge Version   → removed
+//   Framework Version   → "Enterprise Framework · Current"
+//   Configuration Version → removed
+//   Build Number        → "Last Platform Update · <month year>"
+//   Internal Release #  → removed
+//   Platform Version    → "Platform Release · v<releaseVersion>"
+
+function formatLastUpdate(dateStr) {
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "Recent";
+    return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  } catch {
+    return "Recent";
+  }
+}
+
+const STATUS_ITEMS = [
+  { label: "Platform Release", value: `v${PLATFORM_METADATA.releaseVersion}`, icon: GitBranch },
+  { label: "Release Channel", value: "Production", icon: Server },
+  { label: "Platform Status", value: "Healthy", icon: ShieldCheck, tone: "emerald" },
+  { label: "Availability", value: "Operational", icon: Activity, tone: "emerald" },
+  { label: "Enterprise Framework", value: "Current", icon: Layers },
+  { label: "Last Platform Update", value: formatLastUpdate(PLATFORM_METADATA.releaseDate), icon: Calendar },
+  { label: "Enterprise Readiness", value: "Private Beta", icon: Rocket, tone: "indigo" },
 ];
+
+const toneClasses = {
+  emerald: "text-emerald-400",
+  indigo: "text-indigo-400",
+  default: "text-white/80",
+};
 
 export default function PlatformInformationCard() {
   return (
@@ -23,46 +56,33 @@ export default function PlatformInformationCard() {
             <Cpu size={16} className="text-indigo-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">Platform Information™</h3>
-            <p className="text-[10px] text-white/30">Version-controlled platform metadata</p>
+            <h3 className="text-sm font-bold text-white">Platform Status</h3>
+            <p className="text-[10px] text-white/30">Customer-facing platform status and availability</p>
           </div>
           <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-            <ShieldCheck size={11} className="text-emerald-400" />
-            <span className="text-[10px] font-medium text-emerald-400">Public</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-medium text-emerald-400">Live</span>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {META_ITEMS.map((item) => {
+          {STATUS_ITEMS.map((item) => {
             const Icon = item.icon;
+            const tone = toneClasses[item.tone] || toneClasses.default;
             return (
               <div key={item.label} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <Icon size={11} className="text-white/30" />
                   <span className="text-[9px] text-white/30 uppercase tracking-wider">{item.label}</span>
                 </div>
-                <span className="text-xs font-mono font-medium text-white/80 break-all">{item.value}</span>
+                <span className={`text-xs font-medium ${tone}`}>{item.value}</span>
               </div>
             );
           })}
         </div>
       </div>
-      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-        <div className="text-[10px] text-white/30 uppercase tracking-wider mb-3">Document Classification Levels</div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {Object.entries(CLASSIFICATION_LEVELS).map(([level, cfg]) => (
-            <div key={level} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5">
-              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: cfg.color }} />
-              <div className="min-w-0">
-                <div className="text-[11px] font-medium text-white/70">{level}</div>
-                <div className="text-[9px] text-white/30 truncate">{cfg.description}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
       <div className="flex items-center gap-2 text-[10px] text-white/30">
         <Calendar size={11} />
-        Generated: {new Date().toLocaleString()} by EXEC™ — Enterprise Trust Center™ v2.0
+        Generated: {new Date().toLocaleString()} · Enterprise Trust Center™
       </div>
     </div>
   );

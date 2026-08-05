@@ -11,6 +11,9 @@ import { computeReadinessIndex } from "./platformReadinessIndex";
 import { runKnowledgeSync } from "./execKnowledgeSyncEngine";
 import { useAuth } from "./AuthContext";
 import { base44 } from "@/api/base44Client";
+import {
+  canCreateGovernanceRecord, newGovernanceRequestId, logGovernanceCreate,
+} from "@/lib/governanceAuditLogger";
 
 /**
  * Platform State Manager™ — Core Platform Service #7
@@ -178,8 +181,13 @@ export function PlatformStateProvider({ children }) {
 
   const persistStateEvent = useCallback((event, payload, currentState) => {
     if (!currentState) return;
+    // Workspace Isolation™ — PlatformStateEvent is an internal platform
+    // governance record. Only authenticated trusted-administrative roles may
+    // persist it; executives / members / anonymous skip persistence entirely.
+    if (!canCreateGovernanceRecord(user)) return;
+    const requestId = newGovernanceRequestId();
     try {
-      base44.entities.PlatformStateEvent.create({
+      const record = {
         trigger: event,
         source: payload?.source || "system",
         platform_version: currentState.platformVersion,
@@ -191,7 +199,14 @@ export function PlatformStateProvider({ children }) {
         execution_time_ms: 0,
         user_id: user?.id || "system",
         user_name: user?.full_name || "System",
-      });
+        user_role: user?.role || "",
+        request_id: requestId,
+      };
+      base44.entities.PlatformStateEvent.create(record)
+        .then(() => logGovernanceCreate({
+          entity: "PlatformStateEvent", record, user, requestId, workspace: "developer",
+        }))
+        .catch(() => {});
     } catch {}
   }, [user]);
 

@@ -48,6 +48,14 @@
     },
     "user_name": {
       "type": "string"
+    },
+    "user_role": {
+      "type": "string",
+      "description": "Role of the authenticated user who created this record (audit)"
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Correlation ID for the create operation (audit traceability)"
     }
   },
   "required": [

@@ -6,6 +6,9 @@ import { subscribeAll } from "./platformEventBus";
 import { useGuardian } from "./GuardianContext";
 import { useAuth } from "./AuthContext";
 import { base44 } from "@/api/base44Client";
+import {
+  canCreateGovernanceRecord, newGovernanceRequestId, logGovernanceCreate,
+} from "@/lib/governanceAuditLogger";
 
 /**
  * Platform Governance Pipeline™ Context
@@ -45,8 +48,13 @@ export function GovernancePipelineProvider({ children }) {
   const runningRef = useRef(false);
 
   const persistCertificate = useCallback((cert) => {
+    // Workspace Isolation™ — GovernanceCertificate is an internal platform
+    // governance record. Only authenticated trusted-administrative roles may
+    // persist it; executives / members / anonymous skip persistence entirely.
+    if (!canCreateGovernanceRecord(user)) return;
+    const requestId = newGovernanceRequestId();
     try {
-      base44.entities.GovernanceCertificate.create({
+      const record = {
         certificate_id: cert.certificateId,
         trigger: cert.trigger,
         certified: cert.certified,
@@ -76,7 +84,14 @@ export function GovernancePipelineProvider({ children }) {
         execution_time_ms: cert.duration,
         user_id: user?.id || "system",
         user_name: user?.full_name || "System",
-      });
+        user_role: user?.role || "",
+        request_id: requestId,
+      };
+      base44.entities.GovernanceCertificate.create(record)
+        .then(() => logGovernanceCreate({
+          entity: "GovernanceCertificate", record, user, requestId, workspace: "developer",
+        }))
+        .catch(() => {});
     } catch {}
   }, [user]);
 

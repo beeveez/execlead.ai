@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Loader2, AlertCircle, ChevronRight, ShieldCheck } from 'lucide-react';
+import {
+  Sparkles, Send, Loader2, AlertCircle, ChevronRight, ShieldCheck, Clock, Database,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { trackKnowledgeAiAsk } from '@/lib/knowledgeIntelligenceClient';
 
-// Score relevance of an article to a query (simple keyword overlap).
 function scoreArticle(article, q) {
   const haystack = `${article.question} ${article.short_answer} ${article.detailed_answer || ''} ${(article.tags || []).join(' ')} ${article.category}`.toLowerCase();
   const terms = q.toLowerCase().split(/\s+/).filter((t) => t.length > 2);
   if (!terms.length) return 0;
   let score = 0;
   for (const t of terms) if (haystack.includes(t)) score += 1;
-  // Boost exact question proximity
   if (article.question.toLowerCase().includes(q.toLowerCase())) score += 3;
   return score;
 }
+
+function confLabel(c) {
+  if (c >= 75) return { label: 'High', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/25' };
+  if (c >= 50) return { label: 'Medium', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/25' };
+  return { label: 'Low', color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/25' };
+}
+function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return '—'; } }
 
 export default function AskExec({ articles, onOpen }) {
   const [query, setQuery] = useState('');
@@ -32,11 +40,14 @@ export default function AskExec({ articles, onOpen }) {
         .slice(0, 5);
 
       if (ranked.length === 0) {
-        try { base44.analytics.track({ eventName: 'knowledge_no_result', properties: { q: query.slice(0, 120) } }); } catch (e) {}
+        trackKnowledgeAiAsk({ query, confidence: 0, sourcesCount: 0, noResult: true, citedSlugs: [] });
         setResult({
-          answer: "I don't have enough approved information to answer that confidently. Here are some related questions that may help.",
+          answer: "I couldn't find enough approved documentation to answer this confidently. Here are some related questions that may help.",
           sources: articles.slice(0, 4),
           noResult: true,
+          confidence: 0,
+          sourcesCount: 0,
+          freshness: null,
         });
         setLoading(false);
         return;
@@ -44,7 +55,6 @@ export default function AskExec({ articles, onOpen }) {
 
       const context = ranked.map((r, i) => `ARTICLE ${i + 1}\nQuestion: ${r.a.question}\nShort Answer: ${r.a.short_answer}\nDetailed: ${r.a.detailed_answer || ''}`).join('\n\n');
       const prompt = `You are EXEC™, the AI assistant for the EXECLEAD.AI Executive Knowledge Center™. Answer the user's question using ONLY the approved knowledge articles below. Never invent information. If the articles do not fully answer the question, say so briefly and recommend the listed related questions. Keep the answer concise (2-4 sentences) and executive in tone.\n\nKNOWLEDGE ARTICLES:\n${context}\n\nUSER QUESTION: ${query}\n\nANSWER:`;
-      try { base44.analytics.track({ eventName: 'knowledge_ask_exec', properties: { q: query.slice(0, 120), matched: ranked.length } }); } catch (e) {}
 
       const res = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -60,13 +70,21 @@ export default function AskExec({ articles, onOpen }) {
       const answer = data.answer || '';
       const slugs = data.source_slugs || ranked.map((r) => r.a.slug);
       const sources = slugs.map((s) => articles.find((a) => a.slug === s)).filter(Boolean);
-      setResult({ answer, sources: sources.length ? sources : ranked.map((r) => r.a) });
+      const finalSources = sources.length ? sources : ranked.map((r) => r.a);
+      const sourcesCount = finalSources.length;
+      const confidence = Math.min(100, 40 + sourcesCount * 20);
+      const freshness = finalSources.map((s) => s.last_updated || s.updated_date).filter(Boolean).sort().pop();
+      trackKnowledgeAiAsk({ query, confidence, sourcesCount, noResult: false, citedSlugs: slugs });
+      setResult({ answer, sources: finalSources, confidence, sourcesCount, freshness });
     } catch (e) {
-      setResult({ answer: 'Ask EXEC™ is temporarily unavailable. Please try the search above or browse the categories.', sources: [], error: true });
+      trackKnowledgeAiAsk({ query, confidence: 0, sourcesCount: 0, noResult: true, citedSlugs: [] });
+      setResult({ answer: 'Ask EXEC™ is temporarily unavailable. Please try the search above or browse the categories.', sources: [], error: true, confidence: 0, sourcesCount: 0, freshness: null });
     } finally {
       setLoading(false);
     }
   };
+
+  const c = result ? confLabel(result.confidence) : null;
 
   return (
     <div className="rounded-2xl border border-accent-orange/20 bg-gradient-to-br from-accent-orange/[0.06] to-transparent p-5">
@@ -93,8 +111,22 @@ export default function AskExec({ articles, onOpen }) {
       <AnimatePresence>
         {result && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
+            {/* AI Confidence™ strip */}
+            {!result.error && (
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold border ${c.bg} ${c.border} ${c.color}`}>
+                  <ShieldCheck size={11} /> Confidence {c.label} · {result.confidence}%
+                </span>
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] bg-white/5 border border-white/10 text-white/55">
+                  <Database size={10} /> {result.sourcesCount} source{result.sourcesCount === 1 ? '' : 's'}
+                </span>
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[11px] bg-white/5 border border-white/10 text-white/45">
+                  <Clock size={10} /> Updated {fmtDate(result.freshness)}
+                </span>
+              </div>
+            )}
             <div className="flex items-start gap-2 rounded-xl bg-white/[0.03] border border-white/8 p-4">
-              {result.error ? <AlertCircle size={15} className="text-amber-400 shrink-0 mt-0.5" /> : <ShieldCheck size={15} className="text-emerald-400 shrink-0 mt-0.5" />}
+              {result.error || result.noResult ? <AlertCircle size={15} className="text-amber-400 shrink-0 mt-0.5" /> : <ShieldCheck size={15} className="text-emerald-400 shrink-0 mt-0.5" />}
               <p className="text-[13px] text-white/75 leading-relaxed">{result.answer}</p>
             </div>
             {result.sources && result.sources.length > 0 && (

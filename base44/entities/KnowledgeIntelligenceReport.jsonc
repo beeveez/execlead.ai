@@ -1,0 +1,169 @@
+{
+  "name": "KnowledgeIntelligenceReport",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "report_id": {
+      "type": "string",
+      "description": "Unique report id (KI-YYYY-WNN)"
+    },
+    "week_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "week_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "overall_health": {
+      "type": "number",
+      "default": 0
+    },
+    "coverage_score": {
+      "type": "number",
+      "default": 0
+    },
+    "search_success_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "ai_avg_confidence": {
+      "type": "number",
+      "default": 0
+    },
+    "total_searches": {
+      "type": "number",
+      "default": 0
+    },
+    "zero_result_count": {
+      "type": "number",
+      "default": 0
+    },
+    "top_gaps_json": {
+      "type": "string"
+    },
+    "top_articles_json": {
+      "type": "string"
+    },
+    "recommendations_json": {
+      "type": "string"
+    },
+    "summary_json": {
+      "type": "string"
+    },
+    "emailed_to": {
+      "type": "string",
+      "description": "Comma-separated admin emails that received the weekly digest"
+    }
+  },
+  "required": [
+    "report_id",
+    "week_start",
+    "week_end"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -6,6 +6,7 @@ import {
   ChevronRight, Users,
 } from 'lucide-react';
 import { TRUST_CATEGORIES } from '@/lib/knowledgeCenterData';
+import { trackKnowledgeRelated, trackKnowledgeTrustRef } from '@/lib/knowledgeIntelligenceClient';
 
 function fmtDate(d) {
   if (!d) return '—';
@@ -78,7 +79,7 @@ export default function ArticleDetail({ article, articles, onBack, onRelated, on
 
       {/* Trust Center linking */}
       {TRUST_CATEGORIES.includes(article.category) && (
-        <Link to="/trust-center" className="block rounded-xl border border-indigo-500/20 bg-indigo-500/[0.05] p-4 mb-6 hover:bg-indigo-500/[0.08] transition-colors">
+        <Link to="/trust-center" onClick={() => trackKnowledgeTrustRef(article.slug)} className="block rounded-xl border border-indigo-500/20 bg-indigo-500/[0.05] p-4 mb-6 hover:bg-indigo-500/[0.08] transition-colors">
           <div className="flex items-center gap-2">
             <ShieldCheck size={15} className="text-indigo-300" />
             <span className="text-[13px] font-semibold text-white">Learn more in the Trust Center™</span>
@@ -94,7 +95,7 @@ export default function ArticleDetail({ article, articles, onBack, onRelated, on
           <div className="text-[11px] uppercase tracking-wider text-white/40 font-semibold mb-2">Related Questions</div>
           <div className="space-y-2">
             {related.map((r) => (
-              <button key={r.slug} onClick={() => onRelated(r.slug)} className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] px-4 py-3 transition-colors text-left">
+              <button key={r.slug} onClick={() => { trackKnowledgeRelated(r.slug); onRelated(r.slug); }} className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.04] px-4 py-3 transition-colors text-left">
                 <span className="text-[13px] text-white/75">{r.question}</span>
                 <ChevronRight size={14} className="text-white/40 shrink-0" />
               </button>

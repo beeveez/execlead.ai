@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Building2, TrendingUp, Newspaper, Sparkles, X, ShieldCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import {
+  trackKnowledgeSearch, trackKnowledgeView, trackKnowledgeVote,
+} from '@/lib/knowledgeIntelligenceClient';
+import {
   ARTICLES, NAV_GROUPS, AUDIENCES, ENTERPRISE_FAQ_SLUGS, INVESTOR_FAQ_SLUGS, MEDIA_FAQ_SLUGS,
 } from '@/lib/knowledgeCenterData';
 import ArticleCard from '@/components/knowledge/ArticleCard';
@@ -35,7 +38,9 @@ export default function KnowledgeCenter() {
 
   const openArticle = (slug) => {
     setSelectedSlug(slug);
+    const art = articles.find((a) => a.slug === slug);
     try { base44.analytics.track({ eventName: 'knowledge_article_view', properties: { slug } }); } catch (e) {}
+    trackKnowledgeView(slug, art?.category);
     const url = new URL(window.location.href);
     url.searchParams.set('article', slug);
     window.history.replaceState({}, '', url.toString());
@@ -51,13 +56,15 @@ export default function KnowledgeCenter() {
   const onSearch = (q) => {
     setQuery(q);
     if (q && q.length > 2) {
-      const hasResults = articles.some((a) => matchesQuery(a, q));
-      try { base44.analytics.track({ eventName: hasResults ? 'knowledge_search' : 'knowledge_no_result', properties: { q: q.slice(0, 120) } }); } catch (e) {}
+      const cnt = articles.filter((a) => matchesQuery(a, q.trim())).length;
+      try { base44.analytics.track({ eventName: cnt ? 'knowledge_search' : 'knowledge_no_result', properties: { q: q.slice(0, 120) } }); } catch (e) {}
+      trackKnowledgeSearch(q, cnt, audience || '');
     }
   };
 
   const onVote = (slug, helpful) => {
     try { base44.analytics.track({ eventName: 'knowledge_helpful_vote', properties: { slug, helpful } }); } catch (e) {}
+    trackKnowledgeVote(slug, helpful);
   };
 
   const selected = useMemo(() => articles.find((a) => a.slug === selectedSlug), [articles, selectedSlug]);

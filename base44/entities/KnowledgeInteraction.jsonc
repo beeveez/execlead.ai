@@ -1,0 +1,193 @@
+{
+  "name": "KnowledgeInteraction",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "interaction_type": {
+      "type": "string",
+      "enum": [
+        "search",
+        "no_result",
+        "article_view",
+        "vote",
+        "ai_ask",
+        "related_click",
+        "trust_ref"
+      ],
+      "description": "The knowledge event type"
+    },
+    "query": {
+      "type": "string",
+      "description": "Search or Ask EXEC\u2122 question text"
+    },
+    "slug": {
+      "type": "string",
+      "description": "KnowledgeArticle slug involved"
+    },
+    "category": {
+      "type": "string",
+      "description": "Article category (when known)"
+    },
+    "audience": {
+      "type": "string",
+      "description": "Inferred audience (General User, Enterprise, Investors, Media, ...)"
+    },
+    "source": {
+      "type": "string",
+      "description": "hub | detail | ask | search"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Anonymous browser session id"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Authenticated user id (when available)"
+    },
+    "path": {
+      "type": "string",
+      "description": "Page path where event occurred"
+    },
+    "referrer_path": {
+      "type": "string",
+      "description": "Document referrer (commercial intelligence)"
+    },
+    "helpful": {
+      "type": "boolean",
+      "description": "Vote value (helpful=true / not-helpful=false)"
+    },
+    "result_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Search result count"
+    },
+    "confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "Ask EXEC\u2122 confidence 0-100"
+    },
+    "ai_sources_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of approved articles Ask EXEC\u2122 used"
+    },
+    "ai_no_result": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ask EXEC\u2122 had insufficient evidence"
+    },
+    "cited_slugs_json": {
+      "type": "string",
+      "description": "JSON array of article slugs cited by Ask EXEC\u2122"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "interaction_type",
+    "session_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

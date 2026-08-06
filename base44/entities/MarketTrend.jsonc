@@ -1,53 +1,54 @@
 {
-  "name": "ChangeHistory",
+  "name": "MarketTrend",
   "type": "object",
   "properties": {
     "description": {
       "type": "string",
       "maxLength": 1000
     },
-    "competitor": {
-      "type": "string"
+    "trend_name": {
+      "type": "string",
+      "description": "Name of the industry / market trend"
     },
-    "change_type": {
+    "category": {
       "type": "string",
       "enum": [
-        "product_launch",
-        "major_feature_release",
-        "new_feature",
-        "product_release",
-        "pricing_change",
-        "funding",
-        "acquisition",
-        "leadership_change",
-        "strategic_partnership",
-        "enterprise_certification",
-        "security_certification",
-        "responsible_ai_update",
-        "security_announcement",
-        "public_integration",
-        "developer_activity",
-        "job_posting",
-        "patent_announcement",
-        "compliance",
-        "enterprise_integration",
-        "api_change",
-        "ai_release"
+        "Leadership Technology",
+        "AI Leadership Platforms",
+        "Enterprise Learning",
+        "Executive Coaching",
+        "Talent Intelligence",
+        "Executive Assessments",
+        "AI Agents",
+        "Enterprise HR Technology",
+        "Succession Planning",
+        "Executive Development"
       ],
-      "default": "product_release"
+      "default": "Leadership Technology"
     },
-    "headline": {
-      "type": "string"
-    },
-    "summary": {
-      "type": "string"
-    },
-    "source": {
-      "type": "string"
-    },
-    "change_date": {
+    "trend_direction": {
       "type": "string",
-      "format": "date"
+      "enum": [
+        "Rising",
+        "Stable",
+        "Declining",
+        "Emerging"
+      ],
+      "default": "Rising"
+    },
+    "growth": {
+      "type": "string",
+      "description": "Qualitative or quantitative growth signal (e.g. 'Accelerating', 'Moderate')"
+    },
+    "impact": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "Medium"
     },
     "confidence": {
       "type": "string",
@@ -59,11 +60,7 @@
       ],
       "default": "Medium"
     },
-    "business_impact": {
-      "type": "string",
-      "description": "Qualitative business impact assessment (e.g. Low, Medium, High, Critical + note)"
-    },
-    "importance": {
+    "strategic_relevance": {
       "type": "string",
       "enum": [
         "Low",
@@ -71,11 +68,22 @@
         "High",
         "Critical"
       ],
-      "default": "Medium"
+      "default": "High"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [
-    "headline"
+    "trend_name",
+    "category"
   ],
   "rls": {
     "create": {

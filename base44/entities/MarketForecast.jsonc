@@ -1,53 +1,47 @@
 {
-  "name": "ChangeHistory",
+  "name": "MarketForecast",
   "type": "object",
   "properties": {
     "description": {
       "type": "string",
       "maxLength": 1000
     },
-    "competitor": {
-      "type": "string"
+    "scenario_name": {
+      "type": "string",
+      "description": "Name of the forecast scenario"
     },
-    "change_type": {
+    "forecast_area": {
       "type": "string",
       "enum": [
-        "product_launch",
-        "major_feature_release",
-        "new_feature",
-        "product_release",
-        "pricing_change",
-        "funding",
-        "acquisition",
-        "leadership_change",
-        "strategic_partnership",
-        "enterprise_certification",
-        "security_certification",
-        "responsible_ai_update",
-        "security_announcement",
-        "public_integration",
-        "developer_activity",
-        "job_posting",
-        "patent_announcement",
-        "compliance",
-        "enterprise_integration",
-        "api_change",
-        "ai_release"
+        "Executive Assessments",
+        "AI Executive Coaching",
+        "Enterprise Governance",
+        "Responsible AI",
+        "Executive Analytics",
+        "Leadership Simulations",
+        "Executive Identity",
+        "Succession Intelligence",
+        "Enterprise HR Technology",
+        "Market Consolidation"
       ],
-      "default": "product_release"
+      "default": "Executive Assessments"
     },
-    "headline": {
-      "type": "string"
+    "scenario_type": {
+      "type": "string",
+      "enum": [
+        "Baseline",
+        "Optimistic",
+        "Pessimistic",
+        "Alternative"
+      ],
+      "default": "Baseline"
+    },
+    "assumption": {
+      "type": "string",
+      "description": "Key assumption underpinning the scenario"
     },
     "summary": {
       "type": "string"
-    },
-    "source": {
-      "type": "string"
-    },
-    "change_date": {
-      "type": "string",
-      "format": "date"
     },
     "confidence": {
       "type": "string",
@@ -59,23 +53,26 @@
       ],
       "default": "Medium"
     },
-    "business_impact": {
+    "time_horizon": {
       "type": "string",
-      "description": "Qualitative business impact assessment (e.g. Low, Medium, High, Critical + note)"
+      "description": "e.g. 12 months, 2-3 years"
     },
-    "importance": {
+    "evidence_summary": {
       "type": "string",
-      "enum": [
-        "Low",
-        "Medium",
-        "High",
-        "Critical"
-      ],
-      "default": "Medium"
+      "description": "Verified signals supporting this scenario"
+    },
+    "generated_by": {
+      "type": "string",
+      "default": "AI Scenario Engine"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [
-    "headline"
+    "scenario_name",
+    "forecast_area"
   ],
   "rls": {
     "create": {

@@ -1,0 +1,269 @@
+{
+  "name": "CompetitorProfile",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Competitor company name"
+    },
+    "website": {
+      "type": "string"
+    },
+    "headquarters": {
+      "type": "string"
+    },
+    "founded_year": {
+      "type": "number"
+    },
+    "years_in_business": {
+      "type": "number",
+      "default": 0
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Legacy Coaching Platform",
+        "AI-Native Leadership Platform",
+        "Coaching Marketplace",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "is_legacy": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_ai_native": {
+      "type": "boolean",
+      "default": false
+    },
+    "primary_market": {
+      "type": "string"
+    },
+    "company_size": {
+      "type": "string"
+    },
+    "funding": {
+      "type": "string"
+    },
+    "target_customers": {
+      "type": "string"
+    },
+    "industries": {
+      "type": "string"
+    },
+    "geographic_focus": {
+      "type": "string"
+    },
+    "primary_value_proposition": {
+      "type": "string"
+    },
+    "core_capabilities": {
+      "type": "string"
+    },
+    "ai_capabilities": {
+      "type": "string"
+    },
+    "assessment_capabilities": {
+      "type": "string"
+    },
+    "coaching_capabilities": {
+      "type": "string"
+    },
+    "simulation_capabilities": {
+      "type": "string"
+    },
+    "analytics": {
+      "type": "string"
+    },
+    "enterprise_features": {
+      "type": "string"
+    },
+    "integrations": {
+      "type": "string"
+    },
+    "security_compliance": {
+      "type": "string"
+    },
+    "pricing_model": {
+      "type": "string"
+    },
+    "enterprise_sales_motion": {
+      "type": "string"
+    },
+    "public_customers": {
+      "type": "string"
+    },
+    "partnerships": {
+      "type": "string"
+    },
+    "strengths": {
+      "type": "string"
+    },
+    "limitations": {
+      "type": "string"
+    },
+    "recent_announcements": {
+      "type": "string"
+    },
+    "public_sources": {
+      "type": "string"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "format": "date"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "feature_matrix_json": {
+      "type": "string",
+      "description": "JSON map of feature -> status"
+    },
+    "positioning_json": {
+      "type": "string",
+      "description": "JSON positioning canvas"
+    },
+    "battlecard_json": {
+      "type": "string",
+      "description": "JSON battlecard"
+    }
+  },
+  "required": [
+    "company_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

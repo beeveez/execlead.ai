@@ -25,6 +25,7 @@ import IntelThreatIndex from "@/components/competitive-intel/IntelThreatIndex";
 import IntelMoat from "@/components/competitive-intel/IntelMoat";
 import IntelMarketForecast from "@/components/competitive-intel/IntelMarketForecast";
 import IntelSettings from "@/components/competitive-intel/IntelSettings";
+import IntelInsights from "@/components/competitive-intel/IntelInsights";
 
 const TABS = [
   { key: "overview", label: "Overview" },
@@ -40,6 +41,7 @@ const TABS = [
   { key: "moat", label: "EXECLEAD.AI Moat™" },
   { key: "roadmap", label: "Roadmap Intelligence™" },
   { key: "market-forecast", label: "Market Forecast™" },
+  { key: "executive-insights", label: "Executive Insights™" },
   { key: "reports", label: "Reports" },
   { key: "settings", label: "Settings" },
   { key: "evidence", label: "Competitive Evidence™" },
@@ -127,6 +129,7 @@ export default function CompetitiveIntelligenceCenter() {
             {tab === "moat" && <IntelMoat competitors={competitors} />}
             {tab === "roadmap" && <IntelRoadmap />}
             {tab === "market-forecast" && <IntelMarketForecast forecasts={forecasts} trends={trends} competitors={competitors} onRefresh={load} />}
+            {tab === "executive-insights" && <IntelInsights competitors={competitors} trends={trends} signals={signals} />}
             {tab === "reports" && <IntelReports competitors={competitors} evidence={evidence} />}
             {tab === "settings" && <IntelSettings />}
             {tab === "evidence" && <IntelEvidence competitors={competitors} />}

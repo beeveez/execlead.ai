@@ -33,7 +33,10 @@
         "security_documentation",
         "product_documentation",
         "analyst_report",
-        "public_interview"
+        "public_interview",
+        "release_notes",
+        "public_demo",
+        "pricing_page"
       ],
       "default": "public_website"
     },

@@ -15,27 +15,25 @@ function Row({ label, value }) {
 function Canvas({ c }) {
   const [open, setOpen] = useState(true);
   const p = getPositioning(c) || {};
+  const fields = [
+    ["Who Buys This Platform", p.who_buys], ["Why", p.why], ["Primary Problem Solved", p.primary_problem],
+    ["Ideal Customer", p.ideal_customer], ["Core Differentiator", p.core_differentiator],
+    ["Enterprise Position", p.enterprise_position], ["AI Strategy", p.ai_strategy],
+    ["Go-To-Market", p.go_to_market], ["Leadership Philosophy", p.leadership_philosophy],
+    ["Commercial Motion", p.commercial_motion], ["EXECLEAD.AI Advantage", p.execlead_advantage],
+    ["Potential Risks", p.potential_risks], ["Opportunity Areas", p.opportunity_areas],
+    ["Category Competitor Owns", p.category_competitor_owns], ["Category EXECLEAD.AI Should Own", p.category_execlead_should_own],
+    ["Where We Overlap", p.overlap], ["Where We Are Unique", p.unique],
+    ["Should We Compete Directly?", p.compete_directly], ["Should We Ignore This Market?", p.ignore_market],
+    ["Unmet Customer Need", p.unmet_need],
+  ];
   return (
     <div className="rounded-2xl border border-indigo-500/20 bg-white/[0.02] p-4">
       <button onClick={() => setOpen((o) => !o)} className="w-full flex items-center justify-between">
         <span className="text-white text-sm font-semibold">{c.company_name}</span>
         <ChevronDown size={15} className={`text-white/40 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && (
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-          <Row label="Primary Customer" value={p.primary_customer} />
-          <Row label="Primary Problem Solved" value={p.primary_problem_solved} />
-          <Row label="Core Differentiator" value={p.core_differentiator} />
-          <Row label="Sales Messaging" value={p.sales_messaging} />
-          <Row label="Enterprise Positioning" value={p.enterprise_positioning} />
-          <Row label="AI Strategy" value={p.ai_strategy} />
-          <Row label="Leadership Philosophy" value={p.leadership_philosophy} />
-          <Row label="Go-To-Market Strategy" value={p.gtm_strategy} />
-          <Row label="EXECLEAD.AI Differentiation" value={p.execlead_differentiation} />
-          <Row label="Competitive Opportunity" value={p.competitive_opportunity} />
-          <Row label="Competitive Risk" value={p.competitive_risk} />
-        </div>
-      )}
+      {open && <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4">{fields.map(([l, v]) => <Row key={l} label={l} value={v} />)}</div>}
     </div>
   );
 }
@@ -45,8 +43,9 @@ export default function IntelPositioning({ competitors }) {
     <div>
       <div className="flex items-center gap-2 mb-4">
         <Compass size={16} className="text-indigo-400" />
-        <h2 className="text-lg font-semibold">Positioning Canvas</h2>
+        <h2 className="text-lg font-semibold">Executive Positioning™</h2>
       </div>
+      <p className="text-white/45 text-xs mb-4">Positioning Canvas per competitor — who buys, why, differentiation, AI strategy, go-to-market, and where EXECLEAD.AI is unique.</p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {competitors.map((c) => <Canvas key={c.id} c={c} />)}
       </div>

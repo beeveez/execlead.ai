@@ -1,93 +1,84 @@
 {
-  "name": "RoadmapProposal",
+  "name": "CompetitiveEvidence",
   "type": "object",
   "properties": {
     "description": {
       "type": "string",
-      "maxLength": 2000
+      "maxLength": 1000
     },
-    "title": {
+    "evidence_id": {
+      "type": "string",
+      "description": "Unique evidence ID (EV-NNNN)"
+    },
+    "competitor": {
       "type": "string"
     },
-    "summary": {
+    "capability": {
+      "type": "string",
+      "description": "Feature key the evidence supports"
+    },
+    "statement": {
       "type": "string"
     },
-    "strengthens_readiness": {
-      "type": "boolean",
-      "default": false
+    "evidence_url": {
+      "type": "string"
     },
-    "improves_enterprise_value": {
-      "type": "boolean",
-      "default": false
-    },
-    "reinforces_positioning": {
-      "type": "boolean",
-      "default": false
-    },
-    "customer_driven": {
-      "type": "boolean",
-      "default": false
-    },
-    "market_driven": {
-      "type": "boolean",
-      "default": false
-    },
-    "feature_parity_only": {
-      "type": "boolean",
-      "default": false
-    },
-    "strategic_priority": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5"
-    },
-    "business_impact": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5"
-    },
-    "engineering_effort": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5 (higher = more effort)"
-    },
-    "differentiation_score": {
-      "type": "number",
-      "default": 50,
-      "description": "0-100"
-    },
-    "commercial_value": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5"
-    },
-    "recommendation": {
+    "evidence_type": {
       "type": "string",
       "enum": [
-        "Build",
-        "Monitor",
-        "Ignore",
-        "Accelerate",
-        "Consider"
+        "public_website",
+        "public_documentation",
+        "public_pricing",
+        "press_release",
+        "security_documentation",
+        "product_documentation",
+        "analyst_report",
+        "public_interview"
       ],
-      "default": "Consider"
+      "default": "public_website"
     },
-    "ai_analysis": {
+    "source": {
+      "type": "string"
+    },
+    "publication_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "verified_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low",
+        "Unknown"
+      ],
+      "default": "Medium"
+    },
+    "notes": {
       "type": "string"
     },
     "status": {
       "type": "string",
       "enum": [
-        "proposed",
-        "reviewing",
-        "accepted",
-        "rejected"
+        "verified",
+        "pending_review",
+        "outdated",
+        "archived"
       ],
-      "default": "proposed"
+      "default": "pending_review"
     }
   },
   "required": [
-    "title"
+    "competitor",
+    "capability",
+    "statement"
   ],
   "rls": {
     "create": {

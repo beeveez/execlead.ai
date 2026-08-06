@@ -1,36 +1,35 @@
-// Competitive Intelligence & Battlecard Center™ V2 — manually curated internal
-// research engine. Public information only. Never invents capabilities/pricing.
+// Enterprise Market Intelligence Platform™ V2 — evidence-based internal research.
+// Public information only. Never invents capabilities or pricing.
 
 export const FEATURE_ROWS = [
   { key: "executive_readiness", label: "Executive Readiness™" },
-  { key: "ai_coaching", label: "AI Coaching" },
-  { key: "leadership_assessments", label: "Leadership Assessments" },
-  { key: "executive_simulations", label: "Executive Simulations" },
-  { key: "decision_labs", label: "Decision Labs" },
-  { key: "succession_planning", label: "Succession Planning" },
-  { key: "promotion_readiness", label: "Promotion Readiness" },
-  { key: "talent_intelligence", label: "Talent Intelligence" },
-  { key: "executive_identity", label: "Executive Identity" },
-  { key: "career_development", label: "Career Development" },
-  { key: "learning_paths", label: "Learning Paths" },
-  { key: "analytics", label: "Analytics" },
-  { key: "executive_dashboards", label: "Executive Dashboards" },
-  { key: "enterprise_reporting", label: "Enterprise Reporting" },
+  { key: "leadership_dna", label: "Leadership DNA™" },
+  { key: "executive_simulator", label: "Executive Simulator™" },
+  { key: "executive_council", label: "Executive Council™" },
+  { key: "ai_debate", label: "AI Debate™" },
+  { key: "career_studio", label: "Career Studio™" },
+  { key: "promotion_readiness", label: "Promotion Readiness™" },
+  { key: "succession_planning", label: "Succession Planning™" },
+  { key: "leadership_analytics", label: "Leadership Analytics™" },
+  { key: "executive_identity", label: "Executive Identity™" },
+  { key: "executive_portfolio", label: "Executive Portfolio™" },
+  { key: "decision_intelligence", label: "Decision Intelligence™" },
+  { key: "executive_assessments", label: "Executive Assessments™" },
+  { key: "ai_coaching", label: "AI Coaching™" },
+  { key: "enterprise_dashboard", label: "Enterprise Dashboard™" },
+  { key: "trust_center", label: "Trust Center™" },
+  { key: "security", label: "Security" },
   { key: "sso", label: "SSO" },
   { key: "scim", label: "SCIM" },
-  { key: "rbac", label: "RBAC" },
   { key: "api", label: "API" },
   { key: "marketplace", label: "Marketplace" },
-  { key: "responsible_ai", label: "Responsible AI" },
-  { key: "trust_center", label: "Trust Center" },
-  { key: "compliance", label: "Compliance" },
   { key: "knowledge_management", label: "Knowledge Management" },
-  { key: "evidence_based_development", label: "Evidence-Based Development" },
-  { key: "ai_explainability", label: "AI Explainability" },
+  { key: "evidence_ledger", label: "Evidence Ledger™" },
 ];
 
 export const STATUS_META = {
   "Supported": { color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/25", dot: "bg-emerald-400" },
+  "Publicly Confirmed": { color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/25", dot: "bg-emerald-400" },
   "Planned": { color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/25", dot: "bg-indigo-400" },
   "Partially Supported": { color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-500/25", dot: "bg-sky-400" },
   "Unknown": { color: "text-white/40", bg: "bg-white/5", border: "border-white/10", dot: "bg-white/30" },
@@ -38,19 +37,17 @@ export const STATUS_META = {
 };
 
 export const EXECLEAD_AI_MATRIX = {
-  executive_readiness: "Supported", ai_coaching: "Supported", leadership_assessments: "Supported",
-  executive_simulations: "Supported", decision_labs: "Supported", succession_planning: "Supported",
-  promotion_readiness: "Supported", talent_intelligence: "Supported", executive_identity: "Supported",
-  career_development: "Supported", learning_paths: "Supported", analytics: "Supported",
-  executive_dashboards: "Supported", enterprise_reporting: "Supported", sso: "Supported",
-  scim: "Supported", rbac: "Supported", api: "Planned", marketplace: "Supported",
-  responsible_ai: "Supported", trust_center: "Supported", compliance: "Supported",
-  knowledge_management: "Supported", evidence_based_development: "Supported", ai_explainability: "Supported",
+  executive_readiness: "Supported", leadership_dna: "Supported", executive_simulator: "Supported",
+  executive_council: "Supported", ai_debate: "Supported", career_studio: "Supported",
+  promotion_readiness: "Supported", succession_planning: "Supported", leadership_analytics: "Supported",
+  executive_identity: "Supported", executive_portfolio: "Supported", decision_intelligence: "Supported",
+  executive_assessments: "Supported", ai_coaching: "Supported", enterprise_dashboard: "Supported",
+  trust_center: "Supported", security: "Supported", sso: "Supported", scim: "Supported", api: "Planned",
+  marketplace: "Supported", knowledge_management: "Supported", evidence_ledger: "Supported",
 };
 
 const NPD = "Not Publicly Documented";
 
-// Curated seed competitors (16). Conservative; uncertain fields marked explicitly.
 export const COMPETITOR_SEED = [
   {
     company_name: "BetterUp", website: "betterup.com", headquarters: "San Francisco, USA", founded_year: 2011,
@@ -68,9 +65,9 @@ export const COMPETITOR_SEED = [
     limitations: "Coaching-centric; limited executive simulations and succession tooling (internal assessment).",
     recent_announcements: NPD, strategic_notes: "Lead with executive outcomes vs. workforce coaching.", public_sources: "Company website and public press (review periodically).",
     last_reviewed: "2026-08-01", confidence_level: "High",
-    feature_matrix: { ai_coaching: "Supported", leadership_assessments: "Supported", analytics: "Supported", executive_dashboards: "Supported", sso: "Supported", marketplace: "Supported", responsible_ai: "Partially Supported" },
-    positioning: { category_competitor_owns: "Workforce coaching & wellbeing", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "Coaching delivery", unique: "Executive Readiness™, simulations, succession, decision intelligence", compete_directly: "Only for executive-level outcomes", ignore_market: "Broad workforce wellbeing coaching", unmet_need: "Unified executive readiness & succession intelligence", execlead_differentiation: "EXECLEAD.AI adds executive readiness, simulations, succession — not just coaching", competitive_opportunity: "Up-market into executive development", competitive_risk: "Brand and workforce coaching footprint" },
-    battlecard: { executive_summary: "Established coaching platform for behavioral change and wellbeing at scale.", when_customers_choose: "When buyers want broad workforce coaching and wellbeing programs.", questions_to_ask: "Do you need executive readiness, succession, and decision intelligence — or workforce coaching?", execlead_strengths: "Executive Readiness™, simulations, succession, decision intelligence, evidence-based identity.", differentiation: "EXECLEAD.AI is an Executive Leadership Operating System, not a coaching marketplace.", when_competitor_stronger: "When the primary need is broad workforce wellbeing coaching." },
+    feature_matrix: { ai_coaching: "Supported", executive_assessments: "Supported", leadership_analytics: "Supported", enterprise_dashboard: "Supported", sso: "Supported", marketplace: "Supported" },
+    positioning: { who_buys: "CHROs and People leaders", why: "Workforce coaching at scale", primary_problem: "Behavioral change and wellbeing", ideal_customer: "Large enterprises", core_differentiator: "Coaching marketplace scale", enterprise_position: "Workforce wellbeing partner", ai_strategy: "AI-assisted matching", go_to_market: "Top-down enterprise sales", leadership_philosophy: "Behavioral change", commercial_motion: "Per-seat", execlead_advantage: "Executive operating system vs. coaching delivery", potential_risks: "Brand + workforce coaching footprint", opportunity_areas: "Executive development up-market", category_competitor_owns: "Workforce coaching & wellbeing", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "Coaching delivery", unique: "Executive Readiness™, simulations, succession", compete_directly: "Only for executive outcomes", ignore_market: "Broad workforce wellbeing", unmet_need: "Unified executive readiness & succession intelligence", execlead_differentiation: "Operating system vs. coaching marketplace", competitive_opportunity: "Executive outcomes differentiation", competitive_risk: "Brand and workforce coaching footprint" },
+    battlecard: { executive_summary: "Established coaching platform for behavioral change and wellbeing at scale.", ideal_customer: "Large enterprises seeking workforce coaching", buying_signals: "RFPs for wellbeing/coaching programs", discovery_questions: "Do you need executive readiness, succession, and decision intelligence — or workforce coaching?", typical_objections: "We already have a coaching vendor", execlead_differentiation: "Executive Readiness™, simulations, succession, decision intelligence, evidence-based identity.", competitive_risks: "Brand awareness, large coaching network", when_execlead_wins: "When the buyer needs executive readiness, succession, simulations", when_competitor_wins: "When the primary need is broad workforce wellbeing coaching", recommended_demo: "Executive Readiness Assessment™, Leadership Simulations™", proof_points: "Executive Readiness™ scores, Success Stories, Trust Center™", executive_messaging: "Executive operating system, not a coaching marketplace", closing_strategy: "Pivot from coaching to executive outcomes and succession intelligence", when_customers_choose: "When buyers want broad workforce coaching and wellbeing programs", questions_to_ask: "Do you need executive readiness, succession, and decision intelligence — or workforce coaching?", execlead_strengths: "Executive Readiness™, simulations, succession, decision intelligence, evidence-based identity.", differentiation: "EXECLEAD.AI is an Executive Leadership Operating System, not a coaching marketplace." },
   },
   {
     company_name: "CoachHub", website: "coachhub.com", headquarters: "New York, USA", founded_year: 2018,
@@ -86,8 +83,8 @@ export const COMPETITOR_SEED = [
     recent_announcements: NPD, strategic_notes: "Differentiate on executive outcomes vs. coaching delivery.", public_sources: "Company website and public press (review periodically).",
     last_reviewed: "2026-08-01", confidence_level: "Medium",
     feature_matrix: { ai_coaching: "Supported", sso: "Supported", marketplace: "Supported" },
-    positioning: { category_competitor_owns: "Digital coaching delivery", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "Coaching delivery", unique: "Executive Readiness™, simulations, succession", compete_directly: "Only for executive outcomes", ignore_market: "Coaching delivery only", unmet_need: "Executive readiness & succession intelligence", execlead_differentiation: "Operating system vs. coaching marketplace", competitive_opportunity: "Executive outcomes differentiation", competitive_risk: "Global multilingual coaching reach" },
-    battlecard: { executive_summary: "Digital coaching platform with a global coach pool.", when_customers_choose: "When buyers want scalable multilingual coaching delivery.", questions_to_ask: "Do you need coaching delivery or a full executive readiness and succession system?", execlead_strengths: "Executive Readiness™, simulations, succession, decision intelligence.", differentiation: "Operating system for executive leadership vs. a coaching marketplace.", when_competitor_stronger: "When multilingual coaching delivery across regions is the priority." },
+    positioning: { who_buys: "HR and L&D", why: "Scalable multilingual coaching", primary_problem: "Coaching delivery at scale", ideal_customer: "Mid-market and enterprises", core_differentiator: "Global multilingual coach pool", enterprise_position: "Digital coaching delivery", ai_strategy: "AI coaching assistant", go_to_market: "Enterprise sales", leadership_philosophy: "Coaching-led development", commercial_motion: "Per-seat", execlead_advantage: "Executive operating system vs. coaching marketplace", potential_risks: "Global multilingual coaching reach", opportunity_areas: "Executive outcomes differentiation", category_competitor_owns: "Digital coaching delivery", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "Coaching delivery", unique: "Executive Readiness™, simulations, succession", compete_directly: "Only for executive outcomes", ignore_market: "Coaching delivery only", unmet_need: "Executive readiness & succession intelligence", execlead_differentiation: "Operating system vs. coaching marketplace", competitive_opportunity: "Executive outcomes differentiation", competitive_risk: "Global multilingual coaching reach" },
+    battlecard: { executive_summary: "Digital coaching platform with a global coach pool.", ideal_customer: "Mid-market and enterprises", buying_signals: "Coaching RFPs", discovery_questions: "Coaching delivery or a full executive readiness and succession system?", typical_objections: "We need multilingual coaching", execlead_differentiation: "Operating system for executive leadership vs. a coaching marketplace.", competitive_risks: "Global multilingual coaching reach", when_execlead_wins: "When executive readiness, succession, and simulations are the priority", when_competitor_wins: "When multilingual coaching delivery across regions is the priority", recommended_demo: "Executive Readiness Assessment™, Simulations", proof_points: "Readiness scores, Success Stories", executive_messaging: "Executive operating system, not coaching delivery", closing_strategy: "Focus on executive outcomes and succession", when_customers_choose: "When buyers want scalable multilingual coaching delivery", questions_to_ask: "Do you need coaching delivery or a full executive readiness and succession system?", execlead_strengths: "Executive Readiness™, simulations, succession, decision intelligence.", differentiation: "Operating system for executive leadership vs. a coaching marketplace." },
   },
   {
     company_name: "Valence", website: "valence.co", headquarters: "New York, USA", founded_year: 2019,
@@ -101,9 +98,9 @@ export const COMPETITOR_SEED = [
     strengths: "AI-native UX, team-development focus (internal assessment).", limitations: "Limited publicly documented enterprise, succession, assessment depth (internal assessment).",
     recent_announcements: NPD, strategic_notes: "Lead on enterprise governance and executive outcomes.", public_sources: "Company website (review periodically).",
     last_reviewed: "2026-08-01", confidence_level: "Medium",
-    feature_matrix: { ai_coaching: "Supported", learning_paths: "Supported", analytics: "Supported", ai_personalization: "Supported" },
-    positioning: { category_competitor_owns: "AI-native team development", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "AI coaching", unique: "Executive Readiness™, succession, simulations, decision intelligence", compete_directly: "Only for executive outcomes", ignore_market: "Team-level development only", unmet_need: "Executive-level readiness & succession", execlead_differentiation: "Executive operating system vs. team tooling", competitive_opportunity: "Enterprise governance & executive outcomes", competitive_risk: "AI-native UX narrative" },
-    battlecard: { executive_summary: "AI-native team and leadership development platform.", when_customers_choose: "When buyers want AI-native team development.", questions_to_ask: "Do you need team development or executive readiness and succession intelligence?", execlead_strengths: "Executive Readiness™, succession, simulations, decision intelligence.", differentiation: "Executive operating system vs. team development tooling.", when_competitor_stronger: "When team-level development is the primary scope." },
+    feature_matrix: { ai_coaching: "Supported", leadership_analytics: "Supported" },
+    positioning: { who_buys: "People and team leaders", why: "AI-native team development", primary_problem: "Team development", ideal_customer: "Enterprises and mid-market", core_differentiator: "AI-native UX", enterprise_position: "AI-native team development", ai_strategy: "AI-native facilitation", go_to_market: "Product-led", leadership_philosophy: "AI-guided team growth", commercial_motion: "Subscription", execlead_advantage: "Executive operating system vs. team tooling", potential_risks: "AI-native UX narrative", opportunity_areas: "Enterprise governance & executive outcomes", category_competitor_owns: "AI-native team development", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "AI coaching", unique: "Executive Readiness™, succession, simulations", compete_directly: "Only for executive outcomes", ignore_market: "Team-level development only", unmet_need: "Executive-level readiness & succession", execlead_differentiation: "Executive operating system vs. team tooling", competitive_opportunity: "Enterprise governance & executive outcomes", competitive_risk: "AI-native UX narrative" },
+    battlecard: { executive_summary: "AI-native team and leadership development platform.", ideal_customer: "People leaders and team managers", buying_signals: "Team development initiatives", discovery_questions: "Team development or executive readiness and succession?", typical_objections: "We want AI-native tools", execlead_differentiation: "Executive operating system vs. team development tooling.", competitive_risks: "AI-native UX narrative", when_execlead_wins: "When executive readiness and succession are needed", when_competitor_wins: "When team-level development is the primary scope", recommended_demo: "Executive Readiness Assessment™, Simulations", proof_points: "Readiness scores, Success Stories", executive_messaging: "Executive operating system, not team tooling", closing_strategy: "Lead with executive outcomes and governance", when_customers_choose: "When buyers want AI-native team development", questions_to_ask: "Do you need team development or executive readiness and succession intelligence?", execlead_strengths: "Executive Readiness™, succession, simulations, decision intelligence.", differentiation: "Executive operating system vs. team development tooling." },
   },
   {
     company_name: "Rocky.ai", website: "rocky.ai", headquarters: "Zurich, Switzerland", founded_year: 2020,
@@ -117,23 +114,20 @@ export const COMPETITOR_SEED = [
     strengths: "Mobile-first AI coaching, voice, accessibility (internal assessment).", limitations: "SMB/individual focus; limited enterprise, succession depth (internal assessment).",
     recent_announcements: NPD, strategic_notes: "Up-market into enterprise executive development.", public_sources: "Company website and app stores (review periodically).",
     last_reviewed: "2026-08-01", confidence_level: "Medium",
-    feature_matrix: { ai_coaching: "Supported", career_development: "Supported", ai_explainability: NPD },
-    positioning: { category_competitor_owns: "Personal AI coaching", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "AI coaching", unique: "Enterprise readiness, succession, simulations, governance", compete_directly: "No (different buyer)", ignore_market: "Personal/SMB coaching apps", unmet_need: "Enterprise-grade executive development", execlead_differentiation: "Enterprise executive operating system vs. personal app", competitive_opportunity: "Enterprise executive development", competitive_risk: "Accessible AI coaching UX for individuals" },
-    battlecard: { executive_summary: "Mobile-first AI coaching companion for individuals and SMBs.", when_customers_choose: "When individuals want affordable daily AI coaching.", questions_to_ask: "Do you need enterprise executive readiness and succession — or personal coaching?", execlead_strengths: "Enterprise-grade executive readiness, succession, simulations, governance.", differentiation: "Enterprise executive operating system vs. personal coaching app.", when_competitor_stronger: "When individual/SMB AI coaching is the need." },
+    feature_matrix: { ai_coaching: "Supported", career_studio: "Supported" },
+    positioning: { who_buys: "Individuals and SMBs", why: "Affordable daily AI coaching", primary_problem: "Personal coaching access", ideal_customer: "Individuals, SMBs", core_differentiator: "Mobile-first AI coaching", enterprise_position: "Personal coaching", ai_strategy: "Conversational AI coaching", go_to_market: "Self-serve / mobile", leadership_philosophy: "Daily habits", commercial_motion: "Freemium", execlead_advantage: "Enterprise executive operating system vs. personal app", potential_risks: "Accessible AI coaching UX", opportunity_areas: "Enterprise executive development", category_competitor_owns: "Personal AI coaching", category_execlead_should_own: "AI Executive Leadership Operating System", overlap: "AI coaching", unique: "Enterprise readiness, succession, simulations, governance", compete_directly: "No (different buyer)", ignore_market: "Personal/SMB coaching apps", unmet_need: "Enterprise-grade executive development", execlead_differentiation: "Enterprise executive operating system vs. personal app", competitive_opportunity: "Enterprise executive development", competitive_risk: "Accessible AI coaching UX for individuals" },
+    battlecard: { executive_summary: "Mobile-first AI coaching companion for individuals and SMBs.", ideal_customer: "Individuals and SMBs", buying_signals: "Personal coaching apps", discovery_questions: "Enterprise executive readiness or personal coaching?", typical_objections: "We want an affordable app", execlead_differentiation: "Enterprise-grade executive readiness, succession, simulations, governance.", competitive_risks: "Accessible AI coaching UX", when_execlead_wins: "When enterprise executive development is the need", when_competitor_wins: "When individual/SMB AI coaching is the need", recommended_demo: "Executive Readiness Assessment™, Enterprise governance", proof_points: "Readiness scores, Trust Center™", executive_messaging: "Enterprise executive operating system, not a personal app", closing_strategy: "Differentiate enterprise scope from personal coaching", when_customers_choose: "When individuals want affordable daily AI coaching", questions_to_ask: "Do you need enterprise executive readiness and succession — or personal coaching?", execlead_strengths: "Enterprise-grade executive readiness, succession, simulations, governance.", differentiation: "Enterprise executive operating system vs. personal coaching app." },
   },
-  // Basic profiles (high-level public info; detailed capabilities Not Publicly Documented)
-  basic("Torch", "torch.io", "San Francisco, USA", 2015, "Legacy Coaching Platform", "Enterprise", "Leadership coaching and development for mid-market and enterprise.", { ai_coaching: NPD, leadership_assessments: "Partially Supported", learning_paths: "Supported", sso: "Supported" }, "Medium"),
-  basic("Sounding Board", "soundingboard.com", "San Francisco, USA", 2013, "Legacy Coaching Platform", "Enterprise", "Coaching and leadership development platform.", { ai_coaching: NPD, leadership_assessments: "Partially Supported", learning_paths: "Supported", sso: "Supported" }, "Medium"),
-  basic("Pluma", "pluma.co", "São Paulo, Brazil", 2016, "Legacy Coaching Platform", "Enterprise / SMB", "Coaching and leadership development for individuals and teams.", { ai_coaching: NPD, learning_paths: "Supported" }, "Low"),
-  basic("Microsoft Viva Learning", "learn.microsoft.com/viva", "Redmond, USA", 2021, "HCM-Embedded Learning", "Enterprise", "Employee learning app within Microsoft Viva.", { learning_paths: "Supported", sso: "Supported", enterprise_reporting: "Supported", api: "Supported" }, "High"),
-  basic("LinkedIn Learning", "learning.linkedin.com", "Sunnyvale, USA", 2015, "Learning Platform", "Enterprise / SMB", "Online learning library for professional skills.", { learning_paths: "Supported", analytics: "Supported", marketplace: "Supported", sso: "Supported", api: "Supported" }, "High"),
-  basic("Cornerstone", "cornerstoneondemand.com", "Santa Monica, USA", 1999, "Learning Platform", "Enterprise", "Learning and talent management platform.", { learning_paths: "Supported", analytics: "Supported", sso: "Supported", api: "Supported", enterprise_reporting: "Supported", compliance: "Supported" }, "High"),
-  basic("Workday Skills Cloud", "workday.com", "Pleasanton, USA", 2018, "HCM-Embedded Learning", "Enterprise", "Skills intelligence within Workday HCM.", { talent_intelligence: "Supported", analytics: "Supported", sso: "Supported", api: "Supported" }, "High"),
-  basic("ServiceNow Learning", "servicenow.com", "Santa Clara, USA", 2020, "HCM-Embedded Learning", "Enterprise", "Learning and training within ServiceNow.", { learning_paths: "Supported", sso: "Supported", api: "Supported" }, "Medium"),
-  basic("Degreed", "degreed.com", "Pleasanton, USA", 2012, "Learning Platform", "Enterprise", "Skills and learning aggregation platform.", { learning_paths: "Supported", analytics: "Supported", talent_intelligence: "Partially Supported", sso: "Supported", api: "Supported" }, "High"),
-  basic("Udemy Business", "business.udemy.com", "San Francisco, USA", 2010, "Learning Platform", "Enterprise / SMB", "Business learning marketplace.", { learning_paths: "Supported", marketplace: "Supported", sso: "Supported" }, "High"),
-  basic("Coursera for Business", "coursera.org/business", "Mountain View, USA", 2012, "Learning Platform", "Enterprise", "Enterprise learning from university and industry content.", { learning_paths: "Supported", marketplace: "Supported", sso: "Supported" }, "High"),
-  basic("CrossKnowledge", "crossknowledge.com", "Paris, France", 1996, "Learning Platform", "Enterprise", "Digital learning content for leadership development.", { learning_paths: "Supported", sso: "Supported" }, "Medium"),
+  basic("Torch", "torch.io", "San Francisco, USA", 2015, "Legacy Coaching Platform", "Enterprise", "Leadership coaching and development for mid-market and enterprise.", { ai_coaching: NPD, executive_assessments: "Partially Supported", sso: "Supported" }, "Medium"),
+  basic("Sounding Board", "soundingboard.com", "San Francisco, USA", 2013, "Legacy Coaching Platform", "Enterprise", "Coaching and leadership development platform.", { ai_coaching: NPD, executive_assessments: "Partially Supported", sso: "Supported" }, "Medium"),
+  basic("Pluma", "pluma.co", "São Paulo, Brazil", 2016, "Legacy Coaching Platform", "Enterprise / SMB", "Coaching and leadership development for individuals and teams.", {}, "Low"),
+  basic("Microsoft Viva", "learn.microsoft.com/viva", "Redmond, USA", 2021, "HCM-Embedded Learning", "Enterprise", "Employee learning app within Microsoft Viva.", { sso: "Supported", api: "Supported", enterprise_dashboard: "Supported" }, "High"),
+  basic("Workday", "workday.com", "Pleasanton, USA", 2005, "HCM-Embedded Learning", "Enterprise", "HCM with talent and skills intelligence.", { leadership_analytics: "Supported", sso: "Supported", api: "Supported", succession_planning: "Partially Supported" }, "High"),
+  basic("Cornerstone", "cornerstoneondemand.com", "Santa Monica, USA", 1999, "Learning Platform", "Enterprise", "Learning and talent management platform.", { sso: "Supported", api: "Supported", enterprise_dashboard: "Supported", security: "Supported" }, "High"),
+  basic("Degreed", "degreed.com", "Pleasanton, USA", 2012, "Learning Platform", "Enterprise", "Skills and learning aggregation platform.", { leadership_analytics: "Supported", sso: "Supported", api: "Supported" }, "High"),
+  basic("LinkedIn Learning", "learning.linkedin.com", "Sunnyvale, USA", 2015, "Learning Platform", "Enterprise / SMB", "Online learning library for professional skills.", { marketplace: "Supported", sso: "Supported", api: "Supported", leadership_analytics: "Supported" }, "High"),
+  basic("Udemy Business", "business.udemy.com", "San Francisco, USA", 2010, "Learning Platform", "Enterprise / SMB", "Business learning marketplace.", { marketplace: "Supported", sso: "Supported" }, "High"),
+  basic("Coursera Business", "coursera.org/business", "Mountain View, USA", 2012, "Learning Platform", "Enterprise", "Enterprise learning from university and industry content.", { marketplace: "Supported", sso: "Supported" }, "High"),
 ];
 
 function basic(name, website, hq, founded, category, market, valueProp, matrix, confidence) {
@@ -157,83 +151,97 @@ export function getMatrix(profile) {
   return profile.feature_matrix || {};
 }
 
-export function buildComparisonMatrix(competitors) {
+export function buildEvidenceMap(evidence) {
+  const m = {};
+  (evidence || []).forEach((e) => {
+    const k = `${(e.competitor || "").toLowerCase()}::${e.capability}`;
+    if (!m[k]) m[k] = [];
+    m[k].push(e);
+  });
+  return m;
+}
+
+export function buildComparisonMatrix(competitors, evidence) {
+  const evMap = buildEvidenceMap(evidence);
   return FEATURE_ROWS.map((row) => {
-    const cells = { feature: row.label };
-    cells["EXECLEAD.AI"] = EXECLEAD_AI_MATRIX[row.key] || "Unknown";
+    const cells = { feature: row.label, key: row.key };
+    cells["EXECLEAD.AI"] = { status: EXECLEAD_AI_MATRIX[row.key] || "Unknown", evidence: 0 };
     for (const c of competitors) {
       const m = getMatrix(c);
-      cells[c.company_name] = m[row.key] || NPD;
+      const ev = evMap[`${c.company_name.toLowerCase()}::${row.key}`] || [];
+      cells[c.company_name] = { status: m[row.key] || NPD, evidence: ev.length };
     }
     return cells;
   });
 }
 
-export function buildDashboard(competitors) {
+export function buildDashboard(competitors, evidence) {
   const total = competitors.length;
   const legacy = competitors.filter((c) => c.is_legacy).length;
   const aiNative = competitors.filter((c) => c.is_ai_native).length;
   const categories = {};
   competitors.forEach((c) => { categories[c.category] = (categories[c.category] || 0) + 1; });
-  // Differentiation score: % of features where EXECLEAD.AI is Supported and no competitor is Supported
   let leadFeatures = 0, gapFeatures = 0;
   const featureGaps = [];
   for (const row of FEATURE_ROWS) {
     const ours = EXECLEAD_AI_MATRIX[row.key];
-    const anyCompSupported = competitors.some((c) => (getMatrix(c)[row.key] === "Supported"));
+    const anyCompSupported = competitors.some((c) => ["Supported", "Publicly Confirmed"].includes(getMatrix(c)[row.key]));
     if (ours === "Supported" && !anyCompSupported) leadFeatures++;
     if (ours !== "Supported" && anyCompSupported) { gapFeatures++; featureGaps.push(row.label); }
   }
   const differentiationScore = Math.round((leadFeatures / FEATURE_ROWS.length) * 100);
   const competitiveHealthScore = Math.min(100, differentiationScore + 20);
-  const enterpriseFeatures = ["sso", "scim", "rbac", "enterprise_reporting", "compliance"];
+  const verifiedEvidence = (evidence || []).filter((e) => e.status === "verified").length;
+  const enterpriseFeatures = ["sso", "scim", "security", "enterprise_dashboard", "trust_center"];
   const execleadEnterprise = enterpriseFeatures.filter((k) => EXECLEAD_AI_MATRIX[k] === "Supported").length;
-  const avgCompEnterprise = competitors.length ? Math.round(competitors.reduce((a, c) => a + enterpriseFeatures.filter((k) => getMatrix(c)[k] === "Supported").length, 0) / competitors.length) : 0;
+  const avgCompEnterprise = competitors.length ? Math.round(competitors.reduce((a, c) => a + enterpriseFeatures.filter((k) => ["Supported", "Publicly Confirmed"].includes(getMatrix(c)[k])).length, 0) / competitors.length) : 0;
   return {
     competitiveHealthScore, marketCoverage: `${Object.keys(categories).length} segments tracked`, trackedCompetitors: total,
     legacyPlatforms: legacy, aiNativePlatforms: aiNative, categories,
-    recentProductLaunches: "Tracked in Market News & Product Updates™", recentFundingEvents: "Tracked in Market News™",
-    pricingChanges: "Tracked in Pricing Intelligence™", featureGapAlerts: featureGaps,
-    differentiationScore, enterpriseReadinessComparison: `EXECLEAD.AI ${execleadEnterprise}/${enterpriseFeatures.length} vs competitor avg ${avgCompEnterprise}/${enterpriseFeatures.length}`,
+    evidenceItems: (evidence || []).length, verifiedEvidence,
+    differentiationScore, featureGapAlerts: featureGaps,
+    enterpriseReadinessComparison: `EXECLEAD.AI ${execleadEnterprise}/${enterpriseFeatures.length} vs competitor avg ${avgCompEnterprise}/${enterpriseFeatures.length}`,
     marketTrendSummary: "Leadership development is consolidating toward AI-native, outcome-based executive operating systems; coaching and learning delivery are commoditizing.",
   };
 }
 
 export function generatePositioning(profile) {
   return {
-    category_competitor_owns: profile.category || NPD,
-    category_execlead_should_own: "AI Executive Leadership Operating System",
-    overlap: "Coaching and/or learning delivery (where this competitor operates).",
-    unique: "Executive Readiness™, Succession Intelligence, Leadership Simulations, Decision Intelligence, Executive Identity™.",
-    compete_directly: "Only when the buyer needs executive-level outcomes.",
-    ignore_market: "Broad workforce wellbeing coaching and personal coaching apps.",
+    who_buys: profile.target_customers || NPD, why: profile.primary_value_proposition || NPD,
+    primary_problem: NPD, ideal_customer: profile.target_customers || NPD,
+    core_differentiator: profile.strengths || NPD, enterprise_position: profile.category || NPD,
+    ai_strategy: profile.ai_capabilities || NPD, go_to_market: profile.enterprise_sales_motion || NPD,
+    leadership_philosophy: NPD, commercial_motion: profile.pricing_model_type || NPD,
+    execlead_advantage: "AI-native Executive Leadership Operating System: readiness, simulations, succession, decision intelligence.",
+    potential_risks: profile.strengths || "Established market presence.", opportunity_areas: "Executive outcomes and enterprise governance.",
+    category_competitor_owns: profile.category || NPD, category_execlead_should_own: "AI Executive Leadership Operating System",
+    overlap: "Coaching and/or learning delivery.", unique: "Executive Readiness™, Succession Intelligence, Leadership Simulations, Decision Intelligence, Executive Identity™.",
+    compete_directly: "Only when the buyer needs executive-level outcomes.", ignore_market: "Broad workforce wellbeing coaching and personal coaching apps.",
     unmet_need: "Unified, evidence-based executive readiness and succession intelligence.",
   };
 }
 
 export function getPositioning(profile) {
   if (!profile) return null;
-  if (profile.positioning_json) return { ...generatePositioning(profile), ...safeParse(profile.positioning_json) };
-  return { ...generatePositioning(profile), ...(profile.positioning || {}) };
+  const base = generatePositioning(profile);
+  if (profile.positioning_json) return { ...base, ...safeParse(profile.positioning_json) };
+  return { ...base, ...(profile.positioning || {}) };
 }
 
 export function generateBattlecard(profile) {
   const vp = profile.primary_value_proposition || NPD;
   return {
-    executive_summary: vp,
-    ideal_customer_profile: profile.target_customers || NPD,
-    primary_messaging: vp,
-    strengths: profile.strengths || NPD,
-    differentiators: "EXECLEAD.AI is an AI-native Executive Leadership Operating System: readiness, simulations, succession, decision intelligence.",
-    when_execlead_wins: "When the buyer needs executive readiness, succession intelligence, and simulations — not just coaching or learning delivery.",
-    when_competitor_stronger: `When the buyer's primary need is ${(vp || "this competitor's core offering").toLowerCase()}.`,
+    executive_summary: vp, ideal_customer: profile.target_customers || NPD, buying_signals: NPD,
     discovery_questions: "Do you need executive readiness, succession planning, and decision intelligence — or workforce coaching/learning? How do you measure leadership readiness today?",
-    positioning_guidance: "Lead with Executive Readiness™, the ROI Calculator, and enterprise governance. Avoid feature-by-feature comparison.",
-    risk_areas: profile.strengths ? `Competitor strength: ${profile.strengths}` : "Established market presence.",
-    recommended_demo_focus: "Executive Readiness Assessment™, Leadership Simulations™, Executive ROI Calculator™.",
-    recommended_proof_points: "Executive Readiness™ scores, Executive Success Stories, Trust Center™.",
-    objection_handling: "Acknowledge the competitor's coaching/learning strength; pivot to executive outcomes and evidence-based identity.",
-    customer_personas: profile.target_personas || "CHRO, VP Talent, L&D, CFO, CEO",
+    typical_objections: "We already have a coaching/learning vendor.",
+    execlead_differentiation: "EXECLEAD.AI is an AI-native Executive Leadership Operating System: readiness, simulations, succession, decision intelligence.",
+    competitive_risks: profile.strengths ? `Competitor strength: ${profile.strengths}` : "Established market presence.",
+    when_execlead_wins: "When the buyer needs executive readiness, succession intelligence, and simulations — not just coaching or learning delivery.",
+    when_competitor_wins: `When the buyer's primary need is ${(vp || "this competitor's core offering").toLowerCase()}.`,
+    recommended_demo: "Executive Readiness Assessment™, Leadership Simulations™, Executive ROI Calculator™.",
+    proof_points: "Executive Readiness™ scores, Executive Success Stories, Trust Center™.",
+    executive_messaging: "Executive operating system, not a coaching or learning delivery tool.",
+    closing_strategy: "Lead with Executive Readiness™, ROI Calculator, and enterprise governance. Avoid feature-by-feature comparison.",
   };
 }
 

@@ -1,6 +1,6 @@
 import React from "react";
-import { Activity, Target, Building2, Rocket, DollarSign, AlertTriangle, BarChart3, TrendingUp, Gauge } from "lucide-react";
-import { buildDashboard, EXECLEAD_AI_MATRIX } from "@/lib/competitiveIntelligence";
+import { Activity, Target, Building2, Rocket, DollarSign, AlertTriangle, BarChart3, TrendingUp, Gauge, ShieldCheck } from "lucide-react";
+import { buildDashboard } from "@/lib/competitiveIntelligence";
 
 function Stat({ icon: Icon, label, value, color }) {
   return (
@@ -12,8 +12,8 @@ function Stat({ icon: Icon, label, value, color }) {
   );
 }
 
-export default function IntelDashboard({ competitors }) {
-  const d = buildDashboard(competitors);
+export default function IntelDashboard({ competitors, evidence }) {
+  const d = buildDashboard(competitors, evidence);
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -25,8 +25,8 @@ export default function IntelDashboard({ competitors }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Stat icon={Rocket} label="Legacy Platforms" value={d.legacyPlatforms} color="text-amber-400" />
         <Stat icon={Activity} label="AI-Native Platforms" value={d.aiNativePlatforms} color="text-emerald-400" />
+        <Stat icon={ShieldCheck} label="Verified Evidence" value={d.verifiedEvidence} color="text-emerald-400" />
         <Stat icon={DollarSign} label="Pricing Changes" value="Tracked" color="text-accent-orange" />
-        <Stat icon={TrendingUp} label="Recent Launches" value="In News™" color="text-indigo-400" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <div className="rounded-2xl border border-rose-500/20 bg-rose-500/[0.04] p-4">

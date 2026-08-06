@@ -1,93 +1,57 @@
 {
-  "name": "RoadmapProposal",
+  "name": "ChangeHistory",
   "type": "object",
   "properties": {
     "description": {
       "type": "string",
-      "maxLength": 2000
+      "maxLength": 1000
     },
-    "title": {
+    "competitor": {
+      "type": "string"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "new_feature",
+        "pricing_change",
+        "funding",
+        "acquisition",
+        "leadership_change",
+        "security_certification",
+        "compliance",
+        "enterprise_integration",
+        "product_release",
+        "api_change",
+        "ai_release"
+      ],
+      "default": "product_release"
+    },
+    "headline": {
       "type": "string"
     },
     "summary": {
       "type": "string"
     },
-    "strengthens_readiness": {
-      "type": "boolean",
-      "default": false
-    },
-    "improves_enterprise_value": {
-      "type": "boolean",
-      "default": false
-    },
-    "reinforces_positioning": {
-      "type": "boolean",
-      "default": false
-    },
-    "customer_driven": {
-      "type": "boolean",
-      "default": false
-    },
-    "market_driven": {
-      "type": "boolean",
-      "default": false
-    },
-    "feature_parity_only": {
-      "type": "boolean",
-      "default": false
-    },
-    "strategic_priority": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5"
-    },
-    "business_impact": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5"
-    },
-    "engineering_effort": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5 (higher = more effort)"
-    },
-    "differentiation_score": {
-      "type": "number",
-      "default": 50,
-      "description": "0-100"
-    },
-    "commercial_value": {
-      "type": "number",
-      "default": 3,
-      "description": "1-5"
-    },
-    "recommendation": {
-      "type": "string",
-      "enum": [
-        "Build",
-        "Monitor",
-        "Ignore",
-        "Accelerate",
-        "Consider"
-      ],
-      "default": "Consider"
-    },
-    "ai_analysis": {
+    "source": {
       "type": "string"
     },
-    "status": {
+    "change_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "confidence": {
       "type": "string",
       "enum": [
-        "proposed",
-        "reviewing",
-        "accepted",
-        "rejected"
+        "High",
+        "Medium",
+        "Low",
+        "Unknown"
       ],
-      "default": "proposed"
+      "default": "Medium"
     }
   },
   "required": [
-    "title"
+    "headline"
   ],
   "rls": {
     "create": {

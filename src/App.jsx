@@ -209,6 +209,7 @@ import CommercialIntelligence from '@/pages/commercial/CommercialIntelligence';
 import CommercialCommandCenter from '@/pages/CommercialCommandCenter';
 import EnterpriseCommercialIntelligence from '@/pages/commercial/EnterpriseCommercialIntelligence';
 import CommercialAutomationEngine from '@/pages/CommercialAutomationEngine';
+import CommercialRevenueEngine from '@/pages/commercial/CommercialRevenueEngine';
 import BusinessIntelligenceCenter from '@/pages/BusinessIntelligenceCenter';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
 import Diagnostics from '@/pages/developer/Diagnostics';
@@ -602,6 +603,7 @@ const AuthenticatedApp = () => {
           <Route path="/commercial-command-center" element={<CommercialCommandCenter />} />
           <Route path="/commercial/enterprise-intelligence" element={<EnterpriseCommercialIntelligence />} />
           <Route path="/commercial-automation" element={<CommercialAutomationEngine />} />
+          <Route path="/commercial/revenue-engine" element={<CommercialRevenueEngine />} />
           <Route path="/business-intelligence" element={<BusinessIntelligenceCenter />} />
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />
           <Route path="/developer/diagnostics" element={<Diagnostics />} />

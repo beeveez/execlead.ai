@@ -16,17 +16,26 @@
     "country": {
       "type": "string"
     },
+    "enterprise_size": {
+      "type": "number",
+      "default": 0,
+      "description": "Leadership population size"
+    },
     "calc_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_modified": {
       "type": "string",
       "format": "date-time"
     },
     "inputs_json": {
       "type": "string",
-      "description": "JSON of customer inputs (Steps 1-3)"
+      "description": "JSON of customer inputs"
     },
     "assumptions_json": {
       "type": "string",
-      "description": "JSON of configurable assumptions (Step 4)"
+      "description": "JSON of configurable assumptions"
     },
     "estimated_annual_value": {
       "type": "number",
@@ -47,17 +56,62 @@
       "type": "boolean",
       "default": false
     },
+    "procurement_package_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "presentation_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "roi_version": {
+      "type": "string",
+      "default": "2.0"
+    },
+    "commercial_version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "scenario": {
+      "type": "string",
+      "description": "Scenario label used"
+    },
+    "sales_stage": {
+      "type": "string",
+      "description": "CRM opportunity/sales stage"
+    },
     "sales_owner": {
       "type": "string",
       "description": "Sales owner name/email"
     },
-    "opportunity_stage": {
+    "owner": {
       "type": "string",
-      "description": "CRM opportunity stage"
+      "description": "Account owner"
+    },
+    "executive_sponsor": {
+      "type": "string"
+    },
+    "expected_close_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "win_probability": {
+      "type": "number",
+      "default": 0
+    },
+    "annual_contract_value": {
+      "type": "number",
+      "default": 0
+    },
+    "lifetime_value": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
     },
     "share_token": {
-      "type": "string",
-      "description": "Token for sharing the ROI report"
+      "type": "string"
     }
   },
   "required": [

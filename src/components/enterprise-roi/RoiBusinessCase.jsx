@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { FileDown, FileSpreadsheet, Save, Share2, Presentation, Package, Loader2, Check, Briefcase, ClipboardList, BarChart3, Mail } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-export default function RoiBusinessCase({ inputs, assumptions, roi, insights }) {
+export default function RoiBusinessCase({ inputs, assumptions, roi, insights, procurementPackage, presentation }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
   const [summaryCopied, setSummaryCopied] = useState(false);
+  const [genProcurement, setGenProcurement] = useState(false);
+  const [genPresentation, setGenPresentation] = useState(false);
 
   const pdf = (audience) => import("@/lib/enterpriseRoiPdf").then(({ generateBusinessCasePdf: gen }) => gen(inputs, assumptions, roi, insights, audience));
 
@@ -29,11 +31,18 @@ export default function RoiBusinessCase({ inputs, assumptions, roi, insights }) 
       await base44.entities.EnterpriseROICalculation.create({
         organization_name: inputs.organizationName || "Organization",
         industry: inputs.industry, country: inputs.country,
-        calc_date: new Date().toISOString(),
+        enterprise_size: Number(inputs.leadershipPopulation) || 0,
+        calc_date: new Date().toISOString(), last_modified: new Date().toISOString(),
         inputs_json: JSON.stringify(inputs), assumptions_json: JSON.stringify(assumptions),
         estimated_annual_value: roi.annualGrossValue, estimated_three_year_roi: roi.threeYearROI ?? 0,
-        estimated_net_impact: roi.annualNetValue, business_case_generated: true, proposal_generated: false,
-        sales_owner: me?.email || me?.full_name || "", opportunity_stage: "Qualification",
+        estimated_net_impact: roi.annualNetValue,
+        business_case_generated: true, proposal_generated: false,
+        procurement_package_generated: genProcurement, presentation_generated: genPresentation,
+        roi_version: "2.0", commercial_version: "1.0", scenario: "Expected",
+        sales_stage: "Qualification", sales_owner: me?.email || me?.full_name || "",
+        owner: me?.email || "", executive_sponsor: "", expected_close_date: "",
+        win_probability: 0, annual_contract_value: roi.annualPlatformInvestment,
+        lifetime_value: (roi.annualPlatformInvestment || 0) * 3, notes: "",
         share_token: "roi_" + Math.random().toString(36).slice(2, 10),
       });
       setSaved(true);
@@ -63,15 +72,15 @@ export default function RoiBusinessCase({ inputs, assumptions, roi, insights }) 
         <button onClick={() => pdf("cfo")} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><BarChart3 size={14} /> CFO Summary</button>
         <button onClick={() => pdf("chro")} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><Briefcase size={14} /> CHRO Summary</button>
         <button onClick={() => pdf("board")} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><Presentation size={14} /> Board Presentation</button>
-        <button onClick={() => pdf("procurement")} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><ClipboardList size={14} /> Procurement</button>
-        <button onClick={() => pdf("presentation")} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><Package size={14} /> Exec Presentation</button>
+        <button onClick={() => { setGenProcurement(true); pdf("procurement"); }} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><ClipboardList size={14} /> Procurement Package</button>
+        <button onClick={() => { setGenPresentation(true); pdf("presentation"); }} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><Package size={14} /> Exec Presentation</button>
         <button onClick={downloadCsv} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}><FileSpreadsheet size={14} /> Excel (CSV)</button>
         <button onClick={shareableSummary} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}>{summaryCopied ? <Check size={14} className="text-emerald-400" /> : <Mail size={14} />} {summaryCopied ? "Copied" : "Shareable Summary"}</button>
         <button onClick={save} disabled={saving} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}>{saving ? <Loader2 size={14} className="animate-spin" /> : saved ? <Check size={14} className="text-emerald-400" /> : <Save size={14} />} {saved ? "Saved" : "Save ROI"}</button>
         <button onClick={share} className={`${btn} bg-white/5 hover:bg-white/10 border border-white/10 text-white/70`}>{shared ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />} {shared ? "Link Copied" : "Share ROI"}</button>
         <button disabled className={`${btn} bg-white/[0.02] border border-white/8 text-white/30 cursor-not-allowed col-span-2 sm:col-span-1`}><Presentation size={14} /> PowerPoint (GA)</button>
       </div>
-      <p className="text-white/35 text-[10px] mt-3">Saved reports store organization, inputs, assumptions, ROI, owner, and opportunity stage in your Enterprise ROI CRM record.</p>
+      <p className="text-white/35 text-[10px] mt-3">Saved reports store organization, inputs, assumptions, ROI, owner, sales stage, ACV, LTV, executive sponsor, win probability, and generation flags in your Enterprise ROI CRM record.</p>
     </div>
   );
 }

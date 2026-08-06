@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ArrowLeft, ArrowRight, Calculator } from "lucide-react";
-import { calculateRoi, DEFAULT_INPUTS, DEFAULT_ASSUMPTIONS, DEMO_INPUTS } from "@/lib/enterpriseRoiEngine";
+import { DEFAULT_INPUTS, DEFAULT_ASSUMPTIONS, DEMO_INPUTS } from "@/lib/enterpriseRoiEngine";
+import { calculateEnterpriseROI } from "@/lib/enterprise/enterpriseROIService";
 import RoiHero from "@/components/enterprise-roi/RoiHero";
 import OrgProfileStep from "@/components/enterprise-roi/OrgProfileStep";
 import InvestmentStep from "@/components/enterprise-roi/InvestmentStep";
@@ -11,6 +12,11 @@ import RoiCharts from "@/components/enterprise-roi/RoiCharts";
 import RoiScenarios from "@/components/enterprise-roi/RoiScenarios";
 import RoiInsights from "@/components/enterprise-roi/RoiInsights";
 import RoiBusinessCase from "@/components/enterprise-roi/RoiBusinessCase";
+import ExecutiveFinancialSummary from "@/components/enterprise-roi/ExecutiveFinancialSummary";
+import LeadershipImpactSummary from "@/components/enterprise-roi/LeadershipImpactSummary";
+import CommercialRecommendation from "@/components/enterprise-roi/CommercialRecommendation";
+import ExecutiveProcurementPackage from "@/components/enterprise-roi/ExecutiveProcurementPackage";
+import ExecutivePresentation from "@/components/enterprise-roi/ExecutivePresentation";
 
 const STEPS = [
   { n: 1, title: "Organization Profile", Comp: OrgProfileStep },
@@ -31,14 +37,14 @@ export default function EnterpriseROI() {
   const [step, setStep] = useState(1);
   const [inputs, setInputs] = useState(DEFAULT_INPUTS);
   const [assumptions, setAssumptions] = useState(DEFAULT_ASSUMPTIONS);
-  const [results, setResults] = useState(null);
+  const [result, setResult] = useState(null);
   const [insights, setInsights] = useState([]);
 
   const Comp = STEPS[step - 1].Comp;
   const next = () => setStep((s) => Math.min(4, s + 1));
   const back = () => setStep((s) => Math.max(1, s - 1));
-  const calculate = () => setResults(calculateRoi(inputs, assumptions));
-  const viewSample = () => { setInputs(DEMO_INPUTS); setAssumptions(DEFAULT_ASSUMPTIONS); setResults(calculateRoi(DEMO_INPUTS, DEFAULT_ASSUMPTIONS)); };
+  const calculate = () => setResult(calculateEnterpriseROI(inputs, assumptions));
+  const viewSample = () => { setInputs(DEMO_INPUTS); setAssumptions(DEFAULT_ASSUMPTIONS); setResult(calculateEnterpriseROI(DEMO_INPUTS, DEFAULT_ASSUMPTIONS)); };
 
   return (
     <div className="min-h-screen bg-[#08080d] text-white p-6 lg:p-8">
@@ -46,7 +52,7 @@ export default function EnterpriseROI() {
         <RoiHero onSample={viewSample} />
         <Disclaimer />
 
-        {!results && (
+        {!result && (
           <div className="mt-6" id="roi-wizard">
             <div className="flex items-center gap-2 mb-5 overflow-x-auto">
               {STEPS.map((s) => (
@@ -70,18 +76,20 @@ export default function EnterpriseROI() {
           </div>
         )}
 
-        {results && (
+        {result && (
           <div className="mt-6 space-y-6">
             <div className="flex items-center justify-between">
-              <button onClick={() => setResults(null)} className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80"><ArrowLeft size={15} /> Edit Inputs</button>
+              <button onClick={() => setResult(null)} className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80"><ArrowLeft size={15} /> Edit Inputs</button>
               <span className="text-[11px] text-white/40">Prepared for {inputs.organizationName || "your organization"}</span>
             </div>
+            <ExecutiveFinancialSummary summary={result.dashboard.executiveFinancialSummary} />
+            <LeadershipImpactSummary summary={result.dashboard.leadershipImpactSummary} />
             <RoiResults
-              roi={results}
-              onEditAssumptions={() => { setResults(null); setStep(4); }}
-              onResetAssumptions={() => { setAssumptions(DEFAULT_ASSUMPTIONS); setResults(calculateRoi(inputs, DEFAULT_ASSUMPTIONS)); }}
+              roi={result}
+              onEditAssumptions={() => { setResult(null); setStep(4); }}
+              onResetAssumptions={() => { setAssumptions(DEFAULT_ASSUMPTIONS); setResult(calculateEnterpriseROI(inputs, DEFAULT_ASSUMPTIONS)); }}
               onExportCalculations={() => {
-                const blob = new Blob([JSON.stringify({ inputs, assumptions, metrics: results.metrics }, null, 2)], { type: "application/json" });
+                const blob = new Blob([JSON.stringify({ inputs, assumptions, executiveSummary: result.executiveSummary, financialImpact: result.financialImpact, operationalImpact: result.operationalImpact, leadershipImpact: result.leadershipImpact, confidence: result.confidence, executiveRecommendation: result.executiveRecommendation, metrics: result.metrics }, null, 2)], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
@@ -90,10 +98,13 @@ export default function EnterpriseROI() {
                 URL.revokeObjectURL(url);
               }}
             />
-            <RoiCharts roi={results} inputs={inputs} />
+            <RoiCharts roi={result} inputs={inputs} />
+            <CommercialRecommendation rec={result.commercialRecommendation} />
             <RoiScenarios inputs={inputs} assumptions={assumptions} />
-            <RoiInsights inputs={inputs} roi={results} onInsights={setInsights} />
-            <RoiBusinessCase inputs={inputs} assumptions={assumptions} roi={results} insights={insights} />
+            <RoiInsights inputs={inputs} roi={result} onInsights={setInsights} />
+            <ExecutiveProcurementPackage pkg={result.procurementPackage} onDownload={() => import("@/lib/enterpriseRoiPdf").then(({ generateBusinessCasePdf: gen }) => gen(inputs, assumptions, result, insights, "procurement"))} />
+            <ExecutivePresentation presentation={result.presentation} onDownload={() => import("@/lib/enterpriseRoiPdf").then(({ generateBusinessCasePdf: gen }) => gen(inputs, assumptions, result, insights, "presentation"))} />
+            <RoiBusinessCase inputs={inputs} assumptions={assumptions} roi={result} insights={insights} procurementPackage={result.procurementPackage} presentation={result.presentation} />
             <Disclaimer />
           </div>
         )}

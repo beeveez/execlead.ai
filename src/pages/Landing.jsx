@@ -12,6 +12,7 @@ import SimulationDifferentiation from '@/components/landing/v3/SimulationDiffere
 import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
 import OutcomeExperienceCards from '@/components/landing/v3/OutcomeExperienceCards';
 import WhyChooseExecLead from '@/components/landing/v3/WhyChooseExecLead';
+import CustomerEvidence from '@/components/landing/v3/CustomerEvidence';
 import HowExecLeadWorks from '@/components/landing/v3/HowExecLeadWorks';
 import CustomerJourney from '@/components/landing/v3/CustomerJourney';
 import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
@@ -47,6 +48,9 @@ export default function Landing() {
 
       {/* Why professionals choose EXECLEAD.AI */}
       <WhyChooseExecLead />
+
+      {/* Customer Evidence Layer™ — verified platform metrics */}
+      <CustomerEvidence />
 
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
 

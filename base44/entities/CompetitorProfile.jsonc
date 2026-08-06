@@ -28,6 +28,8 @@
       "enum": [
         "Legacy Coaching Platform",
         "AI-Native Leadership Platform",
+        "Learning Platform",
+        "HCM-Embedded Learning",
         "Coaching Marketplace",
         "Other"
       ],
@@ -41,16 +43,19 @@
       "type": "boolean",
       "default": false
     },
+    "funding_status": {
+      "type": "string"
+    },
+    "estimated_employee_count": {
+      "type": "string"
+    },
     "primary_market": {
       "type": "string"
     },
-    "company_size": {
-      "type": "string"
-    },
-    "funding": {
-      "type": "string"
-    },
     "target_customers": {
+      "type": "string"
+    },
+    "target_personas": {
       "type": "string"
     },
     "industries": {
@@ -60,6 +65,9 @@
       "type": "string"
     },
     "primary_value_proposition": {
+      "type": "string"
+    },
+    "primary_products": {
       "type": "string"
     },
     "core_capabilities": {
@@ -86,11 +94,44 @@
     "integrations": {
       "type": "string"
     },
+    "deployment_model": {
+      "type": "string"
+    },
     "security_compliance": {
       "type": "string"
     },
     "pricing_model": {
       "type": "string"
+    },
+    "pricing_model_type": {
+      "type": "string",
+      "enum": [
+        "Seat-Based",
+        "Enterprise",
+        "Usage-Based",
+        "Custom",
+        "Freemium",
+        "Not Publicly Documented"
+      ],
+      "default": "Not Publicly Documented"
+    },
+    "public_pricing": {
+      "type": "string"
+    },
+    "has_free_tier": {
+      "type": "boolean",
+      "default": false
+    },
+    "has_trial": {
+      "type": "boolean",
+      "default": false
+    },
+    "annual_discounts": {
+      "type": "string"
+    },
+    "pricing_last_verified": {
+      "type": "string",
+      "format": "date"
     },
     "enterprise_sales_motion": {
       "type": "string"
@@ -108,6 +149,9 @@
       "type": "string"
     },
     "recent_announcements": {
+      "type": "string"
+    },
+    "strategic_notes": {
       "type": "string"
     },
     "public_sources": {

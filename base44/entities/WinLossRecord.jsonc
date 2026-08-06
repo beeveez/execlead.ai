@@ -1,0 +1,182 @@
+{
+  "name": "WinLossRecord",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "won",
+        "lost",
+        "no_decision"
+      ],
+      "default": "lost"
+    },
+    "competitor_mentioned": {
+      "type": "string"
+    },
+    "deal_stage": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "customer_size": {
+      "type": "string"
+    },
+    "reason_won": {
+      "type": "string"
+    },
+    "reason_lost": {
+      "type": "string"
+    },
+    "missing_capability": {
+      "type": "string"
+    },
+    "pricing_feedback": {
+      "type": "string"
+    },
+    "decision_drivers": {
+      "type": "string"
+    },
+    "requested_features": {
+      "type": "string"
+    },
+    "ai_trends": {
+      "type": "string"
+    },
+    "record_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "outcome"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -4,7 +4,13 @@
 // Run: deno test --allow-net base44/shared/auth.test.ts
 // ============================================================
 import { decodeServiceToken, authenticateRequest, constantTimeCompare } from "./auth.ts";
-import { assertEquals } from "jsr:@std/assert@0.221";
+
+// Self-contained assertion (avoids external jsr: dependency that could break
+// the platform build if this shared file is compiled).
+function assertEquals(actual, expected) {
+  const a = JSON.stringify(actual), e = JSON.stringify(expected);
+  if (a !== e) throw new Error(`Expected ${e} but got ${a}`);
+}
 
 // ── Helpers ──
 function b64url(obj) {

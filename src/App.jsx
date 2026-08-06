@@ -207,6 +207,7 @@ import ProcurementCommandCenter from '@/pages/enterprise/ProcurementCommandCente
 import VendorManagement from '@/pages/vendor/VendorManagement';
 import CommercialIntelligence from '@/pages/commercial/CommercialIntelligence';
 import CommercialCommandCenter from '@/pages/CommercialCommandCenter';
+import EnterpriseCommercialIntelligence from '@/pages/commercial/EnterpriseCommercialIntelligence';
 import CommercialAutomationEngine from '@/pages/CommercialAutomationEngine';
 import BusinessIntelligenceCenter from '@/pages/BusinessIntelligenceCenter';
 import OrganizationAdmin from '@/pages/developer/OrganizationAdmin';
@@ -260,6 +261,7 @@ import PerformanceExecution from '@/pages/operations/PerformanceExecution';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
+import EnterpriseROIDashboard from '@/pages/enterprise/EnterpriseROIDashboard';
 import EnterpriseDomain from '@/pages/enterprise/EnterpriseDomain';
 import EnterprisePortal from '@/pages/EnterprisePortal';
 import MyQuotes from '@/pages/MyQuotes';
@@ -578,6 +580,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/knowledge-intelligence" element={<KnowledgeIntelligenceDashboard />} />
           <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
           <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
+          <Route path="/enterprise/roi" element={<EnterpriseROIDashboard />} />
           <Route path="/enterprise/organization-domain" element={<EnterpriseDomain domain="organization" />} />
           <Route path="/enterprise/workforce" element={<EnterpriseDomain domain="workforce" />} />
           <Route path="/enterprise/governance-domain" element={<EnterpriseDomain domain="governance" />} />
@@ -593,6 +596,7 @@ const AuthenticatedApp = () => {
           <Route path="/enterprise/vendors" element={<VendorManagement />} />
           <Route path="/enterprise/commercial" element={<CommercialIntelligence />} />
           <Route path="/commercial-command-center" element={<CommercialCommandCenter />} />
+          <Route path="/commercial/enterprise-intelligence" element={<EnterpriseCommercialIntelligence />} />
           <Route path="/commercial-automation" element={<CommercialAutomationEngine />} />
           <Route path="/business-intelligence" element={<BusinessIntelligenceCenter />} />
           <Route path="/developer/organizations" element={<OrganizationAdmin />} />

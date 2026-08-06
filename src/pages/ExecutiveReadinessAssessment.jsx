@@ -12,11 +12,12 @@ import ExecutiveReadinessReport from '@/components/readiness-assessment/Executiv
 import {
   Loader2, ChevronLeft, ChevronRight, Sparkles, Award, Check, Gauge, PauseCircle,
 } from 'lucide-react';
+import EnterpriseAssessmentCenter from '@/components/readiness-assessment/EnterpriseAssessmentCenter';
 
 export default function ExecutiveReadinessAssessment() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [phase, setPhase] = useState('track');
+  const [phase, setPhase] = useState('launchpad');
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
@@ -30,7 +31,11 @@ export default function ExecutiveReadinessAssessment() {
   // Adaptive Question Engine™ — 16 universal + 4 path-specific questions.
   const questions = useMemo(() => buildAssessmentSet(track), [track]);
 
-  // Preselect track from profile so returning users skip straight to the assessment.
+  // Enterprise Executive Assessment Center™ — load context for the launchpad.
+  const [enterprise, setEnterprise] = useState(false);
+  const [orgName, setOrgName] = useState(null);
+  const [hasSavedProgress, setHasSavedProgress] = useState(false);
+
   useEffect(() => {
     (async () => {
       try {
@@ -38,11 +43,44 @@ export default function ExecutiveReadinessAssessment() {
         if (me?.data?.leadership_track) {
           setTrack(me.data.leadership_track);
           setTargetRole(me.data.target_executive_role || null);
-          setPhase('quiz');
         }
+        let org = me?.data?.organization || null;
+        let ent = false;
+        try {
+          const memberships = await base44.entities.OrgMembership.filter({ user_id: me?.id || user?.id });
+          if (memberships && memberships.length > 0) { ent = true; org = org || 'Enterprise Workspace'; }
+        } catch (e) {}
+        setEnterprise(ent);
+        setOrgName(org);
+      } catch (e) {}
+      try {
+        const saved = JSON.parse(localStorage.getItem(ASSESSMENT_STORAGE_KEY) || 'null');
+        if (saved && saved.answers && Object.keys(saved.answers).length > 0) setHasSavedProgress(true);
       } catch (e) {}
     })();
   }, []);
+
+  // Goal → leadership track mapping for self-service members.
+  const GOAL_MAP = {
+    'Become a Director': { track: 'business', role: 'Director' },
+    'Become a Senior Director': { track: 'business', role: 'Senior Director' },
+    'Become a VP': { track: 'business', role: 'Vice President' },
+    'Become a CIO': { track: 'technology', role: 'CIO' },
+    'Become a CTO': { track: 'technology', role: 'CTO' },
+    'Become a CHRO': { track: 'hr', role: 'CHRO' },
+    'Become a COO': { track: 'business', role: 'COO' },
+    'Become a CEO': { track: 'business', role: 'CEO' },
+  };
+
+  const beginAssessment = () => {
+    if (!track) { setPhase('track'); return; }
+    setPhase('quiz');
+  };
+  const browsePaths = () => setPhase('track');
+  const chooseGoal = (goal) => {
+    const m = GOAL_MAP[goal] || { track: 'business', role: goal };
+    selectTrack(m.track, m.role);
+  };
 
   // Restore in-progress answers
   useEffect(() => {
@@ -150,6 +188,22 @@ export default function ExecutiveReadinessAssessment() {
         targetRole={targetRole}
         history={history}
         previousRecord={previousRecord}
+      />
+    );
+  }
+
+  // ── ENTERPRISE EXECUTIVE ASSESSMENT CENTER™ LAUNCHPAD ──
+  if (phase === 'launchpad') {
+    return (
+      <EnterpriseAssessmentCenter
+        user={user}
+        enterprise={enterprise}
+        orgName={orgName}
+        hasSavedProgress={hasSavedProgress}
+        track={track}
+        onBegin={beginAssessment}
+        onChooseGoal={chooseGoal}
+        onBrowsePaths={browsePaths}
       />
     );
   }

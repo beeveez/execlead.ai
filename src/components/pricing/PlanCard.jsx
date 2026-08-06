@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Sparkles } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { PLAN_CONTENT } from "@/lib/pricingContent";
 import { getPlanCta, getCurrentPlatformMode } from "@/lib/launchMode";
 import FounderPriceBadge from "./FounderPriceBadge";
@@ -188,10 +188,28 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
           ))}
         </ul>
 
-        {/* ROI */}
-        <div className="mt-5 bg-white/[0.03] border border-white/5 rounded-lg p-3 flex items-start gap-2">
-          <Sparkles size={14} className={`${content.accent} flex-shrink-0 mt-0.5`} />
-          <p className="text-white/50 text-xs leading-relaxed">{content.roi}</p>
+        {/* Outcome messaging */}
+        <div className="mt-5 bg-white/[0.03] border border-white/5 rounded-lg p-3 space-y-2.5">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-white/30 font-semibold mb-0.5">Who it's for</div>
+            <p className="text-white/55 text-xs leading-relaxed">{content.idealFor}</p>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-accent-orange/70 font-semibold mb-0.5">Primary outcome</div>
+            <p className="text-white/70 text-xs leading-relaxed">{content.outcome}</p>
+          </div>
+          {content.upgradeTrigger && (
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-white/30 font-semibold mb-0.5">When to upgrade</div>
+              <p className="text-white/55 text-xs leading-relaxed">{content.upgradeTrigger}</p>
+            </div>
+          )}
+          {content.keyMessage && (
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-white/30 font-semibold mb-0.5">Key message</div>
+              <p className="text-white/55 text-xs leading-relaxed">{content.keyMessage}</p>
+            </div>
+          )}
         </div>
 
         {/* CTA */}

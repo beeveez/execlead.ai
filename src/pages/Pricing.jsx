@@ -7,6 +7,7 @@ import { ArrowRight, Sparkles, Building2, Calculator, ShieldCheck, Rocket } from
 import PricingTiers from "@/components/pricing/PricingTiers";
 import BetaPricingBanner from "@/components/pricing/BetaPricingBanner";
 import FoundingBetaSection from "@/components/pricing/FoundingBetaSection";
+import PlanSelector from "@/components/pricing/PlanSelector";
 import PaymentTrust from "@/components/billing/PaymentTrust";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
@@ -115,6 +116,9 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+
+      {/* Which Plan Is Right For Me? */}
+      <PlanSelector />
 
       {/* Founding Member Program */}
       <section className="pb-20 px-4">

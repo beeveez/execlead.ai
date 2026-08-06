@@ -188,6 +188,55 @@ export const BrandRegistry = {
       title: "This Executive Insight is Being Prepared",
       body: "This article is currently being prepared as part of the Private Beta knowledge library. Our team is crafting premium executive insights to help ambitious professionals become stronger leaders.",
     },
+    demo: {
+      title: "EXECLEAD.AI Product Demo™",
+      subtitle: "See how EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered coaching, executive readiness assessments, leadership simulations, and personalized development.",
+      hero: {
+        headline: "Experience the World's First Executive Leadership Operating System™",
+        supporting: "Discover how EXECLEAD.AI combines Executive Readiness™, AI Executive Coaching™, Executive Simulations™, Executive Identity™, and continuous leadership development into one intelligent platform.",
+        primaryCta: "Take Executive Readiness Assessment",
+        secondaryCta: "Apply for Beta",
+      },
+      video: {
+        comingSoonLabel: "Product Demo Coming Soon",
+        comingSoonBody: "Our interactive product demonstration is currently being prepared for the Founding Private Beta. The full guided walkthrough will be available before General Availability.",
+        launchPreview: "Launch Interactive Preview",
+        exploreFeatures: "Explore Features",
+        takeAssessment: "Take Executive Readiness Assessment",
+        applyBeta: "Apply for Beta",
+      },
+      walkthrough: [
+        { n: 1, title: "Executive Readiness Assessment™", items: ["Leadership assessment", "Personalized readiness score", "Leadership gap analysis", "AI recommendations"] },
+        { n: 2, title: "Executive Dashboard™", items: ["Executive Readiness", "Executive Journey", "Daily Executive Mission", "Growth Timeline"] },
+        { n: 3, title: "EXEC™ AI Executive Coach™", items: ["Personalized coaching", "Leadership advice", "Context-aware conversations", "Executive development"] },
+        { n: 4, title: "Executive Simulations™", items: ["Executive decision scenarios", "Leadership simulations", "Crisis management", "Board presentations"] },
+        { n: 5, title: "Executive Identity™", items: ["Executive Identity Graph™", "Executive Success Stories™", "Executive Portfolio™", "Executive Reputation™"] },
+        { n: 6, title: "Enterprise Platform™", items: ["Executive Workspace", "Developer Workspace", "Operations Workspace", "Trust Center", "Enterprise capabilities"] },
+      ],
+      highlights: [
+        { title: "Executive Readiness™", desc: "Measure your executive readiness with evidence-based scoring and gap analysis.", route: "/executive-readiness", icon: "Gauge" },
+        { title: "AI Executive Coach™", desc: "Personalized, context-aware executive coaching on demand.", route: "/coach", icon: "Sparkles" },
+        { title: "Executive Simulations™", desc: "Practice high-stakes executive decisions with realistic scenarios.", route: "/simulator", icon: "PlayCircle" },
+        { title: "Executive Identity™", desc: "A verified, evidence-backed executive identity and portfolio.", route: "/executive-portfolio", icon: "Fingerprint" },
+        { title: "Executive Success Stories™", desc: "Evidence-generated narratives of real leadership growth.", route: "/executive-success-stories", icon: "Trophy" },
+        { title: "Trust Center™", desc: "Transparency, security, and responsible AI you can verify.", route: "/trust-center", icon: "ShieldCheck" },
+      ],
+      socialProof: {
+        heading: "Why EXECLEAD.AI?",
+        points: [
+          "AI-powered Executive Leadership Operating System™",
+          "Personalized Executive Readiness™",
+          "Leadership Simulations™",
+          "Executive Identity™",
+          "Evidence-Based Leadership Development™",
+        ],
+      },
+      finalCta: {
+        heading: "Ready to Begin Your Executive Leadership Journey?",
+        primary: "Take Executive Readiness Assessment",
+        secondary: "Apply for Founding Private Beta",
+      },
+    },
   },
 
   // ── Auth Subtitles ──

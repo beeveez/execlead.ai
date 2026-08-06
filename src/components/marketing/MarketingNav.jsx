@@ -136,7 +136,7 @@ export default function MarketingNav() {
             ) : (
               <>
                 <Link
-                  to="/platform"
+                  to="/demo"
                   onClick={() => trackNav("Watch Demo")}
                   className="hidden md:inline-flex items-center text-[13px] text-white/65 hover:text-white border border-white/10 hover:border-white/20 px-3 py-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
                 >
@@ -194,7 +194,7 @@ export default function MarketingNav() {
                 </>
               ) : (
                 <>
-                  <Link to="/platform" onClick={() => handleNavClick({ label: "Watch Demo" })} className="block py-2.5 text-center text-sm border border-white/10 text-white/70 rounded-lg">Watch Demo</Link>
+                  <Link to="/demo" onClick={() => handleNavClick({ label: "Watch Demo" })} className="block py-2.5 text-center text-sm border border-white/10 text-white/70 rounded-lg">Watch Demo</Link>
                   <Link to={buildSignInUrl(location.pathname + location.search)} onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-white/60 hover:text-white">Sign In</Link>
                   <Link to="/beta" onClick={() => handleNavClick({ label: "Apply for Beta" })} className="block py-2.5 text-center text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white rounded-lg">Apply for Beta</Link>
                 </>

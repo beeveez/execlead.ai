@@ -54,6 +54,7 @@ import ArticleDetail from '@/pages/articles/ArticleDetail';
 
 const Landing = lazyRetry(() => import('@/pages/Landing'));
 import PlatformOverview from '@/pages/PlatformOverview';
+import Demo from '@/pages/Demo';
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import SectionHome from '@/pages/SectionHome';
@@ -373,6 +374,7 @@ const AuthenticatedApp = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/trust-center" element={<TrustCenter />} />
+        <Route path="/demo" element={<Demo />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

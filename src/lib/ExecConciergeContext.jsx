@@ -42,7 +42,7 @@ import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest,
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
-import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, formatKnowledgeAuthorityMessage } from "@/lib/knowledgeAuthorityGuard";
+import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 
 const ExecConciergeContext = createContext(null);
@@ -566,16 +566,17 @@ export function ExecConciergeProvider({ children }) {
       // missing. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
       if (isCompanyKnowledgeQuestion(content)) {
         try {
-          const { ranked } = await retrieveKnowledgeArticles(content, 5);
+          const { ranked, all } = await retrieveKnowledgeArticles(content, 5);
           let result;
           if (ranked.length === 0) {
-            result = { noResult: true, sources: [], confidence: 0, freshness: null, citedSlugs: [] };
+            const suggestions = (all || []).slice().sort((a, b) => (b.view_count || 0) - (a.view_count || 0)).slice(0, 4);
+            result = { noResult: true, sources: [], confidence: 0, confidenceLabel: "Unknown", freshness: null, citedSlugs: [], relatedSuggestions: suggestions };
             trackKnowledgeAiAsk({ query: content, confidence: 0, sourcesCount: 0, noResult: true, citedSlugs: [] });
           } else {
-            result = await answerFromKnowledge(content, ranked);
+            result = await answerFromKnowledge(content, ranked, all);
             trackKnowledgeAiAsk({ query: content, confidence: result.confidence, sourcesCount: result.sources.length, noResult: false, citedSlugs: result.citedSlugs });
           }
-          const answerText = formatKnowledgeAuthorityMessage(result);
+          const answerText = result.noResult ? buildNoResultMessage(result.relatedSuggestions) : formatKnowledgeAuthorityMessage(result);
           setMessages((prev) => [...prev, { role: "assistant", content: answerText }]);
           setLoading(false);
           base44.analytics.track({ eventName: "exec_knowledge_authority_used", properties: { noResult: result.noResult, confidence: result.confidence, sources: result.sources.length } });

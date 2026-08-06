@@ -2,14 +2,13 @@ import { base44 } from "@/api/base44Client";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 
 // ============================================================
-// Knowledge Authority Guard™
+// Knowledge Authority Guard™ + Evidence Attribution & Confidence Standard™
 // ------------------------------------------------------------
-// Routes company/platform questions to grounded answers built
-// ONLY from approved KnowledgeArticle records. Never uses
-// general LLM reasoning as the source of truth for company
-// facts. Every grounded answer is audit-logged via
-// trackKnowledgeAiAsk (question, articles used, confidence,
-// fallback, timestamp).
+// Routes company/platform questions to grounded answers built ONLY from
+// approved KnowledgeArticle records. Each answer exposes evidence
+// metadata (Knowledge Source, Knowledge Confidence, Last Updated, Related
+// Articles). Never uses general LLM reasoning as the source of truth for
+// company facts. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
 // ============================================================
 
 const COMPANY_TOKENS = [
@@ -39,8 +38,8 @@ const PERSONAL_STARTERS = [
 ];
 
 // Detects questions that must be grounded in approved knowledge.
-// Personal/coaching intent is excluded so the guard never hijacks
-// the user's own leadership conversation.
+// Personal/coaching intent is excluded so the guard never hijacks the
+// user's own leadership conversation.
 export function isCompanyKnowledgeQuestion(text) {
   const t = (text || "").toLowerCase().trim();
   if (!t || t.length < 4) return false;
@@ -59,6 +58,29 @@ export function isCompanyKnowledgeQuestion(text) {
   return false;
 }
 
+// Maps an article to its Evidence Attribution Knowledge Source label.
+export function sourceLabelFor(article) {
+  const cat = `${article.category || ""} ${article.subgroup || ""} ${(article.tags || []).join(" ")} ${article.title || ""} ${article.question || ""}`.toLowerCase();
+  if (cat.includes("founder")) return "Founder Article";
+  if (cat.includes("pricing") || cat.includes("membership") || cat.includes("billing")) return "Pricing Configuration";
+  if (cat.includes("trust") || cat.includes("security") || cat.includes("compliance") || cat.includes("privacy") || cat.includes("identity") || cat.includes("encryption")) return "Trust Center";
+  if (cat.includes("release") || cat.includes("roadmap") || cat.includes("changelog")) return "Release Notes";
+  if (cat.includes("responsible ai") || cat.includes("ai governance") || cat.includes("ai ethics") || cat.includes("ai transparency")) return "Responsible AI";
+  if (cat.includes("platform") || cat.includes("documentation") || cat.includes("architecture") || cat.includes("developer")) return "Platform Documentation";
+  return "Knowledge Article";
+}
+
+// Confidence classification per the Evidence Attribution & Confidence Standard™.
+// High = multiple approved sources · Medium = single approved source ·
+// Low = archived documentation · Unknown = no approved documentation.
+export function classifyConfidence(sources) {
+  const archived = (sources || []).some((s) => (s.status || "").toLowerCase() === "archived");
+  if (!sources || sources.length === 0) return { label: "Unknown", numeric: 0 };
+  if (archived) return { label: "Low", numeric: 30 };
+  if (sources.length >= 2) return { label: "High", numeric: 92 };
+  return { label: "Medium", numeric: 65 };
+}
+
 function scoreArticle(article, q) {
   const qLower = q.toLowerCase();
   const haystack = `${article.question || ""} ${article.short_answer || ""} ${article.detailed_answer || ""} ${article.title || ""} ${(article.tags || []).join(" ")} ${article.category || ""}`.toLowerCase();
@@ -68,6 +90,15 @@ function scoreArticle(article, q) {
   for (const t of terms) if (haystack.includes(t)) score += 1;
   if ((article.question || "").toLowerCase().includes(qLower)) score += 3;
   return score;
+}
+
+function fmtDate(d) {
+  if (!d) return "—";
+  try {
+    return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  } catch (e) {
+    return "—";
+  }
 }
 
 // Fetches published Knowledge Articles and ranks them by relevance.
@@ -93,17 +124,28 @@ export async function retrieveKnowledgeArticles(query, limit = 5) {
   return { ranked, all: articles };
 }
 
-// Generates a grounded answer from approved articles via InvokeLLM,
-// returning { noResult, answer, sources, confidence, freshness, citedSlugs }.
-export async function answerFromKnowledge(query, articles) {
+// Resolves an article's related_articles slugs to article objects.
+function resolveRelated(article, all) {
+  const slugs = article?.related_articles || [];
+  if (!slugs.length || !all?.length) return [];
+  return slugs
+    .map((s) => all.find((a) => a.slug === s))
+    .filter(Boolean)
+    .slice(0, 4);
+}
+
+// Generates a grounded answer from approved articles via InvokeLLM.
+// Returns { noResult, answer, sources, confidence, confidenceLabel,
+// sourceLabel, freshness, related, citedSlugs }.
+export async function answerFromKnowledge(query, articles, all) {
   const ranked = (articles || []).slice(0, 5);
   if (ranked.length === 0) {
-    return { noResult: true, answer: null, sources: [], confidence: 0, freshness: null, citedSlugs: [] };
+    return { noResult: true, answer: null, sources: [], confidence: 0, confidenceLabel: "Unknown", sourceLabel: null, freshness: null, related: [], citedSlugs: [] };
   }
   const context = ranked
-    .map((r, i) => `ARTICLE ${i + 1}\nSlug: ${r.slug}\nQuestion: ${r.question}\nShort Answer: ${r.short_answer || ""}\nDetailed: ${r.detailed_answer || ""}\nLast Updated: ${r.last_updated || ""}`)
+    .map((r, i) => `ARTICLE ${i + 1}\nSlug: ${r.slug}\nSource Label: ${sourceLabelFor(r)}\nQuestion: ${r.question}\nShort Answer: ${r.short_answer || ""}\nDetailed: ${r.detailed_answer || ""}\nLast Updated: ${r.last_updated || ""}`)
     .join("\n\n");
-  const prompt = `You are EXEC™, the AI Executive Concierge for EXECLEAD.AI. Answer the user's question using ONLY the approved Knowledge Articles below. Never invent information. Never speculate. Do not use hedging language ("I believe", "it was likely", "it appears", "typically"). If the articles do not fully answer the question, say so briefly and recommend contacting the team or checking the Executive Knowledge Center™. Be concise (2-5 sentences), executive, and truthful.\n\nAPPROVED KNOWLEDGE ARTICLES:\n${context}\n\nUSER QUESTION: ${query}\n\nReturn JSON: { "answer": string, "source_slugs": string[] (slugs of the articles you actually used) }`;
+  const prompt = `You are EXEC™, the AI Executive Concierge for EXECLEAD.AI. Answer the user's question using ONLY the approved Knowledge Articles below. Never invent information. Never speculate. Do not use hedging language ("I believe", "it was likely", "it appears", "typically"). If the articles do not fully answer the question, say so briefly and recommend contacting the team or checking the Executive Knowledge Center™. Be concise (2-5 sentences), executive, and truthful. Clearly distinguish Implemented vs In Private Beta vs Planned vs Future Vision — never blur these states.\n\nAPPROVED KNOWLEDGE ARTICLES:\n${context}\n\nUSER QUESTION: ${query}\n\nReturn JSON: { "answer": string, "source_slugs": string[] (slugs of the articles you actually used) }`;
   const res = await base44.integrations.Core.InvokeLLM({
     prompt,
     response_json_schema: {
@@ -119,30 +161,40 @@ export async function answerFromKnowledge(query, articles) {
   const slugs = data.source_slugs || ranked.map((r) => r.slug);
   const sources = slugs.map((s) => ranked.find((a) => a.slug === s)).filter(Boolean);
   const finalSources = sources.length ? sources : ranked;
-  const confidence = Math.min(100, 40 + finalSources.length * 20);
+  const conf = classifyConfidence(finalSources);
   const freshness = finalSources.map((s) => s.last_updated || s.updated_date).filter(Boolean).sort().pop();
-  return { noResult: false, answer, sources: finalSources, confidence, freshness, citedSlugs: slugs };
+  const sourceLabels = finalSources.map(sourceLabelFor);
+  const primarySource = sourceLabels[0] || "Knowledge Article";
+  const related = resolveRelated(finalSources[0], all || ranked);
+  return { noResult: false, answer, sources: finalSources, confidence: conf.numeric, confidenceLabel: conf.label, sourceLabel: primarySource, freshness, related, citedSlugs: slugs };
 }
 
-// Formats the grounded result as a markdown concierge message with the
-// Sources / Knowledge Confidence / Last Updated / Related Articles footer.
+// Formats the grounded result as a markdown concierge message exposing the
+// Evidence Attribution footer: Knowledge Source, Knowledge Confidence,
+// Last Updated, Sources Used, Related Articles.
 export function formatKnowledgeAuthorityMessage(result) {
-  if (result.noResult) {
-    return `I couldn't find an approved Knowledge Article that answers this question.\n\nRather than speculate, I prefer to provide only verified information about EXECLEAD.AI.\n\nYou may wish to [contact our team](/contact) or check future updates to the Executive Knowledge Center™.\n\n---\n*Knowledge Confidence: 0% · No approved article found*`;
+  if (!result || result.noResult) {
+    return buildNoResultMessage(result?.relatedSuggestions || []);
   }
-  const confLabel = result.confidence >= 75 ? "High" : result.confidence >= 50 ? "Medium" : "Low";
   let msg = result.answer || "";
-  msg += `\n\n---\n**Knowledge Confidence:** ${result.confidence}% (${confLabel})`;
-  msg += ` · **Sources:** ${result.sources.length} approved article${result.sources.length === 1 ? "" : "s"}`;
-  if (result.freshness) {
-    let d = result.freshness;
-    try {
-      d = new Date(result.freshness).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-    } catch (e) {}
-    msg += ` · **Updated:** ${d}`;
+  msg += `\n\n---\n**Knowledge Source:** ${result.sourceLabel || "Knowledge Article"}\n**Knowledge Confidence:** ${result.confidenceLabel || "Unknown"}\n**Last Updated:** ${fmtDate(result.freshness)}`;
+  if (result.sources && result.sources.length) {
+    msg += `\n\n**Sources Used:**\n${result.sources.map((s) => `- ${s.question} · ${sourceLabelFor(s)}`).join("\n")}`;
   }
-  if (result.sources.length) {
-    msg += `\n\n**Sources Used:**\n${result.sources.map((s) => `- ${s.question}`).join("\n")}`;
+  if (result.related && result.related.length) {
+    msg += `\n\n**Related Articles:**\n${result.related.map((r) => `- ${r.question}`).join("\n")}`;
   }
+  return msg;
+}
+
+// Builds the transparent "information missing" fallback per the standard:
+// honest admission + Related Knowledge Articles + Contact Support +
+// Future Release Notes, with an Unknown confidence footer.
+export function buildNoResultMessage(suggestions) {
+  let msg = `I don't have approved information confirming that.\n\nRather than speculate, I prefer to provide only verified information about EXECLEAD.AI.`;
+  if (suggestions && suggestions.length) {
+    msg += `\n\n**Related Knowledge Articles:**\n${suggestions.map((s) => `- ${s.question}`).join("\n")}`;
+  }
+  msg += `\n\n[Contact Support](/contact) · [Future Release Notes](/release-readiness)\n\n---\n*Knowledge Confidence: Unknown · No approved documentation found*`;
   return msg;
 }

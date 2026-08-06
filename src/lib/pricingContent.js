@@ -53,6 +53,13 @@ export const PLAN_CONTENT = {
   },
 };
 
+export const PLAN_CONFIDENCE = {
+  free: { bestFor: "First-time explorers", commitment: "1–2 hours/week", experience: "No leadership experience required", journey: "Ongoing discovery" },
+  professional: { bestFor: "First-time leaders", commitment: "2–3 hours/week", experience: "Early-career professionals", journey: "3–6 months" },
+  executive: { bestFor: "Managers & Directors", commitment: "3–5 hours/week", experience: "Some leadership experience", journey: "6–12 months" },
+  enterprise: { bestFor: "Organizations", commitment: "Varies by cohort", experience: "Leadership pipelines", journey: "Continuous, org-wide" },
+};
+
 export const ENTERPRISE_OUTCOMES = [
   { icon: "GraduationCap", title: "Develop Future Leaders", desc: "Structured development programs that build leadership capability at every level of your organization." },
   { icon: "Rocket", title: "Accelerate Leadership Readiness", desc: "Shorten the path from manager to executive with AI-powered coaching and realistic simulation." },

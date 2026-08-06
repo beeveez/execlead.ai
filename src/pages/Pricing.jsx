@@ -8,6 +8,10 @@ import PricingTiers from "@/components/pricing/PricingTiers";
 import BetaPricingBanner from "@/components/pricing/BetaPricingBanner";
 import FoundingBetaSection from "@/components/pricing/FoundingBetaSection";
 import PlanSelector from "@/components/pricing/PlanSelector";
+import WhyMembersUpgrade from "@/components/pricing/WhyMembersUpgrade";
+import PlanConfidence from "@/components/pricing/PlanConfidence";
+import PricingConfidenceFooter from "@/components/pricing/PricingConfidenceFooter";
+import PricingConfidenceFAQ from "@/components/pricing/PricingConfidenceFAQ";
 import PaymentTrust from "@/components/billing/PaymentTrust";
 import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
@@ -119,6 +123,18 @@ export default function Pricing() {
 
       {/* Which Plan Is Right For Me? */}
       <PlanSelector />
+
+      {/* Purchase confidence — why members upgrade */}
+      <WhyMembersUpgrade />
+
+      {/* Plan Confidence™ */}
+      <PlanConfidence />
+
+      {/* Risk reduction + trust continuity */}
+      <PricingConfidenceFooter />
+
+      {/* Pricing FAQ — directly below pricing */}
+      <PricingConfidenceFAQ />
 
       {/* Founding Member Program */}
       <section className="pb-20 px-4">

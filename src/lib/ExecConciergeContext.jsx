@@ -42,6 +42,8 @@ import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest,
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
+import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, formatKnowledgeAuthorityMessage } from "@/lib/knowledgeAuthorityGuard";
+import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 
 const ExecConciergeContext = createContext(null);
 
@@ -555,6 +557,32 @@ export function ExecConciergeProvider({ children }) {
           }
         } catch {
           // fall through to the AI
+        }
+      }
+
+      // ── Knowledge Authority Guard™ ── company/platform questions are answered
+      // exclusively from approved Knowledge Articles (never general LLM reasoning).
+      // Falls back to a transparent "no approved article" message when evidence is
+      // missing. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
+      if (isCompanyKnowledgeQuestion(content)) {
+        try {
+          const { ranked } = await retrieveKnowledgeArticles(content, 5);
+          let result;
+          if (ranked.length === 0) {
+            result = { noResult: true, sources: [], confidence: 0, freshness: null, citedSlugs: [] };
+            trackKnowledgeAiAsk({ query: content, confidence: 0, sourcesCount: 0, noResult: true, citedSlugs: [] });
+          } else {
+            result = await answerFromKnowledge(content, ranked);
+            trackKnowledgeAiAsk({ query: content, confidence: result.confidence, sourcesCount: result.sources.length, noResult: false, citedSlugs: result.citedSlugs });
+          }
+          const answerText = formatKnowledgeAuthorityMessage(result);
+          setMessages((prev) => [...prev, { role: "assistant", content: answerText }]);
+          setLoading(false);
+          base44.analytics.track({ eventName: "exec_knowledge_authority_used", properties: { noResult: result.noResult, confidence: result.confidence, sources: result.sources.length } });
+          refreshHealth();
+          return;
+        } catch (e) {
+          // fall through to the standard EXEC™ path on any error
         }
       }
 

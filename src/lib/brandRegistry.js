@@ -152,6 +152,44 @@ export const BrandRegistry = {
       "executive leadership platform, executive readiness, executive leadership operating system, leadership development platform, AI executive coach, executive simulations, executive career development, leadership intelligence, technology leadership",
   },
 
+  // ── Marketing Copy (landing & public surfaces pull from here) ──
+  marketing: {
+    foundingBeta: {
+      heading: "Founding Members Are Building the First Executive Journeys.",
+      subhead: "If you are an ambitious technology leader preparing for your next executive role, this is your moment.",
+      audience: [
+        "Technology Professionals", "IT Managers", "Architects", "Service Delivery Leaders",
+        "Digital Transformation Leaders", "Future Directors", "Future CIOs", "Future CTOs",
+      ],
+      limitedBadge: "Limited Founding Members",
+      limitedBody: "Founding Membership is invitation-only and limited. Members shape the product and receive Founding benefits for life.",
+      cta: "Apply for Founding Membership",
+    },
+    socialProof: {
+      heading: "Built for Future Leaders",
+      subhead: "Helping ambitious professionals develop the skills, confidence, and executive mindset needed for leadership success.",
+      metrics: [
+        { value: "11", label: "AI Personas" },
+        { value: "126+", label: "Companies" },
+        { value: "12", label: "Leadership Dimensions" },
+        { value: "18", label: "Learning Paths" },
+      ],
+    },
+    whoIsItFor: {
+      label: "Who Is EXECLEAD.AI For?",
+      intro: "Executive leadership begins in many professions. Every journey is different. EXECLEAD.AI adapts to yours.",
+      heading: "Built for Future Executive Leaders.",
+      subhead: "No two leadership journeys are the same. Whether you aspire to lead Technology, Business, Operations, Finance, Healthcare, Government, Education, Human Resources, Product, Sales, or another executive function, EXECLEAD.AI personalizes your leadership journey to help you develop the executive capabilities organizations expect.",
+      currentFocusLabel: "Current Focus",
+      currentFocus: "EXECLEAD.AI is initially optimized for Technology Leadership and Digital Transformation professionals while expanding toward executive leadership across every industry and function.",
+      bottomAccent: "Built for Every Future Executive Leader.",
+    },
+    articleEmptyState: {
+      title: "This Executive Insight is Being Prepared",
+      body: "This article is currently being prepared as part of the Private Beta knowledge library. Our team is crafting premium executive insights to help ambitious professionals become stronger leaders.",
+    },
+  },
+
   // ── Auth Subtitles ──
   auth: {
     loginSubtitle: "Continue your Executive Leadership Journey",

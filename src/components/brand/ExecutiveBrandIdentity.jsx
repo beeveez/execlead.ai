@@ -94,11 +94,7 @@ export default function ExecutiveBrandIdentity() {
       {/* Brand Philosophy */}
       <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
         <h3 className="text-white font-semibold text-sm mb-3">Brand Philosophy</h3>
-        <p className="text-white/50 text-sm leading-relaxed">
-          EXECLEAD.AI exists to help ambitious technology professionals become executive leaders.
-          The new Executive "E" represents excellence. The upward arrow represents continuous leadership growth.
-          Every interaction should reinforce that journey.
-        </p>
+        <p className="text-white/50 text-sm leading-relaxed">{BrandRegistry.brandPhilosophy}</p>
       </div>
 
       {/* Brand Colors */}
@@ -196,11 +192,7 @@ export default function ExecutiveBrandIdentity() {
       {/* Brand Story */}
       <div className="bg-gradient-to-br from-indigo-500/[0.05] to-transparent border border-white/5 rounded-2xl p-6">
         <h3 className="text-white font-semibold text-sm mb-3">Official Brand Story</h3>
-        <p className="text-white/50 text-sm leading-relaxed">
-          The EXECLEAD.AI mark combines an Executive "E" with an ascending arrow. Together, the mark
-          symbolizes the journey from ambitious technology professional to executive leader — a journey
-          of excellence, execution, and continuous growth.
-        </p>
+        <p className="text-white/50 text-sm leading-relaxed">{BrandRegistry.logoStory}</p>
       </div>
     </div>
   );

@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { Cpu, Briefcase, Settings, DollarSign, Users, Lightbulb, HeartPulse, Landmark, TrendingUp, Crown, Target, Sparkles, Check } from 'lucide-react';
 import LeadershipProfilePreview from './LeadershipProfilePreview';
 import { base44 } from '@/api/base44Client';
+import { BrandRegistry } from '@/lib/brandRegistry';
+
+const COPY = BrandRegistry.marketing.whoIsItFor;
 
 // WhoIsItForSection v4.0 — Leadership Path Intelligence™.
 // The grid + hover-reveal cards are preserved; selecting a path now drives a
@@ -218,15 +221,13 @@ export default function WhoIsItForSection({ authed, onWatchDemo }) {
       <div className="max-w-7xl mx-auto">
         {/* Intro label */}
         <div className="text-center mb-3">
-          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-3">Who Is EXECLEAD.AI For?</div>
-          <p className="text-[13px] text-white/55 leading-relaxed max-w-xl mx-auto">Executive leadership begins in many professions. <span className="text-white/75">Every journey is different.</span> EXECLEAD.AI adapts to yours.</p>
+          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-3">{COPY.label}</div>
+          <p className="text-[13px] text-white/55 leading-relaxed max-w-xl mx-auto">{COPY.intro}</p>
         </div>
 
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">Built for Future Executive Leaders.</h2>
-          <p className="text-white/45 max-w-3xl mx-auto text-sm leading-relaxed">
-            No two leadership journeys are the same. Whether you aspire to lead Technology, Business, Operations, Finance, Healthcare, Government, Education, Human Resources, Product, Sales, or another executive function, EXECLEAD.AI personalizes your leadership journey to help you develop the executive capabilities organizations expect.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">{COPY.heading}</h2>
+          <p className="text-white/45 max-w-3xl mx-auto text-sm leading-relaxed">{COPY.subhead}</p>
           <div className="mt-3 text-[11px] text-accent-orange/70 inline-flex items-center gap-1.5"><Sparkles size={11} /> Select a path below to watch the platform personalize in real time.</div>
         </div>
 
@@ -243,8 +244,8 @@ export default function WhoIsItForSection({ authed, onWatchDemo }) {
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-accent-orange/15 flex items-center justify-center shrink-0"><Target size={16} className="text-accent-orange" /></div>
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-1">Current Focus</div>
-              <p className="text-[12.5px] text-white/60 leading-relaxed">EXECLEAD.AI is initially optimized for Technology Leadership and Digital Transformation professionals while expanding toward executive leadership across every industry and function.</p>
+              <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-1">{COPY.currentFocusLabel}</div>
+              <p className="text-[12.5px] text-white/60 leading-relaxed">{COPY.currentFocus}</p>
             </div>
           </div>
         </div>
@@ -253,7 +254,7 @@ export default function WhoIsItForSection({ authed, onWatchDemo }) {
         <div className="text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 mb-2 text-accent-orange"><Sparkles size={13} /><span className="text-[13px] font-semibold">Your executive journey is unique.</span></div>
           <p className="text-[12px] text-white/40 leading-relaxed">EXECLEAD.AI personalizes your experience based on your leadership goals, career aspirations, and executive ambitions — not simply your current job title or industry.</p>
-          <div className="mt-5 text-[11px] text-white/30 tracking-wide">One Leadership Journey. One AI Platform. <span className="text-accent-orange/70">Built for Every Future Executive Leader.</span></div>
+          <div className="mt-5 text-[11px] text-white/30 tracking-wide">{BrandRegistry.tagline} <span className="text-accent-orange/70">{COPY.bottomAccent}</span></div>
         </div>
       </div>
     </section>

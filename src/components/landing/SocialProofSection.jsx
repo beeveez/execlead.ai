@@ -1,21 +1,19 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Quote, Users, Building2, BarChart3, Star } from "lucide-react";
+import { BrandRegistry } from "@/lib/brandRegistry";
 
-const METRICS = [
-  { icon: Star, value: "11", label: "AI Personas" },
-  { icon: Building2, value: "126+", label: "Companies" },
-  { icon: BarChart3, value: "12", label: "Leadership Dimensions" },
-  { icon: Users, value: "18", label: "Learning Paths" },
-];
+const METRIC_ICONS = [Star, Building2, BarChart3, Users];
+const METRICS = BrandRegistry.marketing.socialProof.metrics.map((m, i) => ({ icon: METRIC_ICONS[i], ...m }));
+const COPY = BrandRegistry.marketing.socialProof;
 
 export default function SocialProofSection() {
   return (
     <section className="py-20 md:py-32 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for Future Leaders</h2>
-          <p className="text-white/40 max-w-2xl mx-auto">Helping ambitious technology professionals develop the skills, confidence, and executive mindset needed for leadership success.</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{COPY.heading}</h2>
+          <p className="text-white/40 max-w-2xl mx-auto">{COPY.subhead}</p>
         </div>
 
         {/* Metrics */}

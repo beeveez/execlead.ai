@@ -262,6 +262,7 @@ import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
 import EnterpriseROIDashboard from '@/pages/enterprise/EnterpriseROIDashboard';
+import EnterpriseROI from '@/pages/enterprise/EnterpriseROI';
 import EnterpriseDomain from '@/pages/enterprise/EnterpriseDomain';
 import EnterprisePortal from '@/pages/EnterprisePortal';
 import MyQuotes from '@/pages/MyQuotes';
@@ -580,7 +581,8 @@ const AuthenticatedApp = () => {
           <Route path="/operations/knowledge-intelligence" element={<KnowledgeIntelligenceDashboard />} />
           <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
           <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
-          <Route path="/enterprise/roi" element={<EnterpriseROIDashboard />} />
+          <Route path="/enterprise/roi" element={<EnterpriseROI />} />
+          <Route path="/enterprise/outcomes" element={<EnterpriseROIDashboard />} />
           <Route path="/enterprise/organization-domain" element={<EnterpriseDomain domain="organization" />} />
           <Route path="/enterprise/workforce" element={<EnterpriseDomain domain="workforce" />} />
           <Route path="/enterprise/governance-domain" element={<EnterpriseDomain domain="governance" />} />

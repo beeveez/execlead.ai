@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ArrowLeft, ArrowRight, Calculator } from "lucide-react";
-import { calculateRoi, DEFAULT_INPUTS, DEFAULT_ASSUMPTIONS } from "@/lib/enterpriseRoiEngine";
+import { calculateRoi, DEFAULT_INPUTS, DEFAULT_ASSUMPTIONS, DEMO_INPUTS } from "@/lib/enterpriseRoiEngine";
 import RoiHero from "@/components/enterprise-roi/RoiHero";
 import OrgProfileStep from "@/components/enterprise-roi/OrgProfileStep";
 import InvestmentStep from "@/components/enterprise-roi/InvestmentStep";
@@ -15,14 +15,14 @@ import RoiBusinessCase from "@/components/enterprise-roi/RoiBusinessCase";
 const STEPS = [
   { n: 1, title: "Organization Profile", Comp: OrgProfileStep },
   { n: 2, title: "Current Leadership Investment", Comp: InvestmentStep },
-  { n: 3, title: "Current Leadership Operations", Comp: OperationsStep },
+  { n: 3, title: "Current Operating Model", Comp: OperationsStep },
   { n: 4, title: "Configurable Assumptions", Comp: AssumptionsStep },
 ];
 
 function Disclaimer() {
   return (
     <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-3 text-[11px] text-white/55 leading-relaxed">
-      The Enterprise Leadership ROI Calculator™ provides scenario-based financial estimates using customer inputs and configurable assumptions. Results support planning and business case development. Actual outcomes depend on implementation, organizational adoption, leadership engagement, and operational factors. EXECLEAD.AI does not guarantee financial results.
+      The Enterprise Leadership ROI Calculator™ provides scenario-based planning estimates using customer-provided inputs and configurable assumptions. Actual results depend on implementation quality, organizational adoption, leadership engagement, operational practices, and business conditions. EXECLEAD.AI does not guarantee financial outcomes, productivity gains, or return on investment.
     </div>
   );
 }
@@ -38,15 +38,16 @@ export default function EnterpriseROI() {
   const next = () => setStep((s) => Math.min(4, s + 1));
   const back = () => setStep((s) => Math.max(1, s - 1));
   const calculate = () => setResults(calculateRoi(inputs, assumptions));
+  const viewSample = () => { setInputs(DEMO_INPUTS); setAssumptions(DEFAULT_ASSUMPTIONS); setResults(calculateRoi(DEMO_INPUTS, DEFAULT_ASSUMPTIONS)); };
 
   return (
     <div className="min-h-screen bg-[#08080d] text-white p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        <RoiHero />
+        <RoiHero onSample={viewSample} />
         <Disclaimer />
 
         {!results && (
-          <div className="mt-6">
+          <div className="mt-6" id="roi-wizard">
             <div className="flex items-center gap-2 mb-5 overflow-x-auto">
               {STEPS.map((s) => (
                 <button key={s.n} onClick={() => setStep(s.n)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${step === s.n ? "bg-accent-orange/15 text-accent-orange" : "text-white/40 hover:text-white/70"}`}>
@@ -59,17 +60,11 @@ export default function EnterpriseROI() {
               <Comp values={step <= 3 ? inputs : assumptions} onChange={step <= 3 ? setInputs : setAssumptions} />
             </div>
             <div className="flex items-center justify-between mt-5">
-              <button onClick={back} disabled={step === 1} className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 disabled:opacity-30">
-                <ArrowLeft size={15} /> Back
-              </button>
+              <button onClick={back} disabled={step === 1} className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 disabled:opacity-30"><ArrowLeft size={15} /> Back</button>
               {step < 4 ? (
-                <button onClick={next} className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 text-sm font-medium px-5 py-2.5 rounded-xl">
-                  Next <ArrowRight size={15} />
-                </button>
+                <button onClick={next} className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 text-sm font-medium px-5 py-2.5 rounded-xl">Next <ArrowRight size={15} /></button>
               ) : (
-                <button onClick={calculate} className="inline-flex items-center gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-white text-sm font-semibold px-5 py-2.5 rounded-xl">
-                  <Calculator size={15} /> Calculate Enterprise ROI
-                </button>
+                <button onClick={calculate} className="inline-flex items-center gap-1.5 bg-accent-orange hover:bg-accent-orange/90 text-white text-sm font-semibold px-5 py-2.5 rounded-xl"><Calculator size={15} /> Calculate Enterprise ROI</button>
               )}
             </div>
           </div>
@@ -78,12 +73,23 @@ export default function EnterpriseROI() {
         {results && (
           <div className="mt-6 space-y-6">
             <div className="flex items-center justify-between">
-              <button onClick={() => setResults(null)} className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80">
-                <ArrowLeft size={15} /> Edit Inputs
-              </button>
+              <button onClick={() => setResults(null)} className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80"><ArrowLeft size={15} /> Edit Inputs</button>
               <span className="text-[11px] text-white/40">Prepared for {inputs.organizationName || "your organization"}</span>
             </div>
-            <RoiResults roi={results} />
+            <RoiResults
+              roi={results}
+              onEditAssumptions={() => { setResults(null); setStep(4); }}
+              onResetAssumptions={() => { setAssumptions(DEFAULT_ASSUMPTIONS); setResults(calculateRoi(inputs, DEFAULT_ASSUMPTIONS)); }}
+              onExportCalculations={() => {
+                const blob = new Blob([JSON.stringify({ inputs, assumptions, metrics: results.metrics }, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "EXECLEAD-ROI-Calculations.json";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            />
             <RoiCharts roi={results} inputs={inputs} />
             <RoiScenarios inputs={inputs} assumptions={assumptions} />
             <RoiInsights inputs={inputs} roi={results} onInsights={setInsights} />

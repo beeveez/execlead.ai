@@ -1,0 +1,221 @@
+{
+  "name": "KnowledgeArticle",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "title": {
+      "type": "string",
+      "description": "Article title"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Unique URL slug"
+    },
+    "category": {
+      "type": "string",
+      "description": "Knowledge category (General, Executive Readiness\u2122, Security, ...)"
+    },
+    "subgroup": {
+      "type": "string",
+      "description": "Top-nav group (Overview, Platform, AI, Enterprise, ...)"
+    },
+    "audience": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Target audiences (General User, Manager, Executive, Enterprise, HR, Investor, Media, Developer, Administrator)"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "default": "beginner"
+    },
+    "question": {
+      "type": "string",
+      "description": "The FAQ question"
+    },
+    "short_answer": {
+      "type": "string",
+      "description": "One-to-two sentence answer"
+    },
+    "detailed_answer": {
+      "type": "string",
+      "description": "Full explanation"
+    },
+    "scenario": {
+      "type": "string",
+      "description": "Sample scenario illustrating the concept"
+    },
+    "what_it_does": {
+      "type": "string",
+      "description": "What EXECLEAD.AI does"
+    },
+    "what_it_does_not": {
+      "type": "string",
+      "description": "What EXECLEAD.AI does NOT do"
+    },
+    "best_practice": {
+      "type": "string",
+      "description": "Recommended best practice"
+    },
+    "related_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_articles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Related article slugs"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "published",
+        "archived"
+      ],
+      "default": "published"
+    },
+    "published": {
+      "type": "boolean",
+      "default": true
+    },
+    "author": {
+      "type": "string"
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "view_count": {
+      "type": "number",
+      "default": 0
+    },
+    "helpful_votes": {
+      "type": "number",
+      "default": 0
+    },
+    "not_helpful_votes": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "slug",
+    "title",
+    "category",
+    "question"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

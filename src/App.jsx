@@ -278,6 +278,7 @@ import FoundersWall from '@/pages/FoundersWall';
 import CertificateVerify from '@/pages/CertificateVerify';
 import Legal from '@/pages/Legal';
 import TrustCenter from '@/pages/TrustCenter';
+import KnowledgeCenter from '@/pages/KnowledgeCenter';
 import PrivacyComplianceCenter from '@/pages/privacy/PrivacyComplianceCenter';
 import MyPrivacy from '@/pages/privacy/MyPrivacy';
 import EnterprisePrivacy from '@/pages/enterprise/EnterprisePrivacy';
@@ -377,6 +378,8 @@ const AuthenticatedApp = () => {
         <Route path="/trust-center" element={<TrustCenter />} />
         <Route path="/demo" element={<Demo />} />
         <Route path="/for-enterprise" element={<Enterprise />} />
+        <Route path="/help" element={<KnowledgeCenter />} />
+        <Route path="/knowledge" element={<KnowledgeCenter />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

@@ -12,15 +12,67 @@
 export const BrandRegistry = {
   // ── Core Identity ──
   brandName: "EXECLEAD.AI",
-  headline: "An AI Executive Leadership Operating System™",
+  headline: "The Executive Leadership Operating System™",
   tagline: "One Leadership Journey. One AI Platform.",
   secondaryTagline: "From Classroom to Boardroom.",
   description:
-    "Purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.",
+    "EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System™ — helping ambitious professionals become executive-ready leaders through AI-powered coaching, executive simulations, and an integrated Leadership Intelligence Layer™.",
   descriptionShort:
-    "Purpose-built to help ambitious technology professionals prepare for executive leadership.",
+    "The world's first evidence-based Executive Leadership Operating System™.",
   positioningStatement:
-    "EXECLEAD.AI is an AI Executive Leadership Operating System™, purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.",
+    "EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System that helps ambitious professionals become executive-ready leaders. Unlike traditional coaching or simulation platforms, EXECLEAD.AI continuously measures, develops, and demonstrates executive readiness through AI-powered coaching, executive simulations, and an integrated Leadership Intelligence Layer™.",
+
+  // ── Positioning Architecture™ (single source of truth) ──
+  // One canonical positioning used across landing, about, pricing, pitch deck,
+  // investor materials, enterprise sales, docs, marketing, press, and future site.
+  positioning: {
+    primaryStatement:
+      "EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System that helps ambitious professionals become executive-ready leaders.",
+    secondaryStatement:
+      "Unlike traditional coaching or simulation platforms, EXECLEAD.AI continuously measures, develops, and demonstrates executive readiness through AI-powered coaching, executive simulations, and an integrated Leadership Intelligence Layer™.",
+    goToMarket: {
+      line1: "Starting with Technology Leadership.",
+      line2: "Built to redefine executive leadership development across every industry.",
+    },
+    category: {
+      name: "Executive Leadership Operating System™",
+      definition:
+        "A continuous, AI-powered platform that assesses, develops, measures, and demonstrates executive readiness through coaching, simulations, evidence, identity, outcomes, and organizational intelligence.",
+    },
+    differentiation: {
+      traditional: ["Coach leaders", "Deliver learning", "Offer simulations", "Conduct assessments"],
+      execlead: [
+        "Continuously develops executive leaders",
+        "Measures Executive Readiness™",
+        "Builds Executive Identity™",
+        "Generates verified leadership evidence",
+        "Demonstrates measurable executive growth",
+      ],
+    },
+    valueProposition: {
+      primary: "Become the executive every organization wants to hire.",
+      supporting:
+        "EXECLEAD.AI transforms executive leadership development from periodic training into continuous organizational intelligence.",
+    },
+    marketPositioning: {
+      today: ["Technology Leaders"],
+      tomorrow: [
+        "Business Leaders", "Operations Leaders", "Finance Leaders", "HR Leaders",
+        "Healthcare Leaders", "Government Leaders", "Product Leaders",
+      ],
+    },
+    messagingHierarchy: {
+      l1: "Executive Leadership Operating System™",
+      l2: "Evidence-Based Executive Readiness™",
+      l3: "Leadership Intelligence Layer™",
+      l4: [
+        "AI Coaching", "Executive Simulations", "Executive Identity™",
+        "Executive Outcomes™", "Executive Journey™", "Evidence Engine™",
+      ],
+    },
+    philosophy:
+      "EXECLEAD.AI is not built for one profession. It is built for one outcome — helping ambitious professionals become executive-ready leaders through continuous, evidence-based leadership development. Technology Leadership is where the journey begins. Executive Leadership is where the platform belongs. One Leadership Journey. One AI Platform. One Executive Leadership Operating System™.",
+  },
 
   // ── Mission & Vision ──
   mission:
@@ -45,13 +97,13 @@ export const BrandRegistry = {
 
   // ── Logo Story & Brand Philosophy ──
   logoStory:
-    "The EXECLEAD.AI mark combines an Executive 'E' with an ascending arrow. Together, the mark symbolizes the journey from ambitious technology professional to executive leader.",
+    "The EXECLEAD.AI mark combines an Executive 'E' with an ascending arrow. Together, the mark symbolizes the journey from ambitious professional to executive-ready leader.",
   logoMeaning: {
     e: ["Executive Leadership", "Excellence", "Execution", "Empowerment"],
     arrow: ["Leadership Growth", "Career Progression", "Continuous Learning", "Promotion", "Executive Impact"],
   },
   brandPhilosophy:
-    "EXECLEAD.AI exists to help ambitious technology professionals become executive leaders. The new Executive 'E' represents excellence. The upward arrow represents continuous leadership growth. Every interaction should reinforce that journey.",
+    "EXECLEAD.AI exists to help ambitious professionals become executive-ready leaders. The Executive 'E' represents excellence. The upward arrow represents continuous leadership growth. Every interaction should reinforce that journey.",
 
   // ── Colors ──
   colors: {
@@ -83,7 +135,7 @@ export const BrandRegistry = {
 
   // ── Email Signature ──
   emailSignature:
-    "EXECLEAD.AI\nAn AI Executive Leadership Operating System™\nhttps://execlead.ai",
+    "EXECLEAD.AI\nThe Executive Leadership Operating System™\nhttps://execlead.ai",
 
   // ── Social Links ──
   social: {
@@ -93,11 +145,11 @@ export const BrandRegistry = {
 
   // ── SEO Metadata (mirrored in index.html) ──
   seo: {
-    title: "EXECLEAD.AI — An AI Executive Leadership Operating System™",
+    title: "EXECLEAD.AI — The Executive Leadership Operating System™",
     description:
-      "An AI Executive Leadership Operating System™. Purpose-built to help ambitious technology professionals prepare for executive leadership through AI-powered coaching, executive simulations, career intelligence, and personalized guidance.",
+      "The world's first evidence-based Executive Leadership Operating System™. Helping ambitious professionals become executive-ready leaders through AI coaching, executive simulations, and a Leadership Intelligence Layer™.",
     keywords:
-      "executive leadership, AI coaching, leadership development, executive simulations, career intelligence, executive operating system",
+      "executive leadership platform, executive readiness, executive leadership operating system, leadership development platform, AI executive coach, executive simulations, executive career development, leadership intelligence, technology leadership",
   },
 
   // ── Auth Subtitles ──

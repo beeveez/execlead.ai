@@ -28,10 +28,13 @@ export default function NewHero({ authed, onWatchDemo }) {
             Become the Executive Every <br className="hidden sm:block" />
             <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Organization Wants to Hire.</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed">
-            EXECLEAD.AI is the world's first Executive Leadership Operating System. Measure your Executive
-            Readiness™, practice executive decision-making, build an evidence-based Executive Identity™,
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-2 leading-relaxed">
+            EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System. Measure your
+            Executive Readiness™, practice executive decision-making, build a verified Executive Identity™,
             and continuously develop into executive leadership.
+          </motion.p>
+          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.24 }} className="text-sm text-white/45 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed">
+            Starting with <span className="text-accent-orange font-medium">Technology Leadership</span>. Built to redefine executive leadership development across every industry.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8">
             <Link to={authed ? '/assessment' : '/beta'} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25">

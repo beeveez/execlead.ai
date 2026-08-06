@@ -1,8 +1,10 @@
 import React from 'react';
 import { X, Check } from 'lucide-react';
+import { BrandRegistry } from '@/lib/brandRegistry';
 
-const TRADITIONAL = ['Learning hours', 'Certificates', 'Static assessments', 'Generic coaching', 'One-size-fits-all learning'];
-const EXECLEAD = ['Executive Readiness™', 'Verified leadership evidence', 'Executive Identity™', 'Outcome Intelligence™', 'Continuous executive development', 'Explainable AI recommendations'];
+// Philosophy-first differentiation — sourced from the Positioning Architecture™ (single source of truth).
+const TRADITIONAL = BrandRegistry.positioning.differentiation.traditional;
+const EXECLEAD = BrandRegistry.positioning.differentiation.execlead;
 
 export default function WhyExecLead() {
   return (

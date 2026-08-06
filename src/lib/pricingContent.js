@@ -11,7 +11,7 @@ export const PLAN_CONTENT = {
   },
   professional: {
     headline: "Accelerate Your Leadership Career",
-    audience: ["Team Leads", "Supervisors", "Engineers", "Operations Managers", "Service Desk Leads"],
+    audience: ["Ambitious Professionals", "Team Leads", "Managers", "Operators", "Future Executives"],
     benefits: ["Career Growth", "Resume Intelligence", "Interview Success", "Daily AI Coaching", "Executive Academy"],
     roi: "Land your next promotion faster.",
     cta: "Start Professional",

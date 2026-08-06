@@ -17,6 +17,12 @@ export default function About() {
             EXECLEAD.AI was built on a simple belief: <strong>Leadership is a lifelong journey—not a single promotion.</strong>
           </p>
           <p>
+            EXECLEAD.AI began by solving one specific challenge: helping technology professionals become
+            executive-ready. The platform has since evolved into a broader Executive Leadership Operating
+            System™ designed to support executive leadership development across industries — while
+            maintaining technology leadership as its initial specialization.
+          </p>
+          <p>
             {BrandRegistry.positioningStatement}
           </p>
 
@@ -58,7 +64,7 @@ export default function About() {
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Users size={20} className="text-cyan-400 mb-3" />
             <h3 className="text-white font-semibold text-sm mb-1">Who We Serve</h3>
-            <p className="text-white/40 text-xs leading-relaxed">Professionals at every stage — from students to executives and enterprise organizations.</p>
+            <p className="text-white/40 text-xs leading-relaxed">Today we start with Technology Leaders. Tomorrow: Business, Operations, Finance, HR, Healthcare, Government, and Product Leaders.</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Building2 size={20} className="text-purple-400 mb-3" />

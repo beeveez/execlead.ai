@@ -660,10 +660,14 @@ Deno.serve(async (req) => {
 
     // ---- process_scheduled: execute deletions past grace period (admin or system automation) ----
     if (action === 'process_scheduled') {
+      // Destructive, non-automated action (no scheduled automation invokes this).
+      // Defense-in-depth (SDR-001): do NOT trust the service-auth header alone —
+      // require the verifiable DISPATCH_BATCH_TOKEN or an authenticated admin.
       const auth = await authenticateRequest(req, base44, {
         body,
         requireAdmin: true,
         allowSystemSecret: true,
+        allowServiceToken: false,
       });
       const authError = await enforceAuth(base44, auth, 'process_scheduled_deletions', getClientIp(req));
       if (authError) return authError;

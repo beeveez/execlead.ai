@@ -41,14 +41,39 @@ function base64urlDecode(str) {
  * Checks: token structure, header alg (reject "none"/missing), non-empty signature,
  * expiration, internal_service_token, caller.
  *
- * Defense-in-depth: full cryptographic signature verification is handled by the
- * Base44 platform API gateway before the request reaches the function. These
- * function-level checks reject unsigned/alg-none tokens and empty signatures so
- * a forged header that bypasses the gateway cannot be trusted by payload claims
- * alone. The payload is never trusted unless the header alg is a signing algorithm
- * and a non-empty signature segment is present.
+ * ── TRUST BOUNDARY (Security Decision Record SDR-001) ──
+ * This is a PARSER, not a VERIFIER. It extracts claims from a JWT that has
+ * already been cryptographically verified by Base44 platform infrastructure.
+ *
+ * Trust chain:
+ *   1. `Base44-Service-Authorization` is a platform-internal header (`Base44-`
+ *      prefix). The platform gateway injects it for internal/service-context calls
+ *      (scheduled automations, function-to-function service invokes) and strips
+ *      client-supplied values from inbound external requests — the standard
+ *      platform-internal-header convention.
+ *   2. Runtime evidence: the "Background Job Processor" scheduled automation
+ *      invokes `dispatchBackgroundJob` every 5 min with NO payload and succeeds
+ *      (`last_run_status: success`). It can only authenticate via this injected
+ *      header (no DISPATCH_BATCH_TOKEN in payload, no user context) — proving the
+ *      platform injects and vouches for the header on internal calls.
+ *   3. `createClientFromRequest(req)` reads these platform-injected headers; the
+ *      platform SDK is designed around platform-controlled headers.
+ *
+ * The JWT signing key is NOT exposed to user code (per the Base44 secrets guide:
+ * "Never ask for BASE44_SERVICE_TOKEN / BASE44_SERVICE_ROLE_KEY — those secrets
+ * don't exist"), so in-function signature verification is not possible. Security
+ * therefore rests on the platform gateway controlling the header.
+ *
+ * Defense-in-depth (this function): even if a forged header reached user code, this
+ * parser rejects unsigned tokens (alg:none / missing alg), empty signature
+ * segments, expired tokens, and tokens missing the internal-service claims, so a
+ * forged payload cannot be trusted by claims alone. Destructive callers may pass
+ * `allowServiceToken: false` to authenticateRequest() to require the verifiable
+ * DISPATCH_BATCH_TOKEN or an authenticated admin instead.
+ *
+ * See: base44/shared/SDR-001-service-authorization-trust-boundary.md
  */
-function decodeServiceToken(header) {
+export function decodeServiceToken(header) {
   if (!header) return { valid: false, payload: null };
 
   const token = header.startsWith('Bearer ') ? header.slice(7) : header;
@@ -139,22 +164,31 @@ export async function authenticateRequest(req, base44, options = {}) {
   const roles = options.adminRoles || DEFAULT_ADMIN_ROLES;
   const allowSecret = options.allowSystemSecret !== false;
   const requireAdmin = options.requireAdmin !== false;
+  // allowServiceToken (default true): trust the platform-injected service-auth
+  // header for system calls. Destructive, non-automated callers should set this
+  // to false to require the verifiable DISPATCH_BATCH_TOKEN or an authenticated
+  // admin (defense-in-depth — see SDR-001).
+  const allowServiceToken = options.allowServiceToken !== false;
   const requestId = req.headers.get('cf-ray') || crypto.randomUUID();
 
   // Priority 1: Platform Internal Service Authentication
-  const serviceAuth = req.headers.get('base44-service-authorization');
-  const { valid: serviceValid } = decodeServiceToken(serviceAuth);
+  // Only honored when the caller opts in (default). The header is a platform-
+  // internal, gateway-injected header; see decodeServiceToken() trust boundary.
+  if (allowServiceToken) {
+    const serviceAuth = req.headers.get('base44-service-authorization');
+    const { valid: serviceValid } = decodeServiceToken(serviceAuth);
 
-  if (serviceValid) {
-    return {
-      authenticated: true,
-      authorized: true,
-      authMethod: 'platform_service',
-      user: null,
-      isSystemCall: true,
-      requestId,
-      statusCode: 200,
-    };
+    if (serviceValid) {
+      return {
+        authenticated: true,
+        authorized: true,
+        authMethod: 'platform_service',
+        user: null,
+        isSystemCall: true,
+        requestId,
+        statusCode: 200,
+      };
+    }
   }
 
   // Priority 2: Shared System Secret (constant-time comparison)

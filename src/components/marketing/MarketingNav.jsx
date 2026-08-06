@@ -12,6 +12,7 @@ import { Menu, X } from "lucide-react";
 const NAV_ITEMS = [
   { label: "Home", route: "/" },
   { label: "Features", route: "/platform" },
+  { label: "Enterprise", route: "/for-enterprise" },
   { label: "Pricing", route: "/pricing" },
   { label: "Success Stories", route: "/success-stories" },
   { label: "FAQ", route: "/pricing", hash: "faq" },

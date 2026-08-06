@@ -11,7 +11,9 @@ import FlagshipSimulationHero from '@/components/landing/v3/FlagshipSimulationHe
 import SimulationDifferentiation from '@/components/landing/v3/SimulationDifferentiation';
 import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
 import OutcomeExperienceCards from '@/components/landing/v3/OutcomeExperienceCards';
-import WhyExecLead from '@/components/landing/v3/WhyExecLead';
+import WhyChooseExecLead from '@/components/landing/v3/WhyChooseExecLead';
+import HowExecLeadWorks from '@/components/landing/v3/HowExecLeadWorks';
+import CustomerJourney from '@/components/landing/v3/CustomerJourney';
 import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
 import PricingTiers from '@/components/pricing/PricingTiers';
 
@@ -43,6 +45,9 @@ export default function Landing() {
       {/* Flagship Executive Simulation — primary product demonstration */}
       <FlagshipSimulationHero authed={authed} />
 
+      {/* Why professionals choose EXECLEAD.AI */}
+      <WhyChooseExecLead />
+
       <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
 
       {/* Interactive Executive Simulation */}
@@ -57,11 +62,14 @@ export default function Landing() {
       {/* Three outcome paths */}
       <OutcomeExperienceCards authed={authed} />
 
-      {/* Why EXECLEAD.AI */}
-      <WhyExecLead />
+      {/* What makes EXECLEAD.AI different — comparison + flow */}
+      <HowExecLeadWorks />
 
       {/* Success Stories (evidence-generated) */}
       <ExecutiveOutcomeWall />
+
+      {/* One continuous customer journey */}
+      <CustomerJourney />
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">

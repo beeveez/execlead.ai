@@ -158,6 +158,7 @@ import RemediationCenter from '@/pages/RemediationCenter';
 import CourseHome from '@/pages/CourseHome';
 import Lesson from '@/pages/Lesson';
 import ConnectedAccounts from '@/pages/ConnectedAccounts';
+import EnterpriseIntegrationsCenter from '@/pages/EnterpriseIntegrationsCenter';
 import BillingAdmin from '@/pages/BillingAdmin';
 import PaymentSettings from '@/pages/PaymentSettings';
 const Pricing = lazyRetry(() => import('@/pages/Pricing'));
@@ -549,6 +550,7 @@ const AuthenticatedApp = () => {
           <Route path="/admissions-certification" element={<AdmissionsCertification />} />
           <Route path="/founder-dashboard" element={<FounderDashboard />} />
           <Route path="/connected-accounts" element={<ConnectedAccounts />} />
+          <Route path="/enterprise-integrations" element={<EnterpriseIntegrationsCenter />} />
           <Route path="/billing-admin" element={<BillingAdmin />} />
           <Route path="/payment-settings" element={<PaymentSettings />} />
           <Route path="/developer/executive-platform-status" element={<ExecutivePlatformStatus />} />

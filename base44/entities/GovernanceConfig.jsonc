@@ -2,6 +2,10 @@
   "name": "GovernanceConfig",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "founder_user_id": {
       "type": "string",
       "description": "User ID of the Founder Root Administrator"

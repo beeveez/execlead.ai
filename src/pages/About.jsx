@@ -17,10 +17,10 @@ export default function About() {
             EXECLEAD.AI was built on a simple belief: <strong>Leadership is a lifelong journey—not a single promotion.</strong>
           </p>
           <p>
-            EXECLEAD.AI began by solving one specific challenge: helping technology professionals become
-            executive-ready. The platform has since evolved into a broader Executive Leadership Operating
-            System™ designed to support executive leadership development across industries — while
-            maintaining technology leadership as its initial specialization.
+            EXECLEAD.AI was built to help ambitious professionals and enterprise organizations develop
+            executive readiness, strategic judgment, and leadership capability. The platform supports
+            executive leadership development across industries — informed by deep experience in
+            technology and operational leadership.
           </p>
           <p>
             {BrandRegistry.positioningStatement}

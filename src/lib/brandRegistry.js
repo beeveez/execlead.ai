@@ -90,12 +90,12 @@ export const BrandRegistry = {
     name: "Reynaldo D. Valdez",
     title: "Founder & CEO",
     company: "EXECLEAD.AI",
-    roleLine: "Enterprise IT Operations & AI Leadership Platform",
+    roleLine: "AI Executive Leadership Operating System™",
     email: "r.valdez@execleadai.co",
     website: "https://execleadai.co",
     bio: "With nearly 20 years of experience in Enterprise IT Operations, Service Delivery, and Major Incident Management, Reynaldo has led mission-critical support environments serving thousands of users across government and enterprise organizations. EXECLEAD.AI was created to help technical professionals develop the leadership, communication, operational governance, and strategic decision-making skills required to advance into management and executive roles.",
     tagline:
-      "Helping IT professionals become executive leaders through AI-powered coaching, simulations, and operational leadership development.",
+      "Helping professionals develop executive readiness, strategic judgment, and leadership capability through AI-powered coaching, executive simulations, and evidence-based leadership development — informed by deep experience in technology and operational leadership.",
     expertise: [
       "Enterprise IT Operations",
       "Service Delivery Leadership",
@@ -159,7 +159,7 @@ export const BrandRegistry = {
 
   // ── Email Signature ──
   emailSignature:
-    "Reynaldo D. Valdez\nFounder & CEO | EXECLEAD.AI\nEnterprise IT Operations & AI Leadership Platform\n\nr.valdez@execleadai.co\nhttps://execleadai.co\n\nHelping IT professionals become executive leaders through AI-powered coaching, simulations, and operational leadership development.",
+    "Reynaldo D. Valdez\nFounder & CEO | EXECLEAD.AI\nAI Executive Leadership Operating System™\n\nr.valdez@execleadai.co\nhttps://execleadai.co\n\nHelping professionals develop executive readiness, strategic judgment, and leadership capability through AI-powered coaching, executive simulations, and evidence-based leadership development — informed by deep experience in technology and operational leadership.",
 
   // ── Social Links ──
   social: {

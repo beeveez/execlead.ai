@@ -29,7 +29,7 @@ export default function NewHero({ authed, onWatchDemo }) {
             <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Your Technical Career Was Meant For.</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed">
-            AI-powered leadership coaching, executive simulations, promotion readiness assessments, and real-world management training designed for IT professionals transitioning into management and executive leadership roles.
+            EXECLEAD.AI helps ambitious professionals and enterprise organizations assess executive readiness, strengthen leadership capability, develop strategic judgment, and prepare future leaders through AI-powered coaching, executive simulations, and evidence-based development pathways.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8">
             <Link to={authed ? '/assessment' : '/beta'} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25">

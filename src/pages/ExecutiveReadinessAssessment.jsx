@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -9,6 +9,7 @@ import {
 } from '@/lib/readinessAssessmentEngine';
 import LeadershipTrackSelector from '@/components/readiness-assessment/LeadershipTrackSelector';
 import ExecutiveReadinessReport from '@/components/readiness-assessment/ExecutiveReadinessReport';
+import FirstSuccessExperience from '@/components/readiness-assessment/FirstSuccessExperience';
 import {
   Loader2, ChevronLeft, ChevronRight, Sparkles, Award, Check, Gauge, PauseCircle,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import EnterpriseAssessmentCenter from '@/components/readiness-assessment/Enterp
 export default function ExecutiveReadinessAssessment() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [phase, setPhase] = useState('launchpad');
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -143,7 +145,7 @@ export default function ExecutiveReadinessAssessment() {
     // Personalize the promotion forecast with the selected target role.
     if (targetRole) r.forecast.targetLevel = targetRole;
     setResults(r);
-    setPhase('results');
+    setPhase('first-insight');
     try { base44.analytics.track({ eventName: 'assessment_completed', properties: { path: track, overall: r.overall, universal: r.universalScore, role_specific: r.roleScore } }); } catch (e) {}
     localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
     setPersisting(true);
@@ -175,6 +177,18 @@ export default function ExecutiveReadinessAssessment() {
   }, [answers, user?.id, toast, targetRole, track]);
 
   const restart = () => { setAnswers({}); setIdx(0); setPhase('track'); setResults(null); localStorage.removeItem(ASSESSMENT_STORAGE_KEY); };
+
+  // ── FIRST SUCCESS EXPERIENCE — personalized insight in under 5 minutes ──
+  if (phase === 'first-insight' && results) {
+    return (
+      <FirstSuccessExperience
+        results={results}
+        targetRole={targetRole}
+        onViewReport={() => setPhase('results')}
+        onTrySimulation={() => navigate('/simulator')}
+      />
+    );
+  }
 
   // ── RESULTS — the signature Executive Readiness Report™ ──
   if (phase === 'results' && results) {

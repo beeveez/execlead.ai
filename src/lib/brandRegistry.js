@@ -16,18 +16,18 @@ export const BrandRegistry = {
   tagline: "One Leadership Journey. One AI Platform.",
   secondaryTagline: "From Classroom to Boardroom.",
   description:
-    "EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System™ — helping ambitious professionals become executive-ready leaders through AI-powered coaching, executive simulations, and an integrated Leadership Intelligence Engine™.",
+    "EXECLEAD.AI is an evidence-based Executive Leadership Operating System™ that helps ambitious professionals become exceptional executive leaders through continuous, AI-powered leadership development, executive simulations, and leadership intelligence.",
   descriptionShort:
-    "The world's first evidence-based Executive Leadership Operating System™.",
+    "An evidence-based Executive Leadership Operating System™ for continuous leadership development.",
   positioningStatement:
-    "EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System that helps ambitious professionals become executive-ready leaders. Unlike traditional coaching or simulation platforms, EXECLEAD.AI continuously measures, develops, and demonstrates executive readiness through AI-powered coaching, executive simulations, and an integrated Leadership Intelligence Engine™.",
+    "EXECLEAD.AI helps ambitious professionals become exceptional executive leaders through continuous, AI-powered leadership development. The integrated Executive Leadership Operating System™ measures, develops, and demonstrates Executive Readiness through AI coaching, realistic executive simulations, leadership intelligence, and evidence-based development.",
 
   // ── Positioning Architecture™ (single source of truth) ──
   // One canonical positioning used across landing, about, pricing, pitch deck,
   // investor materials, enterprise sales, docs, marketing, press, and future site.
   positioning: {
     primaryStatement:
-      "EXECLEAD.AI is the world's first evidence-based Executive Leadership Operating System that helps ambitious professionals become executive-ready leaders.",
+      "EXECLEAD.AI is an evidence-based Executive Leadership Operating System™ that helps ambitious professionals become exceptional executive leaders through continuous, AI-powered leadership development.",
     secondaryStatement:
       "Unlike traditional coaching or simulation platforms, EXECLEAD.AI continuously measures, develops, and demonstrates executive readiness through AI-powered coaching, executive simulations, and an integrated Leadership Intelligence Engine™.",
     goToMarket: {
@@ -88,23 +88,19 @@ export const BrandRegistry = {
   // ── Founder ──
   founder: {
     name: "Reynaldo D. Valdez",
-    title: "Founder & CEO",
+    title: "Founder & Chief Product Architect",
     company: "EXECLEAD.AI",
     roleLine: "AI Executive Leadership Operating System™",
     email: "r.valdez@execleadai.co",
     website: "https://execleadai.co",
-    bio: "With nearly 20 years of experience in Enterprise IT Operations, Service Delivery, and Major Incident Management, Reynaldo has led mission-critical support environments serving thousands of users across government and enterprise organizations. EXECLEAD.AI was created to help technical professionals develop the leadership, communication, operational governance, and strategic decision-making skills required to advance into management and executive roles.",
+    bio: "With 20+ years of enterprise IT operations and leadership experience, Reynaldo has led large-scale service delivery, governance, SLA-driven operations, and cross-functional leadership teams supporting complex enterprise environments. He created EXECLEAD.AI to give ambitious professionals a continuous system for developing executive judgment, strategic thinking, communication, and decision-making capability.",
     tagline:
       "Helping professionals develop executive readiness, strategic judgment, and leadership capability through AI-powered coaching, executive simulations, and evidence-based leadership development — informed by deep experience in technology and operational leadership.",
     expertise: [
-      "Enterprise IT Operations",
-      "Service Delivery Leadership",
-      "Major Incident Management",
-      "ITIL Foundation Certified",
-      "ServiceNow Operations",
-      "Executive KPI Reporting",
-      "Continuous Service Improvement",
-      "AI Operations Innovation",
+      "20+ Years Enterprise Operations Experience",
+      "Service Delivery & Governance Leadership",
+      "SLA & Operational Excellence",
+      "AI Executive Leadership Platform Architect",
     ],
   },
 
@@ -159,7 +155,7 @@ export const BrandRegistry = {
 
   // ── Email Signature ──
   emailSignature:
-    "Reynaldo D. Valdez\nFounder & CEO | EXECLEAD.AI\nAI Executive Leadership Operating System™\n\nr.valdez@execleadai.co\nhttps://execleadai.co\n\nHelping professionals develop executive readiness, strategic judgment, and leadership capability through AI-powered coaching, executive simulations, and evidence-based leadership development — informed by deep experience in technology and operational leadership.",
+    "Reynaldo D. Valdez\nFounder & Chief Product Architect | EXECLEAD.AI\nAI Executive Leadership Operating System™\n\nr.valdez@execleadai.co\nhttps://execleadai.co\n\nHelping ambitious professionals become exceptional executive leaders through continuous, AI-powered leadership development.",
 
   // ── Social Links ──
   social: {
@@ -171,7 +167,7 @@ export const BrandRegistry = {
   seo: {
     title: "EXECLEAD.AI — The Executive Leadership Operating System™",
     description:
-      "The world's first evidence-based Executive Leadership Operating System™. Helping ambitious professionals become executive-ready leaders through AI coaching, executive simulations, and a Leadership Intelligence Engine™.",
+      "An evidence-based Executive Leadership Operating System™ helping ambitious professionals become exceptional executive leaders through continuous AI coaching, executive simulations, and leadership intelligence.",
     keywords:
       "executive leadership platform, executive readiness, executive leadership operating system, leadership development platform, AI executive coach, executive simulations, executive career development, leadership intelligence, technology leadership",
   },
@@ -180,10 +176,10 @@ export const BrandRegistry = {
   marketing: {
     foundingBeta: {
       heading: "Founding Members Are Building the First Executive Journeys.",
-      subhead: "If you are an ambitious technology leader preparing for your next executive role, this is your moment.",
+      subhead: "If you are an ambitious professional preparing for management, director, or executive leadership, this is your opportunity to help shape the platform.",
       audience: [
-        "Technology Professionals", "IT Managers", "Architects", "Service Delivery Leaders",
-        "Digital Transformation Leaders", "Future Directors", "Future CIOs", "Future CTOs",
+        "Ambitious Professionals", "Technical Leaders", "Operations Leaders", "Service Delivery Leaders",
+        "Digital Transformation Leaders", "Future Directors", "Future Executives", "Enterprise Leaders",
       ],
       limitedBadge: "Limited Founding Members",
       limitedBody: "Founding Membership is invitation-only and limited. Members shape the product and receive Founding benefits for life.",
@@ -216,7 +212,7 @@ export const BrandRegistry = {
       title: "EXECLEAD.AI Product Demo™",
       subtitle: "See how EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered coaching, executive readiness assessments, leadership simulations, and personalized development.",
       hero: {
-        headline: "Experience the World's First Executive Leadership Operating System™",
+        headline: "Experience the Executive Leadership Operating System™",
         supporting: "Discover how EXECLEAD.AI combines Executive Readiness™, AI Executive Coaching™, Executive Simulations™, Executive Identity™, and continuous leadership development into one intelligent platform.",
         primaryCta: "Take Executive Readiness Assessment",
         secondaryCta: "Apply for Beta",

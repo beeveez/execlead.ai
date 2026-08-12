@@ -13,46 +13,50 @@ export default function About() {
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">About EXECLEAD.AI</h1>
 
         <div className="prose prose-invert max-w-none space-y-6 text-white/60 text-lg leading-relaxed">
-          <p>
-            EXECLEAD.AI was built on a simple belief: <strong>Leadership is a lifelong journey—not a single promotion.</strong>
-          </p>
-          <p>
-            EXECLEAD.AI was built to help ambitious professionals and enterprise organizations develop
-            executive readiness, strategic judgment, and leadership capability. The platform supports
-            executive leadership development across industries — informed by deep experience in
-            technology and operational leadership.
-          </p>
-          <p>
-            {BrandRegistry.positioningStatement}
-          </p>
+          <div>
+            <h2 className="text-3xl font-bold text-white mb-2">Reynaldo D. Valdez</h2>
+            <p className="text-base text-accent-orange font-semibold">Founder &amp; Chief Product Architect</p>
+          </div>
 
           <p>
-            The platform brings together an AI Executive Coach with 11 distinct personas modeled on
-            former CIOs, COOs, and CFOs; a realistic Executive Simulator with 15+ scenarios spanning
-            interviews, quarterly business reviews, crises, and negotiations; a Debate Mode where AI
-            pushes back for multiple rounds to test conviction and strategic depth; a Truth Engine
-            that detects exaggeration and inflated metrics in real time; and an Executive Academy with
-            18 structured learning paths covering everything from leadership fundamentals to digital
-            transformation. Members also gain access to company intelligence on 126+ global
-            organizations, personalized career roadmaps, and leadership analytics with radar charts,
-            trend lines, and heat maps that track executive growth over time.
+            I bring <strong>more than 20 years of enterprise IT operations and leadership experience</strong>, including managing large-scale service delivery, governance, SLA-driven environments, and cross-functional leadership teams supporting complex enterprise operations.
           </p>
-
           <p>
-            EXECLEAD.AI is built for every stage of the leadership journey — students, graduates,
-            individual contributors, team leaders, managers, directors, executives, founders, HR
-            leaders, recruiters, and enterprise organizations. Whether you are preparing for your
-            first leadership opportunity or your next executive role, the platform adapts to your
-            level and goals, delivering tailored coaching, challenges, and feedback every step of
-            the way.
+            EXECLEAD.AI was born from a problem I experienced firsthand inside enterprise organizations. I repeatedly saw <strong>high-performing technical and operational professionals promoted into leadership roles without a scalable, continuous system for developing executive judgment, strategic thinking, communication, and decision-making capability</strong>.
           </p>
-
           <p>
-            EXECLEAD.AI is developed and operated by the EXECLEAD.AI team, powered by the Base44
-            platform during our early-access beta phase. We are committed to building the most
-            effective, accessible, and honest executive development experience available — helping
-            leaders grow with integrity, not just interview polish.
+            Most leadership development solutions are fragmented. They focus on courses, coaching sessions, or isolated assessments. What was missing was a <strong>connected operating system for executive growth</strong>—one that could assess readiness, provide continuous AI-powered coaching, simulate executive scenarios, track evidence of growth, and help professionals demonstrate executive capability over time.
           </p>
+          <p>
+            That insight led to the creation of <strong>EXECLEAD.AI — an AI-powered Executive Leadership Operating System™</strong> designed to help ambitious professionals become executive-ready leaders through personalized coaching, executive simulations, leadership intelligence, and evidence-based development.
+          </p>
+          <p>Since beginning development in <strong>July 2026</strong>, I have personally led the architecture and product design of the platform, including capabilities such as:</p>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-base">
+            {[
+              'Executive Readiness™',
+              'AI Executive Coaching™',
+              'Executive Simulations™',
+              'Evidence Ledger™',
+              'Executive Identity Graph™',
+              'Enterprise Trust Center™',
+              'Commercial Revenue Engine™',
+              'Competitive Intelligence & Battlecard Center™',
+            ].map((capability) => <li key={capability}>{capability}</li>)}
+          </ul>
+          <p>The current pre-seed stage is intentionally <strong>lean, disciplined, and validation-focused</strong>. Our objective is not to scale headcount aggressively, but to:</p>
+          <ul className="text-base">
+            <li>validate enterprise demand,</li>
+            <li>refine the quality of AI coaching and executive intelligence,</li>
+            <li>strengthen security and governance,</li>
+            <li>and secure initial enterprise pilot customers before expanding engineering and customer success operations.</li>
+          </ul>
+          <p>
+            As Founder &amp; Chief Product Architect, my responsibility extends beyond building features. I am focused on ensuring that EXECLEAD.AI is built with the <strong>operational discipline, governance standards, security foundations, and enterprise trust required for long-term adoption by organizations developing the next generation of leaders</strong>.
+          </p>
+          <p>EXECLEAD.AI is ultimately driven by a simple belief:</p>
+          <blockquote className="border-l-2 border-accent-orange pl-5 text-white/80 font-semibold">
+            Leadership is not a single interview, a single course, or a single promotion. It is a continuous journey of readiness, judgment, growth, and measurable impact.
+          </blockquote>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
@@ -64,7 +68,7 @@ export default function About() {
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Users size={20} className="text-cyan-400 mb-3" />
             <h3 className="text-white font-semibold text-sm mb-1">Who We Serve</h3>
-            <p className="text-white/40 text-xs leading-relaxed">Today we start with Technology Leaders. Tomorrow: Business, Operations, Finance, HR, Healthcare, Government, and Product Leaders.</p>
+            <p className="text-white/40 text-xs leading-relaxed">Ambitious professionals advancing into management, director, and executive leadership roles across industries and functions.</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Building2 size={20} className="text-purple-400 mb-3" />
@@ -78,6 +82,13 @@ export default function About() {
             Start Free <ArrowRight size={16} />
           </Link>
           <Link to="/contact" className="text-white/50 hover:text-white/80 text-sm transition-colors">Get in touch</Link>
+        </div>
+
+        <div className="mt-16 pt-10 border-t border-white/5 text-center">
+          <h2 className="text-3xl font-bold text-white">One Leadership Journey. One AI Platform.</h2>
+          <p className="text-white/55 text-base leading-relaxed max-w-2xl mx-auto mt-4">
+            <strong className="text-white/75">EXECLEAD.AI combines Executive Readiness™, AI coaching, executive simulations, leadership intelligence, and evidence-based development into one integrated platform designed to help ambitious professionals continuously grow into executive-ready leaders.</strong>
+          </p>
         </div>
       </div>
     </div>

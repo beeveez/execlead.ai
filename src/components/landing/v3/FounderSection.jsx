@@ -3,8 +3,8 @@ import { BadgeCheck } from "lucide-react";
 import { BrandRegistry } from "@/lib/brandRegistry";
 
 /**
- * Founder Section — "Built by an Enterprise IT Operations Leader"
- * Surfaces Reynaldo D. Valdez's background, expertise, and official contact.
+ * Founder Section — enterprise operations leadership and platform origin.
+ * Surfaces Reynaldo D. Valdez's verified background and official contact.
  */
 export default function FounderSection() {
   const f = BrandRegistry.founder;
@@ -16,25 +16,23 @@ export default function FounderSection() {
             Founder
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Built by an Enterprise IT Operations Leader
+            Built by an Enterprise Operations Leader
           </h2>
           <p className="text-white/40 max-w-xl mx-auto text-sm">
-            {f.name} — {f.title}, {f.company}
+            <strong className="text-white/70">{f.name}</strong> is the <strong className="text-white/70">{f.title} of {f.company}</strong>.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-4 text-white/60 text-sm md:text-base leading-relaxed">
             <p>
-              With nearly 20 years of experience in Enterprise IT Operations, Service Delivery,
-              and Major Incident Management, Reynaldo has led mission-critical support
-              environments serving thousands of users across government and enterprise
-              organizations.
+              With <strong className="text-white/80">20+ years of enterprise IT operations and leadership experience</strong>, he has led large-scale service delivery, governance, SLA-driven operations, and cross-functional leadership teams supporting complex enterprise environments.
             </p>
             <p>
-              EXECLEAD.AI was created to help technical professionals develop the leadership,
-              communication, operational governance, and strategic decision-making skills
-              required to advance into management and executive roles.
+              EXECLEAD.AI was created from a firsthand observation: organizations often promote high-performing professionals into leadership roles without providing a scalable system for developing <strong className="text-white/80">executive judgment, strategic thinking, communication, and decision-making capability</strong>.
+            </p>
+            <p>
+              That insight led to the creation of <strong className="text-white/80">EXECLEAD.AI — an AI-powered Executive Leadership Operating System™</strong> designed to help ambitious professionals become executive-ready leaders through personalized coaching, executive simulations, leadership intelligence, and evidence-based development.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               {f.expertise.map((e) => (

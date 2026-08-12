@@ -26,10 +26,10 @@ export default function NewHero({ authed, onWatchDemo }) {
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }} className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold tracking-tight leading-[1.08] mb-5">
             Become the Executive Leader <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Your Technical Career Was Meant For.</span>
+            <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Your Leadership Journey Was Meant For.</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-5 leading-relaxed">
-            EXECLEAD.AI helps IT and technical professionals measure, build, and prove Executive Readiness through realistic leadership simulations, AI executive coaching, and evidence-based development designed for management, director, and executive roles.
+            Measure and build Executive Readiness through realistic leadership simulations, AI executive coaching, and evidence-based development designed for professionals advancing into management, director, and executive leadership roles.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.26 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2.5 sm:gap-4 mb-7">
             {['Assess your executive potential', 'Practice real leadership decisions', 'Build evidence for promotion and executive opportunities'].map((o) => (
@@ -50,7 +50,7 @@ export default function NewHero({ authed, onWatchDemo }) {
             </Link>
           </motion.div>
           <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.36 }} className="text-sm text-white/45 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-            Built from real enterprise IT operations, service delivery, major incident management, and leadership experience — not generic leadership theory.
+            Built from 20+ years of enterprise operations, service delivery, governance, and leadership experience — grounded in firsthand operational practice.
           </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.45 }} className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2">
             {TRUST.map((t) => (

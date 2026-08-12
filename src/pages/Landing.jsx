@@ -17,6 +17,11 @@ import HowExecLeadWorks from '@/components/landing/v3/HowExecLeadWorks';
 import CustomerJourney from '@/components/landing/v3/CustomerJourney';
 import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
 import FounderSection from '@/components/landing/v3/FounderSection';
+import ValueTest30 from '@/components/landing/v3/ValueTest30';
+import ProductTangibility from '@/components/landing/v3/ProductTangibility';
+import DifferentiationBlock from '@/components/landing/v3/DifferentiationBlock';
+import ReadinessSnapshot from '@/components/landing/v3/ReadinessSnapshot';
+import TrustReinforcement from '@/components/landing/v3/TrustReinforcement';
 import PricingTiers from '@/components/pricing/PricingTiers';
 
 /**
@@ -44,6 +49,12 @@ export default function Landing() {
       {/* Brand hero */}
       <NewHero authed={authed} onWatchDemo={openDemo} />
 
+      {/* 30-Second Value Test™ */}
+      <ValueTest30 />
+
+      {/* Product Tangibility™ — See the Platform in Action */}
+      <ProductTangibility />
+
       {/* Flagship Executive Simulation — primary product demonstration */}
       <FlagshipSimulationHero authed={authed} />
 
@@ -60,6 +71,9 @@ export default function Landing() {
 
       {/* Why this is different */}
       <SimulationDifferentiation />
+
+      {/* Differentiation Block™ */}
+      <DifferentiationBlock />
 
       {/* Individual vs Enterprise */}
       <TwoFrontDoors authed={authed} />
@@ -78,6 +92,12 @@ export default function Landing() {
 
       {/* Founder story */}
       <FounderSection />
+
+      {/* Micro-Conversion CTA™ */}
+      <ReadinessSnapshot />
+
+      {/* Trust Reinforcement™ — directly above pricing */}
+      <TrustReinforcement />
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">

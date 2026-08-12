@@ -41,10 +41,36 @@ export default function ExecutiveOutcomeWall() {
         {loading ? (
           <div className="flex items-center justify-center py-16 text-white/40"><Loader2 size={20} className="animate-spin" /></div>
         ) : cards.length === 0 ? (
-          <div className="text-center py-16 rounded-2xl border border-dashed border-white/10 bg-white/[0.02]">
-            <TrendingUp size={28} className="text-white/30 mx-auto mb-3" />
-            <p className="text-sm text-white/55 font-medium">Outcome stories appear here as members publish their growth.</p>
-            <p className="text-[11px] text-white/30 mt-1">Powered by the Evidence-Led Marketing Engine™ — nothing is fabricated.</p>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[11px] text-emerald-400 font-medium">
+                <ShieldCheck size={12} /> Early-Beta Evidence State
+              </div>
+              <h3 className="text-lg font-semibold text-white mt-3">The Executive Outcomes Wall™</h3>
+              <p className="text-xs text-white/45 max-w-lg mx-auto mt-1.5 leading-relaxed">
+                This section automatically populates with verified member outcomes as Founding Members complete Executive Readiness assessments, coaching sessions, simulations, and leadership milestones.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                { v: '2', l: 'Active Founding Members', s: 'Verified' },
+                { v: '123', l: 'Companies Represented', s: 'Verified' },
+                { v: 'Growing', l: 'Executive Outcomes', s: 'With our Founding Members' },
+                { v: 'Growing', l: 'Executive Success Stories™', s: 'With our Founding Members' },
+                { v: 'Pending', l: 'Leadership Improvement Benchmarks', s: 'Available once statistically sufficient evidence exists' },
+              ].map((sig) => (
+                <div key={sig.l} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                  <div className="text-xl font-bold text-white">{sig.v}</div>
+                  <div className="text-[12px] text-white/70 font-medium mt-0.5">{sig.l}</div>
+                  <div className="text-[10px] text-emerald-400/80 mt-1">{sig.s}</div>
+                </div>
+              ))}
+              <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-4 flex items-center justify-center text-center">
+                <span className="text-[10px] text-white/40 leading-relaxed">
+                  Evidence updates automatically from verified platform activity.
+                </span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -19,6 +19,7 @@ import ExportProfile from "@/components/intelligence/ExportProfile";
 import JourneyTimeline from "@/components/journey/JourneyTimeline";
 import JourneyAchievements from "@/components/journey/JourneyAchievements";
 import LeadershipMomentum from "@/components/journey/LeadershipMomentum";
+import BehavioralReadinessCorrelation from "@/components/journey/BehavioralReadinessCorrelation";
 
 export default function Journey() {
   const [journey, setJourney] = useState(null);
@@ -179,6 +180,11 @@ export default function Journey() {
       {/* Leadership Momentum — behavioral leadership intelligence */}
       <section id="momentum">
         <LeadershipMomentum />
+      </section>
+
+      {/* Behavioral Readiness Correlation — evidence-based leadership growth science */}
+      <section id="correlation">
+        <BehavioralReadinessCorrelation />
       </section>
 
       {/* AI Insights */}

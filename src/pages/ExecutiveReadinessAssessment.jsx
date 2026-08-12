@@ -184,6 +184,7 @@ export default function ExecutiveReadinessAssessment() {
       <FirstSuccessExperience
         results={results}
         targetRole={targetRole}
+        user={user}
         onViewReport={() => setPhase('results')}
         onTrySimulation={() => navigate('/simulator')}
       />

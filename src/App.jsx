@@ -259,6 +259,8 @@ import VoiceInterview from '@/pages/VoiceInterview';
 import AIOperationsCenter from '@/pages/operations/AIOperationsCenter';
 import KnowledgeIntelligenceDashboard from '@/pages/operations/KnowledgeIntelligenceDashboard';
 import CompetitiveIntelligenceCenter from '@/pages/operations/CompetitiveIntelligenceCenter';
+import CohortLeadershipIntelligence from '@/pages/operations/CohortLeadershipIntelligence';
+import EnterpriseCohortReporting from '@/pages/enterprise/EnterpriseCohortReporting';
 import SecurityExecution from '@/pages/operations/SecurityExecution';
 import PerformanceExecution from '@/pages/operations/PerformanceExecution';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
@@ -584,6 +586,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/launch" element={<OperationsDomain domain="launch" />} />
           <Route path="/operations/knowledge-intelligence" element={<KnowledgeIntelligenceDashboard />} />
           <Route path="/operations/competitive-intelligence" element={<CompetitiveIntelligenceCenter />} />
+          <Route path="/operations/cohort-leadership-intelligence" element={<CohortLeadershipIntelligence />} />
           <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
           <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
           <Route path="/enterprise/roi" element={<EnterpriseROI />} />
@@ -593,7 +596,7 @@ const AuthenticatedApp = () => {
           <Route path="/enterprise/governance-domain" element={<EnterpriseDomain domain="governance" />} />
           <Route path="/enterprise/security-identity" element={<EnterpriseDomain domain="security-identity" />} />
           <Route path="/enterprise/procurement-domain" element={<EnterpriseDomain domain="procurement" />} />
-          <Route path="/enterprise/reporting" element={<EnterpriseDomain domain="reporting" />} />
+          <Route path="/enterprise/reporting" element={<EnterpriseCohortReporting />} />
           <Route path="/enterprise/organizations" element={<OrganizationManagement />} />
           <Route path="/enterprise/admin" element={<EnterpriseAdmin />} />
           <Route path="/enterprise/governance" element={<GovernanceCommandCenter />} />

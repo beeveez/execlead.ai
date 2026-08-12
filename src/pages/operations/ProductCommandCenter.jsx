@@ -22,6 +22,7 @@ const DOMAIN_LINKS = [
   { label: 'Product Strategy', path: '/operations/strategy', icon: Sparkles, color: 'text-amber-400' },
   { label: 'Launch Operations', path: '/operations/launch', icon: Flag, color: 'text-emerald-400' },
   { label: 'Reports', path: '/operations/reports', icon: BarChart3, color: 'text-rose-400' },
+  { label: 'Cohort Leadership Intelligence', path: '/operations/cohort-leadership-intelligence', icon: Users, color: 'text-emerald-400' },
 ];
 
 export default function ProductCommandCenter() {

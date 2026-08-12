@@ -1,0 +1,5 @@
+import React from 'react';
+
+export default function RecommendationUsefulness({ recommendations }) {
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-5"><h2 className="text-sm font-semibold text-white mb-4">Recommendation Usefulness</h2><div className="space-y-3">{recommendations.map((item) => <div key={item.key} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center"><div><div className="text-xs text-white/70">{item.label}</div><div className="text-[9px] text-white/35">Recommended {item.recommendedCount} times</div></div><div className="text-right"><div className="text-xs text-white">{item.completionRate}%</div><div className="text-[9px] text-white/35">completed</div></div><div className="text-right"><div className="text-xs text-indigo-300">{item.engagementRate}%</div><div className="text-[9px] text-white/35">engaged</div></div></div>)}</div></section>;
+}

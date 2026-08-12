@@ -1,0 +1,6 @@
+import React from 'react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+
+export default function CalibrationAlerts({ alerts }) {
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-5"><h2 className="text-sm font-semibold text-white mb-4">Calibration Alerts</h2>{alerts.length === 0 ? <div className="flex items-center gap-2 text-xs text-emerald-400"><CheckCircle2 size={14} /> No active calibration alerts.</div> : <div className="space-y-2">{alerts.map((alert, index) => <div key={`${alert.type}-${index}`} className={`rounded-xl border p-3 ${alert.severity === 'high' ? 'border-rose-500/20 bg-rose-500/10' : 'border-amber-500/20 bg-amber-500/10'}`}><div className="flex gap-2"><AlertTriangle size={14} className={alert.severity === 'high' ? 'text-rose-400' : 'text-amber-400'} /><div><div className="text-xs font-semibold text-white">{alert.title}</div><p className="text-[10px] text-white/50 mt-1">{alert.detail}</p></div></div></div>)}</div>}</section>;
+}

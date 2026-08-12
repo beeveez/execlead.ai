@@ -1,0 +1,6 @@
+import React from 'react';
+import { ShieldCheck } from 'lucide-react';
+
+export default function PrivacyCalibration({ privacy, cohorts }) {
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-5"><div className="flex items-center gap-2 mb-4"><ShieldCheck size={14} className="text-emerald-400" /><h2 className="text-sm font-semibold text-white">Privacy Threshold & Cohort Variance</h2></div><div className="grid grid-cols-3 gap-2 mb-4">{[['Generated', privacy.generatedReports], ['Suppressed', privacy.suppressedReports], ['Suppression rate', `${privacy.suppressionRate}%`]].map(([label, value]) => <div key={label} className="rounded-lg bg-white/[0.03] p-3"><div className="text-lg font-bold text-white">{value}</div><div className="text-[9px] text-white/35">{label}</div></div>)}</div>{cohorts.length === 0 ? <p className="text-xs text-white/40">Insufficient cohort data for privacy-safe variance reporting.</p> : <div className="space-y-2">{cohorts.map((cohort) => <div key={cohort.key} className="flex justify-between text-xs border-t border-white/5 pt-2"><span className="text-white/60">{cohort.label} · {cohort.participantCount}</span><span className="text-white/45">Avg +{cohort.averageImprovement} · variance {cohort.variance}</span></div>)}</div>}</section>;
+}

@@ -21,7 +21,7 @@ export const LEGAL_META = {
 // business is formally incorporated (set ownershipLine, parent, etc).
 // ============================================================
 export const LEGAL_STATUS = {
-  copyright: "© 2026 EXECLEAD.AI. All rights reserved.",
+  copyright: "© 2026 EXECLEAD.AI. All Rights Reserved.",
   description:
     "EXECLEAD.AI is an independently developed AI platform focused on executive leadership intelligence.",
   trademark:

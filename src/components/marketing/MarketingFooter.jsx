@@ -3,38 +3,38 @@ import { Link, useLocation } from "react-router-dom";
 import Logo from "@/components/layout/Logo";
 import { LEGAL_STATUS } from "@/lib/legalCompliance";
 import { buildSignInUrl } from "@/lib/sessionRestore";
+import { Mail, Globe } from "lucide-react";
 import { BrandRegistry } from "@/lib/brandRegistry";
 
 // Standard enterprise footer — utility links only. No page directory.
 const COLUMNS = [
   {
-    title: "Quick Links",
+    title: "Platform",
     links: [
-      { label: "Home", to: "/" },
-      { label: "About", to: "/about" },
-      { label: "Features", to: "/platform" },
+      { label: "Platform", to: "/platform" },
+      { label: "Executive Simulator", to: "/simulator" },
+      { label: "Leadership Academy", to: "/academy" },
+      { label: "Readiness Assessment", to: "/executive-readiness" },
       { label: "Pricing", to: "/pricing" },
-      { label: "Success Stories", to: "/success-stories" },
-      { label: "Trust Center", to: "/trust-center" },
-      { label: "Contact", to: "/contact" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy", to: "/legal#privacy-policy" },
-      { label: "Terms", to: "/legal#terms-of-service" },
-      { label: "Cookies", to: "/legal#cookies" },
-      { label: "Security", to: "/trust-center" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "Mission", to: "/about" },
+      { label: "About", to: "/about" },
+      { label: "Contact", to: "/contact" },
       { label: "Founding Beta", to: "/beta" },
       { label: "Founders Wall", to: "/founders" },
-      { label: "Articles", to: "/articles" },
+      { label: "Trust Center", to: "/trust-center" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", to: "/legal#privacy-policy" },
+      { label: "Terms of Service", to: "/legal#terms-of-service" },
+      { label: "Cookies", to: "/legal#cookies" },
+      { label: "Security", to: "/trust-center" },
     ],
   },
 ];
@@ -47,8 +47,13 @@ export default function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           <div className="col-span-2">
             <Link to="/"><Logo aiTagClass="ml-1" /></Link>
-            <p className="text-white/50 text-sm font-medium mt-3">{BrandRegistry.tagline}</p>
-            <p className="text-white/25 text-xs mt-1.5 max-w-xs leading-relaxed">{BrandRegistry.descriptionShort}</p>
+            <p className="text-white/50 text-sm font-medium mt-3">AI-Powered Executive Leadership Operating System for IT Professionals.</p>
+            <a href={`mailto:${BrandRegistry.supportEmail}`} className="flex items-center gap-1.5 text-white/45 hover:text-white/80 text-xs mt-3 transition-colors">
+              <Mail size={13} className="text-indigo-400" /> {BrandRegistry.supportEmail}
+            </a>
+            <a href={BrandRegistry.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-white/45 hover:text-white/80 text-xs mt-1.5 transition-colors">
+              <Globe size={13} className="text-cyan-400" /> {BrandRegistry.website}
+            </a>
           </div>
           {COLUMNS.map((col) => (
             <div key={col.title}>

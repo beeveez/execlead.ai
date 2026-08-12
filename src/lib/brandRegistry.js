@@ -81,11 +81,35 @@ export const BrandRegistry = {
     "Our vision is to establish the AI Executive Leadership Operating System category and become one of the world's most trusted platforms for executive leadership development.",
 
   // ── Contact ──
-  website: "https://execlead.ai",
-  supportEmail: "hello@execlead.ai",
+  website: "https://execleadai.co",
+  officialDomain: "execleadai.co",
+  supportEmail: "r.valdez@execleadai.co",
+
+  // ── Founder ──
+  founder: {
+    name: "Reynaldo D. Valdez",
+    title: "Founder & CEO",
+    company: "EXECLEAD.AI",
+    roleLine: "Enterprise IT Operations & AI Leadership Platform",
+    email: "r.valdez@execleadai.co",
+    website: "https://execleadai.co",
+    bio: "With nearly 20 years of experience in Enterprise IT Operations, Service Delivery, and Major Incident Management, Reynaldo has led mission-critical support environments serving thousands of users across government and enterprise organizations. EXECLEAD.AI was created to help technical professionals develop the leadership, communication, operational governance, and strategic decision-making skills required to advance into management and executive roles.",
+    tagline:
+      "Helping IT professionals become executive leaders through AI-powered coaching, simulations, and operational leadership development.",
+    expertise: [
+      "Enterprise IT Operations",
+      "Service Delivery Leadership",
+      "Major Incident Management",
+      "ITIL Foundation Certified",
+      "ServiceNow Operations",
+      "Executive KPI Reporting",
+      "Continuous Service Improvement",
+      "AI Operations Innovation",
+    ],
+  },
 
   // ── Legal ──
-  copyright: "© 2026 EXECLEAD.AI. All rights reserved.",
+  copyright: "© 2026 EXECLEAD.AI. All Rights Reserved.",
 
   // ── Logo Assets ──
   logo: {
@@ -135,7 +159,7 @@ export const BrandRegistry = {
 
   // ── Email Signature ──
   emailSignature:
-    "EXECLEAD.AI\nThe Executive Leadership Operating System™\nhttps://execlead.ai",
+    "Reynaldo D. Valdez\nFounder & CEO | EXECLEAD.AI\nEnterprise IT Operations & AI Leadership Platform\n\nr.valdez@execleadai.co\nhttps://execleadai.co\n\nHelping IT professionals become executive leaders through AI-powered coaching, simulations, and operational leadership development.",
 
   // ── Social Links ──
   social: {

@@ -16,6 +16,7 @@ import CustomerEvidence from '@/components/landing/v3/CustomerEvidence';
 import HowExecLeadWorks from '@/components/landing/v3/HowExecLeadWorks';
 import CustomerJourney from '@/components/landing/v3/CustomerJourney';
 import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
+import FounderSection from '@/components/landing/v3/FounderSection';
 import PricingTiers from '@/components/pricing/PricingTiers';
 
 /**
@@ -74,6 +75,9 @@ export default function Landing() {
 
       {/* One continuous customer journey */}
       <CustomerJourney />
+
+      {/* Founder story */}
+      <FounderSection />
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">

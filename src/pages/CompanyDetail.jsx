@@ -21,6 +21,7 @@ import TransparencyPanel from "@/components/companies/TransparencyPanel";
 import ClaimCompanyModal from "@/components/companies/ClaimCompanyModal";
 import ReportCompanyModal from "@/components/companies/ReportCompanyModal";
 import SubHeader from "@/components/layout/SubHeader";
+import PageMetadata from "@/components/marketing/PageMetadata";
 
 function parseJson(json, fallback) {
   try { return JSON.parse(json) || fallback; } catch { return fallback; }
@@ -90,6 +91,12 @@ export default function CompanyDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      <PageMetadata
+        title={`${company.name} Leadership Intelligence | EXECLEAD.AI`}
+        description="Explore company leadership information, organizational context, and executive leadership intelligence on EXECLEAD.AI."
+        path={isPublic ? `/company-library/${id}` : `/companies/${id}`}
+        indexable={isPublic}
+      />
       <SubHeader title={company.name} backTo={isPublic ? "/company-library" : "/companies"} />
 
       {/* Header */}

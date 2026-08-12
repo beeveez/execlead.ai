@@ -13,6 +13,7 @@ import ArticleAIPanel from '@/components/articles/ArticleAIPanel';
 import ArticleEmptyState from '@/components/articles/ArticleEmptyState';
 import RelatedArticles from '@/components/articles/RelatedArticles';
 import { toast } from '@/components/ui/use-toast';
+import PageMetadata from '@/components/marketing/PageMetadata';
 
 export default function ArticleDetail() {
   const { slug } = useParams();
@@ -103,6 +104,11 @@ export default function ArticleDetail() {
 
   return (
     <>
+      <PageMetadata
+        title={`${article.title} | EXECLEAD.AI`}
+        description="Read executive leadership insights, perspectives, and practical guidance from EXECLEAD.AI."
+        path={`/articles/${slug}`}
+      />
       <ArticleReadingProgress />
 
       {/* Back Bar */}

@@ -4,6 +4,7 @@ import { Mail, ArrowRight, PlayCircle, ClipboardCheck, User } from "lucide-react
 import { BrandRegistry } from "@/lib/brandRegistry";
 import { toast } from "@/components/ui/use-toast";
 import EmailSignature from "@/components/brand/EmailSignature";
+import PageMetadata from "@/components/marketing/PageMetadata";
 
 export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
@@ -48,6 +49,11 @@ export default function Contact() {
 
   return (
     <div className="pt-28 pb-20 px-6 lg:px-8">
+      <PageMetadata
+        title="Contact | EXECLEAD.AI"
+        description="Contact EXECLEAD.AI to learn more about the Executive Leadership Operating System™ and explore partnership, enterprise, or leadership development opportunities."
+        path="/contact"
+      />
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
           Request an Executive Leadership Consultation

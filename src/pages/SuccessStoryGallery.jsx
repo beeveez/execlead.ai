@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import SuccessStoryCard from '@/components/success-stories/SuccessStoryCard';
 import { Search, Trophy, Loader2, Sparkles } from 'lucide-react';
 import { safeParse } from '@/lib/executiveSuccessStoryEngine';
+import PageMetadata from '@/components/marketing/PageMetadata';
 
 const SORTS = [
   { v: 'recent', l: 'Most Recent' },
@@ -55,6 +56,11 @@ export default function SuccessStoryGallery() {
 
   return (
     <div className="pt-28 pb-20 px-6 lg:px-8">
+      <PageMetadata
+        title="Executive Success Stories | EXECLEAD.AI"
+        description="Explore executive leadership success stories, transformation journeys, and real-world outcomes from EXECLEAD.AI."
+        path="/success-stories"
+      />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-accent-orange/10 border border-accent-orange/20 rounded-full text-xs text-accent-orange font-semibold uppercase tracking-wider mb-4">

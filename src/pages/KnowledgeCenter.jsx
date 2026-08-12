@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search, Building2, TrendingUp, Newspaper, Sparkles, X, ShieldCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import {
@@ -10,6 +11,7 @@ import {
 import ArticleCard from '@/components/knowledge/ArticleCard';
 import ArticleDetail from '@/components/knowledge/ArticleDetail';
 import AskExec from '@/components/knowledge/AskExec';
+import PageMetadata from '@/components/marketing/PageMetadata';
 
 function matchesQuery(a, q) {
   if (!q) return true;
@@ -18,6 +20,7 @@ function matchesQuery(a, q) {
 }
 
 export default function KnowledgeCenter() {
+  const location = useLocation();
   const [articles, setArticles] = useState(ARTICLES);
   const [activeGroup, setActiveGroup] = useState('Overview');
   const [query, setQuery] = useState('');
@@ -89,6 +92,11 @@ export default function KnowledgeCenter() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 lg:px-6 py-6 lg:py-10">
+      <PageMetadata
+        title="Knowledge Center | EXECLEAD.AI"
+        description="Explore the EXECLEAD.AI Knowledge Center for executive leadership frameworks, insights, and practical resources."
+        path={location.pathname}
+      />
       {/* Header */}
       <div className="text-center mb-6">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-orange/10 border border-accent-orange/25 rounded-full text-xs text-accent-orange font-semibold mb-3">

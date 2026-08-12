@@ -45,6 +45,11 @@ export function staticSeoPlugin() {
       const indexPath = path.join(outDir, 'index.html');
       if (!fs.existsSync(indexPath)) return;
       const shell = fs.readFileSync(indexPath, 'utf8');
+      const genericPattern = /\bon EXECLEAD\.AI\.\s*EXECLEAD\.?$|^[A-Za-z ]+ page$/i;
+      const genericPages = Object.values(PUBLIC_METADATA).filter((page) => genericPattern.test(page.description.trim()));
+      if (genericPages.length) {
+        throw new Error(`Generic public SEO descriptions remain: ${genericPages.map((page) => page.path).join(', ')}`);
+      }
 
       for (const page of Object.values(PUBLIC_METADATA)) {
         const file = destination(outDir, page.path);
@@ -72,6 +77,14 @@ export function staticSeoPlugin() {
         '',
       ].join('\n');
       fs.writeFileSync(path.join(outDir, 'llms.txt'), llms);
+      const sitemap = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        ...Object.values(PUBLIC_METADATA).map((page) => `  <url><loc>${page.canonical}</loc></url>`),
+        '</urlset>',
+        '',
+      ].join('\n');
+      fs.writeFileSync(path.join(outDir, 'sitemap.xml'), sitemap);
       fs.writeFileSync(path.join(outDir, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
     },
   };

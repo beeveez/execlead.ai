@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, BookOpen, Clock, Filter, X, Crown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import ArticleCard, { CATEGORY_LABELS, DIFFICULTY_LABELS } from '@/components/articles/ArticleCard';
+import PageMetadata from '@/components/marketing/PageMetadata';
 
 const CATEGORIES = Object.entries(CATEGORY_LABELS);
 const DIFFICULTIES = Object.entries(DIFFICULTY_LABELS);
@@ -64,6 +65,11 @@ export default function ArticleHub() {
 
   return (
     <div className="min-h-screen pb-20">
+      <PageMetadata
+        title="Executive Leadership Articles | EXECLEAD.AI"
+        description="Explore executive leadership insights, articles, perspectives, and practical guidance from EXECLEAD.AI."
+        path="/articles"
+      />
       {/* Hero */}
       <div className="relative pt-32 pb-16 px-6 lg:px-8">
         <div className="absolute inset-0 overflow-hidden">

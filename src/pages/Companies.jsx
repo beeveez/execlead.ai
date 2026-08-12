@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Building2, Search, Loader2, GitCompare, Sparkles } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import CompanyCard from "@/components/companies/CompanyCard";
 import CompanyFilters from "@/components/companies/CompanyFilters";
 import CompanyCategoryBar from "@/components/companies/CompanyCategoryBar";
@@ -9,10 +9,12 @@ import NaturalLanguageSearch from "@/components/companies/NaturalLanguageSearch"
 import ComplianceDisclaimer from "@/components/companies/ComplianceDisclaimer";
 import LegalFooter from "@/components/layout/LegalFooter";
 import { localSearch } from "@/lib/companyEnrichment";
+import PageMetadata from "@/components/marketing/PageMetadata";
 
 const EMPTY_FILTERS = { industry: "", country: "", company_size: "", leadership_style: "", executive_level_focus: "", work_model: "" };
 
 export default function Companies() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,12 @@ export default function Companies() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-5">
+      <PageMetadata
+        title="Company Intelligence | EXECLEAD.AI"
+        description="Explore organizations and companies using executive leadership intelligence, development, and readiness capabilities through EXECLEAD.AI."
+        path={location.pathname}
+        indexable={location.pathname === '/company-library'}
+      />
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-2">

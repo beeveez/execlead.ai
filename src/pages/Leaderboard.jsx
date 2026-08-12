@@ -8,6 +8,7 @@ import { usePublicLeaderboardData } from "@/hooks/usePublicLeaderboardData";
 import LeaderboardSection from "@/components/leaderboard/LeaderboardSection";
 import RankList from "@/components/leaderboard/RankList";
 import ShareButton from "@/components/social/ShareButton";
+import PageMetadata from "@/components/marketing/PageMetadata";
 
 export default function Leaderboard() {
   const { learners, organizations, companies, featuredExecutives, shareEvents } = usePublicLeaderboardData();
@@ -29,6 +30,11 @@ export default function Leaderboard() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-8 pt-28 pb-20 space-y-10">
+      <PageMetadata
+        title="Executive Leaderboard | EXECLEAD.AI"
+        description="Explore public executive leadership rankings, learner achievements, featured executives, and organizational recognition on EXECLEAD.AI."
+        path="/leaderboard"
+      />
       {/* Header */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 text-amber-400 text-xs uppercase tracking-widest mb-3">

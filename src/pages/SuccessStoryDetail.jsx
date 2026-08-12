@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import SuccessStoryView from '@/components/success-stories/SuccessStoryView';
+import PageMetadata from '@/components/marketing/PageMetadata';
 
 export default function SuccessStoryDetail() {
   const { id } = useParams();
@@ -30,13 +31,21 @@ export default function SuccessStoryDetail() {
   const canFeature = isOwner;
 
   return (
-    <SuccessStoryView
-      story={story}
-      loading={loading}
-      isOwner={isOwner}
-      onUpdate={onUpdate}
-      canFeature={canFeature}
-      backLink="/executive-success-stories"
-    />
+    <>
+      <PageMetadata
+        title="Member Success Story | EXECLEAD.AI"
+        description="Private member success-story workspace."
+        path={`/executive-success-stories/${id}`}
+        indexable={false}
+      />
+      <SuccessStoryView
+        story={story}
+        loading={loading}
+        isOwner={isOwner}
+        onUpdate={onUpdate}
+        canFeature={canFeature}
+        backLink="/executive-success-stories"
+      />
+    </>
   );
 }

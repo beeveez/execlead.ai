@@ -29,16 +29,22 @@ export default function NewHero({ authed, onWatchDemo }) {
             <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Your Technical Career Was Meant For.</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed">
-            EXECLEAD.AI helps ambitious professionals and enterprise organizations assess executive readiness, strengthen leadership capability, develop strategic judgment, and prepare future leaders through AI-powered coaching, executive simulations, and evidence-based development pathways.
+            Measure and build Executive Readiness through realistic leadership simulations, AI executive coaching, and evidence-based development designed for technology professionals moving into management, director, and executive roles.
           </motion.p>
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-8">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">
             <Link to={authed ? '/assessment' : '/beta'} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25">
-              Start Executive Readiness Assessment <ArrowRight size={17} />
+              Take Executive Readiness Assessment <ArrowRight size={17} />
             </Link>
-            <Link to="/demo" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
-              Book a Demo <ArrowRight size={17} />
+            <Link to="/demo" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
+              Watch Product Demo <ArrowRight size={17} />
+            </Link>
+            <Link to="/beta" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-amber-500/30 text-amber-300 font-medium px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
+              Apply for Founding Private Beta™ <ArrowRight size={17} />
             </Link>
           </motion.div>
+          <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.36 }} className="text-sm text-white/45 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+            Built from real enterprise IT operations, service delivery, major incident management, and leadership experience — not generic leadership theory.
+          </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.45 }} className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2">
             {TRUST.map((t) => (
               <div key={t} className="flex items-center gap-1.5 text-[11px] text-white/45"><Check size={12} className="text-emerald-400/80" /> {t}</div>

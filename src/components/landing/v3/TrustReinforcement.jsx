@@ -13,11 +13,11 @@ import {
  * Trust Reinforcement™ — compact trust strip directly above pricing.
  */
 const PILLARS = [
-  { icon: BadgeCheck, label: 'Evidence-Based Development™', desc: 'Growth backed by verified leadership evidence.' },
-  { icon: Gauge, label: 'Executive Readiness™ Tracking', desc: 'Continuous measurement of readiness over time.' },
-  { icon: Eye, label: 'AI Decision Transparency™', desc: 'Explainable AI guidance you can inspect.' },
-  { icon: ShieldCheck, label: 'Responsible AI Governance™', desc: 'Guardrails, reviews, and accountable AI use.' },
-  { icon: Fingerprint, label: 'Executive Identity™ Protection', desc: 'Your identity, evidence, and reputation protected.' },
+  { icon: BadgeCheck, label: 'Evidence-Based Development', desc: 'Growth backed by verified leadership evidence.' },
+  { icon: Gauge, label: 'Executive Readiness Tracking', desc: 'Continuous measurement of readiness over time.' },
+  { icon: Eye, label: 'AI Decision Transparency', desc: 'Explainable AI guidance you can inspect.' },
+  { icon: ShieldCheck, label: 'Responsible AI Governance', desc: 'Guardrails, reviews, and accountable AI use.' },
+  { icon: Fingerprint, label: 'Executive Identity Protection', desc: 'Your identity, evidence, and reputation protected.' },
   { icon: Lock, label: 'Enterprise Privacy & Security', desc: 'Enterprise-grade privacy and security by design.' },
 ];
 
@@ -27,7 +27,7 @@ export default function TrustReinforcement() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-6">
           <div className="text-[11px] uppercase tracking-wider text-white/40 font-semibold mb-1.5">
-            Trust Reinforcement™
+            Trust Reinforcement
           </div>
           <h2 className="text-lg md:text-xl font-semibold text-white/85">Enterprise-Grade Trust Practices</h2>
         </div>

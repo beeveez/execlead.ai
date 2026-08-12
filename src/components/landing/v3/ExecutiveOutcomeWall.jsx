@@ -43,34 +43,32 @@ export default function ExecutiveOutcomeWall() {
         ) : cards.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
             <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[11px] text-emerald-400 font-medium">
-                <ShieldCheck size={12} /> Early-Beta Evidence State
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-[11px] text-amber-300 font-medium">
+                <ShieldCheck size={12} /> Private Beta Evidence Snapshot
               </div>
-              <h3 className="text-lg font-semibold text-white mt-3">The Executive Outcomes Wall™</h3>
+              <h3 className="text-lg font-semibold text-white mt-3">The Executive Outcomes Wall</h3>
               <p className="text-xs text-white/45 max-w-lg mx-auto mt-1.5 leading-relaxed">
-                This section automatically populates with verified member outcomes as Founding Members complete Executive Readiness assessments, coaching sessions, simulations, and leadership milestones.
+                This section automatically populates with verified member outcomes as Founding Members complete assessments, simulations, coaching sessions, and leadership milestones.
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {[
-                { v: '2', l: 'Active Founding Members', s: 'Verified' },
-                { v: '123', l: 'Companies Represented', s: 'Verified' },
-                { v: 'Growing', l: 'Executive Outcomes', s: 'With our Founding Members' },
-                { v: 'Growing', l: 'Executive Success Stories™', s: 'With our Founding Members' },
-                { v: 'Pending', l: 'Leadership Improvement Benchmarks', s: 'Available once statistically sufficient evidence exists' },
+                { v: '2', l: 'Active Founding Members', s: 'Verified', growing: false },
+                { v: '123', l: 'Companies Represented', s: 'Verified', growing: false },
+                { v: 'Growing', l: 'Executive Readiness Benchmarks', s: 'In progress', growing: true },
+                { v: 'Growing', l: 'Executive Success Stories', s: 'In progress', growing: true },
+                { v: 'Growing', l: 'Executive Outcomes', s: 'In progress', growing: true },
               ].map((sig) => (
-                <div key={sig.l} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-xl font-bold text-white">{sig.v}</div>
+                <div key={sig.l} className={`rounded-xl border bg-white/[0.03] p-4 ${sig.growing ? 'border-white/8' : 'border-white/10'}`}>
+                  <div className={`text-xl font-bold ${sig.growing ? 'text-white/40 italic' : 'text-white'}`}>{sig.v}</div>
                   <div className="text-[12px] text-white/70 font-medium mt-0.5">{sig.l}</div>
-                  <div className="text-[10px] text-emerald-400/80 mt-1">{sig.s}</div>
+                  <div className={`text-[10px] mt-1 ${sig.growing ? 'text-white/35' : 'text-emerald-400/80'}`}>{sig.s}</div>
                 </div>
               ))}
-              <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-4 flex items-center justify-center text-center">
-                <span className="text-[10px] text-white/40 leading-relaxed">
-                  Evidence updates automatically from verified platform activity.
-                </span>
-              </div>
             </div>
+            <p className="text-[11px] text-white/35 text-center mt-5 leading-relaxed max-w-2xl mx-auto">
+              EXECLEAD.AI displays only verified platform evidence. Metrics automatically update as Founding Members complete assessments, simulations, coaching sessions, and leadership milestones.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

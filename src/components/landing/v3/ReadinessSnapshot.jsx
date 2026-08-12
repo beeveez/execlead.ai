@@ -46,7 +46,7 @@ export default function ReadinessSnapshot() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/25 rounded-full text-[11px] text-indigo-300 font-medium mb-3">
             <Sparkles size={12} /> Micro-Conversion · No Account Required
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">Get My Executive Readiness Snapshot™</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">Get My Executive Readiness Snapshot</h2>
           <p className="text-sm text-white/45 max-w-lg mx-auto">
             Take a 3-question preview and receive a personalized leadership insight before creating an account.
           </p>
@@ -98,7 +98,7 @@ export default function ReadinessSnapshot() {
                   to="/executive-readiness"
                   className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
                 >
-                  Take the Full Executive Readiness Assessment™ <ArrowRight size={16} />
+                  Take the Full Executive Readiness Assessment <ArrowRight size={16} />
                 </Link>
                 <button
                   type="button"

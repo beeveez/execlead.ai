@@ -1,31 +1,31 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Users, Layers, Rocket } from 'lucide-react';
+import { Zap, Layers, Users, Rocket } from 'lucide-react';
 
 /**
- * 30-Second Value Test™ — compact orientation block near the top of the page.
- * Lets a first-time visitor answer: What is it? Who is it for? Why different? Why now?
+ * 30-Second Executive Test™ — compact orientation block near the top.
+ * Preserves the IT → Executive Leadership positioning.
  */
 const ITEMS = [
   {
     icon: Zap,
     q: 'What is EXECLEAD.AI?',
-    a: 'An AI-powered Executive Leadership Operating System™.',
-  },
-  {
-    icon: Users,
-    q: 'Who is it for?',
-    a: 'Ambitious professionals preparing for management, director, executive, and enterprise leadership roles.',
+    a: 'An AI-powered Executive Leadership Operating System™ for technology professionals moving into leadership roles.',
   },
   {
     icon: Layers,
     q: 'Why is it different?',
-    a: 'It continuously measures, develops, and demonstrates Executive Readiness™ through coaching, simulations, evidence, identity, and outcomes.',
+    a: 'It combines Executive Readiness™, realistic leadership simulations, AI coaching, evidence-based growth tracking, and Executive Identity™ development in one integrated platform.',
+  },
+  {
+    icon: Users,
+    q: 'Who is it for?',
+    a: 'IT professionals, architects, service delivery leaders, operations managers, engineering leaders, and digital transformation professionals preparing for management, director, and executive responsibilities.',
   },
   {
     icon: Rocket,
     q: 'Why act now?',
-    a: 'Founding Members receive early access, influence the product roadmap, and help shape the first generation of evidence-based executive leadership intelligence.',
+    a: 'Founding Members receive early access, direct influence on the product roadmap, and the opportunity to shape the first generation of evidence-based executive leadership intelligence.',
   },
 ];
 

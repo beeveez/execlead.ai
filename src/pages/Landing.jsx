@@ -103,6 +103,9 @@ export default function Landing() {
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
+            <div className="inline-block mb-4 px-3 py-1.5 bg-amber-500/10 border border-amber-500/25 rounded-full text-[11px] text-amber-300 font-medium">
+              General Availability Pricing Preview — Private Beta access is currently invitation-only.
+            </div>
             <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">Pricing</div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Invest in Becoming Executive Ready.</h2>
             <p className="text-white/40 max-w-xl mx-auto text-sm">Future General Availability pricing. Current access is invitation-only through the Founding Private Beta™. The <span className="text-accent-orange font-medium">Executive</span> plan is the most popular path for ambitious leaders.</p>

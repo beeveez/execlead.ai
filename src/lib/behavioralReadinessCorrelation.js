@@ -66,9 +66,14 @@ export function computeBehavioralReadinessCorrelation({ assessments, behaviors, 
   const latestScore = assess.length ? assess[assess.length - 1].overall_score || 0 : 0;
   const readinessDelta = assess.length >= 2 ? latestScore - initialScore : 0;
   const hasMultipleAssessments = assess.length >= 2;
+  const readinessSpanWeeks = hasMultipleAssessments
+    ? Math.max(1, Math.round((new Date(assess[assess.length - 1].completed_at || assess[assess.length - 1].created_date) - new Date(assess[0].completed_at || assess[0].created_date)) / 604800000))
+    : 0;
 
   const sims = sortByDate((simulations || []).filter((s) => s.status === 'completed' || s.overall_score != null), 'created_date');
-  const simDelta = sims.length >= 2 ? (sims[sims.length - 1].overall_score || 0) - (sims[0].overall_score || 0) : 0;
+  const simulationInitial = sims.length ? sims[0].overall_score || 0 : 0;
+  const simulationLatest = sims.length ? sims[sims.length - 1].overall_score || 0 : 0;
+  const simDelta = sims.length >= 2 ? simulationLatest - simulationInitial : 0;
 
   const behs = behaviors || [];
   const actionsCount = behs.length;
@@ -91,9 +96,12 @@ export function computeBehavioralReadinessCorrelation({ assessments, behaviors, 
     const confidence = computeLeadershipGrowthConfidence({
       records: matching,
       readinessDelta,
+      readinessSpanWeeks,
       hasMultipleAssessments,
       simulationsCount: sims.length,
       simulationDelta: simDelta,
+      simulationInitial,
+      simulationLatest,
     });
     return { key: b.key, label: b.label, count, impactScore, avgExecComm: aExec, avgReflectionDepth: aRef, avgConsistency: aCons, confidence };
   });

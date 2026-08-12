@@ -13,7 +13,7 @@ function recencyWeight(records) {
   return 25;
 }
 
-export function computeLeadershipGrowthConfidence({ records, readinessDelta, hasMultipleAssessments, simulationsCount, simulationDelta }) {
+export function computeLeadershipGrowthConfidence({ records, readinessDelta, readinessSpanWeeks, hasMultipleAssessments, simulationsCount, simulationDelta, simulationInitial, simulationLatest }) {
   const sampleSize = records.length;
   const consistencyWeight = sampleSize ? clamp(records.reduce((sum, r) => sum + (r.behavioral_consistency_score || 0), 0) / sampleSize) : 0;
   const reflectionQualityWeight = sampleSize ? clamp(records.reduce((sum, r) => sum + (r.reflection_depth_score || 0), 0) / sampleSize) : 0;
@@ -23,29 +23,39 @@ export function computeLeadershipGrowthConfidence({ records, readinessDelta, has
     : 0;
   const recency = recencyWeight(records);
   const sampleWeight = clamp((sampleSize / 5) * 100);
-
-  const score = clamp(
-    sampleWeight * 0.25 +
-    consistencyWeight * 0.20 +
-    reflectionQualityWeight * 0.15 +
-    readinessChangeMagnitude * 0.20 +
-    simulationReinforcementWeight * 0.10 +
-    recency * 0.10
-  );
+  const weighted = [
+    ['sample', 'Sample size', sampleWeight, 0.25],
+    ['consistency', 'Consistency', consistencyWeight, 0.20],
+    ['reflection', 'Reflection quality', reflectionQualityWeight, 0.15],
+    ['readiness', 'Readiness change', readinessChangeMagnitude, 0.20],
+    ['simulation', 'Simulation reinforcement', simulationReinforcementWeight, 0.10],
+    ['recency', 'Recency', recency, 0.10],
+  ];
+  const factors = weighted.map(([key, label, value, weight]) => ({ key, label, value, contribution: Math.round(value * weight), maxContribution: weight * 100 }));
+  const score = clamp(factors.reduce((sum, factor) => sum + factor.contribution, 0));
 
   let level = 'Emerging Signal';
   if (sampleSize >= 3 && readinessDelta > 0 && score >= 70) level = 'High Confidence';
   else if (sampleSize >= 2 && score >= 45) level = 'Moderate Confidence';
 
-  return {
-    level,
-    score,
-    sampleSize,
-    sampleWeight,
-    consistencyWeight,
-    reflectionQualityWeight,
-    readinessChangeMagnitude,
-    simulationReinforcementWeight,
-    recencyWeight: recency,
-  };
+  const completedWithinSevenDays = records.filter((r) => r.time_to_completion_hours > 0 && r.time_to_completion_hours <= 168).length;
+  const stakeholderReflections = records.filter((r) => /stakeholder|align|influence|buy-in|consensus/i.test(`${r.reflection || ''} ${r.follow_up || ''}`)).length;
+  const communicationCycles = records.filter((r) => (r.exec_communication_growth_signal || 0) >= 50).length;
+  const evidence = [`${sampleSize} completed behavior-focused ${sampleSize === 1 ? 'action' : 'actions'}`];
+  if (completedWithinSevenDays) evidence.push(`${completedWithinSevenDays} completed within 7 days`);
+  if (reflectionQualityWeight) evidence.push(`Reflection quality averaged ${reflectionQualityWeight}/100 across recorded actions`);
+  if (stakeholderReflections) evidence.push(`Positive stakeholder-oriented reflections detected in ${stakeholderReflections} ${stakeholderReflections === 1 ? 'action' : 'actions'}`);
+  if (communicationCycles) evidence.push(`Executive communication growth was positive in ${communicationCycles} recorded ${communicationCycles === 1 ? 'cycle' : 'cycles'}`);
+  evidence.push(simulationReinforcementWeight > 0 ? `Simulation performance increased from ${simulationInitial} to ${simulationLatest}` : 'No measurable simulation reinforcement yet');
+  if (readinessDelta > 0) evidence.push(`Overall Executive Readiness improved by +${readinessDelta} points over ${readinessSpanWeeks} ${readinessSpanWeeks === 1 ? 'week' : 'weeks'}`);
+  else evidence.push('No measurable readiness-score improvement has been established yet');
+  if (level !== 'High Confidence') evidence.push('Additional behavioral evidence is recommended before drawing a stronger conclusion');
+
+  const interpretation = level === 'High Confidence'
+    ? 'Repeated behavior is consistently associated with measurable readiness improvement and reinforcing evidence.'
+    : level === 'Moderate Confidence'
+      ? 'Early evidence suggests a positive relationship, but more completed actions will make this conclusion stronger.'
+      : 'A potential growth pattern is visible, but there is not yet enough evidence to treat it as a reliable conclusion.';
+
+  return { level, score, sampleSize, sampleWeight, consistencyWeight, reflectionQualityWeight, readinessChangeMagnitude, simulationReinforcementWeight, recencyWeight: recency, factors, evidence, interpretation };
 }

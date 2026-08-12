@@ -9,6 +9,7 @@ import {
   computeBehavioralReadinessCorrelation, BEHAVIOR_BUCKETS,
 } from '@/lib/behavioralReadinessCorrelation';
 import GrowthConfidenceBadge from '@/components/journey/GrowthConfidenceBadge';
+import ConfidenceExplainability from '@/components/journey/ConfidenceExplainability';
 
 /**
  * Behavioral Readiness Correlation™ — surfaces evidence-based leadership growth
@@ -142,14 +143,7 @@ export default function BehavioralReadinessCorrelation() {
                     />
                   </div>
                 )}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-1 text-[9px] text-white/40 mt-2">
-                  <span>Sample: {impact.confidence.sampleSize} actions</span>
-                  <span>Consistency: {impact.confidence.consistencyWeight}/100</span>
-                  <span>Reflection: {impact.confidence.reflectionQualityWeight}/100</span>
-                  <span>Readiness change: {impact.confidence.readinessChangeMagnitude}/100</span>
-                  <span>Simulation: {impact.confidence.simulationReinforcementWeight}/100</span>
-                  <span>Recency: {impact.confidence.recencyWeight}/100</span>
-                </div>
+                <ConfidenceExplainability behavior={b.label} confidence={impact.confidence} />
               </div>
             );
           })}

@@ -1,31 +1,31 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Layers, Users, Rocket } from 'lucide-react';
+import { Zap, Users, Layers, Rocket } from 'lucide-react';
 
 /**
- * 30-Second Executive Test™ — compact orientation block near the top.
- * Preserves the IT → Executive Leadership positioning.
+ * 30-Second Executive Test — compact orientation block near the top.
+ * Four short, one-sentence answers. Preserves IT → Executive positioning.
  */
 const ITEMS = [
   {
     icon: Zap,
     q: 'What is EXECLEAD.AI?',
-    a: 'An AI-powered Executive Leadership Operating System™ for technology professionals moving into leadership roles.',
-  },
-  {
-    icon: Layers,
-    q: 'Why is it different?',
-    a: 'It combines Executive Readiness™, realistic leadership simulations, AI coaching, evidence-based growth tracking, and Executive Identity™ development in one integrated platform.',
+    a: 'An AI-powered Executive Leadership Operating System™.',
   },
   {
     icon: Users,
     q: 'Who is it for?',
-    a: 'IT professionals, architects, service delivery leaders, operations managers, engineering leaders, and digital transformation professionals preparing for management, director, and executive responsibilities.',
+    a: 'IT and technical professionals preparing for management, director, and executive leadership roles.',
+  },
+  {
+    icon: Layers,
+    q: 'Why is it different?',
+    a: 'It combines Executive Readiness™, realistic simulations, AI coaching, evidence-based growth tracking, and Executive Identity™ development in one integrated platform.',
   },
   {
     icon: Rocket,
     q: 'Why act now?',
-    a: 'Founding Members receive early access, direct influence on the product roadmap, and the opportunity to shape the first generation of evidence-based executive leadership intelligence.',
+    a: 'Founding Members receive early access, personalized Executive Readiness insights, and the opportunity to help shape the first generation of evidence-based executive leadership intelligence.',
   },
 ];
 

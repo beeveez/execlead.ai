@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Gauge, MessagesSquare, Network, Check } from 'lucide-react';
+import { Gauge, MessagesSquare, Network, Check, PlayCircle } from 'lucide-react';
 
 /**
- * Product Tangibility Boost™ — "What You'll Experience" strip.
- * Placed immediately before the flagship simulation section.
+ * Product Preview Prioritization — "What You'll Experience" strip.
+ * Ordered by persuasive power: Readiness Report → Simulation → Coach → Identity.
  */
 
 function ReadinessMock() {
@@ -37,6 +37,24 @@ function ReadinessMock() {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SimulationMock() {
+  return (
+    <div className="rounded-xl border border-white/10 bg-[#0a0a0f] p-4">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] text-white/40 uppercase tracking-wider">Flagship Simulation</span>
+        <span className="text-[9px] px-2 py-0.5 rounded-full bg-accent-orange/10 border border-accent-orange/20 text-accent-orange font-semibold">Executive</span>
+      </div>
+      <div className="text-[12px] font-semibold text-white mb-1">Cybersecurity Budget Crisis</div>
+      <p className="text-[10px] text-white/55 leading-relaxed mb-2">
+        The CFO recommends cutting cybersecurity investment 30%. The board demands a decision — now.
+      </p>
+      <div className="flex items-center gap-1.5 text-[9px] text-white/40">
+        <PlayCircle size={11} className="text-accent-orange/70" /> 8–10 min · Board, CEO, CFO, CIO
       </div>
     </div>
   );
@@ -91,6 +109,12 @@ const PREVIEWS = [
     bullets: ['Readiness score', 'Competency radar', 'AI gap analysis'],
   },
   {
+    icon: PlayCircle,
+    title: 'Cybersecurity Budget Crisis Simulation',
+    mock: SimulationMock,
+    bullets: ['Real board-level dilemma', 'Risk vs budget tradeoffs', 'Evidence-based executive feedback'],
+  },
+  {
     icon: MessagesSquare,
     title: 'EXEC™ AI Executive Coach',
     mock: CoachMock,
@@ -118,14 +142,14 @@ export default function ProductTangibility() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {PREVIEWS.map((p, i) => (
             <motion.div
               key={p.title}
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.07 }}
+              transition={{ delay: i * 0.06 }}
               className="rounded-2xl border border-white/10 bg-white/[0.02] p-5"
             >
               <div className="mb-4">
@@ -133,7 +157,7 @@ export default function ProductTangibility() {
               </div>
               <div className="flex items-center gap-2 mb-3">
                 <p.icon size={16} className="text-accent-orange" />
-                <h3 className="text-white font-semibold text-sm">{p.title}</h3>
+                <h3 className="text-white font-semibold text-sm leading-tight">{p.title}</h3>
               </div>
               <ul className="space-y-1.5">
                 {p.bullets.map((b) => (

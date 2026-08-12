@@ -19,6 +19,7 @@ import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
 import FounderSection from '@/components/landing/v3/FounderSection';
 import ValueTest30 from '@/components/landing/v3/ValueTest30';
 import ProductTangibility from '@/components/landing/v3/ProductTangibility';
+import ItExecutivePositioning from '@/components/landing/v3/ItExecutivePositioning';
 import DifferentiationBlock from '@/components/landing/v3/DifferentiationBlock';
 import ReadinessSnapshot from '@/components/landing/v3/ReadinessSnapshot';
 import TrustReinforcement from '@/components/landing/v3/TrustReinforcement';
@@ -49,7 +50,10 @@ export default function Landing() {
       {/* Brand hero */}
       <NewHero authed={authed} onWatchDemo={openDemo} />
 
-      {/* 30-Second Value Test™ */}
+      {/* IT → Executive positioning */}
+      <ItExecutivePositioning />
+
+      {/* 30-Second Value Test */}
       <ValueTest30 />
 
       {/* Product Tangibility™ — See the Platform in Action */}

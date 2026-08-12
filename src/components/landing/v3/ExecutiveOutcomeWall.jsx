@@ -32,10 +32,10 @@ export default function ExecutiveOutcomeWall() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.04] border border-white/10 rounded-full text-[11px] text-white/60 font-medium mb-4">
-            <Sparkles size={12} className="text-accent-orange" /> Executive Outcome Wall™
+            <Sparkles size={12} className="text-accent-orange" /> Executive Outcome Wall
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Real Executive Growth.<br className="hidden sm:block" /> Generated From Verified Evidence.</h2>
-          <p className="text-sm text-white/45 max-w-xl mx-auto">No testimonials. No marketing copy. Every card is generated automatically from a member's verified Executive Outcomes™.</p>
+          <p className="text-sm text-white/45 max-w-xl mx-auto">No testimonials. No marketing copy. Every card is generated automatically from a member's verified Executive Outcomes.</p>
         </div>
 
         {loading ? (
@@ -44,30 +44,30 @@ export default function ExecutiveOutcomeWall() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
             <div className="text-center mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-[11px] text-amber-300 font-medium">
-                <ShieldCheck size={12} /> Private Beta Evidence Snapshot
+                <ShieldCheck size={12} /> Founding Cohort Status
               </div>
               <h3 className="text-lg font-semibold text-white mt-3">The Executive Outcomes Wall</h3>
               <p className="text-xs text-white/45 max-w-lg mx-auto mt-1.5 leading-relaxed">
                 This section automatically populates with verified member outcomes as Founding Members complete assessments, simulations, coaching sessions, and leadership milestones.
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {[
-                { v: '2', l: 'Active Founding Members', s: 'Verified', growing: false },
-                { v: '123', l: 'Companies Represented', s: 'Verified', growing: false },
-                { v: 'Growing', l: 'Executive Readiness Benchmarks', s: 'In progress', growing: true },
-                { v: 'Growing', l: 'Executive Success Stories', s: 'In progress', growing: true },
-                { v: 'Growing', l: 'Executive Outcomes', s: 'In progress', growing: true },
+                { state: 'Active', label: 'Founding Members', sub: 'Verified', building: false },
+                { state: 'Verified', label: 'Companies Represented', sub: '123 organizations', building: false },
+                { state: 'Building Evidence', label: 'Executive Outcomes', sub: '', building: true },
+                { state: 'Building Evidence', label: 'Success Stories', sub: '', building: true },
+                { state: 'Building Evidence', label: 'Readiness Benchmarks', sub: '', building: true },
               ].map((sig) => (
-                <div key={sig.l} className={`rounded-xl border bg-white/[0.03] p-4 ${sig.growing ? 'border-white/8' : 'border-white/10'}`}>
-                  <div className={`text-xl font-bold ${sig.growing ? 'text-white/40 italic' : 'text-white'}`}>{sig.v}</div>
-                  <div className="text-[12px] text-white/70 font-medium mt-0.5">{sig.l}</div>
-                  <div className={`text-[10px] mt-1 ${sig.growing ? 'text-white/35' : 'text-emerald-400/80'}`}>{sig.s}</div>
+                <div key={sig.label} className={`rounded-xl border bg-white/[0.03] p-4 ${sig.building ? 'border-white/8' : 'border-white/10'}`}>
+                  <div className={`text-sm font-semibold ${sig.building ? 'text-amber-300/70 italic' : 'text-emerald-400'}`}>{sig.state}</div>
+                  <div className="text-[12px] text-white/70 font-medium mt-1">{sig.label}</div>
+                  {sig.sub && <div className="text-[10px] text-white/35 mt-0.5">{sig.sub}</div>}
                 </div>
               ))}
             </div>
             <p className="text-[11px] text-white/35 text-center mt-5 leading-relaxed max-w-2xl mx-auto">
-              EXECLEAD.AI displays only verified platform evidence. Metrics automatically update as Founding Members complete assessments, simulations, coaching sessions, and leadership milestones.
+              Current cohort: 2 verified Founding Members across 123 companies. EXECLEAD.AI displays only verified platform evidence — metrics update automatically as members progress.
             </p>
           </div>
         ) : (

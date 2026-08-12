@@ -19,7 +19,7 @@ export default function DifferentiationBlock() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">
-            Differentiation Block™
+            Differentiation Block
           </div>
           <h2 className="text-2xl md:text-3xl font-bold leading-tight max-w-3xl mx-auto">
             Coaching Platforms Help You Improve. <span className="text-accent-orange">EXECLEAD.AI Helps You Prove It.</span>

@@ -2,6 +2,8 @@
 // Correlates real-world leadership behaviors with Executive Readiness progression
 // to identify which behaviors most strongly predict executive growth for a member.
 
+import { computeLeadershipGrowthConfidence } from '@/lib/leadershipGrowthConfidence';
+
 export const BEHAVIOR_BUCKETS = [
   {
     key: 'business_impact_communication',
@@ -86,7 +88,14 @@ export function computeBehavioralReadinessCorrelation({ assessments, behaviors, 
       else if (hasMultipleAssessments && readinessDelta <= 0) impactScore = Math.round(base * 0.7);
       else impactScore = base; // single assessment — signal-based only
     }
-    return { key: b.key, label: b.label, count, impactScore, avgExecComm: aExec, avgReflectionDepth: aRef, avgConsistency: aCons };
+    const confidence = computeLeadershipGrowthConfidence({
+      records: matching,
+      readinessDelta,
+      hasMultipleAssessments,
+      simulationsCount: sims.length,
+      simulationDelta: simDelta,
+    });
+    return { key: b.key, label: b.label, count, impactScore, avgExecComm: aExec, avgReflectionDepth: aRef, avgConsistency: aCons, confidence };
   });
 
   const withEvidence = behaviorImpacts.filter((b) => b.count > 0);

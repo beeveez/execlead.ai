@@ -8,6 +8,7 @@ import { base44 } from '@/api/base44Client';
 import {
   computeBehavioralReadinessCorrelation, BEHAVIOR_BUCKETS,
 } from '@/lib/behavioralReadinessCorrelation';
+import GrowthConfidenceBadge from '@/components/journey/GrowthConfidenceBadge';
 
 /**
  * Behavioral Readiness Correlation™ — surfaces evidence-based leadership growth
@@ -124,9 +125,12 @@ export default function BehavioralReadinessCorrelation() {
                     <span className="text-sm text-white/85 font-medium truncate">{b.label}</span>
                     {impact.count === 0 && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/[0.05] border border-white/10 text-white/40 flex-shrink-0">No evidence yet</span>}
                   </div>
-                  <span className={`text-xs font-semibold flex-shrink-0 ${isTop ? 'text-emerald-400' : impact.count > 0 ? 'text-white/70' : 'text-white/30'}`}>
-                    {impact.count > 0 ? `${impact.impactScore}/100` : '—'}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <GrowthConfidenceBadge confidence={impact.confidence} />
+                    <span className={`text-xs font-semibold ${isTop ? 'text-emerald-400' : impact.count > 0 ? 'text-white/70' : 'text-white/30'}`}>
+                      {impact.count > 0 ? `${impact.impactScore}/100` : '—'}
+                    </span>
+                  </div>
                 </div>
                 {impact.count > 0 && (
                   <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
@@ -138,12 +142,27 @@ export default function BehavioralReadinessCorrelation() {
                     />
                   </div>
                 )}
-                {impact.count > 0 && (
-                  <div className="text-[10px] text-white/40 mt-1.5">{impact.count} recorded {impact.count === 1 ? 'action' : 'actions'} · {impact.avgReflectionDepth}/100 reflection depth</div>
-                )}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-1 text-[9px] text-white/40 mt-2">
+                  <span>Sample: {impact.confidence.sampleSize} actions</span>
+                  <span>Consistency: {impact.confidence.consistencyWeight}/100</span>
+                  <span>Reflection: {impact.confidence.reflectionQualityWeight}/100</span>
+                  <span>Readiness change: {impact.confidence.readinessChangeMagnitude}/100</span>
+                  <span>Simulation: {impact.confidence.simulationReinforcementWeight}/100</span>
+                  <span>Recency: {impact.confidence.recencyWeight}/100</span>
+                </div>
               </div>
             );
           })}
+        </div>
+        <div className="mt-4 pt-3 border-t border-white/8">
+          <div className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">Confidence Evidence</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[10px] text-white/50">
+            <span>Sample size</span><span>Consistency weight</span><span>Reflection quality</span>
+            <span>Readiness change</span><span>Simulation reinforcement</span><span>Recency weight</span>
+          </div>
+          <p className="text-[10px] text-white/40 mt-2 leading-relaxed">
+            High Confidence requires repeated behavior and measurable readiness improvement. Moderate Confidence indicates positive early evidence. Emerging Signal indicates a potential pattern that needs more evidence.
+          </p>
         </div>
         {!report.hasMultipleAssessments && (
           <p className="text-[10px] text-white/40 mt-3 leading-relaxed">
@@ -167,7 +186,10 @@ export default function BehavioralReadinessCorrelation() {
               {report.highestImpactBehaviors.slice(0, 3).map((b, i) => (
                 <div key={b.key} className="flex items-center justify-between text-xs">
                   <span className="text-white/75">{i + 1}. {b.label}</span>
-                  <span className="text-emerald-400 font-medium">{b.impactScore}/100</span>
+                  <span className="flex items-center gap-2">
+                    <GrowthConfidenceBadge confidence={b.confidence} showScore />
+                    <span className="text-emerald-400 font-medium">{b.impactScore}/100 impact</span>
+                  </span>
                 </div>
               ))}
             </div>

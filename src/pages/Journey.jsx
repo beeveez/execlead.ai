@@ -18,6 +18,7 @@ import ProfileHistory from "@/components/intelligence/ProfileHistory";
 import ExportProfile from "@/components/intelligence/ExportProfile";
 import JourneyTimeline from "@/components/journey/JourneyTimeline";
 import JourneyAchievements from "@/components/journey/JourneyAchievements";
+import LeadershipMomentum from "@/components/journey/LeadershipMomentum";
 
 export default function Journey() {
   const [journey, setJourney] = useState(null);
@@ -173,6 +174,11 @@ export default function Journey() {
       {/* Learning + Impact */}
       <section id="impact">
         <PlatformContribution learning={learning} impact={impact} />
+      </section>
+
+      {/* Leadership Momentum — behavioral leadership intelligence */}
+      <section id="momentum">
+        <LeadershipMomentum />
       </section>
 
       {/* AI Insights */}

@@ -185,6 +185,7 @@ export default function ExecutiveReadinessAssessment() {
         results={results}
         targetRole={targetRole}
         user={user}
+        assignedAt={savedAssessment?.completed_at}
         onViewReport={() => setPhase('results')}
         onTrySimulation={() => navigate('/simulator')}
       />

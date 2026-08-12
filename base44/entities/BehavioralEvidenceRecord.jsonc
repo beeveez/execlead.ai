@@ -1,0 +1,174 @@
+{
+  "name": "BehavioralEvidenceRecord",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "record_id": {
+      "type": "string",
+      "description": "Unique evidence record ID (BER-NNNNNN)"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "description": "Originating module (e.g. first_success_experience)",
+      "default": "first_success_experience"
+    },
+    "action": {
+      "type": "string",
+      "description": "The leadership action the member completed"
+    },
+    "reflection": {
+      "type": "string",
+      "description": "Member reflection on the action"
+    },
+    "follow_up": {
+      "type": "string",
+      "description": "Member follow-up on business outcome / stakeholder reaction"
+    },
+    "reflection_prompt": {
+      "type": "string"
+    },
+    "follow_up_prompt": {
+      "type": "string"
+    },
+    "competency_focus": {
+      "type": "string",
+      "description": "Growth-opportunity competency addressed"
+    },
+    "strongest_competency": {
+      "type": "string"
+    },
+    "completion_rate": {
+      "type": "number",
+      "default": 0
+    },
+    "time_to_completion_hours": {
+      "type": "number",
+      "default": 0
+    },
+    "reflection_depth_score": {
+      "type": "number",
+      "default": 0
+    },
+    "behavioral_consistency_score": {
+      "type": "number",
+      "default": 0
+    },
+    "exec_communication_growth_signal": {
+      "type": "number",
+      "default": 0
+    },
+    "signals_json": {
+      "type": "string"
+    },
+    "readiness_score": {
+      "type": "number",
+      "default": 0
+    },
+    "target_role": {
+      "type": "string"
+    },
+    "journey_points": {
+      "type": "number",
+      "default": 0
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "action"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

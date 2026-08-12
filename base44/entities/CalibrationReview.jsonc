@@ -1,0 +1,76 @@
+{
+  "name": "CalibrationReview",
+  "type": "object",
+  "properties": {
+    "review_key": {
+      "type": "string",
+      "description": "Stable aggregate calibration finding key"
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "founding_cohort"
+      ],
+      "default": "founding_cohort"
+    },
+    "behavior_key": {
+      "type": "string"
+    },
+    "finding_type": {
+      "type": "string",
+      "enum": [
+        "high_confidence_mismatch"
+      ],
+      "default": "high_confidence_mismatch"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed_false_positive",
+        "not_false_positive",
+        "needs_more_evidence"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "review_key",
+    "scope",
+    "behavior_key",
+    "finding_type"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

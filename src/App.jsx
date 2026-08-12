@@ -262,6 +262,7 @@ import CompetitiveIntelligenceCenter from '@/pages/operations/CompetitiveIntelli
 import CohortLeadershipIntelligence from '@/pages/operations/CohortLeadershipIntelligence';
 import IntelligenceCalibrationConsole from '@/pages/operations/IntelligenceCalibrationConsole';
 import IntelligenceValidationProgram from '@/pages/operations/IntelligenceValidationProgram';
+import FoundingCohortCalibration from '@/pages/operations/FoundingCohortCalibration';
 import EnterpriseCohortReporting from '@/pages/enterprise/EnterpriseCohortReporting';
 import SecurityExecution from '@/pages/operations/SecurityExecution';
 import PerformanceExecution from '@/pages/operations/PerformanceExecution';
@@ -591,6 +592,7 @@ const AuthenticatedApp = () => {
           <Route path="/operations/cohort-leadership-intelligence" element={<CohortLeadershipIntelligence />} />
           <Route path="/operations/intelligence-calibration" element={<IntelligenceCalibrationConsole />} />
           <Route path="/operations/intelligence-validation" element={<IntelligenceValidationProgram />} />
+          <Route path="/operations/founding-cohort-calibration" element={<FoundingCohortCalibration />} />
           <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
           <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
           <Route path="/enterprise/roi" element={<EnterpriseROI />} />

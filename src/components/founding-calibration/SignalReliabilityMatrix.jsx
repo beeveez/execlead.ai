@@ -1,0 +1,5 @@
+import React from 'react';
+
+export default function SignalReliabilityMatrix({ rows }) {
+  return <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 overflow-x-auto"><h2 className="text-sm font-semibold text-white mb-4">Behavioral Signal Reliability Matrix</h2><table className="w-full min-w-[800px] text-xs"><thead><tr className="text-left text-[10px] uppercase tracking-wider text-white/30 border-b border-white/8"><th className="pb-3">Behavior</th><th>Internal</th><th>Readiness</th><th>External</th><th>False positive</th><th>Reliability</th></tr></thead><tbody>{rows.map((item) => <tr key={item.key} className="border-b border-white/5"><td className="py-3 text-white/70">{item.label}</td><td className="text-white/50">{item.internalStrength}%</td><td className="text-white/50">{item.readinessImprovementRate}%</td><td className="text-white/50">{item.externalAlignmentRate}%</td><td className={item.falsePositiveRate > 20 ? 'text-rose-400' : 'text-emerald-400'}>{item.falsePositiveRate}%</td><td className="text-indigo-300">{item.reliability} · {item.reliabilityScore}</td></tr>)}</tbody></table></section>;
+}

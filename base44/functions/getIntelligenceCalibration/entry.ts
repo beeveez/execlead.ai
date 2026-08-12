@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { average, classify, listAll, behaviorDefinitions, cohortDefinitions } from '../../shared/cohortIntelligenceUtils.ts';
+import { computeFoundingCohortCalibration } from '../../shared/foundingCohortCalibration.ts';
 
 const MIN_COHORT_SIZE = 10;
 const MONTHS = 6;
@@ -84,15 +85,21 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    const { mode = 'global' } = await req.json().catch(() => ({}));
 
-    const [assessments, evidence, signals, memberships, actions, journeyEvents] = await Promise.all([
+    const [assessments, evidence, signals, memberships, actions, journeyEvents, founders, simulations, outcomes, reviews] = await Promise.all([
       listAll(base44.asServiceRole.entities.ReadinessAssessment),
       listAll(base44.asServiceRole.entities.BehavioralEvidenceRecord),
       listAll(base44.asServiceRole.entities.CompetencyProgressSignal),
       listAll(base44.asServiceRole.entities.OrgMembership),
       listAll(base44.asServiceRole.entities.ExecutiveAction),
       listAll(base44.asServiceRole.entities.JourneyEvent),
+      mode === 'founding' ? listAll(base44.asServiceRole.entities.FoundingMember) : [],
+      mode === 'founding' ? listAll(base44.asServiceRole.entities.SimulationSession) : [],
+      mode === 'founding' ? listAll(base44.asServiceRole.entities.ExecutiveOutcome) : [],
+      mode === 'founding' ? listAll(base44.asServiceRole.entities.CalibrationReview) : [],
     ]);
+    if (mode === 'founding') return Response.json(computeFoundingCohortCalibration({ founders, assessments, evidence, actions, simulations, outcomes, reviews }));
     const profiles = buildUserProfiles(assessments);
     const userCohorts = cohortMap(memberships, profiles, evidence);
     const months = monthRange();

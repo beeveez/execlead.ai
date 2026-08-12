@@ -2,10 +2,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Target, Users, Building2 } from "lucide-react";
 import { BrandRegistry } from "@/lib/brandRegistry";
+import PageMetadata from "@/components/marketing/PageMetadata";
 
 export default function About() {
   return (
-    <div className="pt-28 pb-20 px-6 lg:px-8">
+    <>
+      <PageMetadata
+        title="About EXECLEAD.AI"
+        description="Learn about Reynaldo D. Valdez, Founder & Chief Product Architect of EXECLEAD.AI, and the mission to build an AI-powered Executive Leadership Operating System for continuous executive development."
+        path="/about"
+      />
+      <div className="pt-28 pb-20 px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white/80 transition-colors mb-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 rounded-lg">
           <ArrowLeft size={14} /> Back to Home
@@ -92,5 +99,6 @@ export default function About() {
         </div>
       </div>
     </div>
+    </>
   );
 }

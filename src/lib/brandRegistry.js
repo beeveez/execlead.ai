@@ -165,9 +165,9 @@ export const BrandRegistry = {
 
   // ── SEO Metadata (mirrored in index.html) ──
   seo: {
-    title: "EXECLEAD.AI — The Executive Leadership Operating System™",
+    title: "EXECLEAD.AI | AI Executive Leadership Operating System™",
     description:
-      "An evidence-based Executive Leadership Operating System™ helping ambitious professionals become exceptional executive leaders through continuous AI coaching, executive simulations, and leadership intelligence.",
+      "EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered executive readiness assessments, personalized coaching, leadership simulations, executive intelligence, and evidence-based leadership development.",
     keywords:
       "executive leadership platform, executive readiness, executive leadership operating system, leadership development platform, AI executive coach, executive simulations, executive career development, leadership intelligence, technology leadership",
   },

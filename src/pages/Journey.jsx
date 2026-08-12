@@ -21,6 +21,7 @@ import JourneyAchievements from "@/components/journey/JourneyAchievements";
 import LeadershipMomentum from "@/components/journey/LeadershipMomentum";
 import BehavioralReadinessCorrelation from "@/components/journey/BehavioralReadinessCorrelation";
 import CohortBenchmarkCard from "@/components/journey/CohortBenchmarkCard";
+import LeadershipOutcomeTracker from "@/components/journey/LeadershipOutcomeTracker";
 
 export default function Journey() {
   const [journey, setJourney] = useState(null);
@@ -191,6 +192,11 @@ export default function Journey() {
       {/* Privacy-safe cohort percentile benchmark */}
       <section id="cohort-benchmark">
         <CohortBenchmarkCard />
+      </section>
+
+      {/* Real-world outcome evidence for longitudinal validation */}
+      <section id="leadership-outcomes">
+        <LeadershipOutcomeTracker />
       </section>
 
       {/* AI Insights */}

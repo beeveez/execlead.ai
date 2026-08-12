@@ -24,6 +24,7 @@ const DOMAIN_LINKS = [
   { label: 'Reports', path: '/operations/reports', icon: BarChart3, color: 'text-rose-400' },
   { label: 'Cohort Leadership Intelligence', path: '/operations/cohort-leadership-intelligence', icon: Users, color: 'text-emerald-400' },
   { label: 'Intelligence Calibration', path: '/operations/intelligence-calibration', icon: Activity, color: 'text-indigo-400' },
+  { label: 'Intelligence Validation', path: '/operations/intelligence-validation', icon: ShieldCheck, color: 'text-emerald-400' },
 ];
 
 export default function ProductCommandCenter() {

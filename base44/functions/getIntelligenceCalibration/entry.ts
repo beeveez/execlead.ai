@@ -1,23 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { average, classify, listAll } from '../../shared/cohortIntelligenceUtils.ts';
+import { average, classify, listAll, behaviorDefinitions, cohortDefinitions } from '../../shared/cohortIntelligenceUtils.ts';
 
 const MIN_COHORT_SIZE = 10;
 const MONTHS = 6;
-const behaviorDefinitions = [
-  { key: 'business_impact_communication', label: 'Business-Impact Communication', terms: ['revenue', 'roi', 'cost', 'budget', 'business impact', 'outcome', 'value', 'kpi', 'financial'] },
-  { key: 'stakeholder_alignment', label: 'Stakeholder Alignment Conversations', terms: ['stakeholder', 'alignment', 'align', 'consensus', 'buy-in', 'sponsor'] },
-  { key: 'escalation_ownership', label: 'Escalation Ownership', terms: ['escalat', 'ownership', 'major incident', 'war room', 'accountable'] },
-  { key: 'strategic_prioritization', label: 'Strategic Prioritization', terms: ['priorit', 'roadmap', 'strategy', 'strategic', 'tradeoff', 'objective'] },
-  { key: 'cross_functional_influence', label: 'Cross-Functional Influence', terms: ['cross-functional', 'cross functional', 'influence', 'persuade', 'collaborate', 'coalition'] },
-];
-const cohortDefinitions = [
-  { key: 'support', label: 'Service Desk / Support Leaders', terms: ['service desk', 'support', 'help desk', 'customer support'] },
-  { key: 'operations', label: 'Infrastructure & Operations Managers', terms: ['infrastructure', 'operations', 'sre', 'site reliability', 'network', 'platform engineer'] },
-  { key: 'architecture', label: 'Architects / Engineering Leads', terms: ['architect', 'engineering lead', 'technical lead', 'developer lead', 'software engineering'] },
-  { key: 'security', label: 'Security & Risk Leaders', terms: ['security', 'cyber', 'risk', 'compliance', 'governance'] },
-  { key: 'transformation', label: 'Digital Transformation Professionals', terms: ['digital transformation', 'transformation', 'change leader', 'modernization', 'programme', 'program manager'] },
-];
-
 const clamp = (value) => Math.max(0, Math.min(100, Math.round(value || 0)));
 const variance = (values) => {
   if (!values.length) return 0;

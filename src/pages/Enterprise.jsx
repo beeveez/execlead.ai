@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Building2, BarChart3, Sparkles, ShieldCheck, ArrowRight, Users, Gauge } from 'lucide-react';
 import { BrandRegistry } from '@/lib/brandRegistry';
+import PageMetadata from '@/components/marketing/PageMetadata';
 
 const SECTIONS = [
   { icon: Users, title: 'Why organizations choose EXECLEAD.AI', body: 'A single platform to assess, develop, and prove executive readiness across your leadership pipeline — not another learning library.' },
@@ -16,6 +17,11 @@ const SECTIONS = [
 export default function Enterprise() {
   return (
     <div className="bg-[#0a0a0f] pt-28 pb-20 px-6 lg:px-8">
+      <PageMetadata
+        title="Enterprise | EXECLEAD.AI"
+        description="EXECLEAD.AI gives organizations an AI-powered Executive Leadership Operating System™ for executive readiness, leadership development, succession planning, strategic judgment, and enterprise leadership intelligence."
+        path="/for-enterprise"
+      />
       <div className="max-w-5xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent-orange/10 border border-accent-orange/25 rounded-full text-xs text-accent-orange font-semibold mb-5">
           <Building2 size={12} /> Enterprise Platform™

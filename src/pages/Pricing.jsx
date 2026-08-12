@@ -17,6 +17,7 @@ import DomainFAQ from "@/components/marketing/DomainFAQ";
 import { captureReferralCode } from "@/lib/socialShare";
 import { useLaunchMode, usePlatformLaunchMode } from "@/lib/launchMode";
 import { BrandRegistry } from "@/lib/brandRegistry";
+import PageMetadata from "@/components/marketing/PageMetadata";
 
 // Below-the-fold sections are lazy-loaded so the hero + pricing tiers
 // render immediately without waiting for their code or API calls.
@@ -51,6 +52,11 @@ export default function Pricing() {
 
   return (
     <>
+      <PageMetadata
+        title="Pricing | EXECLEAD.AI"
+        description="Explore EXECLEAD.AI membership and enterprise pricing for professionals and organizations building executive readiness and leadership capability."
+        path="/pricing"
+      />
 
       {/* Hero */}
       <section className="pt-40 pb-12 px-4 relative">

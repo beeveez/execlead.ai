@@ -24,6 +24,7 @@ import EnterpriseAssurance from "@/components/trust/EnterpriseAssurance";
 import TrustPrinciples from "@/components/trust/TrustPrinciples";
 import PublicOperationalStatus from "@/components/trust/PublicOperationalStatus";
 import PublicIncidentHistory from "@/components/trust/PublicIncidentHistory";
+import PageMetadata from "@/components/marketing/PageMetadata";
 import { useTrustTelemetry } from "@/hooks/useTrustTelemetry";
 import {
   PLATFORM_SECURITY, PRIVACY_DATA, COMPLIANCE_FRAMEWORKS,
@@ -61,6 +62,11 @@ export default function TrustCenter() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
+      <PageMetadata
+        title="Trust Center | EXECLEAD.AI"
+        description="Explore EXECLEAD.AI's security, privacy, responsible AI, governance, and enterprise trust commitments."
+        path="/trust-center"
+      />
       {/* Hero */}
       <div className="bg-gradient-to-br from-indigo-500/10 via-violet-500/5 to-transparent border-b border-white/5">
         <div className="max-w-5xl mx-auto px-6 pt-28 pb-16">

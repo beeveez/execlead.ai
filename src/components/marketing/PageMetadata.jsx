@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
+import { DEFAULT_SOCIAL_IMAGE, getPublicMetadata } from '@/lib/publicMetadata';
 
-const DEFAULT_TITLE = 'EXECLEAD.AI | AI Executive Leadership Operating System™';
-const DEFAULT_DESCRIPTION = 'EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered executive readiness assessments, personalized coaching, leadership simulations, executive intelligence, and evidence-based leadership development.';
-const DEFAULT_IMAGE = 'https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0';
+const HOME_METADATA = getPublicMetadata('/');
+const DEFAULT_TITLE = HOME_METADATA.title;
+const DEFAULT_DESCRIPTION = HOME_METADATA.description;
+const DEFAULT_IMAGE = DEFAULT_SOCIAL_IMAGE;
 
 function setMeta(selector, attribute, value) {
   const tag = document.head.querySelector(selector);

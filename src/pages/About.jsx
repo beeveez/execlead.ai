@@ -8,8 +8,8 @@ export default function About() {
   return (
     <>
       <PageMetadata
-        title="About EXECLEAD.AI"
-        description="Learn about Reynaldo D. Valdez, Founder & Chief Product Architect of EXECLEAD.AI, and the mission to build an AI-powered Executive Leadership Operating System for continuous executive development."
+        title="About | EXECLEAD.AI"
+        description="Learn about EXECLEAD.AI and its mission to help ambitious professionals and organizations develop executive readiness, strategic judgment, and leadership capability."
         path="/about"
       />
       <div className="pt-28 pb-20 px-6 lg:px-8">

@@ -61,7 +61,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-[#0d0d14] border-r border-white/5 fixed h-full z-30">
+      <aside className="hidden md:flex flex-col w-[296px] bg-[#0d0d14] border-r border-white/5 fixed h-full z-30">
         <div className="p-6 border-b border-white/5">
           <Logo />
         </div>
@@ -117,7 +117,7 @@ export default function AppLayout() {
       }
 
       {/* Main Content — every page is role-enforced via RoleRoute */}
-      <main className="flex-1 md:ml-64 pt-[calc(3.5rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 min-h-screen">
+      <main className="flex-1 md:ml-[296px] pt-[calc(3.5rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 min-h-screen">
         <ImpersonationBanner />
         <SimulationBanner />
         <GracePeriodBanner />

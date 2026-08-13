@@ -484,3 +484,9 @@ html[lang="he"] body { font-family: 'Noto Sans Hebrew', 'Inter', ui-sans-serif, 
 html[lang] body {
   transition: font-family 200ms ease;
 }
+
+/* Executive Readiness HUD™ — semantic progress treatment */
+.readiness-progress-fill {
+  background: linear-gradient(90deg, hsl(var(--accent-orange)), hsl(var(--success)));
+  box-shadow: 0 0 12px hsl(var(--success) / 0.28);
+}

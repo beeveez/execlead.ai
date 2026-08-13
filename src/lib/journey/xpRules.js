@@ -42,6 +42,6 @@ export function deriveReadiness(user, journey) {
     title,
     nextLevelXp,
     progressPercent,
-    nextMilestone: nextTitle ? `${nextTitle} Readiness™` : "Leadership Legacy Sustained",
+    nextMilestone: nextTitle || "Leadership Legacy Sustained",
   };
 }

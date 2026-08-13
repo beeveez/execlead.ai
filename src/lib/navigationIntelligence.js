@@ -4,6 +4,7 @@ import {
   Rocket, Gauge, Shield,
 } from "lucide-react";
 import { searchNavigation } from "@/lib/navigationRegistry";
+import { getRouteWorkspace } from "@/lib/workspaces";
 
 // ============================================================
 // NAVIGATION INTELLIGENCE™ — Workspace Isolation™ Standard
@@ -22,7 +23,6 @@ export const OUTCOMES = [
   { id: "practice", label: "Practice", icon: Swords, route: "/coach" },
   { id: "growth", label: "Growth", icon: TrendingUp, route: "/evidence-vault" },
   { id: "portfolio", label: "Portfolio", icon: Award, route: "/executive-portfolio" },
-  { id: "enterprise", label: "Enterprise", icon: Building2, route: "/enterprise", enterprise: true },
   { id: "settings", label: "Settings", icon: SettingsIcon, route: "/settings" },
 ];
 
@@ -189,14 +189,12 @@ export function flattenNavItems(navGroups) {
 // ── Build the Executive outcome tree with progressive disclosure ──
 // Only the Executive workspace uses the outcome-based tree. Other
 // workspaces render their own section navigation (see OutcomeSidebar).
-export function buildOutcomeTree({ flatItems, stage, isEnterprise, brokenPaths, pathname }) {
+export function buildOutcomeTree({ flatItems, stage, brokenPaths, pathname }) {
   let visited = [];
   try { visited = JSON.parse(localStorage.getItem(VISITED_KEY)) || []; } catch {}
   const broken = brokenPaths || new Set();
 
-  return OUTCOMES
-    .filter((o) => !o.enterprise || isEnterprise)
-    .map((outcome) => {
+  return OUTCOMES.map((outcome) => {
       const children = flatItems
         .filter((it) => ROUTE_MAP[it.path]?.outcome === outcome.id)
         .filter((it) => !broken.has(it.path))
@@ -218,7 +216,8 @@ export function buildOutcomeTree({ flatItems, stage, isEnterprise, brokenPaths, 
 export function computeQuickActions(pathname, activeWorkspace = "executive") {
   const actions = [];
   const last = getLastRoute();
-  if (last && last !== pathname && !["/dashboard", "/home"].includes(last)) {
+  const lastWorkspaces = last ? getRouteWorkspace(last) : null;
+  if (last && last !== pathname && !["/dashboard", "/home"].includes(last) && lastWorkspaces?.includes(activeWorkspace)) {
     actions.push({ label: "Continue Last Session", path: last, icon: RotateCcw });
   }
   const wsActions = QUICK_ACTIONS[activeWorkspace] || QUICK_ACTIONS.executive;

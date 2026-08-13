@@ -15,7 +15,7 @@ import ExecutiveReadinessHUD from "@/components/journey/ExecutiveReadinessHUD";
 // navigation. Search, quick actions, and Ask EXEC™ prompts are all
 // scoped to the active workspace — no cross-workspace leakage.
 export default function OutcomeSidebar({
-  navGroups, brokenNavPaths, pathname, isEnterprise, onNavigate, mobile, activeWorkspace = "executive",
+  navGroups, brokenNavPaths, pathname, onNavigate, mobile, activeWorkspace = "executive",
 }) {
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState(() => {
@@ -32,8 +32,8 @@ export default function OutcomeSidebar({
   const isExecutive = activeWorkspace === "executive";
   const flatItems = useMemo(() => flattenNavItems(navGroups), [navGroups]);
   const outcomes = useMemo(
-    () => buildOutcomeTree({ flatItems, stage, isEnterprise, brokenNavPaths: brokenNavPaths, pathname }),
-    [flatItems, stage, isEnterprise, brokenNavPaths, pathname]
+    () => buildOutcomeTree({ flatItems, stage, brokenPaths: brokenNavPaths, pathname }),
+    [flatItems, stage, brokenNavPaths, pathname]
   );
   const quickActions = useMemo(() => computeQuickActions(pathname, activeWorkspace), [pathname, activeWorkspace]);
   const searchResults = useMemo(() => universalSearch(query, activeWorkspace), [query, activeWorkspace]);
@@ -231,6 +231,5 @@ const ROUTE_HINT = {
   practice: "/coach",
   growth: "/evidence-vault",
   portfolio: "/executive-portfolio",
-  enterprise: "/enterprise",
   settings: "/settings",
 };

@@ -4,7 +4,6 @@ import { base44 } from "@/api/base44Client";
 import TopBar from "@/components/layout/TopBar";
 import Logo from "@/components/layout/Logo";
 import { useSubscription } from "@/lib/SubscriptionContext";
-import { useAuth } from "@/lib/AuthContext";
 import { useGuardian } from "@/lib/GuardianContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import WorkspaceGuard from "@/components/WorkspaceGuard";
@@ -21,7 +20,6 @@ import SimulationBanner from "@/components/developer/SimulationBanner";
 import GracePeriodBanner from "@/components/identity/GracePeriodBanner";
 import ReadinessContributionBanner from "@/components/shared/ReadinessContributionBanner";
 import OutcomeSidebar from "@/components/layout/OutcomeSidebar";
-import { isEnterpriseUser } from "@/lib/navigationIntelligence";
 
 function NavItem({ item, active, onClick }) {
   return (
@@ -43,10 +41,8 @@ function NavItem({ item, active, onClick }) {
 
 export default function AppLayout() {
   const location = useLocation();
-  const { user } = useAuth();
   const { subscription, loading: loadingSub, profile } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const isEnterprise = isEnterpriseUser(user?.role);
 
   const { navGroups: workspaceNavGroups, activeWorkspace } = useWorkspace();
   const { brokenNavPaths } = useGuardian() || {};
@@ -69,7 +65,6 @@ export default function AppLayout() {
           navGroups={navGroups}
           brokenNavPaths={brokenNavPaths}
           pathname={location.pathname}
-          isEnterprise={isEnterprise}
           activeWorkspace={activeWorkspace}
         />
         <div className="p-3 border-t border-white/5">
@@ -100,7 +95,6 @@ export default function AppLayout() {
               navGroups={navGroups}
               brokenNavPaths={brokenNavPaths}
               pathname={location.pathname}
-              isEnterprise={isEnterprise}
               activeWorkspace={activeWorkspace}
               onNavigate={() => setMobileOpen(false)}
               mobile

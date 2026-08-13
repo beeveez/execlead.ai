@@ -1,0 +1,12 @@
+import React from "react";
+import { ArrowRight, Clock, Gauge, LayoutDashboard, Target, TrendingUp, BriefcaseBusiness, Brain } from "lucide-react";
+
+const AREAS = [
+  [LayoutDashboard, "Dashboard", "Your executive command center"], [Target, "Executive Mission™", "The highest-value next action"],
+  [TrendingUp, "Leadership Journey™", "Progress and readiness milestones"], [Brain, "Practice Simulations™", "Rehearse consequential decisions"],
+  [BriefcaseBusiness, "Growth & Portfolio", "Capture evidence and outcomes"], [Gauge, "Readiness HUD™", "See live leadership progression"],
+];
+
+export default function WelcomeOrientation({ onContinue, onSkip }) {
+  return (<div><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wider text-accent-orange">Welcome Tour™</p><h2 className="mt-1 text-xl font-bold text-card-foreground">Understand the platform in 2 minutes</h2><p className="mt-2 text-sm text-muted-foreground">This is orientation—not an assessment. See how each area supports your leadership development.</p></div><span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground"><Clock size={13} /> 2 min</span></div><div className="mt-6 grid gap-3 sm:grid-cols-2">{AREAS.map(([Icon, title, text]) => <div key={title} className="flex gap-3 rounded-xl border border-border bg-secondary/50 p-3"><Icon size={18} className="mt-0.5 shrink-0 text-accent-orange" /><div><p className="text-sm font-semibold text-card-foreground">{title}</p><p className="text-xs text-muted-foreground">{text}</p></div></div>)}</div><div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><button onClick={onSkip} className="rounded-xl px-4 py-2.5 text-sm text-muted-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Skip for Now</button><button onClick={onContinue} className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-orange px-5 py-2.5 text-sm font-semibold text-accent-orange-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Continue to Baseline <ArrowRight size={15} /></button></div></div>);
+}

@@ -29,7 +29,7 @@
     },
     "appearance_theme": {
       "type": "string",
-      "description": "User's appearance theme preference: dark, light, or system. Persisted across devices and loaded automatically on login.",
+      "description": "User's appearance theme preference: dark, light, or system.",
       "enum": [
         "dark",
         "light",
@@ -39,7 +39,52 @@
     },
     "organization_id": {
       "type": "string",
-      "description": "The organization this user belongs to. Used for Row-Level Security (RLS) on org-scoped entities. Empty for individual executive users not tied to an enterprise organization."
+      "description": "The organization this user belongs to."
+    },
+    "assigned_assessment_track": {
+      "type": "string",
+      "description": "Enterprise-assigned assessment track."
+    },
+    "assessment_program_name": {
+      "type": "string"
+    },
+    "assessment_sponsor": {
+      "type": "string"
+    },
+    "leadership_track": {
+      "type": "string"
+    },
+    "target_executive_role": {
+      "type": "string"
+    },
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "onboarding_step": {
+      "type": "number",
+      "default": 1
+    },
+    "onboarding_type": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "executive",
+        "enterprise_assigned"
+      ],
+      "default": "individual"
+    },
+    "readiness_calibrated": {
+      "type": "boolean",
+      "default": false
+    },
+    "readiness_level": {
+      "type": "string",
+      "default": "Not Calibrated"
+    },
+    "journey_points": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

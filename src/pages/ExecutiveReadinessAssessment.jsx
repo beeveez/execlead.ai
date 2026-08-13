@@ -14,19 +14,23 @@ import {
   Loader2, ChevronLeft, ChevronRight, Sparkles, Award, Check, Gauge, PauseCircle,
 } from 'lucide-react';
 import EnterpriseAssessmentCenter from '@/components/readiness-assessment/EnterpriseAssessmentCenter';
+import { completeEnterpriseOnboarding } from '@/lib/onboarding/onboardingOrchestrator';
 
 export default function ExecutiveReadinessAssessment() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState('launchpad');
+  const urlParams = new URLSearchParams(window.location.search);
+  const assignedTrack = urlParams.get('track');
+  const assignedOnboarding = urlParams.get('assigned') === '1';
+  const [phase, setPhase] = useState(assignedOnboarding && assignedTrack ? 'quiz' : 'launchpad');
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
   const [persisting, setPersisting] = useState(false);
   const [savedAssessment, setSavedAssessment] = useState(null);
   const [history, setHistory] = useState([]);
-  const [track, setTrack] = useState(null);
+  const [track, setTrack] = useState(assignedTrack || null);
   const [targetRole, setTargetRole] = useState(null);
   const [savingTrack, setSavingTrack] = useState(false);
 
@@ -171,10 +175,11 @@ export default function ExecutiveReadinessAssessment() {
       };
       const created = await base44.entities.ReadinessAssessment.create(record);
       setSavedAssessment(created);
+      if (assignedOnboarding) await completeEnterpriseOnboarding(user, r);
     } catch (e) {
       toast({ title: 'Could not save assessment', description: e.message, variant: 'destructive' });
     } finally { setPersisting(false); }
-  }, [answers, user?.id, toast, targetRole, track]);
+  }, [answers, assignedOnboarding, user, toast, targetRole, track]);
 
   const restart = () => { setAnswers({}); setIdx(0); setPhase('track'); setResults(null); localStorage.removeItem(ASSESSMENT_STORAGE_KEY); };
 

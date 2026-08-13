@@ -1,0 +1,9 @@
+import React from "react";
+import { ArrowRight, Building2, Clock } from "lucide-react";
+
+export default function EnterpriseLaunch({ user, onLaunch }) {
+  const track = user?.assignedAssessmentTrack || user?.assigned_assessment_track || "Director Readiness Cohort™";
+  const program = user?.assessmentProgramName || user?.assessment_program_name || "Succession Planning Program";
+  const sponsor = user?.assessmentSponsor || user?.assessment_sponsor || "Talent Management Office";
+  return (<div className="text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-orange/10"><Building2 className="text-accent-orange" size={26} /></div><p className="mt-5 text-xs font-semibold uppercase tracking-wider text-accent-orange">Enterprise Leadership Program</p><h2 className="mt-2 text-2xl font-bold text-card-foreground">{track}</h2><p className="mt-2 text-sm text-muted-foreground">{program}</p><div className="mx-auto mt-6 max-w-md rounded-2xl border border-border bg-secondary/50 p-4 text-left"><div className="flex justify-between text-sm"><span className="text-muted-foreground">Estimated time</span><span className="flex items-center gap-1 font-medium text-card-foreground"><Clock size={13} /> 12 minutes</span></div><div className="mt-3 flex justify-between gap-4 text-sm"><span className="text-muted-foreground">Sponsored by</span><span className="text-right font-medium text-card-foreground">{sponsor}</span></div></div><p className="mx-auto mt-5 max-w-md text-xs leading-relaxed text-muted-foreground">Your organization assigned this readiness track. Your results will support your approved leadership development program.</p><button onClick={onLaunch} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent-orange px-6 py-3 text-sm font-semibold text-accent-orange-foreground">Begin Assigned Assessment <ArrowRight size={16} /></button></div>);
+}

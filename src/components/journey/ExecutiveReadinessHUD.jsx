@@ -8,7 +8,7 @@ export default function ExecutiveReadinessHUD({ variant = "sidebar" }) {
   const { xp, level, title, nextLevelXp, progressPercent, nextMilestone } = readiness;
   if (variant === "compact") return (
     <div className="min-w-0 rounded-xl border border-border bg-card px-3 py-1.5" data-enterprise-managed={isEnterpriseManaged}>
-      <p className="truncate text-[11px] font-semibold text-card-foreground">L{level} <span className="text-accent-orange">•</span> {title}</p>
+      <p className="truncate text-[11px] font-semibold text-card-foreground">{level > 0 ? <>L{level} <span className="text-accent-orange">•</span> {title}</> : title}</p>
       <p className="text-[10px] tabular-nums text-muted-foreground">{number.format(xp)} XP</p>
     </div>
   );

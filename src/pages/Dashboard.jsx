@@ -26,6 +26,8 @@ import EvidenceGapDashboard from "@/components/readiness-evidence/EvidenceGapDas
 import CompetencyCoveragePanel from "@/components/readiness-evidence/CompetencyCoveragePanel";
 import OutcomeIntelligenceSummary from "@/components/outcome-intelligence/OutcomeIntelligenceSummary";
 import ReadinessAssessmentCTA from "@/components/readiness-assessment/ReadinessAssessmentCTA";
+import OnboardingDashboardCard from "@/components/onboarding/OnboardingDashboardCard";
+import { useAuth } from "@/lib/AuthContext";
 
 /**
  * Dashboard — Executive Command Center.
@@ -48,6 +50,7 @@ const QUICK_ACTIONS = [
 ];
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { profile, loading: loadingProfile } = useSubscription();
   const [intelligence, setIntelligence] = useState(null);
   const [loadingIntelligence, setLoadingIntelligence] = useState(true);
@@ -79,6 +82,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <OnboardingDashboardCard user={user} profile={profile} />
       <MissionFirstHero mission={command.mission} />
       <ExecutiveStatusBar />
 

@@ -1,0 +1,11 @@
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, PlayCircle, X } from "lucide-react";
+import { getOnboardingState, isFirstTimeUser } from "@/lib/onboarding/onboardingOrchestrator";
+
+export default function OnboardingDashboardCard({ user, profile }) {
+  const [hidden, setHidden] = useState(false);
+  if (hidden || !isFirstTimeUser(user, profile)) return null;
+  const step = Math.min(3, Math.max(1, getOnboardingState(user).step || user?.onboarding_step || 1));
+  return (<section aria-labelledby="onboarding-title" className="relative rounded-3xl border border-accent-orange/25 bg-gradient-to-br from-accent-orange/10 to-card p-5 sm:p-6"><button onClick={() => setHidden(true)} aria-label="Dismiss onboarding for now" className="absolute right-3 top-3 rounded-lg p-2 text-muted-foreground hover:bg-secondary"><X size={16} /></button><p className="text-xs font-semibold uppercase tracking-wider text-accent-orange">Step {step} of 3</p><h2 id="onboarding-title" className="mt-1 text-xl font-bold text-card-foreground">Welcome to EXECLEAD.AI</h2><ol className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3"><li>1. Explore the platform</li><li>2. Complete your readiness baseline</li><li>3. Unlock your Executive Journey™</li></ol><div className="mt-5 h-2 overflow-hidden rounded-full bg-secondary" role="progressbar" aria-label={`Onboarding step ${step} of 3`} aria-valuenow={step} aria-valuemin="1" aria-valuemax="3"><div className="h-full rounded-full bg-accent-orange" style={{ width: `${Math.round(step / 3 * 100)}%` }} /></div><div className="mt-5 flex flex-wrap gap-3"><Link to="/onboarding" className="inline-flex items-center gap-2 rounded-xl bg-accent-orange px-4 py-2.5 text-sm font-semibold text-accent-orange-foreground">Continue Setup <ArrowRight size={14} /></Link><button onClick={() => setHidden(true)} className="rounded-xl border border-border px-4 py-2.5 text-sm text-muted-foreground hover:bg-secondary">Skip for Now</button><Link to="/demo" className="inline-flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground"><PlayCircle size={15} /> Watch Product Demo</Link></div></section>);
+}

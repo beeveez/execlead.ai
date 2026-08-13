@@ -25,6 +25,9 @@ const userXp = (user) => user?.journeyPoints ?? user?.journey_points ?? user?.xp
 
 export function deriveReadiness(user, journey) {
   const persistedXp = userXp(user);
+  const journeyXp = journey?.totalPoints ?? persistedXp ?? 0;
+  const isUncalibrated = user?.readiness_calibrated === false && user?.onboarding_completed !== true && journeyXp === 0;
+  if (isUncalibrated) return { xp: 0, level: 0, title: "Not Calibrated", nextLevelXp: 500, progressPercent: 0, nextMilestone: "Emerging Leader" };
   const xp = journey?.totalPoints ?? persistedXp ?? 1600;
   const engineCurrent = journey?.level?.current;
   const engineNext = journey?.level?.next;

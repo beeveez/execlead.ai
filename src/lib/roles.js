@@ -38,6 +38,7 @@ export const ROLES = {
   security_admin: { label: "Security Admin", tier: 93, description: "Security operations and compliance administration" },
   developer: { label: "Developer", tier: 95, description: "Developer tools and diagnostics" },
   super_admin: { label: "Super Admin", tier: 100, description: "Unrestricted platform access" },
+  founder_root_admin: { label: "Founder Root Admin", tier: 110, description: "Founder-level enterprise and platform access" },
 
   // Legacy role entries — kept for backward compatibility, excluded from ROLE_LIST
   free_user: { label: "Free User", tier: 10, description: "Legacy — maps to Customer", legacy: true },
@@ -87,7 +88,7 @@ export function getEffectiveRole(userRole, profile) {
   const baseRole = normalizeRole(userRole);
 
   // Platform-level administrative roles take precedence
-  if (["super_admin", "platform_admin", "developer", "support", "sales", "finance", "content_manager", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro"].includes(baseRole)) {
+  if (["super_admin", "founder_root_admin", "platform_admin", "developer", "support", "sales", "finance", "content_manager", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro"].includes(baseRole)) {
     return baseRole;
   }
 
@@ -119,6 +120,7 @@ const ALL_AUTHED = [
 // get the Enterprise sidebar instead of the individual customer sidebar.
 const CUSTOMER_NAV_ROLES = ["customer", "support", "sales", "finance", "content_manager", "platform_admin", "super_admin"];
 const TALENT_INTELLIGENCE_ROLES = ["hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro"];
+const ENTERPRISE_INTELLIGENCE_ROLES = ["enterprise_admin", "platform_admin", "super_admin", "founder_root_admin"];
 const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", ...TALENT_INTELLIGENCE_ROLES, "organization_owner", "platform_admin", "super_admin"];
 const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "talent_director", "chro", "organization_owner", "platform_admin", "super_admin"];
 
@@ -386,11 +388,13 @@ export function getNavGroups(role) {
 export const ROUTE_ACCESS = {
   "/developer/ai-command-center": ["developer", "super_admin"],
   "/enterprise": ENTERPRISE_ROLES,
-  "/enterprise/chro-dashboard": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
-  "/enterprise/talent-analytics": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
-  "/enterprise/promotion-forecasts": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
-  "/enterprise/succession": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
-  "/enterprise/high-potential": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
+  "/enterprise/intelligence": ENTERPRISE_INTELLIGENCE_ROLES,
+  "/enterprise/chro-dashboard": ENTERPRISE_INTELLIGENCE_ROLES,
+  "/enterprise/talent-analytics": ENTERPRISE_INTELLIGENCE_ROLES,
+  "/enterprise/promotion-forecasts": ENTERPRISE_INTELLIGENCE_ROLES,
+  "/enterprise/succession": ENTERPRISE_INTELLIGENCE_ROLES,
+  "/enterprise/high-potential": ENTERPRISE_INTELLIGENCE_ROLES,
+  "/enterprise/high-potential-watchlist": ENTERPRISE_INTELLIGENCE_ROLES,
   "/hr-dashboard": ENTERPRISE_ROLES,
   "/succession-planning": ENTERPRISE_ROLES,
   "/promotion-readiness": ENTERPRISE_ROLES,
@@ -419,7 +423,7 @@ export const ROUTE_ACCESS = {
 
 export function canAccessRoute(role, path) {
   const normalized = normalizeRole(role);
-  const allowed = ROUTE_ACCESS[path];
+  const allowed = path.startsWith("/enterprise/candidate/") ? ENTERPRISE_INTELLIGENCE_ROLES : ROUTE_ACCESS[path];
   if (!allowed) return true; // customer route — any authenticated user
   return allowed.includes(normalized);
 }

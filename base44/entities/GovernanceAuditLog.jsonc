@@ -11,8 +11,7 @@
       "description": "Unique immutable audit record ID"
     },
     "request_id": {
-      "type": "string",
-      "description": "Linked GovernanceRequest ID"
+      "type": "string"
     },
     "requester_id": {
       "type": "string"
@@ -30,8 +29,7 @@
       "type": "string"
     },
     "action": {
-      "type": "string",
-      "description": "Protected operation that was requested"
+      "type": "string"
     },
     "target_user_id": {
       "type": "string"
@@ -69,12 +67,10 @@
       "type": "string"
     },
     "old_values_json": {
-      "type": "string",
-      "description": "JSON snapshot of values before the change"
+      "type": "string"
     },
     "new_values_json": {
-      "type": "string",
-      "description": "JSON snapshot of values after the change"
+      "type": "string"
     },
     "timestamp": {
       "type": "string",
@@ -98,8 +94,19 @@
     },
     "violation_count": {
       "type": "number",
-      "default": 0,
-      "description": "Unauthorized attempt count for this user"
+      "default": 0
+    },
+    "organizationId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "resourceAccessed": {
+      "type": "string"
     }
   },
   "required": [
@@ -133,6 +140,11 @@
         },
         {
           "user_condition": {
+            "role": "enterprise_admin"
+          }
+        },
+        {
+          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -142,6 +154,18 @@
       "$or": [
         {
           "data.requester_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "enterprise_admin"
+              }
+            }
+          ]
         },
         {
           "user_condition": {
@@ -172,12 +196,12 @@
     },
     "update": {
       "user_condition": {
-        "role": "__immutable__"
+        "role": "super_admin"
       }
     },
     "delete": {
       "user_condition": {
-        "role": "__immutable__"
+        "role": "super_admin"
       }
     }
   }

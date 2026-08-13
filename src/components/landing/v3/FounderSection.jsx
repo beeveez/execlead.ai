@@ -16,7 +16,7 @@ export default function FounderSection() {
             Founder
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Built by an Enterprise Operations Leader
+            Built by an Enterprise Operations Leader. Born from a Personal Need.
           </h2>
           <p className="text-white/40 max-w-xl mx-auto text-sm">
             <strong className="text-white/70">{f.name}</strong> is the <strong className="text-white/70">{f.title} of {f.company}</strong>.
@@ -26,13 +26,22 @@ export default function FounderSection() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-4 text-white/60 text-sm md:text-base leading-relaxed">
             <p>
-              EXECLEAD.AI was born from more than 20 years of firsthand experience in enterprise IT operations, service delivery, governance, and leadership. Throughout that journey, Reynaldo D. Valdez has led large-scale service delivery, SLA-driven operations, governance, and cross-functional teams supporting complex enterprise environments.
+              <strong className="text-white/80">EXECLEAD.AI started with a personal problem.</strong>
             </p>
             <p>
-              EXECLEAD.AI was created from a firsthand observation: organizations often promote high-performing professionals into leadership roles without providing a scalable system for developing <strong className="text-white/80">executive judgment, strategic thinking, communication, and decision-making capability</strong>.
+              While preparing for his own career opportunities and executive-level interviews, Reynaldo began building a personal <strong className="text-white/80">Interview Command Center</strong> — a system to organize his professional experience, sharpen his answers, simulate difficult scenarios, and challenge his own executive thinking.
             </p>
             <p>
-              That insight led to the creation of <strong className="text-white/80">EXECLEAD.AI — an AI-powered Executive Leadership Operating System™</strong> designed to help ambitious professionals become executive-ready leaders through personalized coaching, executive simulations, leadership intelligence, and evidence-based development.
+              What began as a tool built for himself revealed a much larger problem: professionals are often expected to step into leadership roles without a structured, continuous system for developing <strong className="text-white/80">executive judgment, strategic thinking, communication, and decision-making capability</strong>.
+            </p>
+            <p>
+              That realization transformed the personal Interview Command Center into <strong className="text-white/80">EXECLEAD.AI — an AI-powered Executive Leadership Operating System™</strong> designed to help ambitious professionals develop executive readiness through personalized coaching, executive simulations, leadership intelligence, and evidence-based development.
+            </p>
+            <p>
+              With more than 20 years of firsthand experience in enterprise IT operations, service delivery, governance, and leadership, Reynaldo brings practical experience from leading large-scale service delivery, SLA-driven operations, governance, and cross-functional teams supporting complex enterprise environments.
+            </p>
+            <p className="font-semibold text-white/80">
+              The platform was not conceived in a boardroom. It was built from firsthand experience.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               {f.expertise.map((e) => (

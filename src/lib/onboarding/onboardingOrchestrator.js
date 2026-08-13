@@ -67,8 +67,8 @@ export async function completeOnboarding(user, baseline) {
   await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: 3, onboarding_type: detectOnboardingType(user), readiness_calibrated: true, readiness_level: result.readinessLevel, journey_points: result.xp });
   markOnboardingCompleted();
   saveOnboardingDraft(user, { step: 3, baseline, completed: true });
-  await Promise.all([generateAndPersistActions(user), base44.functions.invoke("recomputeIntelligence", { user_id: user.id })]);
-  return { ...result, roadmap: buildRoadmap(baseline) };
+  const [actions] = await Promise.all([generateAndPersistActions(user), base44.functions.invoke("recomputeIntelligence", { user_id: user.id })]);
+  return { ...result, initialXp: result.xp, calibrated: true, firstMission: actions?.[0]?.title, roadmap: buildRoadmap(baseline), roadmapReady: true };
 }
 
 export async function saveOnboardingProgress(user, step, baseline = {}) {
@@ -95,5 +95,6 @@ export async function completeEnterpriseOnboarding(user, results) {
   await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: 3, onboarding_type: "enterprise_assigned", readiness_calibrated: true, readiness_level: readinessLevel, journey_points: xp });
   markOnboardingCompleted();
   saveOnboardingDraft(user, { step: 3, completed: true });
-  await Promise.all([generateAndPersistActions(user), base44.functions.invoke("recomputeIntelligence", { user_id: user.id })]);
+  const [actions] = await Promise.all([generateAndPersistActions(user), base44.functions.invoke("recomputeIntelligence", { user_id: user.id })]);
+  return { readinessLevel, initialXp: xp, calibrated: true, firstMission: actions?.[0]?.title, roadmapReady: true };
 }

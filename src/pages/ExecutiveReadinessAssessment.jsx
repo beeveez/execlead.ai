@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import EnterpriseAssessmentCenter from '@/components/readiness-assessment/EnterpriseAssessmentCenter';
 import { completeEnterpriseOnboarding } from '@/lib/onboarding/onboardingOrchestrator';
+import CalibrationCompleteScreen from '@/components/onboarding/CalibrationCompleteScreen';
 
 export default function ExecutiveReadinessAssessment() {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ export default function ExecutiveReadinessAssessment() {
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
   const [persisting, setPersisting] = useState(false);
+  const [calibrationTransition, setCalibrationTransition] = useState(null);
   const [savedAssessment, setSavedAssessment] = useState(null);
   const [history, setHistory] = useState([]);
   const [track, setTrack] = useState(assignedTrack || null);
@@ -149,7 +151,7 @@ export default function ExecutiveReadinessAssessment() {
     // Personalize the promotion forecast with the selected target role.
     if (targetRole) r.forecast.targetLevel = targetRole;
     setResults(r);
-    setPhase('first-insight');
+    if (!assignedOnboarding) setPhase('first-insight');
     try { base44.analytics.track({ eventName: 'assessment_completed', properties: { path: track, overall: r.overall, universal: r.universalScore, role_specific: r.roleScore } }); } catch (e) {}
     localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
     setPersisting(true);
@@ -175,13 +177,17 @@ export default function ExecutiveReadinessAssessment() {
       };
       const created = await base44.entities.ReadinessAssessment.create(record);
       setSavedAssessment(created);
-      if (assignedOnboarding) await completeEnterpriseOnboarding(user, r);
+      if (assignedOnboarding) setCalibrationTransition(await completeEnterpriseOnboarding(user, r));
     } catch (e) {
       toast({ title: 'Could not save assessment', description: e.message, variant: 'destructive' });
     } finally { setPersisting(false); }
   }, [answers, assignedOnboarding, user, toast, targetRole, track]);
 
   const restart = () => { setAnswers({}); setIdx(0); setPhase('track'); setResults(null); localStorage.removeItem(ASSESSMENT_STORAGE_KEY); };
+
+  if (calibrationTransition) {
+    return <CalibrationCompleteScreen {...calibrationTransition} enterpriseProgram={user?.assessment_program_name || 'Q3 Director Readiness Program™'} onComplete={() => navigate('/dashboard')} />;
+  }
 
   // ── FIRST SUCCESS EXPERIENCE — personalized insight in under 5 minutes ──
   if (phase === 'first-insight' && results) {

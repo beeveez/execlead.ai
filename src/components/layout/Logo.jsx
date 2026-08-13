@@ -26,9 +26,10 @@ export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2
         <span className="inline-flex items-baseline">
           <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">{BrandRegistry.logo.parts.prefix}</span>
           <span className="text-white/80 group-hover:text-white transition-colors">{BrandRegistry.logo.parts.middle}</span>
-          <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">{BrandRegistry.logo.parts.dot}</span>
           {showAiTag && (
-            <span className={`text-[10px] text-white/30 font-normal tracking-widest uppercase ${aiTagClass}`}>{BrandRegistry.logo.parts.suffix}</span>
+            <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">
+              {BrandRegistry.logo.parts.dot}{BrandRegistry.logo.parts.suffix}
+            </span>
           )}
         </span>
       </motion.span>

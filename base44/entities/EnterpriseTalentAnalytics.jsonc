@@ -48,6 +48,10 @@
       "default": 0
     },
     "successionBenchStrength": {
+      "type": "number",
+      "default": 0
+    },
+    "successionBenchStrengthLabel": {
       "type": "string",
       "default": "Developing"
     },

@@ -5,7 +5,6 @@ import TimezoneSelect from "@/components/common/TimezoneSelect";
 import { getCountryByName } from "@/lib/locations";
 import { detectBrowserTimezone } from "@/lib/timezones";
 import { Camera, Loader2, Mail, Lock } from "lucide-react";
-import ExecutiveMark from "@/components/layout/ExecutiveMark";
 
 const LANGUAGES = ["English", "Spanish", "French", "German", "Portuguese", "Mandarin", "Japanese", "Hindi", "Arabic", "Russian", "Korean", "Italian", "Dutch", "Swedish", "Vietnamese", "Indonesian", "Tagalog"];
 
@@ -36,8 +35,8 @@ export default function PersonalInfoSection({ form, setField, user, onPhotoUploa
     <SectionCard title="Personal Information" description="Your identity across the platform." icon={Camera}>
       <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="w-20 h-20 flex items-center justify-center overflow-hidden">
-            {form.profile_photo ? <img src={form.profile_photo} alt="" className="w-full h-full rounded-full object-cover" /> : <ExecutiveMark size={80} className="rounded-2xl" />}
+          <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center text-2xl font-bold text-indigo-400 overflow-hidden">
+            {form.profile_photo ? <img src={form.profile_photo} alt="" className="w-full h-full object-cover" /> : (form.first_name || "U").charAt(0)}
           </div>
           <label className="absolute bottom-0 right-0 w-7 h-7 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-600 transition-colors">
             {uploadingPhoto ? <Loader2 size={12} className="animate-spin text-white" /> : <Camera size={12} className="text-white" />}

@@ -8,7 +8,6 @@ import {
   Palette, Moon, Sun, Monitor, Check, ChevronLeft, Shield, CreditCard
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import ExecutiveMark from "@/components/layout/ExecutiveMark";
 
 const THEME_OPTS = [
   { id: 'dark', label: 'Executive Dark', desc: 'Premium dark · gold & purple', icon: Moon },
@@ -35,6 +34,7 @@ export default function AccountMenu() {
 
   const handleLogout = () => base44.auth.logout("/login");
   const displayName = user?.full_name || user?.email?.split("@")[0] || "Account";
+  const initials = displayName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
   const close = () => { setOpen(false); setView('main'); };
   const go = (path) => { navigate(path); close(); };
 
@@ -44,7 +44,9 @@ export default function AccountMenu() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
       >
-        <ExecutiveMark size={24} className="shrink-0 rounded-md" />
+        <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-[10px] font-bold text-indigo-300">
+          {initials}
+        </div>
         <span className="text-xs font-medium text-white/70 max-w-[120px] truncate">{displayName}</span>
         <ChevronDown size={12} className={`text-white/30 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -89,7 +91,9 @@ export default function AccountMenu() {
             <>
               <div className="px-4 py-3 border-b border-white/5">
                 <div className="flex items-center gap-2">
-                  <ExecutiveMark size={36} className="shrink-0 rounded-lg" />
+                  <div className="w-9 h-9 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-sm font-bold text-indigo-300">
+                    {initials}
+                  </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-white truncate">{displayName}</p>
                     {user?.email && <p className="text-xs text-white/40 truncate">{user.email}</p>}

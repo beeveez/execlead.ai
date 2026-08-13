@@ -11,7 +11,16 @@
     "employeeId": {
       "type": "string"
     },
+    "employeeName": {
+      "type": "string"
+    },
+    "currentRole": {
+      "type": "string"
+    },
     "targetRole": {
+      "type": "string"
+    },
+    "businessUnit": {
       "type": "string"
     },
     "readinessScore": {
@@ -31,6 +40,14 @@
       "type": "number",
       "default": 0
     },
+    "highPotentialConfidence": {
+      "type": "number",
+      "default": 0
+    },
+    "evidenceStrength": {
+      "type": "number",
+      "default": 0
+    },
     "successionRisk": {
       "type": "string",
       "enum": [
@@ -39,19 +56,36 @@
         "high"
       ]
     },
-    "evidenceStrength": {
-      "type": "number",
-      "default": 0
-    },
-    "leadershipSimulationsPassed": {
-      "type": "number",
-      "default": 0
-    },
     "strategicJudgmentScore": {
       "type": "number",
       "default": 0
     },
     "executiveCommunicationScore": {
+      "type": "number",
+      "default": 0
+    },
+    "missionCompletionRate": {
+      "type": "number",
+      "default": 0
+    },
+    "growthVelocity": {
+      "type": "number",
+      "default": 0
+    },
+    "competencyGapSeverity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "leadershipSimulationsPassed": {
+      "type": "number",
+      "default": 0
+    },
+    "leadershipXp": {
       "type": "number",
       "default": 0
     },
@@ -66,7 +100,8 @@
   },
   "required": [
     "organizationId",
-    "employeeId",
+    "employeeName",
+    "currentRole",
     "targetRole",
     "promotionForecast"
   ],
@@ -79,29 +114,25 @@
               "data.organizationId": "{{user.data.organization_id}}"
             },
             {
-              "$or": [
-                {
-                  "user_condition": {
-                    "role": "chro"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "talent_director"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "enterprise_admin"
-                  }
-                }
-              ]
+              "user_condition": {
+                "role": "enterprise_admin"
+              }
             }
           ]
         },
         {
           "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
             "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]
@@ -114,44 +145,25 @@
               "data.organizationId": "{{user.data.organization_id}}"
             },
             {
-              "$or": [
-                {
-                  "user_condition": {
-                    "role": "chro"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "vp_talent_management"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "leadership_development_head"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "talent_director"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "hrbp"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "enterprise_admin"
-                  }
-                }
-              ]
+              "user_condition": {
+                "role": "enterprise_admin"
+              }
             }
           ]
         },
         {
           "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
             "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]
@@ -164,29 +176,25 @@
               "data.organizationId": "{{user.data.organization_id}}"
             },
             {
-              "$or": [
-                {
-                  "user_condition": {
-                    "role": "chro"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "talent_director"
-                  }
-                },
-                {
-                  "user_condition": {
-                    "role": "enterprise_admin"
-                  }
-                }
-              ]
+              "user_condition": {
+                "role": "enterprise_admin"
+              }
             }
           ]
         },
         {
           "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
             "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]
@@ -208,6 +216,11 @@
         {
           "user_condition": {
             "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
           }
         }
       ]

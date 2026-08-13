@@ -36,7 +36,7 @@ export default function ExecutiveBrandIdentity() {
         </div>
         <h2 className="text-xl font-bold text-white mb-2">{BrandRegistry.brandName} Executive Mark™</h2>
         <p className="text-white/40 text-sm max-w-lg mx-auto">
-          A stylized capital "E" with a vertical spine, a horizontal bottom bar, an upward-angled middle bar, and a sharp-tipped arrow on the top bar pointing diagonally upward to the right.
+          A geometric capital “E” whose upper stroke rises directly into an upward-right progression arrow, forming one coherent executive leadership symbol.
         </p>
       </div>
 

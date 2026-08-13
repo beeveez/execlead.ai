@@ -25,6 +25,7 @@ import PublicProfileSection from "@/components/profile/PublicProfileSection";
 import { createSnapshot, averageConfidence } from "@/lib/identityVersioning";
 import { setCachedCareerIntelligenceForm } from "@/lib/careerIntelligence/contextCache";
 import { Loader2, Save, UserCircle, Globe, Lock } from "lucide-react";
+import ExecutiveMark from "@/components/layout/ExecutiveMark";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -443,8 +444,8 @@ export default function Profile() {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-lg font-bold text-indigo-400 overflow-hidden">
-            {form.profile_photo ? <img src={form.profile_photo} alt="" className="w-full h-full object-cover" /> : displayName.charAt(0)}
+          <div className="w-12 h-12 flex items-center justify-center overflow-hidden">
+            {form.profile_photo ? <img src={form.profile_photo} alt="" className="w-full h-full rounded-full object-cover" /> : <ExecutiveMark size={48} className="rounded-xl" />}
           </div>
           <div>
             <div className="flex items-center gap-2 text-white/30 text-xs uppercase tracking-widest mb-0.5">

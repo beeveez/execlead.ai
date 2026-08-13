@@ -1,5 +1,5 @@
 export const SITE_URL = 'https://execleadai.co';
-export const DEFAULT_SOCIAL_IMAGE = 'https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0';
+export const DEFAULT_SOCIAL_IMAGE = '/src/assets/execlead-mark.svg?v=4.0';
 
 const metadata = {
   '/': ['EXECLEAD.AI | AI Executive Leadership Operating System™', 'EXECLEAD.AI is an Executive Leadership Operating System™ helping organizations develop executive readiness, judgment, and strategic leadership.'],

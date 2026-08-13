@@ -1,0 +1,17 @@
+{
+  "name": "EXECLEAD.AI",
+  "short_name": "EXECLEAD.AI",
+  "description": "AI Executive Leadership Operating System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070B13",
+  "theme_color": "#070B13",
+  "icons": [
+    {
+      "src": "/src/assets/execlead-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

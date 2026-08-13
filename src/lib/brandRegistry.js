@@ -1,3 +1,5 @@
+import execleadMarkUrl from "@/assets/execlead-mark.svg";
+
 /**
  * Brand Registry™ — Single Source of Truth
  * =========================================
@@ -112,7 +114,8 @@ export const BrandRegistry = {
     brandName: "EXECLEAD.AI",
     parts: { prefix: "EXEC", middle: "LEAD", dot: ".", suffix: "AI" },
     markName: "Executive Mark™",
-    description: "A custom Executive 'E' monogram with an integrated upward arrow.",
+    description: "A geometric gold Executive 'E' whose upper stroke rises into an integrated upward-right progression arrow.",
+    icon: execleadMarkUrl,
   },
 
   // ── Logo Story & Brand Philosophy ──
@@ -146,12 +149,12 @@ export const BrandRegistry = {
   },
 
   // ── Favicon ──
-  favicon: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
-  faviconImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
+  favicon: execleadMarkUrl,
+  faviconImage: execleadMarkUrl,
 
   // ── Open Graph / Social Images ──
-  ogImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
-  socialImage: "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/c8da542d1_image.png?v=3.0",
+  ogImage: execleadMarkUrl,
+  socialImage: execleadMarkUrl,
 
   // ── Email Signature ──
   emailSignature:

@@ -413,6 +413,7 @@ export const ROUTE_ACCESS = {
   "/developer/experience-audit": ["developer", "super_admin"],
   "/feature-management": ["developer", "super_admin"],
   "/guardian": ["developer", "super_admin"],
+  "/operations/social-content": ["content_manager", "platform_admin", "super_admin", "founder_root_admin", "admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],
   "/billing-admin": ["platform_admin", "super_admin", "finance"],
   "/payment-settings": ["platform_admin", "super_admin", "finance"],

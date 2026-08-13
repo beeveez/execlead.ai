@@ -1,0 +1,5 @@
+import { PLATFORM_LABELS, STATUS_LABELS } from '@/lib/socialContentConfig';
+export default function ContentTable({ items, onSelect, empty='No content here yet.' }) {
+  if(!items.length)return <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">{empty}</div>;
+  return <div className="overflow-x-auto rounded-2xl border border-border bg-card"><table className="w-full min-w-[760px] text-left text-xs"><thead className="bg-muted text-muted-foreground"><tr><th className="p-3">Title</th><th>Platform</th><th>Pillar</th><th>Status</th><th>Author</th><th>Quality</th></tr></thead><tbody>{items.map(item=><tr key={item.id} onClick={()=>onSelect(item)} className="cursor-pointer border-t border-border hover:bg-muted/50"><td className="p-3 font-semibold text-foreground">{item.title}</td><td>{PLATFORM_LABELS[item.platform]}</td><td>{item.content_pillar}</td><td>{STATUS_LABELS[item.status]}</td><td>{item.created_by_name}</td><td>{item.ai_quality_score}/100</td></tr>)}</tbody></table></div>;
+}

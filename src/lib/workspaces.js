@@ -148,6 +148,7 @@ export const WORKSPACE_NAV = {
       { path: "/commercial-command-center", label: "Commercial Command Center™", icon: DollarSign },
       { path: "/commercial-automation", label: "Commercial Automation Engine™", icon: Zap },
       { path: "/business-intelligence", label: "Business Intelligence™", icon: Brain },
+      { path: "/operations/social-content", label: "Social Content Engine™", icon: PenLine },
     ]},
     { label: "Customer Intelligence", items: [
       { path: "/operations/customer-intelligence", label: "Customer Intelligence", icon: Users },
@@ -328,6 +329,7 @@ const ROUTE_WORKSPACE = {
   "/commercial-command-center": ["operations"],
   "/commercial-automation": ["operations"],
   "/operations": ["operations"],
+  "/operations/social-content": ["operations"],
   "/operations/customer-intelligence": ["operations"],
   "/operations/product-intelligence": ["operations"],
   "/operations/beta": ["operations"],
@@ -426,7 +428,7 @@ export function getRouteWorkspace(path) {
 
 const EXECUTIVE_ROLES = ["customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin"];
 const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro", "organization_owner", "platform_admin", "super_admin", "founder_root_admin"];
-const OPERATIONS_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin"];
+const OPERATIONS_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin", "founder_root_admin"];
 const DEVELOPER_ROLES = ["developer", "super_admin"];
 
 export function getAvailableWorkspaces(role, plan, profile, isImpersonating = false) {

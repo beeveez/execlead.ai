@@ -83,6 +83,7 @@ import Profile from '@/pages/Profile';
 import Skills from '@/pages/Skills';
 import AdminConsole from '@/pages/AdminConsole';
 import MarketingCommandCenter from '@/pages/MarketingCommandCenter';
+import SocialContentEngine from '@/pages/operations/SocialContentEngine';
 import FoundingMemberCommandCenter from '@/pages/FoundingMemberCommandCenter';
 import BetaFeedbackCenter from '@/pages/BetaFeedbackCenter';
 import ResumeIntelligence from '@/pages/ResumeIntelligence';
@@ -479,6 +480,7 @@ const AuthenticatedApp = () => {
           <Route path="/enterprise" element={<FeatureGate featureId="team_dashboard"><EnterpriseDashboard /></FeatureGate>} />
           <Route path="/admin" element={<FeatureGate featureId="admin_console"><AdminConsole /></FeatureGate>} />
           <Route path="/marketing-command-center" element={<FeatureGate featureId="admin_console"><MarketingCommandCenter /></FeatureGate>} />
+          <Route path="/operations/social-content" element={<SocialContentEngine />} />
           <Route path="/founding-member-command-center" element={<FeatureGate featureId="admin_console"><FoundingMemberCommandCenter /></FeatureGate>} />
           <Route path="/beta-feedback" element={<BetaFeedbackCenter />} />
           <Route path="/pricing-admin" element={<PricingAdmin />} />

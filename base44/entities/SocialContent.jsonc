@@ -1,0 +1,316 @@
+{
+  "name": "SocialContent",
+  "type": "object",
+  "properties": {
+    "content_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "linkedin",
+        "facebook",
+        "x",
+        "instagram"
+      ]
+    },
+    "content_type": {
+      "type": "string"
+    },
+    "content_pillar": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "draft": {
+      "type": "string",
+      "maxLength": 12000
+    },
+    "platform_version": {
+      "type": "string"
+    },
+    "founder_voice": {
+      "type": "boolean",
+      "default": false
+    },
+    "voice": {
+      "type": "string",
+      "enum": [
+        "company",
+        "founder"
+      ],
+      "default": "company"
+    },
+    "source_type": {
+      "type": "string"
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hooks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "variations": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "cta": {
+      "type": "string"
+    },
+    "hashtags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ai_quality_score": {
+      "type": "number",
+      "default": 0
+    },
+    "quality_checks": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "truthfulness_status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "flagged",
+        "blocked"
+      ],
+      "default": "flagged"
+    },
+    "brand_alignment_score": {
+      "type": "number",
+      "default": 0
+    },
+    "potential_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "needs_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "needs_review"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "ai_generated",
+        "needs_review",
+        "approved",
+        "scheduled",
+        "published",
+        "rejected",
+        "archived"
+      ],
+      "default": "ai_generated"
+    },
+    "created_by_name": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "published_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "campaign": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "media_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "visual_concept": {
+      "type": "string"
+    },
+    "performance_metrics": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "regeneration_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "content_id",
+    "title",
+    "platform",
+    "content_type",
+    "content_pillar",
+    "draft"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "content_manager"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "marketing_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "content_manager"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "marketing_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "content_manager"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "marketing_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

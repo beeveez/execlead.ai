@@ -1,0 +1,8 @@
+import { useState } from 'react';
+import { Copy, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+export default function PostEditor({ item, onSave }) {
+  const [draft,setDraft]=useState(item.draft); const variations=item.variations||{};
+  return <section className="rounded-2xl border border-border bg-card p-5"><div className="flex flex-wrap gap-2">{item.hooks?.map((hook,index)=><button key={hook} onClick={()=>setDraft(`${hook}\n\n${draft.replace(/^.*?\n\n/,'')}`)} className="rounded-lg border border-border px-3 py-2 text-left text-xs text-muted-foreground"><b className="text-foreground">Hook {index+1}</b> · {hook}</button>)}</div><div className="mt-4 flex flex-wrap gap-2">{Object.entries(variations).map(([key,value])=><Button key={key} variant="outline" size="sm" onClick={()=>setDraft(value)}>{key.replace('_',' ')}</Button>)}</div><Textarea className="mt-4 min-h-[320px] text-sm leading-6" value={draft} onChange={e=>setDraft(e.target.value)}/><div className="mt-3 flex flex-wrap items-center gap-2"><Button onClick={()=>onSave({draft,status:'needs_review',approval_status:'needs_review'})}><Save/>Save for Review</Button><Button variant="outline" onClick={()=>navigator.clipboard.writeText(draft)}><Copy/>Copy Draft</Button><span className="ml-auto text-xs text-muted-foreground">{draft.length} characters</span></div></section>;
+}

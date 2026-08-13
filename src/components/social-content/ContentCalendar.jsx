@@ -1,0 +1,7 @@
+import { format } from 'date-fns';
+import { PLATFORM_LABELS, STATUS_LABELS } from '@/lib/socialContentConfig';
+export default function ContentCalendar({ items, onSelect }) {
+  const rows=items.filter(i=>i.scheduled_date||i.published_date).sort((a,b)=>new Date(a.scheduled_date||a.published_date)-new Date(b.scheduled_date||b.published_date));
+  if(!rows.length)return <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No approved content is scheduled yet.</p>;
+  return <div className="overflow-x-auto rounded-2xl border border-border bg-card"><table className="w-full min-w-[1100px] text-left text-xs"><thead className="bg-muted text-muted-foreground"><tr><th className="p-3">Date</th><th>Platform</th><th>Content Pillar</th><th>Content Type</th><th>Status</th><th>Author</th><th>Approval</th><th>Published</th><th>Performance</th></tr></thead><tbody>{rows.map(item=><tr key={item.id} onClick={()=>onSelect(item)} className="cursor-pointer border-t border-border"><td className="p-3 font-medium">{format(new Date(item.scheduled_date||item.published_date),'MMM d, yyyy · HH:mm')}</td><td>{PLATFORM_LABELS[item.platform]}</td><td>{item.content_pillar}</td><td>{item.content_type}</td><td>{STATUS_LABELS[item.status]}</td><td>{item.created_by_name}</td><td>{item.approval_status}</td><td>{item.published_date?'Yes':'No'}</td><td>{Object.keys(item.performance_metrics||{}).length?'Verified data':'Not connected'}</td></tr>)}</tbody></table></div>;
+}

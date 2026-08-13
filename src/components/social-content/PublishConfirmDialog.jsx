@@ -1,0 +1,6 @@
+import { Dialog,DialogContent,DialogHeader,DialogTitle,DialogDescription,DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { PLATFORM_LABELS } from '@/lib/socialContentConfig';
+export default function PublishConfirmDialog({ item, open, onOpenChange, onConfirm }) {
+  if(!item)return null; return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-w-2xl"><DialogHeader><DialogTitle>Confirm Publish</DialogTitle><DialogDescription>This records an explicit human publishing decision. No social network API is connected.</DialogDescription></DialogHeader><div className="max-h-[55vh] overflow-y-auto rounded-xl border border-border p-4 text-sm"><p className="font-semibold">{PLATFORM_LABELS[item.platform]} · {item.approval_status}</p>{item.media_urls?.length>0&&<p className="mt-2 text-xs text-muted-foreground">Media: {item.media_urls.length} approved asset(s)</p>}<p className="mt-4 whitespace-pre-wrap">{item.draft}</p><p className="mt-3 text-muted-foreground">{item.hashtags?.join(' ')}</p>{item.cta&&<p className="mt-3 font-medium">CTA: {item.cta}</p>}</div><DialogFooter><Button variant="outline" onClick={()=>onOpenChange(false)}>Cancel</Button><Button disabled={item.approval_status!=='approved'} onClick={onConfirm}>Publish</Button></DialogFooter></DialogContent></Dialog>;
+}

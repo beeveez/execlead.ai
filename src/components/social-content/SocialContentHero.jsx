@@ -1,0 +1,4 @@
+import { ShieldCheck, Sparkles } from 'lucide-react';
+export default function SocialContentHero() {
+  return <header className="rounded-2xl border border-border bg-card p-6"><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent-orange"><Sparkles className="h-4 w-4"/>Social Content Engine™</div><div className="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><h1 className="font-heading text-3xl font-bold text-foreground">Brand intelligence, ready for human review.</h1><p className="mt-2 max-w-3xl text-sm text-muted-foreground">Ground every platform-specific draft in approved EXECLEAD.AI knowledge, product intelligence, founder narrative, and leadership philosophy.</p></div><div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-600"><ShieldCheck className="h-4 w-4"/>AI generates. Humans approve.</div></div></header>;
+}

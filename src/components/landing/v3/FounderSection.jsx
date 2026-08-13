@@ -19,7 +19,7 @@ export default function FounderSection() {
             Built by an Enterprise Operations Leader. Born from a Personal Need.
           </h2>
           <p className="text-white/40 max-w-xl mx-auto text-sm">
-            <strong className="text-white/70">{f.name}</strong> is the <strong className="text-white/70">{f.title} of {f.company}</strong>.
+            <strong className="text-white/70">{f.name}</strong> is the <strong className="text-white/70">{f.title} of <span className="text-indigo-400">{f.company}</span></strong>.
           </p>
         </div>
 

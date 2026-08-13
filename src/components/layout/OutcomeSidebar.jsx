@@ -7,6 +7,7 @@ import {
   universalSearch, trackVisit, getExecPrompts,
 } from "@/lib/navigationIntelligence";
 import { WORKSPACE_HOME } from "@/lib/workspaces";
+import ExecutiveReadinessHUD from "@/components/journey/ExecutiveReadinessHUD";
 
 // OutcomeSidebar — Navigation Intelligence™ (Workspace Isolation™)
 // Executive renders its outcome-based progressive-disclosure tree.
@@ -76,6 +77,8 @@ export default function OutcomeSidebar({
           </button>
         )}
       </div>
+
+      {isExecutive && <ExecutiveReadinessHUD />}
 
       {/* Search results override the nav list */}
       {query && searchResults.length > 0 ? (

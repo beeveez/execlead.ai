@@ -11,6 +11,7 @@ import { Bell, CreditCard, Crown, Sparkles } from "lucide-react";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import StatusHub from "@/components/layout/StatusHub";
+import ExecutiveReadinessHUD from "@/components/journey/ExecutiveReadinessHUD";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 
 export default function TopBar() {
@@ -57,6 +58,7 @@ export default function TopBar() {
         </Link>
       )}
       <ShareButton variant="icon" shareType="landing" iconSize={15} />
+      <ExecutiveReadinessHUD variant="compact" />
       <AccountMenu />
       {membership && (
         <Link to={membership.type === "founding_member" ? "/founder" : "/billing"} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors" style={{ background: `${membership.color}1a` }}>

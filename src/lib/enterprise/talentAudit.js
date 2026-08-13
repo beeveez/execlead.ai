@@ -1,14 +1,19 @@
 import { base44 } from "@/api/base44Client";
 
 export function recordTalentAudit(context, eventType, resource) {
-  return base44.entities.TalentIntelligenceAuditEvent.create({
+  const timestamp = new Date().toISOString();
+  return base44.entities.GovernanceAuditLog.create({
+    audit_id: `TALENT-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    requester_id: context.actorId,
+    action: eventType,
+    decision: "approved",
+    timestamp,
+    workspace: "enterprise",
     organizationId: context.organizationId,
-    actorId: context.actorId,
-    actorRole: context.actorRole,
-    eventType,
-    resource,
-    cohortId: context.cohortId || "",
-    occurredAt: new Date().toISOString(),
+    userId: context.actorId,
+    role: context.actorRole,
+    resourceAccessed: resource,
+    business_justification: "Authorized enterprise talent intelligence access",
   });
 }
 

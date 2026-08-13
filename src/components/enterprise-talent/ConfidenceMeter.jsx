@@ -1,0 +1,4 @@
+export default function ConfidenceMeter({ value }) {
+  const degrees = Math.max(0, Math.min(100, value)) * 3.6;
+  return <div className="relative h-36 w-36 rounded-full" style={{ background: `conic-gradient(hsl(var(--success)) ${degrees}deg, hsl(var(--muted)) ${degrees}deg)` }} role="img" aria-label={`${value}% forecast confidence`}><div className="absolute inset-3 flex flex-col items-center justify-center rounded-full bg-card"><span className="text-3xl font-bold text-card-foreground">{value}%</span><span className="text-[10px] uppercase tracking-wider text-muted-foreground">Confidence</span></div></div>;
+}

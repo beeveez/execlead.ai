@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useWorkspace } from "@/lib/WorkspaceContext";
 import { recordTalentAudit } from "@/lib/enterprise/talentAudit";
 
-const DEMO_ORG = "demo-q3-director-readiness";
+const DEMO_ORG = "6a7d9e1d5fe78bbb5add52e6";
 
 export default function useEnterpriseTalentData(resource = "chro_dashboard") {
   const { user } = useAuth();
@@ -15,7 +15,7 @@ export default function useEnterpriseTalentData(resource = "chro_dashboard") {
     let active = true;
     Promise.all([
       base44.entities.EnterpriseTalentAnalytics.filter({ organizationId }, "-snapshotDate", 10),
-      base44.entities.SuccessionCandidateProfile.filter({ organizationId }, "-evidenceStrength", 100),
+      base44.entities.SuccessionCandidateProfile.filter({ organizationId }, "-evidenceStrength", 150),
     ]).then(([snapshots, candidates]) => {
       if (active) setState({ loading: false, snapshots, candidates, error: "" });
       return recordTalentAudit({ organizationId, actorId: user.id, actorRole: role, cohortId: snapshots[0]?.cohortId }, resource.includes("succession") ? "succession_viewed" : "analytics_viewed", resource);

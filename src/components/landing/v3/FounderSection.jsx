@@ -26,7 +26,7 @@ export default function FounderSection() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-4 text-white/60 text-sm md:text-base leading-relaxed">
             <p>
-              With <strong className="text-white/80">20+ years of enterprise IT operations and leadership experience</strong>, he has led large-scale service delivery, governance, SLA-driven operations, and cross-functional leadership teams supporting complex enterprise environments.
+              EXECLEAD.AI was born from more than 20 years of firsthand experience in enterprise IT operations, service delivery, governance, and leadership. Throughout that journey, Reynaldo D. Valdez has led large-scale service delivery, SLA-driven operations, governance, and cross-functional teams supporting complex enterprise environments.
             </p>
             <p>
               EXECLEAD.AI was created from a firsthand observation: organizations often promote high-performing professionals into leadership roles without providing a scalable system for developing <strong className="text-white/80">executive judgment, strategic thinking, communication, and decision-making capability</strong>.

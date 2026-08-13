@@ -22,7 +22,12 @@ export const ROLES = {
   enterprise_user: { label: "Enterprise User", tier: 20, description: "Enterprise organization member" },
   enterprise_manager: { label: "Enterprise Manager", tier: 25, description: "Enterprise team manager" },
   enterprise_admin: { label: "Enterprise Admin", tier: 30, description: "Enterprise organization administrator" },
-  organization_owner: { label: "Organization Owner", tier: 35, description: "Organization owner with full admin access" },
+  hrbp: { label: "HR Business Partner", tier: 31, description: "Organization-scoped talent intelligence access" },
+  leadership_development_head: { label: "Head of Leadership Development", tier: 32, description: "Enterprise leadership development access" },
+  talent_director: { label: "Talent Director", tier: 33, description: "Enterprise talent and succession administration" },
+  vp_talent_management: { label: "VP Talent Management", tier: 34, description: "Enterprise talent intelligence leadership" },
+  chro: { label: "CHRO", tier: 35, description: "Executive organization talent intelligence access" },
+  organization_owner: { label: "Organization Owner", tier: 36, description: "Organization owner with full admin access" },
   support: { label: "Support", tier: 40, description: "Customer support agent" },
   sales: { label: "Sales", tier: 45, description: "Sales representative" },
   finance: { label: "Finance", tier: 50, description: "Finance and billing manager" },
@@ -68,6 +73,11 @@ const CUSTOM_ROLE_MAP = {
   "enterprise admin": "enterprise_admin",
   "enterprise manager": "enterprise_manager",
   "enterprise user": "enterprise_user",
+  "hr business partner": "hrbp",
+  "head of leadership development": "leadership_development_head",
+  "talent director": "talent_director",
+  "vp talent management": "vp_talent_management",
+  "chro": "chro",
 };
 
 // Computes the effective role from User.role + UserProfile (org membership + custom_role).
@@ -77,7 +87,7 @@ export function getEffectiveRole(userRole, profile) {
   const baseRole = normalizeRole(userRole);
 
   // Platform-level administrative roles take precedence
-  if (["super_admin", "platform_admin", "developer", "support", "sales", "finance", "content_manager"].includes(baseRole)) {
+  if (["super_admin", "platform_admin", "developer", "support", "sales", "finance", "content_manager", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro"].includes(baseRole)) {
     return baseRole;
   }
 
@@ -102,13 +112,15 @@ export function canAccessDeveloperWorkspace(role) {
 
 const ALL_AUTHED = [
   "customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner",
+  "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro",
   "support", "sales", "finance", "content_manager", "reviewer", "platform_admin", "security_admin", "developer", "super_admin",
 ];
 // Customer sidebar roles — excludes enterprise roles so enterprise users
 // get the Enterprise sidebar instead of the individual customer sidebar.
 const CUSTOMER_NAV_ROLES = ["customer", "support", "sales", "finance", "content_manager", "platform_admin", "super_admin"];
-const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "platform_admin", "super_admin"];
-const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "organization_owner", "platform_admin", "super_admin"];
+const TALENT_INTELLIGENCE_ROLES = ["hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro"];
+const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", ...TALENT_INTELLIGENCE_ROLES, "organization_owner", "platform_admin", "super_admin"];
+const ENTERPRISE_ADMIN_ROLES = ["enterprise_admin", "talent_director", "chro", "organization_owner", "platform_admin", "super_admin"];
 
 // ============================================================
 // NAVIGATION GROUPS — single source of truth for the sidebar.
@@ -374,6 +386,11 @@ export function getNavGroups(role) {
 export const ROUTE_ACCESS = {
   "/developer/ai-command-center": ["developer", "super_admin"],
   "/enterprise": ENTERPRISE_ROLES,
+  "/enterprise/chro-dashboard": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
+  "/enterprise/talent-analytics": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
+  "/enterprise/promotion-forecasts": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
+  "/enterprise/succession": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
+  "/enterprise/high-potential": TALENT_INTELLIGENCE_ROLES.concat(["enterprise_admin", "super_admin"]),
   "/hr-dashboard": ENTERPRISE_ROLES,
   "/succession-planning": ENTERPRISE_ROLES,
   "/promotion-readiness": ENTERPRISE_ROLES,
@@ -426,7 +443,7 @@ export function getRoleTier(role) {
 
 export function getRolePlan(role) {
   const r = normalizeRole(role);
-  if (["platform_admin", "super_admin", "enterprise_admin", "enterprise_manager", "organization_owner", "enterprise_user"].includes(r)) return "enterprise";
+  if (["platform_admin", "super_admin", "enterprise_admin", "enterprise_manager", "organization_owner", "enterprise_user", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro"].includes(r)) return "enterprise";
   return "free";
 }
 

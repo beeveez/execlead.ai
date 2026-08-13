@@ -1,0 +1,213 @@
+{
+  "name": "EnterpriseTalentAnalytics",
+  "type": "object",
+  "properties": {
+    "organizationId": {
+      "type": "string"
+    },
+    "cohortId": {
+      "type": "string"
+    },
+    "snapshotDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "invitedCount": {
+      "type": "number",
+      "default": 0
+    },
+    "startedCount": {
+      "type": "number",
+      "default": 0
+    },
+    "completedCount": {
+      "type": "number",
+      "default": 0
+    },
+    "completionRate": {
+      "type": "number",
+      "default": 0
+    },
+    "averageReadinessScore": {
+      "type": "number",
+      "default": 0
+    },
+    "readinessDistribution": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "highPotentialCount": {
+      "type": "number",
+      "default": 0
+    },
+    "promotionReadyCount": {
+      "type": "number",
+      "default": 0
+    },
+    "successionBenchStrength": {
+      "type": "number",
+      "default": 0
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organizationId",
+    "cohortId",
+    "snapshotDate"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "chro"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "talent_director"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "chro"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "vp_talent_management"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "leadership_development_head"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "talent_director"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "hrbp"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "chro"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "talent_director"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "chro"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -269,6 +269,7 @@ import PerformanceExecution from '@/pages/operations/PerformanceExecution';
 import PlatformActivityCenter from '@/pages/platform/PlatformActivityCenter';
 import PlatformImprovementCenter from '@/pages/PlatformImprovementCenter';
 import EnterpriseCommandCenter from '@/pages/enterprise/EnterpriseCommandCenter';
+import EnterpriseTalentIntelligence from '@/pages/enterprise/EnterpriseTalentIntelligence';
 import EnterpriseROIDashboard from '@/pages/enterprise/EnterpriseROIDashboard';
 import EnterpriseROI from '@/pages/enterprise/EnterpriseROI';
 import EnterpriseDomain from '@/pages/enterprise/EnterpriseDomain';
@@ -595,6 +596,11 @@ const AuthenticatedApp = () => {
           <Route path="/operations/founding-cohort-calibration" element={<FoundingCohortCalibration />} />
           <Route path="/operations/reports" element={<OperationsDomain domain="reports" />} />
           <Route path="/enterprise/command-center" element={<EnterpriseCommandCenter />} />
+          <Route path="/enterprise/chro-dashboard" element={<EnterpriseTalentIntelligence />} />
+          <Route path="/enterprise/talent-analytics" element={<EnterpriseTalentIntelligence view="analytics" />} />
+          <Route path="/enterprise/promotion-forecasts" element={<EnterpriseTalentIntelligence view="forecasts" />} />
+          <Route path="/enterprise/succession" element={<EnterpriseTalentIntelligence view="succession" />} />
+          <Route path="/enterprise/high-potential" element={<EnterpriseTalentIntelligence view="watchlist" />} />
           <Route path="/enterprise/roi" element={<EnterpriseROI />} />
           <Route path="/enterprise/outcomes" element={<EnterpriseROIDashboard />} />
           <Route path="/enterprise/organization-domain" element={<EnterpriseDomain domain="organization" />} />

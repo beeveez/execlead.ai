@@ -119,6 +119,13 @@ export const WORKSPACE_NAV = {
     { label: "Workforce Development", items: [
       { path: "/enterprise/workforce", label: "Workforce Development", icon: GraduationCap },
     ]},
+    { label: "Talent Intelligence™", items: [
+      { path: "/enterprise/chro-dashboard", label: "CHRO Dashboard™", icon: LayoutDashboard },
+      { path: "/enterprise/talent-analytics", label: "Talent Analytics™", icon: BarChart3 },
+      { path: "/enterprise/promotion-forecasts", label: "Promotion Forecasts™", icon: TrendingUp },
+      { path: "/enterprise/succession", label: "Succession Intelligence™", icon: Network },
+      { path: "/enterprise/high-potential", label: "High-Potential Watchlist™", icon: Star },
+    ]},
     { label: "Governance", items: [
       { path: "/enterprise/governance-domain", label: "Governance", icon: ShieldCheck },
     ]},
@@ -332,6 +339,11 @@ const ROUTE_WORKSPACE = {
   "/enterprise/command-center": ["enterprise"],
   "/enterprise/organization-domain": ["enterprise"],
   "/enterprise/workforce": ["enterprise"],
+  "/enterprise/chro-dashboard": ["enterprise"],
+  "/enterprise/talent-analytics": ["enterprise"],
+  "/enterprise/promotion-forecasts": ["enterprise"],
+  "/enterprise/succession": ["enterprise"],
+  "/enterprise/high-potential": ["enterprise"],
   "/enterprise/governance-domain": ["enterprise"],
   "/enterprise/security-identity": ["enterprise"],
   "/enterprise/procurement-domain": ["enterprise"],
@@ -411,7 +423,7 @@ export function getRouteWorkspace(path) {
 /* ======================= VISIBILITY RULES ======================= */
 
 const EXECUTIVE_ROLES = ["customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin"];
-const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "super_admin"];
+const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro", "organization_owner", "super_admin"];
 const OPERATIONS_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin"];
 const DEVELOPER_ROLES = ["developer", "super_admin"];
 

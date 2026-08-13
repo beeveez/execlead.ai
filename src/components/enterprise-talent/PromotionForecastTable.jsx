@@ -1,0 +1,6 @@
+import { FORECAST_LABELS } from "@/lib/enterprise/promotionForecastEngine";
+
+export default function PromotionForecastTable({ candidates }) {
+  const groups = Object.keys(FORECAST_LABELS).map((key) => [key, candidates.filter((candidate) => candidate.promotionForecast === key)]);
+  return <div className="grid gap-4 lg:grid-cols-2">{groups.map(([key, rows]) => <section key={key} className="rounded-2xl border border-border bg-card p-5"><div className="flex items-center justify-between"><h2 className="font-semibold text-card-foreground">{FORECAST_LABELS[key]}</h2><span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-foreground">{rows.length}</span></div><div className="mt-4 space-y-3">{rows.map((candidate) => <div key={candidate.id} className="flex items-center justify-between border-t border-border pt-3"><div><p className="text-sm font-medium text-foreground">{candidate.recommendedDevelopmentActions?.displayName}</p><p className="text-xs text-muted-foreground">{candidate.targetRole}</p></div><div className="text-right"><p className="font-bold text-foreground">{candidate.readinessScore}</p><p className="text-[10px] text-muted-foreground">{candidate.forecastConfidence}% confidence</p></div></div>)}</div></section>)}</div>;
+}

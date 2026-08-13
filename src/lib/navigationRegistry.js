@@ -194,7 +194,7 @@ export function resolveNavGroups(wsId, role, plan, profile, isSimulating = false
   return sections
     .map((section) => {
       const items = entries
-        .filter((e) => e.section === section)
+        .filter((e) => e.section === section && (!e.permission || e.permission.includes(r)))
         .map((entry) => ({
           path: entry.route,
           label: entry.title,

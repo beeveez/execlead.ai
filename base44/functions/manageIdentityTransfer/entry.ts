@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { resolveAuthoritativeOrgAccess } from '../../shared/authoritativeOrgAccess.ts';
 
 const GRACE_PERIOD_DAYS = 30;
 
@@ -174,6 +175,12 @@ Deno.serve(async (req) => {
     if (action === 'initiate_offboarding') {
       const { target_user_id, reason, notify_member } = body;
       if (!target_user_id) return Response.json({ error: 'target_user_id required' }, { status: 400 });
+      const adminAccess = await resolveAuthoritativeOrgAccess(base44, user, {
+        requestedOrgId: body.organization_id,
+      });
+      if (!adminAccess) {
+        return Response.json({ error: 'Only verified organization admins can offboard members.' }, { status: 403 });
+      }
 
       // Founder (role-based) & last-of-kind protection (deploy retry)
       let tUser = null;
@@ -198,25 +205,21 @@ Deno.serve(async (req) => {
 
       const adminProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
       const adminProfile = adminProfiles[0];
-      if (!adminProfile?.organization_id) {
-        return Response.json({ error: 'You are not part of an organization.' }, { status: 400 });
-      }
-
-      const adminRole = (adminProfile.custom_role || '').toLowerCase();
-      if (!['organization owner', 'enterprise admin'].includes(adminRole)) {
-        return Response.json({ error: 'Only organization admins can offboard members.' }, { status: 403 });
-      }
-
+      const targetMemberships = await safeFilter(base44, 'OrgMembership', {
+        user_id: target_user_id,
+        organization_id: adminAccess.orgId,
+        status: 'active',
+      }, '-created_date', 1);
       const targetProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: target_user_id });
       const targetProfile = targetProfiles[0];
-      if (!targetProfile || targetProfile.organization_id !== adminProfile.organization_id) {
+      if (!targetProfile || targetMemberships.length === 0) {
         return Response.json({ error: 'Target user is not a member of your organization.' }, { status: 400 });
       }
       if (target_user_id === user.id) {
         return Response.json({ error: 'You cannot offboard yourself. Transfer ownership first.' }, { status: 400 });
       }
 
-      const org = await base44.asServiceRole.entities.Organization.get(adminProfile.organization_id);
+      const org = adminAccess.organization;
 
       // Check for existing active transfer
       const existing = await safeFilter(base44, 'ExecutiveIdentityTransfer',
@@ -232,10 +235,10 @@ Deno.serve(async (req) => {
         user_id: target_user_id,
         user_name: targetProfile.full_name || 'Unknown',
         user_email: targetProfile.email || '',
-        organization_id: adminProfile.organization_id,
+        organization_id: adminAccess.orgId,
         organization_name: org?.name || '',
         organization_admin_id: user.id,
-        organization_admin_name: adminProfile.full_name || user.email,
+        organization_admin_name: adminProfile?.full_name || user.email,
         trigger_reason: reason || 'admin_removed',
         status: 'grace_period',
         grace_period_days: GRACE_PERIOD_DAYS,
@@ -251,17 +254,17 @@ Deno.serve(async (req) => {
         notified: notify_member !== false,
         notified_at: notify_member !== false ? now.toISOString() : undefined,
         initiated_by_id: user.id,
-        initiated_by_name: adminProfile.full_name || user.email,
+        initiated_by_name: adminProfile?.full_name || user.email,
       });
 
       // Create affiliation record (retroactive if needed — preserves multi-org history)
       const existingAffs = await safeFilter(base44, 'ExecutiveAffiliation',
-        { user_id: target_user_id, organization_id: adminProfile.organization_id, status: 'active' });
+        { user_id: target_user_id, organization_id: adminAccess.orgId, status: 'active' });
       if (existingAffs.length === 0) {
         await base44.asServiceRole.entities.ExecutiveAffiliation.create({
           user_id: target_user_id,
           user_name: targetProfile.full_name || 'Unknown',
-          organization_id: adminProfile.organization_id,
+          organization_id: adminAccess.orgId,
           organization_name: org?.name || '',
           affiliation_type: 'employee',
           role_title: targetProfile.custom_role || '',
@@ -288,38 +291,21 @@ Deno.serve(async (req) => {
       const reqId = `offboard-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       console.log(`[${reqId}] get_offboarding_queue — user: ${user.id} (${user.email})`);
 
-      const adminProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
-      const adminProfile = adminProfiles[0];
-
-      if (!adminProfile) {
-        console.warn(`[${reqId}] No UserProfile found for user ${user.id}`);
-        return Response.json({
-          error: 'Missing organizationId',
-          details: 'No user profile found. Please complete your profile setup.'
-        }, { status: 400 });
-      }
-
-      if (!adminProfile.organization_id) {
-        console.warn(`[${reqId}] User ${user.id} has no organization_id`);
-        return Response.json({
-          error: 'Missing organizationId',
-          details: 'You are not associated with an organization.'
-        }, { status: 400 });
-      }
-
-      console.log(`[${reqId}] organization_id: ${adminProfile.organization_id}, role: ${adminProfile.custom_role}`);
-
-      const adminRole = (adminProfile.custom_role || '').toLowerCase();
-      if (!['organization owner', 'enterprise admin'].includes(adminRole)) {
-        console.warn(`[${reqId}] User ${user.id} role "${adminRole}" is not admin`);
+      const adminAccess = await resolveAuthoritativeOrgAccess(base44, user, {
+        requestedOrgId: body.organization_id,
+      });
+      if (!adminAccess) {
+        console.warn(`[${reqId}] User ${user.id} has no authoritative organization admin membership`);
         return Response.json({
           error: 'Forbidden',
-          details: 'Only organization admins can view the offboarding queue.'
+          details: 'Only verified organization admins can view the offboarding queue.'
         }, { status: 403 });
       }
 
+      console.log(`[${reqId}] authoritative organization_id: ${adminAccess.orgId}`);
+
       const transfers = await safeFilter(base44, 'ExecutiveIdentityTransfer',
-        { organization_id: adminProfile.organization_id, status: { $in: ['grace_period', 'transfer_pending'] } },
+        { organization_id: adminAccess.orgId, status: { $in: ['grace_period', 'transfer_pending'] } },
         '-created_date', 50);
 
       const enriched = transfers.map(t => ({
@@ -337,35 +323,38 @@ Deno.serve(async (req) => {
       const { target_user_id, new_custom_role } = body;
       if (!target_user_id) return Response.json({ error: 'target_user_id required' }, { status: 400 });
 
-      const adminProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: user.id });
-      const adminProfile = adminProfiles[0];
-      if (!adminProfile?.organization_id) {
-        return Response.json({ error: 'You are not part of an organization.' }, { status: 400 });
-      }
-
-      const adminRole = (adminProfile.custom_role || '').toLowerCase();
-      if (!['organization owner', 'enterprise admin'].includes(adminRole)) {
-        return Response.json({ error: 'Only organization admins can rehire members.' }, { status: 403 });
+      const adminAccess = await resolveAuthoritativeOrgAccess(base44, user, {
+        requestedOrgId: body.organization_id,
+      });
+      if (!adminAccess) {
+        return Response.json({ error: 'Only verified organization admins can rehire members.' }, { status: 403 });
       }
 
       const targetProfiles = await safeFilter(base44, 'UserProfile', { created_by_id: target_user_id });
       const targetProfile = targetProfiles[0];
       if (!targetProfile) return Response.json({ error: 'Target user profile not found.' }, { status: 404 });
 
-      // Prevent duplicate: already in an org
-      if (targetProfile.organization_id) {
+      // Prevent duplicate membership using the authoritative organization directory.
+      const activeMemberships = await safeFilter(base44, 'OrgMembership', {
+        user_id: target_user_id,
+        status: 'active',
+      }, '-created_date', 1);
+      if (activeMemberships.length > 0) {
         return Response.json({ error: 'This member is already part of an organization.' }, { status: 400 });
       }
 
-      const org = await base44.asServiceRole.entities.Organization.get(adminProfile.organization_id);
+      const org = adminAccess.organization;
 
-      // Check for previous transfer history (rehire support — no duplicate account)
+      // Rehire only into the same organization recorded by a completed transfer.
       const previousTransfers = await safeFilter(base44, 'ExecutiveIdentityTransfer',
-        { user_id: target_user_id, status: 'completed' }, '-created_date', 10);
+        { user_id: target_user_id, organization_id: adminAccess.orgId, status: 'completed' }, '-created_date', 10);
+      if (previousTransfers.length === 0) {
+        return Response.json({ error: 'No completed transfer exists for this member in your organization.' }, { status: 403 });
+      }
 
       // Reconnect: same profile, same reputation, same history — new org
       await base44.asServiceRole.entities.UserProfile.update(targetProfile.id, {
-        organization_id: adminProfile.organization_id,
+        organization_id: adminAccess.orgId,
         custom_role: new_custom_role || 'Enterprise User',
         subscription_plan: 'enterprise',
         subscription_status: 'active',
@@ -374,7 +363,7 @@ Deno.serve(async (req) => {
       // Mark the most recent completed transfer as rehired
       if (previousTransfers.length > 0) {
         await base44.asServiceRole.entities.ExecutiveIdentityTransfer.update(previousTransfers[0].id, {
-          rehired_to_organization_id: adminProfile.organization_id,
+          rehired_to_organization_id: adminAccess.orgId,
           rehired_to_organization_name: org?.name || '',
           rehired_at: new Date().toISOString(),
         });
@@ -384,7 +373,7 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.ExecutiveAffiliation.create({
         user_id: target_user_id,
         user_name: targetProfile.full_name || 'Unknown',
-        organization_id: adminProfile.organization_id,
+        organization_id: adminAccess.orgId,
         organization_name: org?.name || '',
         affiliation_type: 'employee',
         role_title: new_custom_role || 'Enterprise User',

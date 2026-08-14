@@ -1,0 +1,7 @@
+import React from 'react';
+import { ArrowRight } from 'lucide-react';
+const value = (number, suffix = '%') => number ? `${number}${suffix}` : '—';
+export default function ValueStreamTable({ steps = [] }) {
+  return <div className="space-y-3">{steps.map((step, index) => <React.Fragment key={step.name}><div className="rounded-xl border border-white/5 bg-white/[0.02] p-5"><div className="flex flex-wrap items-center justify-between gap-4"><div><span className="text-[10px] font-bold text-indigo-400">STEP {String(index + 1).padStart(2, '0')}</span><h2 className="mt-1 text-sm font-semibold text-white">{step.name}</h2><p className="mt-1 text-[10px] text-white/30">{step.observations} observations · {step.sessions} sessions</p></div><div className="grid grid-cols-2 gap-x-6 gap-y-2 text-right sm:grid-cols-5"><Metric label="Completion" value={value(step.completionRate)} /><Metric label="Drop-off" value={value(step.dropOffRate)} warn={step.dropOffRate > 40} /><Metric label="Avg. time" value={value(step.averageTimeSeconds, 's')} /><Metric label="Satisfaction" value={value(step.satisfaction, '/5')} /><Metric label="Evidence" value={step.evidenceGenerated || '—'} /></div></div></div>{index < steps.length - 1 && <ArrowRight size={15} className="mx-auto rotate-90 text-white/20" />}</React.Fragment>)}</div>;
+}
+function Metric({ label, value: display, warn }) { return <div><div className={`text-sm font-semibold ${warn ? 'text-amber-400' : 'text-white/75'}`}>{display}</div><div className="text-[9px] uppercase tracking-wider text-white/25">{label}</div></div>; }

@@ -1,0 +1,71 @@
+{
+  "name": "RootCauseAnalysis",
+  "type": "object",
+  "properties": {
+    "analysisId": {
+      "type": "string"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "5 Whys",
+        "Fishbone",
+        "Pareto",
+        "FMEA"
+      ]
+    },
+    "symptoms": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "rootCause": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "recommendedActions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "createdBy": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approvalStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "analysisId",
+    "projectId",
+    "method",
+    "rootCause",
+    "createdBy",
+    "createdAt"
+  ]
+}

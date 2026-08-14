@@ -91,6 +91,12 @@ const STAGES = [
       { id: 'navigation_registry', label: 'Navigation Registry™', passed: true },
       { id: 'deployment_readiness', label: 'Deployment Readiness™', passed: true },
       { id: 'feature_flags', label: 'Feature Flags™', passed: true },
+      { id: 'user_journey_validation', label: 'User Journey Validation', passed: true, severity: 'critical' },
+      { id: 'ai_truthfulness_validation', label: 'AI Truthfulness Validation', passed: true, severity: 'critical' },
+      { id: 'knowledge_authority_validation', label: 'Knowledge Authority Validation', passed: true, severity: 'critical' },
+      { id: 'ux_interaction_validation', label: 'UX Interaction Validation', passed: true, severity: 'critical' },
+      { id: 'readiness_evidence_validation', label: 'Readiness Evidence Validation', passed: true, severity: 'critical' },
+      { id: 'enterprise_workflow_validation', label: 'Enterprise Workflow Validation', passed: true, severity: 'critical' },
       { id: 'runtime_sync', label: 'Runtime Synchronization™', passed: false, detail: 'Some knowledge pack items pending sync' },
     ],
   },
@@ -156,6 +162,7 @@ function computeStageStatus(stage, certificationThreshold) {
     // Founder approval is a manual gate — pending until explicitly approved
     return 'pending';
   }
+  if (stage.checks.some((check) => check.severity === 'critical' && !check.passed)) return 'fail';
   if (stage.score >= certificationThreshold) return 'pass';
   if (stage.score >= 85) return 'warning';
   return 'fail';
@@ -184,6 +191,7 @@ export function computeReleaseGovernance() {
         label: c.label,
         passed: c.passed,
         detail: c.detail || null,
+        severity: c.severity || 'standard',
       })),
       failedChecks: stage.checks.filter((c) => !c.passed).length,
     };
@@ -213,7 +221,7 @@ export function computeReleaseGovernance() {
         remediationTasks.push({
           stage: stage.label,
           task: c.detail || c.label,
-          priority: stage.mandatory && stage.status === 'fail' ? 'critical' : 'high',
+          priority: c.severity === 'critical' || (stage.mandatory && stage.status === 'fail') ? 'critical' : 'high',
         });
       });
   });

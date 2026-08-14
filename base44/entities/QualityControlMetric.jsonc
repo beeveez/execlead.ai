@@ -1,0 +1,58 @@
+{
+  "name": "QualityControlMetric",
+  "type": "object",
+  "properties": {
+    "metricId": {
+      "type": "string"
+    },
+    "metricName": {
+      "type": "string"
+    },
+    "currentValue": {
+      "type": "number",
+      "default": 0
+    },
+    "targetValue": {
+      "type": "number",
+      "default": 0
+    },
+    "upperControlLimit": {
+      "type": "number",
+      "default": 100
+    },
+    "lowerControlLimit": {
+      "type": "number",
+      "default": 0
+    },
+    "trend": {
+      "type": "string",
+      "enum": [
+        "improving",
+        "stable",
+        "declining"
+      ],
+      "default": "stable"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_control",
+        "warning",
+        "out_of_control"
+      ],
+      "default": "in_control"
+    },
+    "lastMeasuredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "targetMetSince": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metricId",
+    "metricName"
+  ]
+}

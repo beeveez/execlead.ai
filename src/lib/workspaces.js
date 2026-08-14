@@ -156,6 +156,8 @@ export const WORKSPACE_NAV = {
     { label: "Product Intelligence", items: [
       { path: "/operations/product-intelligence", label: "Product Intelligence", icon: BarChart3 },
       { path: "/operations/user-intelligence", label: "User Intelligence™", icon: Users },
+      { path: "/operations/operational-excellence", label: "Operational Excellence™", icon: Gauge },
+      { path: "/operations/value-streams", label: "Value Streams™", icon: GitBranch },
       { path: "/operations/product-intelligence/geographic", label: "Geographic Intelligence™", icon: Globe },
       { path: "/operations/product-intelligence/market-opportunity", label: "Market Opportunity™", icon: Target },
     ]},
@@ -332,6 +334,8 @@ const ROUTE_WORKSPACE = {
   "/operations/social-content": ["operations"],
   "/operations/customer-intelligence": ["operations"],
   "/operations/product-intelligence": ["operations"],
+  "/operations/operational-excellence": ["operations"],
+  "/operations/value-streams": ["operations"],
   "/operations/beta": ["operations"],
   "/operations/strategy": ["operations"],
   "/operations/launch": ["operations"],

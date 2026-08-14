@@ -18,6 +18,8 @@ const RISKS = [
 const DOMAIN_LINKS = [
   { label: 'Customer Intelligence', path: '/operations/customer-intelligence', icon: Users, color: 'text-cyan-400' },
   { label: 'Product Intelligence', path: '/operations/product-intelligence', icon: BarChart3, color: 'text-indigo-400' },
+  { label: 'Operational Excellence™', path: '/operations/operational-excellence', icon: Gauge, color: 'text-emerald-400' },
+  { label: 'Value Streams™', path: '/operations/value-streams', icon: Activity, color: 'text-cyan-400' },
   { label: 'Beta Operations', path: '/operations/beta', icon: Rocket, color: 'text-violet-400' },
   { label: 'Product Strategy', path: '/operations/strategy', icon: Sparkles, color: 'text-amber-400' },
   { label: 'Launch Operations', path: '/operations/launch', icon: Flag, color: 'text-emerald-400' },

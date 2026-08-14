@@ -1,0 +1,16 @@
+import React, { useState } from 'react';
+const initial = { title: '', problemStatement: '', businessImpact: '', customerImpact: '', targetKPI: '', baselineValue: '', targetValue: '', owner: '', priority: 'medium', targetCompletionDate: '' };
+export default function ProjectForm({ onSubmit, onCancel }) {
+  const [form, setForm] = useState(initial); const [saving, setSaving] = useState(false); const [error, setError] = useState('');
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const submit = async (event) => { event.preventDefault(); setSaving(true); setError(''); try { await onSubmit({ ...form, baselineValue: Number(form.baselineValue), targetValue: Number(form.targetValue) }); setForm(initial); } catch (err) { setError(err.message || 'Project could not be created.'); } finally { setSaving(false); } };
+  return <form onSubmit={submit} className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5"><h2 className="mb-4 text-sm font-semibold text-white">New Improvement Project</h2><div className="grid gap-3 md:grid-cols-2">
+    <input required value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="Project title" className="form-input" />
+    <input required value={form.owner} onChange={(e) => update('owner', e.target.value)} placeholder="Owner" className="form-input" />
+    <textarea required value={form.problemStatement} onChange={(e) => update('problemStatement', e.target.value)} placeholder="Problem statement" className="form-input md:col-span-2" />
+    <input required value={form.targetKPI} onChange={(e) => update('targetKPI', e.target.value)} placeholder="Target KPI or metric ID" className="form-input" />
+    <div className="grid grid-cols-2 gap-3"><input required type="number" value={form.baselineValue} onChange={(e) => update('baselineValue', e.target.value)} placeholder="Baseline" className="form-input" /><input required type="number" value={form.targetValue} onChange={(e) => update('targetValue', e.target.value)} placeholder="Target" className="form-input" /></div>
+    <input value={form.businessImpact} onChange={(e) => update('businessImpact', e.target.value)} placeholder="Business impact" className="form-input" /><input value={form.customerImpact} onChange={(e) => update('customerImpact', e.target.value)} placeholder="Customer impact" className="form-input" />
+    <select value={form.priority} onChange={(e) => update('priority', e.target.value)} className="form-input"><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select><input type="date" value={form.targetCompletionDate} onChange={(e) => update('targetCompletionDate', e.target.value)} className="form-input" />
+  </div>{error && <p className="mt-3 text-xs text-rose-400">{error}</p>}<div className="mt-4 flex gap-2"><button disabled={saving} className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Creating…' : 'Create project'}</button><button type="button" onClick={onCancel} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/60">Cancel</button></div></form>;
+}

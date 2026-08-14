@@ -1,0 +1,6 @@
+import React from 'react';
+import { AlertTriangle } from 'lucide-react';
+import ControlChart from '@/components/operational-excellence/ControlChart';
+export default function QualityControlPanel({ metrics = [], alerts = [] }) {
+  return <section><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold text-white">Quality Control Alerts</h2><span className={`text-xs ${alerts.length ? 'text-amber-400' : 'text-emerald-400'}`}>{alerts.length ? `${alerts.length} require attention` : 'All controls stable'}</span></div>{alerts.length > 0 && <div className="mb-4 space-y-2">{alerts.map((metric) => <div key={metric.metricId} className="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-amber-300"><AlertTriangle size={14} />{metric.metricName} is {metric.status.replaceAll('_', ' ')} at {metric.currentValue}%.</div>)}</div>}<div className="grid gap-4 md:grid-cols-2">{metrics.map((metric) => <ControlChart key={metric.metricId} metric={metric} />)}</div></section>;
+}

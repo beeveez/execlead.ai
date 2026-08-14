@@ -1,0 +1,77 @@
+{
+  "name": "ImprovementProject",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "problemStatement": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "businessImpact": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "customerImpact": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "targetKPI": {
+      "type": "string"
+    },
+    "baselineValue": {
+      "type": "number"
+    },
+    "targetValue": {
+      "type": "number"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "workspace": {
+      "type": "string",
+      "default": "operations"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Define",
+        "Measure",
+        "Analyze",
+        "Improve",
+        "Control",
+        "Completed"
+      ],
+      "default": "Define"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "targetCompletionDate": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "projectId",
+    "title",
+    "problemStatement",
+    "targetKPI",
+    "owner"
+  ]
+}

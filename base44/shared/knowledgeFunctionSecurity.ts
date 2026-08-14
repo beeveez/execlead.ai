@@ -1,6 +1,6 @@
 import { authenticateRequest, enforceAuth, getClientIp, securityResponse } from './auth.ts';
 
-export const KNOWLEDGE_ADMIN_ROLES = ['super_admin', 'platform_admin', 'developer', 'founder_root_admin'];
+export const KNOWLEDGE_ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'];
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);

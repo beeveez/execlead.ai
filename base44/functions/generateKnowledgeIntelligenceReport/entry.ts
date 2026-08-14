@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { computeKnowledgeIntelligence } from '../../shared/knowledgeIntelligenceEngine.js';
+import { authorizeKnowledgeFunction } from '../../shared/knowledgeFunctionSecurity.ts';
 
 function isoWeek(d) {
   const date = new Date(d);
@@ -14,13 +15,24 @@ function isoWeek(d) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    const { response } = await authorizeKnowledgeFunction(req, base44, {
+      action: 'generate_knowledge_intelligence_report',
+      allowServiceToken: true,
+      limit: 2,
+      windowMs: 3_600_000,
+    });
+    if (response) return response;
+
+    const { year, week } = isoWeek(new Date());
+    const reportId = `KI-${year}-W${String(week).padStart(2, '0')}`;
+    const existingReports = await base44.asServiceRole.entities.KnowledgeIntelligenceReport.filter({ report_id: reportId }, '-created_date', 1);
+    if (existingReports.length) return Response.json({ ok: true, report_id: reportId, reused: true });
+
     const [interactions, articles] = await Promise.all([
       base44.asServiceRole.entities.KnowledgeInteraction.list('-created_date', 2000),
       base44.asServiceRole.entities.KnowledgeArticle.filter({ published: true }, '-updated_date', 500),
     ]);
     const intel = computeKnowledgeIntelligence(interactions || [], articles || []);
-    const { year, week } = isoWeek(new Date());
-    const reportId = `KI-${year}-W${String(week).padStart(2, '0')}`;
     const today = new Date();
     const weekStart = new Date(today.getTime() - 7 * 86400000);
 
@@ -75,8 +87,8 @@ export default async function(req) {
       }
     } catch (e) {}
 
-    return Response.json({ ok: true, report_id: reportId, health: intel.health.score, emailed_to: emailedTo });
-  } catch (error) {
-    return Response.json({ error: error.message, stack: error.stack }, { status: 500 });
+    return Response.json({ ok: true, report_id: reportId, health: intel.health.score });
+  } catch {
+    return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

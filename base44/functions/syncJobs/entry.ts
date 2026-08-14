@@ -3,8 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 // ============================================================
 // Executive Talent Marketplace — Job Synchronization Engine
 // Fetches from configurable sources, normalizes, upserts, and
-// removes expired listings. Sources: RemoteOK, The Muse, Adzuna,
-// JSearch, Greenhouse, Lever, Ashby, SmartRecruiters.
+// removes expired listings. Beta sources: RemoteOK, The Muse,
+// Greenhouse, Lever, Ashby, SmartRecruiters.
 // ============================================================
 
 const EXEC_KEYWORDS = /\b(ceo|cto|cfo|coo|cmo|cio|chro|chief|svp|senior vice|vp|vice president|director|head of|board|managing director|general manager|partner|president)\b/i;
@@ -35,13 +35,6 @@ function computeExpiration(postedDate, explicit) {
 function stripHtml(str) {
   if (!str) return '';
   return String(str).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace('&amp;', '&').trim();
-}
-
-// Secure secret accessor — centralizes environment access so credentials are
-// never hardcoded, logged, or returned to the client. Returns '' when unset so
-// callers can skip the source gracefully via their existing falsy checks.
-function getRequiredSecret(name) {
-  try { return Deno.env.get(name) || ''; } catch { return ''; }
 }
 
 async function fetchRemoteOK(config) {
@@ -108,69 +101,6 @@ async function fetchTheMuse(config) {
     } catch (e) {}
   }
   return all;
-}
-
-async function fetchAdzuna(config, appId, appKey) {
-  const country = config.country || 'us';
-  const keywords = config.keywords || 'CTO CFO CEO "Vice President" Director';
-  const res = await fetch('https://api.adzuna.com/v1/jobs/' + country + '/search/1?app_id=' + appId + '&app_key=' + appKey + '&what_or=' + encodeURIComponent(keywords) + '&results_per_page=50');
-  const data = await res.json();
-  return (data.results || []).filter(j => isExecutiveTitle(j.title)).map(j => ({
-    external_id: 'adzuna_' + j.id,
-    title: j.title,
-    company: (j.company && j.company.display_name) || 'Unknown',
-    company_logo: '',
-    description: (j.description || '').slice(0, 2000),
-    location: (j.location && j.location.display_name) || '',
-    city: (j.location && j.location.area && j.location.area[0]) || '',
-    country: (j.location && j.location.area && j.location.area[j.location.area.length - 1]) || '',
-    work_model: (j.description || '').toLowerCase().includes('remote') ? 'remote' : 'onsite',
-    employment_type: 'full_time',
-    department: '',
-    industry: (j.category && j.category.label) || '',
-    required_skills: [],
-    salary_min: j.salary_min || 0,
-    salary_max: j.salary_max || 0,
-    salary_currency: 'USD',
-    salary_display: j.salary_min && j.salary_max ? '$' + j.salary_min + ' - $' + j.salary_max : '',
-    posted_date: j.created || new Date().toISOString(),
-    apply_url: j.redirect_url || '',
-    executive_level: detectExecutiveLevel(j.title),
-    executive_experience_years: 0,
-    requirements: [],
-  }));
-}
-
-async function fetchJSearch(config, rapidKey) {
-  const query = config.query || 'Executive CTO CFO VP Director';
-  const res = await fetch('https://jsearch.p.rapidapi.com/search?query=' + encodeURIComponent(query) + '&page=1&num_pages=1', {
-    headers: { 'X-RapidAPI-Key': rapidKey, 'X-RapidAPI-Host': 'jsearch.p.rapidapi.com' }
-  });
-  const data = await res.json();
-  return (data.data || []).filter(j => isExecutiveTitle(j.job_title)).map(j => ({
-    external_id: 'jsearch_' + j.job_id,
-    title: j.job_title,
-    company: j.employer_name || 'Unknown',
-    company_logo: j.employer_logo || '',
-    description: (j.job_description || '').slice(0, 2000),
-    location: [j.job_city, j.job_state, j.job_country].filter(Boolean).join(', ') || 'Remote',
-    city: j.job_city || '',
-    country: j.job_country || '',
-    work_model: j.job_is_remote ? 'remote' : 'onsite',
-    employment_type: (j.job_employment_type || 'FULL_TIME').toLowerCase(),
-    department: '',
-    industry: '',
-    required_skills: [],
-    salary_min: j.job_min_salary || 0,
-    salary_max: j.job_max_salary || 0,
-    salary_currency: j.job_salary_currency || 'USD',
-    salary_display: j.job_min_salary && j.job_max_salary ? (j.job_salary_currency || '$') + j.job_min_salary + ' - ' + j.job_max_salary : '',
-    posted_date: j.job_posted_at_datetime_utc || new Date().toISOString(),
-    apply_url: j.job_apply_link || '',
-    executive_level: detectExecutiveLevel(j.job_title),
-    executive_experience_years: 0,
-    requirements: [],
-  }));
 }
 
 async function fetchGreenhouse(config) {
@@ -394,15 +324,6 @@ Deno.serve(async (req) => {
           jobs = await fetchRemoteOK(config);
         } else if (source.source_type === 'themuse') {
           jobs = await fetchTheMuse(config);
-        } else if (source.source_type === 'adzuna') {
-          const appId = getRequiredSecret('ADZUNA_APP_ID');
-          const appKey = getRequiredSecret('ADZUNA_APP_KEY');
-          if (!appId || !appKey) { results.push({ source: source.name, skipped: 'No API credentials' }); continue; }
-          jobs = await fetchAdzuna(config, appId, appKey);
-        } else if (source.source_type === 'jsearch') {
-          const rapidKey = getRequiredSecret('RAPIDAPI_KEY');
-          if (!rapidKey) { results.push({ source: source.name, skipped: 'No API key' }); continue; }
-          jobs = await fetchJSearch(config, rapidKey);
         } else if (source.source_type === 'greenhouse') {
           jobs = await fetchGreenhouse(config);
         } else if (source.source_type === 'lever') {

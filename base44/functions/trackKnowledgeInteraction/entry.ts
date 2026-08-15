@@ -4,6 +4,10 @@ const TYPES = ['search', 'no_result', 'article_view', 'vote', 'ai_ask', 'related
 
 export default async function(req) {
   try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) return Response.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+
     const body = await req.json().catch(() => ({}));
     const type = body.interaction_type;
     if (!TYPES.includes(type)) {
@@ -17,7 +21,7 @@ export default async function(req) {
       audience: (body.audience || '').toString().slice(0, 40),
       source: (body.source || 'hub').toString().slice(0, 20),
       session_id: (body.session_id || 'anon').toString().slice(0, 64),
-      user_id: body.user_id || null,
+      user_id: user.id,
       path: (body.path || '').toString().slice(0, 200),
       referrer_path: (body.referrer_path || '').toString().slice(0, 300),
       helpful: !!body.helpful,
@@ -28,10 +32,9 @@ export default async function(req) {
       cited_slugs_json: body.cited_slugs_json ? JSON.stringify(body.cited_slugs_json).slice(0, 2000) : null,
       occurred_at: body.occurred_at || new Date().toISOString(),
     };
-    const base44 = createClientFromRequest(req);
     await base44.asServiceRole.entities.KnowledgeInteraction.bulkCreate([record]);
     return Response.json({ ok: true });
-  } catch (error) {
-    return Response.json({ ok: false, error: error.message }, { status: 500 });
+  } catch {
+    return Response.json({ ok: false, error: 'Internal server error' }, { status: 500 });
   }
 }

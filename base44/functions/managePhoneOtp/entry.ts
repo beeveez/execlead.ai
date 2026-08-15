@@ -1,11 +1,12 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { secrets } from 'base44:runtime';
 
 const ADMIN_ROLES = ['admin', 'super_admin', 'platform_admin', 'developer'];
 
 function detectSmsProvider() {
-  const twilioSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-  const twilioToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-  const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
+  const twilioSid = secrets.get('TWILIO_ACCOUNT_SID');
+  const twilioToken = secrets.get('TWILIO_AUTH_TOKEN');
+  const twilioPhone = secrets.get('TWILIO_PHONE_NUMBER');
   if (twilioSid && twilioToken && twilioPhone) {
     return { provider: 'twilio', configured: true, credentials: { sid: twilioSid, token: twilioToken, from: twilioPhone } };
   }
@@ -77,7 +78,7 @@ async function sendSmsTwilio(credentials, to, message) {
   return await resp.json();
 }
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -100,13 +101,42 @@ Deno.serve(async (req) => {
       const phoneNumber = body.phone_number;
       const requestedMethod = body.method || 'email';
       const smsProvider = detectSmsProvider();
+      const e164 = toE164(phoneNumber || '');
       let deliveryMethod = requestedMethod === 'sms' && smsProvider.configured ? 'sms' : 'email';
+      let verification = null;
+      try {
+        const records = await base44.entities.IdentityVerification.filter({ user_id: user.id });
+        verification = records?.[0] || null;
+      } catch {}
 
-      // Rate limit: max 5 OTP requests per hour per user
+      if (requestedMethod === 'sms') {
+        const supportedDestination = /^\+(1\d{10}|63\d{10})$/.test(e164);
+        const verifiedNumber = verification?.phone_verified
+          ? toE164(verification.phone_number || '')
+          : '';
+        if (!supportedDestination) {
+          return Response.json({ status: 'error', message: 'SMS verification is not available for this destination.' }, { status: 400 });
+        }
+        if (!verifiedNumber || verifiedNumber !== e164) {
+          return Response.json({ status: 'error', message: 'SMS can only be sent to your previously verified phone number.' }, { status: 403 });
+        }
+      }
+
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-      const recentOtps = await base44.entities.OtpActivityLog.filter({ created_date: { $gte: oneHourAgo } });
+      const recentOtps = await base44.entities.OtpActivityLog.filter(
+        { user_id: user.id, created_date: { $gte: oneHourAgo } }, '-created_date', 5
+      );
       if (recentOtps.length >= 5) {
         return Response.json({ status: 'error', message: 'Too many OTP requests. Please try again later.' }, { status: 429 });
+      }
+
+      if (requestedMethod === 'sms' && smsProvider.configured) {
+        const recentGlobalSms = await base44.asServiceRole.entities.OtpActivityLog.filter(
+          { method: 'sms', created_date: { $gte: oneHourAgo } }, '-created_date', 20
+        );
+        if (recentGlobalSms.length >= 20) {
+          return Response.json({ status: 'error', message: 'SMS verification is temporarily unavailable. Please try again later.' }, { status: 429 });
+        }
       }
 
       if (requestedMethod === 'sms' && !smsProvider.configured) {
@@ -126,7 +156,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      const e164 = toE164(phoneNumber || '');
       const otpCode = generateOtp();
       const expires = new Date(Date.now() + 5 * 60 * 1000).toISOString();
       let deliveryStatus = 'pending';
@@ -172,12 +201,6 @@ Deno.serve(async (req) => {
           failureReason = err.message;
         }
       }
-
-      let verification = null;
-      try {
-        const records = await base44.entities.IdentityVerification.filter({ user_id: user.id });
-        verification = (records && records[0]) ? records[0] : null;
-      } catch (e) {}
 
       if (!verification) {
         verification = await base44.entities.IdentityVerification.create({
@@ -356,4 +379,4 @@ Deno.serve(async (req) => {
     console.error('managePhoneOtp error:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
-});
+}

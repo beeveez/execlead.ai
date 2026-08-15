@@ -1,4 +1,5 @@
-import { createClientFromRequest } from "npm:@base44/sdk@0.8.38";
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { authenticateRequest } from '../../shared/auth.ts';
 
 const AIRTABLE_API = "https://api.airtable.com/v0";
 const MEMBERS_TABLE = "Executive Members";
@@ -176,7 +177,7 @@ async function logSyncSuccess(token, schema, userId, email, trigger, action, dur
   return logSyncEvent(token, schema, userId, email, "Success", null, trigger, durationMs);
 }
 
-Deno.serve(async (req) => {
+export default async function(req) {
   const base44 = createClientFromRequest(req);
   let body = {};
   try {
@@ -185,31 +186,33 @@ Deno.serve(async (req) => {
     body = {};
   }
 
+  const auth = await authenticateRequest(req, base44, {
+    body,
+    requireAdmin: false,
+    allowSystemSecret: false,
+    allowServiceToken: true,
+  });
+  if (!auth.authenticated) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
   const event = body.event;
   const entityData = body.data;
-  const trigger = body.trigger || event?.entity_name || "manual";
+  const trigger = body.trigger || event?.entity_name || 'manual';
+  const automationEntities = ['UserProfile', 'Subscription', 'IdentityVerification', 'PromotionForecast'];
 
-  // Resolve the user_id from either a manual invocation or an entity automation payload
-  let userId = body.user_id;
-  const isManualInvocation = !!body.user_id;
-  if (!userId) {
-    if (event?.entity_name === "User") {
-      userId = event.entity_id;
-    } else {
-      userId = entityData?.user_id || entityData?.created_by_id;
-    }
+  if (auth.isSystemCall && (!automationEntities.includes(event?.entity_name) || !entityData)) {
+    return Response.json({ error: 'Invalid automation payload' }, { status: 400 });
   }
 
+  const userId = auth.isSystemCall
+    ? entityData.user_id || entityData.created_by_id
+    : body.user_id || entityData?.user_id || entityData?.created_by_id;
   if (!userId) {
-    return Response.json({ error: "No user_id could be resolved from the payload" }, { status: 400 });
+    return Response.json({ error: 'No user_id could be resolved from the payload' }, { status: 400 });
   }
 
-  // For manual invocations (body.user_id set), verify caller is the user or an admin
-  if (isManualInvocation) {
-    const caller = await base44.auth.me();
-    if (!caller) return Response.json({ error: "Unauthorized" }, { status: 401 });
-    const ADMIN_ROLES = ["admin", "super_admin", "platform_admin", "developer"];
-    if (caller.id !== userId && !ADMIN_ROLES.includes(caller.role)) {
+  if (!auth.isSystemCall) {
+    const adminRoles = ['admin', 'super_admin', 'platform_admin', 'developer'];
+    if (auth.user.id !== userId && !adminRoles.includes(auth.user.role)) {
       return Response.json({ error: "Forbidden — cannot sync another user's data" }, { status: 403 });
     }
   }
@@ -253,4 +256,4 @@ Deno.serve(async (req) => {
     console.error("syncAirtableCRM error:", error);
     return Response.json({ error: "Internal server error", userId, durationMs: duration }, { status: 500 });
   }
-});
+}

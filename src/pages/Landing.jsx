@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { usePricingCatalog } from '@/hooks/usePricingCatalog';
 import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
+import PrivateBetaCountdown from '@/components/landing/PrivateBetaCountdown';
 import ProductDemo from '@/components/landing/ProductDemo';
 import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
 import FlagshipSimulationHero from '@/components/landing/v3/FlagshipSimulationHero';
@@ -49,6 +50,9 @@ export default function Landing() {
     <>
       {/* Brand hero */}
       <NewHero authed={authed} onWatchDemo={openDemo} />
+
+      {/* Private Beta launch countdown */}
+      <PrivateBetaCountdown />
 
       {/* IT → Executive positioning */}
       <ItExecutivePositioning />

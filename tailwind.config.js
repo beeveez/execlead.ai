@@ -40,6 +40,12 @@ module.exports = {
   				DEFAULT: 'hsl(var(--accent-orange))',
   				foreground: 'hsl(var(--accent-orange-foreground))'
   			},
+  			launch: {
+  				background: 'hsl(var(--launch-background))',
+  				foreground: 'hsl(var(--launch-foreground))',
+  				muted: 'hsl(var(--launch-muted))',
+  				accent: 'hsl(var(--launch-accent))'
+  			},
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'

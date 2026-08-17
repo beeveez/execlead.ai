@@ -25,44 +25,118 @@ export default function About() {
             <p className="text-base text-accent-orange font-semibold">Founder &amp; Chief Product Architect</p>
           </div>
 
-          <p>
-            I bring <strong>more than 20 years of enterprise IT operations and leadership experience</strong>, including managing large-scale service delivery, governance, SLA-driven environments, and cross-functional leadership teams supporting complex enterprise operations.
-          </p>
-          <p>
-            EXECLEAD.AI was born from a problem I experienced firsthand inside enterprise organizations. I repeatedly saw <strong>high-performing technical and operational professionals promoted into leadership roles without a scalable, continuous system for developing executive judgment, strategic thinking, communication, and decision-making capability</strong>.
-          </p>
-          <p>
-            Most leadership development solutions are fragmented. They focus on courses, coaching sessions, or isolated assessments. What was missing was a <strong>connected operating system for executive growth</strong>—one that could assess readiness, provide continuous AI-powered coaching, simulate executive scenarios, track evidence of growth, and help professionals demonstrate executive capability over time.
-          </p>
-          <p>
-            That insight led to the creation of <strong>EXECLEAD.AI — an AI-powered Executive Leadership Operating System™</strong> designed to help ambitious professionals become executive-ready leaders through personalized coaching, executive simulations, leadership intelligence, and evidence-based development.
-          </p>
-          <p>Since beginning development in <strong>July 2026</strong>, I have personally led the architecture and product design of the platform, including capabilities such as:</p>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-base">
-            {[
-              'Executive Readiness™',
-              'AI Executive Coaching™',
-              'Executive Simulations™',
-              'Evidence Ledger™',
-              'Executive Identity Graph™',
-              'Enterprise Trust Center™',
-              'Commercial Revenue Engine™',
-              'Competitive Intelligence & Battlecard Center™',
-            ].map((capability) => <li key={capability}>{capability}</li>)}
-          </ul>
-          <p>The current pre-seed stage is intentionally <strong>lean, disciplined, and validation-focused</strong>. Our objective is not to scale headcount aggressively, but to:</p>
-          <ul className="text-base">
-            <li>validate enterprise demand,</li>
-            <li>refine the quality of AI coaching and executive intelligence,</li>
-            <li>strengthen security and governance,</li>
-            <li>and secure initial enterprise pilot customers before expanding engineering and customer success operations.</li>
-          </ul>
-          <p>
-            As Founder &amp; Chief Product Architect, my responsibility extends beyond building features. I am focused on ensuring that EXECLEAD.AI is built with the <strong>operational discipline, governance standards, security foundations, and enterprise trust required for long-term adoption by organizations developing the next generation of leaders</strong>.
-          </p>
-          <p>EXECLEAD.AI is ultimately driven by a simple belief:</p>
-          <blockquote className="border-l-2 border-accent-orange pl-5 text-white/80 font-semibold">
-            Leadership is not a single interview, a single course, or a single promotion. It is a continuous journey of readiness, judgment, growth, and measurable impact.
+          <div className="space-y-4">
+            <p>EXECLEAD.AI didn&apos;t begin as an attempt to build another AI product.</p>
+            <p>It began with a question:</p>
+            <p className="text-xl md:text-2xl text-white/85 font-semibold leading-relaxed">
+              What does it actually take to become an executive leader?
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">Built from a personal challenge. Designed for a much bigger one.</h2>
+            <p>
+              While preparing for executive opportunities, I found that most of the tools available to professionals addressed only pieces of the journey—interview preparation, courses, coaching, resumes, or career advice.
+            </p>
+            <p>What I wanted was different.</p>
+            <p>
+              I wanted a system that could help me understand where I stood as a leader, identify the capabilities I needed to strengthen, challenge my thinking, prepare me for real executive situations, and continue developing with me over time.
+            </p>
+            <p>I couldn&apos;t find that system.</p>
+            <p className="text-white/85 font-semibold">So I decided to build it.</p>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">From an interview problem to a leadership platform</h2>
+            <p>
+              My career has given me more than two decades of experience across technology, operations, service delivery, and enterprise environments.
+            </p>
+            <p>I&apos;ve seen talented professionals become exceptional leaders.</p>
+            <p>
+              I&apos;ve also seen highly capable people struggle to make the transition from technical expertise or operational responsibility into executive leadership.
+            </p>
+            <p>The gap isn&apos;t always intelligence or experience.</p>
+            <div className="space-y-2 text-white/75">
+              <p>Sometimes it&apos;s judgment.</p>
+              <p>Sometimes it&apos;s strategic thinking.</p>
+              <p>Sometimes it&apos;s communication, influence, confidence, business perspective, or the ability to operate at a different level of responsibility.</p>
+            </div>
+            <p>And those capabilities aren&apos;t developed in a single interview.</p>
+            <p className="text-white/85 font-semibold">They are developed over time.</p>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">That became the idea behind EXECLEAD.AI</h2>
+            <p>I believe leadership is not a destination reached through one promotion.</p>
+            <div className="space-y-1 text-white/85 font-semibold">
+              <p>Readiness.</p>
+              <p>Judgment.</p>
+              <p>Growth.</p>
+              <p>Evidence.</p>
+              <p>Impact.</p>
+            </div>
+            <p>EXECLEAD.AI is being built around that belief.</p>
+            <p>
+              The platform brings together Executive Readiness™, AI Executive Coaching™, Leadership Simulations, learning, career intelligence, evidence-based leadership development, and Executive Identity™ into one connected experience.
+            </p>
+            <p>Not another chatbot.</p>
+            <p>Not simply another interview-preparation tool.</p>
+            <p className="text-2xl md:text-3xl text-white font-bold">An Executive Leadership Operating System.</p>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">What I&apos;m building</h2>
+            <p>My goal is not to tell people that AI can replace human leadership.</p>
+            <p className="text-white/85 font-semibold">It can&apos;t.</p>
+            <p>
+              The goal is to use AI to make leadership development more accessible, continuous, measurable, and personalized.
+            </p>
+            <p>
+              EXECLEAD.AI is designed to challenge assumptions, strengthen decision-making, surface development opportunities, and help professionals practice leadership before the responsibility arrives.
+            </p>
+            <p>
+              The long-term vision is to help ambitious professionals—and eventually organizations—develop better leaders throughout the entire leadership journey.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">Why I&apos;m building it</h2>
+            <p>
+              I believe exceptional leadership should not be accessible only to people who already have access to elite coaching, executive networks, or expensive development programs.
+            </p>
+            <p className="text-white/85 font-semibold">Technology can help change that.</p>
+            <p>
+              If someone has the ambition to lead, they should have a way to understand where they are, see where they need to grow, practice the situations they will face, and build evidence of that growth.
+            </p>
+            <p className="text-white/85 font-semibold">That&apos;s the future I want EXECLEAD.AI to help create.</p>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">My role</h2>
+            <p>
+              As Founder &amp; Chief Product Architect, I remain deeply involved in the platform&apos;s architecture, experience, and direction.
+            </p>
+            <p>
+              I&apos;m building EXECLEAD.AI from the perspective of someone who has spent years operating inside technology and enterprise environments—and who understands firsthand how difficult the transition from technical or operational leadership to executive leadership can be.
+            </p>
+            <p>But the platform is bigger than my own career.</p>
+            <p>
+              The goal is to build something that can help the next generation of leaders navigate that journey better than we have before.
+            </p>
+          </div>
+
+          <blockquote className="border-l-2 border-accent-orange pl-5 py-2 text-white/80 font-semibold space-y-4">
+            <p className="text-xl md:text-2xl leading-relaxed">
+              Leadership is not a single interview, a single course, or a single promotion.
+            </p>
+            <p className="text-xl md:text-2xl leading-relaxed">
+              It is a continuous journey of readiness, judgment, growth, and measurable impact.
+            </p>
+            <footer className="text-sm text-white/50 font-normal not-italic">
+              — Reynaldo D. Valdez<br />
+              Founder &amp; Chief Product Architect<br />
+              EXECLEAD.AI
+            </footer>
           </blockquote>
         </div>
 

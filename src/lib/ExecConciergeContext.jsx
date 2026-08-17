@@ -42,7 +42,7 @@ import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest,
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
-import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage } from "@/lib/knowledgeAuthorityGuard";
+import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 
 const ExecConciergeContext = createContext(null);
@@ -577,7 +577,8 @@ export function ExecConciergeProvider({ children }) {
             trackKnowledgeAiAsk({ query: content, confidence: result.confidence, sourcesCount: result.sources.length, noResult: false, citedSlugs: result.citedSlugs });
           }
           const answerText = result.noResult ? buildNoResultMessage(result.relatedSuggestions) : formatKnowledgeAuthorityMessage(result);
-          setMessages((prev) => [...prev, { role: "assistant", content: answerText }]);
+          const suggestedQuestions = getGroundedFollowUpQuestions(result, content);
+          setMessages((prev) => [...prev, { role: "assistant", content: answerText, suggestedQuestions }]);
           setLoading(false);
           base44.analytics.track({ eventName: "exec_knowledge_authority_used", properties: { noResult: result.noResult, confidence: result.confidence, sources: result.sources.length } });
           refreshHealth();

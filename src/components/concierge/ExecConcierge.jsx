@@ -8,7 +8,6 @@ import { Sparkles, Send, X, Minus, MapPin, Trash2, Search, Layers } from "lucide
 import {
   EXEC_GLOBAL_COMMANDS,
 } from "@/lib/execConciergeConfig";
-import { getWorkspaceSuggestedQuestions } from "@/lib/execWorkspacePersonas";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
@@ -146,9 +145,12 @@ export default function ExecConcierge() {
   }, [navigate, contextualActions.dashboardType, sendMessage]);
 
   const showWelcome = !loading && !showDiagnostics && messages.length <= 1;
-  const showSuggestions =
-    !loading && messages.length > 1 && messages[messages.length - 1].role === "assistant";
-  // Workspace-aware quick actions, tasks, and suggestions
+  const lastMessage = messages[messages.length - 1];
+  const groundedSuggestions = !loading && lastMessage?.role === "assistant"
+    ? lastMessage.suggestedQuestions || []
+    : [];
+  const showSuggestions = groundedSuggestions.length > 0;
+  // Workspace-aware quick actions and tasks
   const quickActions = workspacePersona?.quickActions || [];
   const tasks = workspacePersona?.tasks || [];
   const personaSubtitle = workspacePersona?.subtitle || "AI Executive Assistant";
@@ -372,7 +374,7 @@ export default function ExecConcierge() {
 
               {showSuggestions && (
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {getWorkspaceSuggestedQuestions(workspacePersona, messages.length).map((q) => (
+                  {groundedSuggestions.map((q) => (
                     <button
                       key={q}
                       onClick={() => handleSend(q)}

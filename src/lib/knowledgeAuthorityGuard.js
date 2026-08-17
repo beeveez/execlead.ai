@@ -160,6 +160,17 @@ export async function answerFromKnowledge(query, articles, all) {
   return { noResult: false, answer, sources: finalSources, confidence: conf.numeric, confidenceLabel: conf.label, sourceLabel: primarySource, freshness, related, citedSlugs: slugs };
 }
 
+// Builds follow-up suggestions only from exact questions on approved articles
+// already attached to the grounded result. No inferred or model-generated topics.
+export function getGroundedFollowUpQuestions(result, currentQuestion = "") {
+  const candidates = result?.noResult ? result.relatedSuggestions : result?.related;
+  const current = currentQuestion.trim().toLowerCase();
+  return [...new Set((candidates || [])
+    .filter((article) => article?.published !== false && (article?.status || "published") === "published")
+    .map((article) => article.question?.trim())
+    .filter((question) => question && question.toLowerCase() !== current))];
+}
+
 // Returns only the grounded answer for the normal concierge presentation.
 // The result object retains source, confidence, freshness, and related-article
 // provenance for analytics, governance, and future controlled presentation.

@@ -55,8 +55,7 @@
   "required": [
     "quote_id",
     "approval_type",
-    "requested_by",
-    "organization_id"
+    "requested_by"
   ],
   "rls": {
     "create": {

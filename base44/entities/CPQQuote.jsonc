@@ -199,8 +199,7 @@
   },
   "required": [
     "proposal_number",
-    "organization_name",
-    "organization_id"
+    "organization_name"
   ],
   "rls": {
     "create": {

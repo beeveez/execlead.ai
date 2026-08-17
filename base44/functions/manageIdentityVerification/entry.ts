@@ -1,49 +1,41 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
+import { resolveActiveOrgMembership } from '../../shared/authoritativeOrgAccess.ts';
 
-const ADMIN_ROLES = ['admin', 'super_admin', 'platform_admin', 'support'];
-const ENTERPRISE_ADMIN_ROLES = ['enterprise_admin', 'organization_owner', 'super_admin', 'platform_admin'];
+const PLATFORM_REVIEW_ROLES = ['admin', 'support', 'super_admin', 'platform_admin', 'founder_root_admin'];
+const PLATFORM_ADMIN_ROLES = ['super_admin', 'platform_admin', 'founder_root_admin'];
+const ORG_REVIEW_ROLES = ['organization_admin', 'department_admin'];
 
-function calculateTrustScore(v) {
-  if (!v) return 0;
-  let score = 0;
-  if (v.email_verified) score += 10;
-  if (v.phone_verified) score += 10;
-  if (v.identity_verified) score += 30;
-  if (v.professional_verified) score += 20;
-  if (v.resume_verified) score += 10;
-  if (v.leadership_dna_complete) score += 10;
-  if (v.profile_published) score += 10;
-  if (v.verified_executive) score += 10;
-  return score;
-}
-
-function calculateTrustLevel(v) {
-  if (!v) return 0;
-  if (v.verified_executive) return 5;
-  if (v.professional_verified) return 4;
-  if (v.identity_verified) return 3;
-  if (v.phone_verified) return 2;
-  if (v.email_verified) return 1;
-  return 0;
-}
-
-function canGrantVerifiedExecutive(v) {
-  if (!v) return false;
-  return Boolean(
-    v.identity_verified &&
-    v.professional_verified &&
-    v.profile_published &&
-    v.resume_verified &&
-    v.leadership_dna_complete
+function calculateTrustScore(verification) {
+  if (!verification) return 0;
+  return Math.min(100,
+    (verification.email_verified ? 10 : 0) +
+    (verification.phone_verified ? 10 : 0) +
+    (verification.identity_verified ? 30 : 0) +
+    (verification.professional_verified ? 20 : 0) +
+    (verification.resume_verified ? 10 : 0) +
+    (verification.leadership_dna_complete ? 10 : 0) +
+    (verification.profile_published ? 10 : 0) +
+    (verification.verified_executive ? 10 : 0)
   );
 }
 
-function recalculateTrust(v) {
-  const updated = { ...v };
-  updated.verified_executive = canGrantVerifiedExecutive(updated);
-  updated.trust_score = calculateTrustScore(updated);
-  updated.trust_level = calculateTrustLevel(updated);
-  return updated;
+function calculateTrustLevel(verification) {
+  if (verification?.verified_executive) return 5;
+  if (verification?.professional_verified) return 4;
+  if (verification?.identity_verified) return 3;
+  if (verification?.phone_verified) return 2;
+  if (verification?.email_verified) return 1;
+  return 0;
+}
+
+function recalculateTrust(verification) {
+  const verifiedExecutive = Boolean(
+    verification?.identity_verified && verification?.professional_verified &&
+    verification?.profile_published && verification?.resume_verified &&
+    verification?.leadership_dna_complete
+  );
+  const updated = { ...verification, verified_executive: verifiedExecutive };
+  return { trust_score: calculateTrustScore(updated), trust_level: calculateTrustLevel(updated), verified_executive: verifiedExecutive };
 }
 
 async function createLog(base44, verification, action, reviewer, decision, reason, notes) {
@@ -63,146 +55,102 @@ async function createLog(base44, verification, action, reviewer, decision, reaso
   });
 }
 
-Deno.serve(async (req) => {
+async function requireOrganizationReview(base44, user, verification) {
+  if (PLATFORM_ADMIN_ROLES.includes(user.role)) return { isPlatformAdmin: true, orgId: verification.organization_id };
+  if (!verification.organization_id) return null;
+  return resolveActiveOrgMembership(base44, user, {
+    requestedOrgId: verification.organization_id,
+    allowedRoles: ORG_REVIEW_ROLES,
+  });
+}
+
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { action, verificationId, reason, notes } = body;
 
-    // List all verifications — admin only
     if (action === 'list') {
-      if (!ADMIN_ROLES.includes(user.role)) {
-        return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
-      }
-      const all = await base44.asServiceRole.entities.IdentityVerification.list('-updated_date', 200);
-      return Response.json({ verifications: all });
+      if (!PLATFORM_REVIEW_ROLES.includes(user.role)) return Response.json({ error: 'Forbidden' }, { status: 403 });
+      const verifications = await base44.asServiceRole.entities.IdentityVerification.list('-updated_date', 200);
+      return Response.json({ verifications });
     }
 
-    // Get audit logs — admin only
     if (action === 'get_logs') {
-      if (!ADMIN_ROLES.includes(user.role)) {
-        return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
-      }
+      if (!PLATFORM_REVIEW_ROLES.includes(user.role)) return Response.json({ error: 'Forbidden' }, { status: 403 });
       const logs = await base44.asServiceRole.entities.VerificationLog.list('-created_date', 200);
       return Response.json({ logs });
     }
 
-    // All other actions require a verificationId
-    if (!verificationId) {
-      return Response.json({ error: 'verificationId is required' }, { status: 400 });
-    }
-
+    if (!verificationId) return Response.json({ error: 'verificationId is required' }, { status: 400 });
     const verification = await base44.asServiceRole.entities.IdentityVerification.get(verificationId);
-    if (!verification) {
-      return Response.json({ error: 'Verification record not found' }, { status: 404 });
-    }
+    if (!verification) return Response.json({ error: 'Verification record not found' }, { status: 404 });
 
-    // Approve identity — admin only
-    if (action === 'approve') {
-      if (!ADMIN_ROLES.includes(user.role)) {
-        return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
-      }
-      const now = new Date();
-      const updates = {
-        identity_status: 'verified',
-        identity_verified: true,
-        identity_verified_date: now.toISOString().split('T')[0],
-        identity_verified_by: user.full_name || user.email,
-        identity_verified_method: verification.identity_verified_method || 'manual_review',
-        identity_reviewed_date: now.toISOString(),
-        identity_rejection_reason: '',
-      };
-      const recalced = recalculateTrust({ ...verification, ...updates });
-      const updated = await base44.asServiceRole.entities.IdentityVerification.update(verificationId, {
-        ...updates,
-        trust_score: recalced.trust_score,
-        trust_level: recalced.trust_level,
-        verified_executive: recalced.verified_executive,
-      });
-      await createLog(base44, verification, 'identity_approved', user, 'approved', reason, notes);
-
-      if (recalced.verified_executive && !verification.verified_executive) {
-        await createLog(base44, verification, 'verified_executive_granted', user, 'approved', 'Automatically granted — all requirements met', '');
-      }
-      return Response.json({ success: true, verification: updated });
-    }
-
-    // Reject identity — admin only
-    if (action === 'reject') {
-      if (!ADMIN_ROLES.includes(user.role)) {
-        return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
-      }
-      const now = new Date();
-      const updates = {
-        identity_status: 'rejected',
-        identity_verified: false,
-        identity_reviewed_date: now.toISOString(),
-        identity_rejection_reason: reason || 'Document rejected. Please resubmit with a clearer image.',
-      };
-      const recalced = recalculateTrust({ ...verification, ...updates });
-      const updated = await base44.asServiceRole.entities.IdentityVerification.update(verificationId, {
-        ...updates,
-        trust_score: recalced.trust_score,
-        trust_level: recalced.trust_level,
-        verified_executive: recalced.verified_executive,
-      });
-      await createLog(base44, verification, 'identity_rejected', user, 'rejected', reason, notes);
-      return Response.json({ success: true, verification: updated });
-    }
-
-    // Request additional documents — admin only
-    if (action === 'request_documents') {
-      if (!ADMIN_ROLES.includes(user.role)) {
-        return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
-      }
-      const updates = {
-        identity_status: 'pending_upload',
-      };
-      const updated = await base44.asServiceRole.entities.IdentityVerification.update(verificationId, updates);
-      await createLog(base44, verification, 'documents_requested', user, 'pending', notes || 'Additional documents requested', notes);
-      return Response.json({ success: true, verification: updated });
-    }
-
-    // Approve professional verification — enterprise admin or platform admin
     if (action === 'approve_professional') {
-      if (!ENTERPRISE_ADMIN_ROLES.includes(user.role)) {
-        return Response.json({ error: 'Forbidden — enterprise admin access required' }, { status: 403 });
-      }
-      // Enterprise admins can only verify users in their own organization
-      if (!ADMIN_ROLES.includes(user.role)) {
-        const callerProfiles = await base44.asServiceRole.entities.UserProfile.filter({ created_by_id: user.id });
-        const callerOrg = callerProfiles[0]?.organization_id;
-        if (callerOrg !== verification.organization_id) {
-          return Response.json({ error: 'Cannot verify users outside your organization' }, { status: 403 });
-        }
-      }
-      const orgName = verification.organization_name || 'Organization';
+      const access = await requireOrganizationReview(base44, user, verification);
+      if (!access) return Response.json({ error: 'Cannot verify users outside your organization' }, { status: 403 });
+      const organization = verification.organization_id
+        ? await base44.asServiceRole.entities.Organization.get(verification.organization_id)
+        : null;
       const updates = {
         professional_verified: true,
         professional_verified_date: new Date().toISOString().split('T')[0],
         professional_verified_method: 'enterprise_admin',
-        professional_verified_by: orgName,
+        professional_verified_by: organization?.name || 'Organization',
       };
-      const recalced = recalculateTrust({ ...verification, ...updates });
-      const updated = await base44.asServiceRole.entities.IdentityVerification.update(verificationId, {
-        ...updates,
-        trust_score: recalced.trust_score,
-        trust_level: recalced.trust_level,
-        verified_executive: recalced.verified_executive,
-      });
-      await createLog(base44, verification, 'professional_verified', user, 'approved', `Verified by ${orgName}`, notes);
-      if (recalced.verified_executive && !verification.verified_executive) {
+      const trust = recalculateTrust({ ...verification, ...updates });
+      const updated = await base44.asServiceRole.entities.IdentityVerification.update(verificationId, { ...updates, ...trust });
+      await createLog(base44, verification, 'professional_verified', user, 'approved', `Verified by ${organization?.name || 'Organization'}`, notes);
+      if (trust.verified_executive && !verification.verified_executive) {
         await createLog(base44, verification, 'verified_executive_granted', user, 'approved', 'Automatically granted — all requirements met', '');
       }
       return Response.json({ success: true, verification: updated });
     }
 
-    return Response.json({ error: 'Invalid action' }, { status: 400 });
+    if (!PLATFORM_REVIEW_ROLES.includes(user.role)) return Response.json({ error: 'Forbidden' }, { status: 403 });
+    const now = new Date().toISOString();
+    let updates;
+    let logAction;
+    let decision;
+
+    if (action === 'approve') {
+      updates = {
+        identity_status: 'verified', identity_verified: true,
+        identity_verified_date: now.split('T')[0],
+        identity_verified_by: user.full_name || user.email,
+        identity_verified_method: verification.identity_verified_method || 'manual_review',
+        identity_reviewed_date: now, identity_rejection_reason: '',
+      };
+      logAction = 'identity_approved';
+      decision = 'approved';
+    } else if (action === 'reject') {
+      updates = {
+        identity_status: 'rejected', identity_verified: false,
+        identity_reviewed_date: now,
+        identity_rejection_reason: reason || 'Document rejected. Please resubmit with a clearer image.',
+      };
+      logAction = 'identity_rejected';
+      decision = 'rejected';
+    } else if (action === 'request_documents') {
+      updates = { identity_status: 'pending_upload' };
+      logAction = 'documents_requested';
+      decision = 'pending';
+    } else {
+      return Response.json({ error: 'Invalid action' }, { status: 400 });
+    }
+
+    const trust = recalculateTrust({ ...verification, ...updates });
+    const updated = await base44.asServiceRole.entities.IdentityVerification.update(verificationId, { ...updates, ...trust });
+    await createLog(base44, verification, logAction, user, decision, reason, notes);
+    if (trust.verified_executive && !verification.verified_executive) {
+      await createLog(base44, verification, 'verified_executive_granted', user, 'approved', 'Automatically granted — all requirements met', '');
+    }
+    return Response.json({ success: true, verification: updated });
   } catch (error) {
-    console.error('manageIdentityVerification error:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('manageIdentityVerification error:', error.message);
+    return Response.json({ error: 'Identity verification operation failed.' }, { status: 500 });
   }
-});
+}

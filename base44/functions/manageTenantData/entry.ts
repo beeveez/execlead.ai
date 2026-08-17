@@ -105,7 +105,8 @@ export default async function(req) {
     if (operation === 'list' || operation === 'filter') {
       const query = cleanQuery(args.query);
       const requestedOrg = entity === 'Organization' ? query.id : query[config.orgField];
-      let access = requestedOrg ? await authorizeOrg(base44, user, requestedOrg) : await defaultOrgAccess(base44, user);
+      const readRoles = config.kind === 'hybrid' ? ADMIN_ROLES : MEMBER_ROLES;
+      let access = requestedOrg ? await authorizeOrg(base44, user, requestedOrg, readRoles) : await defaultOrgAccess(base44, user, readRoles);
       let ownerOnly = false;
       if (!access && config.kind === 'hybrid' && config.owner) ownerOnly = true;
       if (!access && !ownerOnly && !isPlatformAdmin(user)) return Response.json({ error: 'Forbidden' }, { status: 403 });

@@ -1,4 +1,5 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
+import { resolveActiveOrgMembership } from '../../shared/authoritativeOrgAccess.ts';
 
 /**
  * manageIntelligence — Intelligence read path.
@@ -34,7 +35,7 @@ function isCacheFresh(profile, configVersion) {
   return age < STALE_THRESHOLD_MS;
 }
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -55,9 +56,12 @@ Deno.serve(async (req) => {
 
     // ── enterprise: aggregate from cached fields (M2) ──
     if (action === 'enterprise') {
-      const profile = await getProfile(base44, user.id);
-      const orgId = body.organization_id || profile?.organization_id;
-      if (!orgId) return Response.json({ error: 'No organization found' }, { status: 400 });
+      const access = await resolveActiveOrgMembership(base44, user, {
+        requestedOrgId: body.organization_id,
+        allowedRoles: ['organization_admin', 'department_admin', 'manager'],
+      });
+      if (!access) return Response.json({ error: 'Forbidden' }, { status: 403 });
+      const orgId = access.orgId;
 
       const orgProfiles = await base44.asServiceRole.entities.UserProfile.filter(
         { organization_id: orgId }, '-cached_journey_points', 500
@@ -210,4 +214,4 @@ Deno.serve(async (req) => {
     console.error('[manageIntelligence] Unhandled error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}

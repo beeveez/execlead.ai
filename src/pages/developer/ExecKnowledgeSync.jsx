@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
 import { useDeveloper } from "@/lib/DeveloperContext";
-import { runKnowledgeSync } from "@/lib/execKnowledgeSyncEngine";
 import { Shield } from "lucide-react";
 import SyncStatusHero from "@/components/developer/knowledge-sync/SyncStatusHero";
 import SyncPipeline from "@/components/developer/knowledge-sync/SyncPipeline";
@@ -11,6 +10,7 @@ import ValidationFindings from "@/components/developer/knowledge-sync/Validation
 import SyncReport from "@/components/developer/knowledge-sync/SyncReport";
 import SelfAwareness from "@/components/developer/knowledge-sync/SelfAwareness";
 import SyncHistory from "@/components/developer/knowledge-sync/SyncHistory";
+import KnowledgeRegistryAudit from "@/components/developer/knowledge-sync/KnowledgeRegistryAudit";
 
 export default function ExecKnowledgeSync() {
   const { canAccessDeveloper } = useDeveloper();
@@ -49,6 +49,7 @@ export default function ExecKnowledgeSync() {
       {result && (
         <>
           <SyncMetricsGrid metrics={result.metrics} />
+          <KnowledgeRegistryAudit audit={result.knowledgeRegistryAudit} />
           <RegistryBreakdown registries={result.registries} />
           <ValidationFindings validation={result.validation} />
           <SyncReport report={result.report} />

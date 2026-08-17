@@ -14,6 +14,7 @@
 
 import { additionalMetrics, WORKSPACES, CATEGORY_TO_WORKSPACE } from './metrics/additionalMetrics';
 import { enrichGuardianValidation, computeGuardianScore } from './guardianValidationEngine';
+import { auditKnowledgeRegistry } from './knowledgeRegistry';
 
 // ═══════════════════════════════════════════════════════════
 // SCORE STATUS HELPERS
@@ -664,6 +665,19 @@ export async function computeMetricScores(base44) {
   };
 
   try {
+    // ── Knowledge Registry from verified capability-to-article mappings ──
+    const registryEntries = await base44.entities.KnowledgeRegistryEntry.list('-updated_date', 200).catch(() => []);
+    const registryAudit = auditKnowledgeRegistry(registryEntries || []);
+    results.knowledge_registry = {
+      score: registryAudit.scores.overall,
+      previous: 0,
+      breakdownData: {
+        entry_coverage: registryAudit.scores.entryCoverage,
+        entry_accuracy: registryAudit.scores.entryAccuracy,
+        data_freshness: registryAudit.scores.dataFreshness,
+      },
+    };
+
     // ── Platform Health from latest GovernanceCertificate ──
     const certs = await base44.entities.GovernanceCertificate.list('-created_date', 1);
     const cert = certs?.[0];
@@ -891,7 +905,7 @@ export async function computeMetricScores(base44) {
         last_sync: knowledgeFreshness,
         failed_syncs: failedSyncs === 0 ? 100 : Math.max(0, 100 - failedSyncs * 15),
         knowledge_freshness: knowledgeFreshness,
-        registry_integrity: 90,
+        registry_integrity: results.knowledge_registry?.score || 0,
       },
     };
 

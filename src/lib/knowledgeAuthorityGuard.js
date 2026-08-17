@@ -1,5 +1,6 @@
 import { base44 } from "@/api/base44Client";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
+import { buildKnowledgeRegistry, findKnowledgeRegistryEntry, isRegistryEntryAnswerable } from "@/lib/knowledgeRegistry";
 
 // ============================================================
 // Knowledge Authority Guard™ + Evidence Attribution & Confidence Standard™
@@ -106,13 +107,20 @@ export async function retrieveKnowledgeArticles(query, limit = 5) {
     }
   }
   articles = (articles || []).filter((a) => a.published !== false && (a.status || "published") === "published");
-  const ranked = articles
+  const registryEntries = buildKnowledgeRegistry(articles);
+  const registryEntry = findKnowledgeRegistryEntry(query, registryEntries);
+  const eligibleArticles = registryEntry
+    ? isRegistryEntryAnswerable(registryEntry)
+      ? articles.filter((article) => registryEntry.knowledge_article_slugs.includes(article.slug))
+      : []
+    : articles;
+  const ranked = eligibleArticles
     .map((a) => ({ a, s: scoreArticle(a, query) }))
     .filter((x) => x.s > 0)
     .sort((x, y) => y.s - x.s)
     .slice(0, limit)
     .map((x) => x.a);
-  return { ranked, all: articles };
+  return { ranked, all: articles, registryEntry, registryEntries };
 }
 
 // Resolves an article's related_articles slugs to article objects.
@@ -156,7 +164,10 @@ export async function answerFromKnowledge(query, articles, all) {
   const freshness = finalSources.map((s) => s.last_updated || s.updated_date).filter(Boolean).sort().pop();
   const sourceLabels = finalSources.map(sourceLabelFor);
   const primarySource = sourceLabels[0] || "Knowledge Article";
-  const related = resolveRelated(finalSources[0], all || ranked);
+  const registryEntries = buildKnowledgeRegistry(all || ranked);
+  const related = resolveRelated(finalSources[0], all || ranked).filter((article) =>
+    registryEntries.some((entry) => isRegistryEntryAnswerable(entry) && entry.knowledge_article_slugs.includes(article.slug))
+  );
   return { noResult: false, answer, sources: finalSources, confidence: conf.numeric, confidenceLabel: conf.label, sourceLabel: primarySource, freshness, related, citedSlugs: slugs };
 }
 
@@ -165,8 +176,10 @@ export async function answerFromKnowledge(query, articles, all) {
 export function getGroundedFollowUpQuestions(result, currentQuestion = "") {
   const candidates = result?.noResult ? result.relatedSuggestions : result?.related;
   const current = currentQuestion.trim().toLowerCase();
+  const registryEntries = buildKnowledgeRegistry(candidates || []);
   return [...new Set((candidates || [])
     .filter((article) => article?.published !== false && (article?.status || "published") === "published")
+    .filter((article) => registryEntries.some((entry) => isRegistryEntryAnswerable(entry) && entry.knowledge_article_slugs.includes(article.slug)))
     .map((article) => article.question?.trim())
     .filter((question) => question && question.toLowerCase() !== current))];
 }

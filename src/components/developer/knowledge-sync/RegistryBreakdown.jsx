@@ -12,6 +12,7 @@ const REGISTRY_ICONS = {
   module: Layers,
   navigation: Navigation,
   execKnowledgeIndex: Brain,
+  knowledge: Database,
 };
 
 export default function RegistryBreakdown({ registries }) {

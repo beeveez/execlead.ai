@@ -34,6 +34,7 @@ import { MODULE_PERSONA_OVERRIDES } from "./execModulePersonas";
 import { runPlatformExperienceAudit } from "./platformExperienceAudit";
 import { dispatch as platformDispatch } from "./platformEventBus";
 import { base44 } from "@/api/base44Client";
+import { buildKnowledgeRegistry, auditKnowledgeRegistry, buildKnowledgeAuditFindings, persistKnowledgeRegistry } from "./knowledgeRegistry";
 
 const SYNC_SNAPSHOT_KEY = "exec_knowledge_sync_snapshot";
 const SYNC_HISTORY_KEY = "exec_knowledge_sync_history";
@@ -306,7 +307,7 @@ export function validateKnowledgeSync(assets) {
 // STAGE 3 — KNOWLEDGE REGISTRATION
 // Builds the 10 platform registries from discovered assets.
 // ============================================================
-export function buildRegistries(assets, validation) {
+export function buildRegistries(assets, validation, knowledgeEntries = [], knowledgeAudit = null) {
   return {
     platform: {
       name: "Platform Registry™",
@@ -366,6 +367,16 @@ export function buildRegistries(assets, validation) {
       promptVersion: EXEC_PROMPT_VERSION,
       modules: assets.modules.length,
       aliases: assets.modules.reduce((s, m) => s + (m.aliases?.length || 0), 0),
+    },
+    knowledge: {
+      name: "Knowledge Registry™",
+      count: knowledgeEntries.length,
+      verified: knowledgeAudit?.verified || 0,
+      gaps: knowledgeAudit?.gaps?.length || 0,
+      stale: knowledgeAudit?.stale?.length || 0,
+      conflicts: knowledgeAudit?.conflicts?.length || 0,
+      score: knowledgeAudit?.scores?.overall || 0,
+      items: knowledgeEntries,
     },
   };
 }
@@ -463,17 +474,14 @@ function computeDiff(current, previous) {
 //   Platform Graph        10%
 //   Guardian Validation   10%
 // ============================================================
-export function computeKnowledgeHealth(registries, intelligence, validation, guardianResult) {
+export function computeKnowledgeHealth(registries, intelligence, validation, guardianResult, knowledgeAudit = null) {
   const componentHealth = (errors, warnings, infos) => {
     const penalty = errors * 15 + warnings * 6 + infos * 1;
     return clamp(100 - penalty);
   };
 
-  // Knowledge Registry — navigation + workspace + module registries
-  const navErrors = validation.findings.filter((f) => f.code === "BROKEN_NAV_REFERENCE" && f.level === "error").length;
-  const navWarnings = validation.findings.filter((f) => f.code === "ORPHAN_ROUTE" && f.level === "warning").length;
-  const navInfos = validation.findings.filter((f) => f.code === "MISSING_PERSONA" && f.level === "info").length;
-  const knowledgeRegistry = componentHealth(navErrors, navWarnings, navInfos);
+  // Knowledge Registry — verified capability-to-article coverage, accuracy, and freshness
+  const knowledgeRegistry = knowledgeAudit?.scores?.overall ?? 0;
 
   // Knowledge Packs — framework + knowledge pack registries
   const kpErrors = validation.findings.filter((f) => f.code === "DUPLICATE_CAPABILITY" && f.level === "error").length;
@@ -529,7 +537,8 @@ export function computeSyncHealth(validation, diff) {
     { evidence: { sources: 1, verifiedSources: 1 }, capability: { live: 1, count: 1 } },
     {},
     validation,
-    { manifestFindings: 0, experienceFindings: 0 }
+    { manifestFindings: 0, experienceFindings: 0 },
+    { scores: { overall: validation?.health ?? 100 } }
   );
 }
 
@@ -537,7 +546,7 @@ export function computeSyncHealth(validation, diff) {
 // MAIN — runKnowledgeSync
 // Orchestrates the full synchronization pipeline.
 // ============================================================
-export function runKnowledgeSync() {
+export async function runKnowledgeSync() {
   const startTime = Date.now();
   const stageResults = {};
   const eventsPublished = [];
@@ -555,13 +564,22 @@ export function runKnowledgeSync() {
 
   // Stage 2: Discover
   const assets = discoverPlatformAssets();
-  stageResults.discover = { status: "completed", assetsDiscovered: assets.counts };
+  const articles = await base44.entities.KnowledgeArticle.filter({ published: true, status: "published" }, "-last_updated", 100);
+  const knowledgeEntries = buildKnowledgeRegistry(articles || []);
+  const knowledgeRegistryAudit = auditKnowledgeRegistry(knowledgeEntries, articles || []);
+  stageResults.discover = { status: "completed", assetsDiscovered: assets.counts, approvedArticles: articles.length };
 
   // Stage 3: Validate (needed before registration)
   const validation = validateKnowledgeSync(assets);
+  validation.findings.push(...buildKnowledgeAuditFindings(knowledgeRegistryAudit));
+  validation.errors = validation.findings.filter((finding) => finding.level === "error");
+  validation.warnings = validation.findings.filter((finding) => finding.level === "warning");
+  validation.infos = validation.findings.filter((finding) => finding.level === "info");
+  validation.health = clamp(100 - validation.errors.length * 15 - validation.warnings.length * 6 - validation.infos.length);
 
   // Stage 4: Register
-  const registries = buildRegistries(assets, validation);
+  const persistence = await persistKnowledgeRegistry(knowledgeEntries);
+  const registries = buildRegistries(assets, validation, knowledgeEntries, knowledgeRegistryAudit);
   stageResults.register = { status: "completed", registries: Object.keys(registries).length };
   dispatchEvent("KnowledgeRegistryUpdated", { registries: Object.keys(registries).length });
 
@@ -593,7 +611,7 @@ export function runKnowledgeSync() {
 
   // Stage 12: Complete — Recalculate Knowledge Health
   const previousHealth = loadLastSnapshot()?.health || 0;
-  const knowledgeHealth = computeKnowledgeHealth(registries, intelligence, validation, guardianResult);
+  const knowledgeHealth = computeKnowledgeHealth(registries, intelligence, validation, guardianResult, knowledgeRegistryAudit);
   dispatchEvent("KnowledgeHealthUpdated", { health: knowledgeHealth.health, status: knowledgeHealth.status });
 
   // Diff report
@@ -662,6 +680,13 @@ export function runKnowledgeSync() {
     registries,
     intelligence,
     validation,
+    knowledgeRegistryAudit,
+    registeredEntries: knowledgeEntries,
+    verifiedEntries: knowledgeEntries.filter((entry) => entry.verification_status === "verified"),
+    knowledgeGaps: knowledgeRegistryAudit.gaps,
+    staleEntries: knowledgeRegistryAudit.stale,
+    conflictingEntries: knowledgeRegistryAudit.conflicts,
+    registryPersistence: persistence,
     report,
     coverage,
     platformStateUpdate,

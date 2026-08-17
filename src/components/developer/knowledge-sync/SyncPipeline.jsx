@@ -23,7 +23,7 @@ export default function SyncPipeline({ onComplete, onSyncStart }) {
     }
     // Run the actual synchronization
     try {
-      const result = runKnowledgeSync();
+      const result = await runKnowledgeSync();
       setRunning(false);
       setCurrentStage(-1);
       onComplete?.(result);

@@ -29,6 +29,7 @@
  *   Organization Isolation · Auditability
  */
 import { RLS_REGISTRY, SECURITY_CLASSIFICATIONS, ENTITY_SECURITY_CLASSIFICATIONS, getEntitySecurityClass } from "./rlsRegistry";
+import { discoverAllEntities } from "./entityDiscovery";
 
 const PLATFORM_ADMIN_ROLES = ["super_admin", "platform_admin"];
 const IMMUTABLE = "__immutable__";
@@ -107,6 +108,9 @@ function deriveCrudStatus(entry) {
   }
   if (status === "partial") {
     return { create: "open", read: "explicit", update: "open", delete: "open" };
+  }
+  if (status === "unverified") {
+    return { create: "missing", read: "missing", update: "missing", delete: "missing" };
   }
   // open
   return { create: "open", read: "open", update: "open", delete: "open" };
@@ -345,7 +349,8 @@ function validateEntity(entry) {
  * Run the full RLS Validation Engine™ across every registered entity.
  */
 export function runRLSValidation() {
-  const entityResults = RLS_REGISTRY.map((entry) => validateEntity(entry));
+  const inventory = discoverAllEntities();
+  const entityResults = inventory.map((entry) => validateEntity(entry));
 
   const allFindings = entityResults.flatMap((e) => e.findings.map((f) => ({ ...f, entity: e.name })));
 
@@ -363,9 +368,9 @@ export function runRLSValidation() {
     low: applicationDefects.filter((f) => f.severity === "low").length,
   };
 
-  const total = RLS_REGISTRY.length;
+  const total = inventory.length;
   const compliant = entityResults.filter((e) => e.policyStatus === "compliant").length;
-  const protectedCount = RLS_REGISTRY.filter((e) => e.status === "protected").length;
+  const protectedCount = inventory.filter((e) => e.status === "protected").length;
   const coverage = total > 0 ? Math.round((protectedCount / total) * 100) : 0;
   const passRate = total > 0 ? Math.round((compliant / total) * 100) : 0;
 

@@ -7,6 +7,8 @@
  * and a technical impact statement.
  */
 
+import { GUARDIAN_MEASURED_STATE } from './guardianMeasuredState';
+
 export const VALIDATION_DOMAINS = [
   { id: 'knowledge_registry', label: 'Knowledge Registry' },
   { id: 'knowledge_packs', label: 'Knowledge Packs' },
@@ -65,8 +67,8 @@ export const VALIDATION_RULES = [
     ['knowledge_packs']),
 
   // ═══ Prompt Registry ═══
-  F('prompt_registry_completeness', 'prompt_registry', 'Prompt Registry Completeness', 8, 'FAIL',
-    'AI prompts not registered for governance validation.', 'AI Configuration', 'developer', 'Developer', '1 hour', true,
+  F('prompt_registry_completeness', 'prompt_registry', 'Prompt Registry Completeness', 8, GUARDIAN_MEASURED_STATE.promptRegistry.completeness,
+    GUARDIAN_MEASURED_STATE.promptRegistry.evidence, 'AI Configuration', 'developer', 'Developer', '1 hour', true,
     {
       customer: 'Executive recommendations may vary across sessions, reducing consistency.',
       executive: 'AI coaching guidance may change between interactions, eroding trust.',
@@ -79,8 +81,8 @@ export const VALIDATION_RULES = [
     'Prompt Registry validation failed — entries are missing.',
     ['Prompt Registry™'], ['governance_score', 'launch_readiness'], '2026-07-10'),
 
-  F('prompt_registry_version_control', 'prompt_registry', 'Prompt Version Control', 4, 'WARNING',
-    'Some prompts lack version tracking.', 'AI Configuration', 'developer', 'Developer', '30 min', true,
+  F('prompt_registry_version_control', 'prompt_registry', 'Prompt Version Control', 4, GUARDIAN_MEASURED_STATE.promptRegistry.versionControl,
+    'All currently registered prompts include current version metadata; historical versions were not invented.', 'AI Configuration', 'developer', 'Developer', '30 min', true,
     {
       customer: 'Prompt changes are not traceable, complicating rollback.',
       executive: 'AI behavior changes may go unnoticed between updates.',
@@ -134,8 +136,8 @@ export const VALIDATION_RULES = [
     ['platform_health']),
 
   // ═══ Synchronization ═══
-  F('knowledge_sync_completion', 'synchronization', 'Knowledge Sync Completion', 9, 'FAIL',
-    'Knowledge synchronization has not been completed.', 'EXEC™ Knowledge Sync', 'developer', 'Developer', '5 min', true,
+  F('knowledge_sync_completion', 'synchronization', 'Knowledge Sync Completion', 9, GUARDIAN_MEASURED_STATE.knowledgeSync.status,
+    GUARDIAN_MEASURED_STATE.knowledgeSync.evidence, 'EXEC™ Knowledge Sync', 'developer', 'Developer', '5 min', true,
     {
       customer: 'Users may receive outdated recommendations because knowledge indexes are not fully synchronized.',
       executive: 'Executive briefings may reference stale data, reducing decision confidence.',
@@ -163,8 +165,8 @@ export const VALIDATION_RULES = [
     ['Registry Sync Engine™'], ['platform_manifest'], '2026-07-13'),
 
   // ═══ Configuration ═══
-  F('configuration_drift_detection', 'configuration', 'Configuration Drift Detection', 7, 'FAIL',
-    'Platform configuration has diverged from approved state.', 'Platform Configuration', 'developer', 'Developer', '30 min', true,
+  F('configuration_drift_detection', 'configuration', 'Configuration Drift Detection', 7, GUARDIAN_MEASURED_STATE.configuration.status,
+    GUARDIAN_MEASURED_STATE.configuration.evidence, 'Platform Configuration', 'developer', 'Developer', '30 min', true,
     {
       customer: 'Platform behavior may differ from expected, causing confusion.',
       executive: 'Executive dashboards may show unexpected metrics due to configuration drift.',
@@ -187,7 +189,7 @@ export const VALIDATION_RULES = [
     'All security regression tests pass.', 'Security Center', 'enterprise', 'Security Admin',
     ['security_score']),
 
-  F('rls_coverage_validation', 'security', 'RLS Coverage Validation', 8, 'FAIL',
+  F('rls_coverage_validation', 'security', 'RLS Coverage Validation', 8, GUARDIAN_MEASURED_STATE.rls.coverage,
     'Row-Level Security coverage is below 100% — some entities lack least-privilege enforcement.', 'Security Baseline', 'enterprise', 'Security Admin', '1 hour', true,
     {
       customer: 'Cross-tenant or cross-user data leakage risk — one user may see another private records.',
@@ -201,7 +203,7 @@ export const VALIDATION_RULES = [
     'RLS coverage validation failed — entities lack least-privilege enforcement.',
     ['RLS Validation Engine™', 'RLS Registry™'], ['security_score', 'launch_readiness'], '2026-07-30'),
 
-  F('rls_tenant_isolation', 'security', 'RLS Tenant Isolation', 7, 'FAIL',
+  F('rls_tenant_isolation', 'security', 'RLS Tenant Isolation', 7, GUARDIAN_MEASURED_STATE.rls.tenantIsolation,
     'Organization-owned entities must enforce tenant isolation (organization_id match).', 'Security Baseline', 'enterprise', 'Security Admin', '1 hour', true,
     {
       customer: 'A user in Organization A could read Organization B private data — a critical breach of trust.',
@@ -215,7 +217,7 @@ export const VALIDATION_RULES = [
     'RLS tenant isolation validation failed — org-scoped entities lack organization_id match.',
     ['RLS Validation Engine™', 'RLS Policy Builder™'], ['security_score', 'launch_readiness'], '2026-07-30'),
 
-  F('rls_least_privilege', 'security', 'RLS Least Privilege', 6, 'WARNING',
+  F('rls_least_privilege', 'security', 'RLS Least Privilege', 6, GUARDIAN_MEASURED_STATE.rls.leastPrivilege,
     'Some entities grant broader access than necessary (public read on sensitive data, open update).', 'Security Baseline', 'enterprise', 'Security Admin', '2 hours', true,
     {
       customer: 'Sensitive executive data may be exposed to users who should not see it.',

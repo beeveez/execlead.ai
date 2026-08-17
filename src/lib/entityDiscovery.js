@@ -13,8 +13,9 @@
  *   Public unverified (non-sensitive) → WARNING only
  */
 import { RLS_REGISTRY } from "./rlsRegistry";
+import { ENTITIES } from "./platformKnowledgeCenter/entities";
 
-const DISCOVERED_ENTITY_NAMES = [
+const LEGACY_DISCOVERED_ENTITY_NAMES = [
   // ── Enterprise & Identity ──
   "Organization", "OrgMembership", "IdentityProvider", "IdentityVersion",
   "IdentityVerification", "ExecutiveIdentityTransfer", "SSOConfig",
@@ -81,6 +82,13 @@ const DISCOVERED_ENTITY_NAMES = [
   // ── Knowledge & Intelligence ──
   "ELIMKnowledgePack", "JourneyEvent",
 ];
+
+const DISCOVERED_ENTITY_NAMES = [...new Set([
+  ...LEGACY_DISCOVERED_ENTITY_NAMES,
+  ...ENTITIES.map((entity) => entity.name),
+  "KnowledgeArticle",
+  "KnowledgeRegistryEntry",
+])];
 
 // ── Auto-Classification Heuristics ──
 

@@ -1,4 +1,5 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
+import { resolveActiveOrgMembership } from '../../shared/authoritativeOrgAccess.ts';
 
 // ============================================================
 // SCIM 2.0 SERVER — Enterprise Provisioning Endpoint
@@ -104,6 +105,23 @@ function toScimGroup(g) {
     members: [],
     meta: { resourceType: 'Group', created: g.created_date, lastModified: g.updated_date },
   };
+}
+
+async function userBelongsToProviderOrg(base44, provider, userId) {
+  const memberships = await base44.asServiceRole.entities.OrgMembership.filter({
+    organization_id: provider.organization_id,
+    user_id: userId,
+    status: 'active',
+  }, '-created_date', 1);
+  return memberships.length > 0;
+}
+
+async function getProviderGroup(base44, provider, groupId) {
+  const groups = await base44.asServiceRole.entities.Department.filter({
+    id: groupId,
+    organization_id: provider.organization_id,
+  }, '-created_date', 1);
+  return groups[0] || null;
 }
 
 Deno.serve(async (req) => {
@@ -218,6 +236,11 @@ async function handleTest(req, body) {
     return Response.json({ status: 'error', message: `Provider lookup failed: ${e.message}` }, { status: 404 });
   }
   if (!provider) return Response.json({ status: 'error', message: 'Provider not found' }, { status: 404 });
+  const access = await resolveActiveOrgMembership(base44, user, {
+    requestedOrgId: provider.organization_id,
+    allowedRoles: ['organization_admin'],
+  });
+  if (!access) return Response.json({ error: 'Forbidden' }, { status: 403 });
 
   const config = JSON.parse(provider.config_json || '{}');
   const hasToken = !!config.scim_token;
@@ -353,6 +376,7 @@ async function handleUsers(req, base44, provider, resourceId, url) {
 
   // PUT /Users/{id} — replace
   if (method === 'PUT' && resourceId) {
+    if (!await userBelongsToProviderOrg(base44, provider, resourceId)) return scimErr(404, `User ${resourceId} not found`);
     const body = await req.json();
     await logEvent(base44, provider, 'provisioning_update', 'success',
       `SCIM PUT /Users/${resourceId} — profile replaced`, 1);
@@ -369,6 +393,7 @@ async function handleUsers(req, base44, provider, resourceId, url) {
 
   // PATCH /Users/{id} — modify (activate/deactivate)
   if (method === 'PATCH' && resourceId) {
+    if (!await userBelongsToProviderOrg(base44, provider, resourceId)) return scimErr(404, `User ${resourceId} not found`);
     const body = await req.json();
     const operations = body.Operations || [];
     let deactivated = false;
@@ -421,6 +446,7 @@ async function handleUsers(req, base44, provider, resourceId, url) {
 
   // DELETE /Users/{id} — deprovision with grace period
   if (method === 'DELETE' && resourceId) {
+    if (!await userBelongsToProviderOrg(base44, provider, resourceId)) return scimErr(404, `User ${resourceId} not found`);
     try {
       await base44.asServiceRole.entities.ExecutiveIdentityTransfer.create({
         user_id: resourceId,
@@ -517,6 +543,8 @@ async function handleGroups(req, base44, provider, resourceId, url) {
 
   // PUT /Groups/{id} — replace
   if (method === 'PUT' && resourceId) {
+    const group = await getProviderGroup(base44, provider, resourceId);
+    if (!group) return scimErr(404, `Group ${resourceId} not found`);
     const body = await req.json();
     const updated = await base44.asServiceRole.entities.Department.update(resourceId, {
       name: body.displayName,
@@ -542,8 +570,7 @@ async function handleGroups(req, base44, provider, resourceId, url) {
 
     // Update member count
     try {
-      const groups = await base44.asServiceRole.entities.Department.filter({ id: resourceId });
-      const group = groups[0];
+      const group = await getProviderGroup(base44, provider, resourceId);
       if (group) {
         const newCount = Math.max(0, (group.member_count || 0) + netChange);
         await base44.asServiceRole.entities.Department.update(resourceId, { member_count: newCount });
@@ -558,6 +585,8 @@ async function handleGroups(req, base44, provider, resourceId, url) {
 
   // DELETE /Groups/{id}
   if (method === 'DELETE' && resourceId) {
+    const group = await getProviderGroup(base44, provider, resourceId);
+    if (!group) return scimErr(404, `Group ${resourceId} not found`);
     await base44.asServiceRole.entities.Department.update(resourceId, { is_active: false });
 
     await logEvent(base44, provider, 'group_sync', 'success',

@@ -108,7 +108,7 @@ export default async function(req) {
       const readRoles = config.kind === 'hybrid' ? ADMIN_ROLES : MEMBER_ROLES;
       let access = requestedOrg ? await authorizeOrg(base44, user, requestedOrg, readRoles) : await defaultOrgAccess(base44, user, readRoles);
       let ownerOnly = false;
-      if (!access && config.kind === 'hybrid' && config.owner) ownerOnly = true;
+      if (!access && config.owner) ownerOnly = true;
       if (!access && !ownerOnly && !isPlatformAdmin(user)) return Response.json({ error: 'Forbidden' }, { status: 403 });
       const scoped = scopeQuery(entity, query, config, access?.orgId, user, ownerOnly);
       const result = await api.filter(scoped, args.sort || '-created_date', cleanLimit(args.limit));
@@ -126,7 +126,9 @@ export default async function(req) {
 
     if (operation === 'create' && entity === 'Organization') {
       if (args.data?.admin_user_id && args.data.admin_user_id !== user.id && !isPlatformAdmin(user)) return Response.json({ error: 'Forbidden' }, { status: 403 });
-      const result = await api.create({ ...(args.data || {}), admin_user_id: user.id, admin_email: user.email });
+      const ownerUserId = isPlatformAdmin(user) && args.data?.admin_user_id ? args.data.admin_user_id : user.id;
+      const ownerEmail = isPlatformAdmin(user) && args.data?.admin_email ? args.data.admin_email : user.email;
+      const result = await api.create({ ...(args.data || {}), admin_user_id: ownerUserId, admin_email: ownerEmail });
       if (!isPlatformAdmin(user)) {
         await base44.asServiceRole.entities.OrgMembership.create({ organization_id: result.id, organization_name: result.name, user_id: user.id, user_name: user.full_name || user.email, user_email: user.email, role: 'organization_admin', status: 'active' });
       }
@@ -138,7 +140,7 @@ export default async function(req) {
       if (!rows.length) return Response.json({ error: 'Data is required.' }, { status: 400 });
       const firstOrg = rows[0]?.[config.orgField];
       let access = firstOrg ? await authorizeOrg(base44, user, firstOrg, config.memberCreate ? MEMBER_ROLES : (config.roles || ADMIN_ROLES)) : await defaultOrgAccess(base44, user, config.memberCreate ? MEMBER_ROLES : (config.roles || ADMIN_ROLES));
-      if (!access && config.kind === 'hybrid') {
+      if (!access && !firstOrg && (config.kind === 'hybrid' || entity === 'CPQQuote')) {
         const ownedRows = rows.map((row) => ownerCreateData(entity, row, config, user));
         const result = operation === 'bulkCreate' ? await api.bulkCreate(ownedRows) : await api.create(ownedRows[0]);
         return Response.json({ result });

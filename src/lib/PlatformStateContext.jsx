@@ -11,6 +11,7 @@ import { computeReadinessIndex } from "./platformReadinessIndex";
 import { runKnowledgeSync } from "./execKnowledgeSyncEngine";
 import { useAuth } from "./AuthContext";
 import { base44 } from "@/api/base44Client";
+import { getLatestGuardianValidation } from "@/lib/guardianValidationEngine";
 import {
   canCreateGovernanceRecord, newGovernanceRequestId, logGovernanceCreate,
 } from "@/lib/governanceAuditLogger";
@@ -42,7 +43,7 @@ const SAFE_DEFAULT_STATE = {
   warnings: [],
   health: {
     overall: 100, manifestCoverage: 100, knowledgeCoverage: 100, routeCoverage: 100,
-    entityHealth: 100, guardianHealth: 100, featureFlagHealth: 100,
+    entityHealth: 100, guardianHealth: 0, featureFlagHealth: 100,
     deploymentHealth: 100, apiHealth: 100, errors: 0, warnings: 0, infos: 0,
   },
   errors: [],
@@ -81,6 +82,7 @@ const SAFE_DEFAULT_STATE = {
   lastRepair: null,
   lastKnowledgeSync: null,
   lastGuardianScan: null,
+  guardianValidation: null,
   lastDeployment: null,
   lastBroadcast: null,
   subscribersUpdated: 0,
@@ -113,7 +115,8 @@ export function PlatformStateProvider({ children }) {
     try {
       const coverage = getManifestCoverage();
       const findings = validateManifest();
-      const health = computePlatformHealth(guardianPending);
+      const guardianValidation = getLatestGuardianValidation();
+      const health = computePlatformHealth(guardianPending, guardianValidation.score);
       const errors = findings.filter((f) => f.level === "error");
       const warns = findings.filter((f) => f.level === "warning");
       const infos = findings.filter((f) => f.level === "info");
@@ -133,6 +136,7 @@ export function PlatformStateProvider({ children }) {
         warningCount: warns.length,
         infoCount: infos.length,
         guardianPending,
+        guardianValidation,
         readiness,
         platformVersion: PLATFORM_METADATA.platformVersion,
         manifestVersion: PLATFORM_METADATA.manifestVersion,
@@ -162,7 +166,7 @@ export function PlatformStateProvider({ children }) {
   const [lastAnalysis, setLastAnalysis] = useState(null);
   const [lastRepair, setLastRepair] = useState(null);
   const [lastKnowledgeSync, setLastKnowledgeSync] = useState(null);
-  const [lastGuardianScan, setLastGuardianScan] = useState(null);
+  const [lastGuardianScan, setLastGuardianScan] = useState(() => getLatestGuardianValidation().computedAt);
   const [lastDeployment, setLastDeployment] = useState(null);
   const [lastBroadcast, setLastBroadcast] = useState(null);
   const [subscribersUpdated, setSubscribersUpdated] = useState(0);
@@ -260,8 +264,8 @@ export function PlatformStateProvider({ children }) {
         if (eventName === "GovernancePipelineCompleted") {
           persistStateEvent("GovernancePipelineCompleted", payload, newState);
         }
-        if (eventName === "GuardianCompleted") {
-          setLastGuardianScan(now);
+        if (eventName === "GuardianCompleted" || eventName === "GuardianValidationCompleted") {
+          setLastGuardianScan(payload?.computedAt || now);
         }
         if (eventName === "DeploymentCompleted") {
           setLastDeployment(now);

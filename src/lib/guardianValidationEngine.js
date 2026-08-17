@@ -16,6 +16,12 @@
 
 import { VALIDATION_DOMAINS, VALIDATION_RULES } from './guardianValidationRules';
 
+const VALIDATION_SNAPSHOT_KEY = 'execlead_guardian_validation_snapshot';
+
+function ruleSignature() {
+  return VALIDATION_RULES.map((rule) => `${rule.id}:${rule.status}`).join('|');
+}
+
 // ═══════════════════════════════════════════════════════════
 // SCORE COMPUTATION
 // ═══════════════════════════════════════════════════════════
@@ -35,6 +41,33 @@ export function computeGuardianScore() {
     warningRules: applicable.filter((r) => r.status === 'WARNING').length,
     failedRules: applicable.filter((r) => r.status === 'FAIL').length,
   };
+}
+
+export function runGuardianValidation(trigger = 'manual') {
+  const scoreData = computeGuardianScore();
+  const failRules = VALIDATION_RULES.filter((rule) => rule.status === 'FAIL');
+  const snapshot = {
+    ...scoreData,
+    criticalFindings: failRules.filter((rule) => rule.weight >= 7).length,
+    highFindings: failRules.filter((rule) => rule.weight < 7).length,
+    mediumFindings: VALIDATION_RULES.filter((rule) => rule.status === 'WARNING').length,
+    deploymentStatus: failRules.length > 0 ? 'not_ready' : scoreData.warningRules > 0 ? 'conditionally_ready' : 'ready',
+    computedAt: new Date().toISOString(),
+    trigger,
+    ruleSignature: ruleSignature(),
+  };
+  try { localStorage.setItem(VALIDATION_SNAPSHOT_KEY, JSON.stringify(snapshot)); } catch {}
+  return snapshot;
+}
+
+export function getLatestGuardianValidation() {
+  const current = computeGuardianScore();
+  const signature = ruleSignature();
+  try {
+    const stored = JSON.parse(localStorage.getItem(VALIDATION_SNAPSHOT_KEY) || 'null');
+    if (stored?.score === current.score && stored?.ruleSignature === signature) return stored;
+  } catch {}
+  return runGuardianValidation('rules_changed');
 }
 
 function getFailedRules() {
@@ -409,7 +442,7 @@ function getScoreStatus(score) {
 // ═══════════════════════════════════════════════════════════
 
 export function enrichGuardianValidation(previousScore) {
-  const scoreData = computeGuardianScore();
+  const scoreData = getLatestGuardianValidation();
   const score = scoreData.score;
   const projectedScore = getProjectedScore(score, scoreData);
   const domainBreakdown = getDomainBreakdown(scoreData);
@@ -435,7 +468,7 @@ export function enrichGuardianValidation(previousScore) {
     owner: 'Developer',
     calculation: 'Weighted Passed Rules ÷ Weighted Total Rules × 100',
     description: 'Guardian™ validation score — ensures platform governance, security, and compliance checks pass before deployment.',
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: scoreData.computedAt,
     current: score,
     previous: previousScore ?? validationHistory.previousScore,
     target: 100,

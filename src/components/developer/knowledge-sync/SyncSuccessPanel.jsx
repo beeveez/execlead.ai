@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Clock, Shield, Activity, Database, Layers, GitBranch } from "lucide-react";
 import MetricRow from "@/components/metric-intelligence/MetricRow";
 import { openMetricDrawer } from "@/lib/metricDrawerStore";
+import { usePlatformState } from "@/lib/PlatformStateContext";
 
 const STATUS_META = {
   synced: { label: "Healthy", color: "#10b981", icon: CheckCircle2 },
@@ -11,10 +12,13 @@ const STATUS_META = {
 };
 
 export default function SyncSuccessPanel({ result }) {
+  const { guardianValidation } = usePlatformState();
   if (!result) return null;
   const meta = STATUS_META[result.status] || STATUS_META.critical;
   const components = result.knowledgeHealth?.components || [];
-  const guardianPassed = result.platformStateUpdate?.guardianStatus === "passed";
+  const guardianComponent = components.find((component) => component.name === "Guardian Validation");
+  const guardianScore = guardianValidation?.score ?? guardianComponent?.score ?? 0;
+  const guardianPassed = guardianValidation?.deploymentStatus === "ready";
 
   const componentIcons = {
     "Knowledge Registry": Database,
@@ -85,7 +89,7 @@ export default function SyncSuccessPanel({ result }) {
               <MetricRow
                 key={c.name}
                 metricId={metricId}
-                score={c.score}
+                score={c.name === "Guardian Validation" ? guardianScore : c.score}
                 label={c.name}
                 icon={Icon}
                 weight={c.weight}
@@ -97,8 +101,6 @@ export default function SyncSuccessPanel({ result }) {
 
       <button
         onClick={() => {
-          const guardianComponent = components.find((c) => c.name === "Guardian Validation");
-          const guardianScore = guardianPassed ? 100 : (guardianComponent?.score ?? 0);
           openMetricDrawer("guardian_validation", guardianScore, null, "Guardian Validation");
         }}
         className="flex items-center gap-2 text-xs bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2 w-full hover:border-white/15 hover:bg-white/[0.04] transition-all cursor-pointer"

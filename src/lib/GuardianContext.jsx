@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { runGuardianScan, rollbackActivity, approveActivity, dismissActivity } from "@/lib/guardianEngine";
+import { runGuardianValidation } from "@/lib/guardianValidationEngine";
+import { dispatch as platformDispatch } from "@/lib/platformEventBus";
 
 const GuardianContext = createContext(null);
 export const useGuardian = () => useContext(GuardianContext);
@@ -59,7 +61,9 @@ export function GuardianProvider({ children }) {
     setStatus("scanning");
     try {
       const result = await runGuardianScan({ trigger, userId: user?.id, autoResolve: config.autoResolve });
-      setLastScan(result);
+      const validation = runGuardianValidation(trigger);
+      setLastScan({ ...result, validation });
+      platformDispatch("GuardianValidationCompleted", { source: "guardian", ...validation });
       setBrokenNavPaths(result.brokenNavPaths);
       await Promise.all([refreshPending(), refreshActivity()]);
     } catch {

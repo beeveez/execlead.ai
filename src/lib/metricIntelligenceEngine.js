@@ -13,7 +13,7 @@
  */
 
 import { additionalMetrics, WORKSPACES, CATEGORY_TO_WORKSPACE } from './metrics/additionalMetrics';
-import { enrichGuardianValidation, computeGuardianScore } from './guardianValidationEngine';
+import { enrichGuardianValidation, getLatestGuardianValidation } from './guardianValidationEngine';
 import { auditKnowledgeRegistry } from './knowledgeRegistry';
 
 // ═══════════════════════════════════════════════════════════
@@ -652,7 +652,7 @@ export async function computeMetricScores(base44) {
   const results = {};
 
   // Guardian Validation — deterministic from validation rules
-  const guardianScore = computeGuardianScore();
+  const guardianScore = getLatestGuardianValidation();
   results.guardian_validation = {
     score: guardianScore.score,
     previous: 0,

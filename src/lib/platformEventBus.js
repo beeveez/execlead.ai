@@ -25,6 +25,7 @@ export const PLATFORM_EVENTS = [
   "DeploymentCompleted",
   "GuardianStarted",
   "GuardianCompleted",
+  "GuardianValidationCompleted",
   "WorkspaceChanged",
   "CacheInvalidated",
   "ConfigUpdated",

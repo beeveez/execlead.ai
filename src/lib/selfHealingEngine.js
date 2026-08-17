@@ -281,7 +281,7 @@ export function getHealthColor(score) {
 // Guardian, Feature Flags, Deployment, API
 // ============================================================
 
-export function computePlatformHealth(guardianPending = 0) {
+export function computePlatformHealth(guardianPending = 0, guardianValidationScore = null) {
   const coverage = getManifestCoverage();
   const findings = validateManifest();
   const errors = findings.filter((f) => f.level === "error").length;
@@ -297,7 +297,7 @@ export function computePlatformHealth(guardianPending = 0) {
     : 0;
   const routeCoverage = coverage.routeCoverage;
   const entityHealth = 100;
-  const guardianHealth = guardianPending === 0 ? 100 : Math.max(0, 100 - guardianPending * 10);
+  const guardianHealth = guardianValidationScore ?? (guardianPending === 0 ? 0 : Math.max(0, 100 - guardianPending * 10));
   const featureFlagHealth = 100;
   const deploymentHealth = 100;
   const apiHealth = 100;

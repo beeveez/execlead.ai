@@ -35,6 +35,7 @@ import { runPlatformExperienceAudit } from "./platformExperienceAudit";
 import { dispatch as platformDispatch } from "./platformEventBus";
 import { base44 } from "@/api/base44Client";
 import { buildKnowledgeRegistry, auditKnowledgeRegistry, buildKnowledgeAuditFindings, persistKnowledgeRegistry } from "./knowledgeRegistry";
+import { runGuardianValidation, getLatestGuardianValidation } from "./guardianValidationEngine";
 
 const SYNC_SNAPSHOT_KEY = "exec_knowledge_sync_snapshot";
 const SYNC_HISTORY_KEY = "exec_knowledge_sync_history";
@@ -502,9 +503,8 @@ export function computeKnowledgeHealth(registries, intelligence, validation, gua
   const pgWarnings = validation.findings.filter((f) => f.code === "DEPRECATED_IN_NAV" && f.level === "warning").length;
   const platformGraph = componentHealth(0, pgWarnings, 0);
 
-  // Guardian Validation — manifest + experience audit findings
-  const guardianErrors = (guardianResult?.manifestFindings || 0) + (guardianResult?.experienceFindings || 0);
-  const guardian = componentHealth(0, guardianErrors, 0);
+  // Guardian Validation — authoritative weighted validation snapshot
+  const guardian = guardianResult?.validationScore ?? getLatestGuardianValidation().score;
 
   const weights = { knowledgeRegistry: 0.25, knowledgePacks: 0.20, capabilityGraph: 0.15, evidenceEngine: 0.10, reasoningEngine: 0.10, platformGraph: 0.10, guardian: 0.10 };
   const overall = clamp(
@@ -606,8 +606,19 @@ export async function runKnowledgeSync() {
   // Stage 11: Guardian
   const manifestFindings = safe(() => validateManifest(), []);
   const experienceAudit = safe(() => runPlatformExperienceAudit(), { findings: [] });
-  const guardianResult = { manifestFindings: manifestFindings.length, experienceFindings: experienceAudit.findings?.length || 0 };
+  const guardianValidation = runGuardianValidation("knowledge_sync");
+  const guardianResult = {
+    manifestFindings: manifestFindings.length,
+    experienceFindings: experienceAudit.findings?.length || 0,
+    validationScore: guardianValidation.score,
+    validationTimestamp: guardianValidation.computedAt,
+    criticalFindings: guardianValidation.criticalFindings,
+    highFindings: guardianValidation.highFindings,
+    mediumFindings: guardianValidation.mediumFindings,
+    deploymentStatus: guardianValidation.deploymentStatus,
+  };
   stageResults.guardian = { status: "completed", ...guardianResult };
+  dispatchEvent("GuardianValidationCompleted", guardianValidation);
 
   // Stage 12: Complete — Recalculate Knowledge Health
   const previousHealth = loadLastSnapshot()?.health || 0;
@@ -627,7 +638,9 @@ export async function runKnowledgeSync() {
     lastSynchronization: new Date().toISOString(),
     knowledgeVersion: EXEC_KNOWLEDGE_VERSION,
     knowledgeCoverage: coverage?.routeCoverage ?? 100,
-    guardianStatus: guardianResult.manifestFindings === 0 ? "passed" : "warning",
+    guardianStatus: guardianValidation.deploymentStatus,
+    guardianScore: guardianValidation.score,
+    guardianValidatedAt: guardianValidation.computedAt,
     synchronizationDuration: 0, // filled below
     platformReadinessContribution: knowledgeHealth.health * 0.1,
   };
@@ -690,6 +703,7 @@ export async function runKnowledgeSync() {
     report,
     coverage,
     platformStateUpdate,
+    guardianValidation,
     metrics: {
       knowledgePacksLoaded: registries.knowledgePack.count,
       capabilitiesRegistered: registries.capability.count,

@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Target, Users, Building2 } from "lucide-react";
-import { BrandRegistry } from "@/lib/brandRegistry";
+import { ArrowRight, ArrowLeft, Target, Users, Compass } from "lucide-react";
 import PageMetadata from "@/components/marketing/PageMetadata";
 
 export default function About() {
@@ -144,7 +143,7 @@ export default function About() {
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Target size={20} className="text-indigo-400 mb-3" />
             <h3 className="text-white font-semibold text-sm mb-1">Our Mission</h3>
-            <p className="text-white/40 text-xs leading-relaxed">{BrandRegistry.tagline}</p>
+            <p className="text-white/40 text-xs leading-relaxed">One Leadership Journey. One AI Platform.</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
             <Users size={20} className="text-cyan-400 mb-3" />
@@ -152,9 +151,9 @@ export default function About() {
             <p className="text-white/40 text-xs leading-relaxed">Ambitious professionals advancing into management, director, and executive leadership roles across industries and functions.</p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-            <Building2 size={20} className="text-purple-400 mb-3" />
-            <h3 className="text-white font-semibold text-sm mb-1">Built On</h3>
-            <p className="text-white/40 text-xs leading-relaxed">Powered by Base44 during our early-access beta.</p>
+            <Compass size={20} className="text-purple-400 mb-3" />
+            <h3 className="text-white font-semibold text-sm mb-1">Our Belief</h3>
+            <p className="text-white/40 text-xs leading-relaxed">Leadership is a continuous journey of readiness, judgment, growth, and measurable impact.</p>
           </div>
         </div>
 

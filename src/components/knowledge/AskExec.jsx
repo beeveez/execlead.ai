@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { trackKnowledgeAiAsk } from '@/lib/knowledgeIntelligenceClient';
-import KnowledgeProvenance from '@/components/knowledge/KnowledgeProvenance';
 
 function scoreArticle(article, q) {
   const haystack = `${article.question} ${article.short_answer} ${article.detailed_answer || ''} ${(article.tags || []).join(' ')} ${article.category}`.toLowerCase();
@@ -107,9 +106,6 @@ export default function AskExec({ articles, onOpen }) {
               {result.error || result.noResult ? <AlertCircle size={15} className="text-amber-400 shrink-0 mt-0.5" /> : <ShieldCheck size={15} className="text-emerald-400 shrink-0 mt-0.5" />}
               <p className="text-[13px] text-white/75 leading-relaxed">{result.answer}</p>
             </div>
-            {!result.error && !result.noResult && result.sources?.length > 0 && (
-              <KnowledgeProvenance sources={result.sources} confidence={result.confidence} freshness={result.freshness} articles={articles} onOpen={onOpen} />
-            )}
             {result.noResult && result.sources?.length > 0 && (
               <div className="mt-3">
                 <div className="text-[10px] uppercase tracking-wider text-white/40 font-semibold mb-2">Related Questions</div>

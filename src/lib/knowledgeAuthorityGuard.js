@@ -5,10 +5,10 @@ import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 // Knowledge Authority Guard™ + Evidence Attribution & Confidence Standard™
 // ------------------------------------------------------------
 // Routes company/platform questions to grounded answers built ONLY from
-// approved KnowledgeArticle records. Each answer exposes evidence
-// metadata (Knowledge Source, Knowledge Confidence, Last Updated, Related
-// Articles). Never uses general LLM reasoning as the source of truth for
-// company facts. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
+// approved KnowledgeArticle records. Provenance remains attached to the
+// internal result for governance and auditability, while normal chat receives
+// only the grounded answer. Never uses general LLM reasoning as the source of
+// truth for company facts. Every grounded answer is audit-logged.
 // ============================================================
 
 const COMPANY_TOKENS = [
@@ -92,15 +92,6 @@ function scoreArticle(article, q) {
   return score;
 }
 
-function fmtDate(d) {
-  if (!d) return "—";
-  try {
-    return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-  } catch (e) {
-    return "—";
-  }
-}
-
 // Fetches published Knowledge Articles and ranks them by relevance.
 // Returns { ranked, all }.
 export async function retrieveKnowledgeArticles(query, limit = 5) {
@@ -169,22 +160,14 @@ export async function answerFromKnowledge(query, articles, all) {
   return { noResult: false, answer, sources: finalSources, confidence: conf.numeric, confidenceLabel: conf.label, sourceLabel: primarySource, freshness, related, citedSlugs: slugs };
 }
 
-// Formats the grounded result as a markdown concierge message exposing the
-// Evidence Attribution footer: Knowledge Source, Knowledge Confidence,
-// Last Updated, Sources Used, Related Articles.
+// Returns only the grounded answer for the normal concierge presentation.
+// The result object retains source, confidence, freshness, and related-article
+// provenance for analytics, governance, and future controlled presentation.
 export function formatKnowledgeAuthorityMessage(result) {
   if (!result || result.noResult) {
     return buildNoResultMessage(result?.relatedSuggestions || []);
   }
-  let msg = result.answer || "";
-  msg += `\n\n---\n**Knowledge Source:** ${result.sourceLabel || "Knowledge Article"}\n**Knowledge Confidence:** ${result.confidenceLabel || "Unknown"}\n**Last Updated:** ${fmtDate(result.freshness)}`;
-  if (result.sources && result.sources.length) {
-    msg += `\n\n**Sources Used:**\n${result.sources.map((s) => `- ${s.question} · ${sourceLabelFor(s)}`).join("\n")}`;
-  }
-  if (result.related && result.related.length) {
-    msg += `\n\n**Related Articles:**\n${result.related.map((r) => `- ${r.question}`).join("\n")}`;
-  }
-  return msg;
+  return result.answer || "";
 }
 
 // Builds the transparent "information missing" fallback per the standard:

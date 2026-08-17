@@ -50,14 +50,14 @@
       "type": "string",
       "enum": [
         "UX",
-        "Executive Readiness Assessment\u2122",
-        "Executive Coach\u2122",
-        "Executive Simulations\u2122",
-        "Executive Decision Lab\u2122",
-        "Executive Identity\u2122",
-        "Executive Portfolio\u2122",
-        "Executive Success Stories\u2122",
-        "Executive Outcomes\u2122",
+        "Executive Readiness Assessment™",
+        "Executive Coach™",
+        "Executive Simulations™",
+        "Executive Decision Lab™",
+        "Executive Identity™",
+        "Executive Portfolio™",
+        "Executive Success Stories™",
+        "Executive Outcomes™",
         "Marketing",
         "Performance",
         "Security",
@@ -151,7 +151,7 @@
     "feedback_confidence": {
       "type": "number",
       "default": 0,
-      "description": "Feedback Confidence\u2122 0-100"
+      "description": "Feedback Confidence™ 0-100"
     },
     "impact_score": {
       "type": "string",
@@ -331,21 +331,6 @@
         },
         {
           "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "developer"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "enterprise_admin"
-          }
-        },
-        {
-          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -368,16 +353,6 @@
         },
         {
           "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "developer"
-          }
-        },
-        {
-          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -385,6 +360,9 @@
     },
     "delete": {
       "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
         {
           "user_condition": {
             "role": "super_admin"

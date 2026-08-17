@@ -443,15 +443,12 @@
   "required": [],
   "rls": {
     "create": {
-      "data.user_id": "{{user.id}}"
+      "created_by_id": "{{user.id}}"
     },
     "read": {
       "$or": [
         {
-          "data.user_id": "{{user.id}}"
-        },
-        {
-          "data.organization_id": "{{user.data.organization_id}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -461,21 +458,6 @@
         {
           "user_condition": {
             "role": "platform_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "developer"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "enterprise_admin"
           }
         },
         {
@@ -488,7 +470,7 @@
     "update": {
       "$or": [
         {
-          "data.user_id": "{{user.id}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -502,11 +484,6 @@
         },
         {
           "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -515,7 +492,7 @@
     "delete": {
       "$or": [
         {
-          "data.user_id": "{{user.id}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {

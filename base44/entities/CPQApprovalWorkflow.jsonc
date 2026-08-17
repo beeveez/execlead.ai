@@ -46,12 +46,17 @@
     },
     "review_notes": {
       "type": "string"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Immutable organization ownership copied from the parent CPQ quote"
     }
   },
   "required": [
     "quote_id",
     "approval_type",
-    "requested_by"
+    "requested_by",
+    "organization_id"
   ],
   "rls": {
     "create": {
@@ -68,16 +73,6 @@
         },
         {
           "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "enterprise_admin"
-          }
-        },
-        {
-          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -86,7 +81,7 @@
     "read": {
       "$or": [
         {
-          "data.requested_by": "{{user.email}}"
+          "data.organization_id": "{{user.data.organization_id}}"
         },
         {
           "user_condition": {
@@ -96,16 +91,6 @@
         {
           "user_condition": {
             "role": "platform_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "enterprise_admin"
           }
         },
         {
@@ -125,16 +110,6 @@
         {
           "user_condition": {
             "role": "platform_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "enterprise_admin"
           }
         },
         {

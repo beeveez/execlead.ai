@@ -199,14 +199,12 @@
   },
   "required": [
     "proposal_number",
-    "organization_name"
+    "organization_name",
+    "organization_id"
   ],
   "rls": {
     "create": {
       "$or": [
-        {
-          "data.customer_email": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "super_admin"
@@ -219,16 +217,6 @@
         },
         {
           "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "sales"
-          }
-        },
-        {
-          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -237,10 +225,7 @@
     "read": {
       "$or": [
         {
-          "data.customer_email": "{{user.email}}"
-        },
-        {
-          "data.assigned_to": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.organization_id": "{{user.data.organization_id}}"
@@ -257,21 +242,6 @@
         },
         {
           "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "sales"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "finance"
-          }
-        },
-        {
-          "user_condition": {
             "role": "founder_root_admin"
           }
         }
@@ -280,12 +250,6 @@
     "update": {
       "$or": [
         {
-          "data.customer_email": "{{user.email}}"
-        },
-        {
-          "data.assigned_to": "{{user.email}}"
-        },
-        {
           "user_condition": {
             "role": "super_admin"
           }
@@ -293,16 +257,6 @@
         {
           "user_condition": {
             "role": "platform_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "sales"
           }
         },
         {
@@ -315,9 +269,6 @@
     "delete": {
       "$or": [
         {
-          "data.customer_email": "{{user.email}}"
-        },
-        {
           "user_condition": {
             "role": "super_admin"
           }
@@ -325,11 +276,6 @@
         {
           "user_condition": {
             "role": "platform_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "sales"
           }
         },
         {

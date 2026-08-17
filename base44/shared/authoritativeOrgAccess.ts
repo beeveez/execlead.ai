@@ -3,6 +3,29 @@ const DEFAULT_MANAGER_ROLES = ['organization_admin', 'department_admin', 'manage
 const ADMIN_USER_ROLES = ['enterprise_admin', 'organization_admin'];
 const MANAGER_USER_ROLES = ['enterprise_admin', 'organization_admin', 'department_admin', 'enterprise_manager', 'manager'];
 
+export async function resolveActiveOrgMembership(base44, user, options = {}) {
+  const allowedRoles = options.allowedRoles || [];
+  const ownedOrganizations = await base44.asServiceRole.entities.Organization.filter(
+    { admin_user_id: user.id }, '-created_date', 100,
+  );
+  const owned = options.requestedOrgId
+    ? ownedOrganizations.find((organization) => organization.id === options.requestedOrgId)
+    : ownedOrganizations[0];
+  if (owned) return { orgId: owned.id, membership: null, organization: owned, isOwner: true };
+
+  const memberships = await base44.asServiceRole.entities.OrgMembership.filter(
+    { user_id: user.id, status: 'active' }, '-created_date', 100,
+  );
+  const membership = memberships.find((item) =>
+    (!options.requestedOrgId || item.organization_id === options.requestedOrgId) &&
+    (!allowedRoles.length || allowedRoles.includes(item.role))
+  );
+  if (!membership?.organization_id) return null;
+  const organization = await base44.asServiceRole.entities.Organization.get(membership.organization_id);
+  if (!organization) return null;
+  return { orgId: membership.organization_id, membership, organization, isOwner: organization.admin_user_id === user.id };
+}
+
 export async function resolveAuthoritativeOrgAccess(base44, user, options = {}) {
   const allowedRoles = options.allowManagers ? DEFAULT_MANAGER_ROLES : DEFAULT_ADMIN_ROLES;
   const allowedUserRoles = options.allowManagers ? MANAGER_USER_ROLES : ADMIN_USER_ROLES;

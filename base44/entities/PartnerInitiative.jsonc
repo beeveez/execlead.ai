@@ -1,0 +1,234 @@
+{
+  "name": "PartnerInitiative",
+  "type": "object",
+  "properties": {
+    "organizationId": {
+      "type": "string"
+    },
+    "initiativeId": {
+      "type": "string"
+    },
+    "partnerId": {
+      "type": "string"
+    },
+    "initiativeName": {
+      "type": "string"
+    },
+    "initiativeType": {
+      "type": "string",
+      "enum": [
+        "Enterprise Pilot",
+        "API Integration",
+        "Joint Webinar",
+        "Joint Solution",
+        "Executive Assessment Program",
+        "Certification Program",
+        "Marketplace Integration",
+        "Reseller Launch",
+        "Geographic Expansion",
+        "Other"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "owner": {
+      "type": "string"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "targetDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "in_progress",
+        "blocked",
+        "completed",
+        "cancelled"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "expectedValue": {
+      "type": "number"
+    },
+    "actualValue": {
+      "type": "number"
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "nextAction": {
+      "type": "string"
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organizationId",
+    "initiativeId",
+    "partnerId",
+    "initiativeName",
+    "initiativeType",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    }
+  }
+}

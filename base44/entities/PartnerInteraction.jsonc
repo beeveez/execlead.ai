@@ -1,0 +1,176 @@
+{
+  "name": "PartnerInteraction",
+  "type": "object",
+  "properties": {
+    "organizationId": {
+      "type": "string"
+    },
+    "interactionId": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "partnerId": {
+      "type": "string"
+    },
+    "interactionType": {
+      "type": "string",
+      "enum": [
+        "Meeting",
+        "Email",
+        "Executive Call",
+        "Demo",
+        "Proposal",
+        "Negotiation",
+        "Workshop",
+        "Pilot Review",
+        "Contract Review",
+        "Executive Sponsor Meeting"
+      ]
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "outcome": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "nextAction": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "followUpDate": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "organizationId",
+    "interactionId",
+    "partnerId",
+    "date",
+    "interactionType",
+    "summary"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,575 @@
+{
+  "name": "StrategicPartner",
+  "type": "object",
+  "properties": {
+    "organizationId": {
+      "type": "string"
+    },
+    "partnerId": {
+      "type": "string"
+    },
+    "partnerName": {
+      "type": "string"
+    },
+    "legalName": {
+      "type": "string"
+    },
+    "partnerLogoUrl": {
+      "type": "string"
+    },
+    "partnerType": {
+      "type": "string",
+      "enum": [
+        "Technology",
+        "AI",
+        "Cloud / Infrastructure",
+        "Enterprise Distribution",
+        "Consulting",
+        "Talent / HR",
+        "Recruiting",
+        "Education",
+        "Certification",
+        "Marketplace",
+        "Government",
+        "Financial",
+        "Industry",
+        "Strategic Alliance",
+        "Investment",
+        "Other"
+      ]
+    },
+    "partnerCategory": {
+      "type": "string",
+      "enum": [
+        "technology",
+        "enterprise_distribution",
+        "talent_hr",
+        "education_certification",
+        "strategic_ecosystem"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "website": {
+      "type": "string"
+    },
+    "headquarters": {
+      "type": "string"
+    },
+    "primaryMarket": {
+      "type": "string"
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "industries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "companySize": {
+      "type": "string"
+    },
+    "strategicImportance": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "relationshipOwner": {
+      "type": "string"
+    },
+    "executiveSponsor": {
+      "type": "string"
+    },
+    "partnerStatus": {
+      "type": "string",
+      "enum": [
+        "Prospect",
+        "Active",
+        "Paused",
+        "At Risk",
+        "Dormant",
+        "Terminated"
+      ]
+    },
+    "partnershipStage": {
+      "type": "string",
+      "enum": [
+        "Target",
+        "Research",
+        "Prospect",
+        "Qualified",
+        "Executive Discussion",
+        "Strategic Proposal",
+        "Negotiation",
+        "Agreement Pending",
+        "Contracted",
+        "Pilot",
+        "Active",
+        "Expansion",
+        "Strategic Alliance",
+        "Dormant",
+        "Terminated"
+      ]
+    },
+    "agreementType": {
+      "type": "string"
+    },
+    "agreementStartDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "agreementEndDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "renewalDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "integrationStatus": {
+      "type": "string"
+    },
+    "apiStatus": {
+      "type": "string"
+    },
+    "pilotStatus": {
+      "type": "string"
+    },
+    "customerReferralStatus": {
+      "type": "string"
+    },
+    "jointSolution": {
+      "type": "string"
+    },
+    "jointInitiatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strategicObjectives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "valueProposition": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "partnerValueProposition": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "revenueModel": {
+      "type": "string"
+    },
+    "revenueShare": {
+      "type": "number"
+    },
+    "referralModel": {
+      "type": "string"
+    },
+    "resellerModel": {
+      "type": "string"
+    },
+    "apiModel": {
+      "type": "string"
+    },
+    "marketplaceModel": {
+      "type": "string"
+    },
+    "geographicExpansion": {
+      "type": "string"
+    },
+    "industryExpansion": {
+      "type": "string"
+    },
+    "customerIntroductions": {
+      "type": "number"
+    },
+    "enterpriseOpportunities": {
+      "type": "number"
+    },
+    "pipelineInfluenced": {
+      "type": "number"
+    },
+    "pipelineInfluencedActual": {
+      "type": "number"
+    },
+    "pipelineInfluencedProjected": {
+      "type": "number"
+    },
+    "revenueInfluenced": {
+      "type": "number"
+    },
+    "revenueInfluencedActual": {
+      "type": "number"
+    },
+    "revenueInfluencedProjected": {
+      "type": "number"
+    },
+    "partnerSourcedRevenue": {
+      "type": "number"
+    },
+    "partnerAssistedRevenue": {
+      "type": "number"
+    },
+    "integrationRevenue": {
+      "type": "number"
+    },
+    "expansionRevenue": {
+      "type": "number"
+    },
+    "partnerManagementCost": {
+      "type": "number"
+    },
+    "integrationCost": {
+      "type": "number"
+    },
+    "revenueShareCost": {
+      "type": "number"
+    },
+    "partnerHealthScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "partnerROI": {
+      "type": "number"
+    },
+    "relationshipStrength": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "strategicFitScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "commercialPotentialScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "technicalFitScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "brandValueScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "riskScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "overallPartnerScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "executiveEngagementScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "strategicAlignmentScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "relationshipRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "commercialRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "integrationRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "dependencyRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "contractRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "reputationRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "concentrationRisk": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "lastInteractionDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "nextAction": {
+      "type": "string"
+    },
+    "nextActionDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "internalNotes": {
+      "type": "string",
+      "maxLength": 5000
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organizationId",
+    "partnerId",
+    "partnerName",
+    "partnerType",
+    "partnerCategory",
+    "partnerStatus",
+    "partnershipStage"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "enterprise_manager"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.organizationId": "{{user.data.organization_id}}"
+            },
+            {
+              "user_condition": {
+                "role": "organization_owner"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

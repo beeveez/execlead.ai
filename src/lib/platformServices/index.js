@@ -6,6 +6,12 @@ import { CapabilityService } from './CapabilityService';
 import { RecommendationService } from './RecommendationService';
 import { ExecutiveContextService } from './ExecutiveContextService';
 import { StorageService } from './StorageService';
+import { PartnerService } from './PartnerService';
+import { PartnerIntelligenceService } from './PartnerIntelligenceService';
+import { PartnerRevenueService } from './PartnerRevenueService';
+import { PartnerHealthService } from './PartnerHealthService';
+import { PartnerRecommendationService } from './PartnerRecommendationService';
+import { PartnerReportingService } from './PartnerReportingService';
 import AIService from '@/lib/aiService';
 import ConfigurationRegistry from '@/lib/configurationRegistry';
 import PromptRegistry from '@/lib/promptRegistry';
@@ -18,6 +24,12 @@ const REGISTRY = {
   RecommendationService,
   ExecutiveContextService,
   StorageService,
+  PartnerService,
+  PartnerIntelligenceService,
+  PartnerRevenueService,
+  PartnerHealthService,
+  PartnerRecommendationService,
+  PartnerReportingService,
   AIService,
   ConfigurationRegistry,
   PromptRegistry,

@@ -1,0 +1,222 @@
+{
+  "name": "PartnerOpportunity",
+  "type": "object",
+  "properties": {
+    "organizationId": {
+      "type": "string"
+    },
+    "opportunityId": {
+      "type": "string"
+    },
+    "partnerId": {
+      "type": "string"
+    },
+    "opportunityName": {
+      "type": "string"
+    },
+    "customer": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "opportunityStage": {
+      "type": "string",
+      "enum": [
+        "identified",
+        "qualified",
+        "proposal",
+        "negotiation",
+        "closed_won",
+        "closed_lost"
+      ]
+    },
+    "source": {
+      "type": "string"
+    },
+    "estimatedACV": {
+      "type": "number"
+    },
+    "estimatedARR": {
+      "type": "number"
+    },
+    "probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "weightedPipeline": {
+      "type": "number"
+    },
+    "expectedCloseDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "partnerContribution": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "revenueAttribution": {
+      "type": "number"
+    },
+    "attributionModel": {
+      "type": "string",
+      "enum": [
+        "Partner-Sourced",
+        "Partner-Assisted",
+        "Partner-Integrated"
+      ]
+    },
+    "valueState": {
+      "type": "string",
+      "enum": [
+        "LIVE",
+        "PROJECTED",
+        "ARCHITECTURE"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "won",
+        "lost",
+        "on_hold"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "organizationId",
+    "opportunityId",
+    "partnerId",
+    "opportunityName",
+    "opportunityStage",
+    "attributionModel",
+    "valueState",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "sales"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "data.organizationId": "{{user.data.organization_id}}"
+        }
+      ]
+    }
+  }
+}

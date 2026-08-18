@@ -414,6 +414,7 @@ export const ROUTE_ACCESS = {
   "/feature-management": ["developer", "super_admin"],
   "/guardian": ["developer", "super_admin"],
   "/operations/social-content": ["content_manager", "platform_admin", "super_admin", "founder_root_admin", "admin"],
+  "/operations/strategic-partners": ["founder_root_admin", "sales", "finance", "enterprise_admin", "organization_owner", "platform_admin", "super_admin"],
   "/pricing-admin": ["platform_admin", "super_admin"],
   "/billing-admin": ["platform_admin", "super_admin", "finance"],
   "/payment-settings": ["platform_admin", "super_admin", "finance"],
@@ -424,7 +425,11 @@ export const ROUTE_ACCESS = {
 
 export function canAccessRoute(role, path) {
   const normalized = normalizeRole(role);
-  const allowed = path.startsWith("/enterprise/candidate/") ? ENTERPRISE_INTELLIGENCE_ROLES : ROUTE_ACCESS[path];
+  const allowed = path.startsWith("/enterprise/candidate/")
+    ? ENTERPRISE_INTELLIGENCE_ROLES
+    : path.startsWith("/operations/strategic-partners/")
+      ? ROUTE_ACCESS["/operations/strategic-partners"]
+      : ROUTE_ACCESS[path];
   if (!allowed) return true; // customer route — any authenticated user
   return allowed.includes(normalized);
 }

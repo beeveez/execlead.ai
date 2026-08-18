@@ -96,6 +96,14 @@ export const FEATURE_REGISTRY = {
   elim_management: { routePath: "/elim", navLabel: "ELIM Management", navEnabled: false, module: "Enterprise" },
   exec_console: { routePath: "/exec-admin", navLabel: "EXEC Admin", navEnabled: false, module: "Enterprise" },
   exec_verified: { routePath: "/verification", navLabel: "EXEC™ Verified", navEnabled: false, module: "Trust" },
+  "strategic-partner-registry": { routePath: "/operations/strategic-partners", navLabel: "Strategic Partner Registry™", navEnabled: true, module: "Commercial Intelligence" },
+  "strategic-partner-intelligence": { routePath: "/operations/strategic-partners", navLabel: "Partner Intelligence", navEnabled: false, module: "Commercial Intelligence" },
+  "partner-pipeline": { routePath: "/operations/strategic-partners", navLabel: "Partner Pipeline", navEnabled: false, module: "Commercial Intelligence" },
+  "partner-roi": { routePath: "/operations/strategic-partners", navLabel: "Partner ROI", navEnabled: false, module: "Commercial Intelligence" },
+  "partner-health": { routePath: "/operations/strategic-partners", navLabel: "Partner Health", navEnabled: false, module: "Commercial Intelligence" },
+  "partner-ecosystem-map": { routePath: "/operations/strategic-partners", navLabel: "Partner Ecosystem Map", navEnabled: false, module: "Commercial Intelligence" },
+  "partner-recommendations": { routePath: "/operations/strategic-partners", navLabel: "Partner Recommendations", navEnabled: false, module: "Commercial Intelligence" },
+  "partner-reporting": { routePath: "/operations/strategic-partners", navLabel: "Partner Reporting", navEnabled: false, module: "Commercial Intelligence" },
 };
 
 export function normalizeFeature(f) {
@@ -219,7 +227,15 @@ export const DEFAULT_FEATURES = [
   { id: "email_center", name: "Email Center", description: "Email provider configuration and delivery analytics", category: "Enterprise", icon: "Mail", minimumPlan: "enterprise", isEnabled: true, sortOrder: 98 },
   { id: "membership_administration", name: "Membership Administration", description: "Membership program management and enrollment", category: "Enterprise", icon: "CardMembership", minimumPlan: "enterprise", isEnabled: true, sortOrder: 99 },
   { id: "elim_management", name: "ELIM Management", description: "Executive Leadership Intelligence Model management center", category: "Enterprise", icon: "Brain", minimumPlan: "enterprise", isEnabled: true, sortOrder: 100 },
-  { id: "exec_console", name: "EXEC Console", description: "Executive administration console and platform operations", category: "Enterprise", icon: "Settings", minimumPlan: "enterprise", isEnabled: true, sortOrder: 101 }
+  { id: "exec_console", name: "EXEC Console", description: "Executive administration console and platform operations", category: "Enterprise", icon: "Settings", minimumPlan: "enterprise", isEnabled: true, sortOrder: 101 },
+  { id: "strategic-partner-registry", name: "Strategic Partner Registry™", description: "Governed strategic partnership system of record", category: "Commercial Intelligence", icon: "Handshake", minimumPlan: "enterprise", isEnabled: true, sortOrder: 110, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "strategic-partner-intelligence", name: "Strategic Partner Intelligence", description: "Registry-grounded prioritization and gap analysis", category: "Commercial Intelligence", icon: "Brain", minimumPlan: "enterprise", isEnabled: true, sortOrder: 111, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "partner-pipeline", name: "Partner Pipeline", description: "Partnership lifecycle tracking", category: "Commercial Intelligence", icon: "GitBranch", minimumPlan: "enterprise", isEnabled: true, sortOrder: 112, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "partner-roi", name: "Partner ROI", description: "Actual-data partner ROI", category: "Commercial Intelligence", icon: "DollarSign", minimumPlan: "enterprise", isEnabled: true, sortOrder: 113, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "partner-health", name: "Partner Health", description: "Explainable partner health", category: "Commercial Intelligence", icon: "Activity", minimumPlan: "enterprise", isEnabled: true, sortOrder: 114, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "partner-ecosystem-map", name: "Partner Ecosystem Map", description: "Actual-record ecosystem coverage", category: "Commercial Intelligence", icon: "Network", minimumPlan: "enterprise", isEnabled: true, sortOrder: 115, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "partner-recommendations", name: "Partner Recommendations", description: "Data-grounded next best actions", category: "Commercial Intelligence", icon: "Sparkles", minimumPlan: "enterprise", isEnabled: true, sortOrder: 116, status: "live", visibility: "internal", pricingEnabled: false },
+  { id: "partner-reporting", name: "Partner Reporting", description: "Portfolio and intelligence exports", category: "Commercial Intelligence", icon: "FileText", minimumPlan: "enterprise", isEnabled: true, sortOrder: 117, status: "live", visibility: "internal", pricingEnabled: false }
 ];
 
 export function getFeaturesForPlan(planId) {

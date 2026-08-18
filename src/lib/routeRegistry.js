@@ -117,6 +117,8 @@ const APP_ROUTES = [
   { path: "/operations/performance", component: "PerformanceExecution", name: "Performance Operations Center™", feature: null },
   { path: "/operations/ai-models", component: "AIModelManagement", name: "AI Model Management Center™", feature: null },
   { path: "/operations/ai-compute", component: "AIComputeCenter", name: "AI Compute Center™", feature: null },
+  { path: "/operations/strategic-partners", component: "StrategicPartnerRegistry", name: "Strategic Partner Registry™", feature: "strategic-partner-registry" },
+  { path: "/operations/strategic-partners/:id", component: "StrategicPartnerDetail", name: "Strategic Partner Detail", feature: "strategic-partner-registry" },
   { path: "/operations/production-readiness", component: "ProductionReadiness", name: "Production Readiness™", feature: null },
   { path: "/voice-interview", component: "VoiceInterview", name: "Voice Interview™", feature: null },
   { path: "/responsible-ai", component: "ResponsibleAIDashboard", name: "Responsible AI Framework™", feature: null },

@@ -1,0 +1,15 @@
+import { base44 } from '@/api/base44Client';
+const entities = base44.entities;
+const uid = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+async function context() { const user = await base44.auth.me(); const orgs = await entities.Organization.list('-created_date', 1); return { user, organizationId: user.organization_id || orgs[0]?.id || 'platform' }; }
+async function audit(partnerId, entityName, recordId, action, reason = '') { const { user, organizationId } = await context(); return entities.StrategicPartnerAuditLog.create({ organizationId, auditId: uid('audit'), timestamp: new Date().toISOString(), userId: user.id, userName: user.full_name, partnerId, entityName, recordId, action, reason }); }
+export async function loadRegistry() { const [partners, objectives, initiatives, interactions, opportunities, auditLog] = await Promise.all([entities.StrategicPartner.list('-updated_date', 200), entities.PartnerObjective.list('-updated_date', 200), entities.PartnerInitiative.list('-updated_date', 200), entities.PartnerInteraction.list('-date', 200), entities.PartnerOpportunity.list('-updated_date', 200), entities.StrategicPartnerAuditLog.list('-timestamp', 200)]); return { partners, objectives, initiatives, interactions, opportunities, audit: auditLog }; }
+export async function createPartner(values) { const { organizationId } = await context(); const record = await entities.StrategicPartner.create({ ...values, organizationId, partnerId: uid('partner'), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }); await audit(record.partnerId, 'StrategicPartner', record.id, 'Created'); return record; }
+export async function updatePartner(id, values, reason = '') { const record = await entities.StrategicPartner.update(id, { ...values, updatedAt: new Date().toISOString() }); await audit(record.partnerId, 'StrategicPartner', id, 'Updated', reason); return record; }
+async function createRelated(entity, prefix, values, idField, action) { const { organizationId } = await context(); const record = await entities[entity].create({ ...values, organizationId, [idField]: uid(prefix), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }); await audit(values.partnerId, entity, record.id, action); return record; }
+export const createObjective = (v) => createRelated('PartnerObjective', 'objective', v, 'objectiveId', 'Created');
+export const createInitiative = (v) => createRelated('PartnerInitiative', 'initiative', v, 'initiativeId', 'Created');
+export const createInteraction = (v) => createRelated('PartnerInteraction', 'interaction', v, 'interactionId', 'Created');
+export const createOpportunity = (v) => createRelated('PartnerOpportunity', 'opportunity', v, 'opportunityId', 'Revenue Updated');
+export const PartnerService = { loadRegistry, createPartner, updatePartner, createObjective, createInitiative, createInteraction, createOpportunity };
+export default PartnerService;

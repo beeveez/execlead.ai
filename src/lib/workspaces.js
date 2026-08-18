@@ -14,7 +14,7 @@ import {
   Calculator, Database, Mail, Boxes, Store, Cpu, TrendingUp,
   GitBranch, Rocket, ShieldCheck, Network, Activity, Fingerprint,
   Lightbulb, ClipboardCheck, Trophy, Crown, Award, Gift, Wallet, ShoppingCart,
-  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info, Globe, Mic,
+  BookOpen, Star, Sparkles, Target, Gauge, Radar, Heart, Map, Flag, GitCompare, Zap, Compass, Info, Globe, Mic, Handshake,
 } from "lucide-react";
 import { normalizeRole } from "./roles";
 
@@ -148,6 +148,7 @@ export const WORKSPACE_NAV = {
       { path: "/commercial-command-center", label: "Commercial Command Center™", icon: DollarSign },
       { path: "/commercial-automation", label: "Commercial Automation Engine™", icon: Zap },
       { path: "/business-intelligence", label: "Business Intelligence™", icon: Brain },
+      { path: "/operations/strategic-partners", label: "Strategic Partner Registry™", icon: Handshake, roles: ["founder_root_admin", "sales", "finance", "platform_admin", "super_admin"] },
       { path: "/operations/social-content", label: "Social Content Engine™", icon: PenLine },
     ]},
     { label: "Customer Intelligence", items: [
@@ -332,6 +333,7 @@ const ROUTE_WORKSPACE = {
   "/commercial-automation": ["operations"],
   "/operations": ["operations"],
   "/operations/social-content": ["operations"],
+  "/operations/strategic-partners": ["operations", "enterprise"],
   "/operations/customer-intelligence": ["operations"],
   "/operations/product-intelligence": ["operations"],
   "/operations/operational-excellence": ["operations"],
@@ -423,6 +425,7 @@ export function getRouteWorkspace(path) {
   if (path.startsWith("/cpq/")) return ["operations", "developer"];
   if (path.startsWith("/portal/")) return ["enterprise"];
   if (path.startsWith("/legacy-library/")) return ["executive"];
+  if (path.startsWith("/operations/strategic-partners/")) return ["operations", "enterprise"];
   if (path.startsWith("/operations/")) return ["operations"];
   if (path.startsWith("/enterprise/") && path !== "/enterprise/organizations") return ["enterprise"];
   return null;

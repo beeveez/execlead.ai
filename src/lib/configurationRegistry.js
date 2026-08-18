@@ -14,6 +14,9 @@ const DEFAULTS = {
   'external.gmail_enabled': true,
   'prompt.default_version': '1.0',
   'repository.active_backend': 'base44',
+  'partners.ecosystem_target': 14,
+  'partners.currency': 'USD',
+  'partners.allowed_attribution_models': ['Partner-Sourced', 'Partner-Assisted', 'Partner-Integrated'],
 };
 
 const OVERRIDES = {};

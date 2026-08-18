@@ -5,6 +5,8 @@ import { getRepository } from '@/lib/repositories/Base44Repository';
 const MODULE_CATALOG = [
   'coach', 'simulator', 'challenge', 'debate', 'council', 'academy',
   'metrics', 'analytics', 'journey', 'resume', 'portfolio', 'network', 'marketplace',
+  'strategic-partner-registry', 'strategic-partner-intelligence', 'partner-pipeline', 'partner-roi',
+  'partner-health', 'partner-ecosystem-map', 'partner-recommendations', 'partner-reporting',
 ];
 
 export const CapabilityService = {

@@ -1,0 +1,6 @@
+import React from 'react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
+export default function PartnerDeploymentDialog({ open, loading, onClose, onConfirm }) {
+  return <AlertDialog open={open} onOpenChange={(value) => !value && onClose()}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Deploy Strategic Partner Ecosystem™</AlertDialogTitle><AlertDialogDescription>Load the approved 14 strategic partner targets into the Strategic Partner Registry as Target records. These records represent strategic targets only and do not imply an existing partnership.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel><AlertDialogAction disabled={loading} onClick={onConfirm}>{loading ? 'Loading Targets…' : 'Load Targets'}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>;
+}

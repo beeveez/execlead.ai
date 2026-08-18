@@ -1,0 +1,7 @@
+import React from 'react';
+import { PARTNER_CATEGORIES } from '@/lib/strategic-partners/partnerConfig';
+import { relationshipState, statusTone } from '@/lib/strategic-partners/partnerDisplay';
+
+export default function EcosystemMap({ partners, onAdd }) {
+  return <section className="rounded-2xl border border-border bg-card p-5"><div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary bg-primary/10 text-center text-sm font-bold text-primary">EXECLEAD.AI</div><p className="mx-auto mt-2 max-w-md text-center text-xs text-muted-foreground">Registry targets and relationships grouped by actual recorded category.</p><div className="mt-6 grid gap-4 lg:grid-cols-5">{PARTNER_CATEGORIES.map((category) => { const items = partners.filter((partner) => partner.partnerCategory === category.id); return <div key={category.id} className="rounded-xl border border-border bg-muted/20 p-4"><h2 className="min-h-10 text-sm font-semibold">{category.label}</h2><div className="mt-3 space-y-2">{items.map((partner) => <div key={partner.id} className="rounded-lg border border-border bg-card p-3"><p className="text-sm font-medium">{partner.partnerName}</p><span className={`mt-2 inline-flex rounded-full border px-2 py-1 text-[10px] ${statusTone(partner)}`}>{relationshipState(partner)}</span></div>)}{!items.length && <button onClick={onAdd} className="min-h-11 w-full rounded-lg border border-dashed border-border text-xs text-muted-foreground">No records · Add target</button>}</div></div>; })}</div></section>;
+}

@@ -60,6 +60,8 @@ export default function ReadinessContributionBanner() {
     );
   }
 
+  if (location.pathname.startsWith('/operations/strategic-partners')) return null;
+
   const isIntegrity = contribution.platformIntegrity;
 
   return (

@@ -1,0 +1,7 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { priorityLabel } from '@/lib/strategic-partners/partnerDisplay';
+
+export default function StrategicPriorities({ partners }) {
+  return <section className="rounded-xl border border-border bg-card p-5"><h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Strategic Priorities</h2><p className="mt-1 text-sm text-muted-foreground">Top 5 partner targets by approved priority; missing scores remain unscored.</p><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[700px] text-sm"><thead className="text-left text-xs text-muted-foreground"><tr><th className="py-2">Partner</th><th>Priority</th><th>Strategic Fit</th><th>Commercial Potential</th><th>Next Action</th></tr></thead><tbody className="divide-y divide-border">{partners.map((partner) => <tr key={partner.id}><td className="py-3"><Link className="font-medium text-primary" to={`/operations/strategic-partners/${partner.id}`}>{partner.partnerName}</Link></td><td>{priorityLabel(partner)}</td><td>{partner.strategicFitScore ?? '—'}</td><td>{partner.commercialPotentialScore ?? '—'}</td><td>{partner.nextAction || 'Define outreach plan'}</td></tr>)}</tbody></table></div></section>;
+}

@@ -52,7 +52,7 @@ export default function Landing() {
       <NewHero authed={authed} onWatchDemo={openDemo} />
 
       {/* Private Beta launch countdown */}
-      <PrivateBetaCountdown />
+      <PrivateBetaCountdown authed={authed} />
 
       {/* IT → Executive positioning */}
       <ItExecutivePositioning />

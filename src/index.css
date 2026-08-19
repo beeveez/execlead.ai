@@ -411,55 +411,60 @@ html:not(.dark) .backdrop-blur-2xl {
    Private Beta Countdown™ — cinematic launch experience
    ============================================================ */
 .private-beta-countdown {
+  min-height: min(780px, 82vh);
+  display: grid;
+  place-items: center;
   background:
-    radial-gradient(circle at 18% 20%, hsl(var(--launch-accent) / 0.12), transparent 30%),
-    radial-gradient(circle at 82% 70%, hsl(var(--primary) / 0.1), transparent 34%),
-    linear-gradient(180deg, hsl(var(--launch-background) / 0.96), hsl(var(--launch-background)));
+    radial-gradient(circle at 50% 42%, hsl(var(--launch-accent) / 0.09), transparent 28%),
+    radial-gradient(circle at 18% 22%, hsl(var(--primary) / 0.08), transparent 32%),
+    linear-gradient(180deg, hsl(var(--launch-background) / 0.97), hsl(var(--launch-background)));
 }
 .private-beta-countdown::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(90deg, hsl(var(--launch-foreground) / 0.025) 0 1px, transparent 1px 72px);
-  mask-image: linear-gradient(to bottom, transparent, black 28%, black 72%, transparent);
+  background-image:
+    linear-gradient(hsl(var(--launch-foreground) / 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--launch-foreground) / 0.026) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  animation: launch-grid-drift 8s ease-out both;
   pointer-events: none;
 }
-.launch-countdown-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 3rem 1.5rem;
-}
-.launch-countdown-unit { position: relative; min-width: 0; }
-.launch-countdown-unit:nth-child(odd):not(:last-child)::after {
-  content: ":";
+.private-beta-countdown::after {
+  content: "";
   position: absolute;
-  top: 0;
-  right: -0.9rem;
-  color: hsl(var(--launch-muted) / 0.55);
-  font-size: clamp(2rem, 8vw, 4.5rem);
-  font-weight: 200;
-  line-height: 1;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--launch-accent) / 0.45), transparent);
+  box-shadow: 0 0 28px hsl(var(--launch-accent) / 0.16);
+  animation: launch-light-breathe 6s ease-out both;
+  pointer-events: none;
 }
+.launch-architecture { position: absolute; inset: 0; pointer-events: none; }
+.launch-architecture span { position: absolute; display: block; border: 1px solid hsl(var(--launch-foreground) / 0.05); transform: rotate(45deg); }
+.launch-architecture span:nth-child(1) { width: 24rem; height: 24rem; left: -13rem; top: 18%; }
+.launch-architecture span:nth-child(2) { width: 34rem; height: 34rem; right: -20rem; top: 6%; }
+.launch-architecture span:nth-child(3) { width: 16rem; height: 16rem; left: 44%; bottom: -13rem; border-color: hsl(var(--launch-accent) / 0.08); }
+.launch-countdown-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; }
+.launch-countdown-unit { position: relative; min-width: 0; padding-inline: 0.2rem; }
+.launch-countdown-unit:not(:last-child)::after { content: ":"; position: absolute; top: 0.06em; right: -0.12em; color: hsl(var(--launch-muted) / 0.46); font-size: clamp(1.6rem, 7vw, 5.5rem); font-weight: 200; line-height: 1; }
+.launch-countdown-value { display: block; color: hsl(var(--launch-foreground)); font-family: var(--font-display); font-size: clamp(1.75rem, 7.4vw, 6.5rem); font-weight: 300; line-height: 1; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; text-shadow: 0 0 24px hsl(var(--launch-foreground) / 0.08); }
+.launch-countdown-label { display: block; margin-top: 1rem; color: hsl(var(--launch-muted)); font-size: clamp(0.48rem, 1.2vw, 0.72rem); font-weight: 600; letter-spacing: clamp(0.06em, 0.5vw, 0.26em); text-transform: uppercase; }
 .countdown-digit-change { animation: countdown-digit-change 280ms ease-out; }
-@keyframes countdown-digit-change {
-  from { opacity: 0.45; transform: translateY(-0.18em); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (min-width: 640px) {
-  .launch-countdown-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
-  .launch-countdown-unit:not(:last-child)::after {
-    content: ":";
-    position: absolute;
-    top: 0;
-    right: -0.12em;
-    color: hsl(var(--launch-muted) / 0.55);
-    font-size: clamp(3rem, 6vw, 6rem);
-    font-weight: 200;
-    line-height: 1;
-  }
+.launch-phase-final { min-height: min(680px, 76vh); }
+@keyframes countdown-digit-change { from { opacity: 0.45; transform: translateY(-0.12em); } to { opacity: 1; transform: translateY(0); } }
+@keyframes launch-grid-drift { from { transform: translate3d(0, -4px, 0); opacity: 0.5; } to { transform: translate3d(0, 4px, 0); opacity: 0.8; } }
+@keyframes launch-light-breathe { from { opacity: 0.2; transform: scaleX(0.86); } to { opacity: 0.62; transform: scaleX(1); } }
+@media (max-width: 420px) {
+  .private-beta-countdown { min-height: 0; }
+  .launch-countdown-unit { padding-inline: 0.05rem; }
+  .launch-countdown-label { margin-top: 0.7rem; letter-spacing: 0.04em; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .countdown-digit-change { animation: none; }
+  .countdown-digit-change, .private-beta-countdown::before, .private-beta-countdown::after { animation: none; }
 }
 
 /* ============================================================

@@ -5,6 +5,7 @@ const calculateTimeLeft = () => {
   const remaining = Math.max(0, new Date(PRIVATE_BETA_LAUNCH_AT).getTime() - Date.now());
   return {
     isLive: remaining === 0,
+    remaining,
     days: Math.floor(remaining / 86400000),
     hours: Math.floor((remaining / 3600000) % 24),
     minutes: Math.floor((remaining / 60000) % 60),

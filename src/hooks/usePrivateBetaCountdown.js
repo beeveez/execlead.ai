@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { PRIVATE_BETA_LAUNCH_AT } from '@/lib/privateBetaLaunch';
 
-const calculateTimeLeft = () => {
-  const remaining = Math.max(0, new Date(PRIVATE_BETA_LAUNCH_AT).getTime() - Date.now());
+const LAUNCH_TIME = new Date(PRIVATE_BETA_LAUNCH_AT).getTime();
+const DAY = 86400000;
+
+export const calculatePrivateBetaCountdown = (now = Date.now()) => {
+  const remaining = Math.max(0, LAUNCH_TIME - now);
+  const totalDays = Math.floor(remaining / DAY);
+
   return {
     isLive: remaining === 0,
     remaining,
-    days: Math.floor(remaining / 86400000),
+    days: totalDays,
+    months: Math.floor(totalDays / 30),
+    calendarDays: totalDays % 30,
     hours: Math.floor((remaining / 3600000) % 24),
     minutes: Math.floor((remaining / 60000) % 60),
     seconds: Math.floor((remaining / 1000) % 60),
@@ -14,12 +21,12 @@ const calculateTimeLeft = () => {
 };
 
 export default function usePrivateBetaCountdown() {
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
+  const [timeLeft, setTimeLeft] = useState(calculatePrivateBetaCountdown);
 
   useEffect(() => {
     let timer;
     const tick = () => {
-      const next = calculateTimeLeft();
+      const next = calculatePrivateBetaCountdown();
       setTimeLeft(next);
       if (!next.isLive) timer = window.setTimeout(tick, 1000 - (Date.now() % 1000));
     };

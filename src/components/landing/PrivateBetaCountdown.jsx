@@ -17,6 +17,7 @@ export default function PrivateBetaCountdown({ authed = false }) {
     <div className="relative z-10 mx-auto max-w-6xl text-center">
       <p className="text-xs font-semibold uppercase tracking-[0.36em] text-launch-accent sm:tracking-[0.5em]">EXECLEAD.AI</p>
       <h2 id="private-beta-countdown-title" className="mx-auto mt-6 max-w-4xl font-display text-3xl font-semibold tracking-tight text-launch-foreground sm:text-5xl lg:text-6xl">{phase.live ? phase.label : 'The Executive Journey Is About to Begin'}</h2>
+      <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-launch-muted sm:text-base">Assess where you stand. Discover what separates you from executive leadership. Build the capabilities to get there.</p>
       {phase.live ? <div className="mt-8" aria-live="polite"><p className="text-base text-launch-muted sm:text-lg">{phase.message}</p><Link to={primaryPath} className={`${actionClass} mt-8 bg-launch-accent text-launch-background`}>Begin Your Executive Journey</Link></div> : <>
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-launch-muted" aria-live="polite">{phase.label}</p>
         <div className="mt-10 sm:mt-14"><LaunchCountdownTimer timeLeft={timeLeft} milestone={PRIVATE_BETA_MILESTONE}/></div>

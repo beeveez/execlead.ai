@@ -29,12 +29,10 @@ export default function NewHero({ authed, onWatchDemo }) {
             The AI Executive Leadership<br className="hidden sm:block" />
             <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Operating System™</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed">
-            <span className="block">Assess your executive readiness.</span>
-            <span className="block">Practice real leadership decisions.</span>
-            <span className="block">Build evidence of growth.</span>
-            <span className="block">Develop your executive identity.</span>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-4 leading-relaxed">
+            Prepare for the next level of leadership through AI-powered executive readiness, coaching, simulations, and evidence-based development.
           </motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.23 }} className="mx-auto mb-7 max-w-2xl text-sm text-white/45 lg:mx-0">Built for technology and business professionals becoming the next generation of executive leaders.</motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">
             <Link to={authed ? '/assessment' : buildSignInUrl('/assessment')} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-bold text-[15px] px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/30">
               Take the Executive Readiness Assessment <ArrowRight size={18} />

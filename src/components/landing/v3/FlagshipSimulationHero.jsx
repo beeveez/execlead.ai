@@ -35,7 +35,7 @@ export default function FlagshipSimulationHero({ authed }) {
   };
 
   return (
-    <section className="relative py-16 md:py-24 px-6 lg:px-8 border-t border-white/5 overflow-hidden">
+    <section id="simulation" className="relative py-16 md:py-24 px-6 lg:px-8 border-t border-white/5 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 -left-20 w-80 h-80 bg-accent-orange/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px]" />

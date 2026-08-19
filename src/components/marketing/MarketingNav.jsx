@@ -12,9 +12,9 @@ import { Menu, X } from "lucide-react";
 const NAV_ITEMS = [
   { label: "Overview", route: "/", hash: "overview" },
   { label: "Platform", route: "/", hash: "platform" },
+  { label: "Simulation", route: "/", hash: "simulation" },
+  { label: "Evidence", route: "/", hash: "evidence" },
   { label: "Executive Journey", route: "/", hash: "journey" },
-  { label: "Enterprise", route: "/", hash: "enterprise" },
-  { label: "Trust", route: "/", hash: "trust" },
   { label: "Founder", route: "/", hash: "founder" },
 ];
 

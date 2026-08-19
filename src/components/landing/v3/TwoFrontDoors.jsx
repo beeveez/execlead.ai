@@ -19,7 +19,7 @@ export default function TwoFrontDoors({ authed }) {
   const enterpriseTo = authed ? "/enterprise-intelligence" : "/contact";
 
   return (
-    <section className="py-16 md:py-20 px-6 lg:px-8 border-t border-white/5">
+    <section id="journey" className="py-16 md:py-20 px-6 lg:px-8 border-t border-white/5">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-1.5 text-accent-orange mb-3">
@@ -40,7 +40,8 @@ export default function TwoFrontDoors({ authed }) {
               <TrendingUp size={20} className="text-accent-orange" />
             </div>
             <h3 className="text-lg font-bold text-white mb-1.5">Individual Journey</h3>
-            <p className="text-[11px] font-medium leading-relaxed text-accent-orange">Discover → Assess → Coach → Practice → Build Evidence → Develop Executive Identity</p>
+            <p className="text-[11px] font-medium leading-relaxed text-accent-orange">Assess → Develop → Practice → Demonstrate → Build Evidence → Develop Executive Identity</p>
+            <p className="mt-3 text-[13px] text-white/50 leading-relaxed">For technology professionals, managers, directors, emerging executives, and executive candidates.</p>
             <p className="mt-3 text-[13px] text-white/50 leading-relaxed mb-5">A personalized leadership journey for professionals preparing for greater responsibility.</p>
             {choice === "career" ? (
               <Link to={careerTo} onClick={(e) => e.stopPropagation()}
@@ -62,7 +63,8 @@ export default function TwoFrontDoors({ authed }) {
               <Building2 size={20} className="text-indigo-400" />
             </div>
             <h3 className="text-lg font-bold text-white mb-1.5">Enterprise Journey</h3>
-            <p className="text-[11px] font-medium leading-relaxed text-indigo-300">Assess Talent → Develop Leaders → Measure Readiness → Identify Capability → Support Succession → Build Leadership Intelligence</p>
+            <p className="text-[11px] font-medium leading-relaxed text-indigo-300">Assess Talent → Develop Leaders → Measure Readiness → Identify Capability → Support Succession → Leadership Intelligence</p>
+            <p className="mt-3 text-[13px] text-white/50 leading-relaxed">For organizations, leadership development teams, talent leaders, succession programs, and enterprise leadership teams.</p>
             <p className="mt-3 text-[13px] text-white/50 leading-relaxed mb-5">An enterprise system for developing and understanding executive capability at scale.</p>
             {choice === "enterprise" ? (
               <Link to={enterpriseTo} onClick={(e) => e.stopPropagation()}

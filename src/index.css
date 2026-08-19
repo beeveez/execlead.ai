@@ -431,23 +431,11 @@ html:not(.dark) .backdrop-blur-2xl {
   animation: launch-grid-drift 8s ease-out both;
   pointer-events: none;
 }
-.private-beta-countdown::after {
-  content: "";
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  top: 50%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(var(--launch-accent) / 0.45), transparent);
-  box-shadow: 0 0 28px hsl(var(--launch-accent) / 0.16);
-  animation: launch-light-breathe 6s ease-out both;
-  pointer-events: none;
-}
 .launch-architecture { position: absolute; inset: 0; pointer-events: none; }
 .launch-architecture span { position: absolute; display: block; border: 1px solid hsl(var(--launch-foreground) / 0.05); transform: rotate(45deg); }
 .launch-architecture span:nth-child(1) { width: 24rem; height: 24rem; left: -13rem; top: 18%; }
 .launch-architecture span:nth-child(2) { width: 34rem; height: 34rem; right: -20rem; top: 6%; }
-.launch-architecture span:nth-child(3) { width: 16rem; height: 16rem; left: 44%; bottom: -13rem; border-color: hsl(var(--launch-accent) / 0.08); }
+.launch-architecture span:nth-child(3) { width: 16rem; height: 16rem; left: 44%; bottom: -13rem; }
 .launch-countdown-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; }
 .launch-countdown-unit { position: relative; min-width: 0; padding-inline: 0.2rem; }
 .launch-countdown-unit:not(:last-child)::after { content: ":"; position: absolute; top: 0.06em; right: -0.12em; color: hsl(var(--launch-muted) / 0.46); font-size: clamp(1.4rem, 6vw, 4.75rem); font-weight: 200; line-height: 1; }

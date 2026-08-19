@@ -42,7 +42,7 @@ import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest,
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
-import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
+import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 
 const ExecConciergeContext = createContext(null);
@@ -567,8 +567,13 @@ export function ExecConciergeProvider({ children }) {
       if (isCompanyKnowledgeQuestion(content)) {
         try {
           const { ranked, all } = await retrieveKnowledgeArticles(content, 5);
+          const protectedFounderAnswer = answerFounderQuestionFromApprovedKnowledge(content, all);
           let result;
-          if (ranked.length === 0) {
+          if (protectedFounderAnswer) {
+            const founderSource = all.find((article) => article.slug === "founder-why-built");
+            result = { noResult: false, answer: protectedFounderAnswer, sources: founderSource ? [founderSource] : [], confidence: 100, confidenceLabel: "Approved", freshness: founderSource?.last_updated || null, citedSlugs: founderSource ? [founderSource.slug] : [], related: [] };
+            trackKnowledgeAiAsk({ query: content, confidence: 100, sourcesCount: result.sources.length, noResult: false, citedSlugs: result.citedSlugs });
+          } else if (ranked.length === 0) {
             const suggestions = (all || []).slice().sort((a, b) => (b.view_count || 0) - (a.view_count || 0)).slice(0, 4);
             result = { noResult: true, sources: [], confidence: 0, confidenceLabel: "Unknown", freshness: null, citedSlugs: [], relatedSuggestions: suggestions };
             trackKnowledgeAiAsk({ query: content, confidence: 0, sourcesCount: 0, noResult: true, citedSlugs: [] });

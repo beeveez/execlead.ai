@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import LaunchCountdownTimer from '@/components/landing/LaunchCountdownTimer';
-import CountdownSoundControl from '@/components/landing/CountdownSoundControl';
 import usePrivateBetaCountdown from '@/hooks/usePrivateBetaCountdown';
 import { getLaunchCountdownPhase } from '@/lib/launchCountdownExperience';
 import { PRIVATE_BETA_LAUNCH_AT, PRIVATE_BETA_LAUNCH_LABEL, PRIVATE_BETA_MILESTONE } from '@/lib/privateBetaLaunch';
@@ -22,7 +21,7 @@ export default function PrivateBetaCountdown({ authed = false }) {
       <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-launch-muted sm:text-base">Assess where you stand. Discover what separates you from executive leadership. Build the capabilities to get there.</p>
       {phase.live ? <div className="mt-8" aria-live="polite"><p className="text-base text-launch-muted sm:text-lg">{phase.message}</p><Link to={primaryPath} className={`${actionClass} mt-8 bg-launch-accent text-launch-background`}>Begin Your Executive Journey</Link></div> : <>
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-launch-muted" aria-live="polite">{phase.label}</p>
-        <div className="mt-10 sm:mt-14"><LaunchCountdownTimer timeLeft={timeLeft} milestone={PRIVATE_BETA_MILESTONE}/><CountdownSoundControl timeLeft={timeLeft} /></div>
+        <div className="mt-10 sm:mt-14"><LaunchCountdownTimer timeLeft={timeLeft} milestone={PRIVATE_BETA_MILESTONE}/></div>
         <div className="mt-10"><p className="font-display text-base font-semibold uppercase tracking-[0.3em] text-launch-foreground sm:text-lg">PRIVATE BETA LAUNCH</p><time dateTime={PRIVATE_BETA_LAUNCH_AT} className="mt-2 block text-sm font-medium tracking-[0.16em] text-launch-foreground/80 sm:text-base">{PRIVATE_BETA_LAUNCH_LABEL}</time><p className="mx-auto mt-5 max-w-xl text-sm font-medium leading-6 text-launch-muted sm:text-base">Founding Executive Beta</p><p className="mt-4 text-sm font-medium text-launch-foreground">One Leadership Journey. One AI Platform.</p></div>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Link to="/beta" className={`${actionClass} bg-launch-accent text-launch-background`}>Apply for Private Beta</Link><Link to={primaryPath} className={`${actionClass} border border-launch-muted/40 text-launch-foreground`}>Take the Readiness Assessment</Link></div>
       </>}

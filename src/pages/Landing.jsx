@@ -6,24 +6,20 @@ import { usePricingCatalog } from '@/hooks/usePricingCatalog';
 import { captureReferralAttribution } from '@/lib/referralEngine';
 import NewHero from '@/components/landing/v3/NewHero';
 import PrivateBetaCountdown from '@/components/landing/PrivateBetaCountdown';
-import ProductDemo from '@/components/landing/ProductDemo';
-import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
-import FlagshipSimulationHero from '@/components/landing/v3/FlagshipSimulationHero';
-import SimulationDifferentiation from '@/components/landing/v3/SimulationDifferentiation';
-import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
-import OutcomeExperienceCards from '@/components/landing/v3/OutcomeExperienceCards';
-import WhyChooseExecLead from '@/components/landing/v3/WhyChooseExecLead';
-import CustomerEvidence from '@/components/landing/v3/CustomerEvidence';
-import HowExecLeadWorks from '@/components/landing/v3/HowExecLeadWorks';
-import CustomerJourney from '@/components/landing/v3/CustomerJourney';
-import ExecutiveOutcomeWall from '@/components/landing/v3/ExecutiveOutcomeWall';
-import FounderSection from '@/components/landing/v3/FounderSection';
 import ValueTest30 from '@/components/landing/v3/ValueTest30';
 import ProductTangibility from '@/components/landing/v3/ProductTangibility';
-import ItExecutivePositioning from '@/components/landing/v3/ItExecutivePositioning';
-import DifferentiationBlock from '@/components/landing/v3/DifferentiationBlock';
-import ReadinessSnapshot from '@/components/landing/v3/ReadinessSnapshot';
+import FlagshipSimulationHero from '@/components/landing/v3/FlagshipSimulationHero';
+import InteractiveSimulationPreview from '@/components/landing/v3/InteractiveSimulationPreview';
+import EvidenceEngine from '@/components/landing/v3/EvidenceEngine';
+import SimulationDifferentiation from '@/components/landing/v3/SimulationDifferentiation';
+import TwoFrontDoors from '@/components/landing/v3/TwoFrontDoors';
+import CustomerJourney from '@/components/landing/v3/CustomerJourney';
+import WhyNow from '@/components/landing/v3/WhyNow';
+import EnterpriseScale from '@/components/landing/v3/EnterpriseScale';
 import TrustReinforcement from '@/components/landing/v3/TrustReinforcement';
+import FounderSection from '@/components/landing/v3/FounderSection';
+import PrivateBetaInvitation from '@/components/landing/v3/PrivateBetaInvitation';
+import FinalConversion from '@/components/landing/v3/FinalConversion';
 import PricingTiers from '@/components/pricing/PricingTiers';
 
 /**
@@ -34,78 +30,27 @@ import PricingTiers from '@/components/pricing/PricingTiers';
  */
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
-  const [demoStartScene, setDemoStartScene] = useState(null);
   const { plans: pricingPlans, cycle, setCycle, getPrice } = usePricingCatalog();
-  const openDemo = (sceneId) => {
-    setDemoStartScene(sceneId || null);
-    if (sceneId) { try { base44.analytics.track({ eventName: 'demo_related', properties: { scene: sceneId } }); } catch (e) {} }
-    setShowDemo(true);
-  };
 
   useEffect(() => { (async () => { try { setAuthed(await base44.auth.isAuthenticated()); } catch (e) {} })(); }, []);
   useEffect(() => { captureReferralAttribution(); }, []);
 
   return (
     <>
-      {/* Brand hero */}
-      <NewHero authed={authed} onWatchDemo={openDemo} />
-
-      {/* Private Beta launch countdown */}
+      <NewHero authed={authed} />
       <PrivateBetaCountdown authed={authed} />
-
-      {/* IT → Executive positioning */}
-      <ItExecutivePositioning />
-
-      {/* 30-Second Value Test */}
       <ValueTest30 />
-
-      {/* Product Tangibility™ — See the Platform in Action */}
       <ProductTangibility />
-
-      {/* Flagship Executive Simulation — primary product demonstration */}
       <FlagshipSimulationHero authed={authed} />
-
-      {/* Why professionals choose EXECLEAD.AI */}
-      <WhyChooseExecLead />
-
-      {/* Customer Evidence Layer™ — verified platform metrics */}
-      <CustomerEvidence />
-
-      <ProductDemo open={showDemo} onClose={() => setShowDemo(false)} startSceneId={demoStartScene} authed={authed} />
-
-      {/* Interactive Executive Simulation */}
       <InteractiveSimulationPreview authed={authed} />
-
-      {/* Why this is different */}
+      <EvidenceEngine />
       <SimulationDifferentiation />
-
-      {/* Differentiation Block™ */}
-      <DifferentiationBlock />
-
-      {/* Individual vs Enterprise */}
       <TwoFrontDoors authed={authed} />
-
-      {/* Three outcome paths */}
-      <OutcomeExperienceCards authed={authed} />
-
-      {/* What makes EXECLEAD.AI different — comparison + flow */}
-      <HowExecLeadWorks />
-
-      {/* Success Stories (evidence-generated) */}
-      <ExecutiveOutcomeWall />
-
-      {/* One continuous customer journey */}
       <CustomerJourney />
-
-      {/* Founder story */}
-      <FounderSection />
-
-      {/* Micro-Conversion CTA™ */}
-      <ReadinessSnapshot />
-
-      {/* Trust Reinforcement™ — directly above pricing */}
+      <WhyNow />
+      <EnterpriseScale />
       <TrustReinforcement />
+      <FounderSection />
 
       {/* Pricing */}
       <section id="pricing" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
@@ -116,7 +61,7 @@ export default function Landing() {
             </div>
             <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">Pricing</div>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">Invest in Becoming Executive Ready.</h2>
-            <p className="text-white/40 max-w-xl mx-auto text-sm">Future General Availability pricing. Current access is invitation-only through the Founding Private Beta™. The <span className="text-accent-orange font-medium">Executive</span> plan is the most popular path for ambitious leaders.</p>
+            <p className="text-white/40 max-w-xl mx-auto text-sm">Future General Availability pricing. Current access is invitation-only through the Founding Private Beta™.</p>
           </div>
           <div className="flex items-center justify-center gap-3 mb-10">
             <button onClick={() => setCycle('monthly')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${cycle === 'monthly' ? 'bg-accent-orange/15 text-accent-orange' : 'text-white/40 hover:text-white/70'}`}>Monthly</button>
@@ -128,6 +73,8 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      <PrivateBetaInvitation authed={authed} />
+      <FinalConversion authed={authed} />
     </>
   );
 }

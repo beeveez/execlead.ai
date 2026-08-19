@@ -4,23 +4,21 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 const STEPS = [
-  { label: 'Landing', desc: 'Discover the platform', route: '/' },
-  { label: 'Executive Readiness Assessment', desc: 'Measure where you are', route: '/assessment' },
-  { label: 'Personalized Report', desc: 'See your gaps and roadmap', route: '/executive-readiness' },
-  { label: 'Executive Dashboard', desc: 'Your command center', route: '/dashboard' },
-  { label: 'AI Executive Coach', desc: 'Develop continuously', route: '/coach' },
-  { label: 'Leadership Journey', desc: 'Practice and prove growth', route: '/journey' },
-  { label: 'Upgrade Recommendation', desc: 'Advance when ready', route: '/pricing' },
+  { label: 'Executive Readiness', desc: 'Understand where you stand', route: '/executive-readiness' },
+  { label: 'Leadership Development', desc: 'Build the capabilities that matter', route: '/coach' },
+  { label: 'Demonstrated Capability', desc: 'Practice decisions and create evidence', route: '/simulator' },
+  { label: 'Executive Identity', desc: 'Bring your leadership evidence together', route: '/executive-portfolio' },
+  { label: 'Readiness for the Next Level', desc: 'Continue toward greater responsibility', route: '/journey' },
 ];
 
 export default function CustomerJourney() {
   return (
-    <section className="py-16 md:py-24 px-6 lg:px-8 border-t border-white/5">
+    <section id="journey" className="py-16 md:py-24 px-6 lg:px-8 border-t border-white/5">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">One Continuous Journey</div>
-          <h2 className="text-2xl md:text-4xl font-bold mb-3">From First Visit to Executive Ready</h2>
-          <p className="text-white/45 max-w-2xl mx-auto text-sm">Every step builds on the last. No dead ends — only the next meaningful action.</p>
+          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">The Executive Journey</div>
+          <h2 className="text-2xl md:text-4xl font-bold mb-3">Your leadership journey does not end with a score.</h2>
+          <p className="text-white/45 max-w-2xl mx-auto text-sm">Each stage develops, demonstrates, and carries forward your executive capability.</p>
         </div>
         <div className="flex flex-col gap-2">
           {STEPS.map((s, i) => (

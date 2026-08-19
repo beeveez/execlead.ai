@@ -1,0 +1,6 @@
+import React from 'react';
+import { BrainCircuit, Users, BarChart3 } from 'lucide-react';
+
+const forces=[['AI-assisted professional development',BrainCircuit],['Leadership and succession pressure',Users],['Demand for measurable talent intelligence',BarChart3]];
+
+export default function WhyNow(){return <section className="border-t border-white/5 px-6 py-16 lg:px-8"><div className="mx-auto max-w-5xl"><div className="mb-9 text-center"><p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-accent-orange">Why Now</p><h2 className="text-3xl font-bold md:text-4xl">The next generation of leaders needs more than training.</h2></div><div className="grid gap-4 md:grid-cols-3">{forces.map(([label,Icon])=><div key={label} className="flex items-center gap-3 border-l border-white/15 px-5 py-3"><Icon size={20} className="shrink-0 text-indigo-400"/><p className="text-sm font-medium text-white/75">{label}</p></div>)}</div><p className="mx-auto mt-9 max-w-3xl text-center text-sm leading-relaxed text-white/50">Enterprise leadership development is shifting from episodic training to continuous, evidence-based readiness.</p></div></section>;}

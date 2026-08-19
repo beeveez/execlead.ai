@@ -8,24 +8,19 @@ import { Zap, Users, Layers, Rocket } from 'lucide-react';
  */
 const ITEMS = [
   {
-    icon: Zap,
-    q: 'What is EXECLEAD.AI?',
-    a: 'An AI-powered Executive Leadership Operating System™.',
-  },
-  {
     icon: Users,
     q: 'Who is it for?',
-    a: 'IT and technical professionals preparing for management, director, and executive leadership roles.',
+    a: 'Technology leaders, managers, directors, emerging executives, and organizations developing their next generation of leaders.',
   },
   {
     icon: Layers,
-    q: 'Why is it different?',
-    a: 'It combines Executive Readiness™, realistic simulations, AI coaching, evidence-based growth tracking, and Executive Identity™ development in one integrated platform.',
+    q: 'What does it do?',
+    a: 'It combines executive readiness assessment, AI coaching, leadership simulations, evidence tracking, and executive identity development.',
   },
   {
-    icon: Rocket,
-    q: 'Why act now?',
-    a: 'Founding Members receive early access, personalized Executive Readiness insights, and the opportunity to help shape the first generation of evidence-based executive leadership intelligence.',
+    icon: Zap,
+    q: 'Why is it different?',
+    a: 'It does not simply generate leadership advice. It builds a continuously evolving executive capability profile from leadership evidence.',
   },
 ];
 
@@ -35,11 +30,12 @@ export default function ValueTest30() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">
-            In 30 Seconds
+            The 30-Second Executive Test
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold">Understand EXECLEAD.AI — Fast.</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">What is EXECLEAD.AI?</h2>
+          <p className="mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-white/50">EXECLEAD.AI is an AI Executive Leadership Operating System designed to help technology and business professionals develop executive readiness, judgment, and strategic leadership.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {ITEMS.map((it, i) => (
             <motion.div
               key={it.q}

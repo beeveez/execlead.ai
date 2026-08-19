@@ -1,60 +1,19 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { X, Check, MessageSquare, Brain } from "lucide-react";
+import React from 'react';
+import { Check, X } from 'lucide-react';
 
-// SimulationDifferentiation — positions EXECLEAD.AI against generic AI chat by
-// contrasting what each actually does. No marketing hype; observable capability.
-const EXECLEAD = [
-  "Places you inside executive situations",
-  "Evaluates leadership decisions",
-  "Measures demonstrated competency",
-  "Provides evidence-based coaching",
-  "Tracks Executive Readiness™ over time",
-];
+const generic = ['Conversation', 'Advice', 'One-off interaction', 'Limited continuity'];
+const execlead = ['Assessment', 'Coaching', 'Simulation', 'Evidence', 'Executive Identity', 'Longitudinal development'];
 
 export default function SimulationDifferentiation() {
-  return (
-    <section className="py-16 md:py-20 px-6 lg:px-8 border-t border-white/5">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-1.5 text-accent-orange mb-2">
-            <Brain size={13} /><span className="text-[11px] uppercase tracking-wider font-semibold">Why This Is Different</span>
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white">Not another AI chatbot. An Executive Leadership Operating System.</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center"><MessageSquare size={16} className="text-white/40" /></div>
-              <div>
-                <div className="text-[14px] font-semibold text-white/70">Traditional AI Chat</div>
-                <div className="text-[10px] text-white/30">Answers questions</div>
-              </div>
-            </div>
-            <ul className="space-y-2.5">
-              <li className="flex items-start gap-2 text-[12.5px] text-white/45"><Check size={13} className="text-white/30 mt-0.5 shrink-0" />Answers questions</li>
-              <li className="flex items-start gap-2 text-[12.5px] text-white/30"><X size={13} className="text-white/20 mt-0.5 shrink-0" />Doesn't evaluate your leadership</li>
-              <li className="flex items-start gap-2 text-[12.5px] text-white/30"><X size={13} className="text-white/20 mt-0.5 shrink-0" />No demonstrated competency evidence</li>
-              <li className="flex items-start gap-2 text-[12.5px] text-white/30"><X size={13} className="text-white/20 mt-0.5 shrink-0" />No measurable readiness growth</li>
-            </ul>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, x: 12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-2xl border border-accent-orange/25 bg-gradient-to-br from-accent-orange/[0.06] via-white/[0.02] to-transparent p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-accent-orange/15 flex items-center justify-center"><Brain size={16} className="text-accent-orange" /></div>
-              <div>
-                <div className="text-[14px] font-semibold text-white">EXECLEAD.AI</div>
-                <div className="text-[10px] text-accent-orange/70">Executive Leadership Operating System</div>
-              </div>
-            </div>
-            <ul className="space-y-2.5">
-              {EXECLEAD.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-[12.5px] text-white/75"><Check size={13} className="text-accent-orange mt-0.5 shrink-0" />{item}</li>
-              ))}
-            </ul>
-          </motion.div>
-        </div>
+  return <section className="border-t border-white/5 px-6 py-20 lg:px-8">
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-10 text-center"><p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-accent-orange">The Difference</p><h2 className="text-3xl font-bold md:text-4xl">More than AI coaching.</h2></div>
+      <div className="grid overflow-hidden rounded-2xl border border-white/10 md:grid-cols-2">
+        <div className="bg-white/[0.02] p-7"><h3 className="mb-5 text-sm font-semibold uppercase tracking-wider text-white/45">Generic AI Coaching</h3><ul className="space-y-3">{generic.map(item => <li key={item} className="flex items-center gap-2 text-sm text-white/50"><X size={14} className="text-white/25" />{item}</li>)}</ul></div>
+        <div className="border-t border-white/10 bg-indigo-500/[0.05] p-7 md:border-l md:border-t-0"><h3 className="mb-5 text-sm font-semibold uppercase tracking-wider text-indigo-300">EXECLEAD.AI</h3><ul className="grid gap-3 sm:grid-cols-2">{execlead.map(item => <li key={item} className="flex items-center gap-2 text-sm text-white/75"><Check size={14} className="text-emerald-400" />{item}</li>)}</ul></div>
       </div>
-    </section>
-  );
+      <p className="mx-auto mt-8 max-w-3xl text-center text-sm font-semibold uppercase leading-6 tracking-wide text-white/80">Most AI coaching tools provide conversations. EXECLEAD.AI builds a continuously evolving executive capability profile.</p>
+      <p className="mt-4 text-center text-sm font-bold text-accent-orange">Evidence — not impressions — is the moat.</p>
+    </div>
+  </section>;
 }

@@ -1,0 +1,6 @@
+import React from 'react';
+import { Gauge, GraduationCap, Network, BarChart3 } from 'lucide-react';
+
+const capabilities=[['Executive Readiness',Gauge],['Leadership Development',GraduationCap],['Succession Planning',Network],['Talent Intelligence',BarChart3]];
+
+export default function EnterpriseScale(){return <section id="enterprise" className="border-t border-white/5 px-6 py-20 lg:px-8"><div className="mx-auto max-w-6xl"><div className="mb-10 max-w-3xl"><p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-indigo-400">Built for Enterprise</p><h2 className="text-3xl font-bold md:text-4xl">From individual development to enterprise leadership intelligence.</h2><p className="mt-3 text-sm text-white/50">Start with the individual. Scale through enterprise leadership intelligence.</p></div><div className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">{capabilities.map(([label,Icon])=><div key={label} className="bg-background p-6"><Icon size={21} className="mb-4 text-indigo-400"/><h3 className="text-sm font-semibold text-white/85">{label}</h3></div>)}</div></div></section>;}

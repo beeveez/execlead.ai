@@ -48,14 +48,16 @@ export default function FlagshipSimulationHero({ authed }) {
             <Sparkles size={12} /> FLAGSHIP EXECUTIVE SIMULATION
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-3xl md:text-4xl lg:text-[2.9rem] font-bold tracking-tight leading-[1.1] mb-5">
-            Experience Executive Leadership <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Before You Need It.</span>
+            Practice the Decisions That <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Define Executives.</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-base text-white/60 leading-relaxed mb-7 max-w-xl">
-            Step into a realistic executive board meeting where every decision has measurable business consequences. Take one Executive Simulation and discover how EXECLEAD.AI develops Executive Readiness™ through evidence — not opinion.
+          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-base text-white/60 leading-relaxed mb-4 max-w-xl">
+            You are facing a cybersecurity investment decision with competing executive priorities. Balance security risk, budget constraints, operational continuity, stakeholder pressure, executive communication, and strategic tradeoffs.
           </motion.p>
+          <p className="mb-5 max-w-xl text-sm font-semibold text-white/80">EXECLEAD.AI does not just teach leadership concepts. It puts leaders inside the decisions.</p>
+          <div className="mb-7 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide text-white/45">{['Decision','Executive reasoning','AI evaluation','Leadership evidence','Development feedback'].map((step,index)=><React.Fragment key={step}><span className="rounded-full border border-white/10 px-2.5 py-1">{step}</span>{index<4&&<span>→</span>}</React.Fragment>)}</div>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-8">
             <button onClick={launchSimulation} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25">
-              <PlayCircle size={18} /> Launch Executive Simulation
+              <PlayCircle size={18} /> Explore a Simulation
             </button>
             <Link to={ctaTo} onClick={startAssessment} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium px-6 py-3.5 rounded-xl transition-colors">
               Take Executive Readiness Assessment <ArrowRight size={16} />
@@ -112,7 +114,7 @@ export default function FlagshipSimulationHero({ authed }) {
               <p className="text-[10px] text-white/30 mt-2">Launch the simulation to make the call — and face the consequences.</p>
               <div className="mt-3 flex items-start gap-2 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
                 <ShieldCheck size={12} className="text-cyan-400 mt-0.5 flex-shrink-0" />
-                <p className="text-[10px] text-white/55 leading-relaxed">Based on real executive-style tradeoffs involving risk, budget constraints, stakeholder pressure, operational continuity, and board-level communication.</p>
+                <p className="text-[10px] text-white/55 leading-relaxed">Based on real executive-style tradeoffs involving risk, budget constraints, stakeholder pressure, operational continuity, board-level communication, and strategic tradeoffs.</p>
               </div>
             </div>
 

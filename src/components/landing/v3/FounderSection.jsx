@@ -9,18 +9,23 @@ import { BrandRegistry } from "@/lib/brandRegistry";
 export default function FounderSection() {
   const f = BrandRegistry.founder;
   return (
-    <section className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
+    <section id="founder" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">
             Founder
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Built by an Enterprise Operations Leader. Born from a Personal Need.
+            Built by an Enterprise Technology Leader.
           </h2>
           <p className="text-white/40 max-w-xl mx-auto text-sm">
-            <strong className="text-white/70">{f.name}</strong> is the <strong className="text-white/70">{f.title} of <span className="text-indigo-400">{f.company}</span></strong>.
+            <strong className="text-white/70">{f.name}</strong> · <strong className="text-white/70">Founder & CEO</strong>
           </p>
+          <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-3">
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">20+ Years</strong><span className="mt-1 block text-xs text-white/40">Enterprise IT</span></div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">12+ Years</strong><span className="mt-1 block text-xs text-white/40">Leading Teams</span></div>
+          </div>
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-white/50">Building EXECLEAD.AI to combine technology leadership experience with AI-powered executive development and talent intelligence.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

@@ -23,13 +23,13 @@ const PILLARS = [
 
 export default function TrustReinforcement() {
   return (
-    <section className="py-12 md:py-14 px-6 lg:px-8 border-t border-white/5">
+    <section id="trust" className="py-12 md:py-14 px-6 lg:px-8 border-t border-white/5">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-6">
           <div className="text-[11px] uppercase tracking-wider text-white/40 font-semibold mb-1.5">
-            Trust Reinforcement
+            Trust & Responsibility
           </div>
-          <h2 className="text-lg md:text-xl font-semibold text-white/85">Enterprise-Grade Trust Practices</h2>
+          <h2 className="text-lg md:text-xl font-semibold text-white/85">Built for accountable leadership intelligence</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {PILLARS.map((p, i) => (

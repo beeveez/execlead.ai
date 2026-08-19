@@ -120,13 +120,6 @@ export default function MarketingNav() {
             {authed ? (
               <>
                 <Link
-                  to="/dashboard"
-                  onClick={() => trackNav("Dashboard")}
-                  className="hidden md:inline text-[13px] text-white/60 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 rounded-lg px-2 py-1"
-                >
-                  Dashboard
-                </Link>
-                <Link
                   to="/home"
                   onClick={() => trackNav("Open Workspace")}
                   className="bg-indigo-500 hover:bg-indigo-600 text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
@@ -189,10 +182,7 @@ export default function MarketingNav() {
             ))}
             <div className="pt-2 mt-2 border-t border-white/5 flex flex-col gap-2">
               {authed ? (
-                <>
-                  <Link to="/dashboard" onClick={() => handleNavClick({ label: "Dashboard" })} className="block py-2 text-sm text-white/60 hover:text-white">Dashboard</Link>
-                  <Link to="/home" onClick={() => handleNavClick({ label: "Open Workspace" })} className="block py-2.5 text-center text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg">Open Workspace</Link>
-                </>
+                <Link to="/home" onClick={() => handleNavClick({ label: "Open Workspace" })} className="block py-2.5 text-center text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg">Open Workspace</Link>
               ) : (
                 <>
                   <Link to="/demo" onClick={() => handleNavClick({ label: "Watch Demo" })} className="block py-2.5 text-center text-sm border border-white/10 text-white/70 rounded-lg">Watch Demo</Link>

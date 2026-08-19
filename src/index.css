@@ -450,8 +450,8 @@ html:not(.dark) .backdrop-blur-2xl {
 .launch-architecture span:nth-child(3) { width: 16rem; height: 16rem; left: 44%; bottom: -13rem; border-color: hsl(var(--launch-accent) / 0.08); }
 .launch-countdown-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; }
 .launch-countdown-unit { position: relative; min-width: 0; padding-inline: 0.2rem; }
-.launch-countdown-unit:not(:last-child)::after { content: ":"; position: absolute; top: 0.06em; right: -0.12em; color: hsl(var(--launch-muted) / 0.46); font-size: clamp(1.6rem, 7vw, 5.5rem); font-weight: 200; line-height: 1; }
-.launch-countdown-value { display: block; color: hsl(var(--launch-foreground)); font-family: var(--font-display); font-size: clamp(1.75rem, 7.4vw, 6.5rem); font-weight: 300; line-height: 1; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; text-shadow: 0 0 24px hsl(var(--launch-foreground) / 0.08); }
+.launch-countdown-unit:not(:last-child)::after { content: ":"; position: absolute; top: 0.06em; right: -0.12em; color: hsl(var(--launch-muted) / 0.46); font-size: clamp(1.4rem, 6vw, 4.75rem); font-weight: 200; line-height: 1; }
+.launch-countdown-value { display: block; color: hsl(var(--launch-foreground)); font-family: var(--font-display); font-size: clamp(1.55rem, 6.4vw, 5.6rem); font-weight: 300; line-height: 1; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; text-shadow: 0 0 24px hsl(var(--launch-foreground) / 0.08); }
 .launch-countdown-label { display: block; margin-top: 1rem; color: hsl(var(--launch-muted)); font-size: clamp(0.48rem, 1.2vw, 0.72rem); font-weight: 600; letter-spacing: clamp(0.06em, 0.5vw, 0.26em); text-transform: uppercase; }
 .countdown-digit-change { animation: countdown-digit-change 280ms ease-out; }
 .launch-phase-final { min-height: min(680px, 76vh); }

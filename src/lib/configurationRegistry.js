@@ -17,6 +17,7 @@ const DEFAULTS = {
   'partners.ecosystem_target': 14,
   'partners.currency': 'USD',
   'partners.allowed_attribution_models': ['Partner-Sourced', 'Partner-Assisted', 'Partner-Integrated'],
+  'decision.lifecycle_version': '1.0',
 };
 
 const OVERRIDES = {};

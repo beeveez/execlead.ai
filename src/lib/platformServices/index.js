@@ -12,6 +12,7 @@ import { PartnerRevenueService } from './PartnerRevenueService';
 import { PartnerHealthService } from './PartnerHealthService';
 import { PartnerRecommendationService } from './PartnerRecommendationService';
 import { PartnerReportingService } from './PartnerReportingService';
+import { DecisionLifecycleService } from './DecisionLifecycleService';
 import AIService from '@/lib/aiService';
 import ConfigurationRegistry from '@/lib/configurationRegistry';
 import PromptRegistry from '@/lib/promptRegistry';
@@ -30,6 +31,7 @@ const REGISTRY = {
   PartnerHealthService,
   PartnerRecommendationService,
   PartnerReportingService,
+  DecisionLifecycleService,
   AIService,
   ConfigurationRegistry,
   PromptRegistry,

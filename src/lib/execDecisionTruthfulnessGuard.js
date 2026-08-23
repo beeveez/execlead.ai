@@ -1,3 +1,5 @@
+import { classifyExecQuestion, needsStrongEvidenceControls } from '@/lib/execQuestionClassifier';
+
 const UNSUPPORTED_PRECISION = [
   /\b(?:EECF|EELM|ELIM)™?\b/i,
   /\b\d+\s*(?:-|–|to)\s*\d+\s*years?\b/i,
@@ -18,31 +20,17 @@ export function hasUnsupportedDecisionPrecision(response) {
 }
 
 export function guardExecDecisionResponse(query, response) {
-  if (!hasUnsupportedDecisionPrecision(response)) return response;
-  const studentContext = /student|graduate|early career/i.test(query || '');
-  return `**AI Interpretation**
+  const category = classifyExecQuestion(query);
+  if (!needsStrongEvidenceControls(category) || !hasUnsupportedDecisionPrecision(response)) return response;
 
-I can provide development guidance${studentContext ? ' for an early-career professional' : ''}, but the current evidence does not support a precise career-outcome prediction.
-
-**Platform Scores**
-
-Journey Points and readiness scores describe progress inside EXECLEAD.AI. They are not proof of promotion, salary growth, professional qualification, or future executive status.
-
-**Scenario / Estimate**
-
-Your timeline cannot be reliably predicted from the current evidence. Any pathway discussed should be treated as an **illustrative scenario — not a prediction**.
-
-**Unknown**
-
-- Promotion probability: Not currently estimable.
-- Evidence confidence: Not yet calculated for this recommendation.
-- Salary outcomes cannot be reliably predicted from the current evidence.
-
-**Recommendation**
-
-Based on the evidence currently available, focus on developing and demonstrating leadership capabilities through structured practice, verified achievements, decision exercises, and real-world responsibility. Actual progression depends on experience, opportunities, performance, geography, employer decisions, and market conditions.
-
-**Assumptions and unknowns:** No validated external career-outcome dataset, promotion model, salary model, or approved methodology was supplied for a numerical forecast.`;
+  const text = (query || '').toLowerCase();
+  if (/guarantee|guaranteed/.test(text)) {
+    return `No. EXECLEAD.AI cannot guarantee a promotion, role, salary, or other career outcome. It is designed to help you strengthen leadership capabilities through structured practice, simulations, coaching, and evidence-based development; the outcome still depends on your performance, experience, opportunities, employer decisions, and market conditions.`;
+  }
+  if (/salary|compensation|pay/.test(text)) {
+    return `I can help you evaluate the factors that influence compensation, but I cannot responsibly invent a salary outcome from the evidence available. A meaningful analysis would need the target role, location, industry, experience level, employer, and current verified market data. We can still compare the strategic trade-offs without turning them into a false forecast.`;
+  }
+  return `I cannot responsibly assign a probability or precise timeline from the evidence currently available. A meaningful forecast would require verified performance history, role scope, leadership evidence, market context, available opportunities, and the decision criteria used by the relevant organization. I can still help you identify the capabilities to develop, the evidence to build, and the milestones that would make the goal more achievable.`;
 }
 
-export const EXEC_DECISION_TRUTHFULNESS_DIRECTIVE = `PRECISION MUST BE EARNED BY EVIDENCE. Distinguish verified fact, user-supplied data, platform score, deterministic calculation, AI interpretation, illustrative scenario, and unknown. Never invent career timelines, promotion probabilities, salary impacts, confidence percentages, benchmarks, datasets, or framework contributions. Journey Points are platform progress only. Proprietary frameworks may be mentioned only through approved Knowledge Articles or approved configuration. Recommendations must state evidence used, assumptions, unknowns, and rationale. AI recommendations never guarantee outcomes.`;
+export const EXEC_DECISION_TRUTHFULNESS_DIRECTIVE = `NO UNSUPPORTED PRECISION — NOT NO INTELLIGENCE. Classify the question before responding. Apply strong prediction and evidence controls only to Prediction / Forecast and Quantitative Analysis requests. For strategic comparisons, decision support, career guidance, product questions, and general conversation, answer directly with useful reasoning, trade-offs, and recommendations. Never invent career timelines, probabilities, salary impacts, confidence percentages, benchmarks, datasets, competitor weaknesses, or framework contributions. Mention a limitation only when it materially affects the requested answer, and state it once concisely. Journey Points are platform progress only. AI recommendations never guarantee outcomes.`;

@@ -45,6 +45,7 @@ import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailur
 import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
+import { classifyExecQuestion, isStrategicQuestion } from "@/lib/execQuestionClassifier";
 
 const ExecConciergeContext = createContext(null);
 
@@ -565,7 +566,8 @@ export function ExecConciergeProvider({ children }) {
       // exclusively from approved Knowledge Articles (never general LLM reasoning).
       // Falls back to a transparent "no approved article" message when evidence is
       // missing. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
-      if (isCompanyKnowledgeQuestion(content)) {
+      const questionCategory = classifyExecQuestion(content);
+      if (isCompanyKnowledgeQuestion(content) && !isStrategicQuestion(questionCategory)) {
         try {
           const { ranked, all } = await retrieveKnowledgeArticles(content, 5);
           const protectedFounderAnswer = answerFounderQuestionFromApprovedKnowledge(content, all);

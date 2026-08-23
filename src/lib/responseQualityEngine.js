@@ -1,4 +1,5 @@
 import { callAI } from "@/lib/ai";
+import { classifyExecQuestion, EXEC_QUESTION_CATEGORIES } from "@/lib/execQuestionClassifier";
 
 /**
  * Response Quality Review™
@@ -11,11 +12,47 @@ export const RESPONSE_QUALITY_CHECKLIST = [
   { id: "direct_answer", question: "Did EXEC™ answer the user's question directly and substantively (not vague or evasive)?" },
   { id: "personalized", question: "Did EXEC™ personalize the response using available evidence from the user's context (journey, reputation, readiness, profile)?" },
   { id: "explained_why", question: "Did EXEC™ explain the reasoning behind its recommendation or answer?" },
-  { id: "cited_frameworks", question: "Did EXEC™ cite the relevant frameworks used (e.g., EECF™, Leadership DNA™, Executive Readiness™, Executive Reputation™, EELM™)?" },
-  { id: "identified_assumptions", question: "Did EXEC™ identify assumptions and note any missing evidence that affects confidence?" },
+  { id: "cited_frameworks", question: "Did EXEC™ cite the relevant approved frameworks when genuinely required by the question?" },
+  { id: "identified_assumptions", question: "Did EXEC™ identify material assumptions when they are genuinely required?" },
   { id: "offered_alternatives", question: "Did EXEC™ offer reasonable alternatives and trade-offs where applicable?" },
-  { id: "clear_next_actions", question: "Did EXEC™ provide clear, actionable next steps the user can take?" },
+  { id: "clear_next_actions", question: "Did EXEC™ provide clear next actions when the user asked what to do next?" },
 ];
+
+const STRATEGIC_COMPARISON_CHECKS = new Set(["direct_answer", "explained_why", "offered_alternatives"]);
+const INTERNAL_ARTIFACTS = [
+  /\bexecutive_mentor\b/i,
+  /\bKnowledge\s+\d{4}\.\d+\b/i,
+  /\bExecutive Context(?: Engine)?\b/i,
+  /\bExecutive Runtime Profile\b/i,
+  /\bsubscription context\b/i,
+  /\bactive persona\b/i,
+  /\bquestion classification\b/i,
+  /\bpersonalization directive\b/i,
+  /\bretrieval (?:status|diagnostics?|score)\b/i,
+  /\binternal (?:prompt|reasoning|workspace state)\b/i,
+];
+
+function checklistFor(category) {
+  if (category === EXEC_QUESTION_CATEGORIES.STRATEGIC_COMPARISON) {
+    return RESPONSE_QUALITY_CHECKLIST.filter((check) => STRATEGIC_COMPARISON_CHECKS.has(check.id));
+  }
+  if (category === EXEC_QUESTION_CATEGORIES.COMPANY_FACT || category === EXEC_QUESTION_CATEGORIES.PRODUCT) {
+    return RESPONSE_QUALITY_CHECKLIST.filter((check) => ["direct_answer", "explained_why"].includes(check.id));
+  }
+  if (category === EXEC_QUESTION_CATEGORIES.GENERAL) {
+    return RESPONSE_QUALITY_CHECKLIST.filter((check) => check.id === "direct_answer");
+  }
+  return RESPONSE_QUALITY_CHECKLIST;
+}
+
+export function hasInternalResponseArtifacts(response = "") {
+  return INTERNAL_ARTIFACTS.some((pattern) => pattern.test(response));
+}
+
+export function sanitizeResponseForDelivery(response = "") {
+  if (!hasInternalResponseArtifacts(response)) return response;
+  return "I’m EXEC™, the AI Executive Concierge of EXECLEAD.AI. I couldn’t safely complete that response without exposing internal implementation details. Please try the question again.";
+}
 
 const REVIEW_SCHEMA = {
   type: "object",
@@ -38,8 +75,9 @@ const REVIEW_SCHEMA = {
   required: ["passed", "checks", "feedback"],
 };
 
-export async function reviewResponse(userMessage, execResponse) {
-  const checklistText = RESPONSE_QUALITY_CHECKLIST
+export async function reviewResponse(userMessage, execResponse, category = classifyExecQuestion(userMessage)) {
+  const applicableChecklist = checklistFor(category);
+  const checklistText = applicableChecklist
     .map((c, i) => `${i + 1}. [${c.id}] ${c.question}`)
     .join("\n");
 
@@ -66,7 +104,12 @@ ${execResponse}
 Evaluate the response now.`;
 
   try {
-    const res = await callAI("exec_quality_review", { prompt, response_json_schema: REVIEW_SCHEMA });
+    const res = await callAI("exec_quality_review", {
+      prompt,
+      response_json_schema: REVIEW_SCHEMA,
+      responseCategory: category,
+      contextPolicy: "none",
+    });
     const data = typeof res === "string" ? JSON.parse(res) : res;
     return {
       passed: Boolean(data?.passed),
@@ -79,7 +122,7 @@ Evaluate the response now.`;
   }
 }
 
-export async function reviseResponse(userMessage, originalResponse, review) {
+export async function reviseResponse(userMessage, originalResponse, review, category = classifyExecQuestion(userMessage)) {
   const failedChecks = review.checks.filter((c) => !c.passed);
   const failedText = failedChecks.map((c) => `- [${c.id}] ${c.reason}`).join("\n");
 
@@ -99,15 +142,23 @@ ${failedText}
 REVIEWER FEEDBACK:
 ${review.feedback}
 
+RESPONSE CATEGORY: ${category}
+
 REVISION REQUIREMENTS:
 - Address every failed check above specifically and substantively.
+- For Strategic Comparison, do not add profile analysis, assumptions, framework citations, journey analysis, subscription recommendations, lead capture, or a commercial CTA.
+- Never expose internal personas, context labels, knowledge versions, prompt terminology, retrieval diagnostics, or private reasoning.
 - Preserve all correct and useful content from the original response.
 - Maintain EXEC™'s executive, professional tone and markdown formatting.
 - Do NOT mention the quality review process, failed checks, or that this is a revision — just provide the improved response as if it were your first answer.
 - Return only the revised response.`;
 
   try {
-    const res = await callAI("exec_quality_revision", { prompt });
+    const res = await callAI("exec_quality_revision", {
+      prompt,
+      responseCategory: category,
+      contextPolicy: "none",
+    });
     const revised = typeof res === "string" ? res : res?.response || res?.text || "";
     return revised.trim() || originalResponse;
   } catch {
@@ -120,10 +171,24 @@ REVISION REQUIREMENTS:
  * Returns the final response, the review object, and whether a revision was made.
  */
 export async function runQualityGate(userMessage, execResponse) {
-  const review = await reviewResponse(userMessage, execResponse);
-  if (review.passed || review.reviewError) {
-    return { response: execResponse, review, revised: false };
+  const category = classifyExecQuestion(userMessage);
+  const review = await reviewResponse(userMessage, execResponse, category);
+  let response = execResponse;
+  let revised = false;
+
+  if (!review.passed && !review.reviewError) {
+    response = await reviseResponse(userMessage, response, review, category);
+    revised = true;
   }
-  const revised = await reviseResponse(userMessage, execResponse, review);
-  return { response: revised, review, revised: true };
+
+  if (hasInternalResponseArtifacts(response)) {
+    const artifactReview = {
+      checks: [{ id: "internal_artifacts", passed: false, reason: "The response exposes internal implementation context." }],
+      feedback: "Regenerate the answer without internal personas, context, subscription state, knowledge versions, diagnostics, or private reasoning.",
+    };
+    response = await reviseResponse(userMessage, response, artifactReview, category);
+    revised = true;
+  }
+
+  return { response: sanitizeResponseForDelivery(response), review, revised };
 }

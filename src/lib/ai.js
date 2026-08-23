@@ -21,6 +21,24 @@ const MODULE_INTENT_MAP = {
   other: "general_inquiry",
 };
 
+const CONTEXT_FREE_CATEGORIES = new Set([
+  "Strategic Comparison",
+  "General Conversation",
+  "Product Question",
+  "Company Fact",
+  "Educational Question",
+]);
+const CONTEXT_FREE_INTENTS = new Set(["general_inquiry", "knowledge", "company_intelligence", "product_question"]);
+
+function shouldInjectExecutiveContext(module, responseCategory, contextPolicy, intent) {
+  if (contextPolicy === "none") return false;
+  if (contextPolicy === "full") return true;
+  if (CONTEXT_FREE_CATEGORIES.has(responseCategory)) return false;
+  if (CONTEXT_FREE_INTENTS.has(intent || MODULE_INTENT_MAP[module])) return false;
+  if (module === "exec_quality_review" || module === "exec_quality_revision") return false;
+  return true;
+}
+
 /**
  * AI call wrapper with automatic usage tracking.
  * Replaces base44.integrations.Core.InvokeLLM to log token/cost estimates,
@@ -37,21 +55,27 @@ const classifyError = (err) => {
   return { status: "error", error_type: "provider_error" };
 };
 
-export const callAI = async (module, { prompt, intent, correlationId, ...options }) => {
-  // ── Executive Context Engine™ — must NEVER crash an AI call ──
-  // If the context engine or model router throws (e.g. a registry lookup
-  // failure), fall back to the bare prompt instead of failing the entire
-  // request. This was the root cause of EXEC™ always returning the fallback
-  // message: a thrown context builder propagated through every callAI.
+export const callAI = async (module, { prompt, intent, correlationId, responseCategory, contextPolicy = "auto", ...options }) => {
+  // Executive context is request-aware. Public, product, general, educational,
+  // and strategic-comparison requests never receive private runtime context.
   let contextPrompt = "";
   let ctx = null;
-  try {
-    contextPrompt = getExecutiveContextPrompt();
-    ctx = getExecutiveContext();
-    if (correlationId) logStage({ correlationId, stage: "executive_context", status: "success" });
-  } catch (e) {
-    if (correlationId) logStage({ correlationId, stage: "executive_context", status: "failure", error: e?.message || String(e) });
-    console.error("[callAI] Executive Context Engine threw — proceeding without context:", e);
+  if (shouldInjectExecutiveContext(module, responseCategory, contextPolicy, intent)) {
+    try {
+      contextPrompt = getExecutiveContextPrompt();
+      ctx = getExecutiveContext();
+      if (correlationId) logStage({ correlationId, stage: "executive_context", status: "success" });
+    } catch (e) {
+      if (correlationId) logStage({ correlationId, stage: "executive_context", status: "failure", error: e?.message || String(e) });
+      console.error("[callAI] Executive Context Engine threw — proceeding without context:", e);
+    }
+  }
+  if (!ctx) {
+    try {
+      ctx = getExecutiveContext();
+    } catch {
+      ctx = null;
+    }
   }
   const fullPrompt = contextPrompt ? `${contextPrompt}\n\n${prompt}` : prompt;
 

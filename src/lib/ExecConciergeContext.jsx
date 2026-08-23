@@ -45,7 +45,7 @@ import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailur
 import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
-import { classifyExecQuestion, isStrategicQuestion } from "@/lib/execQuestionClassifier";
+import { classifyExecQuestion } from "@/lib/execQuestionClassifier";
 import { getStrategicComparisonResponse } from "@/lib/execStrategicComparison";
 
 const ExecConciergeContext = createContext(null);
@@ -442,9 +442,12 @@ export function ExecConciergeProvider({ children }) {
         properties: { length: content.length },
       });
 
+      const questionCategory = classifyExecQuestion(content);
       const strategicComparison = getStrategicComparisonResponse(content);
-      if (strategicComparison) {
-        setMessages((prev) => [...prev, { role: "assistant", content: strategicComparison }]);
+      if (questionCategory === "Strategic Comparison" && strategicComparison) {
+        const { response } = await runQualityGate(content, strategicComparison);
+        const guardedResponse = guardExecDecisionResponse(content, response);
+        setMessages((prev) => [...prev, { role: "assistant", content: guardedResponse }]);
         setLoading(false);
         return;
       }
@@ -574,8 +577,7 @@ export function ExecConciergeProvider({ children }) {
       // exclusively from approved Knowledge Articles (never general LLM reasoning).
       // Falls back to a transparent "no approved article" message when evidence is
       // missing. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
-      const questionCategory = classifyExecQuestion(content);
-      if (isCompanyKnowledgeQuestion(content) && !isStrategicQuestion(questionCategory)) {
+      if (isCompanyKnowledgeQuestion(content)) {
         try {
           const { ranked, all } = await retrieveKnowledgeArticles(content, 5);
           const protectedFounderAnswer = answerFounderQuestionFromApprovedKnowledge(content, all);
@@ -616,7 +618,12 @@ export function ExecConciergeProvider({ children }) {
           formatIdentityContextForPrompt(latestIdentityRef.current)
         );
         logStage({ correlationId, stage: "executive_context", status: userContextRef.current ? "success" : "failure", extra: { hasContext: !!userContextRef.current } });
-        const res = await callAI("exec_concierge", { prompt, correlationId });
+        const res = await callAI("exec_concierge", {
+          prompt,
+          correlationId,
+          responseCategory: questionCategory,
+          contextPolicy: "none",
+        });
         const initialResponse =
           typeof res === "string"
             ? res

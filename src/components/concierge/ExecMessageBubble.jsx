@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Sparkles } from "lucide-react";
 import DecisionSupportCard from "./DecisionSupportCard";
+import { sanitizeResponseForDelivery } from "@/lib/responseQualityEngine";
 
 const markdownComponents = {
   a: ({ href, children }) => {
@@ -48,7 +49,8 @@ function parseExecResponse(content) {
 
 export default function ExecMessageBubble({ message }) {
   const isUser = message.role === "user";
-  const parts = isUser ? null : parseExecResponse(message.content);
+  const safeContent = isUser ? message.content : sanitizeResponseForDelivery(message.content);
+  const parts = isUser ? null : parseExecResponse(safeContent);
 
   return (
     <div className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>

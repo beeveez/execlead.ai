@@ -1,6 +1,6 @@
 const SCHOOL_TERMS = /\b(mit|harvard|wharton|stanford|business school|management school|university|mba)\b/i;
 const PLATFORM_TERMS = /\b(execlead(?:\.ai)?|this platform|the platform|use this)\b/i;
-const COMPARISON_TERMS = /\b(instead of|versus|vs\.?|better than|compare|choose between|or use|alternative to)\b/i;
+const COMPARISON_TERMS = /\b(instead(?:\s+of)?|versus|vs\.?|better than|compare|choose between|or use|alternative to)\b/i;
 const NAMED_SCHOOLS = ['MIT', 'Harvard', 'Wharton', 'Stanford'];
 
 function schoolsNamedIn(question) {

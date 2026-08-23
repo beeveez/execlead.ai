@@ -55,7 +55,7 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex">
+    <div className="min-h-screen bg-brand-exec-navy text-white flex">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-[296px] bg-[#0d0d14] border-r border-white/5 fixed h-full z-30">
         <div className="p-6 border-b border-white/5">
@@ -89,7 +89,7 @@ export default function AppLayout() {
       <div className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
           <div className="w-72 h-full bg-[#0d0d14] border-r border-white/5 p-4 overflow-y-auto" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))", paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }} onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 pb-4 border-b border-white/5">
-              <Logo showAiTag={false} />
+              <Logo />
             </div>
             <OutcomeSidebar
               navGroups={navGroups}

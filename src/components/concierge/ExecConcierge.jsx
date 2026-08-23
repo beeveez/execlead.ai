@@ -9,6 +9,7 @@ import {
   EXEC_GLOBAL_COMMANDS,
 } from "@/lib/execConciergeConfig";
 import ExecMessageBubble from "./ExecMessageBubble";
+import CanonicalBrandLockup from "@/components/brand/CanonicalBrandLockup";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
 import ExecHealthPanel from "./ExecHealthPanel";
@@ -173,7 +174,7 @@ export default function ExecConcierge() {
             title="EXEC™ AI Concierge — Ask anything about your leadership journey"
           >
             <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-20" />
-            <Sparkles size={24} className="text-white relative z-10" />
+            <CanonicalBrandLockup variant="icon" size="md" className="relative z-10" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -188,8 +189,8 @@ export default function ExecConcierge() {
             className="fixed inset-x-0 bottom-0 top-16 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[400px] sm:h-[600px] z-50 bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-500/10 to-transparent border-b border-border flex-shrink-0">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                <Sparkles size={20} className="text-white" />
+              <div className="w-10 h-10 rounded-full bg-brand-exec-navy border border-brand-exec-gold/30 flex items-center justify-center flex-shrink-0">
+                <CanonicalBrandLockup variant="icon" size="sm" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground text-sm">EXEC™</h3>

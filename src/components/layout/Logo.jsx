@@ -1,38 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { BrandRegistry } from "@/lib/brandRegistry";
-import ExecutiveMark from "@/components/layout/ExecutiveMark";
+import CanonicalBrandLockup from "@/components/brand/CanonicalBrandLockup";
 
-export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2", showMark = true }) {
-  const sizeClass = size === "sm" ? "text-base" : size === "xl" ? "text-xl" : "text-lg";
-  const markSize = size === "sm" ? 18 : size === "xl" ? 28 : 22;
+const LEGACY_SIZE_MAP = { sm: "sm", lg: "md", xl: "lg" };
 
+export default function Logo({ size = "lg", theme = "dark", className = "" }) {
   return (
     <Link
       to="/"
-      aria-label={`${BrandRegistry.brandName} — Go to home`}
-      className="inline-flex items-center cursor-pointer select-none group"
+      aria-label="EXECLEAD.AI — Go to home"
+      className={`inline-flex items-center cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ai-blue/50 rounded ${className}`}
     >
-      <motion.span
-        className={`${sizeClass} font-bold tracking-tight inline-flex items-center`}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 400, damping: 22 }}
-      >
-        {showMark && (
-          <ExecutiveMark size={markSize} className="mr-2 group-hover:opacity-80 transition-opacity shrink-0" />
-        )}
-        <span className="inline-flex items-baseline text-brand-wordmark transition-opacity group-hover:opacity-80">
-          <span>{BrandRegistry.logo.parts.prefix}</span>
-          <span>{BrandRegistry.logo.parts.middle}</span>
-          {showAiTag && (
-            <span>
-              {BrandRegistry.logo.parts.dot}{BrandRegistry.logo.parts.suffix}
-            </span>
-          )}
-        </span>
-      </motion.span>
+      <CanonicalBrandLockup variant="horizontal" size={LEGACY_SIZE_MAP[size] || size} theme={theme} />
     </Link>
   );
 }

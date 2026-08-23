@@ -19,7 +19,12 @@
     --popover-foreground: 222 47% 11%;
     --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
-    --brand-wordmark: 239 84% 67%;
+    --brand-exec-gold: 41 62% 57%;
+    --brand-exec-silver: 214 22% 88%;
+    --brand-exec-blue: 218 82% 68%;
+    --brand-ai-blue: 198 93% 60%;
+    --brand-exec-navy: 222 48% 8%;
+    --brand-wordmark: var(--brand-exec-blue);
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11%;
     --muted: 210 40% 96.1%;
@@ -77,7 +82,12 @@
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
-    --brand-wordmark: 239 84% 67%;
+    --brand-exec-gold: 41 62% 57%;
+    --brand-exec-silver: 214 22% 88%;
+    --brand-exec-blue: 218 82% 68%;
+    --brand-ai-blue: 198 93% 60%;
+    --brand-exec-navy: 222 48% 8%;
+    --brand-wordmark: var(--brand-exec-blue);
     --secondary: 216 40% 18%;
     --secondary-foreground: 0 0% 98%;
     --muted: 216 40% 18%;
@@ -131,6 +141,16 @@
     @apply bg-background text-foreground font-body;
   }
 }
+
+/* Canonical inline EXECLEAD.AI treatment — use for brand names in body copy. */
+.execlead-wordmark {
+  color: hsl(var(--brand-exec-blue));
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+.execlead-wordmark-ai { color: hsl(var(--brand-ai-blue)); }
 
 /* ============================================================
    Safe Area Insets — iOS/Android WebView notch & home indicator

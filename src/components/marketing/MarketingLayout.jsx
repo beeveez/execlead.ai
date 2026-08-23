@@ -17,7 +17,7 @@ import MarketingFooter from "./MarketingFooter";
 export default function MarketingLayout({ children }) {
   const location = useLocation();
   return (
-    <div className="min-h-screen bg-[#08080d] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-brand-exec-navy text-white overflow-x-hidden">
       <MarketingNav />
       <main>
         <motion.div

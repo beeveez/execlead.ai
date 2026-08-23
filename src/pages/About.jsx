@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Target, Users, Compass } from "lucide-react";
 import PageMetadata from "@/components/marketing/PageMetadata";
+import ExecleadWordmark from "@/components/brand/ExecleadWordmark";
 
 export default function About() {
   return (
@@ -16,7 +17,7 @@ export default function About() {
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white/80 transition-colors mb-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 rounded-lg">
           <ArrowLeft size={14} /> Back to Home
         </Link>
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">About EXECLEAD.AI</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">About <ExecleadWordmark /></h1>
 
         <div className="prose prose-invert max-w-none space-y-6 text-white/60 text-lg leading-relaxed">
           <div>
@@ -25,7 +26,7 @@ export default function About() {
           </div>
 
           <div className="space-y-4">
-            <p>EXECLEAD.AI didn&apos;t begin as an attempt to build another AI product.</p>
+            <p><ExecleadWordmark /> didn&apos;t begin as an attempt to build another AI product.</p>
             <p>It began with a question:</p>
             <p className="text-xl md:text-2xl text-white/85 font-semibold leading-relaxed">
               What does it actually take to become an executive leader?
@@ -65,7 +66,7 @@ export default function About() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-white">That became the idea behind EXECLEAD.AI</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white">That became the idea behind <ExecleadWordmark /></h2>
             <p>I believe leadership is not a destination reached through one promotion.</p>
             <div className="space-y-1 text-white/85 font-semibold">
               <p>Readiness.</p>
@@ -74,7 +75,7 @@ export default function About() {
               <p>Evidence.</p>
               <p>Impact.</p>
             </div>
-            <p>EXECLEAD.AI is being built around that belief.</p>
+            <p><ExecleadWordmark /> is being built around that belief.</p>
             <p>
               The platform brings together Executive Readiness™, AI Executive Coaching™, Leadership Simulations, learning, career intelligence, evidence-based leadership development, and Executive Identity™ into one connected experience.
             </p>
@@ -91,7 +92,7 @@ export default function About() {
               The goal is to use AI to make leadership development more accessible, continuous, measurable, and personalized.
             </p>
             <p>
-              EXECLEAD.AI is designed to challenge assumptions, strengthen decision-making, surface development opportunities, and help professionals practice leadership before the responsibility arrives.
+              <ExecleadWordmark /> is designed to challenge assumptions, strengthen decision-making, surface development opportunities, and help professionals practice leadership before the responsibility arrives.
             </p>
             <p>
               The long-term vision is to help ambitious professionals—and eventually organizations—develop better leaders throughout the entire leadership journey.
@@ -107,7 +108,7 @@ export default function About() {
             <p>
               If someone has the ambition to lead, they should have a way to understand where they are, see where they need to grow, practice the situations they will face, and build evidence of that growth.
             </p>
-            <p className="text-white/85 font-semibold">That&apos;s the future I want EXECLEAD.AI to help create.</p>
+            <p className="text-white/85 font-semibold">That&apos;s the future I want <ExecleadWordmark /> to help create.</p>
           </div>
 
           <div className="space-y-4">
@@ -116,7 +117,7 @@ export default function About() {
               As Founder &amp; Chief Product Architect, I remain deeply involved in the platform&apos;s architecture, experience, and direction.
             </p>
             <p>
-              I&apos;m building EXECLEAD.AI from the perspective of someone who has spent years operating inside technology and enterprise environments—and who understands firsthand how difficult the transition from technical or operational leadership to executive leadership can be.
+              I&apos;m building <ExecleadWordmark /> from the perspective of someone who has spent years operating inside technology and enterprise environments—and who understands firsthand how difficult the transition from technical or operational leadership to executive leadership can be.
             </p>
             <p>But the platform is bigger than my own career.</p>
             <p>
@@ -134,7 +135,7 @@ export default function About() {
             <footer className="text-sm text-white/50 font-normal not-italic">
               — Reynaldo D. Valdez<br />
               Founder &amp; Chief Product Architect<br />
-              EXECLEAD.AI
+              <ExecleadWordmark />
             </footer>
           </blockquote>
         </div>
@@ -167,7 +168,7 @@ export default function About() {
         <div className="mt-16 pt-10 border-t border-white/5 text-center">
           <h2 className="text-3xl font-bold text-white">One Leadership Journey. One AI Platform.</h2>
           <p className="text-white/55 text-base leading-relaxed max-w-2xl mx-auto mt-4">
-            <strong className="text-white/75">EXECLEAD.AI combines Executive Readiness™, AI coaching, executive simulations, leadership intelligence, and evidence-based development into one integrated platform designed to help ambitious professionals continuously grow into executive-ready leaders.</strong>
+            <strong className="text-white/75"><ExecleadWordmark /> combines Executive Readiness™, AI coaching, executive simulations, leadership intelligence, and evidence-based development into one integrated platform designed to help ambitious professionals continuously grow into executive-ready leaders.</strong>
           </p>
         </div>
       </div>

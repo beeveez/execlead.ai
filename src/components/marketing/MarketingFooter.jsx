@@ -46,7 +46,7 @@ export default function MarketingFooter() {
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           <div className="col-span-2">
-            <Link to="/"><Logo aiTagClass="ml-1" /></Link>
+            <Logo />
             <p className="text-white/50 text-sm font-medium mt-3">AI Executive Leadership Operating System™</p>
             <a href={`mailto:${BrandRegistry.supportEmail}`} className="flex items-center gap-1.5 text-white/45 hover:text-white/80 text-xs mt-3 transition-colors">
               <Mail size={13} className="text-indigo-400" /> {BrandRegistry.supportEmail}

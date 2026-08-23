@@ -54,7 +54,7 @@ export default function MarketingNav() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       {/* ── Layer 1: Announcement Bar™ — platform status only ── */}
-      <div className="bg-[#0a0a0f] border-b border-white/5">
+      <div className="bg-brand-exec-navy border-b border-white/5">
         <Link
           to="/beta"
           onClick={() => trackNav("Announcement")}
@@ -81,14 +81,14 @@ export default function MarketingNav() {
         aria-label="Primary"
         className={`transition-all duration-300 border-b ${
           solid
-            ? "bg-[#08080d]/90 backdrop-blur-xl border-white/5 shadow-lg shadow-black/20"
+            ? "bg-brand-exec-navy/90 backdrop-blur-xl border-white/5 shadow-lg shadow-black/20"
             : "bg-transparent border-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-[72px] flex items-center justify-between gap-6 md:gap-10">
           {/* Logo — strongest visual element */}
           <div onClick={() => trackNav("Logo")} className="flex items-center pl-1 md:pl-2">
-            <Logo size="xl" aiTagClass="ml-2" />
+            <Logo size="xl" />
           </div>
 
           {/* Navigation — min 28px (gap-7) between items */}
@@ -155,7 +155,7 @@ export default function MarketingNav() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-white/5 bg-[#08080d]/95 backdrop-blur-xl">
+        <div className="lg:hidden border-t border-white/5 bg-brand-exec-navy/95 backdrop-blur-xl">
           <div className="px-4 py-3 space-y-1">
             {NAV_ITEMS.map((item) => (
               <Link

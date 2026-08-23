@@ -110,6 +110,10 @@ export const BrandRegistry = {
   // ── Logo Assets ──
   logo: {
     brandName: "EXECLEAD.AI",
+    canonicalComponent: "CanonicalBrandLockup",
+    variants: ["horizontal", "stacked", "wordmark", "icon"],
+    sizes: ["sm", "md", "lg", "hero"],
+    themes: ["dark", "light"],
     parts: { prefix: "EXEC", middle: "LEAD", dot: ".", suffix: "AI" },
     markName: "Executive Mark™",
     description: "A custom Executive 'E' monogram with an integrated upward arrow.",
@@ -127,14 +131,19 @@ export const BrandRegistry = {
 
   // ── Colors ──
   colors: {
-    primary: "#6366f1",
-    primaryLight: "#818cf8",
-    primaryDark: "#4f46e5",
-    gold: "#f59e0b",
-    goldLight: "#fbbf24",
-    goldDark: "#d97706",
-    background: "#0a0a0f",
-    card: "#0d0d14",
+    execGold: "#D6AF4F",
+    execSilver: "#DDE3EB",
+    execBlue: "#699AF2",
+    aiBlue: "#3DBDF5",
+    execNavy: "#0B1220",
+    primary: "#699AF2",
+    primaryLight: "#8BB3F6",
+    primaryDark: "#4679D4",
+    gold: "#D6AF4F",
+    goldLight: "#E5C676",
+    goldDark: "#AD8434",
+    background: "#0B1220",
+    card: "#111A2A",
   },
 
   // ── Typography ──

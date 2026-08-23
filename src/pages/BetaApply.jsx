@@ -6,6 +6,7 @@ import ApplicationConfirmation from "@/components/beta/ApplicationConfirmation";
 import DuplicateApplicationNotice from "@/components/beta/DuplicateApplicationNotice";
 import WaitlistForm from "@/components/beta/WaitlistForm";
 import FoundingWavesSection from "@/components/founding/FoundingWavesSection";
+import Logo from "@/components/layout/Logo";
 import { useAdmissionsMetrics } from "@/lib/admissionsMetricsEngine";
 
 export default function BetaApply() {
@@ -23,9 +24,10 @@ export default function BetaApply() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-brand-exec-navy">
       {/* Breadcrumb */}
       <div className="max-w-5xl mx-auto px-6 pt-6">
+        <Logo size="lg" className="mb-5" />
         <nav className="flex items-center gap-1.5 text-xs text-white/30">
           <Link to="/" className="hover:text-white/60 transition-colors">Home</Link>
           <ChevronRight size={10} />

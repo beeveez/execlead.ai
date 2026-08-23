@@ -25,6 +25,11 @@ module.exports = {
   				foreground: 'hsl(var(--primary-foreground))'
   			},
   			'brand-wordmark': 'hsl(var(--brand-wordmark))',
+  			'brand-exec-gold': 'hsl(var(--brand-exec-gold))',
+  			'brand-exec-silver': 'hsl(var(--brand-exec-silver))',
+  			'brand-exec-blue': 'hsl(var(--brand-exec-blue))',
+  			'brand-ai-blue': 'hsl(var(--brand-ai-blue))',
+  			'brand-exec-navy': 'hsl(var(--brand-exec-navy))',
   			secondary: {
   				DEFAULT: 'hsl(var(--secondary))',
   				foreground: 'hsl(var(--secondary-foreground))'

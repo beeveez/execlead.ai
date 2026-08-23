@@ -1,6 +1,8 @@
 import { base44 } from "@/api/base44Client";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { buildKnowledgeRegistry, findKnowledgeRegistryEntry, isRegistryEntryAnswerable } from "@/lib/knowledgeRegistry";
+import { getPricingCatalog } from "@/lib/pricingCatalog";
+import { getCurrentPlatformMode } from "@/lib/launchMode";
 
 // ============================================================
 // Knowledge Authority Guard™ + Evidence Attribution & Confidence Standard™
@@ -15,7 +17,7 @@ import { buildKnowledgeRegistry, findKnowledgeRegistryEntry, isRegistryEntryAnsw
 const COMPANY_TOKENS = [
   "execlead", "exec™", "the platform", "your platform", "this platform",
   "founder", "founded", "who built", "who created", "who owns", "who started",
-  "pricing", "membership", "billing", "founding member", "founding beta", "private beta", "beta",
+  "pricing", "price", "plans", "membership", "memberships", "billing", "cost", "included in professional", "enterprise pricing", "founding member", "founding beta", "private beta", "beta",
   "roadmap", "trust center", "responsible ai", "whitepaper", "white paper", "methodology",
   "soc 2", "soc2", "iso 27001", "gdpr", "certification", "certified", "compliance",
   "customer data", "where is data", "data stored", "ai models", "what model", "which model",
@@ -59,6 +61,42 @@ export function isCompanyKnowledgeQuestion(text) {
     }
   }
   return false;
+}
+
+const PRICING_INFO_PATTERN = /\b(plans?|pricing|price|cost|memberships?|included in professional|included in executive|enterprise pricing)\b/i;
+const COMMERCIAL_ACTION_PATTERN = /\b(which plan should|right plan for me|recommend(?: a)? plan|should i buy|buy|purchase|join|apply|participate|upgrade|switch plans?|change my plan|subscribe|sign up)\b/i;
+
+export function isInformationalPricingQuestion(query = "") {
+  return PRICING_INFO_PATTERN.test(query) && !COMMERCIAL_ACTION_PATTERN.test(query);
+}
+
+export async function answerInformationalPricingQuestion(query = "") {
+  if (!isInformationalPricingQuestion(query)) return null;
+
+  const mode = getCurrentPlatformMode();
+  const catalog = (await getPricingCatalog()).filter((plan) => plan.visible !== false && plan.id !== "developer_unlimited");
+  const text = query.toLowerCase();
+  const wantsPrices = /\b(how much|pricing|price|cost)\b/.test(text);
+  const requestedPlan = catalog.find((plan) => text.includes(plan.name.toLowerCase()));
+  const money = (amount, currency) => new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD", maximumFractionDigits: 0 }).format(amount);
+  const planLine = (plan) => {
+    if (plan.customPricing || plan.enterpriseOnly) return `• ${plan.name} — custom-priced`;
+    if (!wantsPrices) return `• ${plan.name}`;
+    return `• ${plan.name} — ${money(plan.monthlyPrice, plan.currency)}/month or ${money(plan.annualPrice, plan.currency)}/year`;
+  };
+
+  const current = mode.isBeta
+    ? `EXECLEAD.AI is **Currently in Private Beta**.\n\nThe current offering is the **${mode.label}**.`
+    : `EXECLEAD.AI is **Currently in ${mode.label}**.`;
+  const plans = requestedPlan ? [requestedPlan] : catalog;
+  const heading = mode.isBeta ? "**Planned for General Availability**" : "**Current plans**";
+  let answer = `${current}\n\n${heading}:\n\n${plans.map(planLine).join("\n")}`;
+
+  if (requestedPlan && /\bincluded\b/.test(text) && requestedPlan.features?.length) {
+    answer += `\n\n${requestedPlan.name} includes:\n${requestedPlan.features.slice(0, 8).map((feature) => `• ${feature}`).join("\n")}`;
+  }
+  answer += "\n\nIf you'd like, I can break down what each plan includes.";
+  return answer;
 }
 
 export function answerFounderQuestionFromApprovedKnowledge(query, articles = []) {

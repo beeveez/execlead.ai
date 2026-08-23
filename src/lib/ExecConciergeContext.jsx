@@ -42,10 +42,10 @@ import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest,
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
-import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, answerInformationalPricingQuestion, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
+import { isCompanyKnowledgeQuestion, isInformationalPricingQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, answerInformationalPricingQuestion, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
-import { classifyExecQuestion } from "@/lib/execQuestionClassifier";
+import { classifyExecQuestion, EXEC_QUESTION_CATEGORIES } from "@/lib/execQuestionClassifier";
 import { getStrategicComparisonResponse } from "@/lib/execStrategicComparison";
 
 const ExecConciergeContext = createContext(null);
@@ -443,6 +443,29 @@ export function ExecConciergeProvider({ children }) {
       });
 
       const questionCategory = classifyExecQuestion(content);
+
+      // Informational pricing is deterministic and fail-closed. It must never
+      // enter Knowledge Authority generation, the generic prompt, or AI review.
+      if (questionCategory === EXEC_QUESTION_CATEGORIES.INFORMATIONAL_PRICING || isInformationalPricingQuestion(content)) {
+        const unavailableMessage = "I’m unable to retrieve the current pricing information right now. Please check the official pricing information or try again.";
+        try {
+          const pricingAnswer = await answerInformationalPricingQuestion(content);
+          const finalPricingAnswer = typeof pricingAnswer === "string" && pricingAnswer.trim()
+            ? pricingAnswer
+            : unavailableMessage;
+          setMessages((prev) => [...prev, { role: "assistant", content: finalPricingAnswer }]);
+          base44.analytics.track({
+            eventName: "exec_pricing_information_answered",
+            properties: { available: finalPricingAnswer !== unavailableMessage },
+          });
+        } catch {
+          setMessages((prev) => [...prev, { role: "assistant", content: unavailableMessage }]);
+          base44.analytics.track({ eventName: "exec_pricing_information_answered", properties: { available: false } });
+        }
+        setLoading(false);
+        return;
+      }
+
       const strategicComparison = getStrategicComparisonResponse(content);
       if (questionCategory === "Strategic Comparison" && strategicComparison) {
         const { response } = await runQualityGate(content, strategicComparison);
@@ -579,13 +602,6 @@ export function ExecConciergeProvider({ children }) {
       // missing. Every grounded answer is audit-logged via trackKnowledgeAiAsk.
       if (isCompanyKnowledgeQuestion(content)) {
         try {
-          const informationalPricingAnswer = await answerInformationalPricingQuestion(content);
-          if (informationalPricingAnswer) {
-            setMessages((prev) => [...prev, { role: "assistant", content: informationalPricingAnswer }]);
-            setLoading(false);
-            base44.analytics.track({ eventName: "exec_pricing_information_answered", properties: {} });
-            return;
-          }
           const { ranked, all } = await retrieveKnowledgeArticles(content, 5);
           const protectedFounderAnswer = answerFounderQuestionFromApprovedKnowledge(content, all);
           let result;

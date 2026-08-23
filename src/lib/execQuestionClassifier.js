@@ -6,6 +6,11 @@ export const EXEC_QUESTION_CATEGORIES = {
   DECISION_SUPPORT: 'Decision Support',
   PREDICTION: 'Prediction / Forecast',
   QUANTITATIVE: 'Quantitative Analysis',
+  INFORMATIONAL_PRICING: 'Informational Pricing',
+  PURCHASE_INTENT: 'Purchase Intent',
+  JOINING_INTENT: 'Joining Intent',
+  UPGRADE_INTENT: 'Upgrade Intent',
+  PLAN_RECOMMENDATION: 'Plan Recommendation',
   GENERAL: 'General Conversation',
 };
 
@@ -14,6 +19,22 @@ const matches = (text, pattern) => pattern.test(text);
 export function classifyExecQuestion(question = '') {
   const text = question.toLowerCase().trim();
   if (!text) return EXEC_QUESTION_CATEGORIES.GENERAL;
+
+  if (matches(text, /\b(which|what) (?:membership |pricing )?plan should i (?:choose|buy)|which plan is (?:right|best) for me|recommend(?: a)? (?:membership )?plan\b/)) {
+    return EXEC_QUESTION_CATEGORIES.PLAN_RECOMMENDATION;
+  }
+  if (matches(text, /\b(how (?:do|can) i join|join (?:the )?beta|apply (?:for|to)|participate (?:in|the)|beta application)\b/)) {
+    return EXEC_QUESTION_CATEGORIES.JOINING_INTENT;
+  }
+  if (matches(text, /\b(how (?:do|can) i upgrade|upgrade (?:my )?(?:plan|membership|account)|switch plans?|change my plan)\b/)) {
+    return EXEC_QUESTION_CATEGORIES.UPGRADE_INTENT;
+  }
+  if (matches(text, /\b(i want to buy|purchase|buy (?:a|the|this)?\s*(?:plan|membership|subscription)|subscribe|start (?:a )?(?:paid )?subscription)\b/)) {
+    return EXEC_QUESTION_CATEGORIES.PURCHASE_INTENT;
+  }
+  if (matches(text, /\b(plans?|pricing|price|cost|memberships?|included in professional|included in executive|enterprise pricing)\b/)) {
+    return EXEC_QUESTION_CATEGORIES.INFORMATIONAL_PRICING;
+  }
 
   if (matches(text, /\b(chances?|probability|likelihood|forecast|predict|prediction|guarantee|guaranteed|will i|when will|in \d+ years?|by \d{4})\b/)) {
     return EXEC_QUESTION_CATEGORIES.PREDICTION;

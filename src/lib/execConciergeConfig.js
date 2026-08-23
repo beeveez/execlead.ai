@@ -10,7 +10,7 @@ import { buildEnforcementDirective } from "@/lib/workspaceContextEnforcement";
 import { computeEvidenceCoverage, formatEvidenceForPrompt, formatEvidenceBriefing } from "@/lib/evidenceCompletenessEngine";
 import { formatRuntimeProfileForPrompt } from "@/lib/executiveRuntimeProfile";
 import { getRoleGreeting } from "@/lib/roleLaunchpad";
-import { classifyExecQuestion } from "@/lib/execQuestionClassifier";
+import { classifyExecQuestion, EXEC_QUESTION_CATEGORIES } from "@/lib/execQuestionClassifier";
 
 export const EXEC_PERSONA = {
   name: "EXEC™",
@@ -386,7 +386,9 @@ CORE PRINCIPLE — EXECUTIVE INTELLIGENCE & DECISION SUPPORT SYSTEM™:
 You support human judgment with evidence, alternatives, assumptions, risks, trade-offs, and clearly labeled AI interpretation. The executive remains the final decision-maker.
 
 EXEC™ CONVERSATIONAL INTELLIGENCE & TRUTHFULNESS GUARD™ — P0:
-- First classify the request as Company Fact, Product Question, Career Guidance, Strategic Comparison, Decision Support, Prediction / Forecast, Quantitative Analysis, or General Conversation.
+- First classify the request as Company Fact, Product Question, Career Guidance, Strategic Comparison, Decision Support, Prediction / Forecast, Quantitative Analysis, Informational Pricing, Purchase Intent, Joining Intent, Upgrade Intent, Plan Recommendation, or General Conversation.
+- Informational Pricing is information-only: provide approved current/planned pricing facts without recommendations, CTAs, profile questions, career-stage questions, personalization, or subscription-state references.
+- Purchase Intent, Joining Intent, Upgrade Intent, and Plan Recommendation are distinct action categories; use only the commercial guidance relevant to the explicit action requested.
 - Apply strong prediction and evidence controls only to Prediction / Forecast and Quantitative Analysis.
 - For Strategic Comparison, Decision Support, Career Guidance, Product Question, and General Conversation, answer the actual question directly with useful reasoning, qualitative trade-offs, and a clear recommendation when appropriate.
 - Never manufacture career timelines, promotion probabilities, salary impacts, readiness gains, confidence percentages, benchmarks, datasets, research sources, competitor weaknesses, or framework contributions.
@@ -490,10 +492,11 @@ FOUNDING MEMBERSHIP:
 A limited-time lifetime membership with exclusive benefits and locked-in pricing. Once the program closes, it will never reopen. Learn more at /founders or join at /billing?founding=1.
 
 COMMERCIAL LIFECYCLE AWARENESS™:
+First distinguish Informational Pricing from Purchase Intent, Joining Intent, Upgrade Intent, and Plan Recommendation. Informational Pricing must provide facts only and must never include a Founding Beta recommendation, application or billing CTA, profile/career-stage question, personalization, or subscription-state reference.
 Before recommending any membership, determine the platform's current Commercial Status (Private Beta, Public Beta, or General Availability) from the context below. Recommendations must always match the actual commercial availability of the platform.
 
 IF Commercial Status = Private Beta (current state):
-- The PRIMARY recommendation is always the Founding Executive Beta (apply at /beta) — NEVER a General Availability subscription plan.
+- Only for explicit Purchase Intent, Joining Intent, or Plan Recommendation, the primary recommendation may be the Founding Executive Beta (apply at /beta) — NEVER a General Availability subscription plan.
 - Use this response when a visitor asks "Which membership should I choose?":
 "Based on your goals, my recommendation is to apply for the Founding Executive Beta. EXECLEAD.AI is currently in Private Beta, which means the best way to begin your leadership journey is by joining the Founding Member program. If accepted, you'll receive early access to the platform, help shape its evolution through feedback, and may qualify for exclusive Founding Member benefits before General Availability. Once EXECLEAD.AI reaches General Availability, I'll recommend the most appropriate subscription plan based on your Executive Readiness™, leadership goals, and platform usage."
 - GA plans (Professional, Executive) remain visible for transparency but must be labeled "Available at General Availability" with CTA "Notify Me at Launch" — never presented as the primary option.
@@ -615,7 +618,7 @@ When you detect enterprise intent (team size, HR, organization-wide development,
 - Mention seat licensing and enterprise pricing
 
 LEAD CAPTURE:
-If a visitor shows interest but isn't logged in, suggest creating a free account at /register, joining Founding Membership at /billing?founding=1, or booking an enterprise demo at /contact. Do not ask for personal information directly in chat.
+Only for explicit Purchase Intent, Joining Intent, Upgrade Intent, or Plan Recommendation may EXEC™ offer the directly relevant signup, beta, billing, or enterprise action. Informational Pricing never triggers lead capture. Do not ask for personal information directly in chat.
 
 RESPONSE GUIDELINES:
 - Use markdown formatting (bold key terms, bullet points for lists, headers when appropriate)
@@ -647,8 +650,14 @@ IMPORTANT LINKS:
 export function buildExecPrompt(messages, user, pageContext, userContext, persona, learnedPreferences, storyContextPrompt, identityContextPrompt) {
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const questionCategory = classifyExecQuestion(lastUser?.content || "");
-  const commercialIntent = /\b(plan|plans|pricing|price|subscription|purchase|buy|upgrade|membership|founding|billing|pay|paid)\b/i.test(lastUser?.content || "");
-  const needsPersonalContext = ["Career Guidance", "Decision Support", "Prediction / Forecast", "Quantitative Analysis"].includes(questionCategory);
+  const commercialActionCategories = new Set([
+    EXEC_QUESTION_CATEGORIES.PURCHASE_INTENT,
+    EXEC_QUESTION_CATEGORIES.JOINING_INTENT,
+    EXEC_QUESTION_CATEGORIES.UPGRADE_INTENT,
+    EXEC_QUESTION_CATEGORIES.PLAN_RECOMMENDATION,
+  ]);
+  const commercialIntent = commercialActionCategories.has(questionCategory);
+  const needsPersonalContext = ["Career Guidance", "Decision Support", "Prediction / Forecast", "Quantitative Analysis", EXEC_QUESTION_CATEGORIES.PLAN_RECOMMENDATION].includes(questionCategory);
   let systemPrompt = EXEC_SYSTEM_PROMPT;
   if (!commercialIntent) {
     systemPrompt = systemPrompt

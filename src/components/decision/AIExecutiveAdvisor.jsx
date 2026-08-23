@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import AIService from '@/lib/aiService';
+import { guardExecDecisionResponse } from '@/lib/execDecisionTruthfulnessGuard';
 import { buildAdvisorPrompt } from '@/lib/decisionIntelligenceEngine';
 import { Send, Sparkles, Loader2, MessageSquare } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -35,12 +36,9 @@ export default function AIExecutiveAdvisor({ twin }) {
 
     try {
       const prompt = buildAdvisorPrompt(twin, q);
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        model: 'automatic',
-      });
+      const response = await AIService.ask({ prompt, options: { model: 'automatic' } });
       const answer = typeof response === 'string' ? response : response?.output || response?.response || JSON.stringify(response);
-      setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: guardExecDecisionResponse(q, answer) }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'I encountered an error analyzing your Digital Twin™. Please try again.' }]);
     }

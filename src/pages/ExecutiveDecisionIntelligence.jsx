@@ -6,9 +6,9 @@ import { runDecisionSimulation, getDecisionTypeMeta } from '@/lib/decisionIntell
 import { Loader2, Brain, GitCompare, Clock, Sparkles, TrendingUp } from 'lucide-react';
 import DecisionSimulator from '@/components/decision/DecisionSimulator';
 import ScenarioComparison from '@/components/decision/ScenarioComparison';
-import ExecutiveFuture from '@/components/decision/ExecutiveFuture';
+import TruthfulExecutiveFuture from '@/components/decision/TruthfulExecutiveFuture';
 import AIExecutiveAdvisor from '@/components/decision/AIExecutiveAdvisor';
-import DecisionTimeline from '@/components/decision/DecisionTimeline';
+import TruthfulDecisionTimeline from '@/components/decision/TruthfulDecisionTimeline';
 
 const TABS = [
   { key: 'simulator', label: 'Decision Simulator', icon: TrendingUp },
@@ -86,11 +86,6 @@ export default function ExecutiveDecisionIntelligence() {
         decision_type: simulationResult.decisionType,
         description: simulationResult.typeMeta?.description || '',
         params_json: JSON.stringify(simulationResult.params),
-        predicted_trust: simulationResult.projected.trust,
-        predicted_readiness: simulationResult.projected.readiness,
-        predicted_confidence: simulationResult.predictionConfidence,
-        predicted_salary_impact: simulationResult.projected.salaryImpact,
-        predicted_risk_level: simulationResult.riskLevel,
         explainability_json: JSON.stringify(simulationResult.explainability),
         status: 'evaluating',
       });
@@ -125,8 +120,8 @@ export default function ExecutiveDecisionIntelligence() {
         </div>
         <h1 className="text-2xl font-bold text-white -mt-3">Executive Decision Intelligence™</h1>
         <p className="text-white/40 text-sm -mt-2 max-w-3xl leading-relaxed">
-          Evaluate career decisions with explainable AI, scenario simulation, and evidence-based forecasting
-          powered by your Executive Digital Twin™.
+          Explore career decisions with explainable AI, evidence review, and clearly labeled illustrative scenarios
+          while keeping human judgment final.
         </p>
       </div>
 
@@ -164,9 +159,9 @@ export default function ExecutiveDecisionIntelligence() {
           />
         )}
         {activeTab === 'comparison' && <ScenarioComparison twin={twin} />}
-        {activeTab === 'future' && <ExecutiveFuture twin={twin} />}
+        {activeTab === 'future' && <TruthfulExecutiveFuture />}
         {activeTab === 'advisor' && <AIExecutiveAdvisor twin={twin} />}
-        {activeTab === 'timeline' && <DecisionTimeline />}
+        {activeTab === 'timeline' && <TruthfulDecisionTimeline />}
       </div>
     </div>
   );

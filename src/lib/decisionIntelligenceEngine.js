@@ -482,26 +482,12 @@ function identifyMissingEvidence(evidence, model, twin) {
     }));
 }
 
-function generateAlternativeOutcomes(decisionType, projected, base) {
-  const outcomes = [];
-  const readDelta = projected.readiness - (base.readiness || 0);
-
-  outcomes.push({
-    label: 'Best Case',
-    probability: 20,
-    description: `Readiness reaches ${Math.min(100, projected.readiness + 8)} with accelerated growth and strong organizational support`,
-  });
-  outcomes.push({
-    label: 'Expected',
-    probability: 55,
-    description: `Readiness reaches ${projected.readiness} based on current trajectory and evidence`,
-  });
-  outcomes.push({
-    label: 'Challenged',
-    probability: 25,
-    description: `Readiness reaches ${Math.max(0, projected.readiness - 10)} due to slower adoption or unexpected obstacles`,
-  });
-  return outcomes;
+function generateAlternativeOutcomes() {
+  return [
+    { label: 'Favorable Conditions', description: 'External conditions support the decision and the intended development benefits are realized.' },
+    { label: 'Mixed Conditions', description: 'Some benefits materialize while constraints, trade-offs, or evidence gaps limit the result.' },
+    { label: 'Adverse Conditions', description: 'External factors or untested assumptions prevent the intended result and require reassessment.' },
+  ];
 }
 
 function getMitigation(riskKey) {
@@ -531,47 +517,19 @@ export function buildAdvisorPrompt(twin, question) {
   const profile = twin?.profile || {};
   const evidence = twin?.evidence || [];
   const credentials = twin?.credentials || [];
+  return `You are the AI Executive Advisor™ for EXECLEAD.AI. Support human judgment without manufacturing precision.
 
-  return `You are the AI Executive Advisor™ for EXECLEAD.AI, an executive decision intelligence platform.
-You have access to the executive's Digital Twin™ data below. Answer their question with specific, evidence-based recommendations.
-
-EXECUTIVE PROFILE:
-- Name: ${twin?.user?.full_name || 'Executive'}
+USER-SUPPLIED / PLATFORM CONTEXT:
 - Current Role: ${profile.current_role || profile.title || 'Not specified'}
-- Executive Summary: ${profile.executive_summary || profile.bio || 'Not provided'}
+- Trust platform score: ${s.trust ?? 'Not available'}
+- Readiness platform score: ${s.readiness ?? 'Not available'}
+- Evidence platform score: ${s.evidenceScore ?? 'Not available'}
+- Verified evidence items: ${evidence.filter(e => e.verification_status === 'verified').length}
+- Credentials explicitly available: ${credentials.length}
 
-CURRENT DIGITAL TWIN™ SCORES:
-- Trust Score: ${s.trust || 0}/100 (Level ${s.trustLevel || 0})
-- Executive Readiness: ${s.readiness || 0}/100
-- Evidence Score: ${s.evidenceScore || 0}/100
-- Leadership DNA: ${s.leadershipScore || 0}/100
-- Identity Confidence: ${s.identityConfidence || 0}/100
-- Evidence Coverage: ${s.evidenceCoverage || 0}/100
-- Credentials Earned: ${s.credentialCount || 0}
-- Credentials Eligible: ${s.credentialEligible || 0}
+QUESTION: "${question}"
 
-EVIDENCE PORTFOLIO:
-- Total Evidence Items: ${evidence.length}
-- Evidence Types: ${[...new Set(evidence.map(e => e.evidence_type))].join(', ') || 'None'}
-- Verified Items: ${evidence.filter(e => e.verification_status === 'verified').length}
-
-CREDENTIALS:
-${(credentials || []).filter(c => c.canIssue).slice(0, 5).map(c => `- ${c.credentialName || c.key} (${c.credentialLevel || 'N/A'})`).join('\n') || '- None earned yet'}
-
-LEADERSHIP DNA DIMENSIONS:
-${twin?.leadershipDimensions ? Object.entries(twin.leadershipDimensions).map(([k, v]) => `- ${k}: ${v}`).join('\n') : '- Not available'}
-
-EXECUTIVE QUESTION:
-"${question}"
-
-Provide a structured, actionable response that:
-1. Directly answers the question with a clear recommendation
-2. Cites specific scores and evidence from their Digital Twin™
-3. Identifies what's helping and what's blocking them
-4. Suggests 2-3 concrete next steps
-5. Notes any risks or considerations
-
-Keep the response concise, executive-level, and evidence-based. Use markdown formatting.`;
+Respond in concise markdown with these labeled sections: AI Interpretation, Evidence Used, Assumptions, Unknowns, Options and Trade-offs, and Reason for Recommendation. Never generate career timelines, promotion probabilities, salary projections, readiness gains, framework contributions, arbitrary confidence percentages, benchmarks, or unsupported sources. Journey Points and platform scores are development metrics, not career outcomes. If timing is requested, say the timeline cannot be reliably predicted from current evidence. If promotion probability is requested, say it is not currently estimable. If salary is requested, say salary outcomes cannot be reliably predicted from current evidence. Any hypothetical must be labeled ILLUSTRATIVE SCENARIO — NOT A PREDICTION. The human remains the decision-maker.`;
 }
 
 // ============================================================

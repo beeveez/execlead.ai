@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, Lightbulb, GitBranch, FileQuestion, Gauge } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Lightbulb, GitBranch, FileQuestion } from 'lucide-react';
 
 export default function DecisionExplainability({ explainability }) {
   const [activeSection, setActiveSection] = useState('evidence');
@@ -10,18 +10,15 @@ export default function DecisionExplainability({ explainability }) {
     { key: 'evidence', label: 'Evidence Used', icon: ShieldCheck, count: explainability.evidenceUsed?.length || 0 },
     { key: 'missing', label: 'Missing Evidence', icon: FileQuestion, count: explainability.missingEvidence?.length || 0 },
     { key: 'assumptions', label: 'Assumptions', icon: Lightbulb, count: explainability.assumptions?.length || 0 },
-    { key: 'alternatives', label: 'Alternative Outcomes', icon: GitBranch, count: explainability.alternativeOutcomes?.length || 0 },
+    { key: 'alternatives', label: 'Illustrative Scenarios', icon: GitBranch, count: explainability.alternativeOutcomes?.length || 0 },
     { key: 'risks', label: 'Risk Factors', icon: AlertTriangle, count: explainability.riskFactors?.length || 0 },
   ];
 
   return (
     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3">
         <h4 className="text-sm font-bold text-white">Decision Explainability™</h4>
-        <div className="flex items-center gap-2">
-          <Gauge size={12} className="text-white/30" />
-          <span className="text-[10px] text-white/40">Data Quality: {explainability.dataQualityScore || 0}%</span>
-        </div>
+        <p className="mt-1 text-[10px] text-white/40">Evidence, assumptions, unknowns, and illustrative scenarios are shown separately.</p>
       </div>
 
       {/* Section Tabs */}
@@ -95,17 +92,12 @@ function Assumptions({ items }) {
 }
 
 function AlternativeOutcomes({ items }) {
-  if (!items?.length) return <Empty msg="No alternative outcomes modeled." />;
+  if (!items?.length) return <Empty msg="No illustrative scenarios modeled." />;
   return items.map((outcome, i) => (
     <div key={i} className="bg-white/[0.02] border border-white/5 rounded-lg p-2.5">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-medium text-white/80">{outcome.label}</span>
-        <span className="text-[10px] text-white/40">{outcome.probability}% probability</span>
-      </div>
-      <p className="text-[11px] text-white/40 leading-relaxed">{outcome.description}</p>
-      <div className="h-1 rounded-full bg-white/5 mt-2 overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${outcome.probability}%`, backgroundColor: i === 0 ? '#10b981' : i === 1 ? '#3b82f6' : '#f59e0b' }} />
-      </div>
+      <span className="text-xs font-medium text-white/80">{outcome.label}</span>
+      <p className="mt-1 text-[11px] text-white/40 leading-relaxed">{outcome.description}</p>
+      <p className="mt-2 text-[9px] uppercase tracking-wider text-amber-300">Illustrative scenario — not a prediction</p>
     </div>
   ));
 }

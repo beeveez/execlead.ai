@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DECISION_TYPES, getDecisionTypeMeta, RISK_LEVEL_META, SALARY_IMPACT_LABELS } from '@/lib/decisionIntelligenceEngine';
 import DecisionExplainability from '@/components/decision/DecisionExplainability';
+import TruthfulSimulationResult from '@/components/decision/TruthfulSimulationResult';
 import { ChevronRight, Loader2, ArrowRight, Save, Briefcase, TrendingUp, Award, GraduationCap, BookOpen, Shuffle, Building2, MapPin, Users } from 'lucide-react';
 
 const ICON_MAP = {
@@ -90,7 +91,7 @@ export default function DecisionSimulator({ twin, onSimulate, result, running, o
       {result && (
         <div>
           <h3 className="text-sm font-bold text-white mb-3">3. Simulation Results</h3>
-          <SimulationResult result={result} onSave={onSave} />
+          <TruthfulSimulationResult result={result} onSave={onSave} />
           <div className="mt-4">
             <DecisionExplainability explainability={result.explainability} />
           </div>

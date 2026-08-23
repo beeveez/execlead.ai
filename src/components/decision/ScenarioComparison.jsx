@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DECISION_TYPES, compareScenarios, RISK_LEVEL_META, SALARY_IMPACT_LABELS } from '@/lib/decisionIntelligenceEngine';
 import { Plus, X, GitCompare, Loader2 } from 'lucide-react';
+import TruthfulComparisonMatrix from '@/components/decision/TruthfulComparisonMatrix';
 
 export default function ScenarioComparison({ twin }) {
   const [scenarios, setScenarios] = useState([
@@ -74,7 +75,7 @@ export default function ScenarioComparison({ twin }) {
 
       {/* Comparison Matrix */}
       {comparison && comparison.length > 0 && (
-        <ComparisonMatrix comparison={comparison} />
+        <TruthfulComparisonMatrix comparison={comparison} />
       )}
     </div>
   );

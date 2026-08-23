@@ -44,6 +44,7 @@ import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIden
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
 import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
+import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
 
 const ExecConciergeContext = createContext(null);
 
@@ -612,6 +613,7 @@ export function ExecConciergeProvider({ children }) {
             : res?.response || res?.text || "I apologize, I couldn't generate a response. Please try again.";
         logStage({ correlationId, stage: "response_parse", status: "success" });
         const { response, review, revised } = await runQualityGate(content, initialResponse);
+        const guardedResponse = guardExecDecisionResponse(content, response);
         logStage({ correlationId, stage: "quality_gate", status: "success", extra: { passed: review.passed, revised } });
         base44.analytics.track({
           eventName: "exec_response_quality_review",
@@ -621,10 +623,10 @@ export function ExecConciergeProvider({ children }) {
             failed_checks: review.checks.filter((c) => !c.passed).map((c) => c.id),
           },
         });
-        setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: guardedResponse }]);
 
         // Preference Learning™ — extract signals from the updated conversation
-        const updatedConversation = [...newMessages, { role: "assistant", content: response }];
+        const updatedConversation = [...newMessages, { role: "assistant", content: guardedResponse }];
         const extracted = extractPreferences(updatedConversation);
         if (extracted.signals.length > 0 || extracted.topics.length > 0) {
           const merged = savePreferences(user?.id, activeWorkspace, {

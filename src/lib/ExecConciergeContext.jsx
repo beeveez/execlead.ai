@@ -46,6 +46,7 @@ import { isCompanyKnowledgeQuestion, retrieveKnowledgeArticles, answerFromKnowle
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
 import { classifyExecQuestion, isStrategicQuestion } from "@/lib/execQuestionClassifier";
+import { getStrategicComparisonResponse } from "@/lib/execStrategicComparison";
 
 const ExecConciergeContext = createContext(null);
 
@@ -440,6 +441,13 @@ export function ExecConciergeProvider({ children }) {
         eventName: "exec_concierge_message_sent",
         properties: { length: content.length },
       });
+
+      const strategicComparison = getStrategicComparisonResponse(content);
+      if (strategicComparison) {
+        setMessages((prev) => [...prev, { role: "assistant", content: strategicComparison }]);
+        setLoading(false);
+        return;
+      }
 
       // Executive Outcome Intelligence™ + Recommendation Intelligence™ — answer
       // outcome/recommendation questions locally from observed results (no AI

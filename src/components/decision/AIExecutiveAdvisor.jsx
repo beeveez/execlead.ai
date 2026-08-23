@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import AIService from '@/lib/aiService';
 import { guardExecDecisionResponse } from '@/lib/execDecisionTruthfulnessGuard';
 import { buildAdvisorPrompt } from '@/lib/decisionIntelligenceEngine';
+import { getStrategicComparisonResponse } from '@/lib/execStrategicComparison';
 import { Send, Sparkles, Loader2, MessageSquare } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -33,6 +34,13 @@ export default function AIExecutiveAdvisor({ twin }) {
     setMessages(prev => [...prev, { role: 'user', content: q }]);
     setInput('');
     setLoading(true);
+
+    const strategicComparison = getStrategicComparisonResponse(q);
+    if (strategicComparison) {
+      setMessages(prev => [...prev, { role: 'assistant', content: strategicComparison }]);
+      setLoading(false);
+      return;
+    }
 
     try {
       const prompt = buildAdvisorPrompt(twin, q);

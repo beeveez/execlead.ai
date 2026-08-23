@@ -10,24 +10,23 @@ import ExecleadWordmark from "@/components/brand/ExecleadWordmark";
 export default function FounderSection() {
   const f = BrandRegistry.founder;
   return (
-    <section id="founder" className="py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
+    <section id="founder" className="scroll-mt-[104px] py-20 md:py-28 px-6 lg:px-8 border-t border-white/5">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-2">
-            Founder
+          <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-3">
+            FOUNDER
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Built by an Enterprise Operations Leader.<br />
-            Born from a Personal Need.
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">
+            Built by an Enterprise Technology Leader.
           </h2>
-          <p className="text-white/40 max-w-xl mx-auto text-sm">
-            <strong className="text-white/70">Reynaldo D. Valdez is the Founder &amp; Chief Product Architect of <ExecleadWordmark />.</strong>
+          <p className="text-white/70 max-w-xl mx-auto text-sm font-semibold">
+            Reynaldo D. Valdez · Founder &amp; CEO
           </p>
           <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-3">
             <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">20+ Years</strong><span className="mt-1 block text-xs text-white/40">Enterprise IT</span></div>
             <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">12+ Years</strong><span className="mt-1 block text-xs text-white/40">Leading Teams</span></div>
           </div>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-white/50">Building <ExecleadWordmark /> from firsthand experience in enterprise IT operations, service delivery, governance, and leadership.</p>
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-white/50">Building <ExecleadWordmark /> to combine technology leadership experience with AI-powered executive development and talent intelligence.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

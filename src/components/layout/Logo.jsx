@@ -23,11 +23,11 @@ export default function Logo({ size = "lg", showAiTag = true, aiTagClass = "ml-2
         {showMark && (
           <ExecutiveMark size={markSize} className="mr-2 group-hover:opacity-80 transition-opacity shrink-0" />
         )}
-        <span className="inline-flex items-baseline">
-          <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">{BrandRegistry.logo.parts.prefix}</span>
-          <span className="text-white/80 group-hover:text-white transition-colors">{BrandRegistry.logo.parts.middle}</span>
+        <span className="inline-flex items-baseline text-brand-wordmark transition-opacity group-hover:opacity-80">
+          <span>{BrandRegistry.logo.parts.prefix}</span>
+          <span>{BrandRegistry.logo.parts.middle}</span>
           {showAiTag && (
-            <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">
+            <span>
               {BrandRegistry.logo.parts.dot}{BrandRegistry.logo.parts.suffix}
             </span>
           )}

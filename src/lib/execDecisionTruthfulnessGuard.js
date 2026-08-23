@@ -2,12 +2,15 @@ const UNSUPPORTED_PRECISION = [
   /\b(?:EECF|EELM|ELIM)™?\b/i,
   /\b\d+\s*(?:-|–|to)\s*\d+\s*years?\b/i,
   /\b(?:director|executive|c-suite)[^\n.]*within\s+\d+\s*years?\b/i,
+  /\b\d+\s*years?\s+to\s+(?:director|executive|c-suite)\b/i,
   /promotion probability[^\n]*\d+(?:\.\d+)?\s*%/i,
+  /\b\d+(?:\.\d+)?\s*%[^\n]*(?:promotion probability|confidence|framework contribution)/i,
   /salary (?:impact|increase|projection)[^\n]*\d+(?:\.\d+)?\s*%/i,
+  /\+\d+(?:\s*(?:-|–|to)\s*\d+)?\s*%[^\n]*salary/i,
   /\+\d+(?:\.\d+)?\s*(?:readiness )?points?/i,
   /\bconfidence[^\n]*\d+(?:\.\d+)?\s*%/i,
   /framework contribution/i,
-  /\b(?:industry benchmarks|career velocity data|leadership studies|framework data)\b/i,
+  /\b(?:industry benchmarks?|career velocity data|leadership studies|research data|framework data)\b/i,
 ];
 
 export function hasUnsupportedDecisionPrecision(response) {

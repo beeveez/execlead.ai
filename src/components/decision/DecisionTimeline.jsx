@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { getDecisionTypeMeta, RISK_LEVEL_META } from '@/lib/decisionIntelligenceEngine';
 import { Clock, TrendingUp, CheckCircle2, XCircle, Loader2, GitCompare, Calendar } from 'lucide-react';
 
-export default function DecisionTimeline() {
+export default function DecisionTimeline({ hidePredictions = false }) {
   const { user } = useAuth();
   const [decisions, setDecisions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +68,7 @@ export default function DecisionTimeline() {
               decision={decision}
               updating={updating === decision.id}
               onUpdateStatus={handleUpdateStatus}
+              hidePredictions={hidePredictions}
             />
           ))}
         </div>
@@ -84,7 +85,7 @@ export default function DecisionTimeline() {
   );
 }
 
-function TimelineItem({ decision, updating, onUpdateStatus }) {
+function TimelineItem({ decision, updating, onUpdateStatus, hidePredictions }) {
   const [showActions, setShowActions] = useState(false);
   const typeMeta = getDecisionTypeMeta(decision.decision_type);
   const riskMeta = RISK_LEVEL_META[decision.predicted_risk_level];
@@ -117,7 +118,7 @@ function TimelineItem({ decision, updating, onUpdateStatus }) {
             </div>
             <div className="flex items-center gap-3 text-[10px] text-white/30">
               <span>{typeMeta?.label}</span>
-              {riskMeta && <span style={{ color: riskMeta.color }}>{riskMeta.label}</span>}
+              {!hidePredictions && riskMeta && <span style={{ color: riskMeta.color }}>{riskMeta.label}</span>}
               {decision.decided_date && (
                 <span className="flex items-center gap-1">
                   <Calendar size={9} /> {new Date(decision.decided_date).toLocaleDateString()}
@@ -139,20 +140,19 @@ function TimelineItem({ decision, updating, onUpdateStatus }) {
           <p className="text-[11px] text-white/40 mb-2">{decision.description}</p>
         )}
 
-        {/* Predicted vs Actual */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-          <PredictedActual label="Trust" predicted={decision.predicted_trust} actual={decision.actual_trust} hasActual={hasActual} />
-          <PredictedActual label="Readiness" predicted={decision.predicted_readiness} actual={decision.actual_readiness} hasActual={hasActual} />
-          <PredictedActual label="Confidence" predicted={decision.predicted_confidence} actual={null} hasActual={false} />
-          {hasActual && accuracy > 0 && (
-            <div className="bg-white/[0.02] rounded-lg p-2">
-              <div className="text-[9px] uppercase tracking-wider text-white/30">Accuracy</div>
-              <div className="text-sm font-bold" style={{ color: accuracy > 80 ? '#10b981' : accuracy > 50 ? '#f59e0b' : '#ef4444' }}>
-                {accuracy}%
-              </div>
-            </div>
-          )}
-        </div>
+        {hidePredictions ? (
+          <div className="mt-3 rounded-lg bg-white/[0.02] p-3">
+            <div className="text-[9px] uppercase tracking-wider text-white/30">Observed / User-Reported Outcome</div>
+            <p className="mt-1 text-xs text-white/60">{decision.actual_outcome || (decision.outcome_date ? 'Outcome date recorded; details not provided.' : 'Outcome not yet recorded.')}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+            <PredictedActual label="Trust" predicted={decision.predicted_trust} actual={decision.actual_trust} hasActual={hasActual} />
+            <PredictedActual label="Readiness" predicted={decision.predicted_readiness} actual={decision.actual_readiness} hasActual={hasActual} />
+            <PredictedActual label="Confidence" predicted={decision.predicted_confidence} actual={null} hasActual={false} />
+            {hasActual && accuracy > 0 && <div className="bg-white/[0.02] rounded-lg p-2"><div className="text-[9px] uppercase tracking-wider text-white/30">Accuracy</div><div className="text-sm font-bold text-white">{accuracy}%</div></div>}
+          </div>
+        )}
 
         {/* Actions */}
         {showActions && (

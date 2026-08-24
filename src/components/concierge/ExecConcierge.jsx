@@ -9,7 +9,7 @@ import {
   EXEC_GLOBAL_COMMANDS,
 } from "@/lib/execConciergeConfig";
 import ExecMessageBubble from "./ExecMessageBubble";
-import CanonicalBrandLockup from "@/components/brand/CanonicalBrandLockup";
+import ExecConciergeBadge from "./ExecConciergeBadge";
 import ExecTypingIndicator from "./ExecTypingIndicator";
 import ExecDebugPanel from "./ExecDebugPanel";
 import ExecHealthPanel from "./ExecHealthPanel";
@@ -173,7 +173,7 @@ export default function ExecConcierge() {
             aria-label="Open EXEC AI Assistant"
             title="EXEC™ AI Concierge — Ask anything about your leadership journey"
           >
-            <CanonicalBrandLockup variant="icon" size="lg" />
+            <ExecConciergeBadge size="md" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -188,9 +188,7 @@ export default function ExecConcierge() {
             className="fixed inset-x-0 bottom-0 top-16 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[400px] sm:h-[600px] z-50 bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-500/10 to-transparent border-b border-border flex-shrink-0">
-              <div className="w-10 h-10 rounded-full bg-brand-exec-navy border border-brand-exec-gold/30 flex items-center justify-center flex-shrink-0">
-                <CanonicalBrandLockup variant="icon" size="sm" />
-              </div>
+              <ExecConciergeBadge size="md" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground text-sm">EXEC™</h3>
                 <p className="text-xs text-muted-foreground truncate">{personaSubtitle}</p>

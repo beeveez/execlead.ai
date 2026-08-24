@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Sparkles } from "lucide-react";
+import ExecConciergeBadge from "./ExecConciergeBadge";
 import DecisionSupportCard from "./DecisionSupportCard";
 import { sanitizeResponseForDelivery } from "@/lib/responseQualityEngine";
 
@@ -54,11 +54,7 @@ export default function ExecMessageBubble({ message }) {
 
   return (
     <div className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
-      {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
-          <Sparkles size={16} className="text-white" />
-        </div>
-      )}
+      {!isUser && <ExecConciergeBadge className="mt-0.5" />}
       <div
         className={`max-w-[88%] rounded-2xl px-4 py-3 space-y-3 ${
           isUser

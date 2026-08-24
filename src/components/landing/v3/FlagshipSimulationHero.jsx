@@ -51,9 +51,9 @@ export default function FlagshipSimulationHero({ authed }) {
             Practice the Decisions That <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Define Executives.</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-base text-white/60 leading-relaxed mb-4 max-w-xl">
-            You are facing a cybersecurity investment decision with competing executive priorities. Balance security risk, budget constraints, operational continuity, stakeholder pressure, executive communication, and strategic tradeoffs.
+            This healthcare scenario is one cross-functional example of executive practice spanning strategy, finance, operations, risk, people, and technology. Balance competing priorities, stakeholder pressure, executive communication, and strategic tradeoffs.
           </motion.p>
-          <p className="mb-5 max-w-xl text-sm font-semibold text-white/80">EXECLEAD.AI does not just teach leadership concepts. It puts leaders inside the decisions.</p>
+          <p className="mb-5 max-w-xl text-sm font-semibold text-white/80">EXECLEAD.AI does not just teach leadership concepts. It puts leaders from every function inside the decisions.</p>
           <div className="mb-7 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide text-white/45">{['Decision','Executive reasoning','AI evaluation','Leadership evidence','Development feedback'].map((step,index)=><React.Fragment key={step}><span className="rounded-full border border-white/10 px-2.5 py-1">{step}</span>{index<4&&<span>→</span>}</React.Fragment>)}</div>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-8">
             <button onClick={launchSimulation} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent-orange hover:bg-accent-orange/90 text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/25">

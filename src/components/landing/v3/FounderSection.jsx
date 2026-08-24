@@ -17,16 +17,16 @@ export default function FounderSection() {
             FOUNDER
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">
-            Built by an Enterprise Technology Leader.
+            Built from Enterprise Operations and Technology Leadership.
           </h2>
           <p className="text-white/70 max-w-xl mx-auto text-sm font-semibold">
             Reynaldo D. Valdez · Founder &amp; CEO
           </p>
           <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-3">
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">20+ Years</strong><span className="mt-1 block text-xs text-white/40">Enterprise IT</span></div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">20+ Years</strong><span className="mt-1 block text-xs text-white/40">Enterprise Operations &amp; Technology</span></div>
             <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4"><strong className="text-xl text-white">12+ Years</strong><span className="mt-1 block text-xs text-white/40">Leading Teams</span></div>
           </div>
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-white/50">Building <ExecleadWordmark /> to combine technology leadership experience with AI-powered executive development and talent intelligence.</p>
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-white/50">Leadership development informed by deep experience in technology and operational leadership — applied to executive growth across functions and industries.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

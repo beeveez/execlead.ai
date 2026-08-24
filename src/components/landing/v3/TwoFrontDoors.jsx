@@ -41,8 +41,8 @@ export default function TwoFrontDoors({ authed }) {
             </div>
             <h3 className="text-lg font-bold text-white mb-1.5">Individual Journey</h3>
             <p className="text-[11px] font-medium leading-relaxed text-accent-orange">Assess → Develop → Practice → Demonstrate → Build Evidence → Develop Executive Identity</p>
-            <p className="mt-3 text-[13px] text-white/50 leading-relaxed">For technology professionals, managers, directors, emerging executives, and executive candidates.</p>
-            <p className="mt-3 text-[13px] text-white/50 leading-relaxed mb-5">A personalized leadership journey for professionals preparing for greater responsibility.</p>
+            <p className="mt-3 text-[13px] text-white/50 leading-relaxed">For ambitious professionals across business, operations, finance, people, product, technology, public-sector, and other leadership paths.</p>
+            <p className="mt-3 text-[13px] text-white/50 leading-relaxed mb-5">A personalized leadership journey for managers, directors, emerging executives, and executive candidates preparing for greater responsibility.</p>
             {choice === "career" ? (
               <Link to={careerTo} onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-orange hover:bg-accent-orange/90 text-white text-[13px] font-semibold transition-colors">

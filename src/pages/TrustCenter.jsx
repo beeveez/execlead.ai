@@ -15,7 +15,6 @@ import SecurityContacts from "@/components/trust/SecurityContacts";
 import CapacityDisclosure from "@/components/trust/CapacityDisclosure";
 import FoundationCertificationCard from "@/components/trust/FoundationCertificationCard";
 import CertificationRoadmapTable from "@/components/trust/CertificationRoadmapTable";
-import TrustScorecard from "@/components/trust/TrustScorecard";
 import ResponsibleAIDisclosures from "@/components/trust/ResponsibleAIDisclosures";
 import ProcurementMode from "@/components/trust/ProcurementMode";
 import ExecTrustQA from "@/components/trust/ExecTrustQA";
@@ -132,12 +131,6 @@ export default function TrustCenter() {
             {section === "status" && (
               <SectionWrapper title="Operational Status" description="Current availability of customer-facing services. Internal operational dashboards remain available to authorized users inside the Platform Governance Center™.">
                 <PublicOperationalStatus />
-              </SectionWrapper>
-            )}
-
-            {section === "scorecard" && (
-              <SectionWrapper title="Trust Scorecard™" description="Enterprise Trust Score™ computed from 8 weighted dimensions using live platform telemetry.">
-                <TrustScorecard trustScore={trustScore} />
               </SectionWrapper>
             )}
 

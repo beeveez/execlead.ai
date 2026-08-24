@@ -166,15 +166,14 @@ export default function ExecConcierge() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={open}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30 flex items-center justify-center"
+            className="fixed bottom-6 right-6 z-50 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 border-0 bg-transparent p-0 flex items-center justify-center transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-exec-gold/60 rounded-md"
             aria-label="Open EXEC AI Assistant"
             title="EXEC™ AI Concierge — Ask anything about your leadership journey"
           >
-            <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-20" />
-            <CanonicalBrandLockup variant="icon" size="md" className="relative z-10" />
+            <CanonicalBrandLockup variant="icon" size="lg" />
           </motion.button>
         )}
       </AnimatePresence>

@@ -12,7 +12,7 @@ import InteractiveSimulationOutcome from "./InteractiveSimulationOutcome";
 // gain, and one personalized coaching recommendation.
 const SCENARIO = {
   setting: "Board Meeting · Q3 Budget Crisis",
-  context: "Atrius Health Systems — 14,000 employees · $2.1B revenue · healthcare + fintech exposure",
+  context: "Example Health System — 14,000 employees · $2.1B revenue · healthcare + fintech exposure",
   prompt:
     "The CFO recommends cutting cybersecurity investment 30% ($2.4M) to hit Q3 EPS. The CIO warns critical systems go exposed. The audit committee flags rising threat activity. The board is watching. What do you decide?",
   stakeholders: ["CFO", "CIO / CTO", "Audit Committee", "Board", "Customers", "Employees"],
@@ -176,6 +176,7 @@ export default function InteractiveSimulationPreview({ authed }) {
           </div>
           <div className="p-6">
             <p className="text-[11px] text-white/35 mb-2">{SCENARIO.context}</p>
+            <p className="mb-3 text-[11px] leading-relaxed text-amber-300/80">The scenario, organization, people, metrics, and all other details are fictional and for demonstration only unless explicitly identified as verified real information.</p>
             <p className="text-[15px] text-white/80 leading-relaxed mb-4">{SCENARIO.prompt}</p>
 
             {/* Stakeholders */}

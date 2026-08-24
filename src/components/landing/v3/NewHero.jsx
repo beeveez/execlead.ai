@@ -42,7 +42,7 @@ export default function NewHero({ authed, onWatchDemo }) {
             </Link>
           </motion.div>
           <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.36 }} className="text-sm text-white/45 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-            Leadership development informed by 20+ years of technology, enterprise operations, service delivery, governance, and team leadership experience.
+            Built from firsthand experience preparing for leadership and executive opportunities, and the need for a more structured system of continuous executive development.
           </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.45 }} className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2">
             {TRUST.map((t) => (

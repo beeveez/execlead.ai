@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Brain, Building2, ArrowRight, ShieldCheck, Clock, Gauge,
-  Users, Sparkles, Quote, PlayCircle,
+  Users, Sparkles, PlayCircle,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
@@ -64,11 +64,10 @@ export default function FlagshipSimulationHero({ authed }) {
             </Link>
           </motion.div>
 
-          {/* Social proof — credibility, not hype */}
           <div className="flex items-start gap-2.5 max-w-md">
-            <Quote size={16} className="text-accent-orange/50 mt-0.5 shrink-0" />
-            <p className="text-[12.5px] text-white/45 italic leading-relaxed">
-              "This simulation measures executive judgment using realistic business scenarios and evidence-based leadership competencies."
+            <ShieldCheck size={16} className="text-accent-orange/50 mt-0.5 shrink-0" />
+            <p className="text-[12.5px] text-white/45 leading-relaxed">
+              Simulation feedback evaluates executive reasoning against leadership competencies and scenario tradeoffs.
             </p>
           </div>
         </div>

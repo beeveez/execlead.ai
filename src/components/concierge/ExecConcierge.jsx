@@ -169,11 +169,11 @@ export default function ExecConcierge() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={open}
-            className="fixed bottom-6 right-6 z-50 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 border-0 bg-transparent p-0 flex items-center justify-center transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-exec-gold/60 rounded-md"
+            className="fixed bottom-6 right-6 z-50 w-12 h-12 border-0 bg-transparent p-0 flex items-center justify-center transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-exec-gold/60 rounded-md"
             aria-label="Open EXEC AI Assistant"
             title="EXEC™ AI Concierge — Ask anything about your leadership journey"
           >
-            <ExecConciergeBadge size="md" />
+            <ExecConciergeBadge size="lg" className="shadow-[0_0_14px_hsl(var(--brand-exec-gold)/0.25)]" />
           </motion.button>
         )}
       </AnimatePresence>

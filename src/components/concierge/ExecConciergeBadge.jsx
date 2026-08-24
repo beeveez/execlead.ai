@@ -1,19 +1,17 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
 
-const sizes = {
-  sm: { frame: "w-8 h-8", icon: 16 },
-  md: { frame: "w-10 h-10", icon: 20 },
-};
+const LEGACY_BADGE_SOURCE = "https://media.base44.com/images/public/6a4a2bd8dcadcf2160c0a05d/da8c9265f_exec.png";
+const sizes = { sm: "w-8 h-8", md: "w-10 h-10" };
 
 export default function ExecConciergeBadge({ size = "sm", className = "" }) {
-  const config = sizes[size] || sizes.sm;
   return (
     <span
       aria-hidden="true"
-      className={`${config.frame} rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-sm flex items-center justify-center flex-shrink-0 ${className}`}
+      className={`${sizes[size] || sizes.sm} rounded-full overflow-hidden shadow-sm flex-shrink-0 ${className}`}
     >
-      <Sparkles size={config.icon} className="text-white" />
+      <svg viewBox="954 513 44 44" className="block w-full h-full" preserveAspectRatio="xMidYMid slice">
+        <image href={LEGACY_BADGE_SOURCE} width="1024" height="576" />
+      </svg>
     </span>
   );
 }

@@ -12,7 +12,7 @@ import { base44 } from "@/api/base44Client";
 // simulation, and positions EXECLEAD.AI's evidence-based approach before any
 // account is created.
 const SCENARIO = {
-  company: "Atrius Health Systems",
+  company: "Example Health System",
   crisis: "Cybersecurity Budget Crisis",
   industry: "Healthcare",
   difficulty: "Executive",
@@ -80,6 +80,7 @@ export default function FlagshipSimulationHero({ authed }) {
             <div className="flex-1 min-w-0">
               <div className="text-[13px] font-semibold text-white truncate">{SCENARIO.company}</div>
               <div className="text-[10px] text-white/40 uppercase tracking-wider">{SCENARIO.crisis}</div>
+              <div className="mt-1 text-[10px] text-white/45">Fictional organization and scenario for demonstration only.</div>
             </div>
             <span className="text-[9px] px-2 py-0.5 rounded-full bg-accent-orange/10 border border-accent-orange/20 text-accent-orange font-semibold">FLAGSHIP</span>
           </div>

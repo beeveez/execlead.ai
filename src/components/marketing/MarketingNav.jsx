@@ -12,10 +12,10 @@ import { Menu, X } from "lucide-react";
 const NAV_ITEMS = [
   { label: "Overview", route: "/", hash: "overview" },
   { label: "Platform", route: "/", hash: "platform" },
-  { label: "Simulation", route: "/", hash: "simulation" },
-  { label: "Evidence", route: "/", hash: "evidence" },
-  { label: "Executive Journey", route: "/", hash: "journey" },
-  { label: "Founder", route: "/", hash: "founder" },
+  { label: "Demo", route: "/demo" },
+  { label: "Pricing", route: "/pricing" },
+  { label: "Knowledge", route: "/knowledge" },
+  { label: "Trust", route: "/trust-center" },
 ];
 
 function trackNav(label) {

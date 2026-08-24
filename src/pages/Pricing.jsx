@@ -251,7 +251,7 @@ export default function Pricing() {
               <span className="text-emerald-400 text-xs font-medium">Enterprise Demo</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Book a Demo</h2>
-            <p className="text-white/40 text-lg">Tell us about your organization and we'll be in touch within 24 hours.</p>
+            <p className="text-white/40 text-lg">Tell us about your organization and our team will follow up to discuss your leadership development needs.</p>
           </div>
           <Suspense fallback={<SectionFallback />}><BookDemoForm /></Suspense>
         </div>

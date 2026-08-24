@@ -6,12 +6,10 @@ import {
 } from "lucide-react";
 
 const SCREENS = [
-  { id: "readiness", label: "Executive Readiness Dashboard", tag: "Readiness Engine™", icon: Activity, accent: "#f59e0b" },
-  { id: "coach", label: "Executive Coach™", tag: "11 AI Personas", icon: MessageSquare, accent: "#6366f1" },
-  { id: "simulator", label: "Executive Simulation™", tag: "15+ Scenarios", icon: Swords, accent: "#10b981" },
-  { id: "analytics", label: "Leadership Analytics™", tag: "Growth Trends", icon: BarChart3, accent: "#06b6d4" },
-  { id: "outcomes", label: "Outcome Intelligence™", tag: "Attribution Engine", icon: TrendingUp, accent: "#ec4899" },
-  { id: "transparency", label: "AI Decision Transparency™", tag: "Explainable AI", icon: ShieldCheck, accent: "#14b8a6" },
+  { id: "readiness", label: "Executive Readiness Dashboard", tag: "Illustrative interface", icon: Activity, accent: "#f59e0b" },
+  { id: "coach", label: "EXEC™ AI Executive Coach", tag: "Context-aware coaching", icon: MessageSquare, accent: "#6366f1" },
+  { id: "simulator", label: "Executive Simulation™", tag: "Leadership practice", icon: Swords, accent: "#10b981" },
+  { id: "analytics", label: "Leadership Analytics™", tag: "Development tracking", icon: BarChart3, accent: "#06b6d4" },
 ];
 
 const DIMENSIONS = [
@@ -266,7 +264,7 @@ export default function HeroProductPreview() {
           <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
           <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
           <div className="w-2.5 h-2.5 rounded-full bg-white/15" />
-          <div className="ml-3 text-[10px] text-white/30 font-mono">execlead.ai/{screen.id}</div>
+          <div className="ml-3 text-[10px] text-white/30 font-mono">Product interface preview</div>
         </div>
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
           <div className="flex items-center gap-2">
@@ -278,9 +276,9 @@ export default function HeroProductPreview() {
               <div className="text-[9px] text-white/40">{screen.tag}</div>
             </div>
           </div>
-          <span className="text-[9px] text-emerald-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
-          </span>
+          <span className="text-[9px] text-amber-300 flex items-center gap-1">
+              Illustrative data
+            </span>
         </div>
         <div className="p-4 min-h-[230px]">
           <AnimatePresence mode="wait">

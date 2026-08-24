@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
 import HeroProductPreview from '../HeroProductPreview';
+import LeadershipJourneyModel from './LeadershipJourneyModel';
 import { buildSignInUrl } from '@/lib/sessionRestore';
 
 const TRUST = ['Personalized AI', 'Executive Simulations', 'Evidence-Based Growth', 'Executive Identity™', 'Private Beta'];
@@ -30,16 +31,16 @@ export default function NewHero({ authed, onWatchDemo }) {
             <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Operating System™</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-4 leading-relaxed">
-            Prepare for the next level of leadership through AI-powered executive readiness, coaching, simulations, and evidence-based development.
+            EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered coaching, Executive Readiness™ assessment, realistic leadership simulations, and evidence-based development.
           </motion.p>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.23 }} className="mx-auto mb-7 max-w-2xl text-sm text-white/45 lg:mx-0">Built for technology and business professionals becoming the next generation of executive leaders.</motion.p>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.23 }} className="mx-auto mb-7 max-w-2xl text-sm text-white/45 lg:mx-0">Built for leadership candidates, managers, directors, executives, founders, technology leaders, and enterprise leadership populations.</motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">
             <Link to={authed ? '/assessment' : buildSignInUrl('/assessment')} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-bold text-[15px] px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/30">
               Take the Executive Readiness Assessment <ArrowRight size={18} />
             </Link>
-            <a href="#platform" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium text-sm px-6 py-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
-              Explore the Platform <ArrowRight size={15} />
-            </a>
+            <Link to="/demo" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium text-sm px-6 py-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
+              Watch Demo <ArrowRight size={15} />
+            </Link>
           </motion.div>
           <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.36 }} className="text-sm text-white/45 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
             Built from 20+ years of enterprise operations, service delivery, governance, and leadership experience — grounded in firsthand operational practice.
@@ -52,6 +53,7 @@ export default function NewHero({ authed, onWatchDemo }) {
         </div>
         <div className="w-full lg:w-[45%]"><HeroProductPreview /></div>
       </div>
+      <LeadershipJourneyModel />
     </section>
   );
 }

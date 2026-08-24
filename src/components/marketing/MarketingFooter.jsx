@@ -25,6 +25,7 @@ const COLUMNS = [
       { label: "Contact", to: "/contact" },
       { label: "Founding Beta", to: "/beta" },
       { label: "Founders Wall", to: "/founders" },
+      { label: "Knowledge Center", to: "/knowledge" },
       { label: "Trust Center", to: "/trust-center" },
     ],
   },
@@ -33,8 +34,10 @@ const COLUMNS = [
     links: [
       { label: "Privacy Policy", to: "/legal#privacy-policy" },
       { label: "Terms of Service", to: "/legal#terms-of-service" },
-      { label: "Cookies", to: "/legal#cookies" },
-      { label: "Security", to: "/trust-center" },
+      { label: "Responsible AI", to: "/trust-center#ai" },
+      { label: "AI Transparency", to: "/trust-center#ai" },
+      { label: "Data Handling", to: "/trust-center#data" },
+      { label: "Security", to: "/trust-center#security" },
     ],
   },
 ];
@@ -73,8 +76,9 @@ export default function MarketingFooter() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/30">
             <Link to="/legal#privacy-policy" className="hover:text-white/55 transition-colors">Privacy Policy</Link>
             <Link to="/legal#terms-of-service" className="hover:text-white/55 transition-colors">Terms</Link>
-            <Link to="/responsible-ai" className="hover:text-white/55 transition-colors">Responsible AI</Link>
-            <Link to="/trust-center" className="hover:text-white/55 transition-colors">Security</Link>
+            <Link to="/trust-center#ai" className="hover:text-white/55 transition-colors">Responsible AI</Link>
+            <Link to="/trust-center#data" className="hover:text-white/55 transition-colors">Data Handling</Link>
+            <Link to="/trust-center#security" className="hover:text-white/55 transition-colors">Security</Link>
             <Link to={buildSignInUrl(location.pathname + location.search)} className="hover:text-white/55 transition-colors">Sign In</Link>
           </div>
           <p className="text-xs text-white/25">{LEGAL_STATUS.copyright}</p>

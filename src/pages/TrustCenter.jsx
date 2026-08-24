@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -24,8 +24,8 @@ import EnterpriseAssurance from "@/components/trust/EnterpriseAssurance";
 import TrustPrinciples from "@/components/trust/TrustPrinciples";
 import PublicOperationalStatus from "@/components/trust/PublicOperationalStatus";
 import PublicIncidentHistory from "@/components/trust/PublicIncidentHistory";
+import PublicDataDisclosure from "@/components/trust/PublicDataDisclosure";
 import PageMetadata from "@/components/marketing/PageMetadata";
-import { useTrustTelemetry } from "@/hooks/useTrustTelemetry";
 import {
   PLATFORM_SECURITY, PRIVACY_DATA, COMPLIANCE_FRAMEWORKS,
   ENTERPRISE_GOVERNANCE, RESPONSIBLE_AI, OPERATIONAL_RELIABILITY,
@@ -33,32 +33,37 @@ import {
 } from "@/lib/trustCenterData";
 
 const SECTIONS = [
-  { id: "platform-info", label: "Platform Status", icon: Info },
-  { id: "status", label: "Operational Status", icon: Activity },
-  { id: "scorecard", label: "Trust Scorecard", icon: Gauge },
-  { id: "security", label: "Security Commitments", icon: ShieldCheck },
-  { id: "assurance", label: "Enterprise Assurance", icon: ShieldCheck },
-  { id: "privacy", label: "Privacy & Data", icon: Lock },
-  { id: "compliance", label: "Compliance Roadmap", icon: CheckCircle2 },
-  { id: "governance", label: "Enterprise Governance", icon: Boxes },
+  { id: "security", label: "Security", icon: ShieldCheck },
+  { id: "privacy", label: "Privacy", icon: Lock },
+  { id: "data", label: "Data & Integrations", icon: FileText },
   { id: "ai", label: "Responsible AI", icon: Brain },
+  { id: "compliance", label: "Assurance Status", icon: CheckCircle2 },
+  { id: "status", label: "Platform Status", icon: Activity },
+  { id: "assurance", label: "Enterprise Assurance", icon: Building2 },
   { id: "principles", label: "Trust Principles", icon: Heart },
-  { id: "reliability", label: "Operational Reliability", icon: Activity },
-  { id: "certification", label: "Certification Roadmap", icon: Award },
-  { id: "foundation", label: "Foundation Certification", icon: Award },
-  { id: "capacity", label: "Capacity Disclosure", icon: TrendingUp },
-  { id: "audit-log", label: "Incident History", icon: ScrollText },
-  { id: "contacts", label: "Security Contacts", icon: Mail },
-  { id: "procurement", label: "Enterprise Procurement", icon: Building2 },
-  { id: "downloads", label: "Download Center", icon: Download },
-  { id: "report", label: "Report a Security Issue", icon: Bug },
-  { id: "exec", label: "EXEC™ Q&A", icon: FileText },
+  { id: "downloads", label: "Documents", icon: Download },
+  { id: "report", label: "Report an Issue", icon: Bug },
 ];
 
+const getInitialSection = () => {
+  const requested = window.location.hash.slice(1);
+  return SECTIONS.some((item) => item.id === requested) ? requested : "security";
+};
+
 export default function TrustCenter() {
-  const [section, setSection] = useState("platform-info");
+  const [section, setSection] = useState(getInitialSection);
   const { isAuthenticated, isLoadingAuth } = useAuth();
-  const { trustScore } = useTrustTelemetry();
+
+  useEffect(() => {
+    const syncHash = () => setSection(getInitialSection());
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
+  }, []);
+
+  const selectSection = (id) => {
+    setSection(id);
+    window.history.replaceState({}, "", `#${id}`);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -71,12 +76,11 @@ export default function TrustCenter() {
       <div className="bg-gradient-to-br from-indigo-500/10 via-violet-500/5 to-transparent border-b border-white/5">
         <div className="max-w-5xl mx-auto px-6 pt-28 pb-16">
           <div className="flex items-center gap-2 text-indigo-400 text-xs uppercase tracking-widest mb-3">
-            <ShieldCheck size={14} /> Enterprise Trust Center™ 2.0
+            <ShieldCheck size={14} /> Trust Center™
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">Trust Through Transparency</h1>
+          <h1 className="text-4xl font-bold text-white mb-3">Can I trust EXECLEAD.AI?</h1>
           <p className="text-white/50 text-lg max-w-2xl leading-relaxed">
-            The authoritative enterprise assurance portal. Every statement is evidence-based, version-controlled,
-            and traceable. We never imply certification unless it has been officially obtained.
+            Review how EXECLEAD.AI approaches security, privacy, data handling, responsible AI, platform status, and enterprise assurance. Status labels distinguish what is implemented, in progress, and planned.
           </p>
           <div className="flex items-center gap-4 mt-6">
             {isLoadingAuth ? (
@@ -90,23 +94,10 @@ export default function TrustCenter() {
                 Get Started <ArrowRight size={14} />
               </Link>
             )}
-            <Link to="/vendor-due-diligence" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-white/70 hover:text-white text-sm font-medium transition-colors">
-              <Building2 size={14} /> Vendor Due Diligence Center
+            <Link to="/knowledge" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-white/70 hover:text-white text-sm font-medium transition-colors">
+              <FileText size={14} /> Knowledge Center
             </Link>
             <Link to="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">Back to home</Link>
-          </div>
-          {/* Trust Score Mini Badge */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
-              <Gauge size={14} className="text-indigo-400" />
-              <span className="text-xs text-white/50">Enterprise Trust Score™:</span>
-              <span className="text-sm font-bold text-white">{trustScore.overall}</span>
-              <span className="text-[10px] text-white/30">/ 100</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
-              <Cpu size={14} className="text-cyan-400" />
-              <span className="text-xs text-white/50">Release Candidate 1 (RC1)</span>
-            </div>
           </div>
         </div>
       </div>
@@ -119,7 +110,7 @@ export default function TrustCenter() {
               {SECTIONS.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => setSection(s.id)}
+                  onClick={() => selectSection(s.id)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
                     section === s.id ? "bg-indigo-500/15 text-indigo-400" : "text-white/40 hover:text-white/70"
                   }`}
@@ -166,8 +157,14 @@ export default function TrustCenter() {
               </SectionWrapper>
             )}
 
+            {section === "data" && (
+              <SectionWrapper title="Data & Optional Integrations" description="What information supports the core experience, why it is used, and what remains optional.">
+                <PublicDataDisclosure />
+              </SectionWrapper>
+            )}
+
             {section === "compliance" && (
-              <SectionWrapper title="Compliance Roadmap™" description="Readiness across global security and privacy frameworks. We never display a certification as earned unless it has been officially obtained.">
+              <SectionWrapper title="Assurance Status" description="Current preparation status across selected security and privacy frameworks. No external certification is presented as obtained unless independently completed.">
                 <div className="space-y-3">
                   {COMPLIANCE_FRAMEWORKS.map((fw) => (
                     <div key={fw.name} className="bg-white/[0.02] border border-white/5 rounded-xl p-5">

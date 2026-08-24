@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Check } from 'lucide-react';
 import HeroProductPreview from '../HeroProductPreview';
 import LeadershipJourneyModel from './LeadershipJourneyModel';
-import { buildSignInUrl } from '@/lib/sessionRestore';
 
 const TRUST = ['Personalized AI', 'Executive Simulations', 'Evidence-Based Growth', 'Executive Identity™', 'Private Beta'];
 
@@ -35,7 +34,7 @@ export default function NewHero({ authed, onWatchDemo }) {
           </motion.p>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.23 }} className="mx-auto mb-7 max-w-2xl text-sm text-white/45 lg:mx-0">Built for ambitious professionals developing toward leadership and executive roles across business, operations, finance, people, product, technology, and the public sector.</motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">
-            <Link to={authed ? '/assessment' : buildSignInUrl('/assessment')} className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-bold text-[15px] px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/30">
+            <Link to="/assessment" className="w-full sm:w-auto bg-accent-orange hover:bg-accent-orange/90 text-white font-bold text-[15px] px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-orange/30">
               Take the Executive Readiness Assessment <ArrowRight size={18} />
             </Link>
             <Link to="/demo" className="w-full sm:w-auto bg-transparent hover:bg-white/5 border border-white/15 text-white/80 font-medium text-sm px-6 py-4 rounded-xl flex items-center justify-center gap-2 transition-colors">

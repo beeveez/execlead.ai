@@ -164,7 +164,7 @@ export default function InteractiveSimulationPreview({ authed }) {
             <Brain size={13} /><span className="text-[11px] uppercase tracking-wider font-semibold">The Solution · Experience It</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Practice the moments that matter — before they happen.</h2>
-          <p className="text-white/45 text-sm max-w-xl mx-auto">Don't read about a feature. Make an executive decision right now and see exactly what EXECLEAD.AI gives you back — this is what separates us from a generic AI chatbot.</p>
+          <p className="text-white/45 text-sm max-w-xl mx-auto">Make an executive decision right now and review the structured leadership feedback EXECLEAD.AI provides.</p>
         </div>
 
         {/* Scenario */}

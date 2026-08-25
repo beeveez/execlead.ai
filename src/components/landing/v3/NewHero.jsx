@@ -5,7 +5,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import HeroProductPreview from '../HeroProductPreview';
 import LeadershipJourneyModel from './LeadershipJourneyModel';
 
-const TRUST = ['Personalized AI', 'Executive Simulations', 'Evidence-Based Growth', 'Executive Identity™', 'Private Beta'];
+const TRUST = ['Personalized AI', 'Executive Simulations', 'Development Tracking', 'Executive Identity™', 'Private Beta'];
 
 export default function NewHero({ authed, onWatchDemo }) {
   return (
@@ -30,7 +30,7 @@ export default function NewHero({ authed, onWatchDemo }) {
             <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">Operating System™</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.18 }} className="text-base md:text-lg text-white/60 max-w-2xl mx-auto lg:mx-0 mb-4 leading-relaxed">
-            EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered coaching, Executive Readiness™ assessment, realistic leadership simulations, and evidence-based development.
+            EXECLEAD.AI helps ambitious professionals become executive-ready leaders through AI-powered coaching, Executive Readiness™ assessment, realistic leadership simulations, and structured development.
           </motion.p>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.23 }} className="mx-auto mb-7 max-w-2xl text-sm text-white/45 lg:mx-0">Built for ambitious professionals developing toward leadership and executive roles across business, operations, finance, people, product, technology, and the public sector.</motion.p>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">

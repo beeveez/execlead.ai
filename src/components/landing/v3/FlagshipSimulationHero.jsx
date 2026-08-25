@@ -18,7 +18,7 @@ const SCENARIO = {
   difficulty: "Executive",
   time: "8–10 minutes",
   stakeholders: ["Board", "CEO", "CFO", "CIO / CTO", "Audit Committee"],
-  outcome: "Evidence-Based Executive Feedback",
+  outcome: "Structured Executive Feedback",
   dilemma:
     "The CFO recommends cutting cybersecurity investment 30% to hit quarterly EPS. The CIO warns critical systems will go exposed. The audit committee flags rising threat activity. The board demands a decision — now.",
 };

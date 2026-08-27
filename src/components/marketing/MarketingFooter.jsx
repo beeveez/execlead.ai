@@ -5,7 +5,6 @@ import { LEGAL_STATUS } from "@/lib/legalCompliance";
 import { buildSignInUrl } from "@/lib/sessionRestore";
 import { Mail, Globe } from "lucide-react";
 import { BrandRegistry } from "@/lib/brandRegistry";
-import { SITE_URL } from "@/lib/publicMetadata";
 
 // Standard enterprise footer — utility links only. No page directory.
 const COLUMNS = [
@@ -55,8 +54,8 @@ export default function MarketingFooter() {
             <a href={`mailto:${BrandRegistry.supportEmail}`} className="flex items-center gap-1.5 text-white/45 hover:text-white/80 text-xs mt-3 transition-colors">
               <Mail size={13} className="text-indigo-400" /> {BrandRegistry.supportEmail}
             </a>
-            <a href={SITE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-white/45 hover:text-white/80 text-xs mt-1.5 transition-colors">
-              <Globe size={13} className="text-cyan-400" /> {SITE_URL.replace('https://', '')}
+            <a href={BrandRegistry.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-white/45 hover:text-white/80 text-xs mt-1.5 transition-colors">
+              <Globe size={13} className="text-cyan-400" /> {BrandRegistry.website}
             </a>
           </div>
           {COLUMNS.map((col) => (

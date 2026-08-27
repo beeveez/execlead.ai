@@ -284,7 +284,7 @@ export const RESPONSIBLE_AI_DISCLOSURES = [
 export const DOWNLOAD_DOCUMENTS = [
   { id: "security-overview", title: "Security Overview", description: "Security capabilities, encryption, access control, audit logging, and Guardian™ self-healing.", icon: "ShieldCheck", classification: "Public" },
   { id: "privacy-overview", title: "Privacy Overview", description: "Data protection rights, retention policies, data processing, consent management, and cross-border handling.", icon: "Lock", classification: "Public" },
-  { id: "architecture-overview", title: "Architecture Overview", description: "Platform architecture, core services, manifest, knowledge packs, governance pipeline, and state management.", icon: "Boxes", classification: "Public" },
+  { id: "architecture-overview", title: "Architecture Overview", description: "Platform architecture, core services, manifest, knowledge packs, governance pipeline, and state management.", icon: "Boxes", classification: "Enterprise" },
   { id: "compliance-roadmap", title: "Compliance Roadmap", description: "Certification roadmap with honest statuses — ISO 27001, SOC 2, GDPR, ISO 27701, CSA STAR.", icon: "CheckCircle2", classification: "Public" },
   { id: "responsible-ai", title: "Responsible AI Overview", description: "AI limitations, human oversight, confidence methodology, evidence requirements, bias monitoring.", icon: "Brain", classification: "Public" },
   { id: "enterprise-readiness", title: "Enterprise Readiness Report", description: "Enterprise Resilience Score™, scalability assessment, performance metrics, and operational reliability.", icon: "Activity", classification: "Enterprise" },
@@ -296,7 +296,7 @@ export const DOWNLOAD_DOCUMENTS = [
 // ════════════════════════════════════════════════════════════
 export const PROCUREMENT_PACKAGE = [
   { id: "security-overview", title: "Security Overview", description: "Complete security capability inventory with honest implementation statuses.", classification: "Public" },
-  { id: "architecture-overview", title: "Architecture Overview", description: "Platform architecture, services, and infrastructure for technical review.", classification: "Public" },
+  { id: "architecture-overview", title: "Architecture Overview", description: "Platform architecture, services, and infrastructure for technical review.", classification: "Enterprise" },
   { id: "privacy-overview", title: "Data Processing Overview", description: "Data processing, retention, sub-processors, and data flow documentation.", classification: "Public" },
   { id: "compliance-roadmap", title: "Compliance Roadmap", description: "Certification roadmap with target quarters, dependencies, and current progress.", classification: "Public" },
   { id: "responsible-ai", title: "Responsible AI Summary", description: "AI governance, limitations, oversight, and bias monitoring disclosures.", classification: "Public" },
@@ -370,7 +370,7 @@ export const EXEC_TRUST_QA_ENHANCED = [
 // ════════════════════════════════════════════════════════════
 export const CLASSIFICATION_LEVELS = {
   Public: { color: "#10b981", description: "Available to all visitors" },
-  Enterprise: { color: "#6366f1", description: "Available to authenticated enterprise customers" },
+  Enterprise: { color: "#6366f1", description: "Available to qualified enterprise prospects upon request" },
   Confidential: { color: "#f59e0b", description: "Available under NDA" },
   Internal: { color: "#64748b", description: "Internal use only" },
 };

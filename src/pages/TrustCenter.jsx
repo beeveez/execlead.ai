@@ -244,7 +244,7 @@ export default function TrustCenter() {
             )}
 
             {section === "downloads" && (
-              <SectionWrapper title="Download Center™" description="Comprehensive documentation for vendor assessments and procurement reviews. Each document includes version metadata.">
+              <SectionWrapper title="Download Center™" description="Public trust documentation is downloadable below. Additional enterprise documentation is available to qualified enterprise prospects upon request.">
                 <DownloadCenter />
               </SectionWrapper>
             )}

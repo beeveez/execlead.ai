@@ -7,13 +7,11 @@ import { jsPDF } from "jspdf";
 import { PLATFORM_METADATA } from "./platformManifest";
 import {
   PLATFORM_SECURITY, PRIVACY_DATA, COMPLIANCE_FRAMEWORKS,
-  ENTERPRISE_GOVERNANCE, RESPONSIBLE_AI, OPERATIONAL_RELIABILITY,
-  CERTIFICATION_TIMELINE, STATUS_CONFIG,
+  RESPONSIBLE_AI, STATUS_CONFIG,
 } from "./trustCenterData";
 import {
-  CAPACITY_DISCLOSURE, RESPONSIBLE_AI_DISCLOSURES,
-  CERTIFICATION_ROADMAP_DETAILED, FOUNDATION_CERTIFICATION_CLARIFICATION,
-  EXEC_TRUST_QA_ENHANCED, CLASSIFICATION_LEVELS,
+  RESPONSIBLE_AI_DISCLOSURES, CERTIFICATION_ROADMAP_DETAILED,
+  CLASSIFICATION_LEVELS,
 } from "./trustCenterExtendedData";
 
 const COLORS = {
@@ -29,11 +27,8 @@ const COLORS = {
 const DOC_CONFIG = {
   "security-overview": { title: "Security Overview", classification: "Public", sections: "security" },
   "privacy-overview": { title: "Privacy Overview", classification: "Public", sections: "privacy" },
-  "architecture-overview": { title: "Architecture Overview", classification: "Public", sections: "architecture" },
   "compliance-roadmap": { title: "Compliance Roadmap", classification: "Public", sections: "compliance" },
   "responsible-ai": { title: "Responsible AI Overview", classification: "Public", sections: "responsible_ai" },
-  "enterprise-readiness": { title: "Enterprise Readiness Report", classification: "Enterprise", sections: "enterprise" },
-  "vendor-questionnaire": { title: "Vendor Security Questionnaire", classification: "Enterprise", sections: "vendor" },
 };
 
 function statusColor(status) {
@@ -132,12 +127,6 @@ export function generateTrustDocument(docId) {
   } else if (config.sections === "privacy") {
     drawSection("Privacy & Data Protection™");
     PRIVACY_DATA.forEach((item) => drawItem(item.name, item.status, item.detail));
-  } else if (config.sections === "architecture") {
-    drawSection("Platform Architecture™");
-    drawText("Architecture: React SPA + Serverless Backend (Deno Deploy) + Managed Database", 9, COLORS.text, { bold: true });
-    drawText("Core Services: Platform State Manager™, Platform Governance Center™, Guardian™, Knowledge Pack Engine™", 8, COLORS.muted, { wrap: true });
-    drawSection("Enterprise Governance™");
-    ENTERPRISE_GOVERNANCE.forEach((item) => drawItem(item.name, item.status, item.detail));
   } else if (config.sections === "compliance") {
     drawSection("Compliance Frameworks™");
     COMPLIANCE_FRAMEWORKS.forEach((fw) => drawItem(fw.name, fw.status, fw.description));
@@ -150,24 +139,6 @@ export function generateTrustDocument(docId) {
     RESPONSIBLE_AI.forEach((item) => drawItem(item.name, item.status, item.detail));
     drawSection("Expanded Disclosures");
     RESPONSIBLE_AI_DISCLOSURES.forEach((item) => drawItem(item.topic, item.status, item.detail));
-  } else if (config.sections === "enterprise") {
-    drawSection("Operational Reliability™");
-    OPERATIONAL_RELIABILITY.forEach((item) => drawItem(item.name, item.status, item.detail));
-    drawSection("Capacity Disclosure™");
-    drawText(`Estimated Concurrent Users: ≈${CAPACITY_DISCLOSURE.estimatedConcurrentUsers}`, 9, COLORS.text, { bold: true });
-    CAPACITY_DISCLOSURE.basis.forEach((b) => drawText(`• ${b.factor}: ${b.detail}`, 8, COLORS.muted, { wrap: true }));
-    drawSection("Foundation Certification™");
-    drawText(FOUNDATION_CERTIFICATION_CLARIFICATION.description, 8.5, COLORS.muted, { wrap: true });
-    drawText(`Status: ${FOUNDATION_CERTIFICATION_CLARIFICATION.status}`, 8, COLORS.amber, { bold: true });
-  } else if (config.sections === "vendor") {
-    drawSection("Vendor Security Questionnaire");
-    EXEC_TRUST_QA_ENHANCED.forEach((qa, i) => {
-      ensureSpace(40);
-      drawText(`Q${i + 1}: ${qa.question}`, 9, COLORS.text, { bold: true, wrap: true });
-      drawText(qa.answer, 8, COLORS.muted, { wrap: true });
-      drawText(`Status: ${qa.distinction}`, 7.5, COLORS.primary, { wrap: true });
-      y += 4;
-    });
   }
 
   // ── Footer ──

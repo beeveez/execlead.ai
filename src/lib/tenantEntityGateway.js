@@ -1,8 +1,14 @@
+// NOTE: UserProfile is intentionally NOT routed through manageTenantData.
+// It has its own RLS (read: created_by_id === user.id) on the entity schema,
+// so the standard SDK path provides equivalent security without requiring a
+// backend function invocation. Routing it through manageTenantData caused
+// HTTP 402 on plans that don't include backend functions, breaking profile
+// loading for every authenticated user.
 const TENANT_ENTITIES = new Set([
   "Organization", "OrgMembership", "Department", "Team", "IdentityProvider",
   "IdentitySyncEvent", "SuccessionPlan", "CPQQuote", "CPQApprovalWorkflow",
   "ProcurementRequest", "Vendor", "BetaFeedback", "ExecutiveOutcome",
-  "IdentityVerification", "Subscription", "UserProfile",
+  "IdentityVerification", "Subscription",
 ]);
 
 const invoke = async (client, entity, operation, args) => {

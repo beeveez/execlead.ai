@@ -4,13 +4,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useExecConcierge } from "@/lib/ExecConciergeContext";
 import { useAuth } from "@/lib/AuthContext";
-import { Sparkles, Send, X, Minus, MapPin, Trash2, Search, Layers } from "lucide-react";
+import { Sparkles, Send, X, Minus, MapPin, Trash2, Search, Layers, Maximize2 } from "lucide-react";
 import {
   EXEC_GLOBAL_COMMANDS,
 } from "@/lib/execConciergeConfig";
 import ExecMessageBubble from "./ExecMessageBubble";
 import ExecConciergeBadge from "./ExecConciergeBadge";
 import ExecTypingIndicator from "./ExecTypingIndicator";
+import ExecConciergeExpanded from "./ExecConciergeExpanded";
 import ExecDebugPanel from "./ExecDebugPanel";
 import ExecHealthPanel from "./ExecHealthPanel";
 import ConciergeDiagnosticsPanel from "./ConciergeDiagnosticsPanel";
@@ -40,6 +41,7 @@ export default function ExecConcierge() {
   const [input, setInput] = useState("");
   const [showCommands, setShowCommands] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -160,8 +162,18 @@ export default function ExecConcierge() {
 
   return (
     <>
+      {/* Expanded Focus Mode overlay — shares the same conversation state */}
       <AnimatePresence>
-        {!isOpen && (
+        {isOpen && isExpanded && (
+          <ExecConciergeExpanded
+            onCollapse={() => setIsExpanded(false)}
+            onClose={close}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!isOpen && !isExpanded && (
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -179,7 +191,7 @@ export default function ExecConcierge() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !isExpanded && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -222,6 +234,14 @@ export default function ExecConcierge() {
                 title="Clear conversation"
               >
                 <Trash2 size={16} />
+              </button>
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Expand to focus mode"
+                title="Expand to Focus Mode"
+              >
+                <Maximize2 size={16} />
               </button>
               <button
                 onClick={toggle}

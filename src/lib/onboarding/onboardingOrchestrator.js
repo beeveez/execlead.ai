@@ -98,6 +98,9 @@ export async function completeEnterpriseOnboarding(user, results) {
   await base44.auth.updateMe({ onboarding_completed: true, onboarding_step: 3, onboarding_type: "enterprise_assigned", readiness_calibrated: true, readiness_level: readinessLevel, journey_points: xp });
   markOnboardingCompleted();
   saveOnboardingDraft(user, { step: 3, completed: true });
-  const [actions] = await Promise.all([generateAndPersistActions(user), base44.functions.invoke("recomputeIntelligence", { user_id: user.id })]);
+  const [actions] = await Promise.all([
+    generateAndPersistActions(user),
+    base44.functions.invoke("recomputeIntelligence", { user_id: user.id }).catch(() => null)
+  ]);
   return { readinessLevel, initialXp: xp, calibrated: true, firstMission: actions?.[0]?.title, roadmapReady: true };
 }

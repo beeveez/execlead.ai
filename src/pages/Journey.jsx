@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Loader2, TrendingUp } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { deriveReadiness } from "@/lib/journey/xpRules";
+import { computeReadinessFromProfile } from "@/lib/readinessFallbackEngine";
 import SectionNav from "@/components/intelligence/SectionNav";
 import ProfileHeader from "@/components/intelligence/ProfileHeader";
 import ReadinessHero from "@/components/intelligence/ReadinessHero";
@@ -45,12 +47,39 @@ export default function Journey() {
         }
 
         // Batch 1: core intelligence data (backend filters by user.id)
+        // Each call catches 402 independently — if backend functions are
+        // unavailable, frontend fallbacks derive journey + intelligence
+        // from the user's persisted data.
         const [journeyRes, intelRes] = await Promise.all([
-          base44.functions.invoke("manageJourney", { action: "compute" }),
-          base44.functions.invoke("manageIntelligence", { action: "read" }),
+          base44.functions.invoke("manageJourney", { action: "compute" }).catch(() => null),
+          base44.functions.invoke("manageIntelligence", { action: "read" }).catch(() => null),
         ]);
-        setJourney(journeyRes.data);
-        setIntelligence(intelRes.data);
+
+        let journeyData = journeyRes?.data || null;
+        let intelData = intelRes?.data || null;
+
+        // Fallback: derive journey from user data (same as useExecutiveReadiness)
+        if (!journeyData) {
+          const readiness = deriveReadiness(user, null);
+          journeyData = {
+            totalPoints: readiness.xp,
+            level: {
+              current: { title: readiness.title },
+              next: readiness.nextMilestone ? { title: readiness.nextMilestone, points: readiness.nextLevelXp } : null,
+              progress: readiness.progressPercent,
+              journeyPercent: readiness.progressPercent,
+            },
+            breakdown: {},
+          };
+        }
+
+        // Fallback: derive intelligence from calibration/profile data
+        if (!intelData) {
+          intelData = await computeReadinessFromProfile(user);
+        }
+
+        setJourney(journeyData);
+        setIntelligence(intelData);
 
         // Batch 2: supporting entity data — ALL filtered by authenticated user ID
         const [profiles, dnaList, repList, lessons] = await Promise.all([
@@ -61,7 +90,7 @@ export default function Journey() {
         ]);
 
         // Defensive validation: ensure loaded profile belongs to the authenticated user
-        const loadedProfile = profiles[0] || journeyRes.data?.profile || {};
+        const loadedProfile = profiles[0] || journeyRes?.data?.profile || {};
         if (loadedProfile.created_by_id && loadedProfile.created_by_id !== user.id) {
           console.error("[SECURITY] Executive Intelligence Profile: profile owner mismatch", {
             authenticatedUserId: user.id,

@@ -62,6 +62,29 @@ export const SubscriptionProvider = ({ children }) => {
         setLoading(false);
         return;
       }
+
+      // ── Idempotent career_intelligence initialization ──
+      // If career_intelligence_json was never initialized (user existed before
+      // onboarding calibration, or calibration failed), record the existing
+      // journey state. This is a truthful recovery — NOT a fabricated baseline.
+      // Only runs once; never overwrites an existing value.
+      if (p && !p.career_intelligence_json) {
+        const xp = p.xp_points || user?.journey_points || user?.journeyPoints || 0;
+        const recoveryRecord = {
+          initializedAt: new Date().toISOString(),
+          initializedFrom: "journey_state_recovery",
+          journeyXp: xp,
+          readinessLevel: user?.readiness_level || user?.readinessLevel || null,
+          note: "Career intelligence initialized from existing journey state — no calibration data available",
+        };
+        try {
+          await base44.entities.UserProfile.update(p.id, {
+            career_intelligence_json: JSON.stringify(recoveryRecord),
+          });
+          p.career_intelligence_json = JSON.stringify(recoveryRecord);
+        } catch {}
+      }
+
       setProfile(p);
 
       const canonical = subRes?.data || null;

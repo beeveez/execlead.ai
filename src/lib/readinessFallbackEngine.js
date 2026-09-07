@@ -66,12 +66,39 @@ export async function computeReadinessFromProfile(user) {
     readinessLevel = result.readinessLevel;
     xp = result.xp;
   } else if (overallScore == null) {
-    // Last resort: derive from profile fields
-    overallScore = Math.round(
-      (profile.leadership_maturity || 0) * 0.4 +
-      (profile.confidence || 0) * 0.3 +
-      Math.min(100, (profile.xp_points || 0) / 52) * 0.3
-    );
+    // No calibration data — derive from journey state (truthful, not fabricated)
+    const journeyXp = profile.xp_points || user?.journey_points || user?.journeyPoints || 0;
+    const hasProfileFields = (profile.leadership_maturity || 0) > 0 || (profile.confidence || 0) > 0;
+
+    if (hasProfileFields) {
+      // Profile fields exist — use them
+      overallScore = Math.round(
+        (profile.leadership_maturity || 0) * 0.4 +
+        (profile.confidence || 0) * 0.3 +
+        Math.min(100, journeyXp / 52) * 0.3
+      );
+    } else {
+      // No calibration AND no profile fields — derive from journey level
+      // Uses the same XP thresholds as deriveReadiness() in xpRules.js
+      // This is truthful: it reflects the user's actual platform engagement
+      const READINESS_SCORE_BY_LEVEL = [
+        5,   // Seed (0 XP)
+        20,  // Emerging Leader (500+ XP)
+        40,  // People Manager (2000+ XP)
+        60,  // Senior Leader (5000+ XP)
+        75,  // Executive (10000+ XP)
+        85,  // Enterprise Leader (20000+ XP)
+        92,  // Board Ready (35000+ XP)
+        100, // Legacy Leader (50000+ XP)
+      ];
+      const LEVEL_THRESHOLDS = [0, 500, 2000, 5000, 10000, 20000, 35000, 50000];
+      let levelIdx = 0;
+      for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+        if (journeyXp >= LEVEL_THRESHOLDS[i]) { levelIdx = i; break; }
+      }
+      overallScore = READINESS_SCORE_BY_LEVEL[levelIdx] || 5;
+      readinessLevel = user?.readiness_level || user?.readinessLevel || null;
+    }
   }
 
   const dimensions = computeDimensions(baselineData, profile, overallScore);

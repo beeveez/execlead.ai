@@ -42,7 +42,7 @@ import { generateBio, detectBioFormat, isStoryBioRequest, isStorySummaryRequest,
 import { loadLatestIdentity, formatIdentityContextForPrompt } from "@/lib/executiveIdentityGraphEngine";
 import { isIdentityCommand, answerIdentityCommand, generateBrand as generateIdentityBrand } from "@/lib/executiveIdentityPresentations";
 import { newCorrelationId, logStage, getExecHealth, getExecEvents, getLastFailure } from "@/lib/execReliabilityEngine";
-import { isCompanyKnowledgeQuestion, isInformationalPricingQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, answerInformationalPricingQuestion, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
+import { isCompanyKnowledgeQuestion, isInformationalPricingQuestion, retrieveKnowledgeArticles, answerFromKnowledge, answerFounderQuestionFromApprovedKnowledge, answerBrandDomainQuestion, answerInformationalPricingQuestion, formatKnowledgeAuthorityMessage, buildNoResultMessage, getGroundedFollowUpQuestions } from "@/lib/knowledgeAuthorityGuard";
 import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
 import { classifyExecQuestion, EXEC_QUESTION_CATEGORIES } from "@/lib/execQuestionClassifier";
@@ -603,9 +603,14 @@ export function ExecConciergeProvider({ children }) {
       if (isCompanyKnowledgeQuestion(content)) {
         try {
           const { ranked, all } = await retrieveKnowledgeArticles(content, 5);
+          const brandDomainAnswer = answerBrandDomainQuestion(content);
           const protectedFounderAnswer = answerFounderQuestionFromApprovedKnowledge(content, all);
           let result;
-          if (protectedFounderAnswer) {
+          if (brandDomainAnswer) {
+            const brandSource = all.find((article) => article.slug === "execlead-official-website-domain");
+            result = { noResult: false, answer: brandDomainAnswer, sources: brandSource ? [brandSource] : [], confidence: 100, confidenceLabel: "Approved", freshness: brandSource?.last_updated || null, citedSlugs: brandSource ? [brandSource.slug] : [], related: [] };
+            trackKnowledgeAiAsk({ query: content, confidence: 100, sourcesCount: result.sources.length, noResult: false, citedSlugs: result.citedSlugs });
+          } else if (protectedFounderAnswer) {
             const founderSource = all.find((article) => article.slug === "founder-why-built");
             result = { noResult: false, answer: protectedFounderAnswer, sources: founderSource ? [founderSource] : [], confidence: 100, confidenceLabel: "Approved", freshness: founderSource?.last_updated || null, citedSlugs: founderSource ? [founderSource.slug] : [], related: [] };
             trackKnowledgeAiAsk({ query: content, confidence: 100, sourcesCount: result.sources.length, noResult: false, citedSlugs: result.citedSlugs });

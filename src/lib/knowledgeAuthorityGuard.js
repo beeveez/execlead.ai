@@ -25,6 +25,7 @@ const COMPANY_TOKENS = [
   "reynaldo", "executive_mentor", "executive mentor", "executive coaches", "research organization",
   "source of that information", "where did that information come from",
   "security", "privacy", "encryption",
+  "website", "your website", "official website", "official site", "domain", "url", "execleadai.co", "execlead.ai",
 ];
 
 const FEATURE_NAMES = [
@@ -96,6 +97,28 @@ export async function answerInformationalPricingQuestion(query = "") {
     answer += `\n\n${requestedPlan.name} includes:\n${requestedPlan.features.slice(0, 8).map((feature) => `• ${feature}`).join("\n")}`;
   }
   answer += "\n\nIf you'd like, I can break down what each plan includes.";
+  return answer;
+}
+
+// ── Canonical Brand & Domain Knowledge ──
+// Deterministic answer for brand/website/domain questions. EXECLEAD.AI is the
+// brand; execleadai.co is the current public website domain. Never speculate
+// about domain ownership, availability, or alternative domains.
+export function answerBrandDomainQuestion(query) {
+  const text = (query || "").toLowerCase();
+  if (!text) return null;
+
+  const isDomainTopic = /\b(website|domain|url|execleadai\.co|official site|official website)\b/.test(text);
+  if (!isDomainTopic) return null;
+
+  const answer =
+    "EXECLEAD.AI is the name of the platform and brand. " +
+    "The current public website is hosted at **execleadai.co**.\n\n" +
+    "The .co domain is simply the domain currently used by EXECLEAD.AI for its public website.\n\n" +
+    "**Brand:** EXECLEAD.AI\n" +
+    "**Website:** execleadai.co\n" +
+    "**Full URL:** https://execleadai.co";
+
   return answer;
 }
 

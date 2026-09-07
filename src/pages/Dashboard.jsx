@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Swords, Brain, MessageSquare, GraduationCap, Scale, PenLine, Sparkles, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { computeReadinessFromProfile } from "@/lib/readinessFallbackEngine";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { buildCommandCenter } from "@/lib/executiveReadinessEngine";
 import ExecutiveStatusBar from "@/components/shared/ExecutiveStatusBar";
@@ -62,7 +63,11 @@ export default function Dashboard() {
         const res = await base44.functions.invoke("manageIntelligence", { action: "compute" });
         setIntelligence(res.data);
       } catch (e) {
-        console.error("[Dashboard] intelligence load failed:", e.message);
+        // Backend function unavailable (e.g. 402) — derive from calibration data
+        try {
+          const fallback = await computeReadinessFromProfile(user);
+          if (fallback) setIntelligence(fallback);
+        } catch {}
       }
       setLoadingIntelligence(false);
     })();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { computeReadinessFromProfile } from "@/lib/readinessFallbackEngine";
 import ReadinessScoreCard from "@/components/intelligence/ReadinessScoreCard";
 import ReadinessDimensions from "@/components/intelligence/ReadinessDimensions";
 import PromotionForecast from "@/components/intelligence/PromotionForecast";
@@ -19,7 +20,15 @@ export default function ExecutiveReadiness() {
       try {
         const res = await base44.functions.invoke("manageIntelligence", { action: "compute" });
         setData(res.data);
-      } catch (e) {}
+      } catch (e) {
+        // Backend function unavailable (e.g. 402) — derive readiness
+        // from the calibration data saved in UserProfile
+        try {
+          const user = await base44.auth.me();
+          const fallback = await computeReadinessFromProfile(user);
+          if (fallback) setData(fallback);
+        } catch {}
+      }
       setLoading(false);
     };
     load();

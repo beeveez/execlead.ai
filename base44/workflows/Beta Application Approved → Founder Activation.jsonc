@@ -1,0 +1,37 @@
+{
+  "name": "Beta Application Approved \u2192 Founder Activation",
+  "description": "When a BetaApplication status changes to 'approved', automatically triggers the manageFoundingProgram backend function to execute the full founder approval workflow (badge assignment, beta access, pricing lock, welcome email, certificate, audit logging).",
+  "trigger": {
+    "condition": "${ ((.trigger.changed_fields | index(\"status\") != null) and (.trigger.data.status == \"approved\")) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "update"
+      ],
+      "entity_name": "BetaApplication"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "beta_application_approved_founder_activation",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "manageFoundingProgram",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "manageFoundingProgram"
+  }
+}

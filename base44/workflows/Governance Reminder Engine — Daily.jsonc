@@ -1,0 +1,46 @@
+{
+  "name": "Governance Reminder Engine \u2014 Daily",
+  "description": "Checks pending governance requests every 24 hours and sends reminder/escalation notifications to the Founder. Triggers at 24h, 48h, 72h+ (escalation). Critical requests get daily reminders.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 24,
+      "interval_unit": "hours",
+      "interval_anchor": "2026-07-19T02:50:24.846000",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "governance_reminder_engine_daily",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "governanceNotificationEngine",
+            "args": {
+              "action": "send_reminders"
+            }
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "governanceNotificationEngine"
+  }
+}

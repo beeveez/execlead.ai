@@ -1,0 +1,37 @@
+{
+  "name": "EXEC Conversation Context Initialization",
+  "description": "When a user starts a new EXEC\u2122 conversation, initializes Executive Memory\u2122, Journey\u2122 + Intelligence cache, Executive Context Engine\u2122 (AIAgentState), and analytics \u2014 reusing existing recomputeIntelligence architecture.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "in_app_agent",
+      "events": [
+        "conversation_started"
+      ],
+      "agent_name": "executive_concierge"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "exec_conversation_context_initialization",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "initializeConversationContext",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "initializeConversationContext"
+  }
+}

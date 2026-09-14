@@ -3,6 +3,11 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { staticSeoPlugin } from './src/lib/staticSeoPlugin.js'
 
+// Ensure the Base44 /api proxy target is available even when the platform
+// does not inject VITE_BASE44_APP_BASE_URL into the dev-server environment.
+// The Base44 vite-plugin reads this via loadEnv() to enable the /api proxy.
+process.env.VITE_BASE44_APP_BASE_URL = process.env.VITE_BASE44_APP_BASE_URL || 'https://base44.app';
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -17,5 +22,15 @@ export default defineConfig({
     }),
     react(),
     staticSeoPlugin(),
-  ]
+  ],
+  // Belt-and-suspenders: configure the /api proxy directly at the Vite level
+  // so it is present even if the Base44 plugin's sandbox mode skips the proxy.
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://base44.app',
+        changeOrigin: true,
+      },
+    },
+  },
 });

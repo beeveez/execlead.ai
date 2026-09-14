@@ -1,7 +1,7 @@
 /**
  * Guardian™ Validation Rules Registry v4.0
  *
- * 23 validation domains, 27 validation rules.
+ * 24 validation domains, 28 validation rules.
  * Every failed rule carries categorized business impact
  * (customer, executive, platform, operational, deployment)
  * and a technical impact statement.
@@ -33,6 +33,7 @@ export const VALIDATION_DOMAINS = [
   { id: 'recommendation_engine', label: 'Recommendation Engine' },
   { id: 'executive_memory', label: 'Executive Memory' },
   { id: 'platform_activity_center', label: 'Platform Activity Center' },
+  { id: 'agent_orchestration', label: 'Agent Orchestration' },
 ];
 
 // ── Helper: compact passing rule ──
@@ -280,4 +281,26 @@ export const VALIDATION_RULES = [
   P('platform_activity_logging', 'platform_activity_center', 'Activity Logging', 3,
     'Platform Activity Center is logging events correctly.', 'Platform Activity Center', 'platform', 'Developer',
     ['platform_health']),
+
+  // ═══ Agent Orchestration (Phase 5 — AI Workforce governance boundary) ═══
+  // Status derives from the live-verified measured state — never a hardcoded PASS.
+  GUARDIAN_MEASURED_STATE.agentOrchestration.status === 'PASS'
+    ? P('agent_orchestration_boundary', 'agent_orchestration', 'Agent Orchestration Boundary', 8,
+        'The Agent Orchestration Service™ enforces the full Workforce governance chain (server-side registry authorization, request-time kill switches, global execution stop, risk threshold, server-issued append-only execution audit with provenance, idempotency/replay protection, and the human-approval gate) for the single Phase 5 capability.',
+        'AI Command Center', 'developer', 'Developer',
+        ['ai_workforce_governance', 'security_score'])
+    : F('agent_orchestration_boundary', 'agent_orchestration', 'Agent Orchestration Boundary', 8, 'FAIL',
+        'The Agent Orchestration Service™ governance chain is not verified — Workforce execution could bypass registry authorization.',
+        'AI Command Center', 'developer', 'Developer', '1 hour', true,
+        {
+          customer: 'Agent actions could operate outside the governed Workforce boundary.',
+          executive: 'AI Workforce auditability guarantees cannot be certified.',
+          platform: 'Workforce execution could bypass registry authorization, kill switches, and the approval gate.',
+          operational: 'Support cannot trace agent actions to authorized, audited executions.',
+          deployment: 'Cannot deploy autonomous capabilities without a verified orchestration boundary.',
+        },
+        'Agent orchestration governance chain unverified.',
+        'Re-run Phase 5 orchestration runtime verification',
+        'Orchestration boundary verification failed.',
+        ['Agent Orchestration Service™'], ['security_score'], null),
 ];

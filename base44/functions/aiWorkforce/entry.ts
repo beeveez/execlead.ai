@@ -1,4 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import {
+  PHASE5_AGENT_ID,
+  PHASE5_TOOL_ID,
+  PROVENANCE_SOURCE,
+  executeReadinessRead,
+  recordBlocked,
+} from '../../shared/agentOrchestrationCore.ts';
 
 const ADMIN_ROLES = ['admin', 'platform_admin', 'super_admin', 'developer'];
 
@@ -238,48 +245,98 @@ Deno.serve(async (req) => {
       return Response.json({ briefing: result, cached: false });
     }
 
-    // ── EXECUTE TASK ──
+    // ── EXECUTE TASK — Phase 5.1 GOVERNED COMPATIBILITY ADAPTER ──
+    // The legacy free-form Workforce execution path is FENCED. This action no
+    // longer authorizes agents, invokes LLMs, or executes tools independently.
+    // Every Workforce execution request is delegated to the shared Agent
+    // Orchestration Core™ — the SINGLE authoritative execution boundary
+    // (AgentOrchestrationService). There is no second governance path.
+    //
+    // The client-supplied agent_id can IDENTIFY a request but NEVER AUTHORIZE
+    // it — the core re-resolves agent, tool, scope, risk, kill switches, and
+    // identity server-side against AgentRegistry / AgentToolRegistry /
+    // AgentOrchestrationConfig.
     if (action === 'execute_task') {
-      const { agent_id, description } = body;
-      if (!ALL_AGENT_IDS.includes(agent_id)) return Response.json({ error: 'Invalid agent' }, { status: 400 });
-      if (!description) return Response.json({ error: 'Task description required' }, { status: 400 });
-      if (!isAgentUnlocked(agent_id, planInfo)) {
-        return Response.json({ error: 'This agent requires a higher subscription tier' }, { status: 403 });
-      }
+      const { agent_id, tool_id, description } = body;
+      const svc = base44.asServiceRole;
+      const claimedAgent = typeof agent_id === 'string' ? agent_id : 'unregistered';
+      const correlationId = `wf:${user.id}:legacy_execute_task:${claimedAgent}`;
 
-      const task = await base44.asServiceRole.entities.AITask.create({
-        user_id: user.id, user_name: user.full_name || user.email,
-        agent_id, task_type: 'autonomous', description, status: 'running', model: 'automatic',
-      });
+      // Route ONLY an explicitly requested registered executable capability
+      // through the orchestration boundary (same code, same audit records,
+      // same provenance as the direct orchestration path).
+      if (agent_id === PHASE5_AGENT_ID && tool_id === PHASE5_TOOL_ID) {
+        const res = await executeReadinessRead(
+          svc, user, { agent_id, tool_id },
+          'aiWorkforceCompatibilityAdapter',
+        );
+        const data = await res.json();
 
-      try {
-        const context = await gatherContext(base44, user);
-        const result = await base44.integrations.Core.InvokeLLM({
-          prompt: `${AGENT_PROMPTS[agent_id]}\n\n=== EXECUTIVE CONTEXT ===\n${context}\n\n=== TASK ===\nThe executive has assigned you this task:\n"${description}"\n\nComplete this task thoroughly. Provide a detailed, actionable, well-structured response in markdown format.`,
-          model: 'gpt_5_mini',
-        });
-
-        await base44.asServiceRole.entities.AITask.update(task.id, {
-          status: 'completed', result: typeof result === 'string' ? result : JSON.stringify(result),
-          completed_at: new Date().toISOString(), context_summary: context.substring(0, 1000),
-        });
-
-        const states = await base44.asServiceRole.entities.AIAgentState.filter({ user_id: user.id, agent_id });
-        if (states[0]) {
-          await base44.asServiceRole.entities.AIAgentState.update(states[0].id, {
-            tasks_completed: (states[0].tasks_completed || 0) + 1,
-            last_task_at: new Date().toISOString(), last_active: new Date().toISOString(),
+        // AITask compatibility: a Workforce AITask is created ONLY alongside a
+        // server-issued SUCCEEDED AgentExecution (linked via result_json).
+        // Never created on blocked, queued, replayed, or failed requests.
+        if (res.status === 200 && data.status === 'SUCCEEDED' && data.idempotent_replay === false) {
+          await svc.entities.AITask.create({
+            user_id: user.id, user_name: user.full_name || user.email,
+            agent_id: PHASE5_AGENT_ID, task_type: 'autonomous',
+            description: (typeof description === 'string' && description)
+              ? description
+              : `Read own readiness assessment (governed capability ${PHASE5_TOOL_ID})`,
+            status: 'completed',
+            result: data.found
+              ? 'Retrieved your latest Executive Readiness Assessment™ through the governed Workforce boundary.'
+              : 'No readiness assessment on record yet — complete the Executive Readiness Assessment™ to unlock governed Workforce reads.',
+            result_json: JSON.stringify({
+              governed: true, execution_id: data.execution_id,
+              tool_id: PHASE5_TOOL_ID, provenance: PROVENANCE_SOURCE,
+              assessment: data.assessment || null,
+            }),
+            completed_at: new Date().toISOString(), model: 'orchestration',
           });
+
+          const states = await svc.entities.AIAgentState.filter({ user_id: user.id, agent_id: PHASE5_AGENT_ID });
+          if (states[0]) {
+            await svc.entities.AIAgentState.update(states[0].id, {
+              tasks_completed: (states[0].tasks_completed || 0) + 1,
+              last_task_at: new Date().toISOString(), last_active: new Date().toISOString(),
+            });
+          }
         }
 
-        return Response.json({
-          task_id: task.id, status: 'completed',
-          result: typeof result === 'string' ? result : JSON.stringify(result),
-        });
-      } catch (error) {
-        await base44.asServiceRole.entities.AITask.update(task.id, { status: 'failed', error: error.message });
-        return Response.json({ error: error.message, task_id: task.id, status: 'failed' }, { status: 500 });
+        // Pass the orchestration response through unchanged — both entry
+        // points return identical payload shapes and status codes.
+        return Response.json(data, { status: res.status });
       }
+
+      // Everything else is a free-form Workforce generation request. No such
+      // tool is registered in AgentToolRegistry, so it CANNOT execute. The
+      // request is refused with a truthful BLOCKED audit record issued by the
+      // shared boundary. No AITask is created — a Workforce AITask without a
+      // corresponding AgentExecution is prohibited.
+      const execution = await recordBlocked(
+        svc, user,
+        'WORKFORCE_CAPABILITY_NOT_REGISTERED',
+        'Free-form Workforce generation is not a registered capability in AgentToolRegistry — legacy independent execution is fenced.',
+        {
+          claimed_agent_id: claimedAgent,
+          entry_point: 'aiWorkforce.execute_task',
+          legacy_path: true,
+          requested_description_preview: (typeof description === 'string' ? description : '').substring(0, 200),
+        },
+        {
+          issuedBy: 'aiWorkforceCompatibilityAdapter',
+          agentId: claimedAgent,
+          toolId: 'unregistered:freeform_generation',
+          correlationId,
+        },
+      );
+      return Response.json({
+        status: 'BLOCKED', blocked: true,
+        error_code: 'WORKFORCE_CAPABILITY_NOT_REGISTERED',
+        error: 'Workforce agent execution is centrally governed. This agent capability is not registered for execution yet — free-form agent tasks are unavailable during the governed rollout.',
+        message: 'Workforce agent execution is centrally governed. This agent capability is not registered for execution yet — free-form agent tasks are unavailable during the governed rollout.',
+        execution_id: execution.execution_id,
+      }, { status: 403 });
     }
 
     // ── RECOMMENDATIONS ──

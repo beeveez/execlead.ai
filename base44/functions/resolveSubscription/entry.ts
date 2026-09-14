@@ -123,7 +123,12 @@ Deno.serve(async (req) => {
       founderRecord && founderRecord.purchase_verified === true && founderRecord.payment_status === "paid"
     );
     const subscriptionEligible = ELIGIBLE_PLANS.includes(currentPlan) || isDevUser;
-    const founderPortalEnabled = Boolean(hasActiveRecord && purchaseVerified && subscriptionEligible);
+    // P0-1: Verified founding members access the Founder Portal regardless of plan tier.
+    // Portal entitlement is decoupled from the paid-plan subscriptionEligible requirement
+    // so that verified Founding Private Beta members on the free plan can enter /founder/*.
+    // Ordinary free users (no active FoundingMember record) remain blocked — hasActiveRecord
+    // and purchaseVerified still gate access. Paid-plan eligibility is otherwise preserved.
+    const founderPortalEnabled = Boolean(hasActiveRecord && purchaseVerified);
 
     // ── 9. Resolve workspace (must match subscription) ──
     let workspace: string;

@@ -19,6 +19,7 @@ import ResponsibleAIDisclosures from "@/components/trust/ResponsibleAIDisclosure
 import ProcurementMode from "@/components/trust/ProcurementMode";
 import ExecTrustQA from "@/components/trust/ExecTrustQA";
 import DownloadCenter from "@/components/trust/DownloadCenter";
+import SecurityReportForm from "@/components/trust/SecurityReportForm";
 import EnterpriseAssurance from "@/components/trust/EnterpriseAssurance";
 import TrustPrinciples from "@/components/trust/TrustPrinciples";
 import PublicOperationalStatus from "@/components/trust/PublicOperationalStatus";
@@ -284,10 +285,7 @@ export default function TrustCenter() {
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-4 flex items-start gap-2">
-                    <Mail size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-amber-400/80">Security mailbox is <strong>Coming Soon</strong>. Until provisioned, please use the contact form on the About page.</p>
-                  </div>
+                  <SecurityReportForm />
                 </div>
               </SectionWrapper>
             )}

@@ -1,0 +1,279 @@
+{
+  "name": "AgentExecution",
+  "type": "object",
+  "properties": {
+    "execution_id": {
+      "type": "string",
+      "description": "Unique execution record identifier (single source of truth for the audit trail)"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "agent_id of the executing agent \u2014 must resolve against AgentRegistry"
+    },
+    "agent_version": {
+      "type": "string",
+      "description": "Version of the AgentRegistry entry at execution time"
+    },
+    "tool_id": {
+      "type": "string",
+      "description": "tool_id of the tool invoked \u2014 must resolve against AgentToolRegistry"
+    },
+    "tool_version": {
+      "type": "string",
+      "description": "Version of the AgentToolRegistry entry at execution time"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Subject user whose context the execution operates on. Must be set for user-scoped executions; anchors ownership isolation"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Subject organization for organization-scoped executions. Must be set for org-scoped executions; anchors tenant isolation"
+    },
+    "initiated_by": {
+      "type": "string",
+      "enum": [
+        "user",
+        "system",
+        "agent",
+        "developer"
+      ],
+      "default": "user",
+      "description": "Actor class that initiated the execution"
+    },
+    "initiated_by_reference": {
+      "type": "string",
+      "description": "Reference to the initiating actor (e.g. requesting user id, workflow id, or parent agent id)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "QUEUED",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "BLOCKED",
+        "CANCELLED"
+      ],
+      "default": "REQUESTED",
+      "description": "Execution lifecycle status. Phase 3 is a record model only \u2014 no orchestration writes these states yet"
+    },
+    "execution_scope": {
+      "type": "string",
+      "enum": [
+        "user_scoped",
+        "platform",
+        "none"
+      ],
+      "default": "none",
+      "description": "Where the execution may operate: user_scoped (subject user's own context only), platform (platform-level operations), none (not executable)"
+    },
+    "permission_scope": {
+      "type": "string",
+      "enum": [
+        "self_records",
+        "platform_config",
+        "none"
+      ],
+      "default": "none",
+      "description": "Data access boundary: self_records (subject user's records only), platform_config (platform configuration records), none (no data access)"
+    },
+    "human_approval_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this execution required human approval before running"
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "NOT_REQUIRED",
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "default": "PENDING",
+      "description": "Human approval state for the execution"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the execution was requested"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the execution started running"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the execution reached a terminal state"
+    },
+    "result_summary": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Non-sensitive summary of the execution result"
+    },
+    "error_code": {
+      "type": "string",
+      "description": "Machine-readable error code for failed or blocked executions"
+    },
+    "error_message": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Diagnostic error message"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional execution diagnostics and trace context"
+    },
+    "parent_execution_id": {
+      "type": "string",
+      "description": "execution_id of the parent execution, for chained/delegated execution traces"
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Correlation identifier linking related executions, AI request traces, and observability events"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Provenance of the execution record (e.g. platform runtime, workflow id)"
+    }
+  },
+  "required": [
+    "execution_id",
+    "agent_id",
+    "tool_id",
+    "status",
+    "initiated_by",
+    "requested_at"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.organization_id": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

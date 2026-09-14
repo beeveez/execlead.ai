@@ -228,6 +228,7 @@ export const RLS_REGISTRY = [
   { name: "UserProfile", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + same-org + admin" },
   { name: "Subscription", classification: "user", scope: "owner_user_id", status: "protected", sensitive: true, rule: "owner + admin/finance" },
   { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/finance read; no update/delete" },
+  { name: "AgentExecution", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "immutable append-only audit; owner + org admin + platform admin/dev read; create: own or platform roles; update/delete: super_admin/platform_admin/founder only" },
   { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + org admin + platform admin + security officer; delete: platform admin only" },
 
   // ── Organization-Scoped ──

@@ -272,18 +272,8 @@ export const VALIDATION_RULES = [
     ['recommendation_quality', 'cognitive_excellence']),
 
   // ═══ Executive Memory ═══
-  F('executive_memory_health', 'executive_memory', 'Memory Health', 3, 'WARNING',
-    'Executive memory has stale entries that need pruning.', 'AI Memory Intelligence', 'developer', 'Developer', '30 min', true,
-    {
-      customer: 'AI may not remember past interactions, reducing personalization quality.',
-      executive: 'Executive coaching may lack continuity across sessions.',
-      platform: 'Executive Memory™ has stale entries — AI context may be outdated.',
-      operational: 'Support cannot rely on memory for troubleshooting user-specific issues.',
-      deployment: 'Stale memory entries are acceptable for deployment but should be pruned.',
-    },
-    'Executive Memory™ has 12 stale entries — last prune was 7 days ago.',
-    'Prune stale executive memory entries',
-    'Executive memory health validation warning — stale entries detected.',
+  F('executive_memory_health', 'executive_memory', 'Memory Health', 3, GUARDIAN_MEASURED_STATE.executiveMemory.status,
+    GUARDIAN_MEASURED_STATE.executiveMemory.evidence, 'AI Memory Intelligence', 'developer', 'Developer', '—', false, null, null, null, null,
     ['Executive Memory™'], ['executive_memory', 'recommendation_quality'], '2026-07-16'),
 
   // ═══ Platform Activity Center ═══

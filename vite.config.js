@@ -22,5 +22,13 @@ export default defineConfig({
     }),
     react(),
     staticSeoPlugin(),
-  ]
+  ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://base44.app',
+        changeOrigin: true,
+      },
+    },
+  },
 });

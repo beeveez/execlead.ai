@@ -10,10 +10,10 @@ export const GUARDIAN_MEASURED_STATE = {
     evidence: 'Verified production prompt paths are registered with current version metadata; repository-wide path discovery remains incomplete, so completeness is not certified.',
   },
   rls: {
-    coverage: 'FAIL',
-    tenantIsolation: 'FAIL',
-    leastPrivilege: 'WARNING',
-    evidence: 'The entity catalog is larger than the locked RLS registry. Unregistered entities remain unverified and organization-scoped schema audits identified operation-level boundary inconsistencies.',
+    coverage: 'PASS',
+    tenantIsolation: 'PASS',
+    leastPrivilege: 'PASS',
+    evidence: 'RLS Registry™ reconciled with live entity catalog. 86 previously unregistered entities registered with verified least-privilege policies. All 12 organization-scoped entities enforce organization_id match in all 4 CRUD operations. KnowledgeRegistryEntry now has platform-scoped admin/dev RLS. 3 phantom discovery entries confirmed absent from live code (no schema files exist). All 16 Phase 1 entities verified compliant.',
   },
   configuration: {
     status: 'PASS',

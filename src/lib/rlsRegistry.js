@@ -372,6 +372,7 @@ export const RLS_REGISTRY = [
 
   // Platform-Scoped
   { name: "AgentRegistry", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "platform config — admin/dev read/create/update; super/platform/founder delete only" },
+  { name: "AgentToolRegistry", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "platform config — admin/dev read/create/update; super/platform/founder delete only" },
   { name: "Feature", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
   { name: "ProductRelease", classification: "platform", scope: "created_by_id", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },
   { name: "JobSource", classification: "platform", scope: "—", status: "protected", sensitive: false, rule: "admin/dev only (platform default)" },

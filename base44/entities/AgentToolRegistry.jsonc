@@ -1,0 +1,233 @@
+{
+  "name": "AgentToolRegistry",
+  "type": "object",
+  "properties": {
+    "tool_id": {
+      "type": "string",
+      "description": "Unique authoritative tool identifier (single source of truth)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the tool"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "What the tool does, which production target it operates against, and its current usage status"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Tool definition version"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "DRAFT",
+        "PAUSED",
+        "RETIRED"
+      ],
+      "default": "DRAFT",
+      "description": "Registry lifecycle: ACTIVE (defined and in production use), DRAFT (defined, not granted for execution), PAUSED (temporarily suspended), RETIRED (removed from service)"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the tool may be referenced by future orchestration enforcement. DRAFT tools must never be enabled."
+    },
+    "allowed_agent_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicit list of agent_ids (from AgentRegistry) permitted to use this tool. Wildcards are prohibited \u2014 every entry must be an exact registered agent_id."
+    },
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "FUNCTION",
+        "ENTITY",
+        "INTERNAL_SERVICE"
+      ],
+      "description": "Kind of production target: FUNCTION (backend function), ENTITY (database entity), INTERNAL_SERVICE (in-app platform service)"
+    },
+    "target_name": {
+      "type": "string",
+      "description": "Exact production target identifier (backend function name, entity name, or internal service name). Wildcards are prohibited."
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "READ",
+        "CREATE",
+        "UPDATE",
+        "DELETE",
+        "INVOKE"
+      ],
+      "description": "Single permitted operation against the target. INVOKE applies to FUNCTION and INTERNAL_SERVICE targets; CRUD semantics apply to ENTITY targets."
+    },
+    "execution_scope": {
+      "type": "string",
+      "enum": [
+        "user_scoped",
+        "platform",
+        "none"
+      ],
+      "default": "none",
+      "description": "Where the tool may operate: user_scoped (requesting user's own context only), platform (platform-level operations), none (not executable)"
+    },
+    "permission_scope": {
+      "type": "string",
+      "enum": [
+        "self_records",
+        "platform_config",
+        "none"
+      ],
+      "default": "none",
+      "description": "Data access boundary: self_records (requesting user's own records only), platform_config (platform configuration records), none (no data access)"
+    },
+    "human_approval_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether future orchestration phases must require human approval before this tool executes. Default true (conservative); read-only low-risk tools may be defined as false."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Assessed risk of the permitted operation"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "production_catalog",
+        "platform_config"
+      ],
+      "default": "production_catalog",
+      "description": "Provenance of the tool definition"
+    }
+  },
+  "required": [
+    "tool_id",
+    "name",
+    "status",
+    "target_type",
+    "target_name",
+    "operation",
+    "allowed_agent_ids"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

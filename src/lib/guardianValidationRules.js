@@ -252,18 +252,8 @@ export const VALIDATION_RULES = [
     ['platform_health']),
 
   // ═══ Notification Engine ═══
-  F('notification_delivery', 'notification_engine', 'Notification Delivery', 3, 'WARNING',
-    'Some notifications are delayed in the retry queue.', 'Notification Engine', 'platform', 'Developer', '30 min', true,
-    {
-      customer: 'Users may miss important notifications about their executive coaching.',
-      executive: 'Founder may miss governance approval requests, delaying platform changes.',
-      platform: 'Notification Engine™ has delivery delays — some notifications are queued.',
-      operational: 'Support team cannot confirm users received critical alerts.',
-      deployment: 'Notification delays are acceptable for deployment but should be resolved.',
-    },
-    'Notification Engine™ delivery delayed — 3 notifications in retry queue.',
-    'Clear notification retry queue',
-    'Notification delivery validation warning — delays detected.',
+  F('notification_delivery', 'notification_engine', 'Notification Delivery', 3, GUARDIAN_MEASURED_STATE.notificationDelivery.status,
+    GUARDIAN_MEASURED_STATE.notificationDelivery.evidence, 'Notification Engine', 'platform', 'Developer', '—', false, null, null, null, null,
     ['Notification Engine™'], ['governance_score'], '2026-07-16'),
 
   // ═══ Model Router ═══

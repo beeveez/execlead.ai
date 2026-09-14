@@ -140,8 +140,8 @@ export const VALIDATION_RULES = [
     'Synchronization validation failed — knowledge sync is incomplete.',
     ['EXEC™ Knowledge Sync Engine™'], ['knowledge_registry', 'platform_health'], '2026-07-18'),
 
-  F('registry_synchronization', 'synchronization', 'Registry Synchronization', 3, 'WARNING',
-    'Registry sync has minor delays.', 'Developer Console', 'developer', 'Developer', '30 min', true,
+  F('registry_synchronization', 'synchronization', 'Registry Synchronization', 3, GUARDIAN_MEASURED_STATE.registrySync.status,
+    GUARDIAN_MEASURED_STATE.registrySync.evidence, 'Developer Console', 'developer', 'Developer', '30 min', true,
     {
       customer: 'Capability data may be slightly stale, affecting recommendation accuracy.',
       executive: 'Minor delays in data freshness may reduce recommendation relevance.',

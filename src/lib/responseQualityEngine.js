@@ -22,8 +22,8 @@ const STRATEGIC_COMPARISON_CHECKS = new Set(["direct_answer", "explained_why", "
 const INTERNAL_ARTIFACTS = [
   /\bexecutive_mentor\b/i,
   /\bKnowledge\s+\d{4}\.\d+\b/i,
-  /\bExecutive Context(?: Engine)?\b/i,
-  /\bExecutive Runtime Profile\b/i,
+  /\bExecutive Context(?: Engine)?\b/,
+  /\bExecutive Runtime Profile\b/,
   /\bsubscription context\b/i,
   /\bactive persona\b/i,
   /\bquestion classification\b/i,

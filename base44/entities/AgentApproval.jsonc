@@ -1,0 +1,297 @@
+{
+  "name": "AgentApproval",
+  "type": "object",
+  "properties": {
+    "approval_id": {
+      "type": "string",
+      "description": "Unique approval record identifier (single source of truth for the human-approval audit trail)"
+    },
+    "execution_id": {
+      "type": "string",
+      "description": "execution_id of the related AgentExecution record, when one exists. Approvals may precede execution records"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "agent_id of the agent requesting approval \u2014 must resolve against AgentRegistry"
+    },
+    "agent_version": {
+      "type": "string",
+      "description": "Version of the AgentRegistry entry at request time"
+    },
+    "tool_id": {
+      "type": "string",
+      "description": "tool_id of the tool requiring approval \u2014 must resolve against AgentToolRegistry"
+    },
+    "tool_version": {
+      "type": "string",
+      "description": "Version of the AgentToolRegistry entry at request time"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Subject user the requested operation affects. Must be set for user-scoped approvals; anchors ownership isolation"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Subject organization for organization-scoped approvals. Must be set for org-scoped approvals; anchors tenant isolation"
+    },
+    "requested_by": {
+      "type": "string",
+      "enum": [
+        "user",
+        "system",
+        "agent",
+        "developer"
+      ],
+      "default": "user",
+      "description": "Actor class that requested the approval"
+    },
+    "request_reason": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Why the approval is being requested"
+    },
+    "requested_action": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "The action that the approval would authorize"
+    },
+    "requested_scope": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Scope of the requested action (data/records affected)"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Assessed risk of the action being approved"
+    },
+    "human_approval_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this request requires human approval before the action may run"
+    },
+    "approval_type": {
+      "type": "string",
+      "enum": [
+        "USER",
+        "ORGANIZATION_ADMIN",
+        "PLATFORM_ADMIN"
+      ],
+      "description": "Class of approver required for this request"
+    },
+    "required_approver_role": {
+      "type": "string",
+      "description": "Explicit role the approver must hold for the decision to be valid"
+    },
+    "approval_policy_version": {
+      "type": "string",
+      "description": "Version of the approval policy in effect at request time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "EXPIRED",
+        "CANCELLED"
+      ],
+      "default": "PENDING",
+      "description": "Approval lifecycle status. Phase 4 is a record model only \u2014 no orchestration transitions these states and approval has no execution side effect"
+    },
+    "approver_user_id": {
+      "type": "string",
+      "description": "User id of the approver who decided the request. MUST NOT equal user_id (requester) \u2014 self-approval is prohibited; enforced server-side by future orchestration"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the request was approved"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Reason given when the request was rejected"
+    },
+    "decision_notes": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Approver's decision notes"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the approval was requested"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the pending approval expires if undecided"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the approval was decided"
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Correlation identifier linking related approvals, executions, and observability events"
+    },
+    "parent_approval_id": {
+      "type": "string",
+      "description": "approval_id of the parent approval, for chained approval traces"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Provenance of the approval record (e.g. platform runtime, workflow id)"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional approval diagnostics and trace context"
+    }
+  },
+  "required": [
+    "approval_id",
+    "agent_id",
+    "tool_id",
+    "requested_by",
+    "risk_level",
+    "approval_type",
+    "required_approver_role",
+    "status",
+    "requested_at"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.organization_id": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

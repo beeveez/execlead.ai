@@ -9,6 +9,10 @@ export const GUARDIAN_MEASURED_STATE = {
     versionControl: 'PASS',
     evidence: 'Exhaustive repository-wide discovery complete. 104 production prompt execution paths verified and registered (3 canonical seed + 13 originally audited + 88 newly verified). All entries carry id, version, owner, purpose, modelConfiguration, and governanceStatus metadata. 0 unregistered production paths. 0 orphaned entries. 0 duplicate definitions. 0 stale versions.',
   },
+  evidenceSourceCoverage: {
+    status: 'PASS',
+    evidence: '47 registered evidence types across 4 registries (Evidence Reliability Registry™, Evidence Vault Engine™, Evidence Completeness Engine™, Readiness Evidence Engine™). 12 AI claim-making capabilities verified as evidence-grounded. 0 capabilities make AI claims without a registered evidence source. 4 non-blocking observations documented (exposure-level granularity only; weight ≤ 0.15). 0 authoritative/highly-reliable evidence types lack entity backing.',
+  },
   rls: {
     coverage: 'PASS',
     tenantIsolation: 'PASS',

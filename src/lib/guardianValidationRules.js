@@ -101,19 +101,9 @@ export const VALIDATION_RULES = [
     ['capability_graph']),
 
   // ═══ Evidence Engine ═══
-  F('evidence_source_coverage', 'evidence_engine', 'Evidence Source Coverage', 3, 'WARNING',
-    'Some AI claims lack supporting evidence sources.', 'Evidence Vault', 'developer', 'Developer', '2 hours', true,
-    {
-      customer: 'AI recommendations may lack verifiable evidence, reducing trust.',
-      executive: 'Executive guidance cannot be fully substantiated with evidence.',
-      platform: 'Evidence Engine™ has incomplete source coverage for AI claims.',
-      operational: 'Support team cannot provide evidence for disputed recommendations.',
-      deployment: 'Cannot certify AI recommendations without complete evidence.',
-    },
-    'Evidence Engine™ sources incomplete — some AI claims lack backing.',
-    'Add evidence sources for unsupported AI claims',
-    'Evidence source coverage validation warning — sources are incomplete.',
-    ['Evidence Engine™'], ['evidence_engine', 'exec_confidence'], '2026-07-14'),
+  P('evidence_source_coverage', 'evidence_engine', 'Evidence Source Coverage', 3,
+    'All AI claim-making capabilities reference at least one registered, reachable, and authoritative evidence source.', 'Evidence Vault', 'developer', 'Developer',
+    ['evidence_engine', 'exec_confidence']),
 
   // ═══ Reasoning Engine ═══
   P('reasoning_chain_validity', 'reasoning_engine', 'Reasoning Chain Validity', 4,

@@ -6,6 +6,7 @@ import {
   executeReadinessRead,
   recordBlocked,
 } from '../../shared/agentOrchestrationCore.ts';
+import { governedGenerate, getPersonalizationConsent } from '../../shared/governedAiAdapter.ts';
 
 const ADMIN_ROLES = ['admin', 'platform_admin', 'super_admin', 'developer'];
 
@@ -198,10 +199,25 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, agent_id, is_enabled: enabled });
     }
 
-    // ── DAILY BRIEFING ──
+    // ── DAILY BRIEFING (Phase 6: governed AI generation, no direct InvokeLLM) ──
     if (action === 'daily_briefing') {
       const { force } = body;
-      const mem = await base44.asServiceRole.entities.ExecutiveMemory.filter({ user_id: user.id });
+      const svc = base44.asServiceRole;
+
+      // Personalization consent is checked BEFORE any personalized executive
+      // context is read (including the cached briefing — withdrawal halts
+      // personalized output immediately). The Daily Executive Briefing is
+      // fundamentally personalized, so without consent it fails closed with a
+      // truthful response. Consent is never inferred or auto-granted.
+      const consentGranted = await getPersonalizationConsent(svc, user);
+      if (!consentGranted) {
+        return Response.json({
+          error: 'AI_PERSONALIZATION_CONSENT_REQUIRED',
+          message: 'Your Daily Executive Briefing is personalized to your executive profile and activity. Grant AI personalization consent in Settings → Privacy to enable it. No personalized context was read.',
+        }, { status: 403 });
+      }
+
+      const mem = await svc.entities.ExecutiveMemory.filter({ user_id: user.id });
       const memory = mem[0];
 
       if (!force && memory?.last_briefing_json && memory?.last_briefing_at) {
@@ -212,7 +228,9 @@ Deno.serve(async (req) => {
       }
 
       const context = await gatherContext(base44, user);
-      const result = await base44.integrations.Core.InvokeLLM({
+      const generation = await governedGenerate(svc, base44, user, {
+        intent: 'dashboard',
+        plan: planInfo.plan,
         prompt: `${AGENT_PROMPTS.executive_chief_of_staff}\n\nYou are generating the Daily Executive Briefing for this executive. Based on their profile, activity, and context below, provide a comprehensive morning briefing.\n\n=== EXECUTIVE CONTEXT ===\n${context}\n\nGenerate a structured daily briefing with: today's priorities, upcoming interviews/meetings, networking opportunities, learning recommendations, pending referrals, wallet balance summary, executive ranking note, upcoming events, and action items. Be specific and actionable.`,
         response_json_schema: {
           type: 'object',
@@ -229,7 +247,12 @@ Deno.serve(async (req) => {
             action_items: { type: 'array', items: { type: 'string' } },
           },
         },
+        correlation_id: `wf:${user.id}:daily_briefing`,
       });
+      if (!generation.ok) {
+        return Response.json({ error: generation.error_code, error_message: generation.error, correlation_id: generation.correlation_id }, { status: 503 });
+      }
+      const result = generation.data;
 
       const briefingJson = JSON.stringify(result);
       if (memory) {
@@ -339,11 +362,27 @@ Deno.serve(async (req) => {
       }, { status: 403 });
     }
 
-    // ── RECOMMENDATIONS ──
+    // ── RECOMMENDATIONS (Phase 6: governed AI generation, no direct InvokeLLM) ──
     if (action === 'get_recommendations') {
+      const svc = base44.asServiceRole;
+
+      // Personalization consent BEFORE any personalized context is read.
+      // Agent recommendations are fundamentally personalized, so without
+      // consent the feature fails closed with a truthful response.
+      const consentGranted = await getPersonalizationConsent(svc, user);
+      if (!consentGranted) {
+        return Response.json({
+          error: 'AI_PERSONALIZATION_CONSENT_REQUIRED',
+          message: 'AI agent recommendations are personalized to your executive profile and activity. Grant AI personalization consent in Settings → Privacy to enable them. No personalized context was read.',
+        }, { status: 403 });
+      }
+
       const context = await gatherContext(base44, user);
-      const result = await base44.integrations.Core.InvokeLLM({
+      const generation = await governedGenerate(svc, base44, user, {
+        intent: 'analytics',
+        plan: planInfo.plan,
         prompt: `You are the AI Executive Operating System coordinator for EXECLEAD.AI. Based on this executive's profile and context, generate 5 high-impact recommendations across different AI agent domains. Each recommendation must reference exactly one of these agent_id values: ${ALL_AGENT_IDS.join(', ')}.\n\n=== EXECUTIVE CONTEXT ===\n${context}\n\nProvide 5 specific, actionable recommendations prioritized by impact. Use ONLY the agent_id values listed above — no other values are valid.`,
+        correlation_id: `wf:${user.id}:get_recommendations`,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -362,6 +401,10 @@ Deno.serve(async (req) => {
           },
         },
       });
+      if (!generation.ok) {
+        return Response.json({ error: generation.error_code, error_message: generation.error, correlation_id: generation.correlation_id }, { status: 503 });
+      }
+      const result = generation.data;
       return Response.json({ recommendations: result.recommendations || [] });
     }
 

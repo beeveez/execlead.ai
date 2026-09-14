@@ -350,6 +350,7 @@ import FeedbackWidget from '@/components/beta/FeedbackWidget';
 import BetaBanner from '@/components/beta/BetaBanner';
 import CommandPalette from '@/components/exec-os/CommandPalette';
 import KeyboardShortcuts from '@/components/exec-os/KeyboardShortcuts';
+import AIPersonalizationConsentPrompt from '@/components/consent/AIPersonalizationConsentPrompt';
 import PublicProfile from '@/pages/PublicProfile';
 import { DeveloperProvider } from '@/lib/DeveloperContext';
 import FeatureGate from '@/components/FeatureGate';
@@ -754,6 +755,7 @@ function App() {
                     <BetaBanner />
                     <CommandPalette />
                     <KeyboardShortcuts />
+                    <AIPersonalizationConsentPrompt />
                   </RepairWorkflowProvider>
                 </TelemetryProvider>
               </SessionSecurityProvider>

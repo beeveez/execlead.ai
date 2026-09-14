@@ -4,7 +4,8 @@ import { deriveProvider } from "@/lib/aiOperations";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
 import { getCachedAIResponse, cacheAIResponse, recordMetric } from "@/lib/creditOptimizer/index.js";
 import { logStage } from "@/lib/execReliabilityEngine";
-import { hasPersonalizationConsent } from "@/lib/consentService";
+import { hasPersonalizationConsent, getConsentState } from "@/lib/consentService";
+import { requestAIPersonalizationPrompt, isSessionDeferred } from "@/components/consent/AIPersonalizationConsentPrompt";
 
 // Module → intent mapping for Model Router™ routing
 const MODULE_INTENT_MAP = {
@@ -35,7 +36,19 @@ function shouldInjectExecutiveContext(module, responseCategory, contextPolicy, i
   if (contextPolicy === "none") return false;
   // PRIVACY: ai_personalization consent required for personalized executive context.
   // No consent → no personalization. Non-personalized AI calls still function.
-  if (!hasPersonalizationConsent()) return false;
+  if (!hasPersonalizationConsent()) {
+    // If consent is unknown (null) — not explicitly withdrawn (false) —
+    // and the user hasn't deferred this session, fire a one-time
+    // discoverable prompt. Fail-closed behavior is preserved: the
+    // current AI call still processes without personalized context.
+    // The prompt fires asynchronously and does NOT block this call.
+    try {
+      if (getConsentState("ai_personalization") === null && !isSessionDeferred()) {
+        requestAIPersonalizationPrompt();
+      }
+    } catch {}
+    return false;
+  }
   if (contextPolicy === "full") return true;
   if (CONTEXT_FREE_CATEGORIES.has(responseCategory)) return false;
   if (CONTEXT_FREE_INTENTS.has(intent || MODULE_INTENT_MAP[module])) return false;

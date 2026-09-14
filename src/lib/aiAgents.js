@@ -1,3 +1,15 @@
+/**
+ * COMPATIBILITY SOURCE (temporary — AI Workforce Layer™ Phase 1)
+ * ==============================================================
+ * The authoritative agent catalog now lives in the DB-backed
+ * AgentRegistry entity (base44/entities/AgentRegistry.jsonc).
+ * This hardcoded catalog remains the LIVE compatibility source
+ * consumed by /ai-command-center, /developer/ai-command-center, and
+ * the aiWorkforce backend function until the Phase 2 orchestration
+ * migration switches them to the registry. Do not add new agents
+ * here — register them in AgentRegistry instead.
+ */
+
 import {
   Briefcase, TrendingUp, Heart, Mic, Building2, Dna,
   GraduationCap, Users, ShoppingBag, UserCheck, Crown, Wallet, Shield,

@@ -1,0 +1,204 @@
+{
+  "name": "AgentRegistry",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "description": "Unique authoritative agent identifier (single source of truth)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the agent"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "What the agent does and how it operates"
+    },
+    "agent_type": {
+      "type": "string",
+      "enum": [
+        "ORCHESTRATOR",
+        "SPECIALIST",
+        "UTILITY"
+      ],
+      "default": "SPECIALIST",
+      "description": "ORCHESTRATOR = coordinates/delegates to other agents; SPECIALIST = domain agent; UTILITY = infrastructure agent"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "DRAFT",
+        "PAUSED",
+        "RETIRED"
+      ],
+      "default": "DRAFT",
+      "description": "Registry lifecycle: ACTIVE (in production), DRAFT (placeholder, not activatable), PAUSED (temporarily suspended), RETIRED (removed from service)"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Registry definition version"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Declared capabilities of the agent"
+    },
+    "execution_scope": {
+      "type": "string",
+      "enum": [
+        "user_scoped",
+        "platform",
+        "none"
+      ],
+      "default": "none",
+      "description": "Where the agent may operate: user_scoped (requesting user's own context only), platform (platform-level operations), none (not executable)"
+    },
+    "permission_scope": {
+      "type": "string",
+      "enum": [
+        "self_records",
+        "platform_config",
+        "none"
+      ],
+      "default": "none",
+      "description": "Data access boundary: self_records (owning user's records only), platform_config (platform configuration records), none (no data access)"
+    },
+    "human_approval_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether actions performed by this agent require human approval before effecting changes (enforced in later phases)"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the agent may currently execute. DRAFT agents must never be enabled."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "production_catalog",
+        "platform_config"
+      ],
+      "default": "production_catalog",
+      "description": "Provenance of the registry entry"
+    }
+  },
+  "required": [
+    "agent_id",
+    "name",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -222,8 +222,8 @@ export const VALIDATION_RULES = [
     ['RLS Validation Engine™', 'RLS Policy Builder™'], ['security_score'], '2026-07-30'),
 
   // ═══ Compliance ═══
-  F('privacy_control_implementation', 'compliance', 'Privacy Control Implementation', 3, 'WARNING',
-    'Some privacy controls are incomplete.', 'Privacy Compliance', 'enterprise', 'Developer', '4 hours', false,
+  F('privacy_control_implementation', 'compliance', 'Privacy Control Implementation', 3, GUARDIAN_MEASURED_STATE.privacy.status,
+    GUARDIAN_MEASURED_STATE.privacy.evidence, 'Privacy Compliance', 'enterprise', 'Developer', '4 hours', false,
     {
       customer: 'User data may not be fully protected under privacy regulations.',
       executive: 'Regulatory compliance gaps may create legal exposure for the organization.',

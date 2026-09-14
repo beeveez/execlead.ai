@@ -9,6 +9,7 @@ import GoogleIcon from "@/components/GoogleIcon";
 import { MicrosoftIcon, AppleIcon } from "@/components/auth/ProviderIcons";
 import { toast } from "@/components/ui/use-toast";
 import { BrandRegistry } from "@/lib/brandRegistry";
+import { recordRegistrationConsent } from "@/lib/consentService";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -54,6 +55,8 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
+      // Record required registration consent (terms + privacy_policy)
+      await recordRegistrationConsent(email);
       window.location.href = getPostAuthRedirect();
     } catch (err) {
       setError(err.message || "Invalid verification code");

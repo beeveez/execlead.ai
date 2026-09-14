@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { grantConsent, withdrawConsent, loadConsentState } from "@/lib/consentService";
 import {
   ShieldCheck, Download, Trash2, Mail, Brain, Cookie, Clock, FileText,
   CheckCircle2, AlertCircle, ArrowRight, Lock, Activity, Eye, UserCog,
@@ -88,7 +89,7 @@ export default function MyPrivacy() {
 
       {/* Content */}
       {tab === "dashboard" && <DashboardTab consents={consents} requests={requests} score={score} loading={loading} />}
-      {tab === "consent" && <ConsentTab consents={consents} loading={loading} />}
+      {tab === "consent" && <ConsentTab consents={consents} loading={loading} user={user} onConsentChange={loadData} />}
       {tab === "data" && <DataTab requests={requests} loading={loading} />}
       {tab === "rights" && <RightsTab requests={requests} loading={loading} />}
       {tab === "timeline" && <TimelineTab consents={consents} requests={requests} loading={loading} />}
@@ -131,8 +132,27 @@ function DashboardTab({ consents, requests, score, loading }) {
   );
 }
 
-function ConsentTab({ consents, loading }) {
+function ConsentTab({ consents, loading, user, onConsentChange }) {
+  const [updating, setUpdating] = useState(null);
   if (loading) return <Spinner />;
+
+  const handleToggle = async (type, currentlyGranted) => {
+    setUpdating(type);
+    try {
+      if (currentlyGranted) {
+        await withdrawConsent(type);
+      } else {
+        await grantConsent(type);
+      }
+      await loadConsentState(user?.email);
+      await onConsentChange();
+    } catch (e) {
+      console.error("Consent update failed:", e);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const types = [
     { type: "marketing", label: "Marketing Emails", icon: Mail, desc: "Receive product updates, newsletters, and promotional content" },
     { type: "ai_personalization", label: "AI Personalization", icon: Brain, desc: "Allow AI to use your data for personalized recommendations" },
@@ -144,6 +164,7 @@ function ConsentTab({ consents, loading }) {
       {types.map(t => {
         const record = consents.find(c => c.consent_type === t.type);
         const granted = record?.granted || false;
+        const isUpdating = updating === t.type;
         return (
           <div key={t.type} className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
             <t.icon size={16} className="text-white/40 shrink-0" />
@@ -151,9 +172,17 @@ function ConsentTab({ consents, loading }) {
               <h3 className="text-sm font-medium text-white/80">{t.label}</h3>
               <p className="text-[11px] text-white/30 mt-0.5">{t.desc}</p>
             </div>
-            <span className={`text-[11px] px-2 py-0.5 rounded-full shrink-0 ${granted ? "text-emerald-400 bg-emerald-500/10" : "text-white/40 bg-white/5"}`}>
-              {granted ? "Granted" : "Not granted"}
-            </span>
+            <button
+              onClick={() => handleToggle(t.type, granted)}
+              disabled={isUpdating}
+              className={`relative w-10 h-5 rounded-full shrink-0 transition-colors disabled:opacity-40 ${
+                granted ? "bg-emerald-500" : "bg-white/10"
+              }`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                granted ? "translate-x-5" : "translate-x-0"
+              }`} />
+            </button>
           </div>
         );
       })}

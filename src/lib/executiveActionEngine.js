@@ -259,13 +259,18 @@ export async function skipAction(actionId) {
 
 export async function generateAIActions(user, context) {
   try {
+    const { hasPersonalizationConsent } = await import("@/lib/consentService");
+    const displayName = hasPersonalizationConsent() ? (user.full_name || "Executive") : "Executive";
+    const trustLevel = hasPersonalizationConsent() ? (context?.trustLevel || 0) : 0;
+    const workspace = hasPersonalizationConsent() ? (context?.workspace || "executive") : "executive";
+    const recentActivity = hasPersonalizationConsent() ? (context?.recentActivity || "New user") : "New user";
     const response = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an executive AI coach for EXECLEAD.AI. Based on the executive's profile, suggest 3 specific, actionable next steps for today.
 
-Executive: ${user.full_name || "Unknown"}
-Trust Level: ${context?.trustLevel || 0}/5
-Workspace: ${context?.workspace || "executive"}
-Recent Activity: ${context?.recentActivity || "New user"}
+Executive: ${displayName}
+Trust Level: ${trustLevel}/5
+Workspace: ${workspace}
+Recent Activity: ${recentActivity}
 
 Each action must be:
 - Specific and immediately actionable

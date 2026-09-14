@@ -1,10 +1,16 @@
 import { base44 } from "@/api/base44Client";
 import { getCachedCompanyContext } from "@/lib/companyContext";
+import { hasPersonalizationConsent } from "@/lib/consentService";
 
 const withCompany = (p) => {
+  if (!hasPersonalizationConsent()) return p;
   const c = getCachedCompanyContext();
   return c ? c + "\n\n" + p : p;
 };
+
+// Non-personalized fallbacks for profile-based prompt fields
+const safeRole = (profile) => hasPersonalizationConsent() ? (profile?.target_role || "Senior Manager") : "Senior Manager";
+const safeCompany = (profile) => hasPersonalizationConsent() ? (profile?.target_company || "a major IT company") : "a major IT company";
 
 const LESSON_SCHEMA = {
   type: "object",
@@ -36,8 +42,8 @@ Course: ${course.title}
 Module: ${module.title}
 Lesson: ${lesson.title}
 Quiz Type: ${lesson.quizType}
-Target Role: ${profile?.target_role || "Senior Manager"}
-Target Company: ${profile?.target_company || "a major IT company"}
+Target Role: ${safeRole(profile)}
+Target Company: ${safeCompany(profile)}
 
 Create comprehensive lesson content:
 1. 3-4 learning objectives (actionable, specific)
@@ -61,7 +67,7 @@ Return as structured JSON.`;
 }
 
 export async function askCoach(lesson, question, profile) {
-  const prompt = `You are an Executive Coach on the EXECLEAD.AI platform, mentoring a professional targeting "${profile?.target_role || "Senior Manager"}" at "${profile?.target_company || "a major IT company"}".
+  const prompt = `You are an Executive Coach on the EXECLEAD.AI platform, mentoring a professional targeting "${safeRole(profile)}" at "${safeCompany(profile)}".
 
 Lesson context:
 - Course: ${lesson.courseTitle}
@@ -80,7 +86,7 @@ export async function evaluateEssay(question, response, guidance, profile) {
 
 Question: ${question}
 Expected guidance: ${guidance || "A thoughtful, executive-level response with practical examples."}
-Target role context: ${profile?.target_role || "Senior Manager"}
+Target role context: ${safeRole(profile)}
 
 Learner's response:
 "${response}"
@@ -100,7 +106,7 @@ export async function evaluateChallenge(challenge, response, profile) {
 
 Challenge: ${challenge.title}
 Scenario: ${challenge.description}
-Target role: ${profile?.target_role || "Senior Manager"} at ${profile?.target_company || "a major IT company"}
+Target role: ${safeRole(profile)} at ${safeCompany(profile)}
 
 Learner's response:
 "${response}"

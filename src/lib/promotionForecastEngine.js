@@ -454,6 +454,8 @@ export function generateCareerTimeline(forecast) {
 
 export async function generateGrowthNarrative(user, forecast) {
   try {
+    const { hasPersonalizationConsent } = await import("@/lib/consentService");
+    const displayName = hasPersonalizationConsent() ? (user.full_name || "Executive") : "Executive";
     const strengths = (forecast.strengths || []).slice(0, 3).map((s) => `${s.label} (${s.score}%)`).join(", ");
     const gaps = (forecast.skill_gaps || []).slice(0, 3).map((g) => `${g.label} (gap: ${g.gap}%)`).join(", ");
     const priorities = (forecast.improvement_priorities || []).slice(0, 3).map((p) => `${p.action} (+${p.impact}%)`).join(", ");
@@ -461,7 +463,7 @@ export async function generateGrowthNarrative(user, forecast) {
     const response = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an executive AI coach for EXECLEAD.AI. Generate a growth narrative for the following promotion forecast.
 
-Executive: ${user.full_name || "Unknown"}
+Executive: ${displayName}
 Current Level: ${forecast.current_level}
 Target Level: ${forecast.target_level}
 Promotion Readiness: ${forecast.readiness_score}%

@@ -4,6 +4,7 @@ import { deriveProvider } from "@/lib/aiOperations";
 import { routeModel, trackRoutingEvent } from "@/lib/modelRouterEngine";
 import { getCachedAIResponse, cacheAIResponse, recordMetric } from "@/lib/creditOptimizer/index.js";
 import { logStage } from "@/lib/execReliabilityEngine";
+import { hasPersonalizationConsent } from "@/lib/consentService";
 
 // Module → intent mapping for Model Router™ routing
 const MODULE_INTENT_MAP = {
@@ -32,6 +33,9 @@ const CONTEXT_FREE_INTENTS = new Set(["general_inquiry", "knowledge", "company_i
 
 function shouldInjectExecutiveContext(module, responseCategory, contextPolicy, intent) {
   if (contextPolicy === "none") return false;
+  // PRIVACY: ai_personalization consent required for personalized executive context.
+  // No consent → no personalization. Non-personalized AI calls still function.
+  if (!hasPersonalizationConsent()) return false;
   if (contextPolicy === "full") return true;
   if (CONTEXT_FREE_CATEGORIES.has(responseCategory)) return false;
   if (CONTEXT_FREE_INTENTS.has(intent || MODULE_INTENT_MAP[module])) return false;

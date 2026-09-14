@@ -7,6 +7,7 @@ import { fetchTargetCompany, buildCompanyContext, setCachedCompanyContext } from
 import { setCachedCareerIntelligenceForm } from '@/lib/careerIntelligence/contextCache';
 import { seedExecutiveContext, setMemoryContext } from '@/lib/executiveContextEngine';
 import { loadExecutiveMemory } from '@/lib/experienceIntelligence/executiveMemory';
+import { loadConsentState, recordRegistrationConsent, hasConsent } from '@/lib/consentService';
 import { getUserActiveMemberships, PROGRAM_TYPES, getBestMembershipDiscount, hasLifetimePricingProtection } from '@/lib/membershipEngine';
 import { syncFounderEntitlements } from '@/lib/entitlementSync';
 import { getUserEntitlements, FOUNDER_BENEFIT_KEYS } from '@/lib/entitlementService';
@@ -228,6 +229,24 @@ export const SubscriptionProvider = ({ children }) => {
     }).catch(() => {});
     return () => { active = false; };
   }, [user?.id]);
+
+  // ── Consent State™: Load authoritative consent records after auth.
+  // Also records required registration consent for new OAuth registrations
+  // (accounts created within the last 5 minutes) that bypass the email
+  // verification flow. Existing users are NOT given fabricated consent.
+  useEffect(() => {
+    if (!isAuthenticated || !user?.email) return;
+    let active = true;
+    loadConsentState(user.email).then(() => {
+      if (!active) return;
+      const isNewAccount = user?.created_date &&
+        (Date.now() - new Date(user.created_date).getTime()) < 5 * 60 * 1000;
+      if (isNewAccount && !hasConsent("terms")) {
+        recordRegistrationConsent(user.email).then(() => loadConsentState(user.email));
+      }
+    });
+    return () => { active = false; };
+  }, [isAuthenticated, user?.email]);
 
   const refreshProfile = useCallback(async () => {
     await loadProfile();

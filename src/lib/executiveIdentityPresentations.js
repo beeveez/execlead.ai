@@ -90,8 +90,13 @@ export function answerIdentityCommand(text, identity, brand) {
 }
 
 export async function generatePresentation(identity, audienceId) {
+  const { hasPersonalizationConsent } = await import("@/lib/consentService");
   const aud = IDENTITY_AUDIENCES.find((a) => a.id === audienceId);
   if (!aud) throw new Error('Unknown audience');
+  // Privacy: personalized identity generation requires ai_personalization consent
+  if (!hasPersonalizationConsent()) {
+    return { text: "", audience: aud.label, source: 'Executive Identity Graph™', confidence: 0, consentRequired: true };
+  }
   const prompt = `You are the Executive Identity Graph™ Presentation Engine for EXECLEAD.AI. Generate a "${aud.label}" for this member using ONLY the verified Executive Identity below. Do not invent titles, employment, promotions, revenue, awards, or business results not present. Adapt tone, length, and formatting for a ${aud.label}. Ground every claim in the identity.
 
 EXECUTIVE IDENTITY:
@@ -105,6 +110,11 @@ Output ONLY the ${aud.label} text (no preamble, no headings).`;
 
 // Executive Brand Engine™ — generate cohesive brand assets from the identity.
 export async function generateBrand(identity) {
+  const { hasPersonalizationConsent } = await import("@/lib/consentService");
+  // Privacy: personalized identity generation requires ai_personalization consent
+  if (!hasPersonalizationConsent()) {
+    return {};
+  }
   const prompt = `You are the Executive Brand Engine™ for EXECLEAD.AI. Generate a cohesive executive brand for this member using ONLY the verified Executive Identity below. Do not invent titles, employment, promotions, revenue, awards, or business results. Keep each field concise and evidence-grounded.
 
 EXECUTIVE IDENTITY:

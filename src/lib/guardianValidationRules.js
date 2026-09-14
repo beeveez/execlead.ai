@@ -262,18 +262,8 @@ export const VALIDATION_RULES = [
     ['model_router_health', 'cognitive_excellence']),
 
   // ═══ AI Budget Manager ═══
-  F('ai_budget_utilization', 'ai_budget_manager', 'Budget Utilization', 3, 'WARNING',
-    'AI budget utilization is approaching the cost threshold.', 'AI Optimization', 'developer', 'Developer', '1 hour', true,
-    {
-      customer: 'AI response quality may be reduced if budget limits trigger model downgrades.',
-      executive: 'AI costs may exceed planned budget, affecting financial projections.',
-      platform: 'AI Budget Manager™ utilization is high — risk of hitting cost limits.',
-      operational: 'Support team may see degraded AI performance if budget is exceeded.',
-      deployment: 'Budget utilization is within limits but should be monitored.',
-    },
-    'AI Budget Manager™ at 85% utilization — approaching cost threshold.',
-    'Review high-cost AI calls and enable caching',
-    'Budget utilization validation warning — approaching cost threshold.',
+  F('ai_budget_utilization', 'ai_budget_manager', 'Budget Utilization', 3, GUARDIAN_MEASURED_STATE.aiBudget.status,
+    GUARDIAN_MEASURED_STATE.aiBudget.evidence, 'AI Optimization', 'developer', 'Developer', '—', false, null, null, null, null,
     ['AI Budget Manager™', 'Intelligence Cache™'], ['ai_budget', 'ai_accuracy'], '2026-07-17'),
 
   // ═══ Recommendation Engine ═══

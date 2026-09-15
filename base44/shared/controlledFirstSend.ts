@@ -178,6 +178,22 @@ export function deriveFirstSendDraftHash(subject, body) {
   return fnv1a('firstsend-draft|' + s + '|' + b);
 }
 
+/** Boundary-facing FNV-1a — byte-identical output format to the
+ * authoritative Phase 14D gmailDeliveryBoundary fnv1a (unpadded). The
+ * draft hash keeps the padded 8-char format it was approved under; the
+ * delivery identity and immutable-message hash are recomputed BY the 14D
+ * boundary with its own unpadded fnv1a, so parity requires this exact
+ * format here too (a leading zero would otherwise produce '04baa50f'
+ * vs '4baa50f' and fail closed as GATE_MESSAGE_MUTATED). */
+function fnv1aBoundary(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16);
+}
+
 /** Delivery identity — identical derivation to Phase 12/13/14D so the
  * request passes the authoritative boundary's binding checks unchanged. */
 export function deriveFirstSendDeliveryIdentity(parts) {
@@ -188,7 +204,7 @@ export function deriveFirstSendDeliveryIdentity(parts) {
     typeof parts.prospect_id === 'string' ? parts.prospect_id : '',
     typeof parts.channel === 'string' ? parts.channel : '',
   ].join('|');
-  return fnv1a(s);
+  return fnv1aBoundary(s);
 }
 
 /** Immutable-message hash — identical derivation to Phase 12/13/14D. */
@@ -200,7 +216,7 @@ export function deriveFirstSendMessageHash(message) {
     typeof message.subject === 'string' ? message.subject : '',
     typeof message.body === 'string' ? message.body : '',
   ].join('|');
-  return fnv1a(s);
+  return fnv1aBoundary(s);
 }
 
 /** Strict allow-list validation of the operator's controlled first-send

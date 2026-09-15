@@ -87,6 +87,20 @@ import {
   validateTransitionAgainstMatrix,
   prospectTransitionInputHash,
 } from './prospectStatusTransition.ts';
+import {
+  validateCreateContactInput,
+  buildContactRecord,
+  validateReadContactsInput,
+  validateVerifyContactInput,
+  buildContactVerificationUpdate,
+  buildContactCreatedOutcome,
+  buildContactsReadOutcome,
+  buildContactVerifiedOutcome,
+  assertContactOwnership,
+  prospectContactCreateInputHash,
+  prospectContactVerifyInputHash,
+  PROSPECT_CONTACT_MAX_RESULTS,
+} from './prospectContact.ts';
 
 export const PHASE5_AGENT_ID = 'exec_concierge';
 export const PHASE5_TOOL_ID = 'read_own_readiness_assessment';
@@ -123,6 +137,14 @@ export const PHASE11_TOOL_ID = 'execute_prospect_outreach';
 export const PHASE11_TARGET_TYPE = 'INTERNAL_SERVICE';
 export const PHASE11_TARGET_NAME = 'prospectOutreachExecution';
 export const PHASE11_OPERATION = 'INVOKE';
+export const PHASE14E_CREATE_TOOL_ID = 'create_own_prospect_contact';
+export const PHASE14E_READ_TOOL_ID = 'read_own_prospect_contacts';
+export const PHASE14E_VERIFY_TOOL_ID = 'verify_own_prospect_contact';
+export const PHASE14E_TARGET_TYPE = 'ENTITY';
+export const PHASE14E_TARGET_NAME = 'ProspectContact';
+export const PHASE14E_CREATE_OPERATION = 'CREATE';
+export const PHASE14E_READ_OPERATION = 'READ';
+export const PHASE14E_VERIFY_OPERATION = 'UPDATE';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -223,6 +245,9 @@ export async function getStatus(svc) {
   const growthUpdate = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE9_TOOL_ID);
   const growthOutreach = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE10_TOOL_ID);
   const growthOutreachExec = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE11_TOOL_ID);
+  const contactCreate = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE14E_CREATE_TOOL_ID);
+  const contactRead = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE14E_READ_TOOL_ID);
+  const contactVerify = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE14E_VERIFY_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -293,6 +318,30 @@ export async function getStatus(svc) {
         target: `${PHASE11_TARGET_TYPE}:${PHASE11_TARGET_NAME}`,
         human_approval_required: true,
         orchestration_available: !globalStop && growthOutreachExec.agentOk && growthOutreachExec.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE14E_CREATE_TOOL_ID,
+        operation: PHASE14E_CREATE_OPERATION,
+        target: `${PHASE14E_TARGET_TYPE}:${PHASE14E_TARGET_NAME}`,
+        human_approval_required: false,
+        orchestration_available: !globalStop && contactCreate.agentOk && contactCreate.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE14E_READ_TOOL_ID,
+        operation: PHASE14E_READ_OPERATION,
+        target: `${PHASE14E_TARGET_TYPE}:${PHASE14E_TARGET_NAME}`,
+        human_approval_required: false,
+        orchestration_available: !globalStop && contactRead.agentOk && contactRead.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE14E_VERIFY_TOOL_ID,
+        operation: PHASE14E_VERIFY_OPERATION,
+        target: `${PHASE14E_TARGET_TYPE}:${PHASE14E_TARGET_NAME}`,
+        human_approval_required: true,
+        orchestration_available: !globalStop && contactVerify.agentOk && contactVerify.toolOk,
       },
     ],
   });
@@ -958,6 +1007,207 @@ async function validateTransitionRequestState(svc, user, body) {
   };
 }
 
+// ── Phase 14E — Verified Prospect Contact capability tools ──
+
+/**
+ * Phase 14E tool — create_own_prospect_contact (ENTITY:ProspectContact,
+ * CREATE). Performs exactly ONE business operation: create ONE UNVERIFIED
+ * EMAIL contact record for a Prospect owned by the SERVER-resolved
+ * authenticated caller. The record grants no trust: verification_status is
+ * forced UNVERIFIED, is_primary is forced false, and no verified actor,
+ * method, or timestamp exists. Ownership and tenant boundary are derived
+ * server-side; client-supplied ownership or verification-state fields are
+ * rejected by the strict contract. No email is sent and no external action
+ * exists in this path.
+ */
+async function runCreateProspectContactTool(svc, user, body) {
+  const v = validateCreateContactInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  // The contact must belong to a Prospect owned by the caller — the filter
+  // always pairs the client-identified prospect with the caller owner_user_id,
+  // so a foreign Prospect resolves to the same safe not-found result as a
+  // nonexistent one (no cross-user or cross-tenant contact creation).
+  const prospectRecords = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = prospectRecords[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'CONTACT_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no contact was created.' };
+  }
+  const record = buildContactRecord(v.input, {
+    owner_user_id: user.id,
+    organization_id: (user.data && user.data.organization_id) ? user.data.organization_id : null,
+  });
+  if (record && record.error_code) {
+    return { ok: false, error_code: record.error_code, error: record.error };
+  }
+  const created = await svc.entities.ProspectContact.create(record);
+  return buildContactCreatedOutcome(created);
+}
+
+/**
+ * Phase 14E tool — read_own_prospect_contacts (ENTITY:ProspectContact,
+ * READ). Returns ONLY the authenticated caller's own contact records for
+ * ONE owned Prospect, bounded and in a fixed safe projection. Read-only;
+ * no write path, no email.
+ */
+async function runReadOwnProspectContactsTool(svc, user, body) {
+  const v = validateReadContactsInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  const prospectRecords = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = prospectRecords[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'CONTACT_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no contacts were read.' };
+  }
+  const records = await svc.entities.ProspectContact.filter(
+    { prospect_id: prospect.prospect_id, owner_user_id: user.id }, '-created_date', PROSPECT_CONTACT_MAX_RESULTS,
+  );
+  return buildContactsReadOutcome(records, prospect.prospect_id);
+}
+
+/**
+ * Phase 14E tool — verify_own_prospect_contact (ENTITY:ProspectContact,
+ * UPDATE). THE explicit governed verification action: marks exactly ONE
+ * UNVERIFIED EMAIL contact owned by the SERVER-resolved caller as VERIFIED,
+ * recording the verifying actor and timestamp server-side. The contact
+ * value can never be replaced (rejected by the contract), a REVOKED
+ * contact fails closed, and an already-VERIFIED contact is never
+ * re-verified. The approval is bound to the exact contact and its observed
+ * verification state, so a stale or substituted approval BLOCKS. If the
+ * verified contact becomes primary, any previous VERIFIED primary is
+ * demoted first (server-side rule; at most one VERIFIED primary per
+ * Prospect). Sends nothing — verification records trust state only.
+ */
+async function runVerifyProspectContactTool(svc, user, body, verifiedApproval) {
+  const v = validateVerifyContactInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  // Fail-closed: this tool is only reachable behind a verified approval —
+  // a missing approval reference can never authorize a trust grant.
+  if (!verifiedApproval) {
+    return { ok: false, error_code: 'APPROVAL_REQUIRED',
+      error: 'A verified human approval is required before any contact verification.' };
+  }
+  // Approval binding: the approval was issued for the exact contact — no
+  // arbitrary verification target substitution.
+  const approvedContactId = (verifiedApproval.metadata && typeof verifiedApproval.metadata.contact_id === 'string')
+    ? verifiedApproval.metadata.contact_id : null;
+  if (!approvedContactId || approvedContactId !== v.input.contact_id) {
+    return { ok: false, error_code: 'CONTACT_APPROVAL_MISMATCH',
+      error: 'The approval was issued for a different contact — no verification target substitution is permitted.' };
+  }
+  const prospectRecords = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = prospectRecords[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'CONTACT_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no verification was performed.' };
+  }
+  const contactRecords = await svc.entities.ProspectContact.filter(
+    { contact_id: v.input.contact_id, prospect_id: prospect.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const contact = contactRecords[0] || null;
+  if (!contact) {
+    return { ok: false, error_code: 'CONTACT_NOT_FOUND',
+      error: 'No contact record matching contact_id is owned by the authenticated caller for this Prospect — no verification was performed.' };
+  }
+  const ownership = assertContactOwnership(contact, user.id);
+  if (!ownership.ok) {
+    return { ok: false, error_code: ownership.error_code, error: ownership.error };
+  }
+  // Stale approval protection: the approval is bound to the verification
+  // state observed server-side at request time. A contact that moved since
+  // approval BLOCKS — no last-write-wins verification.
+  const approvedSourceStatus = (verifiedApproval.metadata && typeof verifiedApproval.metadata.contact_verification_status === 'string')
+    ? verifiedApproval.metadata.contact_verification_status : null;
+  if (!approvedSourceStatus || contact.verification_status !== approvedSourceStatus) {
+    return { ok: false, error_code: 'CONTACT_STATE_CHANGED',
+      error: 'The contact verification state is no longer "' + (approvedSourceStatus || 'the approved source state') + '" — the approval is stale; no verification was performed.' };
+  }
+  const update = buildContactVerificationUpdate(contact, v.input, {
+    verifying_user_id: user.id,
+    verified_at: new Date().toISOString(),
+  });
+  if (!update.ok) {
+    return { ok: false, error_code: update.error_code, error: update.error };
+  }
+  // Primary rule: demote any previous VERIFIED primary FIRST so at most one
+  // VERIFIED primary EMAIL contact exists per Prospect (fail-closed order —
+  // a transient failure can leave no primary, never two).
+  let demotedPrimaryCount = 0;
+  if (update.update.is_primary === true) {
+    const primaries = await svc.entities.ProspectContact.filter(
+      { prospect_id: prospect.prospect_id, owner_user_id: user.id, is_primary: true, verification_status: 'VERIFIED' },
+      '-created_date', 10,
+    );
+    for (const p of primaries) {
+      if (p.contact_id !== contact.contact_id) {
+        await svc.entities.ProspectContact.update(p.id, { is_primary: false });
+        demotedPrimaryCount++;
+      }
+    }
+  }
+  const updated = await svc.entities.ProspectContact.update(contact.id, update.update);
+  return buildContactVerifiedOutcome(updated, demotedPrimaryCount);
+}
+
+/**
+ * Phase 14E request-time state validation for verify_own_prospect_contact.
+ * Runs BEFORE any approval is issued: validates the strict contract and
+ * re-resolves the Prospect AND contact server-side under the caller
+ * ownership. Only an UNVERIFIED (non-revoked) contact may be bound to a
+ * verification approval; the observed verification state is returned as
+ * approval-binding metadata for stale-approval protection. The contact
+ * email never enters the approval metadata.
+ */
+async function validateVerifyContactRequestState(svc, user, body) {
+  const v = validateVerifyContactInput(body && body.input);
+  if (!v.ok) return v;
+  const prospectRecords = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = prospectRecords[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'CONTACT_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no approval was issued.' };
+  }
+  const contactRecords = await svc.entities.ProspectContact.filter(
+    { contact_id: v.input.contact_id, prospect_id: prospect.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const contact = contactRecords[0] || null;
+  if (!contact) {
+    return { ok: false, error_code: 'CONTACT_NOT_FOUND',
+      error: 'No contact record matching contact_id is owned by the authenticated caller for this Prospect — no approval was issued.' };
+  }
+  if (contact.verification_status === 'REVOKED') {
+    return { ok: false, error_code: 'CONTACT_REVOKED_FAIL_CLOSED',
+      error: 'A revoked contact can never be re-verified — fail-closed.' };
+  }
+  if (contact.verification_status === 'VERIFIED') {
+    return { ok: false, error_code: 'CONTACT_ALREADY_VERIFIED',
+      error: 'The contact is already VERIFIED — re-verification is refused.' };
+  }
+  return {
+    ok: true,
+    approval_meta: {
+      prospect_id: prospect.prospect_id,
+      contact_id: contact.contact_id,
+      contact_verification_status: contact.verification_status,
+      make_primary: v.input.make_primary === true,
+    },
+  };
+}
+
 /**
  * THE single governed execution chain. Both authorized capabilities route
  * through this one implementation — there is no second governance path.
@@ -1297,7 +1547,13 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
                     execution_id: execution.execution_id,
                     correlation_id: execution.correlation_id,
                   })
-                  : await runReadinessReadTool(svc, user);
+                  : cap.toolId === PHASE14E_CREATE_TOOL_ID
+                    ? await runCreateProspectContactTool(svc, user, body)
+                    : cap.toolId === PHASE14E_READ_TOOL_ID
+                      ? await runReadOwnProspectContactsTool(svc, user, body)
+                      : cap.toolId === PHASE14E_VERIFY_TOOL_ID
+                        ? await runVerifyProspectContactTool(svc, user, body, verifiedApproval)
+                        : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -1529,6 +1785,63 @@ export async function executeProspectOutreach(svc, user, body, issuedBy = 'agent
     requestHash: (reqBody) => outreachExecutionInputHash(reqBody && reqBody.input),
     responseKey: 'result',
     validateRequest: (reqSvc, reqUser, reqBody) => validateOutreachExecutionRequestState(reqSvc, reqUser, reqBody),
+  });
+}
+
+/**
+ * Phase 14E capability — create ONE UNVERIFIED EMAIL prospect contact.
+ * growth_agent → create_own_prospect_contact → ENTITY:ProspectContact (CREATE).
+ * human_approval_required=false (registered low risk — an UNVERIFIED contact
+ * grants no trust, resolves no recipient, and sends nothing). Ownership and
+ * tenant are derived server-side; verification state is never client-supplied.
+ */
+export async function executeCreateProspectContact(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE14E_CREATE_TOOL_ID,
+    targetType: PHASE14E_TARGET_TYPE,
+    targetName: PHASE14E_TARGET_NAME,
+    operation: PHASE14E_CREATE_OPERATION,
+    requestHash: (reqBody) => prospectContactCreateInputHash(reqBody && reqBody.input),
+    responseKey: 'contact',
+  });
+}
+
+/**
+ * Phase 14E capability — read ONLY the caller's own prospect contacts for
+ * one owned Prospect. growth_agent → read_own_prospect_contacts →
+ * ENTITY:ProspectContact (READ). human_approval_required=false (registered
+ * low-risk read, fixed bounded projection).
+ */
+export async function executeReadOwnProspectContacts(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE14E_READ_TOOL_ID,
+    targetType: PHASE14E_TARGET_TYPE,
+    targetName: PHASE14E_TARGET_NAME,
+    operation: PHASE14E_READ_OPERATION,
+    responseKey: 'contacts',
+  });
+}
+
+/**
+ * Phase 14E capability — THE explicit governed verification action.
+ * growth_agent → verify_own_prospect_contact → ENTITY:ProspectContact (UPDATE).
+ * human_approval_required=true: every verification is QUEUED behind a
+ * server-issued PENDING AgentApproval bound to the exact contact and its
+ * observed verification state; a stale or substituted approval BLOCKS.
+ * Verification records trust state only — nothing is ever sent.
+ */
+export async function executeVerifyProspectContact(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE14E_VERIFY_TOOL_ID,
+    targetType: PHASE14E_TARGET_TYPE,
+    targetName: PHASE14E_TARGET_NAME,
+    operation: PHASE14E_VERIFY_OPERATION,
+    requestHash: (reqBody) => prospectContactVerifyInputHash(reqBody && reqBody.input),
+    responseKey: 'contact',
+    validateRequest: (reqSvc, reqUser, reqBody) => validateVerifyContactRequestState(reqSvc, reqUser, reqBody),
   });
 }
 

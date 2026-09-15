@@ -46,6 +46,8 @@ const NOW = "2026-09-15T10:00:00.000Z";
 const PROSPECT_ID = "11111111-2222-4333-8444-555555555555";
 const EXECUTION_ID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const APPROVAL_ID = "99999999-8888-4777-8666-555555555555";
+const CONTACT_ID = "cccccccc-dddd-4eee-8fff-000000000001";
+const OTHER_CONTACT_ID = "cccccccc-dddd-4eee-8fff-000000000002";
 const CORRELATION_ID = "corr:14d:test:0001";
 const DRAFT_HASH = "a1b2c3d4e5f6";
 const SUBJECT = "Governed outreach introduction";
@@ -100,6 +102,7 @@ function baseRequest(overrides) {
     approval_id: APPROVAL_ID,
     execution_id: EXECUTION_ID,
     correlation_id: CORRELATION_ID,
+    recipient_contact_id: CONTACT_ID,
     destination: {
       destination_type: "EMAIL",
       resolution_status: "NOT_IMPLEMENTED",
@@ -139,10 +142,13 @@ function validState(overrides) {
       organization_id: "org-0001",
       status: "QUALIFIED",
     },
-    approved_contact_source: {
-      contact_source_id: "contact_src_test_001",
+    verified_contact_record: {
+      contact_id: CONTACT_ID,
       prospect_id: PROSPECT_ID,
-      contact_email: RECIPIENT,
+      contact_type: "EMAIL",
+      contact_value: RECIPIENT,
+      verification_status: "VERIFIED",
+      is_primary: true,
       verified_by: "human_operator",
       verified_at: "2026-09-01T00:00:00.000Z",
     },
@@ -245,14 +251,14 @@ test("ineligible prospect status is blocked", async () => {
   assertBlocked(r, "GATE_PROSPECT_STATUS_INELIGIBLE", "G9");
 });
 
-// G10. Recipient unavailable -> blocked, and this is the LIVE default
-test("recipient unavailable fails closed as NOT_IMPLEMENTED", async () => {
-  const r = await run(null, validState({ approved_contact_source: null }));
-  assertBlocked(r, "GMAIL_RECIPIENT_RESOLUTION_NOT_IMPLEMENTED", "G10");
+// G10. No verified contact -> blocked fail-closed, and this is the LIVE default
+test("no verified contact fails closed as RECIPIENT_NOT_VERIFIED", async () => {
+  const r = await run(null, validState({ verified_contact_record: null }));
+  assertBlocked(r, "GMAIL_RECIPIENT_NOT_VERIFIED", "G10");
   const resolver = resolveAuthorizedOutreachRecipient(
     { prospect_id: PROSPECT_ID, status: "QUALIFIED" }, null,
   );
-  assertEq(resolver.ok, false, "G10: resolver fails closed without a source");
+  assertEq(resolver.ok, false, "G10: resolver fails closed without a verified contact");
 });
 
 // G11. Client-supplied recipient -> rejected
@@ -437,14 +443,27 @@ test("prospect ownership boundary is enforced", async () => {
   assertBlocked(await run(null, validState({ prospect_record: { prospect_id: PROSPECT_ID, owner_user_id: "user-9999", organization_id: "org-9999", status: "QUALIFIED" } })), "GATE_PROSPECT_OWNERSHIP_MISMATCH", "OWN: foreign prospect");
 });
 
-// Extra: contact-source integrity — never inferable, never unverified
-test("contact source integrity is enforced", () => {
+// Extra: verified-contact integrity — never inferable, never unverified, never substitutable
+test("verified contact integrity is enforced", async () => {
   const prospect = { prospect_id: PROSPECT_ID, status: "QUALIFIED" };
-  assertEq(resolveAuthorizedOutreachRecipient(prospect, { contact_source_id: "src", prospect_id: "22222222-3333-4444-8555-666666666666", contact_email: RECIPIENT, verified_by: "human_operator", verified_at: "2026-09-01T00:00:00.000Z" }).error_code, "GMAIL_CONTACT_SOURCE_PROSPECT_MISMATCH", "CS: cross-prospect binding rejected");
-  assertEq(resolveAuthorizedOutreachRecipient(prospect, { contact_source_id: "src", prospect_id: PROSPECT_ID, contact_email: "not-an-email", verified_by: "human_operator", verified_at: "2026-09-01T00:00:00.000Z" }).error_code, "GMAIL_RECIPIENT_INVALID", "CS: malformed email rejected");
-  assertEq(resolveAuthorizedOutreachRecipient(prospect, { contact_source_id: "src", prospect_id: PROSPECT_ID, contact_email: RECIPIENT, verified_at: "2026-09-01T00:00:00.000Z" }).error_code, "GMAIL_CONTACT_SOURCE_UNVERIFIED", "CS: unverified rejected");
-  assertEq(resolveAuthorizedOutreachRecipient(prospect, { contact_source_id: "src", prospect_id: PROSPECT_ID, contact_email: RECIPIENT, verified_by: "human_operator", verified_at: "2026-09-01T00:00:00.000Z", injected: "x" }).error_code, "GMAIL_CONTACT_SOURCE_FIELD_REJECTED", "CS: unknown fields rejected");
-  assertEq(resolveAuthorizedOutreachRecipient(prospect, { contact_source_id: "src", prospect_id: PROSPECT_ID, contact_email: GMAIL_DELIVERY_SENDER_IDENTITY, verified_by: "human_operator", verified_at: "2026-09-01T00:00:00.000Z" }).error_code, "GMAIL_RECIPIENT_INVALID", "CS: sender-as-recipient rejected");
+  const base = { contact_id: CONTACT_ID, prospect_id: PROSPECT_ID, contact_type: "EMAIL", contact_value: RECIPIENT, verification_status: "VERIFIED", is_primary: true, verified_by: "human_operator", verified_at: "2026-09-01T00:00:00.000Z" };
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { prospect_id: "22222222-3333-4444-8555-666666666666" })).error_code, "GMAIL_CONTACT_PROSPECT_MISMATCH", "CS: cross-prospect binding rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { contact_value: "not-an-email" })).error_code, "GMAIL_RECIPIENT_INVALID", "CS: malformed email rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { verification_status: "UNVERIFIED" })).error_code, "GMAIL_CONTACT_UNVERIFIED", "CS: unverified rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { verification_status: "REVOKED" })).error_code, "GMAIL_CONTACT_REVOKED", "CS: revoked rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { is_primary: false })).error_code, "GMAIL_CONTACT_NOT_PRIMARY", "CS: non-primary rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { contact_type: "LINKEDIN" })).error_code, "GMAIL_CONTACT_TYPE_UNSUPPORTED", "CS: non-EMAIL contact type rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { verified_by: null })).error_code, "GMAIL_CONTACT_UNVERIFIED", "CS: missing verification actor rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { injected: "x" })).error_code, "GMAIL_CONTACT_FIELD_REJECTED", "CS: unknown fields rejected");
+  assertEq(resolveAuthorizedOutreachRecipient(prospect, Object.assign({}, base, { contact_value: GMAIL_DELIVERY_SENDER_IDENTITY })).error_code, "GMAIL_RECIPIENT_INVALID", "CS: sender-as-recipient rejected");
+  // Gate-level: post-approval contact substitution is blocked (the resolved
+  // primary contact must equal the approved recipient_contact_id).
+  const reqOther = baseRequest({ recipient_contact_id: OTHER_CONTACT_ID });
+  const r = await run(reqOther, validState({ request: reqOther }));
+  assertBlocked(r, "GMAIL_RECIPIENT_CONTACT_MISMATCH", "CS: contact substitution blocked");
+  // Approval-level: an approval bound to a different recipient contact is blocked.
+  const r2 = await run(null, validState({ approval_record: { approval_id: APPROVAL_ID, status: "APPROVED", expires_at: "2026-09-22T10:00:00.000Z", metadata: { approved_draft_hash: DRAFT_HASH, recipient_contact_id: OTHER_CONTACT_ID } } }));
+  assertBlocked(r2, "GATE_APPROVAL_CONTACT_MISMATCH", "CS: approval contact mismatch blocked");
 });
 
 // Extra: module purity — the transport endpoint exists only in the

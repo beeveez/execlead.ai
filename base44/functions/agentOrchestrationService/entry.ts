@@ -9,6 +9,9 @@ import {
   executeUpdateProspectStatus,
   executePrepareProspectOutreach,
   executeProspectOutreach,
+  executeCreateProspectContact,
+  executeReadOwnProspectContacts,
+  executeVerifyProspectContact,
   getExecution,
   decideApproval,
   getDeliveryReadiness,
@@ -43,6 +46,9 @@ export default async function(req) {
     if (action === 'execute_update_prospect_status') return await executeUpdateProspectStatus(svc, user, body);
     if (action === 'execute_prepare_prospect_outreach') return await executePrepareProspectOutreach(svc, user, body);
     if (action === 'execute_prospect_outreach') return await executeProspectOutreach(svc, user, body);
+    if (action === 'execute_create_own_prospect_contact') return await executeCreateProspectContact(svc, user, body);
+    if (action === 'execute_read_own_prospect_contacts') return await executeReadOwnProspectContacts(svc, user, body);
+    if (action === 'execute_verify_own_prospect_contact') return await executeVerifyProspectContact(svc, user, body);
     if (action === 'get_execution') return await getExecution(svc, user, body);
     if (action === 'get_delivery_readiness') return await getDeliveryReadiness(svc);
     if (action === 'decide_approval') return await decideApproval(svc, user, body);

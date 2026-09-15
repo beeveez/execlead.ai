@@ -453,6 +453,22 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
   let approvalStatus = 'NOT_REQUIRED';
   let verifiedApproval = null;
   if (tool.human_approval_required === true) {
+    // Request-time input validation: an approval is only ever issued for a
+    // payload that satisfies the tool input contract. Injected or malformed
+    // requests are refused BEFORE any approval record exists — truthful
+    // BLOCKED audit record; nothing queued, nothing mutated.
+    if (typeof cap.validateRequest === 'function') {
+      const v = cap.validateRequest(body);
+      if (v && v.ok === false) {
+        const execution = await recordBlocked(svc, user, v.error_code, v.error,
+          { request_time_input_validation: true, approval_request_refused: true }, blockOpts);
+        return Response.json({
+          status: 'BLOCKED', blocked: true,
+          error_code: v.error_code, error: v.error, message: v.error,
+          execution_id: execution.execution_id,
+        }, { status: 422 });
+      }
+    }
     const claimedApprovalId = (body && typeof body.approval_id === 'string' && body.approval_id.trim() !== '')
       ? body.approval_id.trim()
       : null;
@@ -744,6 +760,7 @@ export async function executeProspectCreate(svc, user, body, issuedBy = 'agentOr
     operation: PHASE8_OPERATION,
     requestHash: (reqBody) => prospectCreateInputHash(reqBody && reqBody.input),
     responseKey: 'prospect',
+    validateRequest: (reqBody) => validateProspectCreateInput(reqBody && reqBody.input),
   });
 }
 

@@ -230,6 +230,7 @@ export const RLS_REGISTRY = [
   { name: "SubscriptionAuditLog", classification: "user", scope: "user_id", status: "protected", sensitive: false, rule: "immutable append-only; owner + admin/finance read; no update/delete" },
   { name: "AgentExecution", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "immutable append-only audit; owner + org admin + platform admin/dev read; create: own or platform roles; update/delete: super_admin/platform_admin/founder only" },
   { name: "AgentApproval", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "append-only approval audit; owner + org admin + platform admin/dev read; create: own or platform roles; decisions server-side only, self-approval prohibited; update/delete: super_admin/platform_admin/founder only" },
+  { name: "Prospect", classification: "user", scope: "owner_user_id", status: "protected", sensitive: true, rule: "Phase 8 (2026-09-15) owner-anchored business data; create: own owner_user_id or platform roles only; read: owner + tenant org admin + platform admin/dev audit; update/delete: platform roles only (ordinary-user update/delete denied); Workforce create path is approval-gated with server-derived ownership" },
   { name: "ExecutiveIdentityTransfer", classification: "user", scope: "user_id", status: "protected", sensitive: true, rule: "owner + org admin + platform admin + security officer; delete: platform admin only" },
 
   // ── Organization-Scoped ──

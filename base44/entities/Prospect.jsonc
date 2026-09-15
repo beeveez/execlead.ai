@@ -1,0 +1,198 @@
+{
+  "name": "Prospect",
+  "type": "object",
+  "description": "Phase 8 Prospect & Lead Management. Owner-anchored business data created exclusively through the governed Workforce approval boundary (create_own_prospect tool). Ownership and tenant boundary are derived server-side; client-supplied owner_user_id/organization_id are never trusted.",
+  "properties": {
+    "prospect_id": {
+      "type": "string",
+      "description": "Unique authoritative prospect identifier (single source of truth, issued server-side)"
+    },
+    "company_name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120,
+      "description": "Prospect company name (trimmed, 2-120 characters)"
+    },
+    "website": {
+      "type": "string",
+      "maxLength": 253,
+      "description": "Bare domain only \u2014 no scheme, path, port, or query"
+    },
+    "industry": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Prospect industry category"
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "Prospect primary location"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Truthful creation provenance (e.g. ai_workforce_prospect_intelligence, ai_workforce_create_own_prospect)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "NEW",
+        "QUALIFIED",
+        "DISQUALIFIED",
+        "PURSUING",
+        "CONVERTED"
+      ],
+      "default": "NEW",
+      "description": "Lifecycle status. The CREATE tool forces NEW; QUALIFIED/DISQUALIFIED/PURSUING/CONVERTED are future lifecycle operations with no Workforce path in this phase"
+    },
+    "qualification_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Optional bounded qualification score (0-100)"
+    },
+    "intelligence_summary": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Optional bounded summary of the Prospect Intelligence result supplied as input"
+    },
+    "intelligence_reference": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "Bounded reference to the server-issued prospect_intelligence AgentExecution execution_id backing this record, when created from an intelligence result"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional bounded operator notes"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Owning user \u2014 derived server-side from the authenticated caller; never client-supplied"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant boundary \u2014 derived server-side from the authenticated caller's organization context; never client-supplied"
+    }
+  },
+  "required": [
+    "prospect_id",
+    "company_name",
+    "owner_user_id"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.organization_id": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

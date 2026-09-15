@@ -40,6 +40,13 @@
  */
 
 import { validateProspectInput, buildProspectIntelligence } from './prospectIntelligence.ts';
+import {
+  validateProspectCreateInput,
+  buildProspectRecord,
+  prospectCreateInputHash,
+  PROSPECT_CREATE_SOURCE_DIRECT,
+  PROSPECT_CREATE_SOURCE_INTELLIGENCE,
+} from './prospectCreate.ts';
 
 export const PHASE5_AGENT_ID = 'exec_concierge';
 export const PHASE5_TOOL_ID = 'read_own_readiness_assessment';
@@ -51,6 +58,11 @@ export const PHASE7_TOOL_ID = 'prospect_intelligence';
 export const PHASE7_TARGET_TYPE = 'INTERNAL_SERVICE';
 export const PHASE7_TARGET_NAME = 'prospectIntelligence';
 export const PHASE7_OPERATION = 'INVOKE';
+export const PHASE8_AGENT_ID = 'growth_agent';
+export const PHASE8_TOOL_ID = 'create_own_prospect';
+export const PHASE8_TARGET_TYPE = 'ENTITY';
+export const PHASE8_TARGET_NAME = 'Prospect';
+export const PHASE8_OPERATION = 'CREATE';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -145,6 +157,7 @@ export async function getStatus(svc) {
 
   const read = await resolveCapabilityStatus(svc, PHASE5_AGENT_ID, PHASE5_TOOL_ID);
   const growth = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE7_TOOL_ID);
+  const growthCreate = await resolveCapabilityStatus(svc, PHASE8_AGENT_ID, PHASE8_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -167,6 +180,14 @@ export async function getStatus(svc) {
         operation: PHASE7_OPERATION,
         target: `${PHASE7_TARGET_TYPE}:${PHASE7_TARGET_NAME}`,
         orchestration_available: !globalStop && growth.agentOk && growth.toolOk,
+      },
+      {
+        agent_id: PHASE8_AGENT_ID,
+        tool_id: PHASE8_TOOL_ID,
+        operation: PHASE8_OPERATION,
+        target: `${PHASE8_TARGET_TYPE}:${PHASE8_TARGET_NAME}`,
+        human_approval_required: true,
+        orchestration_available: !globalStop && growthCreate.agentOk && growthCreate.toolOk,
       },
     ],
   });
@@ -232,6 +253,76 @@ async function runProspectIntelligenceTool(body) {
 }
 
 /**
+ * Phase 8 tool — create_own_prospect (ENTITY:Prospect, CREATE).
+ * Performs exactly ONE business operation: create ONE Prospect record owned
+ * by the SERVER-RESOLVED authenticated user, with status forced to NEW.
+ * Ownership and tenant boundary are derived server-side; client-supplied
+ * ownership, organization, or status values never reach this function (they
+ * are rejected by the strict input contract). Truthful provenance: an
+ * intelligence reference must resolve to a REAL server-issued
+ * prospect_intelligence execution owned by the same user before intelligence
+ * provenance is claimed. No update, no delete, no status transition, no
+ * conversion, no CRM path exists here.
+ */
+async function runCreateProspectTool(svc, user, body) {
+  const v = validateProspectCreateInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+
+  let source = PROSPECT_CREATE_SOURCE_DIRECT;
+  let intelligenceReference = null;
+  if (v.input.intelligence_reference) {
+    const refRecords = await svc.entities.AgentExecution.filter({
+      execution_id: v.input.intelligence_reference, user_id: user.id,
+    });
+    const ref = refRecords[0] || null;
+    if (!ref || ref.tool_id !== PHASE7_TOOL_ID || ref.source !== PROVENANCE_SOURCE || ref.status !== 'SUCCEEDED') {
+      return {
+        ok: false,
+        error_code: 'PROSPECT_INTELLIGENCE_REFERENCE_INVALID',
+        error: 'intelligence_reference does not resolve to a successful server-issued Prospect Intelligence execution owned by this user.',
+      };
+    }
+    source = PROSPECT_CREATE_SOURCE_INTELLIGENCE;
+    intelligenceReference = v.input.intelligence_reference;
+  }
+
+  // Ownership + tenant boundary derived SERVER-side only. A client-supplied
+  // owner_user_id or organization_id is never read anywhere in this path.
+  const record = buildProspectRecord(v.input, {
+    source,
+    intelligence_reference: intelligenceReference,
+    owner_user_id: user.id,
+    organization_id: (user.data && user.data.organization_id) ? user.data.organization_id : null,
+  });
+  const created = await svc.entities.Prospect.create(record);
+  const snapshot = {
+    id: created.id,
+    prospect_id: created.prospect_id,
+    company_name: created.company_name,
+    status: created.status,
+    source: created.source,
+    owner_user_id: created.owner_user_id,
+    organization_id: created.organization_id || null,
+  };
+  return {
+    ok: true,
+    responseKey: 'prospect',
+    response: { created: true, prospect: snapshot },
+    result_summary: `Created prospect "${created.company_name}" (status ${created.status}, owner = authenticated user) via an approved governed Workforce execution.`,
+    snapshot,
+    meta: {
+      prospect_id: created.prospect_id,
+      status: created.status,
+      source: created.source,
+      from_intelligence: intelligenceReference !== null,
+      external_verification: false,
+    },
+  };
+}
+
+/**
  * THE single governed execution chain. Both authorized capabilities route
  * through this one implementation — there is no second governance path.
  * The capability (agent + tool + target + operation) is selected SERVER-side
@@ -240,8 +331,12 @@ async function runProspectIntelligenceTool(body) {
  */
 async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
   const requestedAt = new Date().toISOString();
-  const correlationId = cap.toolId === PHASE7_TOOL_ID
-    ? `${correlationIdFor(user.id, cap.agentId, cap.toolId)}:${prospectInputHash(body && body.input)}`
+  // Per-capability logical-request hash keys idempotency AND approval binding
+  // so different payloads never collapse into one replay and one approval can
+  // never authorize different input.
+  const requestHash = typeof cap.requestHash === 'function' ? cap.requestHash(body) : '';
+  const correlationId = requestHash
+    ? `${correlationIdFor(user.id, cap.agentId, cap.toolId)}:${requestHash}`
     : correlationIdFor(user.id, cap.agentId, cap.toolId);
   const META = provenanceMeta(issuedBy);
   const blockOpts = { issuedBy, agentId: cap.agentId, toolId: cap.toolId, correlationId };
@@ -342,59 +437,127 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
       `Tool risk exceeds the permitted threshold (${cfg.max_risk_level}).`, execution);
   }
 
-  // ── Generic approval gate (not required for either live tool; branch stays dormant) ──
+  // ── Human approval gate ──
+  // Not required for the two live read-only tools (their registry definitions
+  // carry human_approval_required=false, so this branch stays dormant for them).
+  // For approval-required tools (Phase 8: create_own_prospect), a request
+  // WITHOUT an approval reference is QUEUED behind a NEW server-issued PENDING
+  // AgentApproval — no mutation happens before a decision. A request WITH an
+  // approval reference never trusts it: every field is re-validated
+  // server-side (existence, user/capability match, server provenance,
+  // input-hash binding, APPROVED status, expiry, self-approval prohibition,
+  // single-use consumption) before the tool may run. Approval NEVER
+  // auto-executes; an approved execution always requires this separate
+  // orchestration request. There is no second approval mechanism and no
+  // hidden callback.
   let approvalStatus = 'NOT_REQUIRED';
+  let verifiedApproval = null;
   if (tool.human_approval_required === true) {
-    approvalStatus = 'PENDING';
-    const approvalId = crypto.randomUUID();
-    await svc.entities.AgentApproval.create({
-      approval_id: approvalId,
-      agent_id: cap.agentId,
-      agent_version: agent.version || '1.0.0',
-      tool_id: cap.toolId,
-      tool_version: tool.version || '1.0.0',
-      user_id: user.id,
-      requested_by: 'user',
-      request_reason: 'Server-issued approval request for a human-approval-required tool.',
-      requested_action: `${cap.operation} ${cap.targetType}:${cap.targetName}`,
-      requested_scope: 'self_records',
-      risk_level: tool.risk_level || 'medium',
-      human_approval_required: true,
-      approval_type: tool.execution_scope === 'user_scoped' ? 'USER' : 'ORGANIZATION_ADMIN',
-      required_approver_role: 'admin',
-      status: 'PENDING',
-      requested_at: requestedAt,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      correlation_id: correlationId,
-      source: PROVENANCE_SOURCE,
-      metadata: { ...META },
-    });
-    const execution = await svc.entities.AgentExecution.create({
-      execution_id: crypto.randomUUID(),
-      agent_id: cap.agentId,
-      agent_version: agent.version || '1.0.0',
-      tool_id: cap.toolId,
-      tool_version: tool.version || '1.0.0',
-      user_id: user.id,
-      initiated_by: 'user',
-      initiated_by_reference: user.id,
-      status: 'QUEUED',
-      execution_scope: 'user_scoped',
-      permission_scope: 'self_records',
-      human_approval_required: true,
-      approval_status: 'PENDING',
-      requested_at: requestedAt,
-      correlation_id: correlationId,
-      source: PROVENANCE_SOURCE,
-      metadata: { ...META, approval_id: approvalId },
-    });
-    // NEVER execute before APPROVED. No hidden callback executes on approval.
-    return Response.json({
-      status: 'PENDING_APPROVAL',
-      execution_id: execution.execution_id,
-      approval_id: approvalId,
-      message: 'Human approval is required before this tool can execute.',
-    }, { status: 200 });
+    const claimedApprovalId = (body && typeof body.approval_id === 'string' && body.approval_id.trim() !== '')
+      ? body.approval_id.trim()
+      : null;
+
+    if (!claimedApprovalId) {
+      approvalStatus = 'PENDING';
+      const approvalId = crypto.randomUUID();
+      await svc.entities.AgentApproval.create({
+        approval_id: approvalId,
+        agent_id: cap.agentId,
+        agent_version: agent.version || '1.0.0',
+        tool_id: cap.toolId,
+        tool_version: tool.version || '1.0.0',
+        user_id: user.id,
+        requested_by: 'user',
+        request_reason: 'Server-issued approval request for a human-approval-required tool.',
+        requested_action: `${cap.operation} ${cap.targetType}:${cap.targetName}`,
+        requested_scope: 'self_records',
+        risk_level: tool.risk_level || 'medium',
+        human_approval_required: true,
+        approval_type: tool.execution_scope === 'user_scoped' ? 'USER' : 'ORGANIZATION_ADMIN',
+        required_approver_role: 'admin',
+        status: 'PENDING',
+        requested_at: requestedAt,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        correlation_id: correlationId,
+        source: PROVENANCE_SOURCE,
+        metadata: { ...META, ...(requestHash ? { input_hash: requestHash } : {}) },
+      });
+      const execution = await svc.entities.AgentExecution.create({
+        execution_id: crypto.randomUUID(),
+        agent_id: cap.agentId,
+        agent_version: agent.version || '1.0.0',
+        tool_id: cap.toolId,
+        tool_version: tool.version || '1.0.0',
+        user_id: user.id,
+        initiated_by: 'user',
+        initiated_by_reference: user.id,
+        status: 'QUEUED',
+        execution_scope: 'user_scoped',
+        permission_scope: 'self_records',
+        human_approval_required: true,
+        approval_status: 'PENDING',
+        requested_at: requestedAt,
+        correlation_id: correlationId,
+        source: PROVENANCE_SOURCE,
+        metadata: { ...META, approval_id: approvalId, ...(requestHash ? { input_hash: requestHash } : {}) },
+      });
+      // NEVER execute before APPROVED. No hidden callback executes on approval.
+      return Response.json({
+        status: 'PENDING_APPROVAL',
+        execution_id: execution.execution_id,
+        approval_id: approvalId,
+        message: 'Human approval is required before this tool can execute.',
+      }, { status: 200 });
+    }
+
+    // An approval reference was supplied. It can IDENTIFY but never AUTHORIZE
+    // by itself — every field is re-validated server-side before execution.
+    const approvalRecords = await svc.entities.AgentApproval.filter({ approval_id: claimedApprovalId });
+    const approval = approvalRecords[0] || null;
+    const blockApproval = async (code, message, extraMeta = {}) => {
+      const execution = await recordBlocked(svc, user, code, message,
+        { claimed_approval_id: claimedApprovalId, ...extraMeta }, blockOpts);
+      return blockedResponse(code, message, execution);
+    };
+    if (!approval) {
+      return await blockApproval('APPROVAL_NOT_FOUND', 'The referenced approval does not exist.');
+    }
+    if (approval.user_id !== user.id) {
+      return await blockApproval('APPROVAL_USER_MISMATCH', 'The referenced approval belongs to a different user.');
+    }
+    if (approval.agent_id !== cap.agentId || approval.tool_id !== cap.toolId) {
+      return await blockApproval('APPROVAL_CAPABILITY_MISMATCH', 'The referenced approval does not match the requested capability.');
+    }
+    if (approval.source !== PROVENANCE_SOURCE) {
+      return await blockApproval('APPROVAL_PROVENANCE_INVALID', 'Only server-issued approvals can authorize execution.');
+    }
+    if (requestHash && ((approval.metadata && approval.metadata.input_hash) || null) !== requestHash) {
+      return await blockApproval('APPROVAL_INPUT_MISMATCH', 'The referenced approval was issued for different input.');
+    }
+    if (approval.status === 'PENDING') {
+      return Response.json({
+        status: 'PENDING_APPROVAL',
+        approval_id: claimedApprovalId,
+        message: 'Approval is still pending decision — nothing has executed.',
+      }, { status: 200 });
+    }
+    if (approval.status === 'REJECTED') {
+      return await blockApproval('APPROVAL_REJECTED', 'The request was rejected by the approver — nothing will execute.');
+    }
+    if (approval.status !== 'APPROVED') {
+      return await blockApproval('APPROVAL_NOT_ACTIVE', `The referenced approval is ${approval.status}.`);
+    }
+    if (approval.expires_at && Date.parse(approval.expires_at) < Date.now()) {
+      return await blockApproval('APPROVAL_EXPIRED', 'The approval window has expired — a new approval is required.');
+    }
+    if (!approval.approver_user_id || approval.approver_user_id === approval.user_id) {
+      return await blockApproval('APPROVAL_SELF_APPROVED', 'Self-approval is prohibited; this approval cannot authorize execution.');
+    }
+    if (approval.metadata && approval.metadata.executed_execution_id) {
+      return await blockApproval('APPROVAL_ALREADY_EXECUTED', 'This approval has already been consumed by an execution.');
+    }
+    approvalStatus = 'APPROVED';
+    verifiedApproval = approval;
   }
 
   // ── Idempotency / replay protection (server-issued records only) ──
@@ -420,8 +583,7 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
       execution_id: latestPrior.execution_id,
       message: 'An equivalent execution completed within the idempotency window.',
     };
-    if (cap.toolId === PHASE7_TOOL_ID) replayBody.result = snapshot;
-    else replayBody.assessment = snapshot;
+    replayBody[cap.responseKey] = snapshot;
     return Response.json(replayBody, { status: 200 });
   }
 
@@ -439,22 +601,29 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
     status: 'RUNNING',
     execution_scope: 'user_scoped',
     permission_scope: 'self_records',
-    human_approval_required: false,
+    human_approval_required: tool.human_approval_required === true,
     approval_status: approvalStatus,
     requested_at: requestedAt,
     started_at: startedAt,
     correlation_id: correlationId,
     parent_execution_id: latestPrior ? latestPrior.execution_id : null,
     source: PROVENANCE_SOURCE,
-    metadata: { ...META, idempotency_ttl_ms: IDEMPOTENCY_TTL_MS },
+    metadata: {
+      ...META,
+      idempotency_ttl_ms: IDEMPOTENCY_TTL_MS,
+      ...(requestHash ? { input_hash: requestHash } : {}),
+      ...(verifiedApproval ? { approval_id: verifiedApproval.approval_id } : {}),
+    },
   });
 
   // ── THE tool runs (pure, deterministic, return-only) ──
   try {
     const startedMs = Date.now();
-    const outcome = cap.toolId === PHASE7_TOOL_ID
-      ? await runProspectIntelligenceTool(body)
-      : await runReadinessReadTool(svc, user);
+    const outcome = cap.toolId === PHASE8_TOOL_ID
+      ? await runCreateProspectTool(svc, user, body)
+      : cap.toolId === PHASE7_TOOL_ID
+        ? await runProspectIntelligenceTool(body)
+        : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -486,6 +655,22 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
         result_snapshot: outcome.snapshot,
       },
     });
+
+    // Approval relationship recorded bidirectionally; the approval is consumed
+    // after exactly ONE execution (single-use). A linkage failure never
+    // falsifies the execution outcome — the linkage already exists on the
+    // execution side (approval_id in metadata + correlation_id).
+    if (verifiedApproval) {
+      try {
+        await svc.entities.AgentApproval.update(verifiedApproval.id, {
+          metadata: {
+            ...(verifiedApproval.metadata || {}),
+            executed_execution_id: execution.execution_id,
+            executed_at: completedAt,
+          },
+        });
+      } catch (linkageError) { /* execution-side linkage remains authoritative */ }
+    }
 
     return Response.json({
       status: 'SUCCEEDED',
@@ -522,6 +707,7 @@ export async function executeReadinessRead(svc, user, body, issuedBy = 'agentOrc
     targetType: PHASE5_TARGET_TYPE,
     targetName: PHASE5_TARGET_NAME,
     operation: PHASE5_OPERATION,
+    responseKey: 'assessment',
   });
 }
 
@@ -536,6 +722,28 @@ export async function executeProspectIntelligence(svc, user, body, issuedBy = 'a
     targetType: PHASE7_TARGET_TYPE,
     targetName: PHASE7_TARGET_NAME,
     operation: PHASE7_OPERATION,
+    requestHash: (reqBody) => prospectInputHash(reqBody && reqBody.input),
+    responseKey: 'result',
+  });
+}
+
+/**
+ * Phase 8 capability — the FIRST state-changing Workforce capability.
+ * growth_agent → create_own_prospect → ENTITY:Prospect (CREATE).
+ * human_approval_required=true: the request is QUEUED behind a server-issued
+ * PENDING AgentApproval until a separate approved orchestration request
+ * executes it. Tool is registered DRAFT + enabled=false — the chain refuses
+ * it at the registry kill switch until activation.
+ */
+export async function executeProspectCreate(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE8_AGENT_ID,
+    toolId: PHASE8_TOOL_ID,
+    targetType: PHASE8_TARGET_TYPE,
+    targetName: PHASE8_TARGET_NAME,
+    operation: PHASE8_OPERATION,
+    requestHash: (reqBody) => prospectCreateInputHash(reqBody && reqBody.input),
+    responseKey: 'prospect',
   });
 }
 

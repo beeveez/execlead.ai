@@ -3,6 +3,7 @@ import {
   getStatus,
   executeReadinessRead,
   executeProspectIntelligence,
+  executeProspectCreate,
   getExecution,
   decideApproval,
 } from '../../shared/agentOrchestrationCore.ts';
@@ -30,6 +31,7 @@ export default async function(req) {
     if (action === 'get_status') return await getStatus(svc);
     if (action === 'execute_readiness_read') return await executeReadinessRead(svc, user, body);
     if (action === 'execute_prospect_intelligence') return await executeProspectIntelligence(svc, user, body);
+    if (action === 'execute_prospect_create') return await executeProspectCreate(svc, user, body);
     if (action === 'get_execution') return await getExecution(svc, user, body);
     if (action === 'decide_approval') return await decideApproval(svc, user, body);
     return Response.json({ error: 'Unknown action' }, { status: 400 });

@@ -20,7 +20,7 @@ function Chrome({ children }) {
     <div className="rounded-xl border border-white/10 bg-[#0d0d14] overflow-hidden">
       <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/8 bg-white/[0.02]">
         <span className="w-2 h-2 rounded-full bg-white/15" /><span className="w-2 h-2 rounded-full bg-white/15" /><span className="w-2 h-2 rounded-full bg-white/15" />
-        <span className="ml-2 text-[9px] text-white/30">execlead.ai</span>
+        <span className="ml-2 text-[9px] text-white/30">execleadai.co</span>
       </div>
       <div className="p-3">{children}</div>
     </div>

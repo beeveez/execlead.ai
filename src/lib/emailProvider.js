@@ -170,7 +170,7 @@ export function buildProposalConfirmationEmail(d) {
       <div style="text-align: center; margin: 30px 0;">
         <a href="${d.viewUrl}" style="display: inline-block; background: #6366f1; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin: 5px;">View Proposal</a>
         <a href="${d.downloadUrl}" style="display: inline-block; background: #10b981; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin: 5px;">Download Proposal</a>
-        <a href="mailto:sales@execlead.ai" style="display: inline-block; background: #f59e0b; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin: 5px;">Contact Sales</a>
+        <a href="mailto:sales@execleadai.co" style="display: inline-block; background: #f59e0b; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin: 5px;">Contact Sales</a>
       </div>
       <p style="color: #a1a1aa; font-size: 12px; line-height: 1.6;">If the buttons above don't work, copy and paste these links into your browser:<br>View: ${d.viewUrl}<br>Download: ${d.downloadUrl}</p>
     </div>

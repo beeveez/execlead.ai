@@ -72,7 +72,7 @@ export function useAcademy() {
     const cert = await base44.entities.Certificate.create({
       certificate_id: certId, course_id: course.slug, course_name: course.title,
       user_name: userName, completion_date: new Date().toISOString().split("T")[0],
-      verification_url: `https://execlead.ai/verify/${certId}`
+      verification_url: `https://execleadai.co/verify/${certId}`
     });
     await loadAll();
     return cert;

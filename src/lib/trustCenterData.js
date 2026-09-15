@@ -217,15 +217,15 @@ export const PLATFORM_STATUS = {
 // SECTION 9 — SECURITY CONTACT™
 // ════════════════════════════════════════════════════════════
 export const SECURITY_CONTACT = {
-  email: "security@execlead.ai",
+  email: "security@execleadai.co",
   pgpFingerprint: "Available upon request to verified security researchers",
   responseTime: "Within 48 hours for security inquiries",
   escalationPath: "Critical vulnerabilities are escalated to the CTO within 1 hour",
   teams: [
-    { name: "Security Team", purpose: "Vulnerability reports, security assessments, penetration testing coordination", contact: "security@execlead.ai" },
-    { name: "Compliance Team", purpose: "GDPR, data processing agreements, compliance documentation", contact: "compliance@execlead.ai" },
-    { name: "Privacy Team", purpose: "Data subject requests, privacy inquiries, data residency", contact: "privacy@execlead.ai" },
-    { name: "Enterprise Trust", purpose: "Security questionnaires, vendor assessments, due diligence", contact: "trust@execlead.ai" },
+    { name: "Security Team", purpose: "Vulnerability reports, security assessments, penetration testing coordination", contact: "security@execleadai.co" },
+    { name: "Compliance Team", purpose: "GDPR, data processing agreements, compliance documentation", contact: "compliance@execleadai.co" },
+    { name: "Privacy Team", purpose: "Data subject requests, privacy inquiries, data residency", contact: "privacy@execleadai.co" },
+    { name: "Enterprise Trust", purpose: "Security questionnaires, vendor assessments, due diligence", contact: "trust@execleadai.co" },
   ],
 };
 

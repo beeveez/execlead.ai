@@ -27,7 +27,7 @@ export default function ReservationSuccess({ reservation, onClose }) {
 
   const verifyUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verify/${reservation.verification_id}`
-    : `https://execlead.ai/verify/${reservation.verification_id}`;
+    : `https://execleadai.co/verify/${reservation.verification_id}`;
 
   const captureCanvas = async () => {
     if (!certRef.current) return null;

@@ -37,7 +37,7 @@ export default function DuplicateApplicationNotice({ application }) {
       <div className="mt-4 p-3 rounded-lg bg-white/[0.02] border border-white/5 flex items-center gap-2">
         <Mail size={12} className="text-white/30" />
         <span className="text-[11px] text-white/40">Need to update your application?</span>
-        <a href="mailto:support@execlead.ai" className="text-[11px] text-amber-400 hover:text-amber-300 ml-auto">Contact Support</a>
+        <a href="mailto:support@execleadai.co" className="text-[11px] text-amber-400 hover:text-amber-300 ml-auto">Contact Support</a>
       </div>
     </div>
   );

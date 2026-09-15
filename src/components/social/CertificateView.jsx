@@ -12,7 +12,7 @@ export default function CertificateView({ userName, achievementType, achievement
   const achievement = ACHIEVEMENT_TYPES[achievementType] || ACHIEVEMENT_TYPES.certificate_earned;
   const certNum = certificateNumber || generateCertificateNumber();
   const date = completionDate || new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-  const verifyUrl = `https://execlead.ai/verify/${certNum}`;
+  const verifyUrl = `https://execleadai.co/verify/${certNum}`;
 
   const handleDownloadPdf = async () => {
     if (!certRef.current) return;

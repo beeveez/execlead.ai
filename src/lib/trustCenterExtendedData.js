@@ -32,10 +32,10 @@ export const SECURITY_CONTACTS_VALIDATED = {
   responseTime: "Within 48 hours for security inquiries",
   escalationPath: "Critical vulnerabilities escalated to CTO within 1 hour",
   contacts: [
-    { email: "security@execlead.ai", purpose: "Vulnerability reports, security assessments, penetration testing coordination", validated: false },
-    { email: "privacy@execlead.ai", purpose: "Data subject requests, privacy inquiries, data residency", validated: false },
-    { email: "compliance@execlead.ai", purpose: "GDPR, data processing agreements, compliance documentation", validated: false },
-    { email: "trust@execlead.ai", purpose: "Security questionnaires, vendor assessments, due diligence", validated: false },
+    { email: "security@execleadai.co", purpose: "Vulnerability reports, security assessments, penetration testing coordination", validated: false },
+    { email: "privacy@execleadai.co", purpose: "Data subject requests, privacy inquiries, data residency", validated: false },
+    { email: "compliance@execleadai.co", purpose: "GDPR, data processing agreements, compliance documentation", validated: false },
+    { email: "trust@execleadai.co", purpose: "Security questionnaires, vendor assessments, due diligence", validated: false },
   ],
 };
 

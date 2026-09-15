@@ -17,7 +17,7 @@ const FoundingCertificate = forwardRef(({ reservation }, ref) => {
   if (!reservation) return null;
   const verifyUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verify/${reservation.verification_id}`
-    : `https://execlead.ai/verify/${reservation.verification_id}`;
+    : `https://execleadai.co/verify/${reservation.verification_id}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=2&data=${encodeURIComponent(verifyUrl)}`;
   const isActivated = reservation.activated || reservation.status === "activated";
 

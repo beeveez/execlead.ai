@@ -8,7 +8,7 @@
 
 export const SHARE_VERSION = "1.0";
 export const SHARE_CTA = "Advance your executive career with EXECLEAD.AI.";
-export const SHARE_WEBSITE = "https://execlead.ai";
+export const SHARE_WEBSITE = "https://execleadai.co";
 
 /* ------------------------------------------------------------------ */
 /* ACHIEVEMENT TYPES (legacy — used by certificates & celebrations)    */

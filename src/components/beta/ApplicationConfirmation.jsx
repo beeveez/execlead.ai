@@ -49,7 +49,7 @@ export default function ApplicationConfirmation({ application }) {
           <HelpCircle size={12} className="text-white/30" />
           <span className="text-[11px] text-white/40">Need help? Contact our support team.</span>
         </div>
-        <a href="mailto:support@execlead.ai" className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1">
+        <a href="mailto:support@execleadai.co" className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1">
           Contact Support <ArrowRight size={10} />
         </a>
       </div>

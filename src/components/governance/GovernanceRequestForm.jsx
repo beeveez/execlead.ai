@@ -144,7 +144,7 @@ export default function GovernanceRequestForm({ onClose, onSubmitted }) {
             </div>
             <div>
               <label className={labelClass}>Target User Email</label>
-              <input value={form.target_user_email} onChange={e => setForm({ ...form, target_user_email: e.target.value })} className={`${inputClass} mt-1`} placeholder="john@execlead.ai" />
+              <input value={form.target_user_email} onChange={e => setForm({ ...form, target_user_email: e.target.value })} className={`${inputClass} mt-1`} placeholder="john@execleadai.co" />
             </div>
             <div>
               <label className={labelClass}>Target User Role</label>

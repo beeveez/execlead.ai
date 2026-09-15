@@ -89,7 +89,7 @@ export function generateReferralCode(userId) {
 
 /** Build the shareable referral URL. */
 export function getReferralUrl(code) {
-  const base = typeof window !== "undefined" ? window.location.origin : "https://execlead.ai";
+  const base = typeof window !== "undefined" ? window.location.origin : "https://execleadai.co";
   return code ? `${base}/?ref=${code}` : base;
 }
 

@@ -63,7 +63,7 @@ const ShareCard = forwardRef(({ achievement, type, title, userName, executiveSco
           <img src={getQrUrl(shareUrl)} alt="QR" crossOrigin="anonymous" style={{ width: 56, height: 56, borderRadius: 8 }} />
           <div>
             <div style={{ fontSize: 11, fontWeight: 600, color: "#ffffff60" }}>Scan to join</div>
-            <div style={{ fontSize: 10, color: "#ffffff30" }}>execlead.ai</div>
+            <div style={{ fontSize: 10, color: "#ffffff30" }}>execleadai.co</div>
           </div>
         </div>
       </div>

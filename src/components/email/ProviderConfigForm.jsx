@@ -98,29 +98,29 @@ export default function ProviderConfigForm({ settings, onSave, saving, saved }) 
         </div>
         <div>
           <label className={labelClass}>From Email</label>
-          <input value={form?.from_email || ""} onChange={e => update("from_email", e.target.value)} placeholder="noreply@execlead.ai" className={inputClass} />
+          <input value={form?.from_email || ""} onChange={e => update("from_email", e.target.value)} placeholder="noreply@execleadai.co" className={inputClass} />
         </div>
       </div>
 
       {/* Reply-To */}
       <div>
         <label className={labelClass}>Reply-To Email</label>
-        <input value={form?.reply_to_email || ""} onChange={e => update("reply_to_email", e.target.value)} placeholder="support@execlead.ai" className={inputClass} />
+        <input value={form?.reply_to_email || ""} onChange={e => update("reply_to_email", e.target.value)} placeholder="support@execleadai.co" className={inputClass} />
       </div>
 
       {/* Support / Sales / Security emails */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className={labelClass}>Support Email</label>
-          <input value={form?.support_email || ""} onChange={e => update("support_email", e.target.value)} placeholder="support@execlead.ai" className={inputClass} />
+          <input value={form?.support_email || ""} onChange={e => update("support_email", e.target.value)} placeholder="support@execleadai.co" className={inputClass} />
         </div>
         <div>
           <label className={labelClass}>Sales Email</label>
-          <input value={form?.sales_email || ""} onChange={e => update("sales_email", e.target.value)} placeholder="sales@execlead.ai" className={inputClass} />
+          <input value={form?.sales_email || ""} onChange={e => update("sales_email", e.target.value)} placeholder="sales@execleadai.co" className={inputClass} />
         </div>
         <div>
           <label className={labelClass}>Security Email</label>
-          <input value={form?.security_email || ""} onChange={e => update("security_email", e.target.value)} placeholder="security@execlead.ai" className={inputClass} />
+          <input value={form?.security_email || ""} onChange={e => update("security_email", e.target.value)} placeholder="security@execleadai.co" className={inputClass} />
         </div>
       </div>
 

@@ -216,7 +216,7 @@ export default function SSOIdentity() {
             <div>
               <label className="text-white/40 text-xs uppercase tracking-wider mb-2 block">SCIM Endpoint</label>
               <input value={config.scim_endpoint || ""} onChange={(e) => update("scim_endpoint", e.target.value)}
-                placeholder="https://api.execlead.ai/scim/v2"
+                placeholder="https://api.execleadai.co/scim/v2"
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-blue-500/50" />
             </div>
             <div>

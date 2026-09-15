@@ -244,7 +244,7 @@ export default function PlanCard({ plan, cycle, getPrice, calculatePrice, isFoun
                 <Link to="#demo" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
                   Book Demo
                 </Link>
-                <a href="mailto:sales@execlead.ai" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
+                <a href="mailto:sales@execleadai.co" className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-xs font-medium transition-colors">
                   Talk to Sales
                 </a>
               </div>

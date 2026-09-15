@@ -153,7 +153,7 @@ export default function CPQWizard() {
           entityName: orgProfile.organization_name,
         }),
         sendTransactionalEmail({
-          to: "sales@execlead.ai",
+          to: "sales@execleadai.co",
           subject: `[Sales] New Enterprise Proposal — ${orgProfile.organization_name} (${breakdown.currency} ${totalStr})`,
           html: salesHtml,
           emailType: "proposal_sales_notify",

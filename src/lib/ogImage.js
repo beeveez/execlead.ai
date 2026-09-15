@@ -4,7 +4,7 @@
  */
 
 export function getOGImageUrl(type, id, version) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://execlead.ai";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://execleadai.co";
   const params = new URLSearchParams({ type });
   if (id) params.set("id", id);
   if (version) params.set("v", String(version));

@@ -156,7 +156,7 @@ export default function ExecutivePortfolio() {
         {vis('career-assets') && <CareerAssets data={data} />}
         {vis('documents') && <LinkSection section={S[13]} link="/security" description="Encrypted, access-logged, permission-controlled document vault with download audit." icon={FileCheck} />}
         {vis('network') && <LinkSection section={S[14]} link="/network" description="Mentors, coaches, peers, recruiters, organizations, recommendations, and testimonials." icon={Users} />}
-        {vis('public-profile') && <LinkSection section={S[15]} link={`/u/${user?.data?.username || user?.id || ''}`} description="Your public profile at execlead.ai/u/username with per-section visibility controls." icon={Globe} />}
+        {vis('public-profile') && <LinkSection section={S[15]} link={`/u/${user?.data?.username || user?.id || ''}`} description="Your public profile at execleadai.co/u/username with per-section visibility controls." icon={Globe} />}
         {vis('impact') && <ImpactDashboard data={data} />}
         {vis('analytics') && <PortfolioAnalytics data={data} />}
         {vis('legacy') && <LinkSection section={S[17]} link="/executive-legacy" description="Leadership philosophy, personal mission, vision, core values, and mentoring legacy." icon={Landmark} />}

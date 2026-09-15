@@ -27,7 +27,7 @@ export default function ProposalActions({ quote, onAccept, onRequestChanges, onS
         </button>
       )}
       <a
-        href="mailto:sales@execlead.ai?subject=Enterprise Proposal Inquiry"
+        href="mailto:sales@execleadai.co?subject=Enterprise Proposal Inquiry"
         className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors"
       >
         <Mail size={14} />

@@ -275,10 +275,10 @@ export default function EnterprisePortal() {
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-2">
-        <a href="mailto:sales@execlead.ai" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">
+        <a href="mailto:sales@execleadai.co" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">
           <Mail size={14} /> Contact Sales
         </a>
-        <a href="mailto:support@execlead.ai" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">
+        <a href="mailto:support@execleadai.co" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">
           <Settings size={14} /> Support
         </a>
         <Link to="/enterprise" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors">

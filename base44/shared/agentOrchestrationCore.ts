@@ -70,9 +70,18 @@ import {
   validateOutreachExecutionInput,
   validateExecutionApprovalBinding,
   validateOutreachStatusEligibility,
-  buildOutreachExecutionDryRun,
+  OUTREACH_EXECUTION_DRY_RUN_STATUS,
+  OUTREACH_EXECUTION_VERIFY_NOTICE,
   outreachExecutionInputHash,
 } from './prospectOutreachExecution.ts';
+import {
+  buildSandboxDestination,
+  createGovernedDeliveryRequest,
+  deriveDeliveryIdentity,
+  sandboxDeliver,
+  buildDeliveryAuditRecord,
+  getRealDeliveryReadiness,
+} from './sandboxDeliveryConnector.ts';
 import {
   validateTransitionInput,
   validateTransitionAgainstMatrix,
@@ -640,15 +649,16 @@ async function runPrepareOutreachTool(svc, user, body) {
  * hash binding, APPROVED status, expiry, self-approval prohibition,
  * single-use consumption) → Prospect/CHANNEL/DRAFT-HASH binding
  * revalidation against the approval metadata → live Prospect status
- * revalidation (QUALIFIED/PURSUING only, stale-approval protected) →
- * DRY-RUN STOP. Recipient resolution terminates at
- * DELIVERY_NOT_IMPLEMENTED: no recipient is ever accepted from the client,
+ * revalidation (QUALIFIED/PURSUING only, stale-approval protected) → the
+ * Phase 12 SANDBOX DELIVERY CONNECTOR — the only connector implementation,
+ * non-delivering, contract validation only. Recipient resolution remains
+ * NOT_IMPLEMENTED: no recipient is ever accepted from the client,
  * no channel is contacted, no email/SMS/messaging/CRM action exists, no
  * network call is made, and nothing is sent, scheduled, persisted, or
  * transmitted. This tool performs NO external side effect in this phase
  * and claims none.
  */
-async function runExecuteOutreachTool(svc, user, body, verifiedApproval) {
+async function runExecuteOutreachTool(svc, user, body, verifiedApproval, executionCtx) {
   const v = validateOutreachExecutionInput(body && body.input);
   if (!v.ok) {
     return { ok: false, error_code: v.error_code, error: v.error };
@@ -694,22 +704,96 @@ async function runExecuteOutreachTool(svc, user, body, verifiedApproval) {
   if (!eligibility.ok) {
     return { ok: false, error_code: eligibility.error_code, error: eligibility.error };
   }
-  // ── DRY-RUN STOP — the external delivery boundary. ──
-  // All governance checks have passed up to this point. Recipient resolution
-  // terminates here: no external delivery connector exists in this phase, no
-  // recipient is resolved, and nothing is transmitted. The result is a
-  // governed dry-run proof only — it never claims delivery.
-  const result = buildOutreachExecutionDryRun(v.input, verifiedApproval.approval_id, {
-    prospect_status: prospect.status,
-  });
+  // ── SANDBOX DELIVERY CONNECTOR — the only implementation behind the boundary. ──
+  // All governance checks have passed up to this point. The governed
+  // execution boundary (this function, inside AgentOrchestrationCore)
+  // constructs the OutreachDeliveryRequest SERVER-side and hands it, with
+  // an already-authorized execution context, to the Phase 12 Sandbox
+  // Delivery Connector. The connector validates the delivery contract, the
+  // immutable delivery identity, and the message immutability — it performs
+  // no authorization of its own and NO delivery: recipient resolution
+  // remains NOT_IMPLEMENTED and nothing is ever transmitted.
+  const boundaryContext = {
+    authorization_verified: true,
+    expected: {
+      prospect_id: prospect.prospect_id,
+      channel: v.input.channel,
+      approved_draft_hash: v.input.approved_draft_hash,
+      approval_id: verifiedApproval.approval_id,
+      execution_id: executionCtx.execution_id,
+      correlation_id: executionCtx.correlation_id,
+      delivery_identity: deriveDeliveryIdentity({
+        execution_id: executionCtx.execution_id,
+        approved_draft_hash: v.input.approved_draft_hash,
+        prospect_id: prospect.prospect_id,
+        channel: v.input.channel,
+      }),
+    },
+  };
+  const governed = createGovernedDeliveryRequest({
+    prospect_id: prospect.prospect_id,
+    channel: v.input.channel,
+    approved_draft_hash: v.input.approved_draft_hash,
+    approval_id: verifiedApproval.approval_id,
+    execution_id: executionCtx.execution_id,
+    correlation_id: executionCtx.correlation_id,
+    destination: buildSandboxDestination(v.input.channel),
+    message: {
+      approved_draft_hash: v.input.approved_draft_hash,
+      content_binding: 'APPROVED_DRAFT_HASH',
+      subject: null,
+      body: null,
+    },
+  }, boundaryContext);
+  if (!governed.ok) {
+    return { ok: false, error_code: governed.error_code, error: governed.error };
+  }
+  const delivery = sandboxDeliver(governed.request, boundaryContext);
+  if (delivery.delivery_status === 'BLOCKED') {
+    return { ok: false, error_code: delivery.error_code, error: delivery.verification };
+  }
+  // Delivery audit record (SANDBOX mode only, service-role write). An audit
+  // linkage failure never falsifies the execution outcome.
+  let deliveryAuditRecorded = true;
+  try {
+    await svc.entities.OutreachDeliveryAudit.create(buildDeliveryAuditRecord(governed.request, delivery, {
+      audit_id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      source: PROVENANCE_SOURCE,
+      user_id: user.id,
+      organization_id: (user.data && user.data.organization_id) ? user.data.organization_id : null,
+    }));
+  } catch (auditError) { deliveryAuditRecorded = false; }
+  const result = {
+    execution_status: OUTREACH_EXECUTION_DRY_RUN_STATUS,
+    dry_run: true,
+    external_delivery: false,
+    delivered: false,
+    sent: false,
+    scheduled: false,
+    persisted: false,
+    channel: v.input.channel,
+    prospect_id: prospect.prospect_id,
+    approved_draft_hash: v.input.approved_draft_hash,
+    approval_id: verifiedApproval.approval_id,
+    prospect_status_at_execution: prospect.status,
+    delivery,
+    recipient_resolution: {
+      status: 'DELIVERY_NOT_IMPLEMENTED',
+      resolved_recipient: null,
+      note: 'Recipient resolution remains a future server-side step. The Sandbox Delivery Connector accepts no client-supplied destination and resolves no recipient.',
+    },
+    verification_notice: OUTREACH_EXECUTION_VERIFY_NOTICE,
+  };
   return {
     ok: true,
     responseKey: 'result',
     response: { result },
-    result_summary: `Governed outreach execution DRY RUN for prospect ${prospect.prospect_id} (channel ${v.input.channel}, status ${prospect.status}): all governance checks passed up to the external delivery boundary; recipient resolution terminated at DELIVERY_NOT_IMPLEMENTED — DRY RUN, NOTHING SENT, nothing scheduled or persisted.`,
+    result_summary: `Governed outreach execution reached the Sandbox Delivery Connector for prospect ${prospect.prospect_id} (channel ${v.input.channel}, status ${prospect.status}): delivery_status ${delivery.delivery_status} (SANDBOX — NOTHING SENT) — recipient resolution NOT_IMPLEMENTED, nothing sent, scheduled, or persisted outside the delivery audit record.`,
     snapshot: {
       execution_status: result.execution_status,
       dry_run: true,
+      delivery_status: delivery.delivery_status,
       external_delivery: false,
       prospect_id: prospect.prospect_id,
       channel: v.input.channel,
@@ -718,14 +802,16 @@ async function runExecuteOutreachTool(svc, user, body, verifiedApproval) {
     },
     meta: {
       dry_run: true,
+      delivery_status: delivery.delivery_status,
+      sandbox_connector: true,
       external_delivery: false,
       delivered: false,
       outreach_sent: false,
       outreach_scheduled: false,
       recipient_resolved: false,
-      recipient_resolution: 'DELIVERY_NOT_IMPLEMENTED',
+      recipient_resolution: 'NOT_IMPLEMENTED',
       network_calls: 0,
-      records_created: 0,
+      delivery_audit_recorded: deliveryAuditRecorded,
       prospect_mutation: false,
     },
   };
@@ -1207,7 +1293,10 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
               : cap.toolId === PHASE10_TOOL_ID
                 ? await runPrepareOutreachTool(svc, user, body)
                 : cap.toolId === PHASE11_TOOL_ID
-                  ? await runExecuteOutreachTool(svc, user, body, verifiedApproval)
+                  ? await runExecuteOutreachTool(svc, user, body, verifiedApproval, {
+                    execution_id: execution.execution_id,
+                    correlation_id: execution.correlation_id,
+                  })
                   : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
@@ -1441,6 +1530,35 @@ export async function executeProspectOutreach(svc, user, body, issuedBy = 'agent
     responseKey: 'result',
     validateRequest: (reqSvc, reqUser, reqBody) => validateOutreachExecutionRequestState(reqSvc, reqUser, reqBody),
   });
+}
+
+/**
+ * Phase 12 — truthful external delivery readiness. Real delivery is NOT
+ * enabled: the only connector implementation is the non-delivering sandbox
+ * connector, no real provider is registered, and the execute_prospect_outreach
+ * tool remains DRAFT + disabled. The registry listing is read from
+ * ExternalDeliveryConnectorRegistry for verification only — a registry
+ * record never authorizes anything.
+ */
+export async function getDeliveryReadiness(svc) {
+  const registryRecords = await svc.entities.ExternalDeliveryConnectorRegistry.filter({}, 'connector_id', 50);
+  const connectors = registryRecords.map((c) => ({
+    connector_id: c.connector_id,
+    name: c.name,
+    connector_type: c.connector_type,
+    version: c.version,
+    status: c.status,
+    enabled: c.enabled === true,
+    supported_channels: Array.isArray(c.supported_channels) ? c.supported_channels : [],
+    supports_delivery: c.supports_delivery === true,
+    sandbox_only: c.sandbox_only === true,
+    requires_human_approval: c.requires_human_approval === true,
+  }));
+  return Response.json({
+    ...getRealDeliveryReadiness(),
+    registry: connectors,
+    registered_connector_count: connectors.length,
+  }, { status: 200 });
 }
 
 export async function getExecution(svc, user, body) {

@@ -1,0 +1,207 @@
+{
+  "name": "ExternalDeliveryConnectorRegistry",
+  "type": "object",
+  "description": "Phase 12 provider-neutral external delivery connector registry. Configuration/architecture only \u2014 a registry record authorizes nothing: the Agent Orchestration Core remains the single authorization authority, and a connector may only be invoked by the governed outreach execution boundary with an already-authorized execution context. Phase 12 registers exactly one connector: the non-delivering Sandbox Delivery Connector.",
+  "properties": {
+    "connector_id": {
+      "type": "string",
+      "description": "Unique authoritative connector identifier (single source of truth). Wildcards are prohibited."
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the delivery connector"
+    },
+    "connector_type": {
+      "type": "string",
+      "enum": [
+        "SANDBOX",
+        "EMAIL_PROVIDER",
+        "MESSAGING_PROVIDER",
+        "VOICE_PROVIDER",
+        "SOCIAL_PROVIDER",
+        "CRM_PROVIDER",
+        "OTHER"
+      ],
+      "description": "Provider-neutral connector classification. SANDBOX = non-delivering contract-validation connector"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Connector definition version"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "DRAFT",
+        "PAUSED",
+        "RETIRED"
+      ],
+      "default": "DRAFT",
+      "description": "Registry lifecycle: ACTIVE (registered and referenceable by the delivery contract), DRAFT (defined, not referenceable), PAUSED (temporarily suspended), RETIRED (removed from service)"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the connector may be referenced by the delivery architecture. A registry record NEVER authorizes execution on its own."
+    },
+    "supported_channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "EMAIL",
+          "LINKEDIN",
+          "CALL"
+        ]
+      },
+      "description": "Provider-neutral channels this connector can conceptually map. No channel is contacted by the sandbox connector."
+    },
+    "supports_delivery": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the connector performs real delivery. FALSE for the sandbox connector \u2014 it performs contract validation only and never transmits anything."
+    },
+    "sandbox_only": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the connector is restricted to non-delivering sandbox behavior"
+    },
+    "requires_human_approval": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether deliveries through this connector require the governed human approval of the outreach execution boundary. Delivery connectors may never weaken this."
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "production_catalog",
+        "platform_config"
+      ],
+      "default": "production_catalog",
+      "description": "Provenance of the connector definition"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "What the connector does, what it never does, and its current usage status"
+    }
+  },
+  "required": [
+    "connector_id",
+    "name",
+    "connector_type",
+    "status",
+    "supported_channels",
+    "supports_delivery",
+    "sandbox_only"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

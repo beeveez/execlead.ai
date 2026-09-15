@@ -1,0 +1,232 @@
+{
+  "name": "OutreachDeliveryAudit",
+  "type": "object",
+  "description": "Phase 12 provider-neutral delivery audit contract. Records are written ONLY by the governed outreach execution boundary acting under the service role; the delivery connector itself never writes. Every record clearly distinguishes simulated, blocked, and real outcomes via delivery_mode and result_status. Phase 12 may only ever contain SANDBOX-mode records with sandbox-truthful statuses (NOT_ATTEMPTED, SANDBOX_ONLY, BLOCKED) \u2014 no record may claim real delivery while real delivery is not enabled.",
+  "properties": {
+    "audit_id": {
+      "type": "string",
+      "description": "Unique authoritative delivery audit record identifier (single source of truth)"
+    },
+    "execution_id": {
+      "type": "string",
+      "description": "execution_id of the governed AgentExecution that reached the delivery boundary"
+    },
+    "approval_id": {
+      "type": "string",
+      "description": "approval_id of the verified server-issued human approval binding this delivery"
+    },
+    "prospect_id": {
+      "type": "string",
+      "description": "prospect_id of the Prospect the delivery was prepared for (ownership anchored by the execution boundary)"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "EMAIL",
+        "LINKEDIN",
+        "CALL"
+      ],
+      "description": "Provider-neutral delivery channel. No channel is contacted by the sandbox connector."
+    },
+    "connector_id": {
+      "type": "string",
+      "description": "connector_id from ExternalDeliveryConnectorRegistry that handled this delivery attempt"
+    },
+    "connector_type": {
+      "type": "string",
+      "description": "Connector classification (e.g. SANDBOX)"
+    },
+    "connector_version": {
+      "type": "string",
+      "description": "Version of the connector definition at delivery time"
+    },
+    "delivery_mode": {
+      "type": "string",
+      "enum": [
+        "SANDBOX",
+        "REAL"
+      ],
+      "description": "Distinguishes simulated/blocked outcomes from real delivery. SANDBOX records claim no delivery. REAL is reserved for a future separately approved phase \u2014 Phase 12 records are always SANDBOX."
+    },
+    "result_status": {
+      "type": "string",
+      "enum": [
+        "NOT_ATTEMPTED",
+        "SANDBOX_ONLY",
+        "BLOCKED",
+        "SENT",
+        "DELIVERED",
+        "FAILED"
+      ],
+      "description": "Provider-neutral delivery result status. The sandbox connector can only produce NOT_ATTEMPTED, SANDBOX_ONLY, or BLOCKED \u2014 SENT and DELIVERED are structurally unavailable to the sandbox and can never be claimed by a SANDBOX-mode record."
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Governed correlation identifier linking the delivery audit to the execution, approval, and observability events"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the delivery attempt was processed by the connector"
+    },
+    "error_code": {
+      "type": "string",
+      "description": "Machine-readable error code for BLOCKED or FAILED results, otherwise null"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Owning user derived server-side by the execution boundary; never client-supplied"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant boundary derived server-side by the execution boundary; never client-supplied"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Provenance of the audit record (e.g. agent_orchestration_service)"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional delivery diagnostics: delivery identity, approved draft hash, simulation and recipient-resolution flags"
+    }
+  },
+  "required": [
+    "audit_id",
+    "execution_id",
+    "approval_id",
+    "prospect_id",
+    "channel",
+    "connector_id",
+    "delivery_mode",
+    "result_status",
+    "correlation_id",
+    "timestamp"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "$and": [
+            {
+              "data.organization_id": "{{user.data.organization_id}}"
+            },
+            {
+              "$or": [
+                {
+                  "user_condition": {
+                    "role": "enterprise_admin"
+                  }
+                },
+                {
+                  "user_condition": {
+                    "role": "organization_owner"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

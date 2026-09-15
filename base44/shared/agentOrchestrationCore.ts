@@ -59,6 +59,11 @@ import {
   qualifyInputHash,
   PROSPECT_QUALIFY_SCORE_CAP,
 } from './prospectQualification.ts';
+import {
+  validateTransitionInput,
+  validateTransitionAgainstMatrix,
+  prospectTransitionInputHash,
+} from './prospectStatusTransition.ts';
 
 export const PHASE5_AGENT_ID = 'exec_concierge';
 export const PHASE5_TOOL_ID = 'read_own_readiness_assessment';
@@ -83,6 +88,10 @@ export const PHASE83_TOOL_ID = 'qualify_own_prospect';
 export const PHASE83_TARGET_TYPE = 'INTERNAL_SERVICE';
 export const PHASE83_TARGET_NAME = 'prospectQualification';
 export const PHASE83_OPERATION = 'INVOKE';
+export const PHASE9_TOOL_ID = 'update_own_prospect_status';
+export const PHASE9_TARGET_TYPE = 'ENTITY';
+export const PHASE9_TARGET_NAME = 'Prospect';
+export const PHASE9_OPERATION = 'UPDATE';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -180,6 +189,7 @@ export async function getStatus(svc) {
   const growthCreate = await resolveCapabilityStatus(svc, PHASE8_AGENT_ID, PHASE8_TOOL_ID);
   const growthRead = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE82_TOOL_ID);
   const growthQualify = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE83_TOOL_ID);
+  const growthUpdate = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE9_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -226,6 +236,14 @@ export async function getStatus(svc) {
         target: `${PHASE83_TARGET_TYPE}:${PHASE83_TARGET_NAME}`,
         human_approval_required: false,
         orchestration_available: !globalStop && growthQualify.agentOk && growthQualify.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE9_TOOL_ID,
+        operation: PHASE9_OPERATION,
+        target: `${PHASE9_TARGET_TYPE}:${PHASE9_TARGET_NAME}`,
+        human_approval_required: true,
+        orchestration_available: !globalStop && growthUpdate.agentOk && growthUpdate.toolOk,
       },
     ],
   });
@@ -482,6 +500,113 @@ async function runQualifyOwnProspectTool(svc, user, body) {
 }
 
 /**
+ * Phase 9 tool — update_own_prospect_status (ENTITY:Prospect, UPDATE).
+ * Performs exactly ONE persistent state mutation: a single Prospect.status
+ * transition on ONE Prospect owned by the SERVER-resolved authenticated
+ * caller, validated against the explicit transition matrix. The approved
+ * source status (captured server-side at approval time) is re-verified
+ * against the live record before mutation — a Prospect that has moved
+ * since approval blocks the execution; no last-write-wins behavior.
+ * Only Prospect.status is ever written; qualification remains advisory.
+ */
+async function runUpdateProspectStatusTool(svc, user, body, verifiedApproval) {
+  const v = validateTransitionInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  // Fail-closed: this tool is only reachable behind a verified approval —
+  // a missing approval reference can never authorize a mutation.
+  if (!verifiedApproval) {
+    return { ok: false, error_code: 'APPROVAL_REQUIRED',
+      error: 'A verified human approval is required before any status mutation.' };
+  }
+  // Ownership anchored to the server-resolved identity only. The filter
+  // always pairs the client-identified prospect with the caller's
+  // owner_user_id, so a Prospect owned by anyone else resolves to the same
+  // safe not-found result as a nonexistent one.
+  const records = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = records[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'TRANSITION_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no mutation was performed.' };
+  }
+  // Stale approval protection: the approval is bound to the source status
+  // observed server-side at request time. If the live record no longer
+  // matches, BLOCK — never apply an outdated transition.
+  const currentStatus = prospect.status;
+  const approvedSource = (verifiedApproval.metadata && typeof verifiedApproval.metadata.source_status === 'string')
+    ? verifiedApproval.metadata.source_status
+    : null;
+  if (!approvedSource || currentStatus !== approvedSource) {
+    return { ok: false, error_code: 'TRANSITION_SOURCE_STATUS_CHANGED',
+      error: `The Prospect status is no longer "${approvedSource || 'the approved source status'}" — the approval is stale; no mutation was performed.` };
+  }
+  // Re-validate the transition from the LIVE server-derived status.
+  const t = validateTransitionAgainstMatrix(currentStatus, v.input.new_status);
+  if (!t.ok) {
+    return { ok: false, error_code: t.error_code, error: t.error };
+  }
+  // THE mutation — exactly ONE field: status. Platform-managed timestamps are
+  // never set manually; no other field is touched.
+  const updated = await svc.entities.Prospect.update(prospect.id, { status: v.input.new_status });
+  const snapshot = {
+    prospect_id: prospect.prospect_id,
+    previous_status: currentStatus,
+    new_status: v.input.new_status,
+  };
+  return {
+    ok: true,
+    responseKey: 'transition',
+    response: { updated: true, transition: snapshot },
+    result_summary: `Transitioned prospect ${prospect.prospect_id} status ${currentStatus} → ${v.input.new_status} via an approved governed Workforce execution (exactly one field changed: status).`,
+    snapshot,
+    meta: {
+      prospect_id: prospect.prospect_id,
+      previous_status: currentStatus,
+      new_status: v.input.new_status,
+      status_transition: `${currentStatus}→${v.input.new_status}`,
+      has_transition_reason: Boolean(v.input.transition_reason),
+      fields_changed: 1,
+      qualification_score_touched: false,
+      external_verification: false,
+    },
+  };
+}
+
+/**
+ * Phase 9 request-time state validation. Runs BEFORE any approval is issued:
+ * validates the strict input contract, re-derives the CURRENT status from
+ * the database under the server-resolved owner (a client-supplied
+ * current_status is never trusted — it is rejected as an unknown key), and
+ * validates the transition against the matrix. The observed source status
+ * is returned as approval-binding metadata for stale-approval protection.
+ */
+async function validateTransitionRequestState(svc, user, body) {
+  const v = validateTransitionInput(body && body.input);
+  if (!v.ok) return v;
+  const records = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = records[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'TRANSITION_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no approval was issued.' };
+  }
+  const t = validateTransitionAgainstMatrix(prospect.status, v.input.new_status);
+  if (!t.ok) return t;
+  return {
+    ok: true,
+    approval_meta: {
+      prospect_id: prospect.prospect_id,
+      source_status: prospect.status,
+      requested_new_status: v.input.new_status,
+    },
+  };
+}
+
+/**
  * THE single governed execution chain. Both authorized capabilities route
  * through this one implementation — there is no second governance path.
  * The capability (agent + tool + target + operation) is selected SERVER-side
@@ -616,8 +741,9 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
     // payload that satisfies the tool input contract. Injected or malformed
     // requests are refused BEFORE any approval record exists — truthful
     // BLOCKED audit record; nothing queued, nothing mutated.
+    let requestValidation = null;
     if (typeof cap.validateRequest === 'function') {
-      const v = cap.validateRequest(body);
+      const v = await cap.validateRequest(svc, user, body);
       if (v && v.ok === false) {
         const execution = await recordBlocked(svc, user, v.error_code, v.error,
           { request_time_input_validation: true, approval_request_refused: true }, blockOpts);
@@ -627,6 +753,7 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
           execution_id: execution.execution_id,
         }, { status: 422 });
       }
+      if (v && v.ok === true) requestValidation = v;
     }
     const claimedApprovalId = (body && typeof body.approval_id === 'string' && body.approval_id.trim() !== '')
       ? body.approval_id.trim()
@@ -655,7 +782,14 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         correlation_id: correlationId,
         source: PROVENANCE_SOURCE,
-        metadata: { ...META, ...(requestHash ? { input_hash: requestHash } : {}) },
+        // Phase 9 stale-approval protection: the approval is bound to the
+        // prospect state observed at request time (source status + requested
+        // new status) so it can never authorize an outdated transition.
+        metadata: {
+          ...META,
+          ...(requestHash ? { input_hash: requestHash } : {}),
+          ...(requestValidation && requestValidation.approval_meta ? requestValidation.approval_meta : {}),
+        },
       });
       const execution = await svc.entities.AgentExecution.create({
         execution_id: crypto.randomUUID(),
@@ -802,7 +936,9 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
           ? await runReadOwnProspectsTool(svc, user, body)
           : cap.toolId === PHASE83_TOOL_ID
             ? await runQualifyOwnProspectTool(svc, user, body)
-            : await runReadinessReadTool(svc, user);
+            : cap.toolId === PHASE9_TOOL_ID
+              ? await runUpdateProspectStatusTool(svc, user, body, verifiedApproval)
+              : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -923,7 +1059,7 @@ export async function executeProspectCreate(svc, user, body, issuedBy = 'agentOr
     operation: PHASE8_OPERATION,
     requestHash: (reqBody) => prospectCreateInputHash(reqBody && reqBody.input),
     responseKey: 'prospect',
-    validateRequest: (reqBody) => validateProspectCreateInput(reqBody && reqBody.input),
+    validateRequest: (_svc, _user, reqBody) => validateProspectCreateInput(reqBody && reqBody.input),
   });
 }
 
@@ -963,6 +1099,30 @@ export async function executeQualifyOwnProspect(svc, user, body, issuedBy = 'age
     operation: PHASE83_OPERATION,
     requestHash: (reqBody) => qualifyInputHash(reqBody && reqBody.input),
     responseKey: 'result',
+  });
+}
+
+/**
+ * Phase 9 capability — controlled Prospect lifecycle status transition.
+ * growth_agent → update_own_prospect_status → ENTITY:Prospect (UPDATE).
+ * human_approval_required=true: every transition is QUEUED behind a
+ * server-issued PENDING AgentApproval bound to the observed source status;
+ * a stale approval is blocked when the live status has changed. The tool
+ * stays DRAFT + disabled until activation — the chain refuses it at the
+ * registry kill switch. This capability never decides that a prospect
+ * SHOULD change status: qualification recommends, a human approves, and
+ * only then does the Workforce execute the approved transition.
+ */
+export async function executeUpdateProspectStatus(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE9_TOOL_ID,
+    targetType: PHASE9_TARGET_TYPE,
+    targetName: PHASE9_TARGET_NAME,
+    operation: PHASE9_OPERATION,
+    requestHash: (reqBody) => prospectTransitionInputHash(reqBody && reqBody.input),
+    responseKey: 'transition',
+    validateRequest: (reqSvc, reqUser, reqBody) => validateTransitionRequestState(reqSvc, reqUser, reqBody),
   });
 }
 

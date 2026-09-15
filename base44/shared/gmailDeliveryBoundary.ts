@@ -14,14 +14,16 @@
  *   operator action only) AND the google_workspace_gmail
  *   ExternalDeliveryConnectorRegistry record being ACTIVE+enabled. Both
  *   are false today and are never changed by code.
- * - Recipient resolution: the ONLY permitted source is an explicitly
- *   approved server-side verified-contact source bound to the Prospect.
- *   NO such source exists in this phase, so the resolver fails closed
- *   deterministically (GMAIL_RECIPIENT_RESOLUTION_NOT_IMPLEMENTED) and
- *   no recipient can ever be inferred from a company name, domain,
- *   website, employee name, search results, Gmail contacts, or any
- *   client or agent string. Recipient data never enters prompts or LLM
- *   context.
+ * - Recipient resolution (Phase 14E): the ONLY permitted source is the
+ *   Prospect's VERIFIED primary EMAIL ProspectContact — resolved
+ *   server-side, revalidated here, and bound to the approved
+ *   recipient_contact_id so the recipient can never change after
+ *   approval. With no verified primary contact the resolver fails
+ *   closed deterministically (GMAIL_RECIPIENT_NOT_VERIFIED) and no
+ *   recipient can ever be inferred from a company name, domain,
+ *   website, employee name, owner or user email, search results, Gmail
+ *   contacts, LLM output, or any client or agent string. Recipient data
+ *   never enters prompts or LLM context.
  * - The client and the Growth Agent can never control the recipient,
  *   sender, cc, bcc, provider identity, or any delivery parameter:
  *   the governed request is a strict allow-list and every extra field is
@@ -65,13 +67,13 @@
  * reachable only after every gate check passes.
  */
 
-export const GMAIL_DELIVERY_BOUNDARY_VERSION = '14D.1.0.0';
+export const GMAIL_DELIVERY_BOUNDARY_VERSION = '14E.1.0.0';
 export const OUTREACH_REAL_DELIVERY_CONFIG_ID = 'outreach_real_delivery_global';
 export const GMAIL_REAL_DELIVERY_REQUIREMENTS = [
   'outreach_real_delivery_global real_delivery_enabled = true (explicit operator action)',
   'google_workspace_gmail ExternalDeliveryConnectorRegistry record ACTIVE + enabled (explicit operator action)',
   'verified human-approved governed OutreachDeliveryRequest (single use, unexpired)',
-  'server-resolved recipient from an explicitly approved verified-contact source',
+  'server-resolved recipient from the Prospect VERIFIED primary EMAIL ProspectContact (Phase 14E verified-contact capability; fails closed when none exists)',
 ];
 export const GMAIL_DELIVERY_AGENT_ID = 'growth_agent';
 export const GMAIL_DELIVERY_TOOL_ID = 'execute_prospect_outreach';
@@ -85,7 +87,7 @@ export const GMAIL_DELIVERY_TRANSPORT_ENDPOINT = 'https://gmail.googleapis.com/g
 export const GMAIL_DELIVERY_FORBIDDEN_RESULT_STATUS = 'DELIVERED';
 export const GMAIL_DELIVERY_PROSPECT_ELIGIBLE_STATUSES = ['QUALIFIED', 'PURSUING'];
 export const GMAIL_DELIVERY_RECIPIENT_RESOLUTION_NOT_IMPLEMENTED = 'NOT_IMPLEMENTED';
-export const GMAIL_DELIVERY_RECIPIENT_RESOLUTION_APPROVED_SOURCE = 'SERVER_APPROVED_CONTACT_SOURCE';
+export const GMAIL_DELIVERY_RECIPIENT_RESOLUTION_VERIFIED_CONTACT = 'SERVER_VERIFIED_PROSPECT_CONTACT';
 
 /** The frozen Phase 12 server-built destination contract fields. These
  * keys are legal ONLY in the server-built contract shape (EMAIL channel,
@@ -135,11 +137,14 @@ export const GMAIL_CLIENT_DELIVERY_FIELD_NAMES = [
   'headers', 'attachments', 'in_reply_to', 'references',
 ];
 
-/** Strict field contract of an explicitly approved server-side
- * verified-contact source (a future separately approved capability —
- * none exists in this phase, so every live resolution fails closed). */
-export const GMAIL_APPROVED_CONTACT_SOURCE_FIELDS = [
-  'contact_source_id', 'prospect_id', 'contact_email', 'verified_by', 'verified_at',
+/** Strict field contract of the server-read VERIFIED ProspectContact
+ * snapshot supplied by trusted server code (the Phase 14E verified-contact
+ * capability). A contact record authorizes nothing on its own — it is
+ * consumed ONLY by this resolver, and only in the VERIFIED, primary, EMAIL
+ * shape for the exact Prospect. */
+export const GMAIL_VERIFIED_CONTACT_CONTRACT_FIELDS = [
+  'contact_id', 'prospect_id', 'contact_type', 'contact_value',
+  'verification_status', 'is_primary', 'verified_by', 'verified_at',
 ];
 
 /** Fields that must NEVER appear in a delivery audit record. */
@@ -150,7 +155,7 @@ export const GMAIL_DELIVERY_AUDIT_PROHIBITED_FIELDS = [
 
 const GMAIL_REQUEST_ALLOWED_FIELDS = [
   'prospect_id', 'channel', 'approved_draft_hash', 'approval_id',
-  'execution_id', 'correlation_id', 'destination', 'message',
+  'execution_id', 'correlation_id', 'recipient_contact_id', 'destination', 'message',
   'message_hash', 'delivery_identity',
 ];
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -263,6 +268,9 @@ export function validateGovernedRealDeliveryRequest(request) {
   if (typeof request.correlation_id !== 'string' || !CORRELATION_RE.test(request.correlation_id.trim())) {
     return reject('GATE_REQUEST_INVALID', 'correlation_id must be the governed correlation identifier issued by the execution boundary.');
   }
+  if (typeof request.recipient_contact_id !== 'string' || !UUID_RE.test(request.recipient_contact_id.trim().toLowerCase())) {
+    return reject('GATE_REQUEST_INVALID', 'recipient_contact_id must be the server-issued verified contact identifier binding this delivery to its exact recipient.');
+  }
   if (typeof request.message_hash !== 'string' || request.message_hash === '') {
     return reject('GATE_REQUEST_INVALID', 'The governed request carries no message hash.');
   }
@@ -305,6 +313,7 @@ export function validateGovernedRealDeliveryRequest(request) {
       approval_id: request.approval_id.trim().toLowerCase(),
       execution_id: request.execution_id.trim().toLowerCase(),
       correlation_id: request.correlation_id.trim(),
+      recipient_contact_id: request.recipient_contact_id.trim().toLowerCase(),
       message: message,
       message_hash: request.message_hash,
       delivery_identity: request.delivery_identity,
@@ -313,54 +322,68 @@ export function validateGovernedRealDeliveryRequest(request) {
 }
 
 /**
- * THE server-side recipient resolver. The ONLY permitted recipient
- * source is an explicitly approved server-side verified-contact source
- * bound to the Prospect record (a future separately approved capability
- * — none exists in this phase). No recipient is ever inferred from a
- * company name, domain, website, employee name, search results, Gmail
- * contacts, or any client/agent string, and recipient data never enters
- * prompts or LLM context. Fails closed deterministically.
+ * THE server-side recipient resolver. The ONLY permitted recipient source
+ * is a VERIFIED, primary, EMAIL ProspectContact bound to the Prospect
+ * record (the Phase 14E verified-contact capability — the contact record
+ * is resolved server-side by the trusted orchestrator and revalidated
+ * here against the full contract). No recipient is ever inferred from a
+ * company name, domain, website, employee name, owner or user email,
+ * search results, Gmail contacts, LLM output, or any client/agent
+ * string, and recipient data never enters prompts or LLM context.
+ * Fails closed deterministically.
  */
-export function resolveAuthorizedOutreachRecipient(prospectRecord, approvedContactSource) {
+export function resolveAuthorizedOutreachRecipient(prospectRecord, verifiedContactRecord) {
   if (!isPlainObject(prospectRecord) || typeof prospectRecord.prospect_id !== 'string') {
     return reject('GATE_PROSPECT_MISSING', 'No authoritative Prospect record exists — recipient resolution fails closed.');
   }
-  if (!isPlainObject(approvedContactSource)) {
-    return reject('GMAIL_RECIPIENT_RESOLUTION_NOT_IMPLEMENTED',
-      'No explicitly approved server-side verified-contact source exists for this Prospect — recipient resolution is NOT_IMPLEMENTED and the delivery fails closed. No recipient is inferred from any other data.');
+  if (!isPlainObject(verifiedContactRecord)) {
+    return reject('GMAIL_RECIPIENT_NOT_VERIFIED',
+      'No VERIFIED primary EMAIL ProspectContact exists for this Prospect — recipient resolution fails closed. No recipient is inferred from any other data.');
   }
-  for (const key of Object.keys(approvedContactSource)) {
-    if (!GMAIL_APPROVED_CONTACT_SOURCE_FIELDS.includes(key)) {
-      return reject('GMAIL_CONTACT_SOURCE_FIELD_REJECTED',
-        'Verified-contact source field "' + String(key).replace(/[^\w.-]/g, '').substring(0, 40) + '" is not part of the approved contact-source contract.');
+  for (const key of Object.keys(verifiedContactRecord)) {
+    if (!GMAIL_VERIFIED_CONTACT_CONTRACT_FIELDS.includes(key)) {
+      return reject('GMAIL_CONTACT_FIELD_REJECTED',
+        'Verified-contact field "' + String(key).replace(/[^\w.-]/g, '').substring(0, 40) + '" is not part of the verified contact contract.');
     }
   }
-  if (typeof approvedContactSource.contact_source_id !== 'string' || approvedContactSource.contact_source_id.trim().length < 3 || approvedContactSource.contact_source_id.length > 100) {
-    return reject('GMAIL_CONTACT_SOURCE_INVALID', 'The verified-contact source must carry its server-issued identifier.');
+  if (typeof verifiedContactRecord.contact_id !== 'string' || !UUID_RE.test(verifiedContactRecord.contact_id.trim().toLowerCase())) {
+    return reject('GMAIL_CONTACT_ID_INVALID', 'The verified contact must carry its server-issued contact identifier.');
   }
-  if (typeof approvedContactSource.prospect_id !== 'string' || approvedContactSource.prospect_id.trim().toLowerCase() !== prospectRecord.prospect_id.trim().toLowerCase()) {
-    return reject('GMAIL_CONTACT_SOURCE_PROSPECT_MISMATCH', 'The verified-contact source is not bound to this Prospect — no cross-Prospect recipient is permitted.');
+  if (verifiedContactRecord.contact_type !== GMAIL_DELIVERY_CHANNEL) {
+    return reject('GMAIL_CONTACT_TYPE_UNSUPPORTED', 'Only a VERIFIED EMAIL contact may resolve as an outreach recipient — no other contact type exists.');
   }
-  const email = typeof approvedContactSource.contact_email === 'string' ? approvedContactSource.contact_email.trim().toLowerCase() : '';
+  if (typeof verifiedContactRecord.prospect_id !== 'string' || verifiedContactRecord.prospect_id.trim().toLowerCase() !== prospectRecord.prospect_id.trim().toLowerCase()) {
+    return reject('GMAIL_CONTACT_PROSPECT_MISMATCH', 'The verified contact is not bound to this Prospect — no cross-Prospect recipient is permitted.');
+  }
+  if (verifiedContactRecord.verification_status === 'REVOKED') {
+    return reject('GMAIL_CONTACT_REVOKED', 'The contact has been revoked — a revoked contact can never resolve as a recipient.');
+  }
+  if (verifiedContactRecord.verification_status !== 'VERIFIED') {
+    return reject('GMAIL_CONTACT_UNVERIFIED', 'The contact is not VERIFIED — unverified recipients are never contacted. Verification is an explicit governed human action, never implied by email syntax.');
+  }
+  if (verifiedContactRecord.is_primary !== true) {
+    return reject('GMAIL_CONTACT_NOT_PRIMARY', 'The contact is not the Prospect primary contact — only the single VERIFIED primary EMAIL contact may resolve as a recipient.');
+  }
+  const email = typeof verifiedContactRecord.contact_value === 'string' ? verifiedContactRecord.contact_value.trim().toLowerCase() : '';
   if (email.length === 0 || email.length > 320 || !EMAIL_RE.test(email)) {
-    return reject('GMAIL_RECIPIENT_INVALID', 'The verified-contact source does not carry a valid verified recipient address — delivery fails closed.');
+    return reject('GMAIL_RECIPIENT_INVALID', 'The verified contact does not carry a valid recipient address — delivery fails closed.');
   }
   if (email === GMAIL_DELIVERY_SENDER_IDENTITY) {
     return reject('GMAIL_RECIPIENT_INVALID', 'The fixed sender identity may never be used as an outreach recipient.');
   }
-  if (typeof approvedContactSource.verified_by !== 'string' || approvedContactSource.verified_by.trim().length === 0 || approvedContactSource.verified_by.length > 100) {
-    return reject('GMAIL_CONTACT_SOURCE_UNVERIFIED', 'The contact source carries no human verification provenance — unverified recipients are never contacted.');
+  if (typeof verifiedContactRecord.verified_by !== 'string' || verifiedContactRecord.verified_by.trim().length === 0 || verifiedContactRecord.verified_by.length > 100) {
+    return reject('GMAIL_CONTACT_UNVERIFIED', 'The contact carries no human verification provenance — unverified recipients are never contacted.');
   }
-  if (typeof approvedContactSource.verified_at !== 'string' || approvedContactSource.verified_at.length < 10) {
-    return reject('GMAIL_CONTACT_SOURCE_UNVERIFIED', 'The contact source carries no verification timestamp — unverified recipients are never contacted.');
+  if (typeof verifiedContactRecord.verified_at !== 'string' || verifiedContactRecord.verified_at.length < 10) {
+    return reject('GMAIL_CONTACT_UNVERIFIED', 'The contact carries no verification timestamp — unverified recipients are never contacted.');
   }
   return {
     ok: true,
     recipient: deepFreeze({
       email: email,
-      resolved_by: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_APPROVED_SOURCE,
-      contact_source_id: approvedContactSource.contact_source_id.trim(),
-      verified_by: approvedContactSource.verified_by.trim(),
+      resolved_by: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_VERIFIED_CONTACT,
+      contact_id: verifiedContactRecord.contact_id.trim().toLowerCase(),
+      verified_by: verifiedContactRecord.verified_by.trim(),
     }),
   };
 }
@@ -423,6 +446,16 @@ export function evaluateRealDeliveryGate(serverState) {
   if (approvalDraftHash !== request.approved_draft_hash) {
     return reject('GATE_APPROVAL_DRAFT_HASH_MISMATCH', 'Check 9 failed: the approved draft hash does not match the request — no draft substitution is permitted.');
   }
+  // Approval recipient-contact binding (Phase 14E): when the approval
+  // binds a recipient contact, the request contact must be exactly that
+  // contact — the approval can never become valid against a different
+  // recipient, and a revoked, demoted, or changed contact fails closed at
+  // checks 13/14 against the live server-resolved contact state.
+  const approvalContactId = isPlainObject(approval.metadata) && typeof approval.metadata.recipient_contact_id === 'string'
+    ? approval.metadata.recipient_contact_id.trim().toLowerCase() : null;
+  if (approvalContactId !== null && approvalContactId !== request.recipient_contact_id) {
+    return reject('GATE_APPROVAL_CONTACT_MISMATCH', 'Check 9 failed: the approved recipient contact and the request contact differ — no contact substitution after approval.');
+  }
   // 10. Prospect exists and matches
   const prospect = serverState.prospect_record;
   if (!isPlainObject(prospect) || typeof prospect.prospect_id !== 'string' || prospect.prospect_id.trim().toLowerCase() !== request.prospect_id) {
@@ -439,10 +472,15 @@ export function evaluateRealDeliveryGate(serverState) {
   if (!GMAIL_DELIVERY_PROSPECT_ELIGIBLE_STATUSES.includes(prospect.status)) {
     return reject('GATE_PROSPECT_STATUS_INELIGIBLE', 'Check 12 failed: the Prospect lifecycle status is not QUALIFIED or PURSUING.');
   }
-  // 13/14. server-resolved, valid recipient
-  const recipientResult = resolveAuthorizedOutreachRecipient(prospect, serverState.approved_contact_source);
+  // 13/14. server-resolved, valid recipient — ONLY the VERIFIED primary
+  // EMAIL ProspectContact bound to this Prospect, and it must equal the
+  // approved recipient_contact_id (no post-approval contact substitution).
+  const recipientResult = resolveAuthorizedOutreachRecipient(prospect, serverState.verified_contact_record);
   if (!recipientResult.ok) {
     return reject(recipientResult.error_code, 'Check 13/14 failed: ' + recipientResult.error);
+  }
+  if (recipientResult.recipient.contact_id !== request.recipient_contact_id) {
+    return reject('GMAIL_RECIPIENT_CONTACT_MISMATCH', 'Check 13/14 failed: the resolved VERIFIED primary contact does not match the approved recipient contact — no contact substitution or post-approval recipient change is permitted.');
   }
   // 15. fixed sender identity
   if (serverState.declared_sender !== GMAIL_DELIVERY_SENDER_IDENTITY) {
@@ -505,7 +543,7 @@ export function getRealDeliveryActivationStatus() {
     global_permission_record: OUTREACH_REAL_DELIVERY_CONFIG_ID,
     connector_registry_state: 'DRAFT / enabled=false',
     execute_prospect_outreach_state: 'DRAFT / disabled',
-    recipient_resolution: 'NOT_IMPLEMENTED — no explicitly approved server-side verified-contact source exists; the resolver fails closed',
+    recipient_resolution: 'IMPLEMENTED (Phase 14E) — resolves ONLY the Prospect VERIFIED primary EMAIL ProspectContact (server-resolved, approval-bound by recipient_contact_id, fail-closed RECIPIENT_NOT_VERIFIED when none exists); real delivery remains OFF',
     activation_requirements: GMAIL_REAL_DELIVERY_REQUIREMENTS,
     automatic_activation: 'none — activation is an explicit operator action after this phase passes',
     email_sent_in_this_phase: false,
@@ -567,7 +605,7 @@ function blockedOutcome(state, gate, errorCode, error, extra) {
     error_code: errorCode,
     error: error,
     recipient_fingerprint: recipientFingerprint,
-    recipient_resolution: (gate && gate.recipient) ? GMAIL_DELIVERY_RECIPIENT_RESOLUTION_APPROVED_SOURCE : GMAIL_DELIVERY_RECIPIENT_RESOLUTION_NOT_IMPLEMENTED,
+    recipient_resolution: (gate && gate.recipient) ? GMAIL_DELIVERY_RECIPIENT_RESOLUTION_VERIFIED_CONTACT : GMAIL_DELIVERY_RECIPIENT_RESOLUTION_NOT_IMPLEMENTED,
     transport_invoked: false,
   };
   const merged = extra ? Object.assign({}, outcome, extra) : outcome;
@@ -758,7 +796,7 @@ export async function executeGovernedGmailDelivery(request, serverState, credent
         error_code: (sent && typeof sent.error_code === 'string') ? sent.error_code : 'GMAIL_PROVIDER_REJECTED',
         error: 'The Gmail provider rejected the single governed send — the approved message was not accepted.',
         recipient_fingerprint: fingerprint,
-        recipient_resolution: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_APPROVED_SOURCE,
+        recipient_resolution: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_VERIFIED_CONTACT,
         transport_invoked: true,
       };
       return {
@@ -795,7 +833,7 @@ export async function executeGovernedGmailDelivery(request, serverState, credent
       result_status: 'SENT',
       error_code: null,
       recipient_fingerprint: fingerprint,
-      recipient_resolution: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_APPROVED_SOURCE,
+      recipient_resolution: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_VERIFIED_CONTACT,
       transport_invoked: true,
       provider_message_id: typeof sent.provider_message_id === 'string' ? sent.provider_message_id : null,
     };
@@ -837,7 +875,7 @@ export async function executeGovernedGmailDelivery(request, serverState, credent
       error_code: 'GMAIL_TRANSPORT_ERROR',
       error: 'The governed transport failed before a send outcome could be confirmed — no delivery is claimed.',
       recipient_fingerprint: fingerprint,
-      recipient_resolution: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_APPROVED_SOURCE,
+      recipient_resolution: GMAIL_DELIVERY_RECIPIENT_RESOLUTION_VERIFIED_CONTACT,
       transport_invoked: true,
     };
     return {

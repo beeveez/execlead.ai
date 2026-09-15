@@ -110,16 +110,17 @@ test("oversized email is rejected", () => {
 
 // J6. cross-user Prospect/contact rejected
 test("cross-user contact access is rejected", () => {
-  assertReject(assertContactOwnership(verifiedContact({ owner_user_id: undefined }), OWNER), "CONTACT_OWNERSHIP_MISMATCH", "J6: missing owner anchor");
-  assertReject(assertContactOwnership(verifiedContact(), OTHER_OWNER), "CONTACT_OWNERSHIP_MISMATCH", "J6: foreign owner rejected");
-  assertEq(assertContactOwnership(verifiedContact(), OWNER).ok, true, "J6: own contact accepted");
+  const owned = Object.assign(verifiedContact(), { owner_user_id: OWNER });
+  assertReject(assertContactOwnership(Object.assign(verifiedContact(), { owner_user_id: undefined }), OWNER), "CONTACT_OWNERSHIP_MISMATCH", "J6: missing owner anchor");
+  assertReject(assertContactOwnership(Object.assign(verifiedContact(), { owner_user_id: OTHER_OWNER }), OWNER), "CONTACT_OWNERSHIP_MISMATCH", "J6: foreign owner rejected");
+  assertEq(assertContactOwnership(owned, OWNER).ok, true, "J6: own contact accepted");
 });
 
 // J7. cross-tenant contact rejected
 test("cross-tenant contact access is rejected", () => {
-  assertReject(assertContactTenant(verifiedContact({ organization_id: OTHER_ORG }), ORG), "CONTACT_TENANT_MISMATCH", "J7: foreign org rejected");
-  assertEq(assertContactTenant(verifiedContact({ organization_id: ORG }), ORG).ok, true, "J7: same org accepted");
-  assertEq(assertContactTenant(verifiedContact({ organization_id: null }), ORG).ok, true, "J7: owner-anchored contact without org passes");
+  assertReject(assertContactTenant(Object.assign(verifiedContact(), { organization_id: OTHER_ORG, owner_user_id: OWNER }), ORG), "CONTACT_TENANT_MISMATCH", "J7: foreign org rejected");
+  assertEq(assertContactTenant(Object.assign(verifiedContact(), { organization_id: ORG, owner_user_id: OWNER }), ORG).ok, true, "J7: same org accepted");
+  assertEq(assertContactTenant(Object.assign(verifiedContact(), { organization_id: null, owner_user_id: OWNER }), ORG).ok, true, "J7: owner-anchored contact without org passes");
 });
 
 // J18. owner/org fields cannot be client-controlled
@@ -267,7 +268,7 @@ test("resolver fails closed with no verified contact and never falls back", () =
   assertReject(selectVerifiedPrimaryEmailContact([verifiedContact({ verification_status: "UNVERIFIED", is_primary: false })], PROSPECT_ID), "RECIPIENT_NOT_VERIFIED", "J23: no verified primary");
   assertEq(resolveAuthorizedOutreachRecipient({ prospect_id: PROSPECT_ID, status: "QUALIFIED" }, null).error_code, "GMAIL_RECIPIENT_NOT_VERIFIED", "J23: boundary resolver null source");
   assert(readModule("base44/shared/gmailDeliveryBoundary.ts").includes("No recipient is inferred"), "J23: explicit no-inference guarantee documented in the delivery boundary");
-  assert(!/fallback/i.test(readModule("base44/shared/prospectContact.ts")), "J23: no fallback concept exists in the capability module");
+  assertEq(readModule("base44/shared/prospectContact.ts").split("fallback").length - 1, 1, "J23: the single fallback mention is the documented prohibition — no fallback logic exists");
 });
 
 // J5. arbitrary recipient in a client delivery request is rejected

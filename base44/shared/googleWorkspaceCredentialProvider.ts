@@ -283,6 +283,7 @@ export function acquireGmailProviderCredentialContext(options, envSnapshot) {
       'The configured server-side private key material does not match the required format — no credential is exposed.');
   }
   return deepFreeze({
+    ok: true,
     provider: GMAIL_CREDENTIAL_PROVIDER_ID,
     provider_version: GMAIL_CREDENTIAL_PROVIDER_VERSION,
     architecture: GMAIL_CREDENTIAL_ARCHITECTURE,

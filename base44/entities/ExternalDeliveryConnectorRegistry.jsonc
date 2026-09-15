@@ -1,7 +1,7 @@
 {
   "name": "ExternalDeliveryConnectorRegistry",
   "type": "object",
-  "description": "Phase 12 provider-neutral external delivery connector registry. Configuration/architecture only \u2014 a registry record authorizes nothing: the Agent Orchestration Core remains the single authorization authority, and a connector may only be invoked by the governed outreach execution boundary with an already-authorized execution context. Phase 12 registers exactly one connector: the non-delivering Sandbox Delivery Connector.",
+  "description": "Provider-neutral external delivery connector registry. Configuration/architecture only \u2014 a registry record authorizes nothing: the Agent Orchestration Core remains the single authorization authority, and a connector may only be invoked by the governed outreach execution boundary with an already-authorized execution context. Phase 12 registers exactly one ACTIVE connector: the non-delivering Sandbox Delivery Connector. Phase 13 adds exactly one DRAFT architecture record for the Google Workspace Gmail provider (not connected, not enabled, no credentials).",
   "properties": {
     "connector_id": {
       "type": "string",
@@ -15,6 +15,7 @@
       "type": "string",
       "enum": [
         "SANDBOX",
+        "GOOGLE_WORKSPACE_GMAIL",
         "EMAIL_PROVIDER",
         "MESSAGING_PROVIDER",
         "VOICE_PROVIDER",
@@ -22,7 +23,7 @@
         "CRM_PROVIDER",
         "OTHER"
       ],
-      "description": "Provider-neutral connector classification. SANDBOX = non-delivering contract-validation connector"
+      "description": "Provider-neutral connector classification. SANDBOX = non-delivering contract-validation connector. GOOGLE_WORKSPACE_GMAIL = Phase 13 architecture-only Gmail provider adapter (DRAFT, not connected)."
     },
     "version": {
       "type": "string",
@@ -55,12 +56,12 @@
           "CALL"
         ]
       },
-      "description": "Provider-neutral channels this connector can conceptually map. No channel is contacted by the sandbox connector."
+      "description": "Provider-neutral channels this connector can conceptually map. No channel is contacted by the sandbox connector, and the Phase 13 Google connector is not connected."
     },
     "supports_delivery": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the connector performs real delivery. FALSE for the sandbox connector \u2014 it performs contract validation only and never transmits anything."
+      "description": "Whether the connector performs real delivery. FALSE for the sandbox connector and FALSE for the Phase 13 Google architecture connector \u2014 neither transmits anything."
     },
     "sandbox_only": {
       "type": "boolean",
@@ -71,6 +72,11 @@
       "type": "boolean",
       "default": true,
       "description": "Whether deliveries through this connector require the governed human approval of the outreach execution boundary. Delivery connectors may never weaken this."
+    },
+    "delivery_identity": {
+      "type": "string",
+      "maxLength": 320,
+      "description": "Fixed server-controlled sender/delivery identity for this connector (e.g. the dedicated Growth mailbox for the Gmail provider). Server configuration only \u2014 never client-supplied, never dynamically configurable by an agent or client."
     },
     "source": {
       "type": "string",

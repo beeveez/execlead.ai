@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw, ClipboardCheck } from "lucide-react";
 import ApprovalCard from "@/components/developer/approvals/ApprovalCard";
 import DecisionDialog from "@/components/developer/approvals/DecisionDialog";
+import ResumeDialog from "@/components/developer/approvals/ResumeDialog";
 
 /**
  * Agent Approval Review — Phase 14F infrastructure surface.
@@ -29,6 +30,8 @@ export default function AgentApprovalReview() {
   const [dialog, setDialog] = useState(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [resumeDialog, setResumeDialog] = useState(null);
+  const [resumingId, setResumingId] = useState(null);
 
   const loadApprovals = useCallback(async () => {
     setError(null);
@@ -99,6 +102,69 @@ export default function AgentApprovalReview() {
   const closeDialog = () => {
     if (submitting) return;
     setDialog(null);
+  };
+
+  // Governed continuation — the requester's explicit resume of an APPROVED
+  // request. This UI never mutates AgentApproval or AgentExecution records;
+  // it invokes ONLY the governed resume_approved_execution capability, which
+  // re-validates every authorization server-side and executes exactly once.
+  const openResume = (approval) => {
+    if (processingId || submitting || resumingId) return;
+    setResumeDialog({ approval });
+  };
+
+  const confirmResume = async () => {
+    if (!resumeDialog || resumingId) return; // duplicate-click protection
+    const { approval } = resumeDialog;
+    setResumingId(approval.approval_id);
+    try {
+      const res = await base44.functions.invoke("agentOrchestrationService", {
+        action: "resume_approved_execution",
+        approval_id: approval.approval_id,
+      });
+      if (res && res.status === "SUCCEEDED") {
+        toast({
+          title: "Approved action executed",
+          description: res.message || "The approved action executed exactly once through the governed boundary.",
+        });
+      } else if (res && res.status === "ALREADY_CONSUMED") {
+        toast({
+          title: "Already completed",
+          description: res.message || "This approval was already consumed by exactly one governed execution.",
+        });
+      } else if (res && res.status === "PENDING_APPROVAL") {
+        toast({
+          title: "Still pending approval",
+          description: res.message || "A human decision is still required before this action can execute.",
+        });
+      } else {
+        // Backend authorization denial, expiry, stale state, or capability
+        // mismatch — the governed continuation boundary is authoritative;
+        // nothing was executed.
+        toast({
+          title: "Resume not executed",
+          description: (res && (res.error || res.message)) || "The governed continuation boundary rejected this request.",
+          variant: "destructive",
+        });
+      }
+    } catch (e) {
+      toast({
+        title: "Resume failed",
+        description: e.message || "The governed continuation capability could not be reached.",
+        variant: "destructive",
+      });
+    } finally {
+      setResumingId(null);
+      setResumeDialog(null);
+      // Always re-read — consumed / expired / stale states resolve
+      // server-side and the list must reflect the truth.
+      loadApprovals();
+    }
+  };
+
+  const closeResumeDialog = () => {
+    if (resumingId) return;
+    setResumeDialog(null);
   };
 
   const shown = tab === "pending" ? pending : decided;
@@ -175,6 +241,8 @@ export default function AgentApprovalReview() {
               processing={processingId === approval.approval_id}
               onApprove={(a) => openDecision(a, "approve")}
               onReject={(a) => openDecision(a, "reject")}
+              onResume={openResume}
+              resuming={resumingId === approval.approval_id}
             />
           ))}
         </div>
@@ -187,6 +255,13 @@ export default function AgentApprovalReview() {
         submitting={submitting}
         onConfirm={confirmDecision}
         onCancel={closeDialog}
+      />
+
+      <ResumeDialog
+        dialog={resumeDialog}
+        submitting={Boolean(resumingId)}
+        onConfirm={confirmResume}
+        onCancel={closeResumeDialog}
       />
     </div>
   );

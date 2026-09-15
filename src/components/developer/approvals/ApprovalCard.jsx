@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
-  CheckCircle2, XCircle, AlertTriangle, ShieldAlert,
+  CheckCircle2, XCircle, AlertTriangle, ShieldAlert, PlayCircle,
 } from "lucide-react";
 
 const RISK_STYLES = {
@@ -29,11 +29,17 @@ function shortId(id) {
   return typeof id === "string" && id.length > 12 ? id.slice(0, 8) + "…" : id || "—";
 }
 
-export default function ApprovalCard({ approval, currentUser, processing, onApprove, onReject }) {
+export default function ApprovalCard({ approval, currentUser, processing, onApprove, onReject, onResume, resuming }) {
   const isDecided = approval.status !== "PENDING";
   // Frontend UX guards only — the backend decide_approval boundary remains
-  // the single authorization authority for every decision.
+  // the single authorization authority for every decision, and the governed
+  // resume_approved_execution capability remains the single continuation
+  // authority for every approved action.
   const isSelf = Boolean(currentUser) && approval.user_id === currentUser.id;
+  // Governed continuation state, read from the approval binding only —
+  // this card never mutates AgentApproval or AgentExecution records.
+  const consumed = Boolean(approval.metadata && approval.metadata.executed_execution_id);
+  const resumeAvailable = approval.status === "APPROVED" && isSelf && !consumed;
   const isExpired =
     !isDecided && Boolean(approval.expires_at) && Date.parse(approval.expires_at) < Date.now();
   const controlsDisabled = isDecided || isSelf || isExpired || Boolean(processing);
@@ -44,8 +50,17 @@ export default function ApprovalCard({ approval, currentUser, processing, onAppr
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLES[approval.status] || "bg-white/5 text-white/40"}`}>
-              {approval.status}
+              {consumed
+                ? "CONSUMED — COMPLETED"
+                : approval.status === "APPROVED" && isSelf
+                  ? "APPROVED — READY TO RESUME"
+                  : approval.status}
             </span>
+            {consumed && (
+              <span className="px-2 py-0.5 rounded bg-white/5 text-white/40 text-xs">
+                Executed exactly once
+              </span>
+            )}
             <span className={`px-2 py-0.5 rounded text-xs font-medium ${RISK_STYLES[approval.risk_level] || "bg-white/5 text-white/40"}`}>
               risk: {approval.risk_level || "—"}
             </span>
@@ -62,6 +77,11 @@ export default function ApprovalCard({ approval, currentUser, processing, onAppr
             {processing && (
               <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs animate-pulse">
                 Recording decision…
+              </span>
+            )}
+            {resuming && (
+              <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-xs animate-pulse">
+                Resuming approved action…
               </span>
             )}
           </div>
@@ -88,6 +108,19 @@ export default function ApprovalCard({ approval, currentUser, processing, onAppr
               onClick={() => onReject(approval)}
             >
               <XCircle size={14} className="mr-1" /> Reject
+            </Button>
+          </div>
+        )}
+        {resumeAvailable && (
+          <div className="shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/10"
+              disabled={resuming || Boolean(processing)}
+              onClick={() => onResume && onResume(approval)}
+            >
+              <PlayCircle size={14} className="mr-1" /> {resuming ? "Resuming…" : "Resume"}
             </Button>
           </div>
         )}

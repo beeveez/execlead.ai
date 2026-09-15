@@ -101,6 +101,11 @@ import {
   prospectContactVerifyInputHash,
   PROSPECT_CONTACT_MAX_RESULTS,
 } from './prospectContact.ts';
+import {
+  validateResumeClientInput,
+  evaluateResumePreconditions,
+  recoverResumeInput,
+} from './approvalContinuation.ts';
 
 export const PHASE5_AGENT_ID = 'exec_concierge';
 export const PHASE5_TOOL_ID = 'read_own_readiness_assessment';
@@ -891,6 +896,7 @@ async function validateOutreachExecutionRequestState(svc, user, body) {
   if (!eligibility.ok) return eligibility;
   return {
     ok: true,
+    bound_input: v.input,
     approval_meta: {
       prospect_id: prospect.prospect_id,
       channel: v.input.channel,
@@ -999,6 +1005,7 @@ async function validateTransitionRequestState(svc, user, body) {
   if (!t.ok) return t;
   return {
     ok: true,
+    bound_input: v.input,
     approval_meta: {
       prospect_id: prospect.prospect_id,
       source_status: prospect.status,
@@ -1199,6 +1206,7 @@ async function validateVerifyContactRequestState(svc, user, body) {
   }
   return {
     ok: true,
+    bound_input: v.input,
     approval_meta: {
       prospect_id: prospect.prospect_id,
       contact_id: contact.contact_id,
@@ -1391,6 +1399,13 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
           ...META,
           ...(requestHash ? { input_hash: requestHash } : {}),
           ...(requestValidation && requestValidation.approval_meta ? requestValidation.approval_meta : {}),
+          // Phase 15 governed continuation: the exact server-validated input
+          // is bound to the approval so the requester's later
+          // resume_approved_execution can recover it server-side. The chain
+          // re-derives the input hash from this value at resume time — one
+          // approval can never authorize different input.
+          ...((requestValidation && (requestValidation.bound_input || requestValidation.input))
+            ? { bound_input: (requestValidation.bound_input || requestValidation.input) } : {}),
         },
       });
       const execution = await svc.entities.AgentExecution.create({
@@ -1970,4 +1985,109 @@ export async function decideApproval(svc, user, body) {
       ? 'Approval recorded. Execution requires a separate orchestration request.'
       : 'Approval rejected and recorded.',
   }, { status: 200 });
+}
+
+/**
+ * Phase 15 Remediation 2 (F-04) — governed approval continuation.
+ * resume_approved_execution: the REQUESTER'S explicit action to continue
+ * an APPROVED server-issued AgentApproval. The decision boundary
+ * (decide_approval, above) remains DECISION ONLY — this is a separate
+ * governed step. The client supplies ONLY approval_id; every authorization
+ * value (requester, agent, tool, scope, risk, target, operation, and the
+ * original governed input) is recovered server-side from the approval
+ * binding and the authoritative registries. Preconditions are evaluated
+ * read-only and fail-closed; execution is then delegated through the
+ * EXISTING authoritative chain (executeGovernedCapability), which
+ * re-checks the agent/tool registries, the allow-list, the exact
+ * target/operation, scopes, the risk threshold, the approval binding and
+ * input hash, expiry, self-approval, single-use consumption, and any
+ * mutable source state before exactly ONE execution. Idempotent: a
+ * consumed approval returns its existing execution and never executes
+ * again — no second business mutation, email, Prospect, contact, or
+ * approval can ever be produced by a repeat resume.
+ */
+export async function resumeApprovedExecution(svc, user, body) {
+  const v = validateResumeClientInput(body);
+  if (!v.ok) {
+    return Response.json({
+      status: 'BLOCKED', blocked: true,
+      error_code: v.error_code, error: v.error, message: v.error,
+    }, { status: v.http_status });
+  }
+  const approvalRecords = await svc.entities.AgentApproval.filter({ approval_id: v.approval_id });
+  const approval = approvalRecords[0] || null;
+  if (!approval) {
+    return Response.json({
+      status: 'NOT_FOUND', error_code: 'APPROVAL_NOT_FOUND',
+      error: 'The referenced approval does not exist.',
+      message: 'The referenced approval does not exist.',
+    }, { status: 404 });
+  }
+  const p = evaluateResumePreconditions(approval, user.id, Date.now());
+  if (p.decision === 'BLOCK') {
+    return Response.json({
+      status: 'BLOCKED', blocked: true, approval_id: v.approval_id,
+      error_code: p.error_code, error: p.error, message: p.error,
+    }, { status: p.http_status });
+  }
+  if (p.decision === 'RETURN_PENDING') {
+    return Response.json({
+      status: 'PENDING_APPROVAL', approval_id: v.approval_id,
+      message: 'Approval is still pending decision — nothing has executed.',
+    }, { status: 200 });
+  }
+  if (p.decision === 'ALREADY_CONSUMED') {
+    // Idempotent continuation: return the existing execution, never re-execute.
+    let execution = null;
+    try {
+      const execRecords = await svc.entities.AgentExecution.filter(
+        { execution_id: p.executed_execution_id, user_id: user.id }, '-created_date', 1,
+      );
+      execution = execRecords[0] || null;
+    } catch (executionLookupError) { execution = null; }
+    return Response.json({
+      status: 'ALREADY_CONSUMED',
+      already_consumed: true,
+      idempotent_replay: true,
+      approval_id: v.approval_id,
+      executed_execution_id: p.executed_execution_id,
+      execution_status: execution ? execution.status : 'UNKNOWN',
+      message: 'This approval was already consumed by exactly one governed execution — it cannot execute again.',
+    }, { status: 200 });
+  }
+  // p.decision === 'PROCEED' — recover the original governed request from
+  // the approval binding; the client supplied only approval_id.
+  const r = recoverResumeInput(approval);
+  if (!r.ok) {
+    return Response.json({
+      status: 'BLOCKED', blocked: true, approval_id: v.approval_id,
+      error_code: r.error_code, error: r.error, message: r.error,
+    }, { status: r.http_status });
+  }
+  // Delegate through the EXISTING authoritative chain. The chain
+  // re-validates EVERYTHING and creates the one authoritative execution.
+  // The recovered bound_input hashes to the approval's input_hash binding —
+  // different input can never execute under this approval.
+  const resumeBody = { approval_id: v.approval_id, input: r.input };
+  if (approval.tool_id === PHASE8_TOOL_ID) {
+    return await executeProspectCreate(svc, user, resumeBody, 'agentOrchestrationService');
+  }
+  if (approval.tool_id === PHASE9_TOOL_ID) {
+    return await executeUpdateProspectStatus(svc, user, resumeBody, 'agentOrchestrationService');
+  }
+  if (approval.tool_id === PHASE14E_VERIFY_TOOL_ID) {
+    return await executeVerifyProspectContact(svc, user, resumeBody, 'agentOrchestrationService');
+  }
+  if (approval.tool_id === PHASE11_TOOL_ID) {
+    // Fail-closed by design: the registry kill switch (DRAFT + disabled)
+    // and the risk threshold (high > medium) refuse this before any
+    // external boundary — external delivery can never be resumed into.
+    return await executeProspectOutreach(svc, user, resumeBody, 'agentOrchestrationService');
+  }
+  return Response.json({
+    status: 'BLOCKED', blocked: true,
+    error_code: 'RESUME_CAPABILITY_NOT_RESUMABLE',
+    error: 'The approved capability is not resumable through continuation.',
+    message: 'The approved capability is not resumable through continuation.',
+  }, { status: 403 });
 }

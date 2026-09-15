@@ -14,6 +14,7 @@ import {
   executeVerifyProspectContact,
   getExecution,
   decideApproval,
+  resumeApprovedExecution,
   getDeliveryReadiness,
 } from '../../shared/agentOrchestrationCore.ts';
 import {
@@ -58,6 +59,7 @@ export default async function(req) {
     if (action === 'execute_controlled_first_send') return await executeControlledFirstSend(svc, user, body);
     if (action === 'get_delivery_readiness') return await getDeliveryReadiness(svc);
     if (action === 'decide_approval') return await decideApproval(svc, user, body);
+    if (action === 'resume_approved_execution') return await resumeApprovedExecution(svc, user, body);
     return Response.json({ error: 'Unknown action' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

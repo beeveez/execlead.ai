@@ -44,7 +44,9 @@
  *   acceptance only; DELIVERED is NEVER claimed by this boundary).
  *
  * MESSAGE IMMUTABILITY: the transport performs provider-required
- * encoding ONLY (RFC 5322 headers + base64url). No rewriting, no AI
+ * encoding ONLY (RFC 5322 CRLF structure, RFC 2047 encoded-word Subject,
+ * explicit base64 Content-Transfer-Encoding, base64url API envelope).
+ * No rewriting, no AI
  * personalization, no signature injection, no CTA modification, no
  * subject modification, no channel conversion, no hidden footer.
  *
@@ -688,6 +690,59 @@ function base64UrlEncode(str) {
   return out;
 }
 
+/** Standard-alphabet base64 (RFC 4648) over raw byte values — used for the
+ * MIME Content-Transfer-Encoding body and RFC 2047 encoded words. */
+function base64StdEncodeBytes(bytes) {
+  const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let out = '';
+  for (let i = 0; i < bytes.length; i += 3) {
+    const b0 = bytes[i];
+    const b1 = i + 1 < bytes.length ? bytes[i + 1] : 0;
+    const b2 = i + 2 < bytes.length ? bytes[i + 2] : 0;
+    out += ALPHABET[b0 >> 2];
+    out += ALPHABET[((b0 & 3) << 4) | (b1 >> 4)];
+    out += i + 1 < bytes.length ? ALPHABET[((b1 & 15) << 2) | (b2 >> 6)] : '=';
+    out += i + 2 < bytes.length ? ALPHABET[b2 & 63] : '=';
+  }
+  return out;
+}
+
+/** RFC 2045 canonical wrapping — at most 76 encoded characters per line. */
+function wrapBase64CRLF(text) {
+  const lines = [];
+  for (let i = 0; i < text.length; i += 76) lines.push(text.slice(i, i + 76));
+  return lines.join('\r\n');
+}
+
+/** RFC 2047 UTF-8 Base64 encoded word for a MIME header value. */
+function rfc2047EncodeWord(text) {
+  return '=?UTF-8?B?' + base64StdEncodeBytes(utf8Bytes(text)) + '?=';
+}
+
+/**
+ * THE transport MIME serializer — provider-required transport encoding
+ * ONLY, now fully RFC-conformant so no client or provider parser ever has
+ * to guess a charset: the Subject is an RFC 2047 UTF-8 Base64 encoded
+ * word (headers stay pure ASCII), the body is the base64 of the draft's
+ * exact UTF-8 bytes under an explicit Content-Transfer-Encoding: base64
+ * with charset=UTF-8, and every structural MIME line ending is CRLF.
+ * The decoded recipient-visible subject and body are byte-identical to
+ * the governed draft — no draft content is ever rewritten, normalized,
+ * or re-encoded beyond these transport declarations.
+ */
+export function buildGmailRawMime(to, subject, body) {
+  const headers = [
+    'From: ' + GMAIL_DELIVERY_SENDER_IDENTITY,
+    'To: ' + to,
+    'Subject: ' + rfc2047EncodeWord(subject),
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+  ];
+  return headers.join('\r\n') + '\r\n' + wrapBase64CRLF(base64StdEncodeBytes(utf8Bytes(body)));
+}
+
 /**
  * THE single authorized Gmail API send (users/me/messages/send). Uses
  * only the server-side connector token acquired by the Phase 14C
@@ -705,12 +760,7 @@ export async function gmailTransportSend(tokenContext, payload) {
   if (to === '' || subject === '' || body === '') {
     return { ok: false, error_code: 'GMAIL_TRANSPORT_PAYLOAD_INVALID', error: 'The immutable approved payload is incomplete — no send is possible.' };
   }
-  const mime = 'From: ' + GMAIL_DELIVERY_SENDER_IDENTITY + '\r\n' +
-    'To: ' + to + '\r\n' +
-    'Subject: ' + subject + '\r\n' +
-    'MIME-Version: 1.0\r\n' +
-    'Content-Type: text/plain; charset=UTF-8\r\n' +
-    '\r\n' + body;
+  const mime = buildGmailRawMime(to, subject, body);
   const raw = base64UrlEncode(mime);
   const response = await fetch(GMAIL_DELIVERY_TRANSPORT_ENDPOINT, {
     method: 'POST',

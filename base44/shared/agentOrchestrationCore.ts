@@ -52,6 +52,13 @@ import {
   projectProspect,
   PROSPECT_READ_MAX_RESULTS,
 } from './prospectRead.ts';
+import {
+  validateQualifyInput,
+  buildQualification,
+  buildQualificationNotFound,
+  qualifyInputHash,
+  PROSPECT_QUALIFY_SCORE_CAP,
+} from './prospectQualification.ts';
 
 export const PHASE5_AGENT_ID = 'exec_concierge';
 export const PHASE5_TOOL_ID = 'read_own_readiness_assessment';
@@ -72,6 +79,10 @@ export const PHASE82_TOOL_ID = 'read_own_prospects';
 export const PHASE82_TARGET_TYPE = 'ENTITY';
 export const PHASE82_TARGET_NAME = 'Prospect';
 export const PHASE82_OPERATION = 'READ';
+export const PHASE83_TOOL_ID = 'qualify_own_prospect';
+export const PHASE83_TARGET_TYPE = 'INTERNAL_SERVICE';
+export const PHASE83_TARGET_NAME = 'prospectQualification';
+export const PHASE83_OPERATION = 'INVOKE';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -168,6 +179,7 @@ export async function getStatus(svc) {
   const growth = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE7_TOOL_ID);
   const growthCreate = await resolveCapabilityStatus(svc, PHASE8_AGENT_ID, PHASE8_TOOL_ID);
   const growthRead = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE82_TOOL_ID);
+  const growthQualify = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE83_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -206,6 +218,14 @@ export async function getStatus(svc) {
         target: `${PHASE82_TARGET_TYPE}:${PHASE82_TARGET_NAME}`,
         human_approval_required: false,
         orchestration_available: !globalStop && growthRead.agentOk && growthRead.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE83_TOOL_ID,
+        operation: PHASE83_OPERATION,
+        target: `${PHASE83_TARGET_TYPE}:${PHASE83_TARGET_NAME}`,
+        human_approval_required: false,
+        orchestration_available: !globalStop && growthQualify.agentOk && growthQualify.toolOk,
       },
     ],
   });
@@ -382,6 +402,81 @@ async function runReadOwnProspectsTool(svc, user, body) {
       bounded_to: PROSPECT_READ_MAX_RESULTS,
       status_filter: v.input.status,
       external_verification: false,
+    },
+  };
+}
+
+/**
+ * Phase 8.3 tool — qualify_own_prospect (INTERNAL_SERVICE:prospectQualification, INVOKE).
+ * READ-ONLY deterministic qualification analysis of ONE Prospect owned by the
+ * SERVER-resolved authenticated caller. Answers "Is this prospect worth
+ * pursuing?" and nothing else: no Prospect mutation of any field (status,
+ * qualification_score, notes, intelligence_summary all untouched), no record
+ * creation, no leads, no opportunities, no email, no messaging, no CRM, no
+ * payments, no scheduling, no background work, no autonomous pursuit, no
+ * external calls, no LLM. The recommended_status in the result is advisory
+ * only — the actual Prospect.status is never changed. An
+ * intelligence_reference is relied upon ONLY when it resolves to a real
+ * SUCCEEDED server-issued prospect_intelligence execution owned by the same
+ * user; otherwise it is treated as unavailable and labeled UNKNOWN (never
+ * fabricated evidence).
+ */
+async function runQualifyOwnProspectTool(svc, user, body) {
+  const v = validateQualifyInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  // Ownership anchored to the server-resolved identity only. The filter always
+  // pairs the client-identified prospect with the caller's owner_user_id, so
+  // cross-user, cross-organization, and platform-wide lookups are structurally
+  // impossible; a Prospect owned by anyone else resolves to the same safe
+  // not-found result as a nonexistent one.
+  const records = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = records[0] || null;
+  if (!prospect) {
+    const notFound = buildQualificationNotFound(v.input.prospect_id);
+    return {
+      ok: true,
+      responseKey: 'result',
+      response: { result: notFound },
+      result_summary: `No owned Prospect record for prospect_id ${v.input.prospect_id} — safe not-found qualification result returned.`,
+      snapshot: { found: false, prospect_id: v.input.prospect_id },
+      meta: { found: false, external_verification: false, prospect_mutation: false },
+    };
+  }
+  // Verify the record's intelligence_reference server-side before relying on
+  // it. An unresolvable reference is treated as unavailable, never fabricated.
+  let intelligenceVerified = false;
+  if (prospect.intelligence_reference) {
+    const refRecords = await svc.entities.AgentExecution.filter({
+      execution_id: prospect.intelligence_reference, user_id: user.id,
+    });
+    const ref = refRecords[0] || null;
+    intelligenceVerified = Boolean(ref && ref.tool_id === PHASE7_TOOL_ID
+      && ref.source === PROVENANCE_SOURCE && ref.status === 'SUCCEEDED');
+  }
+  const result = buildQualification(prospect, { intelligence_verified: intelligenceVerified });
+  return {
+    ok: true,
+    responseKey: 'result',
+    response: { result },
+    result_summary: `Deterministic qualification of prospect ${prospect.prospect_id}: score ${result.qualification_score}/${PROSPECT_QUALIFY_SCORE_CAP} (${result.confidence.level} confidence, no external verification, no mutation).`,
+    snapshot: {
+      found: true,
+      prospect_id: prospect.prospect_id,
+      qualification_score: result.qualification_score,
+      recommended_status: result.recommended_status,
+      confidence_level: result.confidence.level,
+    },
+    meta: {
+      found: true,
+      qualification_score: result.qualification_score,
+      recommended_status: result.recommended_status,
+      intelligence_reference_verified: intelligenceVerified,
+      external_verification: false,
+      prospect_mutation: false,
     },
   };
 }
@@ -705,7 +800,9 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
         ? await runProspectIntelligenceTool(body)
         : cap.toolId === PHASE82_TOOL_ID
           ? await runReadOwnProspectsTool(svc, user, body)
-          : await runReadinessReadTool(svc, user);
+          : cap.toolId === PHASE83_TOOL_ID
+            ? await runQualifyOwnProspectTool(svc, user, body)
+            : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -845,6 +942,27 @@ export async function executeReadOwnProspects(svc, user, body, issuedBy = 'agent
     targetName: PHASE82_TARGET_NAME,
     operation: PHASE82_OPERATION,
     responseKey: 'prospects',
+  });
+}
+
+/**
+ * Phase 8.3 capability — READ-ONLY deterministic qualification analysis.
+ * growth_agent → qualify_own_prospect → INTERNAL_SERVICE:prospectQualification (INVOKE).
+ * human_approval_required=false (registered low-risk read-only analysis). The
+ * tool stays DRAFT + disabled until activation — the chain refuses it at the
+ * registry kill switch. RETURN-ONLY: the result never mutates any Prospect
+ * field and never executes the pursuit it recommends. Idempotency is keyed
+ * per prospect via the deterministic input hash.
+ */
+export async function executeQualifyOwnProspect(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE83_TOOL_ID,
+    targetType: PHASE83_TARGET_TYPE,
+    targetName: PHASE83_TARGET_NAME,
+    operation: PHASE83_OPERATION,
+    requestHash: (reqBody) => qualifyInputHash(reqBody && reqBody.input),
+    responseKey: 'result',
   });
 }
 

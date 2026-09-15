@@ -172,6 +172,9 @@ export const WORKSPACE_NAV = {
       { path: "/operations/launch", label: "Launch Operations", icon: Flag },
       { path: "/operations/production-readiness", label: "Production Readiness™", icon: ShieldCheck },
     ]},
+    { label: "Platform Governance", items: [
+      { path: "/developer/agent-approvals", label: "Agent Approval Review", icon: ShieldCheck, roles: ["platform_admin", "super_admin", "founder_root_admin"] },
+    ]},
     { label: "Security Operations", items: [
       { path: "/operations/security", label: "Security Operations Center™", icon: ShieldCheck },
       { path: "/operations/security-execution", label: "Security Execution Framework™", icon: Lock },
@@ -368,7 +371,7 @@ const ROUTE_WORKSPACE = {
   "/architecture-governance": ["developer"],
   "/developer-portal": ["developer"],
   "/developer/audit-logs": ["developer"],
-  "/developer/agent-approvals": ["developer"],
+  "/developer/agent-approvals": ["operations", "developer"],
   "/developer/system-health": ["developer"],
   "/developer/architecture-audit": ["developer"],
   "/developer/stability": ["developer"],

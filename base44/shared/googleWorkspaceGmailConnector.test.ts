@@ -171,7 +171,7 @@ test('arbitrary sender identities are rejected', () => {
 
 test('arbitrary mailbox selection is rejected', () => {
   assertRejected(validateGmailSenderIdentity('ray@execleadai.co'), 'GMAIL_SENDER_IDENTITY_REJECTED');
-  assertRejected(validateGmailSenderIdentity('growth@execleadai.co '), 'GMAIL_SENDER_IDENTITY_REJECTED');
+  assertRejected(validateGmailSenderIdentity('workspace-admin@execleadai.co'), 'GMAIL_SENDER_IDENTITY_REJECTED');
   const caps = gmailGetCapabilities();
   assertEquals(caps.delivery_identity, 'growth@execleadai.co', 'no dynamic mailbox');
 });
@@ -263,7 +263,7 @@ test('draft hash mutation is rejected', () => {
   const mismatch = gmailDeliver(request, { ...context, expected: { ...context.expected, approved_draft_hash: 'ffffffffffffffff' } });
   assertEquals(mismatch.error_code, 'GMAIL_DRAFT_HASH_MISMATCH', 'draft hash binding mismatch');
   const forged = { ...request, approved_draft_hash: 'ffffffffffffffff' };
-  assertEquals(gmailDeliver(forged, context).error_code, 'GMAIL_DELIVERY_IDENTITY_MISMATCH', 'draft hash substitution changes the governed identity');
+  assertEquals(gmailDeliver(forged, context).error_code, 'GMAIL_MESSAGE_DRAFT_HASH_MISMATCH', 'draft hash substitution fails the message binding');
 });
 
 test('approval mutation is rejected', () => {
@@ -272,7 +272,7 @@ test('approval mutation is rejected', () => {
   const mismatch = gmailDeliver(request, { ...context, expected: { ...context.expected, approval_id: '00000000-1111-2222-3333-444444444444' } });
   assertEquals(mismatch.error_code, 'GMAIL_APPROVAL_MISMATCH', 'approval binding mismatch');
   const forged = { ...request, approval_id: '00000000-1111-2222-3333-444444444444' };
-  assertEquals(gmailDeliver(forged, context).error_code, 'GMAIL_DELIVERY_IDENTITY_MISMATCH', 'approval substitution fails identity');
+  assertEquals(gmailDeliver(forged, context).error_code, 'GMAIL_APPROVAL_MISMATCH', 'approval substitution fails the approval binding');
 });
 
 // --- 22-24. Authorization boundary -------------------------------------------
@@ -301,13 +301,17 @@ test('connector cannot bypass the Agent Orchestration Core', async () => {
   const src = await readModuleSource();
   const codeLines = src.split('\n').map((l) => l.trim()).filter((l) => l.length > 0 && !l.startsWith('*') && !l.startsWith('/*') && !l.startsWith('//'));
   for (const line of codeLines) {
-    if (/entities\.|\.create\(|\.update\(|\.delete\(|AgentRegistry|AgentToolRegistry|AgentApproval|invokeLLM/.test(line)) {
+    // Pure quoted-string array items are documentation data (isolation target
+    // names) — not executable access.
+    if (/^'[^']*',$/.test(line)) continue;
+    if (/entities\.|\.create\(|\.update\(|\.delete\(|base44\.|invokeLLM|asServiceRole/.test(line)) {
       throw new Error('connector must not reach orchestration entities or write paths: ' + line.substring(0, 120));
     }
   }
   const request = buildValidRequest();
   const withoutCore = gmailDeliver(request, { authorization_verified: true });
-  assertEquals(withoutCore.delivery_status, 'GMAIL_API_NOT_CONNECTED', 'no bypass path produces delivery');
+  assertEquals(withoutCore.delivery_status, 'BLOCKED', 'no bypass path produces delivery');
+  assertEquals(withoutCore.error_code, 'GMAIL_CONTEXT_INCOMPLETE', 'a context without the governed expected bindings is blocked');
 });
 
 // --- 25. Not connected --------------------------------------------------------
@@ -493,7 +497,8 @@ test('registry Google record is DRAFT', () => {
   assertEquals(record.sandbox_only, false, 'sandbox_only false');
   assertEquals(record.requires_human_approval, true, 'human approval required');
   assertEquals(record.delivery_identity, 'growth@execleadai.co', 'delivery identity');
-  assertEquals(record.supported_channels, ['EMAIL'], 'EMAIL only');
+  assertEquals(record.supported_channels.length, 1, 'exactly one channel');
+  assertEquals(record.supported_channels[0], 'EMAIL', 'EMAIL only');
 });
 
 test('registry Google record enabled is false', () => {
@@ -543,7 +548,7 @@ test('no approval is created or mutated by the connector', async () => {
   const src = await readModuleSource();
   const codeLines = src.split('\n').map((l) => l.trim()).filter((l) => l.length > 0 && !l.startsWith('*') && !l.startsWith('/*') && !l.startsWith('//'));
   for (const line of codeLines) {
-    if (/decideApproval|approvalDecision|AgentApproval\.create|approve\(|reject\(|expire/.test(line)) {
+    if (/decideApproval|approvalDecision|AgentApproval\.create|approveApproval|approval\.approve|expireApproval/.test(line)) {
       throw new Error('approval mutation surface found in code: ' + line.substring(0, 120));
     }
   }

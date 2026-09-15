@@ -16,6 +16,10 @@ import {
   decideApproval,
   getDeliveryReadiness,
 } from '../../shared/agentOrchestrationCore.ts';
+import {
+  executeControlledFirstSend,
+  getFirstSendReadiness,
+} from '../../shared/agentOrchestrationFirstSend.ts';
 
 /**
  * Agent Orchestration Service™ — Phase 5.1
@@ -50,6 +54,8 @@ export default async function(req) {
     if (action === 'execute_read_own_prospect_contacts') return await executeReadOwnProspectContacts(svc, user, body);
     if (action === 'execute_verify_own_prospect_contact') return await executeVerifyProspectContact(svc, user, body);
     if (action === 'get_execution') return await getExecution(svc, user, body);
+    if (action === 'get_first_send_readiness') return await getFirstSendReadiness(svc, user);
+    if (action === 'execute_controlled_first_send') return await executeControlledFirstSend(svc, user, body);
     if (action === 'get_delivery_readiness') return await getDeliveryReadiness(svc);
     if (action === 'decide_approval') return await decideApproval(svc, user, body);
     return Response.json({ error: 'Unknown action' }, { status: 400 });

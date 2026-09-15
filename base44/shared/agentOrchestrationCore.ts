@@ -60,6 +60,13 @@ import {
   PROSPECT_QUALIFY_SCORE_CAP,
 } from './prospectQualification.ts';
 import {
+  validateOutreachInput,
+  buildOutreachPreparation,
+  buildOutreachNotFound,
+  outreachInputHash,
+  OUTREACH_CONFIDENCE_CAP,
+} from './prospectOutreachPreparation.ts';
+import {
   validateTransitionInput,
   validateTransitionAgainstMatrix,
   prospectTransitionInputHash,
@@ -92,6 +99,10 @@ export const PHASE9_TOOL_ID = 'update_own_prospect_status';
 export const PHASE9_TARGET_TYPE = 'ENTITY';
 export const PHASE9_TARGET_NAME = 'Prospect';
 export const PHASE9_OPERATION = 'UPDATE';
+export const PHASE10_TOOL_ID = 'prepare_prospect_outreach';
+export const PHASE10_TARGET_TYPE = 'INTERNAL_SERVICE';
+export const PHASE10_TARGET_NAME = 'prospectOutreachPreparation';
+export const PHASE10_OPERATION = 'INVOKE';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -190,6 +201,7 @@ export async function getStatus(svc) {
   const growthRead = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE82_TOOL_ID);
   const growthQualify = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE83_TOOL_ID);
   const growthUpdate = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE9_TOOL_ID);
+  const growthOutreach = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE10_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -244,6 +256,14 @@ export async function getStatus(svc) {
         target: `${PHASE9_TARGET_TYPE}:${PHASE9_TARGET_NAME}`,
         human_approval_required: true,
         orchestration_available: !globalStop && growthUpdate.agentOk && growthUpdate.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE10_TOOL_ID,
+        operation: PHASE10_OPERATION,
+        target: `${PHASE10_TARGET_TYPE}:${PHASE10_TARGET_NAME}`,
+        human_approval_required: false,
+        orchestration_available: !globalStop && growthOutreach.agentOk && growthOutreach.toolOk,
       },
     ],
   });
@@ -495,6 +515,87 @@ async function runQualifyOwnProspectTool(svc, user, body) {
       intelligence_reference_verified: intelligenceVerified,
       external_verification: false,
       prospect_mutation: false,
+    },
+  };
+}
+
+/**
+ * Phase 10 tool — prepare_prospect_outreach (INTERNAL_SERVICE:prospectOutreachPreparation, INVOKE).
+ * READ-ONLY deterministic outreach DRAFT preparation for ONE Prospect owned
+ * by the SERVER-resolved authenticated caller. PREPARE ONLY: it never sends,
+ * schedules, persists, or transmits anything — no email, no SMS, no messaging,
+ * no Gmail/Outlook/CRM access, no record creation of any kind, no external
+ * calls, no LLM, no background work. The result is advisory and return-only.
+ * The channel input is a preparation preference only — no channel is ever
+ * contacted. Lifecycle-aware: QUALIFIED/PURSUING are prepared; NEW and
+ * DISQUALIFIED return a truthful not-recommended result; CONVERTED returns a
+ * truthful already-converted result. Ownership is anchored to the
+ * server-resolved identity: the filter always pairs the client-identified
+ * prospect with the caller owner_user_id, so a foreign Prospect resolves to
+ * the same safe not-found result as a nonexistent one. An
+ * intelligence_reference is relied on ONLY when it resolves to a real
+ * SUCCEEDED server-issued prospect_intelligence execution owned by the same
+ * user; otherwise it is treated as unavailable and never fabricated.
+ */
+async function runPrepareOutreachTool(svc, user, body) {
+  const v = validateOutreachInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  const records = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = records[0] || null;
+  if (!prospect) {
+    const notFound = buildOutreachNotFound(v.input.prospect_id);
+    return {
+      ok: true,
+      responseKey: 'result',
+      response: { result: notFound },
+      result_summary: `No owned Prospect record for prospect_id ${v.input.prospect_id} — safe not-found outreach preparation result returned.`,
+      snapshot: { found: false, preparation_status: 'NOT_FOUND' },
+      meta: { found: false, external_verification: false, prospect_mutation: false, outreach_sent: false },
+    };
+  }
+  let intelligenceVerified = false;
+  if (prospect.intelligence_reference) {
+    const refRecords = await svc.entities.AgentExecution.filter({
+      execution_id: prospect.intelligence_reference, user_id: user.id,
+    });
+    const ref = refRecords[0] || null;
+    intelligenceVerified = Boolean(ref && ref.tool_id === PHASE7_TOOL_ID
+      && ref.source === PROVENANCE_SOURCE && ref.status === 'SUCCEEDED');
+  }
+  const result = buildOutreachPreparation(prospect, {
+    intelligence_verified: intelligenceVerified,
+    requested_channel: v.input.channel,
+    requested_tone: v.input.tone,
+    requested_objective: v.input.objective,
+    caller_name: (user && typeof user.full_name === 'string' && user.full_name.trim() !== '')
+      ? user.full_name.trim() : null,
+  });
+  return {
+    ok: true,
+    responseKey: 'result',
+    response: { result },
+    result_summary: `Prepared ${result.preparation_status} outreach draft for prospect ${prospect.prospect_id} (status ${prospect.status}, channel ${result.recommended_channel}, confidence ${result.confidence.score}/${OUTREACH_CONFIDENCE_CAP} — draft only, nothing sent or persisted).`,
+    snapshot: {
+      found: true,
+      prospect_id: prospect.prospect_id,
+      preparation_status: result.preparation_status,
+      eligible_for_outreach_preparation: result.eligible_for_outreach_preparation,
+      recommended_channel: result.recommended_channel,
+      confidence_score: result.confidence.score,
+    },
+    meta: {
+      found: true,
+      preparation_status: result.preparation_status,
+      eligible_for_outreach_preparation: result.eligible_for_outreach_preparation,
+      intelligence_reference_verified: intelligenceVerified,
+      external_verification: false,
+      prospect_mutation: false,
+      outreach_sent: false,
+      outreach_scheduled: false,
     },
   };
 }
@@ -938,7 +1039,9 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
             ? await runQualifyOwnProspectTool(svc, user, body)
             : cap.toolId === PHASE9_TOOL_ID
               ? await runUpdateProspectStatusTool(svc, user, body, verifiedApproval)
-              : await runReadinessReadTool(svc, user);
+              : cap.toolId === PHASE10_TOOL_ID
+                ? await runPrepareOutreachTool(svc, user, body)
+                : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -1123,6 +1226,28 @@ export async function executeUpdateProspectStatus(svc, user, body, issuedBy = 'a
     requestHash: (reqBody) => prospectTransitionInputHash(reqBody && reqBody.input),
     responseKey: 'transition',
     validateRequest: (reqSvc, reqUser, reqBody) => validateTransitionRequestState(reqSvc, reqUser, reqBody),
+  });
+}
+
+/**
+ * Phase 10 capability — READ-ONLY deterministic outreach draft preparation.
+ * growth_agent → prepare_prospect_outreach → INTERNAL_SERVICE:prospectOutreachPreparation (INVOKE).
+ * human_approval_required=false (registered low-risk read-only preparation).
+ * RETURN-ONLY: the result is a DRAFT that never sends, schedules, persists,
+ * or transmits anything, and never automatically executes the proposed
+ * action. Idempotency is keyed per logical request via the deterministic
+ * input hash. The tool stays DRAFT + disabled until activation — the chain
+ * refuses it at the registry kill switch.
+ */
+export async function executePrepareProspectOutreach(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE10_TOOL_ID,
+    targetType: PHASE10_TARGET_TYPE,
+    targetName: PHASE10_TARGET_NAME,
+    operation: PHASE10_OPERATION,
+    requestHash: (reqBody) => outreachInputHash(reqBody && reqBody.input),
+    responseKey: 'result',
   });
 }
 

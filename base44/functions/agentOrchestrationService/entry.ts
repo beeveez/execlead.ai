@@ -7,6 +7,7 @@ import {
   executeReadOwnProspects,
   executeQualifyOwnProspect,
   executeUpdateProspectStatus,
+  executePrepareProspectOutreach,
   getExecution,
   decideApproval,
 } from '../../shared/agentOrchestrationCore.ts';
@@ -38,6 +39,7 @@ export default async function(req) {
     if (action === 'execute_read_own_prospects') return await executeReadOwnProspects(svc, user, body);
     if (action === 'execute_qualify_own_prospect') return await executeQualifyOwnProspect(svc, user, body);
     if (action === 'execute_update_prospect_status') return await executeUpdateProspectStatus(svc, user, body);
+    if (action === 'execute_prepare_prospect_outreach') return await executePrepareProspectOutreach(svc, user, body);
     if (action === 'get_execution') return await getExecution(svc, user, body);
     if (action === 'decide_approval') return await decideApproval(svc, user, body);
     return Response.json({ error: 'Unknown action' }, { status: 400 });

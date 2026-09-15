@@ -1901,17 +1901,7 @@ export { executeControlledFirstSend, getFirstSendReadiness } from './agentOrches
 // (Phase 14F block removed — see agentOrchestrationFirstSend.ts)
 // ============================================================
 
-// ============================================================
-// The normal agent path remains structurally blocked: execute_prospect_outreach
-// is HIGH risk while the global threshold is MEDIUM. This DEDICATED operator
-// path never weakens that: only a platform operator may request it, only an
-// explicitly APPROVED single-use AgentApproval bound to the exact Prospect,
-// exact VERIFIED primary ProspectContact, exact draft hash, and observed
-// Prospect status can pass the 30-point checklist, and the single send is
-// delegated EXCLUSIVELY to the authoritative Phase 14D delivery boundary —
-// never a parallel transport, never a Gmail bypass. NO email is sent while
-// any activation gate is off (all are off today).
-const FIRST_SEND_CORRELATION_PREFIX = 'wf14f';
+
 
 async function readFirstSendGatewaySnapshot(svc) {
   // Server-side only: the Base44-managed Gmail OAuth connector is the only

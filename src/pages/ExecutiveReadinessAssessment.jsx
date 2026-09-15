@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
@@ -45,15 +45,24 @@ export default function ExecutiveReadinessAssessment() {
   const [orgName, setOrgName] = useState(null);
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
 
+  // Race-safe hydration: `hydrationRef` holds the mount-time me() promise so a
+  // Resume click can never beat unresolved user hydration and fall through to
+  // the track selector. `trackRef` mirrors the hydrated track so beginAssessment
+  // reads the fresh value immediately after awaiting hydration (before re-render).
+  const hydrationRef = useRef(null);
+  const trackRef = useRef(track);
+
   useEffect(() => {
-    (async () => {
+    hydrationRef.current = (async () => {
       try {
         const me = await base44.auth.me();
-        if (me?.data?.leadership_track) {
-          setTrack(me.data.leadership_track);
-          setTargetRole(me.data.target_executive_role || null);
+        // Authenticated user custom fields live at the TOP LEVEL of the record — not under .data.
+        if (me?.leadership_track) {
+          setTrack(me.leadership_track);
+          trackRef.current = me.leadership_track;
+          setTargetRole(me.target_executive_role || null);
         }
-        let org = me?.data?.organization || null;
+        let org = me?.organization || null;
         let ent = false;
         try {
           const memberships = await base44.entities.OrgMembership.filter({ user_id: me?.id || user?.id });
@@ -81,8 +90,19 @@ export default function ExecutiveReadinessAssessment() {
     'Become a CEO': { track: 'business', role: 'CEO' },
   };
 
-  const beginAssessment = () => {
-    if (!track) { setPhase('track'); return; }
+  const beginAssessment = async () => {
+    // Never decide routing before user hydration resolves (race-condition guard).
+    if (hydrationRef.current) await hydrationRef.current;
+    if (!trackRef.current) { setPhase('track'); return; }
+    // Resume path: restore the saved answers and the saved question index —
+    // no reset, no new assessment, no localStorage clearing.
+    try {
+      const saved = JSON.parse(localStorage.getItem(ASSESSMENT_STORAGE_KEY) || 'null');
+      if (saved && saved.answers && Object.keys(saved.answers).length > 0) {
+        setAnswers(saved.answers);
+        setIdx(Math.min(saved.idx || 0, buildAssessmentSet(trackRef.current).length - 1));
+      }
+    } catch (e) {}
     setPhase('quiz');
   };
   const browsePaths = () => setPhase('track');
@@ -136,6 +156,7 @@ export default function ExecutiveReadinessAssessment() {
   const selectTrack = async (trackKey, roleLabel) => {
     setSavingTrack(true);
     setTrack(trackKey);
+    trackRef.current = trackKey;
     setTargetRole(roleLabel);
     try {
       // Persist to the user profile so the Executive Context Engine™ personalizes the whole platform.

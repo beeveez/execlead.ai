@@ -804,31 +804,33 @@ export function buildGmailAuditRecord(request, result, ctx) {
   return record;
 }
 
-// --- Phase 14B additive: server-side provider authentication boundary ------
-// The connector holds no credentials. Trusted server code supplies the
-// genuine server-only credential boundary (the Google Workspace Gmail
-// credential provider module); the connector validates the boundary
-// contract, delegates acquisition, and returns ONLY sanitized status.
-// Credential material can never flow through this result, to any client,
-// or to any agent. Frontend code cannot reach this path: it never imports
-// the credential provider, and a browser cannot construct or obtain a
-// genuine boundary. Until server-side credentials are actually configured
-// the result is fail-closed and the connector remains not connected.
+// --- Phase 14C additive: server-side Gmail OAuth connector-token boundary --
+// The connector holds no credentials and never will: the Base44-managed
+// Gmail OAuth connector is the ONLY credential source. Trusted server code
+// supplies the genuine server-only connector-token provider plus the
+// sanitized server gateway snapshot; the connector validates the boundary
+// contract and returns ONLY sanitized status. The connector token can
+// never flow through this result to any client or agent. Service-account
+// private keys and Google IAM token-signing delegation are NOT part of
+// this architecture and are never used. Frontend code cannot reach this
+// path, and real delivery remains disabled by the kill switch.
 
-export const GMAIL_CREDENTIAL_BOUNDARY_PROVIDER_ID = 'google_workspace_gmail_credential_provider';
+export const GMAIL_CONNECTOR_TOKEN_BOUNDARY_PROVIDER_ID = 'base44_gmail_oauth_connector_token_provider';
 
-export const GMAIL_CREDENTIAL_BOUNDARY_MARKERS = [
-  'GMAIL_CREDENTIAL_PROVIDER_ID',
-  'GMAIL_DELEGATED_SUBJECT',
-  'GMAIL_AUTHORIZED_SCOPE',
-  'GMAIL_AUTHORIZED_SCOPES',
-  'validateGmailScope',
-  'validateGmailDelegatedSubject',
-  'getGmailCredentialStatus',
-  'acquireGmailProviderCredentialContext',
+export const GMAIL_CONNECTOR_TOKEN_BOUNDARY_MARKERS = [
+  'GMAIL_CONNECTOR_PROVIDER_ID',
+  'GMAIL_CONNECTOR_ARCHITECTURE',
+  'GMAIL_CONNECTOR_EXPECTED_IDENTITY',
+  'GMAIL_CONNECTOR_REQUIRED_SCOPE',
+  'GMAIL_SENDER_IDENTITY',
+  'validateGmailConnectorIdentity',
+  'validateGmailConnectorScopes',
+  'validateGmailConnectorSender',
+  'getGmailConnectorCredentialStatus',
+  'acquireGmailConnectorTokenContext',
 ];
 
-export function gmailRequestProviderAuthentication(boundaryContext, credentialBoundary) {
+export function gmailRequestConnectorAuthentication(boundaryContext, tokenBoundary, gatewaySnapshot) {
   function authBlocked(errorCode, error) {
     return {
       ok: false,
@@ -838,7 +840,7 @@ export function gmailRequestProviderAuthentication(boundaryContext, credentialBo
       connected: false,
       delivery_enabled: false,
       api_status: GMAIL_API_STATUS,
-      delegated_subject: GMAIL_DELIVERY_IDENTITY,
+      sender_identity: GMAIL_DELIVERY_IDENTITY,
       error_code: errorCode,
       error,
       external_delivery: false,
@@ -852,100 +854,99 @@ export function gmailRequestProviderAuthentication(boundaryContext, credentialBo
   if (boundaryContext === null || typeof boundaryContext !== 'object'
     || boundaryContext.authorization_verified !== true) {
     return authBlocked('GMAIL_CONTEXT_NOT_AUTHORIZED',
-      'Provider authentication requires an authorized server execution context — the Agent Orchestration Core is the only authorization authority.');
+      'Connector-token authentication requires an authorized server execution context — the Agent Orchestration Core is the only authorization authority.');
   }
   const credentialCheck = validateGmailProviderContext(boundaryContext);
   if (!credentialCheck.ok) return authBlocked(credentialCheck.error_code, credentialCheck.error);
   const senderDirectiveCheck = validateNoClientSenderDirective(boundaryContext);
   if (!senderDirectiveCheck.ok) return authBlocked(senderDirectiveCheck.error_code, senderDirectiveCheck.error);
-  if (credentialBoundary === null || typeof credentialBoundary !== 'object') {
-    return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_INVALID',
-      'No genuine server-side credential boundary was supplied — credentials are resolved exclusively by the server-only provider module in trusted server code.');
+  if (tokenBoundary === null || typeof tokenBoundary !== 'object') {
+    return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_INVALID',
+      'No genuine server-side Gmail OAuth connector-token boundary was supplied — the Base44-managed Gmail connector is the only credential source.');
   }
-  for (const marker of GMAIL_CREDENTIAL_BOUNDARY_MARKERS) {
-    if (credentialBoundary[marker] === undefined) {
-      return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_INVALID',
-        'The supplied object does not satisfy the server-side credential boundary contract.');
+  for (const marker of GMAIL_CONNECTOR_TOKEN_BOUNDARY_MARKERS) {
+    if (tokenBoundary[marker] === undefined) {
+      return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_INVALID',
+        'The supplied object does not satisfy the server-side connector-token boundary contract.');
     }
   }
-  if (credentialBoundary.GMAIL_CREDENTIAL_PROVIDER_ID !== GMAIL_CREDENTIAL_BOUNDARY_PROVIDER_ID) {
-    return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_INVALID',
-      'The supplied credential boundary identity does not match the authorized provider boundary.');
+  if (tokenBoundary.GMAIL_CONNECTOR_PROVIDER_ID !== GMAIL_CONNECTOR_TOKEN_BOUNDARY_PROVIDER_ID) {
+    return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_INVALID',
+      'The supplied connector-token boundary identity does not match the authorized provider boundary.');
   }
-  if (credentialBoundary.GMAIL_DELEGATED_SUBJECT !== GMAIL_DELIVERY_IDENTITY) {
-    return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_MISMATCH',
-      'The credential boundary delegated subject does not match the fixed server-controlled Growth mailbox.');
+  if (tokenBoundary.GMAIL_CONNECTOR_ARCHITECTURE !== 'BASE44_MANAGED_GMAIL_OAUTH_CONNECTOR') {
+    return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_MISMATCH',
+      'The connector-token boundary architecture must be the Base44-managed Gmail OAuth connector — service-account and IAM-delegation architectures are not accepted.');
   }
-  const authorizedScopes = credentialBoundary.GMAIL_AUTHORIZED_SCOPES;
-  if (!Array.isArray(authorizedScopes) || authorizedScopes.length !== 1
-    || credentialBoundary.GMAIL_AUTHORIZED_SCOPE !== authorizedScopes[0]) {
-    return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_SCOPE_INVALID',
-      'The credential boundary must authorize exactly one fixed server-side scope — no broadened scope set is accepted.');
+  if (tokenBoundary.GMAIL_SENDER_IDENTITY !== GMAIL_DELIVERY_IDENTITY) {
+    return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_MISMATCH',
+      'The connector-token boundary sender does not match the fixed server-controlled Growth mailbox sender identity.');
   }
-  const scopeCheck = credentialBoundary.validateGmailScope(credentialBoundary.GMAIL_AUTHORIZED_SCOPE);
-  if (scopeCheck === null || typeof scopeCheck !== 'object' || scopeCheck.ok !== true) {
-    return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_SCOPE_INVALID',
-      'The credential boundary failed its own scope validation.');
+  const identitySelfCheck = tokenBoundary.validateGmailConnectorIdentity(tokenBoundary.GMAIL_CONNECTOR_EXPECTED_IDENTITY);
+  if (identitySelfCheck === null || typeof identitySelfCheck !== 'object' || identitySelfCheck.ok !== true) {
+    return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_MISMATCH',
+      'The connector-token boundary failed its own connected-identity validation.');
   }
-  const subjectCheck = credentialBoundary.validateGmailDelegatedSubject(credentialBoundary.GMAIL_DELEGATED_SUBJECT);
-  if (subjectCheck === null || typeof subjectCheck !== 'object' || subjectCheck.ok !== true) {
-    return authBlocked('GMAIL_CREDENTIAL_BOUNDARY_MISMATCH',
-      'The credential boundary failed its own delegated subject validation.');
+  const scopeSelfCheck = tokenBoundary.validateGmailConnectorScopes([tokenBoundary.GMAIL_CONNECTOR_REQUIRED_SCOPE]);
+  if (scopeSelfCheck === null || typeof scopeSelfCheck !== 'object' || scopeSelfCheck.ok !== true) {
+    return authBlocked('GMAIL_CONNECTOR_TOKEN_BOUNDARY_SCOPE_INVALID',
+      'The connector-token boundary failed its own Gmail scope validation — exactly one authorized sending scope is required.');
   }
-  const status = credentialBoundary.getGmailCredentialStatus();
-  if (status === null || typeof status !== 'object' || status.configured !== true) {
+  const status = tokenBoundary.getGmailConnectorCredentialStatus(gatewaySnapshot);
+  if (status === null || typeof status !== 'object' || status.connected !== true) {
     return {
-      ok: true,
-      provider_authentication: 'NOT_CONFIGURED',
+      ok: false,
+      provider_authentication: 'NOT_CONNECTED',
       configured: false,
       authenticated: false,
       connected: false,
       delivery_enabled: false,
       api_status: GMAIL_API_STATUS,
-      delegated_subject: GMAIL_DELIVERY_IDENTITY,
-      missing_secret_references: (status && Array.isArray(status.missing_secret_references))
-        ? status.missing_secret_references
-        : null,
+      sender_identity: GMAIL_DELIVERY_IDENTITY,
+      missing_requirements: (status && Array.isArray(status.missing_requirements)) ? status.missing_requirements : null,
+      error_code: (status && typeof status.error_code === 'string') ? status.error_code : 'GMAIL_CONNECTOR_UNAVAILABLE',
+      error: 'The Base44-managed Gmail OAuth connector is not available with the required identity and scope — the boundary fails closed and nothing is sent.',
       external_delivery: false,
       sent: false,
       scheduled: false,
       persisted: false,
       network_calls: 0,
-      verification: 'GOOGLE GMAIL PROVIDER CREDENTIALS NOT CONFIGURED — the server-side credential boundary fails closed. No credential is fabricated, defaulted, or exposed, the provider remains not connected, and nothing is sent.',
+      verification: GMAIL_VERIFY_NOTICE,
     };
   }
-  // Server-side acquisition only. The acquired context stays inside this
-  // call and is NEVER returned — the output is rebuilt exclusively from
-  // sanitized status fields, so no credential material can reach a client.
-  const acquired = credentialBoundary.acquireGmailProviderCredentialContext({
-    requested_subject: GMAIL_DELIVERY_IDENTITY,
-    requested_scope: credentialBoundary.GMAIL_AUTHORIZED_SCOPE,
-  });
+  // Server-side acquisition only. The acquired connector-token context stays
+  // inside this call and is NEVER returned — the output is rebuilt
+  // exclusively from sanitized status fields, so no token material can
+  // reach a client, an agent, an execution record, an approval record, a
+  // Prospect, a prompt, telemetry, or any log.
+  const acquired = tokenBoundary.acquireGmailConnectorTokenContext({ requested_sender: GMAIL_DELIVERY_IDENTITY }, gatewaySnapshot);
   if (acquired === null || typeof acquired !== 'object' || acquired.ok !== true) {
-    const boundedError = (acquired && typeof acquired.error === 'string')
-      ? acquired.error.substring(0, 500)
-      : 'Server-side provider credential acquisition failed closed.';
+    const boundedError = (acquired && typeof acquired.error === 'string') ? acquired.error.substring(0, 500) : 'Server-side Gmail connector-token acquisition failed closed.';
     return authBlocked(
-      (acquired && typeof acquired.error_code === 'string')
-        ? acquired.error_code
-        : 'GMAIL_CREDENTIAL_ACQUISITION_FAILED',
+      (acquired && typeof acquired.error_code === 'string') ? acquired.error_code : 'GMAIL_CONNECTOR_TOKEN_ACQUISITION_FAILED',
       boundedError,
     );
+  }
+  if (acquired.sender_identity !== GMAIL_DELIVERY_IDENTITY) {
+    return authBlocked('GMAIL_SENDER_IDENTITY_MISMATCH',
+      'The acquired connector-token context does not carry the fixed server-controlled Growth mailbox sender identity — nothing is sent.');
   }
   return {
     ok: true,
     provider_authentication: 'SERVER_SIDE_ONLY',
     configured: true,
     authenticated: true,
-    connected: false,
+    connected: true,
     delivery_enabled: false,
     api_status: GMAIL_API_STATUS,
-    delegated_subject: GMAIL_DELIVERY_IDENTITY,
+    sender_identity: GMAIL_DELIVERY_IDENTITY,
+    connected_identity: acquired.connected_identity,
+    token_in_result: 'none — the connector token stays inside the server boundary and is never returned',
     external_delivery: false,
     sent: false,
     scheduled: false,
     persisted: false,
     network_calls: 0,
-    verification: 'PROVIDER AUTHENTICATION RESOLVED SERVER-SIDE ONLY — credential material never leaves the server boundary, is never returned to any client or agent, and real delivery remains disabled by the kill switch.',
+    verification: 'GMAIL OAUTH CONNECTOR-TOKEN AUTHENTICATION RESOLVED SERVER-SIDE ONLY — the Base44-managed Gmail connector is the only credential source, the token never leaves the server boundary and is never returned to any client or agent, recipient resolution remains NOT_IMPLEMENTED, and real delivery remains disabled by the kill switch — NOTHING SENT.',
   };
 }

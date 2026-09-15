@@ -57,6 +57,17 @@ export const PROSPECT_OUTREACH_TOOL = {
 
 export const OUTREACH_DRAFT_NOTICE = 'DRAFT — NOT SENT. This is a preparation draft only. No message has been sent, scheduled, persisted, or transmitted, and no contact has occurred. No external research or verification was performed; all content derives solely from the Prospect record and any server-verified Prospect Intelligence result.';
 
+/**
+ * The single authoritative public website for EXECLEAD.AI, as a
+ * server-controlled constant for generated outreach drafts. Introduced by
+ * the deterministic preparation layer (never an LLM, never client input) so
+ * recipients always see the explicit canonical URL instead of any
+ * mail-provider auto-linkification of the brand name. Value parity with the
+ * frontend brand registry (src/lib/brandRegistry.js website) is asserted by
+ * base44/shared/outreachCanonicalUrl.test.ts.
+ */
+export const OUTREACH_CANONICAL_WEBSITE = 'https://execleadai.co';
+
 export const OUTREACH_CHANNELS = ['EMAIL', 'LINKEDIN', 'CALL'];
 export const OUTREACH_TONES = ['PROFESSIONAL', 'EXECUTIVE', 'CONCISE'];
 export const OUTREACH_OBJECTIVE_MAX_CHARS = 300;
@@ -249,6 +260,7 @@ function draftMessageFor(prospect, opts) {
     if (intelligencePhrase) lines.push(`Reference point: ${intelligencePhrase}`);
     lines.push(`Ask: whether a brief follow-up conversation would be welcome.`);
     lines.push(`Close: thank them and propose a specific time window.`);
+    lines.push(`Website to reference if asked: ${OUTREACH_CANONICAL_WEBSITE}`);
     return lines.join('\n');
   }
 
@@ -260,6 +272,7 @@ function draftMessageFor(prospect, opts) {
       lines.push(`I am reaching out to introduce EXECLEAD.AI, an executive leadership operating platform${industryClause}. ${objective}`);
       if (intelligencePhrase) lines.push(intelligencePhrase);
     }
+    lines.push(``, `You can learn more about EXECLEAD.AI at ${OUTREACH_CANONICAL_WEBSITE}.`);
     lines.push(``, `Would a brief introductory conversation be welcome?`);
     return lines.join('\n');
   }
@@ -279,6 +292,7 @@ function draftMessageFor(prospect, opts) {
   lines.push(``, tone === 'EXECUTIVE'
     ? `I would welcome the opportunity for a brief introductory conversation at your convenience.`
     : `Would you be open to a brief introductory conversation in the coming weeks?`);
+  lines.push(``, `You can learn more about EXECLEAD.AI at ${OUTREACH_CANONICAL_WEBSITE}.`);
   lines.push(``, signature);
   return lines.join('\n');
 }

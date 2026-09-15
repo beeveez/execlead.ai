@@ -7,6 +7,7 @@ import { base44 } from '@/api/base44Client';
 import {
   QUESTIONS, ASSESSMENT_CATEGORIES, buildAssessmentSet, computeFullResults, ASSESSMENT_STORAGE_KEY, LEADERSHIP_TRACKS,
 } from '@/lib/readinessAssessmentEngine';
+import { ROLE_CATEGORY } from '@/lib/readinessAdaptiveQuestions';
 import LeadershipTrackSelector from '@/components/readiness-assessment/LeadershipTrackSelector';
 import ExecutiveReadinessReport from '@/components/readiness-assessment/ExecutiveReadinessReport';
 import FirstSuccessExperience from '@/components/readiness-assessment/FirstSuccessExperience';
@@ -241,7 +242,7 @@ export default function ExecutiveReadinessAssessment() {
   }
 
   // ── QUIZ ──
-  const cat = ASSESSMENT_CATEGORIES.find((c) => c.key === q.category);
+  const cat = ASSESSMENT_CATEGORIES.find((c) => c.key === q.category) || ROLE_CATEGORY;
   return (
     <div className="max-w-2xl mx-auto px-4 lg:px-6 py-6 lg:py-10">
       <div className="flex items-center justify-between mb-4">

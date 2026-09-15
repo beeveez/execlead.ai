@@ -1875,8 +1875,8 @@ export async function getDeliveryReadiness(svc) {
 }
 
 // Phase 14F — the controlled first-send operator path lives in
-// agentOrchestrationFirstSend.ts (same authoritative boundaries).
-export { executeControlledFirstSend, getFirstSendReadiness } from './agentOrchestrationFirstSend.ts';
+// agentOrchestrationFirstSend.ts (same authoritative boundaries; imported
+// directly by the service router to keep this module acyclic).
 
 
 

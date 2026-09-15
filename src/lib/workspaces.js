@@ -441,7 +441,7 @@ export function getRouteWorkspace(path) {
 const EXECUTIVE_ROLES = ["customer", "enterprise_user", "enterprise_manager", "enterprise_admin", "organization_owner", "support", "sales", "finance", "content_manager", "platform_admin", "developer", "super_admin", "founder_root_admin"];
 const ENTERPRISE_ROLES = ["enterprise_user", "enterprise_manager", "enterprise_admin", "hrbp", "leadership_development_head", "talent_director", "vp_talent_management", "chro", "organization_owner", "platform_admin", "super_admin", "founder_root_admin"];
 const OPERATIONS_ROLES = ["platform_admin", "security_admin", "support", "sales", "finance", "content_manager", "super_admin", "founder_root_admin"];
-const DEVELOPER_ROLES = ["developer", "super_admin", "founder_root_admin"];
+export const DEVELOPER_ROLES = ["developer", "super_admin", "founder_root_admin"];
 
 export function getAvailableWorkspaces(role, plan, profile, isImpersonating = false) {
   const r = normalizeRole(role);

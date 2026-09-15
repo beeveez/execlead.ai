@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { useDeveloper } from "@/lib/DeveloperContext";
+import { useAuth } from "@/lib/AuthContext";
+import { normalizeRole } from "@/lib/roles";
+import { DEVELOPER_ROLES } from "@/lib/workspaces";
 import { Shield } from "lucide-react";
 import SyncStatusHero from "@/components/developer/knowledge-sync/SyncStatusHero";
 import SyncPipeline from "@/components/developer/knowledge-sync/SyncPipeline";
@@ -13,7 +15,8 @@ import SyncHistory from "@/components/developer/knowledge-sync/SyncHistory";
 import KnowledgeRegistryAudit from "@/components/developer/knowledge-sync/KnowledgeRegistryAudit";
 
 export default function ExecKnowledgeSync() {
-  const { canAccessDeveloper } = useDeveloper();
+  const { user } = useAuth();
+  const canAccessSync = DEVELOPER_ROLES.includes(normalizeRole(user?.role));
   const [result, setResult] = useState(null);
   const [running, setRunning] = useState(false);
 
@@ -26,13 +29,13 @@ export default function ExecKnowledgeSync() {
     setRunning(true);
   }, []);
 
-  if (!canAccessDeveloper) {
+  if (!canAccessSync) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-12 text-center">
           <Shield size={32} className="mx-auto text-white/20 mb-3" />
           <h2 className="text-white font-medium mb-1">Developer Access Required</h2>
-          <p className="text-white/30 text-sm">EXEC™ Knowledge Synchronization™ is restricted to Developer and Super Admin roles.</p>
+          <p className="text-white/30 text-sm">EXEC™ Knowledge Synchronization™ is restricted to Developer, Super Admin, and Founder Root Admin roles.</p>
         </div>
       </div>
     );

@@ -300,7 +300,11 @@ export function validateGovernedRealDeliveryRequest(request) {
   for (const field of ['subject', 'body']) {
     const value = message[field];
     if (value === null || value === undefined) continue;
-    if (typeof value !== 'string' || value.length > 2000 || /[\u0000-\u001f\u007f]/.test(value)) {
+    // Parity with the amended Phase 14F draft contract: line breaks (\n, \r)
+    // are permitted in the multi-line BODY only; the SUBJECT stays fully
+    // control-free (header-injection defense).
+    const charRe = field === 'body' ? /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f]/ : /[\u0000-\u001f\u007f]/;
+    if (typeof value !== 'string' || value.length > 2000 || charRe.test(value)) {
       return reject('GATE_REQUEST_INVALID', 'Message content must be bounded plain text.');
     }
   }

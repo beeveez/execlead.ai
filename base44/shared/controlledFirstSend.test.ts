@@ -235,6 +235,8 @@ test('draft bounds and control characters are enforced', () => {
   assert(!validateFirstSendDraftContent(SUBJECT, 'x'.repeat(2001)).ok, 'long body');
   assert(!validateFirstSendDraftContent(SUBJECT + String.fromCharCode(3), BODY).ok, 'control char subject');
   assert(!validateFirstSendDraftContent(SUBJECT, BODY + String.fromCharCode(31)).ok, 'control char body');
+  assert(!validateFirstSendDraftContent(SUBJECT + '\n', BODY).ok, 'newline in subject still rejected (header-injection defense)');
+  assert(validateFirstSendDraftContent(SUBJECT, BODY + '\nSecond paragraph.\r\n').ok, 'line breaks permitted in draft body');
 });
 
 test('credential material may never enter the draft content', () => {

@@ -135,7 +135,13 @@ const FIRST_SEND_VERIFIED_CONTACT_CONTRACT_FIELDS = [
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL_RE = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 const IDEMPOTENCY_RE = /^[A-Za-z0-9:._-]{8,64}$/;
+// Control characters are rejected in ALL draft content. Line breaks (\n, \r)
+// are permitted ONLY in the draft BODY — email bodies are multi-line text and
+// the deterministic outreach preparation engine emits paragraph breaks; the
+// SUBJECT stays fully control-free (header-injection defense). Amendment is
+// parity-enforced with the Phase 14D delivery boundary.
 const CONTROL_RE = /[\u0000-\u001f\u007f]/;
+const BODY_CONTROL_RE = /[\u0000-\u0009\u000b\u000c\u000e-\u001f\u007f]/;
 const CREDENTIAL_LEAK_RE = /(ya29\.|AIza[\w-]{10,}|Bearer\s+[A-Za-z0-9._-]{20,}|-----BEGIN [A-Z ]+PRIVATE KEY-----|client_secret["'\s:=]+)/;
 
 function firstSendReject(errorCode, error) {
@@ -253,8 +259,8 @@ export function validateFirstSendDraftContent(subject, body) {
     return firstSendReject('FIRST_SEND_CONTROLLED_MARKER_REQUIRED',
       'The controlled test draft subject must carry the explicit marker "' + FIRST_SEND_CONTROLLED_TEST_MARKER + '" — nothing unmarked may ever be sent by this phase.');
   }
-  if (body.length === 0 || body.length > FIRST_SEND_MAX_BODY || CONTROL_RE.test(body)) {
-    return firstSendReject('FIRST_SEND_INPUT_INVALID', 'draft_body must be 1-2000 characters of bounded plain text.');
+  if (body.length === 0 || body.length > FIRST_SEND_MAX_BODY || BODY_CONTROL_RE.test(body)) {
+    return firstSendReject('FIRST_SEND_INPUT_INVALID', 'draft_body must be 1-2000 characters of bounded plain text (line breaks permitted).');
   }
   if (CREDENTIAL_LEAK_RE.test(subject) || CREDENTIAL_LEAK_RE.test(body)) {
     return firstSendReject('FIRST_SEND_CREDENTIAL_LEAK_REJECTED',

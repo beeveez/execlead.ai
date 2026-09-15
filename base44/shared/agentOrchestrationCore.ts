@@ -47,6 +47,11 @@ import {
   PROSPECT_CREATE_SOURCE_DIRECT,
   PROSPECT_CREATE_SOURCE_INTELLIGENCE,
 } from './prospectCreate.ts';
+import {
+  validateProspectReadInput,
+  projectProspect,
+  PROSPECT_READ_MAX_RESULTS,
+} from './prospectRead.ts';
 
 export const PHASE5_AGENT_ID = 'exec_concierge';
 export const PHASE5_TOOL_ID = 'read_own_readiness_assessment';
@@ -63,6 +68,10 @@ export const PHASE8_TOOL_ID = 'create_own_prospect';
 export const PHASE8_TARGET_TYPE = 'ENTITY';
 export const PHASE8_TARGET_NAME = 'Prospect';
 export const PHASE8_OPERATION = 'CREATE';
+export const PHASE82_TOOL_ID = 'read_own_prospects';
+export const PHASE82_TARGET_TYPE = 'ENTITY';
+export const PHASE82_TARGET_NAME = 'Prospect';
+export const PHASE82_OPERATION = 'READ';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -158,6 +167,7 @@ export async function getStatus(svc) {
   const read = await resolveCapabilityStatus(svc, PHASE5_AGENT_ID, PHASE5_TOOL_ID);
   const growth = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE7_TOOL_ID);
   const growthCreate = await resolveCapabilityStatus(svc, PHASE8_AGENT_ID, PHASE8_TOOL_ID);
+  const growthRead = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE82_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -188,6 +198,14 @@ export async function getStatus(svc) {
         target: `${PHASE8_TARGET_TYPE}:${PHASE8_TARGET_NAME}`,
         human_approval_required: true,
         orchestration_available: !globalStop && growthCreate.agentOk && growthCreate.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE82_TOOL_ID,
+        operation: PHASE82_OPERATION,
+        target: `${PHASE82_TARGET_TYPE}:${PHASE82_TARGET_NAME}`,
+        human_approval_required: false,
+        orchestration_available: !globalStop && growthRead.agentOk && growthRead.toolOk,
       },
     ],
   });
@@ -317,6 +335,52 @@ async function runCreateProspectTool(svc, user, body) {
       status: created.status,
       source: created.source,
       from_intelligence: intelligenceReference !== null,
+      external_verification: false,
+    },
+  };
+}
+
+/**
+ * Phase 8.2 tool — read_own_prospects (ENTITY:Prospect, READ).
+ * Returns the authenticated user's OWN Prospect records only. The filter
+ * is anchored to the SERVER-resolved user identity — a client-supplied
+ * user_id, owner_user_id, or organization_id is never read (they are also
+ * rejected as unknown input keys by the strict contract). Deterministic
+ * ordering, fixed bounded count, one optional registered-status filter,
+ * and a fixed safe projection. No write path, no LLM, no external action.
+ */
+async function runReadOwnProspectsTool(svc, user, body) {
+  const v = validateProspectReadInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  // Ownership enforced by the server-resolved identity only. Cross-user,
+  // cross-organization, and platform-wide queries are structurally
+  // impossible here: the filter key is fixed and its value is user.id.
+  const filter = { owner_user_id: user.id };
+  if (v.input.status) filter.status = v.input.status;
+  const records = await svc.entities.Prospect.filter(
+    filter, '-created_date', PROSPECT_READ_MAX_RESULTS,
+  );
+  const prospects = records.map(projectProspect);
+  return {
+    ok: true,
+    responseKey: 'prospects',
+    response: {
+      found: records.length,
+      count: records.length,
+      bounded_to: PROSPECT_READ_MAX_RESULTS,
+      status_filter: v.input.status,
+      prospects,
+    },
+    result_summary: records.length > 0
+      ? `Read ${records.length} own prospect record(s) (bounded to ${PROSPECT_READ_MAX_RESULTS}).`
+      : 'No prospect records on file for this user.',
+    snapshot: { count: records.length, status_filter: v.input.status },
+    meta: {
+      records_found: records.length,
+      bounded_to: PROSPECT_READ_MAX_RESULTS,
+      status_filter: v.input.status,
       external_verification: false,
     },
   };
@@ -639,7 +703,9 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
       ? await runCreateProspectTool(svc, user, body)
       : cap.toolId === PHASE7_TOOL_ID
         ? await runProspectIntelligenceTool(body)
-        : await runReadinessReadTool(svc, user);
+        : cap.toolId === PHASE82_TOOL_ID
+          ? await runReadOwnProspectsTool(svc, user, body)
+          : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -761,6 +827,24 @@ export async function executeProspectCreate(svc, user, body, issuedBy = 'agentOr
     requestHash: (reqBody) => prospectCreateInputHash(reqBody && reqBody.input),
     responseKey: 'prospect',
     validateRequest: (reqBody) => validateProspectCreateInput(reqBody && reqBody.input),
+  });
+}
+
+/**
+ * Phase 8.2 capability — read-only OWN Prospect retrieval.
+ * growth_agent → read_own_prospects → ENTITY:Prospect (READ).
+ * human_approval_required=false (registered low-risk read). The tool stays
+ * DRAFT + disabled until activation — the chain refuses it at the registry
+ * kill switch.
+ */
+export async function executeReadOwnProspects(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE82_TOOL_ID,
+    targetType: PHASE82_TARGET_TYPE,
+    targetName: PHASE82_TARGET_NAME,
+    operation: PHASE82_OPERATION,
+    responseKey: 'prospects',
   });
 }
 

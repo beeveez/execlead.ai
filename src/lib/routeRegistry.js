@@ -42,6 +42,7 @@ const APP_ROUTES = [
   { path: "/dashboard", component: "Dashboard", feature: "basic_dashboard" },
   { path: "/ai-command-center", component: "AICommandCenter", feature: "ai_command_center" },
   { path: "/developer/ai-command-center", component: "DeveloperAICommandCenter", feature: "developer_access" },
+  { path: "/developer/agent-approvals", component: "AgentApprovalReview", feature: "developer_access" },
   { path: "/challenge", component: "Challenge", feature: "daily_executive_challenge" },
   { path: "/coach", component: "Coach", feature: "executive_coach" },
   { path: "/simulator", component: "Simulator", feature: "executive_simulator" },

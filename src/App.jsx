@@ -202,6 +202,7 @@ import MigrationHistory from '@/pages/developer/MigrationHistory';
 import DeploymentCenter from '@/pages/developer/DeploymentCenter';
 import SecurityIntelligenceCenter from '@/pages/developer/SecurityIntelligenceCenter';
 import ReportRegistry from '@/pages/developer/ReportRegistry';
+import AgentApprovalReview from '@/pages/developer/AgentApprovalReview';
 import OrganizationManagement from '@/pages/enterprise/OrganizationManagement';
 import EnterpriseAdmin from '@/pages/enterprise/EnterpriseAdmin';
 import GovernanceCommandCenter from '@/pages/enterprise/GovernanceCommandCenter';
@@ -581,6 +582,7 @@ const AuthenticatedApp = () => {
           <Route path="/developer/deployments" element={<DeploymentCenter />} />
           <Route path="/developer/security-intelligence" element={<SecurityIntelligenceCenter />} />
           <Route path="/developer/report-registry" element={<ReportRegistry />} />
+          <Route path="/developer/agent-approvals" element={<AgentApprovalReview />} />
           <Route path="/platform/activity" element={<PlatformActivityCenter />} />
           <Route path="/platform-improvement-center" element={<PlatformImprovementCenter />} />
           <Route path="/operations" element={<ProductCommandCenter />} />

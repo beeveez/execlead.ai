@@ -67,6 +67,13 @@ import {
   OUTREACH_CONFIDENCE_CAP,
 } from './prospectOutreachPreparation.ts';
 import {
+  validateOutreachExecutionInput,
+  validateExecutionApprovalBinding,
+  validateOutreachStatusEligibility,
+  buildOutreachExecutionDryRun,
+  outreachExecutionInputHash,
+} from './prospectOutreachExecution.ts';
+import {
   validateTransitionInput,
   validateTransitionAgainstMatrix,
   prospectTransitionInputHash,
@@ -103,6 +110,10 @@ export const PHASE10_TOOL_ID = 'prepare_prospect_outreach';
 export const PHASE10_TARGET_TYPE = 'INTERNAL_SERVICE';
 export const PHASE10_TARGET_NAME = 'prospectOutreachPreparation';
 export const PHASE10_OPERATION = 'INVOKE';
+export const PHASE11_TOOL_ID = 'execute_prospect_outreach';
+export const PHASE11_TARGET_TYPE = 'INTERNAL_SERVICE';
+export const PHASE11_TARGET_NAME = 'prospectOutreachExecution';
+export const PHASE11_OPERATION = 'INVOKE';
 export const PROVENANCE_SOURCE = 'agent_orchestration_service';
 export const CONFIG_ID = 'agent_orchestration_global';
 export const RISK_LEVELS = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -202,6 +213,7 @@ export async function getStatus(svc) {
   const growthQualify = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE83_TOOL_ID);
   const growthUpdate = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE9_TOOL_ID);
   const growthOutreach = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE10_TOOL_ID);
+  const growthOutreachExec = await resolveCapabilityStatus(svc, PHASE7_AGENT_ID, PHASE11_TOOL_ID);
 
   return Response.json({
     orchestration_available: !globalStop && Boolean(read.agentOk) && Boolean(read.toolOk),
@@ -264,6 +276,14 @@ export async function getStatus(svc) {
         target: `${PHASE10_TARGET_TYPE}:${PHASE10_TARGET_NAME}`,
         human_approval_required: false,
         orchestration_available: !globalStop && growthOutreach.agentOk && growthOutreach.toolOk,
+      },
+      {
+        agent_id: PHASE7_AGENT_ID,
+        tool_id: PHASE11_TOOL_ID,
+        operation: PHASE11_OPERATION,
+        target: `${PHASE11_TARGET_TYPE}:${PHASE11_TARGET_NAME}`,
+        human_approval_required: true,
+        orchestration_available: !globalStop && growthOutreachExec.agentOk && growthOutreachExec.toolOk,
       },
     ],
   });
@@ -596,6 +616,151 @@ async function runPrepareOutreachTool(svc, user, body) {
       prospect_mutation: false,
       outreach_sent: false,
       outreach_scheduled: false,
+    },
+  };
+}
+
+/**
+ * Phase 11 tool — execute_prospect_outreach
+ * (INTERNAL_SERVICE:prospectOutreachExecution, INVOKE).
+ * THE EXTERNAL OUTREACH EXECUTION BOUNDARY. In Phase 11 this tool is a
+ * governed contract only: it is registered DRAFT + disabled, and the
+ * orchestration chain refuses it at the tool-registry kill switch. Even if
+ * the registry were flipped without authorization, the global risk
+ * threshold (unchanged at medium) refuses a high-risk tool — the external
+ * side-effect capability cannot become executable without TWO deliberate,
+ * separately reviewed changes.
+ *
+ * When a future phase activates it (after the delivery connector and
+ * production safeguards are separately designed and approved), the chain is:
+ * strict input contract → server-issued human approval bound to the exact
+ * (requester, growth_agent, execute_prospect_outreach, Prospect, channel,
+ * draft hash, input hash, risk=high) → full server-side approval
+ * revalidation (existence, user/capability match, server provenance, input
+ * hash binding, APPROVED status, expiry, self-approval prohibition,
+ * single-use consumption) → Prospect/CHANNEL/DRAFT-HASH binding
+ * revalidation against the approval metadata → live Prospect status
+ * revalidation (QUALIFIED/PURSUING only, stale-approval protected) →
+ * DRY-RUN STOP. Recipient resolution terminates at
+ * DELIVERY_NOT_IMPLEMENTED: no recipient is ever accepted from the client,
+ * no channel is contacted, no email/SMS/messaging/CRM action exists, no
+ * network call is made, and nothing is sent, scheduled, persisted, or
+ * transmitted. This tool performs NO external side effect in this phase
+ * and claims none.
+ */
+async function runExecuteOutreachTool(svc, user, body, verifiedApproval) {
+  const v = validateOutreachExecutionInput(body && body.input);
+  if (!v.ok) {
+    return { ok: false, error_code: v.error_code, error: v.error };
+  }
+  // Fail-closed: this tool is only reachable behind a verified approval —
+  // a missing approval reference can never authorize an external action.
+  if (!verifiedApproval) {
+    return { ok: false, error_code: 'APPROVAL_REQUIRED',
+      error: 'A verified human approval is required before any outreach execution.' };
+  }
+  // Draft binding: the approval is bound to the exact Prospect, channel, and
+  // approved draft hash observed server-side at approval time. Any
+  // substitution (another Prospect, channel, draft, or message) BLOCKS.
+  const binding = validateExecutionApprovalBinding(v.input, verifiedApproval.metadata || {});
+  if (!binding.ok) {
+    return { ok: false, error_code: binding.error_code, error: binding.error };
+  }
+  // Ownership anchored to the server-resolved identity only: the filter
+  // always pairs the client-identified prospect with the caller owner_user_id,
+  // so a Prospect owned by anyone else resolves to the same safe not-found
+  // refusal as a nonexistent one.
+  const records = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = records[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'OUTREACH_EXECUTION_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no outreach execution was performed.' };
+  }
+  // Stale approval protection: the approval is bound to the Prospect status
+  // observed server-side at request time. If the live record no longer
+  // matches, BLOCK — never execute against an outdated approval.
+  const approvedSource = (verifiedApproval.metadata && typeof verifiedApproval.metadata.source_status === 'string')
+    ? verifiedApproval.metadata.source_status
+    : null;
+  if (!approvedSource || prospect.status !== approvedSource) {
+    return { ok: false, error_code: 'OUTREACH_SOURCE_STATUS_CHANGED',
+      error: `The Prospect status is no longer "${approvedSource || 'the approved source status'}" — the approval is stale; no outreach execution was performed.` };
+  }
+  // Status safety at EXECUTION time, from the live server-derived status only.
+  // A client-supplied status is never read (rejected as an unknown input key).
+  const eligibility = validateOutreachStatusEligibility(prospect.status);
+  if (!eligibility.ok) {
+    return { ok: false, error_code: eligibility.error_code, error: eligibility.error };
+  }
+  // ── DRY-RUN STOP — the external delivery boundary. ──
+  // All governance checks have passed up to this point. Recipient resolution
+  // terminates here: no external delivery connector exists in this phase, no
+  // recipient is resolved, and nothing is transmitted. The result is a
+  // governed dry-run proof only — it never claims delivery.
+  const result = buildOutreachExecutionDryRun(v.input, verifiedApproval.approval_id, {
+    prospect_status: prospect.status,
+  });
+  return {
+    ok: true,
+    responseKey: 'result',
+    response: { result },
+    result_summary: `Governed outreach execution DRY RUN for prospect ${prospect.prospect_id} (channel ${v.input.channel}, status ${prospect.status}): all governance checks passed up to the external delivery boundary; recipient resolution terminated at DELIVERY_NOT_IMPLEMENTED — DRY RUN, NOTHING SENT, nothing scheduled or persisted.`,
+    snapshot: {
+      execution_status: result.execution_status,
+      dry_run: true,
+      external_delivery: false,
+      prospect_id: prospect.prospect_id,
+      channel: v.input.channel,
+      approved_draft_hash: v.input.approved_draft_hash,
+      approval_id: verifiedApproval.approval_id,
+    },
+    meta: {
+      dry_run: true,
+      external_delivery: false,
+      delivered: false,
+      outreach_sent: false,
+      outreach_scheduled: false,
+      recipient_resolved: false,
+      recipient_resolution: 'DELIVERY_NOT_IMPLEMENTED',
+      network_calls: 0,
+      records_created: 0,
+      prospect_mutation: false,
+    },
+  };
+}
+
+/**
+ * Phase 11 request-time state validation. Runs BEFORE any approval is
+ * issued: validates the strict execution contract and re-derives the
+ * CURRENT Prospect status from the database under the server-resolved
+ * owner. Only a QUALIFIED or PURSUING Prospect may be bound to an outreach
+ * execution approval. The observed source status, the exact channel, and
+ * the exact approved draft hash are returned as approval-binding metadata
+ * so a later execution request can never substitute another Prospect,
+ * channel, draft, or message.
+ */
+async function validateOutreachExecutionRequestState(svc, user, body) {
+  const v = validateOutreachExecutionInput(body && body.input);
+  if (!v.ok) return v;
+  const records = await svc.entities.Prospect.filter(
+    { prospect_id: v.input.prospect_id, owner_user_id: user.id }, '-created_date', 1,
+  );
+  const prospect = records[0] || null;
+  if (!prospect) {
+    return { ok: false, error_code: 'OUTREACH_EXECUTION_PROSPECT_NOT_FOUND',
+      error: 'No Prospect record matching prospect_id is owned by the authenticated caller — no approval was issued.' };
+  }
+  const eligibility = validateOutreachStatusEligibility(prospect.status);
+  if (!eligibility.ok) return eligibility;
+  return {
+    ok: true,
+    approval_meta: {
+      prospect_id: prospect.prospect_id,
+      channel: v.input.channel,
+      draft_hash: v.input.approved_draft_hash,
+      source_status: prospect.status,
     },
   };
 }
@@ -1041,7 +1206,9 @@ async function executeGovernedCapability(svc, user, body, issuedBy, cap) {
               ? await runUpdateProspectStatusTool(svc, user, body, verifiedApproval)
               : cap.toolId === PHASE10_TOOL_ID
                 ? await runPrepareOutreachTool(svc, user, body)
-                : await runReadinessReadTool(svc, user);
+                : cap.toolId === PHASE11_TOOL_ID
+                  ? await runExecuteOutreachTool(svc, user, body, verifiedApproval)
+                  : await runReadinessReadTool(svc, user);
     const latencyMs = Date.now() - startedMs;
 
     // Tool-level truthful failure (e.g. rejected prospect input) → FAILED record.
@@ -1248,6 +1415,31 @@ export async function executePrepareProspectOutreach(svc, user, body, issuedBy =
     operation: PHASE10_OPERATION,
     requestHash: (reqBody) => outreachInputHash(reqBody && reqBody.input),
     responseKey: 'result',
+  });
+}
+
+/**
+ * Phase 11 capability — THE EXTERNAL OUTREACH EXECUTION BOUNDARY.
+ * growth_agent → execute_prospect_outreach →
+ * INTERNAL_SERVICE:prospectOutreachExecution (INVOKE). risk=high,
+ * human_approval_required=true. The tool is registered DRAFT + disabled and
+ * the global risk threshold remains medium — this capability is
+ * intentionally NOT executable: it establishes the governed contract for a
+ * future external outreach execution capability and stops at the external
+ * delivery boundary (DRY RUN — NOTHING SENT). No delivery connector, no
+ * email, no SMS, no messaging, no CRM, no scheduling, no background work,
+ * and no LLM exist anywhere in this path.
+ */
+export async function executeProspectOutreach(svc, user, body, issuedBy = 'agentOrchestrationService') {
+  return await executeGovernedCapability(svc, user, body, issuedBy, {
+    agentId: PHASE7_AGENT_ID,
+    toolId: PHASE11_TOOL_ID,
+    targetType: PHASE11_TARGET_TYPE,
+    targetName: PHASE11_TARGET_NAME,
+    operation: PHASE11_OPERATION,
+    requestHash: (reqBody) => outreachExecutionInputHash(reqBody && reqBody.input),
+    responseKey: 'result',
+    validateRequest: (reqSvc, reqUser, reqBody) => validateOutreachExecutionRequestState(reqSvc, reqUser, reqBody),
   });
 }
 

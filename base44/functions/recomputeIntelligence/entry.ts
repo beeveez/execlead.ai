@@ -12,6 +12,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
  *   - manageJourney / manageIntelligence (body.user_id when cache is stale)
  *   - Scheduled automation (body.action = 'refresh_stale' for batch refresh)
  *   - Direct user call (uses base44.auth.me())
+ *   - Assessment completion (Phase 16: fire-and-forget invoke with explicit user_id)
  */
 
 // ── Computation helpers (accept config as parameter) ──
@@ -209,6 +210,20 @@ function computeForecast(readiness, trust, journeyPoints, reputationScore, confi
   return { probability, timelineLow: monthsLow, timelineHigh: monthsHigh, confidence, factorBreakdown };
 }
 
+// ── Phase 16: Executive Readiness Assessment™ signal ──
+// The persisted ReadinessAssessment is consumed server-side only. Client-supplied
+// numbers are never trusted: defensive bounds are applied to every value read.
+const clampAssessmentScore = (s) => Math.max(0, Math.min(100, Number(s) || 0));
+const clampAssessmentXp = (x) => Math.max(0, Math.min(1000, Number(x) || 0));
+const ASSESSMENT_CATEGORY_LABELS = {
+  leadership: 'Leadership',
+  strategic: 'Strategic Thinking',
+  communication: 'Executive Communication',
+  organization: 'Organizational Leadership',
+  business: 'Business & Financial Acumen',
+  role_specific: 'Role-Specific Readiness',
+};
+
 // ── Core computation for a single user ──
 
 async function computeForUser(base44, config, userId, userName) {
@@ -221,7 +236,7 @@ async function computeForUser(base44, config, userId, userName) {
   if (!profile) return { error: 'Profile not found', warnings };
 
   // Parallel signal gathering (H3)
-  const [dnaRes, lettersRes, simsRes, lessonsRes, challengesRes, mentorsRes, repsRes, resumesRes, careerResumesRes, existingEventsRes] = await Promise.allSettled([
+  const [dnaRes, lettersRes, simsRes, lessonsRes, challengesRes, mentorsRes, repsRes, resumesRes, careerResumesRes, assessmentsRes, existingEventsRes] = await Promise.allSettled([
     base44.asServiceRole.entities.LeadershipDNA.filter({ created_by_id: userId }, '-created_date', 10),
     base44.asServiceRole.entities.LeadershipLetter.filter({ author_user_id: userId, status: 'published' }, '-published_at', 200),
     base44.asServiceRole.entities.SimulationSession.filter({ created_by_id: userId }, '-created_date', 200),
@@ -231,6 +246,7 @@ async function computeForUser(base44, config, userId, userName) {
     base44.asServiceRole.entities.ExecutiveReputation.filter({ user_id: userId }, '-updated_date', 5),
     base44.asServiceRole.entities.ResumeVersion.filter({ created_by_id: userId }, '-created_date', 5),
     base44.asServiceRole.entities.CareerResume.filter({ created_by_id: userId }, '-created_date', 5),
+    base44.asServiceRole.entities.ReadinessAssessment.filter({ user_id: userId }, '-created_date', 100),
     base44.asServiceRole.entities.JourneyEvent.filter({ user_id: userId }, '-event_date', 500),
   ]);
 
@@ -250,6 +266,7 @@ async function computeForUser(base44, config, userId, userName) {
   const reps = unwrap(repsRes, 'reputation');
   const resumes = unwrap(resumesRes, 'resumes');
   const careerResumes = unwrap(careerResumesRes, 'career_resumes');
+  const assessments = unwrap(assessmentsRes, 'readiness_assessment');
   const existingEvents = unwrap(existingEventsRes, 'journey_events');
 
   // ── Compute journey points & breakdown ──
@@ -321,10 +338,58 @@ async function computeForUser(base44, config, userId, userName) {
     totalPoints += mentorPts;
   }
 
+  // Phase 16: completed assessments contribute their awarded XP. Journey points remain
+  // DERIVED — every run rebuilds the total from signals, so XP can never double-accumulate.
+  if (assessments.length > 0) {
+    const assessmentPts = assessments.reduce((sum, a) => sum + clampAssessmentXp(a.xp_awarded), 0);
+    breakdown.readiness_assessment = { count: assessments.length, points: assessmentPts };
+    totalPoints += assessmentPts;
+  }
+
   // ── Compute level, readiness, trust, forecast ──
   const level = getLevel(totalPoints, config.levels);
   const dnaCompleted = dna.length > 0;
   const readiness = computeReadiness(profile, reputationScore, config);
+
+  // Phase 16: the LATEST completed ReadinessAssessment is the authoritative readiness
+  // source. It overrides the cached score and dimensions but NEVER writes the 7
+  // behavioral profile metric fields — those remain pristine evidence inputs, and
+  // career_intelligence_json (Quick Baseline) is never touched here.
+  const latestAssessment = assessments.length > 0 ? assessments[0] : null; // sorted -created_date → newest first
+  if (latestAssessment) {
+    const overall = clampAssessmentScore(latestAssessment.overall_score);
+    let categoryScores = {};
+    try { categoryScores = JSON.parse(latestAssessment.category_scores_json || '{}'); } catch {}
+    let strengths = [];
+    try { strengths = JSON.parse(latestAssessment.strengths_json || '[]'); } catch {}
+    let growthOpportunities = [];
+    try { growthOpportunities = JSON.parse(latestAssessment.growth_opportunities_json || '[]'); } catch {}
+    const scoreGap = Math.max(0, 100 - overall);
+    readiness.source = 'assessment';
+    readiness.overallScore = overall;
+    readiness.estimatedMonths = scoreGap > 0 ? Math.max(1, Math.ceil(scoreGap / 1.8)) : 0;
+    readiness.confidence = latestAssessment.confidence || readiness.confidence;
+    readiness.trend = overall >= 70 ? 'Improving' : overall >= 50 ? 'Stable' : 'Developing';
+    // Assessment category scores in the display shape the Dashboard focus-area logic consumes.
+    readiness.dimensions = Object.entries(categoryScores).map(([id, score]) => ({
+      id,
+      label: ASSESSMENT_CATEGORY_LABELS[id] || id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      score: clampAssessmentScore(score),
+      benchmark: 70,
+    }));
+    readiness.assessment = {
+      assessment_id: latestAssessment.assessment_id,
+      overall_score: overall,
+      classification: latestAssessment.classification,
+      classification_label: latestAssessment.classification_label,
+      leadership_track: latestAssessment.leadership_track,
+      target_executive_role: latestAssessment.target_executive_role,
+      strengths,
+      growth_opportunities: growthOpportunities,
+      confidence: latestAssessment.confidence,
+      completed_at: latestAssessment.completed_at,
+    };
+  }
   const trust = computeTrust(profile, totalPoints, reputationScore, dnaCompleted, config);
   const forecast = computeForecast(readiness, trust, totalPoints, reputationScore, config);
   const achievements = computeAchievements(breakdown, totalPoints, profile, config);
@@ -413,6 +478,21 @@ async function computeForUser(base44, config, userId, userName) {
         description: c.question || c.category || 'Challenge',
         category: 'leadership', milestone: false, event_date: c.created_date,
         metadata_json: JSON.stringify({ source_id: c.id, icon: '⚔️' }),
+      });
+    }
+  });
+
+  // Phase 16: exactly ONE immutable assessment_completed event per assessment —
+  // idempotent via the existing source_id key (assessment_completed:<assessment_id>).
+  assessments.forEach((a) => {
+    const key = `assessment_completed:${a.assessment_id}`;
+    if (!existingKeys.has(key)) {
+      eventsToCreate.push({
+        user_id: userId, user_name: userName, event_type: 'assessment_completed', module: 'Executive Readiness',
+        points: clampAssessmentXp(a.xp_awarded), title: 'Executive Readiness Assessment™ Completed',
+        description: a.classification_label || 'Completed the Executive Readiness Assessment™',
+        category: 'learning', milestone: true, event_date: a.completed_at || a.created_date,
+        metadata_json: JSON.stringify({ source_id: a.assessment_id, icon: '📊' }),
       });
     }
   });

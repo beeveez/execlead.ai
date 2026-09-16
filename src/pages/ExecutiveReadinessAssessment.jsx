@@ -199,6 +199,10 @@ export default function ExecutiveReadinessAssessment() {
       // PHASE 15 hardening: local progress is cleared ONLY after the database write succeeds.
       localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
       setSavedAssessment(created);
+      // PHASE 16: refresh the member-facing intelligence/journey cache from the completed
+      // assessment. Fire-and-forget — a recompute failure never invalidates the persisted
+      // assessment (same pattern as the onboarding orchestrator's recompute invokes).
+      base44.functions.invoke('recomputeIntelligence', { user_id: user?.id }).catch(() => null);
       if (assignedOnboarding) setCalibrationTransition(await completeEnterpriseOnboarding(user, r));
       else setPhase('first-insight');
     } catch (e) {

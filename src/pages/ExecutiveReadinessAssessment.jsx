@@ -173,9 +173,7 @@ export default function ExecutiveReadinessAssessment() {
     // Personalize the promotion forecast with the selected target role.
     if (targetRole) r.forecast.targetLevel = targetRole;
     setResults(r);
-    if (!assignedOnboarding) setPhase('first-insight');
     try { base44.analytics.track({ eventName: 'assessment_completed', properties: { path: track, overall: r.overall, universal: r.universalScore, role_specific: r.roleScore } }); } catch (e) {}
-    localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
     setPersisting(true);
     try {
       const record = {
@@ -198,10 +196,15 @@ export default function ExecutiveReadinessAssessment() {
         completed_at: new Date().toISOString(),
       };
       const created = await base44.entities.ReadinessAssessment.create(record);
+      // PHASE 15 hardening: local progress is cleared ONLY after the database write succeeds.
+      localStorage.removeItem(ASSESSMENT_STORAGE_KEY);
       setSavedAssessment(created);
       if (assignedOnboarding) setCalibrationTransition(await completeEnterpriseOnboarding(user, r));
+      else setPhase('first-insight');
     } catch (e) {
-      toast({ title: 'Could not save assessment', description: e.message, variant: 'destructive' });
+      // Persistence failed — the user stays on the final question with every answer intact
+      // (localStorage progress is preserved), so "See My Results" can safely retry the save.
+      toast({ title: 'Could not save assessment', description: `${e?.message || 'Save failed'} — your answers are saved on this device. Tap "See My Results" to try again.`, variant: 'destructive' });
     } finally { setPersisting(false); }
   }, [answers, assignedOnboarding, user, toast, targetRole, track]);
 

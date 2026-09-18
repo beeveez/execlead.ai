@@ -1,4 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+} from '../../shared/auth.ts';
+
+// Verified admin/founder roles — aligned with the platform-wide RLS
+// authorization model (never ordinary users).
+const GCE_ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'];
 
 const FALLBACK = "Growing with our Founding Members.";
 const LIST_LIMIT = 1000;
@@ -30,6 +39,25 @@ function buildMetric(key, label, value, source, records, isCount, formatter) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    const body = await req.json().catch(() => ({}));
+    const clientIp = getClientIp(req);
+
+    // SECURITY BOUNDARY (High #3 remediation) — fail closed. NO service-role
+    // read, metric computation, or response construction may execute until the
+    // request passes one of the two VERIFIED gates from shared/auth.ts:
+    //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env only)
+    //   2. Authenticated admin/founder role via base44.auth.me()
+    // An unauthenticated request is NEVER treated as a scheduled/system call,
+    // no fabricated identity is created, and the removed service-token tier
+    // (base44-service-authorization / decodeServiceToken) is never consulted.
+    const auth = await authenticateRequest(req, base44, {
+      body,
+      requireAdmin: true,
+      allowSystemSecret: true,
+      adminRoles: GCE_ADMIN_ROLES,
+    });
+    const authError = await enforceAuth(base44, auth, 'get_customer_evidence', clientIp);
+    if (authError) return authError;
 
     const [assessments, simulations, stories, identities, outcomes, founders, companies] = await Promise.all([
       base44.asServiceRole.entities.ReadinessAssessment.list("-updated_date", LIST_LIMIT),

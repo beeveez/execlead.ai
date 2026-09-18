@@ -1,6 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+} from '../../shared/auth.ts';
 
-const OPS_ROLES = ['admin', 'developer', 'platform_admin', 'security_admin', 'support', 'sales', 'finance', 'content_manager', 'super_admin', 'founder_root_admin'];
+// Critical remediation: verified administrative roles only — aligned with the
+// platform-wide authorization model. The former broad staff roles
+// (security_admin, support, sales, finance, content_manager) no longer grant
+// Operational Excellence write authority.
+const OPS_ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'];
+
+// Explicit allowlist for the operational automation (event) path — the dynamic
+// asServiceRole entity lookup must never accept an arbitrary entity name.
+const EVENT_ENTITIES = ['ImprovementProject', 'RootCauseAnalysis', 'ContinuousImprovementAction'];
 const WASTE = ['Overproduction', 'Waiting', 'Transport', 'Overprocessing', 'Inventory', 'Motion', 'Defects', 'Unused Talent'];
 const FLOW = [
   ['Landing Page', ['/'], ['landing']],
@@ -139,7 +152,7 @@ async function runLifecycle(base44) {
   return { metrics: metrics.length, projectsUpdated: updates.length };
 }
 
-async function generateWeeklyReports(base44) {
+async function generateWeeklyReports(base44, actor) {
   const sources = await loadSources(base44);
   const dashboard = buildDashboard(sources);
   const [projects, , metrics, improvements, telemetry] = sources;
@@ -152,7 +165,7 @@ async function generateWeeklyReports(base44) {
   ];
   for (const item of reportData) {
     const period = `${weekKey()}-${item.suffix}`;
-    const record = { period, report_date: new Date().toISOString().slice(0, 10), status: 'ready', overall_health_score: dashboard.operationalScore, momentum: 'stable', ai_narrative: `${item.name} generated from current platform intelligence and telemetry.`, engagement_breakdown_json: JSON.stringify(item.payload), what_should_change_json: JSON.stringify(item.payload), generated_by: 'Operational Excellence Scheduler', user_id: 'system', user_name: 'Operational Excellence Scheduler' };
+    const record = { period, report_date: new Date().toISOString().slice(0, 10), status: 'ready', overall_health_score: dashboard.operationalScore, momentum: 'stable', ai_narrative: `${item.name} generated from current platform intelligence and telemetry.`, engagement_breakdown_json: JSON.stringify(item.payload), what_should_change_json: JSON.stringify(item.payload), generated_by: actor.name, user_id: actor.id, user_name: actor.name };
     const existing = await base44.asServiceRole.entities.BusinessIntelligenceReport.filter({ period }, '-created_date', 1);
     if (existing[0]) await base44.asServiceRole.entities.BusinessIntelligenceReport.update(existing[0].id, record);
     else await base44.asServiceRole.entities.BusinessIntelligenceReport.create(record);
@@ -164,14 +177,43 @@ export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
-    let user = null;
-    try { user = await base44.auth.me(); } catch {}
-    const automated = Boolean(body.event || body.automation) || ['runLifecycle', 'weeklyReports'].includes(body.action);
-    if (!automated && !user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (user && !OPS_ROLES.includes(user.role)) return Response.json({ error: 'Forbidden' }, { status: 403 });
-    if (body.event) return Response.json(await handleAutomation(base44, body));
+    const clientIp = getClientIp(req);
+
+    // SECURITY BOUNDARY (Critical remediation) — fail closed. NO source load,
+    // service-role read/write, project mutation, RCA mutation, improvement-action
+    // creation, lifecycle processing, report generation, or dynamic entity access
+    // may execute until the request passes one of the two VERIFIED gates from
+    // shared/auth.ts:
+    //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env only)
+    //   2. Authenticated administrative role via base44.auth.me()
+    // The former client-controlled `automation`/`event`/action-name inference is
+    // REMOVED: request-body values never grant authentication or authorization,
+    // absence of a user is NEVER authorization, and the removed service-token tier
+    // (base44-service-authorization / decodeServiceToken) is never consulted.
+    const auth = await authenticateRequest(req, base44, {
+      body,
+      requireAdmin: true,
+      allowSystemSecret: true,
+      adminRoles: OPS_ADMIN_ROLES,
+    });
+    const authError = await enforceAuth(base44, auth, 'manage_operational_excellence', clientIp);
+    if (authError) return authError;
+
+    // Truthful actor for record provenance ONLY — never an authorization
+    // mechanism. A verified system call carries a provenance label with NO role
+    // claim; an authenticated call carries the verified caller.
+    const actor = auth.isSystemCall
+      ? { id: 'system_operational_excellence_scheduler', name: 'Operational Excellence Scheduler' }
+      : { id: auth.user.id, name: auth.user.full_name || auth.user.email };
+
+    if (body.event) {
+      if (!EVENT_ENTITIES.includes(body.event?.entity_name)) {
+        return Response.json({ error: 'Invalid entity for operational automation' }, { status: 400 });
+      }
+      return Response.json(await handleAutomation(base44, body));
+    }
     if (body.action === 'runLifecycle') return Response.json(await runLifecycle(base44));
-    if (body.action === 'weeklyReports') return Response.json(await generateWeeklyReports(base44));
+    if (body.action === 'weeklyReports') return Response.json(await generateWeeklyReports(base44, actor));
     if (body.action === 'dashboard' || !body.action) {
       let sources = await loadSources(base44);
       if (!sources[2].length) { await refreshMetrics(base44, sources); sources = await loadSources(base44); }
@@ -184,7 +226,7 @@ export default async function(req) {
     }
     if (body.action === 'captureBaseline') return Response.json({ project: await updateProjects(base44, body.projectId, { baselineValue: Number(body.baselineValue), status: 'Measure' }) });
     if (body.action === 'createRootCause') {
-      const analysis = await base44.asServiceRole.entities.RootCauseAnalysis.create({ ...body.analysis, analysisId: body.analysis.analysisId || `RCA-${Date.now()}`, createdBy: user?.full_name || user?.email || 'Operations', createdAt: new Date().toISOString(), approvalStatus: 'pending' });
+      const analysis = await base44.asServiceRole.entities.RootCauseAnalysis.create({ ...body.analysis, analysisId: body.analysis.analysisId || `RCA-${Date.now()}`, createdBy: actor.name, createdAt: new Date().toISOString(), approvalStatus: 'pending' });
       return Response.json({ analysis });
     }
     if (body.action === 'approveRootCause') {
@@ -196,14 +238,14 @@ export default async function(req) {
       const analyses = await base44.asServiceRole.entities.RootCauseAnalysis.filter({ analysisId: body.analysisId }, '-created_date', 1);
       const analysis = analyses[0];
       if (!analysis || analysis.approvalStatus !== 'approved') return Response.json({ error: 'Approved root-cause analysis required' }, { status: 400 });
-      const actions = (analysis.recommendedActions || []).map((title) => ({ title, description: `Generated from ${analysis.method}: ${analysis.rootCause}`, improvement_type: 'workflow', target_id: analysis.projectId, target_name: analysis.method, priority: analysis.confidence >= 80 ? 'high' : 'medium', status: 'identified', ai_recommendation: title, user_id: user?.id, user_name: user?.full_name || user?.email }));
+      const actions = (analysis.recommendedActions || []).map((title) => ({ title, description: `Generated from ${analysis.method}: ${analysis.rootCause}`, improvement_type: 'workflow', target_id: analysis.projectId, target_name: analysis.method, priority: analysis.confidence >= 80 ? 'high' : 'medium', status: 'identified', ai_recommendation: title, user_id: actor.id, user_name: actor.name }));
       if (actions.length) await base44.asServiceRole.entities.ContinuousImprovementAction.bulkCreate(actions);
       await updateProjects(base44, analysis.projectId, { status: 'Improve' });
       return Response.json({ created: actions.length });
     }
     if (body.action === 'tagWaste') {
       if (!WASTE.includes(body.waste.category)) return Response.json({ error: 'Invalid waste category' }, { status: 400 });
-      const improvement = await base44.asServiceRole.entities.ContinuousImprovementAction.create({ title: body.waste.title, description: body.waste.description, improvement_type: 'workflow', target_id: body.waste.projectId || '', target_name: body.waste.category, priority: body.waste.priority || 'medium', status: 'identified', expected_impact: body.waste.expectedImpact || '', user_id: user?.id, user_name: user?.full_name || user?.email });
+      const improvement = await base44.asServiceRole.entities.ContinuousImprovementAction.create({ title: body.waste.title, description: body.waste.description, improvement_type: 'workflow', target_id: body.waste.projectId || '', target_name: body.waste.category, priority: body.waste.priority || 'medium', status: 'identified', expected_impact: body.waste.expectedImpact || '', user_id: actor.id, user_name: actor.name });
       return Response.json({ improvement });
     }
     return Response.json({ error: 'Unknown action' }, { status: 400 });

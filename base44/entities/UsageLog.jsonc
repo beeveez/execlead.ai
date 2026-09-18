@@ -93,6 +93,30 @@
     "user_name": {
       "type": "string",
       "description": "Denormalized user display name for top-users reporting"
+    },
+    "direct_attempted_provider": {
+      "type": "string",
+      "description": "Direct AI provider attempted for this generation ('direct_google_gemini'), null when no direct attempt was made"
+    },
+    "direct_attempt_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed"
+      ],
+      "description": "Outcome of the direct provider attempt: success (response produced directly) or failed (governed fallback used)"
+    },
+    "direct_error_category": {
+      "type": "string",
+      "description": "Sanitized direct-provider error category on a failed direct attempt (e.g. rate_limited, model_not_found, timeout). Never contains keys, authorization headers, credentials, or raw provider error bodies."
+    },
+    "fallback_used": {
+      "type": "boolean",
+      "description": "Whether the delivered response was produced by the Base44-managed fallback after a direct provider failure"
+    },
+    "final_executed_provider": {
+      "type": "string",
+      "description": "Provider that produced the delivered response: 'direct_google_gemini' or 'base44_managed_llm'"
     }
   },
   "required": [

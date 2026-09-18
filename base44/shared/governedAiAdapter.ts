@@ -289,6 +289,12 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
   let actualModel = modelChain[0];
   let lastError = null;
   let executedProvider = null; // 'direct_google_gemini' only when the direct adapter executed
+  // Direct-attempt observability — sanitized, non-sensitive values only.
+  // NEVER stores keys, authorization headers, credentials, raw provider
+  // error bodies, or prompt content.
+  let directAttempted = false;
+  let directAttemptStatus = null; // 'success' | 'failed'
+  let directErrorCategory = null; // sanitized category from directGeminiProvider
 
   const attemptChain = async () => {
     for (const tryModel of modelChain) {
@@ -298,14 +304,20 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
           model: tryModel,
           ...(opts.response_json_schema ? { response_json_schema: opts.response_json_schema } : {}),
         });
+        directAttempted = true;
         if (direct.ok) {
           res = direct.data;
           actualModel = tryModel;
           executedProvider = DIRECT_GEMINI_PROVIDER_ID;
+          directAttemptStatus = 'success';
+          directErrorCategory = null;
           lastError = null;
           return true;
         }
-        // Direct failure → governed fallback to Base44 InvokeLLM (same model)
+        // Direct failure → governed fallback to Base44 InvokeLLM (same model).
+        // Preserve the sanitized error category for telemetry (observability only).
+        directAttemptStatus = 'failed';
+        directErrorCategory = typeof direct.error_category === 'string' ? direct.error_category : null;
       }
       try {
         res = await base44.integrations.Core.InvokeLLM({
@@ -331,6 +343,15 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
     if (cls.transient) await attemptChain();
   }
 
+  // ── Direct-attempt telemetry summary (all values sanitized / non-sensitive) ──
+  const directTelemetry = {
+    direct_attempted_provider: directAttempted ? DIRECT_GEMINI_PROVIDER_ID : null,
+    direct_attempt_status: directAttemptStatus,
+    direct_error_category: directErrorCategory,
+    fallback_used: directAttempted && executedProvider !== DIRECT_GEMINI_PROVIDER_ID,
+    final_executed_provider: executedProvider || 'base44_managed_llm',
+  };
+
   const completedAt = new Date().toISOString();
   const latency = Date.now() - startedAt;
   const inputTokens = Math.ceil(prompt.length / 4);
@@ -345,12 +366,14 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
         provider: deriveProvider(actualModel), response_time_ms: latency,
         status: cls.status, error_type: cls.error_type,
         prompt_id: correlationId, user_name: user.full_name || user.email,
+        ...directTelemetry,
       });
     } catch (_e) { /* usage logging must never mask the generation result */ }
     return {
       ok: false, error_code: 'AI_GENERATION_FAILED', error: String(lastError?.message || lastError),
       correlation_id: correlationId, requested_at: requestedAt, completed_at: completedAt,
       latency_ms: latency, model: actualModel, error_type: cls.error_type,
+      ...directTelemetry,
     };
   }
 
@@ -368,6 +391,7 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
       model: actualModel, provider: executedProvider || deriveProvider(actualModel),
       response_time_ms: latency, status: 'success',
       prompt_id: correlationId, user_name: user.full_name || user.email,
+      ...directTelemetry,
     });
   } catch (_e) { /* usage logging must never mask the generation result */ }
 
@@ -378,5 +402,6 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
     executed_provider: executedProvider || 'base44_managed_llm',
     input_tokens: inputTokens, output_tokens: outputTokens, cost_estimated: costEstimate,
     adapter: ADAPTER_ID, adapter_version: ADAPTER_VERSION,
+    ...directTelemetry,
   };
 }

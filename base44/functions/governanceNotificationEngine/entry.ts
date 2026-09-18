@@ -382,15 +382,47 @@ Deno.serve(async (req) => {
 
     // ── notify: dispatch a governance notification ──
     if (action === 'notify') {
-      const user = await base44.auth.me();
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      // SECURITY BOUNDARY (open email relay remediation) — fail closed. NO recipient
+      // resolution, entity read, dispatchNotification, Notification or
+      // GovernanceNotificationLog creation, SendEmail, or retry processing may
+      // execute until the request passes one of the two VERIFIED gates from
+      // shared/auth.ts:
+      //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env only)
+      //   2. Authenticated administrative role via base44.auth.me()
+      // The former any-authenticated-user check is REMOVED: it permitted any
+      // signed-in account to relay arbitrary client-supplied recipient_email,
+      // subject, and body through the application's trusted SendEmail path.
+      const clientIp = getClientIp(req);
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+        adminRoles: ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'],
+      });
+      const authError = await enforceAuth(base44, auth, 'governance_notification_engine_notify', clientIp);
+      if (authError) return authError;
 
-      // This action is typically called by founderGovernance function
-      // But can also be called directly for custom notifications
+      // Recipient resolution — server-side only (open relay remediation). The
+      // recipient is derived from the trusted User record identified by
+      // recipient_user_id. Client-supplied recipient_email/recipient_name are
+      // NEVER trusted and can never redirect or override the resolved recipient.
+      const recipientUserId = body.recipient_user_id;
+      if (!recipientUserId || typeof recipientUserId !== 'string') {
+        return Response.json({ error: 'recipient_user_id is required' }, { status: 400 });
+      }
+      let recipient = null;
+      try {
+        const users = await base44.asServiceRole.entities.User.filter({ id: recipientUserId }, null, 1);
+        recipient = users[0] || null;
+      } catch { recipient = null; }
+      if (!recipient || !recipient.email) {
+        return Response.json({ error: 'Recipient not found' }, { status: 404 });
+      }
+
       const result = await dispatchNotification(base44, {
-        recipient_user_id: body.recipient_user_id,
-        recipient_email: body.recipient_email,
-        recipient_name: body.recipient_name,
+        recipient_user_id: recipient.id,
+        recipient_email: recipient.email,
+        recipient_name: recipient.full_name || recipient.email,
         type: body.notification_type,
         subject: body.subject,
         body: body.body,
@@ -433,8 +465,20 @@ Deno.serve(async (req) => {
 
     // ── notify_requester: send notification to the original requester ──
     if (action === 'notify_requester') {
-      const user = await base44.auth.me();
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      // SECURITY BOUNDARY (open email relay remediation) — fail closed. Same
+      // VERIFIED administrative gate as notify (shared/auth.ts): system secret or
+      // authenticated admin/founder role. The former any-authenticated-user check
+      // is REMOVED. Existing dispatch behavior is preserved for authorized
+      // callers only; this action has no production callers.
+      const clientIp = getClientIp(req);
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+        adminRoles: ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'],
+      });
+      const authError = await enforceAuth(base44, auth, 'governance_notification_engine_notify_requester', clientIp);
+      if (authError) return authError;
 
       const result = await dispatchNotification(base44, {
         recipient_user_id: body.recipient_user_id,

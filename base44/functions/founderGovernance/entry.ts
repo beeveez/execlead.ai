@@ -123,6 +123,14 @@ async function notifyUser(base44, userId, title, message, metadata) {
     const recipient = users[0];
     await base44.asServiceRole.functions.invoke('governanceNotificationEngine', {
       action: 'notify',
+      // Verified system-caller authorization (SDK source verified): the
+      // service-role functions client forwards ONLY the platform service token
+      // as Authorization — never the invoking user's JWT — so the callee's
+      // administrative gate cannot resolve a user identity for this invocation.
+      // The shared system secret, read from the server environment only,
+      // provides the VERIFIED authorization path (constant-time compared in
+      // shared/auth.ts). Never hard-coded, never logged, never persisted.
+      system_token: Deno.env.get('DISPATCH_BATCH_TOKEN'),
       recipient_user_id: userId,
       recipient_email: recipient?.email || '',
       recipient_name: recipient?.full_name || '',

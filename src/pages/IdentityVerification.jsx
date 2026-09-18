@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useSubscription } from "@/lib/SubscriptionContext";
 import { useFoundingMember } from "@/hooks/useFoundingMember";
-import { recalculateTrust, IDENTITY_STATUSES, TRUST_LEVELS, calculateTrustLevel } from "@/lib/trustEngine";
+import { IDENTITY_STATUSES, TRUST_LEVELS, calculateTrustLevel } from "@/lib/trustEngine";
 import TrustScoreCard from "@/components/trust/TrustScoreCard";
 import ExecutiveTrustPanel from "@/components/trust/ExecutiveTrustPanel";
 import IdentityUpload from "@/components/trust/IdentityUpload";
@@ -62,14 +62,18 @@ export default function IdentityVerification() {
         updates.founding_member_since = membership.since || new Date().toISOString().split("T")[0];
       }
 
-      if (Object.keys(updates).length > 0) {
-        const recalced = recalculateTrust({ ...record, ...updates });
-        record = await base44.entities.IdentityVerification.update(record.id, { ...updates, trust_score: recalced.trust_score, trust_level: recalced.trust_level });
-      } else {
-        const recalced = recalculateTrust(record);
-        if (recalced.trust_score !== record.trust_score || recalced.trust_level !== record.trust_level) {
-          record = await base44.entities.IdentityVerification.update(record.id, { trust_score: recalced.trust_score, trust_level: recalced.trust_level });
+      // Trust/entitlement fields (trust_score, trust_level, founding_member, ...)
+      // are server-authoritative and no longer owner-editable through the tenant
+      // gateway. If the server rejects this sync, keep the persisted record as-is.
+      try {
+        if (Object.keys(updates).length > 0) {
+          record = await base44.entities.IdentityVerification.update(record.id, updates);
         }
+      } catch (e) {
+        try {
+          const refreshed = await base44.entities.IdentityVerification.filter({ user_id: user.id });
+          if (refreshed[0]) record = refreshed[0];
+        } catch {}
       }
 
       setVerification(record);

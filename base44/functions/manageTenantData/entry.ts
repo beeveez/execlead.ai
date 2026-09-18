@@ -16,7 +16,7 @@ const CONFIG = {
   SuccessionPlan: { orgField: 'organization_id', kind: 'organization' },
   CPQQuote: { orgField: 'organization_id', kind: 'organization', memberCreate: true, owner: 'created_by_id' },
   CPQApprovalWorkflow: { orgField: 'organization_id', kind: 'organization', parentQuote: true },
-  ProcurementRequest: { orgField: 'organization_id', kind: 'organization', memberCreate: true, owner: 'requester_id' },
+  ProcurementRequest: { orgField: 'organization_id', kind: 'organization', memberCreate: true, owner: 'requested_by_id' },
   Vendor: { orgField: 'organization_id', kind: 'organization' },
   BetaFeedback: { orgField: 'organization_id', kind: 'hybrid', owner: 'user_id' },
   ExecutiveOutcome: { orgField: 'organization_id', kind: 'hybrid', owner: 'user_id' },
@@ -25,8 +25,68 @@ const CONFIG = {
   UserProfile: { orgField: 'organization_id', kind: 'hybrid', owner: 'created_by_id' },
 };
 
+// CRITICAL SECURITY — strict server-side allowlist for OWNER-initiated updates.
+// Fail closed: any field that cannot be positively established as owner-editable
+// rejects the ENTIRE update (no partial application) BEFORE the privileged
+// asServiceRole update executes. Sensitive entitlement / billing / identity /
+// verification / authorization / security fields (subscription_plan,
+// subscription_status, verified_executive, identity_verified, trust_score,
+// trust_level, risk_level, founding_member*, *_verified, phone OTP, ...) are
+// NEVER owner-editable. Platform admins and organization-admin access paths
+// are NOT affected — existing elevated capabilities are preserved.
+const OWNER_UPDATE_ALLOWED_FIELDS = {
+  ProcurementRequest: new Set([
+    'title', 'description', 'justification', 'category', 'vendor_name', 'vendor_id',
+    'amount', 'currency', 'budget_amount', 'priority', 'cost_center',
+    'department_id', 'department_name', 'business_unit_id', 'business_unit_name',
+    'notes', 'attachments_json', 'cpq_quote_id', 'cpq_quote_number',
+  ]),
+  CPQQuote: new Set([
+    'is_archived', 'pdf_url', 'contract_url', 'status', 'accepted_at', 'accepted_by_name',
+    'invoice_id', 'invoice_number', 'portal_enabled', 'payment_status', 'payment_method',
+    'payment_provider', 'po_number', 'payment_transaction_id', 'paid_at',
+    'contract_signed_at', 'signature_name', 'signature_title', 'terms_accepted',
+    'activated_at', 'change_request_notes', 'share_token', 'notes', 'organization_id',
+  ]),
+  BetaFeedback: new Set([
+    'title', 'description', 'actual_behavior', 'expected_behavior', 'category', 'module',
+    'severity', 'what_confused_you', 'what_should_improve', 'what_surprised_you',
+    'suggested_improvement', 'would_recommend', 'attachments_json',
+    'status', 'status_history_json', 'acknowledged', 'acknowledged_at', 'released_at', 'resolved_at',
+    'vote_count', 'voter_ids_json', 'watcher_count', 'watcher_ids_json', 'comments_json',
+    'priority', 'roadmap_recommendation', 'engineer_notes', 'business_impact',
+  ]),
+  IdentityVerification: new Set([
+    'identity_document_type', 'identity_document_uri', 'identity_status',
+    'identity_submitted_date',
+    'identity_rejection_reason', 'profile_published', 'profile_published_date',
+    'organization_id',
+  ]),
+  // No legitimate owner-update behavior exists for these entities through this
+  // gateway (frontend routes profile edits via the standard SDK path with
+  // entity RLS; no update call sites exist for the others) — fail closed.
+  UserProfile: new Set([]),
+  Subscription: new Set([]),
+  ExecutiveOutcome: new Set([]),
+};
+
+// Value-constrained fields: the owner may only set these specific values.
+const OWNER_UPDATE_ALLOWED_VALUES = {
+  IdentityVerification: { identity_status: ['submitted'] },
+};
+
 const isPlatformAdmin = (user) => PLATFORM_ROLES.includes(user.role);
 const owns = (record, config, user) => config.owner && record?.[config.owner] === user.id;
+
+function isOwnerEditableField(entity, field, value) {
+  const allowed = OWNER_UPDATE_ALLOWED_FIELDS[entity];
+  if (!allowed || !allowed.has(field)) return false; // fail closed
+  const valueConstraints = OWNER_UPDATE_ALLOWED_VALUES[entity];
+  if (valueConstraints && Object.prototype.hasOwnProperty.call(valueConstraints, field)) {
+    return valueConstraints[field].includes(value);
+  }
+  return true;
+}
 const cleanLimit = (value) => Math.max(1, Math.min(Number(value) || 100, 500));
 const cleanQuery = (query) => query && typeof query === 'object' && !Array.isArray(query) ? { ...query } : {};
 
@@ -79,7 +139,7 @@ function ownerCreateData(entity, data, config, user) {
 
 function canOwnerUpdate(entity, record, updates, user) {
   if (entity === 'ProcurementRequest') {
-    if (record.requester_id !== user.id || record.status !== 'draft') return false;
+    if (record.requested_by_id !== user.id || record.status !== 'draft') return false;
     const forbidden = ['status', 'approval_chain_json', 'current_approval_step', 'approved_by', 'approved_at', 'rejected_by', 'rejected_at', 'organization_id'];
     return !forbidden.some((field) => Object.prototype.hasOwnProperty.call(updates || {}, field));
   }
@@ -166,6 +226,19 @@ export default async function(req) {
       return Response.json({ result: { id: args.id, deleted: true } });
     }
     const updates = sanitizeData(args.data, config, orgId);
+    // CRITICAL SECURITY — owner-initiated updates pass through the strict field
+    // allowlist (fail closed) before the privileged update executes. Platform
+    // admins and organization-admin access (elevated roles) are unaffected.
+    if (!isPlatformAdmin(user) && !access) {
+      // config.orgField is exempt: sanitizeData already binds it to the record's
+      // own organization (server-derived) — the client can never control it.
+      const violations = Object.keys(updates)
+        .filter((field) => field !== config.orgField)
+        .filter((field) => !isOwnerEditableField(entity, field, updates[field]));
+      if (violations.length > 0) {
+        return Response.json({ error: `Forbidden: owner update rejected. Not owner-editable: ${violations.join(', ')}` }, { status: 403 });
+      }
+    }
     const result = await api.update(args.id, updates);
     return Response.json({ result });
   } catch (error) {

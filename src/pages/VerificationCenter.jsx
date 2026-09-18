@@ -66,9 +66,13 @@ export default function VerificationCenter() {
       }
       if (recalced.risk_level !== record.risk_level) updates.risk_level = recalced.risk_level;
 
-      if (Object.keys(updates).length > 0) {
-        record = await base44.entities.IdentityVerification.update(record.id, updates);
-      }
+      // Trust/verification fields are server-authoritative and no longer
+      // owner-editable through the tenant gateway — keep the persisted record.
+      try {
+        if (Object.keys(updates).length > 0) {
+          record = await base44.entities.IdentityVerification.update(record.id, updates);
+        }
+      } catch (e) { /* server rejected owner update of protected fields */ }
 
       setVerification(record);
       setLogs(logRecords || []);

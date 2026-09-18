@@ -1,4 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+} from '../../shared/auth.ts';
 
 // ── Constants ──
 // Founder detection is role-based (RBAC); no hardcoded identity in source code. (deploy retry)
@@ -503,13 +508,26 @@ Deno.serve(async (req) => {
 
     // ── send_reminders: check pending requests and send reminders ──
     if (action === 'send_reminders') {
-      // This action is called by a scheduled automation
-      // Auth check — allow automation (no user) or admin
-      let user = null;
-      try { user = await base44.auth.me(); } catch (_) { /* automation context */ }
-      if (user && !['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'].includes(user.role)) {
-        return Response.json({ error: 'Forbidden' }, { status: 403 });
-      }
+      // SECURITY BOUNDARY (High remediation) — fail closed. NO founder resolution,
+      // governance-request read, notification creation, or email dispatch may execute
+      // until the request passes one of the two VERIFIED gates from shared/auth.ts:
+      //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env only)
+      //   2. Authenticated admin/founder role via base44.auth.me()
+      // The former null-tolerant auth.me() pattern (user=null => "automation context")
+      // is REMOVED: absence of a user is NEVER authorization, no fabricated identity
+      // is created, and the removed service-token tier (base44-service-authorization /
+      // decodeServiceToken) is never consulted. The daily scheduled workflow passes no
+      // system token and will therefore fail closed (401, security-logged) until a
+      // verified scheduled execution mechanism exists — an intentional outcome.
+      const clientIp = getClientIp(req);
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+        adminRoles: ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'],
+      });
+      const authError = await enforceAuth(base44, auth, 'governance_notification_engine_send_reminders', clientIp);
+      if (authError) return authError;
 
       const founder = await getFounderUser(base44);
       if (!founder) return Response.json({ error: 'Founder not configured' }, { status: 500 });

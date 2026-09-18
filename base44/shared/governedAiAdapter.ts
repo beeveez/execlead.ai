@@ -45,6 +45,10 @@
  * scheduling, NO loops, and NO background work. It is a generation gate only.
  */
 
+import {
+  DIRECT_GEMINI_PROVIDER_ID, directGeminiGenerate, isDirectGoogleGeminiEnabled, isDirectGoogleModel,
+} from './directGeminiProvider.ts';
+
 export const ADAPTER_ID = 'governed_ai_adapter';
 export const ADAPTER_VERSION = '1.0';
 
@@ -275,13 +279,34 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
   }
 
   // ── Bounded generation: fallback chain + ONE transient retry pass ──
+  // Direct Google Gemini provider: when the DIRECT_GOOGLE_GEMINI_ENABLED flag
+  // is on and the routed model is a governed Google model, the direct adapter
+  // executes FIRST; on ANY direct failure the SAME model falls back to the
+  // existing Base44 InvokeLLM path below. When the flag is off (default) the
+  // direct branch is never entered and behavior is byte-identical.
   const startedAt = Date.now();
   let res = null;
   let actualModel = modelChain[0];
   let lastError = null;
+  let executedProvider = null; // 'direct_google_gemini' only when the direct adapter executed
 
   const attemptChain = async () => {
     for (const tryModel of modelChain) {
+      if (isDirectGoogleModel(tryModel) && await isDirectGoogleGeminiEnabled()) {
+        const direct = await directGeminiGenerate({
+          prompt,
+          model: tryModel,
+          ...(opts.response_json_schema ? { response_json_schema: opts.response_json_schema } : {}),
+        });
+        if (direct.ok) {
+          res = direct.data;
+          actualModel = tryModel;
+          executedProvider = DIRECT_GEMINI_PROVIDER_ID;
+          lastError = null;
+          return true;
+        }
+        // Direct failure → governed fallback to Base44 InvokeLLM (same model)
+      }
       try {
         res = await base44.integrations.Core.InvokeLLM({
           prompt,
@@ -340,7 +365,7 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
     await svc.entities.UsageLog.create({
       module, tokens_estimated: tokensEstimate, input_tokens: inputTokens,
       output_tokens: outputTokens, cost_estimated: costEstimate,
-      model: actualModel, provider: deriveProvider(actualModel),
+      model: actualModel, provider: executedProvider || deriveProvider(actualModel),
       response_time_ms: latency, status: 'success',
       prompt_id: correlationId, user_name: user.full_name || user.email,
     });
@@ -349,7 +374,8 @@ export async function governedGenerate(svc, base44, user, opts = {}) {
   return {
     ok: true, data: res, cached: false, correlation_id: correlationId,
     requested_at: requestedAt, completed_at: completedAt, latency_ms: latency,
-    model: actualModel, provider: deriveProvider(actualModel),
+    model: actualModel, provider: executedProvider || deriveProvider(actualModel),
+    executed_provider: executedProvider || 'base44_managed_llm',
     input_tokens: inputTokens, output_tokens: outputTokens, cost_estimated: costEstimate,
     adapter: ADAPTER_ID, adapter_version: ADAPTER_VERSION,
   };

@@ -7,6 +7,25 @@ import { logStage } from "@/lib/execReliabilityEngine";
 import { hasPersonalizationConsent, getConsentState } from "@/lib/consentService";
 import { requestAIPersonalizationPrompt, isSessionDeferred } from "@/components/consent/AIPersonalizationConsentPrompt";
 
+// ── Direct Google Gemini Provider™ (feature-flagged, server-side) ──
+// The client NEVER sees GEMINI_API_KEY: direct execution happens inside the
+// governed backend boundary (googleGeminiProvider). This status is fetched
+// lazily ONCE per session; when the flag is off (or the check fails) routing
+// is false and every request executes exactly as before through Base44
+// InvokeLLM — zero behavior change in production.
+let _directGoogleGeminiEnabled = null;
+const ensureDirectGoogleStatus = async () => {
+  if (_directGoogleGeminiEnabled !== null) return _directGoogleGeminiEnabled;
+  try {
+    const statusRes = await base44.functions.invoke("googleGeminiProvider", { action: "status" });
+    _directGoogleGeminiEnabled = statusRes?.data?.enabled === true;
+  } catch (e) {
+    _directGoogleGeminiEnabled = false; // fail-closed → Base44 InvokeLLM path
+  }
+  return _directGoogleGeminiEnabled;
+};
+const isDirectGoogleModelId = (m) => typeof m === "string" && (m === "gemini_3_flash" || m === "gemini_3_1_pro");
+
 // Module → intent mapping for Model Router™ routing
 const MODULE_INTENT_MAP = {
   coach: "executive_coaching",
@@ -134,9 +153,42 @@ export const callAI = async (module, { prompt, intent, correlationId, responseCa
   let retryCount = 0;
   let lastError = null;
 
+  // 'direct_google_gemini' only when the direct Google adapter executed;
+  // all other executions report their existing provider values.
+  let executedProvider = null;
+
   const attemptChain = async () => {
     for (let i = 0; i < modelChain.length; i++) {
       const tryModel = modelChain[i];
+      // Direct Google Gemini (feature-flagged server-side path). Only for
+      // governed Google models, and never for requests that need web search
+      // or file context — those keep the full Base44 InvokeLLM capability.
+      if (
+        isDirectGoogleModelId(tryModel) &&
+        !options.add_context_from_internet &&
+        !options.file_urls &&
+        (await ensureDirectGoogleStatus())
+      ) {
+        try {
+          const fnRes = await base44.functions.invoke("googleGeminiProvider", {
+            action: "generate",
+            prompt: fullPrompt,
+            model: tryModel,
+            ...(options.response_json_schema ? { response_json_schema: options.response_json_schema } : {}),
+          });
+          const d = fnRes?.data;
+          if (d?.ok) {
+            res = d.data;
+            actualModel = tryModel;
+            executedProvider = "direct_google_gemini";
+            if (i > 0) { fallbackFrom = modelChain[0]; retryCount = i; }
+            lastError = null;
+            return true;
+          }
+        } catch (e) {
+          // Direct failure → governed Base44 InvokeLLM fallback below.
+        }
+      }
       try {
         res = await base44.integrations.Core.InvokeLLM({ prompt: fullPrompt, model: tryModel, ...options });
         actualModel = tryModel;
@@ -170,7 +222,7 @@ export const callAI = async (module, { prompt, intent, correlationId, responseCa
   // Failed after all fallbacks
   if (lastError) {
     const { status, error_type } = classifyError(lastError);
-    if (correlationId) logStage({ correlationId, stage: "ai_call", status: "failure", latencyMs: latency, error: lastError?.message || String(lastError), extra: { model: actualModel, provider: deriveProvider(actualModel), error_type } });
+    if (correlationId) logStage({ correlationId, stage: "ai_call", status: "failure", latencyMs: latency, error: lastError?.message || String(lastError), extra: { model: actualModel, provider: executedProvider || deriveProvider(actualModel), error_type } });
     trackRoutingEvent(routingDecision, {
       intent: routingIntent, success: false, latencyMs: latency,
       cost: routingDecision.estimatedCost, tokenInput: inputTokens,
@@ -181,7 +233,7 @@ export const callAI = async (module, { prompt, intent, correlationId, responseCa
       await base44.entities.UsageLog.create({
         module, tokens_estimated: inputTokens, input_tokens: inputTokens,
         output_tokens: 0, cost_estimated: 0, model: actualModel,
-        provider: deriveProvider(actualModel), response_time_ms: latency,
+        provider: executedProvider || deriveProvider(actualModel), response_time_ms: latency,
         status, error_type,
       });
     } catch (e) {}
@@ -197,7 +249,7 @@ export const callAI = async (module, { prompt, intent, correlationId, responseCa
   const tokensEstimate = inputTokens + outputTokens;
   const costEstimate = (tokensEstimate / 1000) * 0.002;
 
-  if (correlationId) logStage({ correlationId, stage: "ai_call", status: "success", latencyMs: latency, extra: { model: actualModel, provider: deriveProvider(actualModel), fallbackFrom, retryCount } });
+  if (correlationId) logStage({ correlationId, stage: "ai_call", status: "success", latencyMs: latency, extra: { model: actualModel, provider: executedProvider || deriveProvider(actualModel), executedProvider: executedProvider || "base44_managed_llm", fallbackFrom, retryCount } });
   trackRoutingEvent(routingDecision, {
     intent: routingIntent, success: true, latencyMs: latency,
     cost: costEstimate, tokenInput: inputTokens, tokenOutput: outputTokens,
@@ -209,7 +261,7 @@ export const callAI = async (module, { prompt, intent, correlationId, responseCa
     await base44.entities.UsageLog.create({
       module, tokens_estimated: tokensEstimate, input_tokens: inputTokens,
       output_tokens: outputTokens, cost_estimated: costEstimate,
-      model: actualModel, provider: deriveProvider(actualModel),
+      model: actualModel, provider: executedProvider || deriveProvider(actualModel),
       response_time_ms: latency, status: "success",
     });
   } catch (e) {}

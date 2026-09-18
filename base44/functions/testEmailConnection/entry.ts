@@ -1,12 +1,39 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+} from '../../shared/auth.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
     const body = await req.json().catch(() => ({}));
+
+    // SECURITY BOUNDARY (High remediation — open email relay) — fail closed. NO
+    // EmailSettings read, EmailEvent creation, EmailSettings mutation, or
+    // Core.SendEmail dispatch may execute until the request passes the VERIFIED
+    // administrative gate from shared/auth.ts (authenticated administrative role
+    // via base44.auth.me() + explicit role check). The former existence-of-user
+    // check is REMOVED: any signed-in account could previously relay the branded
+    // EXECLEAD.AI test email to an arbitrary client-supplied recipient through the
+    // trusted service-role sender. There is NO system-secret tier for this
+    // function (no system caller exists); the removed
+    // base44-service-authorization / decodeServiceToken tier and any
+    // "no user = scheduled" inference are never consulted.
+    const auth = await authenticateRequest(req, base44, {
+      body,
+      requireAdmin: true,
+      allowSystemSecret: false,
+      adminRoles: ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'],
+    });
+    const authError = await enforceAuth(base44, auth, 'test_email_connection', getClientIp(req));
+    if (authError) return authError;
+
+    // Authorized caller — verified admin/founder path only. The system-secret tier
+    // is disabled (allowSystemSecret=false), so an authorized request always
+    // carries a verified user whose email remains the fallback test recipient.
+    const user = auth.user;
     const recipient = body.testEmail || user.email;
 
     const settingsList = await base44.asServiceRole.entities.EmailSettings.list();

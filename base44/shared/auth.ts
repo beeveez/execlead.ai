@@ -2,10 +2,14 @@
 // EXECLEAD.AI Secure Backend Function Authentication Standard™ v1.0
 // Implements the Zero Trust authentication hierarchy for all backend functions.
 //
-// Authentication Hierarchy:
-//   Priority 1: Platform Internal Service Authentication (base44-service-authorization)
-//   Priority 2: Shared System Secret (DISPATCH_BATCH_TOKEN, constant-time comparison)
-//   Priority 3: Authenticated Administrator (role-based)
+// Authentication Hierarchy (v1.1 — SDR-001 Critical remediation):
+//   Priority 1: Shared System Secret (DISPATCH_BATCH_TOKEN, constant-time comparison)
+//   Priority 2: Authenticated Administrator (role-based)
+//
+// REMOVED: the former platform service-token tier (base44-service-authorization
+// header). Application code does not hold the platform JWT signing key, so the
+// header's JWT could never be cryptographically verified in-function — and an
+// unverified JWT must never be treated as authenticated service authorization.
 //
 // Deny by default. Trust is never assumed.
 // ============================================================
@@ -37,81 +41,32 @@ function base64urlDecode(str) {
 }
 
 /**
- * Decode and validate a platform service JWT.
- * Checks: token structure, header alg (reject "none"/missing), non-empty signature,
- * expiration, internal_service_token, caller.
+ * Fail-closed platform service JWT parser (Security Decision Record SDR-001,
+ * Critical remediation).
  *
- * ── TRUST BOUNDARY (Security Decision Record SDR-001) ──
- * This is a PARSER, not a VERIFIER. It extracts claims from a JWT that has
- * already been cryptographically verified by Base44 platform infrastructure.
+ * SECURITY BOUNDARY: this function can NEVER establish authentication or
+ * authorization. Application code does not hold the platform JWT signing key,
+ * so the signature cannot be cryptographically verified in-function — and an
+ * unverified JWT (even one with a plausible alg, internal_service_token claim,
+ * future exp, and a non-empty signature string) must never be treated as
+ * authenticated service authorization. A client-supplied forged header is
+ * indistinguishable from a platform-injected one at this layer, so the only
+ * safe behavior is fail-closed: `valid` is ALWAYS false.
  *
- * Trust chain:
- *   1. `Base44-Service-Authorization` is a platform-internal header (`Base44-`
- *      prefix). The platform gateway injects it for internal/service-context calls
- *      (scheduled automations, function-to-function service invokes) and strips
- *      client-supplied values from inbound external requests — the standard
- *      platform-internal-header convention.
- *   2. Runtime evidence: the "Background Job Processor" scheduled automation
- *      invokes `dispatchBackgroundJob` every 5 min with NO payload and succeeds
- *      (`last_run_status: success`). It can only authenticate via this injected
- *      header (no DISPATCH_BATCH_TOKEN in payload, no user context) — proving the
- *      platform injects and vouches for the header on internal calls.
- *   3. `createClientFromRequest(req)` reads these platform-injected headers; the
- *      platform SDK is designed around platform-controlled headers.
+ * Authorization must come exclusively from the VERIFIED paths in
+ * authenticateRequest():
+ *   1. The server-side DISPATCH_BATCH_TOKEN system secret (constant-time
+ *      comparison against the runtime environment — never client-injectable).
+ *   2. An authenticated user via base44.auth.me() with explicit role checks.
  *
- * The JWT signing key is NOT exposed to user code (per the Base44 secrets guide:
- * "Never ask for BASE44_SERVICE_TOKEN / BASE44_SERVICE_ROLE_KEY — those secrets
- * don't exist"), so in-function signature verification is not possible. Security
- * therefore rests on the platform gateway controlling the header.
- *
- * Defense-in-depth (this function): even if a forged header reached user code, this
- * parser rejects unsigned tokens (alg:none / missing alg), empty signature
- * segments, expired tokens, and tokens missing the internal-service claims, so a
- * forged payload cannot be trusted by claims alone. Destructive callers may pass
- * `allowServiceToken: false` to authenticateRequest() to require the verifiable
- * DISPATCH_BATCH_TOKEN or an authenticated admin instead.
- *
- * See: base44/shared/SDR-001-service-authorization-trust-boundary.md
+ * The function is retained (always-fail) for call-site compatibility and
+ * telemetry context. See: base44/shared/SDR-001-service-authorization-trust-boundary.md
  */
 export function decodeServiceToken(header) {
-  if (!header) return { valid: false, payload: null };
-
-  const token = header.startsWith('Bearer ') ? header.slice(7) : header;
-  const parts = token.split('.');
-  if (parts.length !== 3) return { valid: false, payload: null };
-
-  // Reject unsigned tokens: parse the JOSE header and require a signing algorithm.
-  // alg:"none" or a missing alg means no signature — must never be trusted.
-  try {
-    const joseHeader = JSON.parse(base64urlDecode(parts[0]));
-    const alg = typeof joseHeader.alg === 'string' ? joseHeader.alg.toLowerCase() : '';
-    if (!alg || alg === 'none') return { valid: false, payload: null };
-  } catch {
-    return { valid: false, payload: null };
-  }
-
-  // Require a non-empty signature segment. An empty signature with a signing alg
-  // still indicates an unsigned token (forged).
-  if (!parts[2] || parts[2].length === 0) return { valid: false, payload: null };
-
-  try {
-    const payload = JSON.parse(base64urlDecode(parts[1]));
-
-    // Check expiration (exp is in seconds)
-    if (payload.exp) {
-      const now = Math.floor(Date.now() / 1000);
-      if (payload.exp < now) return { valid: false, payload: null };
-    }
-
-    // Verify internal service token claims
-    if (payload.internal_service_token !== true && payload.caller !== 'backend_functions') {
-      return { valid: false, payload: null };
-    }
-
-    return { valid: true, payload };
-  } catch {
-    return { valid: false, payload: null };
-  }
+  // Always invalid: an unverified JWT can never authorize anything (fail closed).
+  // No claim inspection, signature-presence check, or expiry check can make an
+  // unverified token trustworthy — the signature cannot be verified here.
+  return { valid: false, verified: false, payload: null };
 }
 
 /**
@@ -146,9 +101,11 @@ export function securityResponse(status) {
 /**
  * Authenticate a request using the three-tier authentication hierarchy.
  *
- * Priority 1: Platform Internal Service Authentication (base44-service-authorization header)
- * Priority 2: Shared System Secret (DISPATCH_BATCH_TOKEN, constant-time comparison)
- * Priority 3: Authenticated Administrator (role-based)
+ * Priority 1: Shared System Secret (DISPATCH_BATCH_TOKEN, constant-time comparison)
+ * Priority 2: Authenticated Administrator (role-based)
+ *
+ * REMOVED (SDR-001 Critical remediation): the base44-service-authorization
+ * service-token tier — an unverified JWT must never authorize anything.
  *
  * @param {Request} req - The HTTP request
  * @param {Object} base44 - The Base44 SDK client
@@ -158,40 +115,28 @@ export function securityResponse(status) {
  * @param {boolean} options.allowSystemSecret - Allow DISPATCH_BATCH_TOKEN authentication (default: true)
  * @param {boolean} options.requireAdmin - Require admin role for user auth (default: true)
  * @param {string} options.systemTokenField - Body field name for system token (default: system_token)
+ * @param {boolean} options.allowServiceToken - INERT (removed tier): the unverified service-token
+ *                                            path no longer authorizes; accepted for backward compatibility
  * @returns {Object} AuthResult with authenticated, authorized, authMethod, user, isSystemCall
  */
 export async function authenticateRequest(req, base44, options = {}) {
   const roles = options.adminRoles || DEFAULT_ADMIN_ROLES;
   const allowSecret = options.allowSystemSecret !== false;
   const requireAdmin = options.requireAdmin !== false;
-  // allowServiceToken (default true): trust the platform-injected service-auth
-  // header for system calls. Destructive, non-automated callers should set this
-  // to false to require the verifiable DISPATCH_BATCH_TOKEN or an authenticated
-  // admin (defense-in-depth — see SDR-001).
-  const allowServiceToken = options.allowServiceToken !== false;
   const requestId = req.headers.get('cf-ray') || crypto.randomUUID();
 
-  // Priority 1: Platform Internal Service Authentication
-  // Only honored when the caller opts in (default). The header is a platform-
-  // internal, gateway-injected header; see decodeServiceToken() trust boundary.
-  if (allowServiceToken) {
-    const serviceAuth = req.headers.get('base44-service-authorization');
-    const { valid: serviceValid } = decodeServiceToken(serviceAuth);
+  // ── REMOVED (SDR-001 Critical remediation) ──
+  // The former Priority-1 platform service-token path trusted the
+  // base44-service-authorization header — an UNVERIFIED JWT — and granted it
+  // authenticated system-call authorization. Application code cannot verify the
+  // JWT signature, and a client-forged header is indistinguishable from a
+  // platform-injected one at this layer, so the tier was removed entirely
+  // (fail closed). The `allowServiceToken` option is accepted but has NO effect.
+  // Verified authorization paths only:
+  //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env)
+  //   2. Authenticated administrator via base44.auth.me() + role checks
 
-    if (serviceValid) {
-      return {
-        authenticated: true,
-        authorized: true,
-        authMethod: 'platform_service',
-        user: null,
-        isSystemCall: true,
-        requestId,
-        statusCode: 200,
-      };
-    }
-  }
-
-  // Priority 2: Shared System Secret (constant-time comparison)
+  // Priority 1: Shared System Secret (constant-time comparison)
   if (allowSecret) {
     const expectedToken = Deno.env.get('DISPATCH_BATCH_TOKEN');
     if (expectedToken) {
@@ -213,7 +158,7 @@ export async function authenticateRequest(req, base44, options = {}) {
     }
   }
 
-  // Priority 3: Authenticated User
+  // Priority 2: Authenticated User
   try {
     const user = await base44.auth.me();
     if (user) {

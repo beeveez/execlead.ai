@@ -1,4 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import {
+  normalizeReservationEmail,
+  isValidReservationEmail,
+  buildSanitizedReserveInput,
+} from '../../shared/reserveIntakeValidation.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -11,20 +16,42 @@ Deno.serve(async (req) => {
     // No auth required: anyone on the pricing page can reserve.
     // ============================================================
     if (action === "reserve") {
-      const { full_name, email, country, preferred_plan, expected_start_date, comments, referral_source } = body;
-      if (!email || !preferred_plan) {
+      // SECURITY BOUNDARY (High remediation) — this intake is intentionally
+      // PUBLIC (no login) and must remain so. The deterministic server-side
+      // input policy from shared/reserveIntakeValidation.ts is the boundary
+      // between anonymous input and the FoundingWaitlist record, the
+      // trusted-domain confirmation email, and the public Founders Wall:
+      //   • the email is normalized and must pass addr-spec syntax, CR/LF,
+      //     control-character, and 254-length validation BEFORE any database
+      //     write or email dispatch — invalid input is rejected, never
+      //     silently transformed into another recipient;
+      //   • every free-text field is stripped of CR/LF/control characters and
+      //     length-capped (ordinary Unicode names and punctuation preserved);
+      //   • display_preference is restricted to the public/private/anonymous enum.
+      if (!body.email || !body.preferred_plan) {
+        return Response.json({ error: "Email and preferred plan are required" }, { status: 400 });
+      }
+      const normalizedEmail = normalizeReservationEmail(body.email);
+      if (!isValidReservationEmail(normalizedEmail)) {
+        return Response.json({ error: "Please provide a valid email address." }, { status: 400 });
+      }
+      const input = buildSanitizedReserveInput(body);
+      const full_name = input.full_name;
+      const preferred_plan = input.preferred_plan;
+      if (!preferred_plan) {
         return Response.json({ error: "Email and preferred plan are required" }, { status: 400 });
       }
 
-      const normalizedEmail = email.toLowerCase().trim();
-
-      // Deduplicate — one reservation per email
+      // Deduplicate — one reservation per email. SECURITY (High remediation):
+      // the duplicate path is deliberately GENERIC — it never discloses the
+      // existing record's priority_number, waitlist position, total waitlist
+      // count, or any other membership state, eliminating the duplicate-email
+      // existence/priority oracle for arbitrary probed addresses.
       const existing = await base44.asServiceRole.entities.FoundingWaitlist.filter({ email: normalizedEmail });
       if (existing.length > 0) {
         return Response.json({
           success: true,
           already_reserved: true,
-          priority_number: existing[0].priority_number,
           message: "You're already on the waitlist!",
         });
       }
@@ -47,20 +74,20 @@ Deno.serve(async (req) => {
 
       const reservation = await base44.asServiceRole.entities.FoundingWaitlist.create({
         user_id,
-        full_name: full_name || "",
+        full_name: input.full_name,
         email: normalizedEmail,
-        country: country || "",
-        profession: body.profession || "",
-        company: body.company || "",
-        industry: body.industry || "",
-        photo: body.photo || "",
-        linkedin: body.linkedin || "",
+        country: input.country,
+        profession: input.profession,
+        company: input.company,
+        industry: input.industry,
+        photo: input.photo,
+        linkedin: input.linkedin,
         preferred_plan,
-        expected_start_date: expected_start_date || "",
-        comments: comments || "",
-        referral_source: referral_source || "",
-        public_profile: body.public_profile || false,
-        display_preference: body.public_profile ? (body.display_preference || "public") : (body.display_preference || "private"),
+        expected_start_date: input.expected_start_date,
+        comments: input.comments,
+        referral_source: input.referral_source,
+        public_profile: input.public_profile,
+        display_preference: input.display_preference,
         founder_achievements: priority_number <= 10 ? ["first_10"] : priority_number <= 50 ? ["first_50"] : priority_number <= 100 ? ["first_100"] : priority_number <= 500 ? ["first_500"] : [],
         reservation_date: new Date().toISOString(),
         status: "reserved",

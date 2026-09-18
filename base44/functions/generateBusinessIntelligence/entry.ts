@@ -1,4 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+} from '../../shared/auth.ts';
+import { validateImprovementUpdate } from '../../shared/improvementUpdatePolicy.ts';
+
+// Critical #2: authorized admin/founder roles — aligned with the platform-wide
+// RLS authorization model (includes founder_root_admin; never ordinary users).
+const BI_ADMIN_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'];
 
 // ============================================================
 // BUSINESS INTELLIGENCE ENGINE™
@@ -504,21 +514,34 @@ async function createImprovementActions(base44, user, improvements, reportId, pe
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
-    // Support both authenticated calls and scheduled automation calls (service role)
-    let user = null;
-    try { user = await base44.auth.me(); } catch {}
-    
-    const isScheduled = !user;
-    const adminRoles = ['super_admin', 'platform_admin', 'admin', 'developer'];
-    if (!isScheduled && !adminRoles.includes(user.role)) {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // For scheduled calls, use a system user identity
-    const effectiveUser = user || { id: 'system', full_name: 'Business Intelligence Scheduler', email: 'system@execlead.ai', role: 'super_admin' };
-
     const body = await req.json().catch(() => ({}));
+    const clientIp = getClientIp(req);
+
+    // SECURITY BOUNDARY (Critical #2 remediation) — fail closed. NO privileged
+    // operation (asServiceRole read/write, InvokeLLM, report generation, bulk
+    // creation, improvement updates) may execute until the request passes one
+    // of the two VERIFIED gates from shared/auth.ts:
+    //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env only)
+    //   2. Authenticated admin/founder role via base44.auth.me()
+    // The former `isScheduled = !user` inference and the fabricated super_admin
+    // system identity are REMOVED: absence of a user is NEVER authorization,
+    // and the removed base44-service-authorization tier is never consulted.
+    const auth = await authenticateRequest(req, base44, {
+      body,
+      requireAdmin: true,
+      allowSystemSecret: true,
+      adminRoles: BI_ADMIN_ROLES,
+    });
+    const authError = await enforceAuth(base44, auth, 'generate_business_intelligence', clientIp);
+    if (authError) return authError;
+
+    // Truthful actor for report metadata ONLY — never an authorization mechanism.
+    // A verified system call (DISPATCH_BATCH_TOKEN) carries a provenance label
+    // with NO role claim; an authenticated call carries the verified caller.
+    const effectiveUser = auth.isSystemCall
+      ? { id: 'system_bi_scheduler', full_name: 'Business Intelligence Scheduler', email: 'system_bi_scheduler@execleadai.co' }
+      : { id: auth.user.id, full_name: auth.user.full_name || auth.user.email, email: auth.user.email };
+
     const action = body.action || 'generate';
 
     if (action === 'generate') {
@@ -653,10 +676,19 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'updateImprovement') {
-      const { improvement_id, ...updates } = body;
-      if (!improvement_id) return Response.json({ error: 'improvement_id required' }, { status: 400 });
+      // Critical #2: strict server-side allowlist (shared/improvementUpdatePolicy).
+      // The former free-form field spread was a mass-assignment primitive.
+      // Only status / implemented_date / verified_date are accepted; ownership,
+      // creator, audit/provenance, and every other field are denied by default.
+      const validation = validateImprovementUpdate(body);
+      if (!validation.ok) {
+        return Response.json(
+          { error: validation.error, rejected_fields: validation.rejected_fields },
+          { status: 400 }
+        );
+      }
       const updated = await base44.asServiceRole.entities.ContinuousImprovementAction
-        .update(improvement_id, updates);
+        .update(validation.improvement_id, validation.updates);
       return Response.json({ improvement: updated });
     }
 

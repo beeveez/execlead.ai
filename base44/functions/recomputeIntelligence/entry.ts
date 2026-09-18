@@ -1,4 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+  logSecurityEvent,
+  securityResponse,
+} from '../../shared/auth.ts';
 
 /**
  * recomputeIntelligence — Central computation + cache engine.
@@ -694,21 +701,41 @@ async function computeForUser(base44, config, userId, userName) {
 }
 
 // ── Main handler ──
+// SECURITY BOUNDARY (High #1 remediation): fail closed. No entity read or write
+// may execute until the request passes one of the two gates below. Both use the
+// shared verified authentication mechanism ONLY (SDR-001: the removed
+// base44-service-authorization tier is never consulted and never authorizes).
+
+// Roles permitted cross-user targeting — the existing platform authorization
+// model (entity RLS throughout the app) grants these roles platform-level
+// cross-user access: DEFAULT_ADMIN_ROLES from shared/auth.ts plus founder_root_admin.
+const CROSS_USER_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'];
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
+    const clientIp = getClientIp(req);
 
-    // Get config from manageConfig (H1: single source of truth)
-    const configRes = await base44.functions.invoke('manageConfig', {});
-    const config = configRes.data;
-    if (!config || !config.configVersion) {
-      return Response.json({ error: 'Failed to load platform config' }, { status: 500 });
-    }
-
-    // Batch refresh for stale profiles (called by scheduled automation)
+    // ── Gate A — batch refresh_stale: authenticated authorized admin OR the
+    // verified DISPATCH_BATCH_TOKEN system secret ONLY. No legitimate production
+    // caller exists today; ordinary users are never permitted on this branch.
     if (body.action === 'refresh_stale') {
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+      });
+      const authError = await enforceAuth(base44, auth, 'recompute_intelligence_refresh_stale', clientIp);
+      if (authError) return authError;
+
+      // Get config from manageConfig (H1: single source of truth) — AFTER the gate
+      const configRes = await base44.functions.invoke('manageConfig', {});
+      const config = configRes.data;
+      if (!config || !config.configVersion) {
+        return Response.json({ error: 'Failed to load platform config' }, { status: 500 });
+      }
+
       const profiles = await base44.asServiceRole.entities.UserProfile.filter(
         { status: 'active' }, '-intelligence_computed_at', 50
       );
@@ -732,15 +759,48 @@ Deno.serve(async (req) => {
       return Response.json({ refreshed, totalStale: stale.length, errors });
     }
 
-    // Determine target user
-    let userId = body.user_id;
-    if (!userId && body.data) {
-      userId = body.data.user_id || body.data.created_by_id || body.data.author_user_id;
+    // ── Gate B — single-user recompute: authenticated user ONLY (any role,
+    // self-owned). The system secret does not authorize this branch, and the
+    // removed service-token tier is never consulted.
+    const auth = await authenticateRequest(req, base44, {
+      body,
+      requireAdmin: false,
+      allowSystemSecret: false,
+    });
+    if (!auth.authenticated) {
+      const authError = await enforceAuth(base44, auth, 'recompute_intelligence', clientIp);
+      return authError; // always a 401 rejection — computeForUser never runs
     }
-    if (!userId) {
-      const user = await base44.auth.me();
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-      userId = user.id;
+
+    // ── Ownership enforcement — a client-supplied target id may resolve ONLY to
+    // the authenticated caller's own user ID, unless the caller holds an
+    // admin/founder role (existing platform authorization model). Syntactic
+    // validity of the id is never sufficient.
+    const requestedUserId = body.user_id
+      || (body.data ? (body.data.user_id || body.data.created_by_id || body.data.author_user_id) : null)
+      || null;
+
+    if (requestedUserId && !CROSS_USER_ROLES.includes(auth.user.role) && String(requestedUserId) !== auth.user.id) {
+      await logSecurityEvent(base44, {
+        action: 'recompute_intelligence_cross_user_forbidden',
+        authMethod: auth.authMethod,
+        performedById: auth.user.id,
+        performedByName: auth.user.full_name,
+        severity: 'warning',
+        requestId: auth.requestId,
+        ipAddress: clientIp,
+        description: 'Non-admin authenticated user attempted to recompute another user\'s intelligence',
+      });
+      return securityResponse(403);
+    }
+
+    const userId = requestedUserId || auth.user.id;
+
+    // Get config from manageConfig (H1: single source of truth) — AFTER the gate
+    const configRes = await base44.functions.invoke('manageConfig', {});
+    const config = configRes.data;
+    if (!config || !config.configVersion) {
+      return Response.json({ error: 'Failed to load platform config' }, { status: 500 });
     }
 
     const result = await computeForUser(base44, config, userId, body.user_name || '');

@@ -123,8 +123,22 @@ Deno.serve(async (req) => {
     });
     const authError = await enforceAuth(base44, auth, 'admin_user_management', clientIp);
     if (authError) return authError;
-    // System calls (platform automations) have no user — provide a safe fallback for audit logging
-    const user = auth.user || { id: 'system', email: 'system@execlead.ai', full_name: 'System', role: 'system' };
+
+    // SECURITY — fail-closed hardening. allowSystemSecret is false, so the ONLY
+    // verified authentication path is an authenticated administrator resolved
+    // server-side via base44.auth.me(). A forged base44-service-authorization
+    // JWT can never reach this point (decodeServiceToken is fail-closed), and
+    // no client-supplied body argument (role, isSystemCall, authorized,
+    // service-token claims, target ownership) is ever consulted for
+    // authorization. The former 'system' fallback identity is REMOVED: if the
+    // trusted server-side state cannot positively establish an administrator,
+    // the request is rejected before ANY action (including destructive ones)
+    // dispatches. This must mirror auth.ts DEFAULT_ADMIN_ROLES exactly.
+    const ADMIN_USER_ROLES = ['super_admin', 'platform_admin', 'admin', 'developer'];
+    if (!auth.user || typeof auth.user.role !== 'string' || !ADMIN_USER_ROLES.includes(auth.user.role)) {
+      return securityResponse(401);
+    }
+    const user = auth.user;
 
     // ── check_protection: is a user protected from deletion? ──
     if (action === 'check_protection') {

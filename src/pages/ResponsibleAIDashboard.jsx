@@ -13,6 +13,7 @@ import AITransparencyPanel from '@/components/responsible-ai/AITransparencyPanel
 import AIGovernanceTimeline from '@/components/responsible-ai/AIGovernanceTimeline';
 import AIModelRegistryPanel from '@/components/responsible-ai/AIModelRegistryPanel';
 import AIPolicyCenterPanel from '@/components/responsible-ai/AIPolicyCenterPanel';
+import FairnessAuditEnginePanel from '@/components/responsible-ai/FairnessAuditEnginePanel';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -88,7 +89,10 @@ export default function ResponsibleAIDashboard() {
       )}
 
       {tab === 'fairness' && (
-        <AIFairnessDashboard fairness={snapshot.pillarResults.fairness} dimensions={snapshot.fairnessDimensions} />
+        <div className="space-y-4">
+          <AIFairnessDashboard fairness={snapshot.pillarResults.fairness} dimensions={snapshot.fairnessDimensions} />
+          <FairnessAuditEnginePanel />
+        </div>
       )}
 
       {tab === 'privacy' && (

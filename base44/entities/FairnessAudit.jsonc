@@ -1,0 +1,286 @@
+{
+  "name": "FairnessAudit",
+  "type": "object",
+  "description": "EXECLEAD.AI Fairness Audit Engine\u2122 \u2014 governance-only controlled fairness audit records for AI-assisted assessment experiences (Executive Assessments\u2122, Executive Readiness\u2122, promotion readiness, talent management). Records are append-only audit artifacts: revisions create NEW linked records and never overwrite original results. Audit dimensions (including protected-characteristic proxies) are used for GROUPING ONLY and are structurally excluded from production scoring inputs. Ordinary users have NO access to fairness audit data; access is restricted to verified governance roles. AI output recorded here is decision support for human review \u2014 never an autonomous employment decision.",
+  "properties": {
+    "audit_id": {
+      "type": "string",
+      "description": "Unique authoritative audit identifier (FA-<timestamp>, revisions: FA-<timestamp>-R<n>)"
+    },
+    "assessment_type": {
+      "type": "string",
+      "description": "Assessment experience audited (e.g. executive_readiness)"
+    },
+    "model_version": {
+      "type": "string",
+      "description": "Underlying AI model/version recorded at audit time (model-change governance provenance)"
+    },
+    "assessment_version": {
+      "type": "string",
+      "description": "Assessment rubric/version audited"
+    },
+    "test_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "population_definition": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Definition of the population/sample audited"
+    },
+    "audit_dimensions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Audit dimension(s) tested (grouping only \u2014 never scoring inputs)"
+    },
+    "test_methodology": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "sample_size": {
+      "type": "number",
+      "default": 0
+    },
+    "substantive_sample_size": {
+      "type": "number",
+      "default": 0,
+      "description": "Assessments with sufficient evidence (INSUFFICIENT EVIDENCE records are excluded from disparity statistics and reported separately)"
+    },
+    "outcome_distribution_json": {
+      "type": "string",
+      "description": "JSON: { weak, developing, strong, insufficient_evidence } counts"
+    },
+    "groups_json": {
+      "type": "string",
+      "description": "JSON array of per-group results: group, sampleSize, substantiveSampleSize, meanScore, outcomeDistribution, insufficientEvidenceRate, evidenceCoverage, explainabilityCoverage, statisticalStatus"
+    },
+    "disparity_indicator": {
+      "type": "number",
+      "description": "Max-min mean substantive-score spread across adequately sampled groups (null when not statistically computable)"
+    },
+    "disparity_ratio": {
+      "type": "number",
+      "description": "Max/min mean ratio across adequately sampled groups"
+    },
+    "evidence_coverage": {
+      "type": "number",
+      "default": 0,
+      "description": "Average evidence coverage across audited assessments (0-100)"
+    },
+    "insufficient_evidence_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Share of audited assessments classified INSUFFICIENT EVIDENCE (0-100)"
+    },
+    "explainability_coverage": {
+      "type": "number",
+      "default": 0,
+      "description": "Share of assessments with explainability artifacts (category scores + confidence) (0-100)"
+    },
+    "detected_issues_json": {
+      "type": "string",
+      "description": "JSON array of detected issues: { severity, title, description, remediation }"
+    },
+    "principle_tests_json": {
+      "type": "string",
+      "description": "JSON array of Assessment Fairness Principle\u2122 test results"
+    },
+    "highest_severity": {
+      "type": "string",
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "REVIEW",
+        "FAIL",
+        "INSUFFICIENT_DATA"
+      ],
+      "description": "Audit status. INSUFFICIENT_DATA is returned instead of inventing statistical conclusions on small samples."
+    },
+    "remediation_recommendation": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "human_review_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether human fairness review is required before employment-related use of the audited assessment output"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "Human reviewer who reviewed the audit result"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "revision_number": {
+      "type": "number",
+      "default": 1,
+      "description": "Revision chain position (1 = original)"
+    },
+    "parent_audit_id": {
+      "type": "string",
+      "description": "audit_id of the original audit this revision supersedes (appeal/correction chain)"
+    },
+    "superseded_by_audit_id": {
+      "type": "string",
+      "description": "audit_id of the revision that supersedes this record (linkage only \u2014 result fields are never overwritten)"
+    },
+    "changed_fields_json": {
+      "type": "string",
+      "description": "JSON array identifying exactly what changed between the original and this revision"
+    },
+    "revision_reason": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Why the revision was produced (challenge, additional evidence, reassessment request, correction)"
+    },
+    "challenge_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "challenge_received",
+        "evidence_provided",
+        "reassessment_requested",
+        "escalated_to_human_review",
+        "resolved"
+      ],
+      "default": "none",
+      "description": "Appeal / correction readiness state for the audited assessment output"
+    },
+    "model_change_regression_json": {
+      "type": "string",
+      "description": "JSON regression checklist triggered by an underlying model/version change (consistency, evidence grounding, hallucination, explainability, fairness, safety)"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Governance operator who executed the audit"
+    }
+  },
+  "required": [
+    "audit_id",
+    "assessment_type",
+    "status",
+    "test_date",
+    "audit_dimensions"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

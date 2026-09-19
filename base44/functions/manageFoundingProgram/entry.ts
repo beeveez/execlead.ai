@@ -1,4 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import {
+  authenticateRequest,
+  enforceAuth,
+  getClientIp,
+} from '../../shared/auth.ts';
 
 const FOUNDER_DISCOUNT = 25;
 const FOUNDER_MAX = 500;
@@ -19,8 +24,24 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
-    // Scheduled automations call with no payload — default to anniversary_check
-    const action = body.action ?? 'anniversary_check';
+
+    // SECURITY BOUNDARY (High remediation) — explicit-action validation. The
+    // former implicit default (`action ?? 'anniversary_check'`) routed any
+    // missing/unknown action into the privileged scheduled anniversary sweep.
+    // A request MUST now name a recognized action; missing/empty/unknown → 400
+    // with NO service-role read, entity write, or email dispatch. The scheduled
+    // Founder Anniversary Recognition workflow already supplies
+    // { "action": "anniversary_check" } — that payload contract is preserved.
+    const KNOWN_ACTIONS = new Set([
+      'approve_founder', 'suspend_founder', 'restore_founder', 'revoke_founder',
+      'get_dashboard_metrics', 'get_contribution_score', 'invite_to_advisory_circle',
+      'lifecycle_transition', 'get_health_score', 'anniversary_check',
+      'ga_transition', 'get_executive_analytics', 'get_workflow_stats',
+    ]);
+    const action = typeof body.action === 'string' ? body.action : '';
+    if (!KNOWN_ACTIONS.has(action)) {
+      return Response.json({ error: 'Unknown action' }, { status: 400 });
+    }
 
     // ============================================================
     // HELPER: Log a founding member audit entry (immutable)
@@ -772,7 +793,30 @@ Deno.serve(async (req) => {
     // sends personalized recognition messages.
     // ============================================================
     if (action === 'anniversary_check') {
-      // This is called by scheduled automation — use service role
+      // SECURITY BOUNDARY (High remediation) — fail closed. NO FoundingMember
+      // read, FoundingMember update, FoundingMemberAuditLog creation,
+      // Notification creation, or Core.SendEmail dispatch may execute until the
+      // request passes one of the two VERIFIED gates from shared/auth.ts:
+      //   1. DISPATCH_BATCH_TOKEN system secret (constant-time, server-side env only)
+      //   2. Authenticated administrative role via base44.auth.me()
+      // The former implicit-default path allowed fully unauthenticated callers to
+      // run this privileged service-role sweep. Missing user is NEVER
+      // authorization, no system identity is fabricated, and the removed
+      // base44-service-authorization / decodeServiceToken tier is never
+      // consulted. The unauthenticated scheduled workflow invocation fails
+      // closed (401, security-logged) until a verified scheduled-execution
+      // mechanism exists — an intentional outcome.
+      const clientIp = getClientIp(req);
+      const auth = await authenticateRequest(req, base44, {
+        body,
+        requireAdmin: true,
+        allowSystemSecret: true,
+        adminRoles: ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'],
+      });
+      const authError = await enforceAuth(base44, auth, 'manage_founding_program_anniversary_check', clientIp);
+      if (authError) return authError;
+
+      // Scheduled anniversary sweep — gated above; service role is now authorized.
       const members = await base44.asServiceRole.entities.FoundingMember.list('-created_date', 100000);
       const today = new Date();
       const todayMonth = today.getMonth() + 1;

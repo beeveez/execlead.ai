@@ -11,6 +11,7 @@ import FoundingMemberTesting from "@/components/developer/FoundingMemberTesting"
 import EntitlementDiagnostic from "@/components/developer/EntitlementDiagnostic";
 import SubscriptionDiagnostics from "@/components/developer/SubscriptionDiagnostics";
 import AuthorizationPanel from "@/components/developer/AuthorizationPanel";
+import ToolGatewayPanel from "@/components/developer/ToolGatewayPanel";
 
 export default function DeveloperConsole() {
   const { canAccessDeveloper } = useDeveloper();
@@ -76,6 +77,8 @@ export default function DeveloperConsole() {
       </div>
 
       <AuthorizationPanel />
+
+      <ToolGatewayPanel />
 
       <EntitlementDiagnostic />
 

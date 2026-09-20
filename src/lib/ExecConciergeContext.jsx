@@ -47,6 +47,7 @@ import { trackKnowledgeAiAsk } from "@/lib/knowledgeIntelligenceClient";
 import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
 import { classifyExecQuestion, EXEC_QUESTION_CATEGORIES } from "@/lib/execQuestionClassifier";
 import { getStrategicComparisonResponse } from "@/lib/execStrategicComparison";
+import { invokeTool as invokeGatewayTool, matchToolIntent, formatToolResponse } from "@/lib/toolGateway";
 
 const ExecConciergeContext = createContext(null);
 
@@ -529,6 +530,34 @@ export function ExecConciergeProvider({ children }) {
           }
         } catch {
           // fall through to the AI on any error
+        }
+      }
+
+      // ── EXEC™ Tool Gateway™ (Phase 1) ── governed, deterministic retrieval of
+      // the member's canonical Profile / Readiness / Journey through the Tool
+      // Gateway™. Only direct personal-data retrieval questions route here;
+      // informational and improvement questions fall through to the AI path.
+      if (user) {
+        const gatewayTool = matchToolIntent(content);
+        if (gatewayTool) {
+          try {
+            const toolResult = await invokeGatewayTool(gatewayTool, {}, {
+              user,
+              activeWorkspace,
+              runtimeProfile: userContextRef.current || userContext || null,
+            });
+            if (toolResult.ok) {
+              const toolAnswer = formatToolResponse(gatewayTool, toolResult.data);
+              if (toolAnswer) {
+                setMessages((prev) => [...prev, { role: "assistant", content: toolAnswer }]);
+                setLoading(false);
+                refreshHealth();
+                return;
+              }
+            }
+          } catch {
+            // Tool Gateway™ is best-effort — fall through to the AI path
+          }
         }
       }
 

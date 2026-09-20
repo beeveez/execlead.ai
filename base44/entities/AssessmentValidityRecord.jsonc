@@ -1,0 +1,304 @@
+{
+  "name": "AssessmentValidityRecord",
+  "type": "object",
+  "description": "EXECLEAD.AI Assessment Validity & Human Agency Gate\u2122 (P0.2) \u2014 governance validity record for an assessment dimension. Deterministically evaluates whether a conclusion is supported by construct-relevant evidence (VALIDATED / REVIEW_REQUIRED / INSUFFICIENT_EVIDENCE / UNSUPPORTED_CONCLUSION). Append-only: reassessments create NEW linked revision records and never overwrite originals. AI conclusions are always preserved separately from human decisions. Employment boundary: AI assessment \u2192 evidence \u2192 explanation \u2192 human review \u2192 human decision \u2014 never an autonomous employment decision.",
+  "properties": {
+    "validity_id": {
+      "type": "string",
+      "description": "Unique authoritative validity record identifier (AV-<timestamp>, revisions: -R<n>)"
+    },
+    "assessment_id": {
+      "type": "string",
+      "description": "Assessment record this validity evaluation applies to"
+    },
+    "assessment_type": {
+      "type": "string",
+      "description": "e.g. executive_readiness"
+    },
+    "dimension": {
+      "type": "string",
+      "description": "Assessment dimension being evaluated (e.g. strategic_thinking)"
+    },
+    "intended_construct": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "The intended construct being measured (leadership quality \u2260 communication style)"
+    },
+    "evidence_json": {
+      "type": "string",
+      "description": "JSON array of evidence items considered: { id, source, signal_type, quality, supports, description }"
+    },
+    "construct_warnings_json": {
+      "type": "string",
+      "description": "JSON array of non-construct signals detected (verbosity, polished English, extroversion, prestige, etc.) \u2014 never treated as capability"
+    },
+    "missing_evidence_json": {
+      "type": "string",
+      "description": "JSON array identifying what evidence is missing"
+    },
+    "contradictory_evidence_json": {
+      "type": "string",
+      "description": "JSON array of conflicting material evidence (preserved, never silently resolved)"
+    },
+    "conclusion": {
+      "type": "string",
+      "description": "The substantive conclusion reached (weak / developing / strong or recorded label)"
+    },
+    "conclusion_level": {
+      "type": "string",
+      "enum": [
+        "weak",
+        "developing",
+        "strong"
+      ],
+      "description": "Ordered conclusion level used for evidence-vs-conclusion support comparison"
+    },
+    "conclusion_source": {
+      "type": "string",
+      "enum": [
+        "ai_generated",
+        "evidence_derived",
+        "user_provided",
+        "human_reviewed"
+      ],
+      "default": "evidence_derived",
+      "description": "Provenance of the conclusion"
+    },
+    "confidence_original": {
+      "type": "number",
+      "description": "Confidence as recorded before validity adjustment (0-100)"
+    },
+    "confidence_adjusted": {
+      "type": "number",
+      "description": "Confidence after deterministic validity adjustment (never artificially increased, 0-100)"
+    },
+    "validity_status": {
+      "type": "string",
+      "enum": [
+        "VALIDATED",
+        "REVIEW_REQUIRED",
+        "INSUFFICIENT_EVIDENCE",
+        "UNSUPPORTED_CONCLUSION"
+      ],
+      "description": "Validity status. INSUFFICIENT_EVIDENCE is distinct from weak performance, failure, bias, or unfairness."
+    },
+    "trace_json": {
+      "type": "string",
+      "description": "JSON evidence-to-conclusion trace: Assessment \u2192 Dimension \u2192 Evidence \u2192 Interpretation \u2192 Conclusion \u2192 Confidence"
+    },
+    "interpretation": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "What interpretation was applied to the evidence"
+    },
+    "additional_evidence_would_improve_json": {
+      "type": "string",
+      "description": "JSON array of evidence that would improve the assessment"
+    },
+    "model_version": {
+      "type": "string",
+      "description": "Model identifier/version recorded at evaluation time \u2014 never falsely backfilled for historical records"
+    },
+    "assessment_version": {
+      "type": "string",
+      "description": "Assessment rubric/version evaluated"
+    },
+    "governance_framework_version": {
+      "type": "string",
+      "description": "Governance framework version applied"
+    },
+    "provenance_incomplete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Explicitly true when model provenance was never recorded for the underlying assessment \u2014 the limitation is preserved, never backfilled"
+    },
+    "assessed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "human_review_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether human review is recommended before the conclusion is relied upon"
+    },
+    "revision_number": {
+      "type": "number",
+      "default": 1,
+      "description": "Revision chain position (1 = original)"
+    },
+    "parent_validity_id": {
+      "type": "string",
+      "description": "validity_id of the original record this revision supersedes"
+    },
+    "superseded_by_validity_id": {
+      "type": "string",
+      "description": "validity_id of the revision that supersedes this record (linkage only \u2014 original result fields are never overwritten)"
+    },
+    "changed_fields_json": {
+      "type": "string",
+      "description": "JSON array identifying exactly what changed between the original and this revision"
+    },
+    "revision_reason": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "human_decision_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "accepted",
+        "modified",
+        "rejected"
+      ],
+      "default": "none",
+      "description": "Whether the authorized reviewer accepted, modified, or rejected the AI conclusion"
+    },
+    "human_decision": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "The human decision \u2014 stored separately from, and never replacing, the AI conclusion"
+    },
+    "human_decision_rationale": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Reviewer rationale for the human decision"
+    },
+    "human_decision_evidence_json": {
+      "type": "string",
+      "description": "JSON array of supporting evidence for the human decision"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "subject_user_id": {
+      "type": "string",
+      "description": "The assessed person \u2014 ordinary users may read only their own validity records"
+    },
+    "created_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "validity_id",
+    "assessment_id",
+    "dimension",
+    "validity_status",
+    "subject_user_id",
+    "assessed_at"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.subject_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

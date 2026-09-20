@@ -1,0 +1,194 @@
+{
+  "name": "AssessmentChallenge",
+  "type": "object",
+  "description": "EXECLEAD.AI Assessment Validity & Human Agency Gate\u2122 (P0.2) \u2014 human challenge against an assessment conclusion. The assessed person may challenge a conclusion, provide their explanation/context, and supply additional evidence. Challenges never modify the original assessment: resolutions and reassessments create new linked records. Ordinary users may only see and create their own challenges; governance reviewers resolve them.",
+  "properties": {
+    "challenge_id": {
+      "type": "string",
+      "description": "Unique authoritative challenge identifier (CH-<timestamp>)"
+    },
+    "validity_id": {
+      "type": "string",
+      "description": "Validity record being challenged (link preserved; original never overwritten)"
+    },
+    "assessment_id": {
+      "type": "string",
+      "description": "Assessment the challenge refers to"
+    },
+    "subject_user_id": {
+      "type": "string",
+      "description": "The assessed person submitting the challenge \u2014 derived server-side from the authenticated caller"
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Reason for the challenge"
+    },
+    "user_context": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "The assessed person's explanation / context"
+    },
+    "additional_evidence_json": {
+      "type": "string",
+      "description": "JSON array of additional evidence items supplied by the user: { description, signal_type?, quality?, supports? }"
+    },
+    "requested_action": {
+      "type": "string",
+      "enum": [
+        "reassessment",
+        "review",
+        "correction"
+      ],
+      "default": "reassessment",
+      "description": "What the challenger requests"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "in_review",
+        "additional_evidence_received",
+        "awaiting_reassessment",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "submitted"
+    },
+    "resolution": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Governance reviewer's resolution of the challenge"
+    },
+    "resolution_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "created_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "challenge_id",
+    "reason",
+    "subject_user_id",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.subject_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.subject_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "developer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "platform_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "founder_root_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Brain, LayoutGrid, ShieldCheck, Scale, Lock, Eye, Award, ShieldAlert, History, Cpu, Settings, Download } from 'lucide-react';
+import { Brain, LayoutGrid, ShieldCheck, Scale, Lock, Eye, Award, ShieldAlert, History, Cpu, Settings, Download, BadgeCheck } from 'lucide-react';
 import { getResponsibleAISnapshot } from '@/lib/responsibleAIEngine';
 import ResponsibleAIHero from '@/components/responsible-ai/ResponsibleAIHero';
 import AIPillarGrid from '@/components/responsible-ai/AIPillarGrid';
@@ -14,6 +14,7 @@ import AIGovernanceTimeline from '@/components/responsible-ai/AIGovernanceTimeli
 import AIModelRegistryPanel from '@/components/responsible-ai/AIModelRegistryPanel';
 import AIPolicyCenterPanel from '@/components/responsible-ai/AIPolicyCenterPanel';
 import FairnessAuditEnginePanel from '@/components/responsible-ai/FairnessAuditEnginePanel';
+import AssessmentValidityPanel from '@/components/responsible-ai/AssessmentValidityPanel';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
@@ -26,6 +27,7 @@ const TABS = [
   { id: 'guardian', label: 'Guardian™', icon: ShieldAlert },
   { id: 'models', label: 'Model Registry', icon: Cpu },
   { id: 'policy', label: 'Policy Center', icon: Settings },
+  { id: 'validity', label: 'Validity & Agency', icon: BadgeCheck },
   { id: 'audit', label: 'Audit History', icon: History },
 ];
 
@@ -120,6 +122,10 @@ export default function ResponsibleAIDashboard() {
 
       {tab === 'policy' && (
         <AIPolicyCenterPanel policyCenter={snapshot.policyCenter} />
+      )}
+
+      {tab === 'validity' && (
+        <AssessmentValidityPanel />
       )}
 
       {tab === 'audit' && (

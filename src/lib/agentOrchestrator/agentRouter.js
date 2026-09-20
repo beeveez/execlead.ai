@@ -21,20 +21,173 @@ import { formatToolResponse } from "../toolGateway/execToolRouter.js";
 const READINESS_PATTERNS = [/\breadiness\b/i, /\bhow ready am i\b/i];
 const JOURNEY_PATTERNS = [/\bjourney\b/i, /\bleadership path\b/i, /\bwhere am i\b/i];
 
+// Phase 2B — readiness ANALYSIS signals. A request routes to the
+// executive_readiness_agent only when it carries BOTH a readiness signal AND
+// an analysis/synthesis signal. Simple factual retrieval ("what's my
+// readiness score") has no analysis signal and stays on the Phase 1 direct
+// Tool Gateway™ path (matchToolIntent).
+const READINESS_ANALYSIS_PATTERNS = [
+  /\bwhy\b.*\breadiness\b|\breadiness\b.*\bwhy\b/i,
+  /\bevidence\b.*\b(readiness|supports?|state|current)\b/i,
+  /\b(biggest|main|key|major)\s+gaps?\b/i,
+  /\bwhat\s+should\s+i\s+work\s+on\b/i,
+  /\bwork\s+on\s+next\b/i,
+  /\banaly[sz]e?s?\b.*\breadiness\b|\breadiness\b.*\banaly[sz]e?s?\b/i,
+];
+
 /**
- * Match a message that should be delegated to the registered test agent.
- * Requires BOTH a readiness signal AND a journey signal — anything less is
- * not an orchestration request.
+ * Match a message that should be delegated to a registered agent.
  *
- * @returns {"executive_context_agent"|null}
+ * Order matters:
+ *   1. BOTH a readiness signal AND a journey signal → executive_context_agent
+ *      (multi-signal context retrieval, Phase 2A — unchanged).
+ *   2. A readiness signal AND an analysis/synthesis signal (why / evidence /
+ *      gaps / what should I work on next / analyse) → executive_readiness_agent
+ *      (readiness ANALYSIS, Phase 2B).
+ *
+ * Everything else returns null: single-tool factual requests continue on the
+ * Phase 1 direct Tool Gateway™ path, and all other requests fall through to
+ * the normal EXEC™ AI path.
+ *
+ * @returns {"executive_context_agent"|"executive_readiness_agent"|null}
  */
 export function matchOrchestrationIntent(text) {
   const t = (text || "").toLowerCase();
   if (!t) return null;
   const wantsReadiness = READINESS_PATTERNS.some((p) => p.test(t));
   const wantsJourney = JOURNEY_PATTERNS.some((p) => p.test(t));
-  if (!wantsReadiness || !wantsJourney) return null;
-  return "executive_context_agent";
+  if (wantsReadiness && wantsJourney) return "executive_context_agent";
+  if (wantsReadiness && READINESS_ANALYSIS_PATTERNS.some((p) => p.test(t))) {
+    return "executive_readiness_agent";
+  }
+  return null;
+}
+
+function gapLine(g) {
+  if (g.type === "competency_development") {
+    return `• ${g.label} — ${g.value} (competency development opportunity — AI synthesis derived from the measured value)`;
+  }
+  if (g.type === "incomplete_verification") {
+    return `• ${g.description} (verified platform data)`;
+  }
+  return `• ${g.description} (${g.type.replace(/_/g, " ")} — verified platform data)`;
+}
+
+function priorityLine(p) {
+  if (p.dimension) return `${p.label} (${p.value})`;
+  return `${p.evidence_source} — raise evidence coverage (currently ${p.coverage}%)`;
+}
+
+/**
+ * Format an executive_readiness_agent result into an EXEC™ response.
+ *
+ * Fail-closed rule: the readiness source itself (getExecutiveReadiness) must
+ * have succeeded — a readiness analysis without the authoritative readiness
+ * source is never presented; EXEC™ falls back to the AI path instead.
+ * Unavailable data is stated as unavailable, never estimated.
+ */
+function formatReadinessAnalysisResponse(data, agentMeta = {}) {
+  const a = data.analysis;
+  const readinessOk = (data.tools || []).some((t) => t.tool === "getExecutiveReadiness" && t.ok);
+  if (!a || !readinessOk) return null;
+
+  const lines = ["**Executive Readiness™ Analysis**", ""];
+
+  if (a.current_readiness) {
+    lines.push(
+      `**Current Executive Readiness™:** ${a.current_readiness.readinessScore}% — preserved exactly from the authoritative platform engine (never recalculated by the agent).`
+    );
+    if (a.current_readiness.lastUpdated) lines.push(`_Last updated: ${a.current_readiness.lastUpdated}_`);
+  } else {
+    lines.push(
+      "**Current Executive Readiness™:** currently unavailable from the authoritative source — no value is invented here."
+    );
+  }
+
+  const ev = a.evidence_summary || {};
+  const evLines = [];
+  if (a.evidence_coverage !== null && a.evidence_coverage !== undefined) {
+    evLines.push(`• Overall evidence coverage: ${a.evidence_coverage}%`);
+  }
+  for (const s of ev.sources || []) {
+    evLines.push(`• ${s.label || "Evidence source"}: ${s.coverage ?? "—"}% coverage (${s.evidence_class})`);
+  }
+  for (const d of ev.measured_dimensions || []) {
+    evLines.push(`• ${d.label}: ${d.value} (measured)`);
+  }
+  if (evLines.length > 0) {
+    lines.push("", "**Evidence Supporting Your Current State** (verified platform data)", evLines.join("\n"));
+  } else {
+    lines.push(
+      "",
+      "**Evidence Supporting Your Current State:** no evidence-source or dimension-level data is currently available from the authoritative source."
+    );
+  }
+  if (ev.interpretation?.text) {
+    lines.push(`\n_Interpretation (AI synthesis): ${ev.interpretation.text}_`);
+  }
+
+  if ((a.key_strengths || []).length > 0) {
+    lines.push(
+      "",
+      "**Key Strengths** (AI synthesis derived from verified measurements)",
+      a.key_strengths.map((s) => `• ${s.label} — ${s.value}`).join("\n")
+    );
+  }
+
+  if ((a.key_gaps || []).length > 0) {
+    lines.push("", "**Key Gaps**", a.key_gaps.map(gapLine).join("\n"));
+  } else {
+    lines.push("", "**Key Gaps:** none identified from the currently available platform data.");
+  }
+
+  if ((a.development_priorities || []).length > 0) {
+    lines.push(
+      "",
+      "**Development Priorities**",
+      a.development_priorities.map((p, i) => `${i + 1}. ${priorityLine(p)}`).join("\n")
+    );
+  }
+
+  if ((a.recommended_actions || []).length > 0) {
+    lines.push(
+      "",
+      "**Recommended Actions** — _AI-generated recommendations grounded in the retrieved platform data; not verified facts._",
+      a.recommended_actions.map((r, i) => `${i + 1}. ${r.action}`).join("\n")
+    );
+  } else {
+    lines.push(
+      "",
+      "**Recommended Actions:** not enough verified platform context is currently available to generate grounded recommendations."
+    );
+  }
+
+  if (a.confidence) {
+    lines.push(
+      "",
+      `**Analysis Confidence:** ${a.confidence.value}% (evidence coverage from the authoritative readiness engine — no independent confidence metric created).`
+    );
+  }
+
+  if ((a.unavailable_notes || []).length > 0) {
+    lines.push("", "**Unavailable Data** (stated, never estimated)", a.unavailable_notes.map((u) => `• ${u}`).join("\n"));
+  }
+
+  lines.push(
+    "",
+    "**Evidence Provenance**",
+    (data.tools || [])
+      .map((t) => (t.ok ? `• ${t.tool} — succeeded (verified platform data)` : `• ${t.tool} — unavailable (${t.error?.code || "failed"})`))
+      .join("\n")
+  );
+
+  const agentName = agentMeta.agent || a.agent || "executive_readiness_agent";
+  const agentVersion = agentMeta.agentVersion || a.agent_version || "1.0.0";
+  lines.push(
+    "",
+    `_Delivered via the Agent Orchestrator™ → \`${agentName}\` v${agentVersion} → EXEC™ Tool Gateway™ (governed delegation · authenticated context only · readiness value preserved from the authoritative source)._`
+  );
+  return lines.join("\n");
 }
 
 /**
@@ -43,7 +196,12 @@ export function matchOrchestrationIntent(text) {
  * Returns null when no tool succeeded — EXEC™ then falls back to the AI path.
  */
 export function formatAgentResponse(data, agentMeta = {}) {
-  if (!data || !Array.isArray(data.tools)) return null;
+  if (!data) return null;
+  // Phase 2B — readiness analysis result
+  if (data.analysis && data.analysis.agent === "executive_readiness_agent") {
+    return formatReadinessAnalysisResponse(data, agentMeta);
+  }
+  if (!Array.isArray(data.tools)) return null;
   const succeeded = data.tools.filter((t) => t.ok);
   if (succeeded.length === 0) return null;
 

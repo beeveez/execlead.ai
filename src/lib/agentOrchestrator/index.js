@@ -7,9 +7,12 @@
  *   Agent Registry → Registered Agent → Tool Gateway™ →
  *   Existing Platform Tools / Services
  *
- * Phase 2A registers exactly ONE technical validation agent:
- *   • executive_context_agent — read-only executive context
- *     (Profile / Readiness / Journey) through the Tool Gateway™
+ * Registered agents:
+ *   • executive_context_agent (Phase 2A) — read-only executive context
+ *     retrieval (Profile / Readiness / Journey) through the Tool Gateway™
+ *   • executive_readiness_agent (Phase 2B) — evidence-grounded Executive
+ *     Readiness™ development analysis; the existing readiness engine remains
+ *     the sole source of truth and the authoritative score is preserved exactly
  *
  * Invariants:
  *   • The orchestrator NEVER bypasses the Tool Gateway™ — an agent's only
@@ -38,12 +41,14 @@ import { logStage, getExecEvents } from "@/lib/execReliabilityEngine";
 import { createAgentRegistry } from "./registry.js";
 import { orchestrateCore, ORCHESTRATION_ERROR_CODES, DEFAULT_AGENT_TIMEOUT_MS } from "./orchestratorCore.js";
 import executiveContextAgent from "./agents/executiveContextAgent.js";
+import executiveReadinessAgent from "./agents/executiveReadinessAgent.js";
 
 export const AGENT_ORCHESTRATOR_VERSION = "1.0.0";
 
 // ── Agent Registry (single registration point) ──
 const agentRegistry = createAgentRegistry();
 agentRegistry.register(executiveContextAgent);
+agentRegistry.register(executiveReadinessAgent);
 
 export function listRegisteredAgents() {
   return agentRegistry.list();

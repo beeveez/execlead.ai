@@ -12,6 +12,7 @@ import EntitlementDiagnostic from "@/components/developer/EntitlementDiagnostic"
 import SubscriptionDiagnostics from "@/components/developer/SubscriptionDiagnostics";
 import AuthorizationPanel from "@/components/developer/AuthorizationPanel";
 import ToolGatewayPanel from "@/components/developer/ToolGatewayPanel";
+import AgentOrchestratorPanel from "@/components/developer/AgentOrchestratorPanel";
 
 export default function DeveloperConsole() {
   const { canAccessDeveloper } = useDeveloper();
@@ -79,6 +80,8 @@ export default function DeveloperConsole() {
       <AuthorizationPanel />
 
       <ToolGatewayPanel />
+
+      <AgentOrchestratorPanel />
 
       <EntitlementDiagnostic />
 

@@ -48,6 +48,7 @@ import { guardExecDecisionResponse } from "@/lib/execDecisionTruthfulnessGuard";
 import { classifyExecQuestion, EXEC_QUESTION_CATEGORIES } from "@/lib/execQuestionClassifier";
 import { getStrategicComparisonResponse } from "@/lib/execStrategicComparison";
 import { invokeTool as invokeGatewayTool, matchToolIntent, formatToolResponse } from "@/lib/toolGateway";
+import { orchestrateAgent, matchOrchestrationIntent, formatAgentResponse } from "@/lib/agentOrchestrator";
 
 const ExecConciergeContext = createContext(null);
 
@@ -530,6 +531,39 @@ export function ExecConciergeProvider({ children }) {
           }
         } catch {
           // fall through to the AI on any error
+        }
+      }
+
+      // ── Agent Orchestrator™ (Phase 2A) ── governed delegation for
+      // multi-signal executive context requests (Readiness + Journey
+      // together). Only combined context requests route here; single-tool
+      // requests stay on the Phase 1 direct Tool Gateway™ path below. On
+      // any orchestration failure we fall through — existing EXEC™ behavior
+      // remains fully intact.
+      if (user) {
+        const orchestrationAgent = matchOrchestrationIntent(content);
+        if (orchestrationAgent) {
+          try {
+            const agentResult = await orchestrateAgent(orchestrationAgent, {}, {
+              user,
+              activeWorkspace,
+              runtimeProfile: userContextRef.current || userContext || null,
+            });
+            if (agentResult.ok) {
+              const agentAnswer = formatAgentResponse(agentResult.data, {
+                agent: agentResult.agent,
+                agentVersion: agentResult.agentVersion,
+              });
+              if (agentAnswer) {
+                setMessages((prev) => [...prev, { role: "assistant", content: agentAnswer }]);
+                setLoading(false);
+                refreshHealth();
+                return;
+              }
+            }
+          } catch {
+            // orchestration is best-effort — fall through to existing paths
+          }
         }
       }
 

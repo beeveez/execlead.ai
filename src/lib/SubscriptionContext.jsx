@@ -43,8 +43,15 @@ export const SubscriptionProvider = ({ children }) => {
         user?.id
           ? base44.entities.UserProfile.filter({ created_by_id: user.id })
           : Promise.resolve([]),
+        // Bounded: a stalled resolveSubscription invocation must never
+        // freeze the routing gate (the dark loading screen) indefinitely.
+        // On timeout, fall back to frontend plan resolution — same as the
+        // existing catch. Profile loading itself is unaffected.
         user?.id
-          ? base44.functions.invoke("resolveSubscription", {}).catch(() => null)
+          ? Promise.race([
+              base44.functions.invoke("resolveSubscription", {}).catch(() => null),
+              new Promise((resolve) => setTimeout(() => resolve(null), 20000)),
+            ])
           : Promise.resolve(null),
       ]);
 

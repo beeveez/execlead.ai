@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
@@ -104,6 +104,39 @@ export default function SessionRoutingManager() {
   const { activeWorkspace } = useWorkspace();
   const location = useLocation();
 
+  // ── Step 3 (commit-driven): Onboarding decision ──
+  // The decision is computed EXACTLY ONCE per profile-load cycle in an
+  // effect — never during render. resolveOnboardingRedirect mutates the
+  // failsafe counter (session state); computing it during render allowed
+  // re-renders or a different user in the same browser session to trip
+  // the failsafe without any redirect ever occurring (blank/failsafe
+  // screen instead of the onboarding redirect). Until the decision is
+  // committed, the manager renders the intentional LoadingScreen —
+  // there is no path to an empty render.
+  const [decision, setDecision] = useState(null);
+  const decisionCycleRef = useRef(false);
+
+  useEffect(() => {
+    // A new load cycle (loading=true) re-arms the one-shot decision.
+    if (loadingProfile) {
+      decisionCycleRef.current = false;
+      setDecision(null);
+      return;
+    }
+    if (decisionCycleRef.current) return;
+    // Profile exists — returning user: clear the loop counter and render.
+    if (profile) {
+      clearOnboardingFailsafe();
+      decisionCycleRef.current = true;
+      setDecision(null);
+      return;
+    }
+    if (!profileLoadAttempted || !isAuthenticated) return;
+    // First-time user (no profile, no error) — resolve redirect ONCE.
+    decisionCycleRef.current = true;
+    setDecision(resolveOnboardingRedirect(null, user));
+  }, [loadingProfile, profile, profileLoadAttempted, isAuthenticated, user]);
+
   // ── Step 1: Wait for authentication ──
   if (isLoadingAuth || !isAuthenticated) {
     return <LoadingScreen />;
@@ -149,9 +182,13 @@ export default function SessionRoutingManager() {
 
   // ── Step 4: Onboarding validation ──
   // Only evaluated when the profile genuinely doesn't exist
-  // (no error, just no profile found = first-time user).
+  // (no error, just no profile found = first-time user). The decision
+  // itself is computed once per load cycle by the effect above — while
+  // it is being resolved the intentional LoadingScreen renders.
   if (!profile) {
-    const decision = resolveOnboardingRedirect(null, user);
+    if (!decision) {
+      return <LoadingScreen />;
+    }
 
     // Failsafe: redirect loop detected
     if (decision.failsafeTriggered) {
@@ -190,11 +227,10 @@ export default function SessionRoutingManager() {
     );
   }
 
-  // ── Step 5 & 6: Profile loaded — clear failsafe and render ──
+  // ── Step 5 & 6: Profile loaded — render the application ──
   // The user is authenticated and has an Executive Runtime Profile™.
-  // Restore happens naturally via React Router (the URL is already
-  // correct). Workspace restoration is handled by WorkspaceContext.
-  clearOnboardingFailsafe();
-
+  // The failsafe counter is cleared by the effect above. Restore
+  // happens naturally via React Router (the URL is already correct).
+  // Workspace restoration is handled by WorkspaceContext.
   return <Outlet />;
 }

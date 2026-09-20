@@ -157,17 +157,51 @@ export function evaluateOnboardingState(profile, user) {
 }
 
 /**
+ * FAILSAFE storage is user-scoped: the counter is stored as { count, uid }.
+ * A different authenticated user in the same browser session resets it —
+ * a genuinely fresh user's first-run redirect decision must never be
+ * poisoned by a previous user's redirects. Legacy plain-number values
+ * (from older builds) are still read as counts.
+ */
+function readFailsafeCount(uid) {
+  try {
+    const raw = sessionStorage.getItem(FAILSAFE_KEY);
+    if (!raw) return 0;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.count === "number") {
+        if (uid && parsed.uid && parsed.uid !== uid) return 0;
+        return parsed.count;
+      }
+    } catch {}
+    // Legacy plain-number value (pre user-scoping build): its owner is
+    // unknown, so it must never block a fresh user's first-run decision.
+    // Discard it whenever a user id is provided.
+    if (uid) return 0;
+    return parseInt(raw, 10) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeFailsafeCount(uid, count) {
+  try {
+    sessionStorage.setItem(FAILSAFE_KEY, JSON.stringify({ count, uid: uid || null }));
+  } catch {}
+}
+
+/**
  * FAILSAFE: Check and increment the onboarding redirect counter.
  * Maximum onboarding redirects: 1.
  * If a second redirect is detected, stop routing and go to Dashboard.
  */
-export function checkOnboardingFailsafe() {
-  let count = 0;
-  try { count = parseInt(sessionStorage.getItem(FAILSAFE_KEY) || "0", 10); } catch {}
+export function checkOnboardingFailsafe(userId) {
+  const uid = userId?.id || userId || null;
+  const count = readFailsafeCount(uid);
   if (count >= MAX_ONBOARDING_REDIRECTS) {
     return { shouldStop: true, count, max: MAX_ONBOARDING_REDIRECTS };
   }
-  try { sessionStorage.setItem(FAILSAFE_KEY, String(count + 1)); } catch {}
+  writeFailsafeCount(uid, count + 1);
   return { shouldStop: false, count, max: MAX_ONBOARDING_REDIRECTS };
 }
 
@@ -182,9 +216,9 @@ export function clearOnboardingFailsafe() {
 /**
  * Get current failsafe state for diagnostics.
  */
-export function getFailsafeState() {
-  let count = 0;
-  try { count = parseInt(sessionStorage.getItem(FAILSAFE_KEY) || "0", 10); } catch {}
+export function getFailsafeState(userId) {
+  const uid = userId?.id || userId || null;
+  const count = readFailsafeCount(uid);
   return { count, max: MAX_ONBOARDING_REDIRECTS, triggered: count >= MAX_ONBOARDING_REDIRECTS };
 }
 
@@ -199,10 +233,10 @@ export function resolveOnboardingRedirect(profile, user) {
   const state = evaluateOnboardingState(profile, user);
   if (state.isComplete) {
     clearOnboardingFailsafe();
-    return { shouldRedirect: false, target: "/dashboard", state, failsafe: getFailsafeState() };
+    return { shouldRedirect: false, target: "/dashboard", state, failsafe: getFailsafeState(user?.id) };
   }
   // Failsafe: prevent infinite onboarding redirect loops
-  const failsafe = checkOnboardingFailsafe();
+  const failsafe = checkOnboardingFailsafe(user?.id);
   if (failsafe.shouldStop) {
     return {
       shouldRedirect: false,

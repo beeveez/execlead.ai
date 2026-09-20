@@ -5,6 +5,7 @@
     "session_type": {
       "type": "string",
       "enum": [
+        "executive_challenge",
         "45min_interview",
         "60min_interview",
         "panel_interview",

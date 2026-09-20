@@ -8,6 +8,7 @@ import { callAI } from "@/lib/ai";
 import { buildSimulatorPrompt } from "@/lib/resume";
 import { evaluateSimulation, buildSimulationEvidenceRecord } from "@/lib/simulationIntelligenceEngine";
 import SimulationIntelligenceReport from "@/components/simulation-intelligence/SimulationIntelligenceReport";
+import ExecutiveChallengeLoop from "@/components/simulator/ExecutiveChallengeLoop";
 
 export default function Simulator() {
   const [profile, setProfile] = useState(null);
@@ -41,7 +42,8 @@ export default function Simulator() {
   }, [messages]);
 
   const startSession = async () => {
-    if (!sessionType || !interviewer) return;
+    const isChallengeLoop = sessionType === "executive_challenge";
+    if (!sessionType || (!isChallengeLoop && !interviewer)) return;
     setLoading(true);
     const typeLabel = SESSION_TYPES.find(s => s.id === sessionType)?.label || sessionType;
     const personality = AI_PERSONALITIES.find(p => p.id === profile?.ai_personality) || AI_PERSONALITIES[0];
@@ -56,6 +58,15 @@ export default function Simulator() {
         status: "in_progress",
       });
       setSession(s);
+
+      // Executive Challenge Loop™ — a structured decision loop, not an
+      // interview conversation. The loop component generates the situation
+      // and drives every step itself; no interviewer persona applies.
+      if (isChallengeLoop) {
+        setStep("loop");
+        setLoading(false);
+        return;
+      }
 
       const resumeContext = resumeData ? `\n${buildSimulatorPrompt(resumeData, profile?.target_role, profile?.target_company)}` : "";
       const res = await callAI("simulator", {
@@ -219,14 +230,16 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
               </div>
             </div>
 
-            <div>
-              <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Interviewer Profile</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                {INTERVIEWER_PROFILES.map(p => (
-                  <button key={p} onClick={() => setInterviewer(p)} className={`px-4 py-3 rounded-lg text-sm text-left transition-all ${interviewer === p ? "bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/30" : "bg-white/[0.03] text-white/40 hover:bg-white/[0.06] hover:text-white/70 border border-white/5"}`}>{p}</button>
-                ))}
+            {sessionType !== "executive_challenge" && (
+              <div>
+                <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Interviewer Profile</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {INTERVIEWER_PROFILES.map(p => (
+                    <button key={p} onClick={() => setInterviewer(p)} className={`px-4 py-3 rounded-lg text-sm text-left transition-all ${interviewer === p ? "bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/30" : "bg-white/[0.03] text-white/40 hover:bg-white/[0.06] hover:text-white/70 border border-white/5"}`}>{p}</button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
@@ -237,17 +250,19 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
                   ))}
                 </div>
               </div>
-              <div>
-                <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Duration (minutes)</h2>
-                <div className="grid grid-cols-5 gap-2">
-                  {SESSION_DURATIONS.map(d => (
-                    <button key={d} onClick={() => setDuration(d)} className={`px-2 py-2.5 rounded-lg text-sm transition-all ${duration === d ? "bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/30" : "bg-white/[0.03] text-white/40 hover:bg-white/[0.06] hover:text-white/70 border border-white/5"}`}>{d}</button>
-                  ))}
+              {sessionType !== "executive_challenge" && (
+                <div>
+                  <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Duration (minutes)</h2>
+                  <div className="grid grid-cols-5 gap-2">
+                    {SESSION_DURATIONS.map(d => (
+                      <button key={d} onClick={() => setDuration(d)} className={`px-2 py-2.5 rounded-lg text-sm transition-all ${duration === d ? "bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/30" : "bg-white/[0.03] text-white/40 hover:bg-white/[0.06] hover:text-white/70 border border-white/5"}`}>{d}</button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            <button onClick={startSession} disabled={!sessionType || !interviewer || loading} className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:opacity-30 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+            <button onClick={startSession} disabled={!sessionType || (sessionType !== "executive_challenge" && !interviewer) || loading} className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:opacity-30 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
               {loading ? <Loader2 size={18} className="animate-spin" /> : <><Play size={18} /> Start Simulation</>}
             </button>
           </motion.div>
@@ -291,6 +306,18 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
                 <button onClick={sendMessage} disabled={!input.trim() || loading} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-cyan-400 disabled:opacity-30"><Send size={18} /></button>
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {step === "loop" && (
+          <motion.div key="loop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <ExecutiveChallengeLoop
+              profile={profile}
+              difficulty={difficulty}
+              session={session}
+              onFinish={(report) => { setSummary(report); setStep("summary"); }}
+              onExit={reset}
+            />
           </motion.div>
         )}
 

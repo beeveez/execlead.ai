@@ -178,6 +178,7 @@ export const AI_PERSONALITIES = [
 ];
 
 export const SESSION_TYPES = [
+  { id: "executive_challenge", label: "Executive Challenge Loop", duration: 30, icon: "Swords" },
   { id: "45min_interview", label: "45-Minute Interview", duration: 45, icon: "Clock" },
   { id: "60min_interview", label: "60-Minute Interview", duration: 60, icon: "Clock" },
   { id: "panel_interview", label: "Panel Interview", duration: 60, icon: "Users" },

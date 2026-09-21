@@ -34,6 +34,8 @@ export function resolveCareerIntelligence(form) {
   const execContext = {
     target_company: company?.name || form.target_company,
     target_role: role?.title || form.target_role,
+    leadership_track: form.leadership_track || "",
+    target_executive_role: form.target_executive_role || "",
     industry: industry?.name || form.preferred_industry,
     country: form.target_country,
     leadership_style: company?.leadership_style || "General Executive",

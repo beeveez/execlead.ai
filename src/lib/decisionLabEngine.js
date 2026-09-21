@@ -11,7 +11,7 @@ export const DECISION_CATEGORIES = [
   "Leadership", "Finance", "Operations", "Technology", "Cybersecurity",
   "AI Governance", "Digital Transformation", "Crisis Management", "Board Relations",
   "HR", "Mergers", "Product Strategy", "Customer Experience", "Innovation",
-  "Compliance", "Government", "Legal Operations", "AI Governance",
+  "Compliance", "Government", "Legal Operations",
 ];
 
 export const SCORING_DIMENSIONS = [

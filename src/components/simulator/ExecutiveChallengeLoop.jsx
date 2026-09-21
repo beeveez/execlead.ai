@@ -28,7 +28,7 @@ const FEEDBACK_SECTIONS = [
   { key: "next_attempt", label: "Next attempt" },
 ];
 
-export default function ExecutiveChallengeLoop({ profile, difficulty, session, onFinish, onExit }) {
+export default function ExecutiveChallengeLoop({ profile, difficulty, session, seedScenario, onFinish, onExit }) {
   const [phase, setPhase] = useState("situation");
   const [situation, setSituation] = useState(null);
   const [decision, setDecision] = useState("");
@@ -66,13 +66,25 @@ export default function ExecutiveChallengeLoop({ profile, difficulty, session, o
     setLoading(true);
     setError("");
     try {
-      const req = buildSituationRequest({
-        targetRole: profile?.target_role,
-        targetCompany: profile?.target_company,
-        difficulty,
-      });
-      const res = await callAI("simulator", req);
-      const s = res?.situation ? res : null;
+      let s = null;
+      if (seedScenario) {
+        // Catalog scenario launch (Executive Scenario Library™) — the scenario
+        // description is the situation narrative; the loop drives every step.
+        s = {
+          title: seedScenario.title,
+          situation: seedScenario.description,
+          known_facts: [],
+          uncertainties: [],
+        };
+      } else {
+        const req = buildSituationRequest({
+          targetRole: profile?.target_role,
+          targetCompany: profile?.target_company,
+          difficulty,
+        });
+        const res = await callAI("simulator", req);
+        s = res?.situation ? res : null;
+      }
       if (!s) throw new Error("The situation could not be generated.");
       setSituation(s);
       await persistEvent({ type: "situation", payload: s });
@@ -81,7 +93,7 @@ export default function ExecutiveChallengeLoop({ profile, difficulty, session, o
       setError(e?.message || String(e));
     }
     setLoading(false);
-  }, [profile, difficulty, persistEvent]);
+  }, [profile, difficulty, persistEvent, seedScenario]);
 
   useEffect(() => {
     generateSituation();

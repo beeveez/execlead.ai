@@ -23,6 +23,7 @@
 import { getCachedCompanyContext } from "@/lib/companyContext";
 import { getCachedCareerIntelligence } from "@/lib/careerIntelligence/contextCache";
 import { resolveCareerIntelligence } from "@/lib/careerIntelligence/registryService";
+import { LEGAL_AI_BOUNDARY } from "@/lib/legalLeadershipTrack";
 
 // ============================================================
 // CONSTANTS
@@ -291,6 +292,15 @@ function _build() {
     parts.push("");
   }
 
+  // LEGAL LEADERSHIP BOUNDARY (Legal Leadership Track™) — when the member is
+  // on the legal path, every AI module operates inside the
+  // leadership-development / no-legal-advice trust boundary.
+  if (inputs?.user?.leadership_track === 'legal') {
+    parts.push("── LEGAL LEADERSHIP BOUNDARY ──");
+    parts.push(LEGAL_AI_BOUNDARY);
+    parts.push("");
+  }
+
   // CAREER INTELLIGENCE (from cache)
   if (careerPrompt) {
     parts.push(careerPrompt);
@@ -420,6 +430,10 @@ function careerLayer(inputs) {
   return {
     target_company: p.target_company,
     target_role: p.target_role,
+    // Leadership Track™ (incl. Legal Leadership Track™) — persisted on the
+    // member's auth profile and consumed by Career Intelligence™.
+    leadership_track: inputs?.user?.leadership_track || "",
+    target_executive_role: inputs?.user?.target_executive_role || "",
     preferred_industry: p.preferred_industry,
     target_country: p.target_country,
     expected_salary: p.expected_salary,

@@ -271,6 +271,21 @@ export const COURSES = [
         L("l1", "Innovation Strategy", 20, "essay"), L("l2", "Disruptive Innovation", 18, "case_study"), L("l3", "Sustaining Innovation", 20, "essay")
       ])
     ]
+  },
+  {
+    slug: "legal-leadership", title: "Legal Leadership", icon: "⚖️", color: "#64748b", difficulty: "Advanced", duration: "6 hours", instructor: "Executive Mentor", instructorIcon: "🎯",
+    description: "Lead modern enterprise legal functions — operating models, service delivery, KPIs, technology, and responsible AI adoption. Leadership development only; not legal advice.",
+    modules: [
+      M("m1", "Modern Legal Operating Models", { title: "Design the Target Operating Model", description: "The General Counsel asks you to propose a modernized legal operating model. Present intake, triage, workflow governance, and measurement to the executive team." }, [
+        L("l1", "Legal Operating Model Fundamentals", 18, "mcq"), L("l2", "Intake & Triage Design", 15, "scenario"), L("l3", "Centralized vs Federated Models", 20, "case_study")
+      ]),
+      M("m2", "Legal Service Delivery & KPIs", { title: "Fix a Service Delivery Crisis", description: "Legal requests have surged while capacity is limited. Define intake strategy, prioritization, SLA policy, escalation model, and stakeholder communication." }, [
+        L("l1", "Legal Service Delivery", 15, "mcq"), L("l2", "SLA & KPI Management", 18, "scenario"), L("l3", "Legal Demand Management", 20, "case_study")
+      ]),
+      M("m3", "Legal Technology & AI Governance", { title: "Recommend an AI Adoption Decision", description: "The enterprise wants generative AI in the legal function. Build the governance recommendation: human oversight, data protection, risk controls, and auditability." }, [
+        L("l1", "Legal Technology Strategy", 18, "mcq"), L("l2", "AI Governance for Legal Functions", 20, "case_study"), L("l3", "Building the Business Case for Legal Transformation", 15, "essay")
+      ])
+    ]
   }
 ];
 
@@ -332,7 +347,10 @@ const ROLE_PREFERENCES = {
   "operations": ["leadership", "it-service-management", "commercial-thinking"],
   "director": ["leadership", "business-strategy", "governance"],
   "vp": ["leadership", "business-strategy", "finance"],
-  "ceo": ["business-strategy", "finance", "governance", "innovation"]
+  "ceo": ["business-strategy", "finance", "governance", "innovation"],
+  "general counsel": ["legal-leadership", "leadership", "governance", "executive-communication"],
+  "counsel": ["legal-leadership", "leadership", "executive-communication"],
+  "legal": ["legal-leadership", "leadership", "executive-communication", "governance"]
 };
 
 export function getRecommendedCourses(targetRole) {

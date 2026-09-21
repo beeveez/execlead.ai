@@ -165,6 +165,15 @@ export default function ExecutiveReadinessAssessment() {
       toast({ title: 'Could not save leadership track', description: e.message, variant: 'destructive' });
     } finally { setSavingTrack(false); }
     try { base44.analytics.track({ eventName: 'leadership_path_selected', properties: { path: trackKey } }); } catch (e) {}
+    if (trackKey === 'legal') {
+      try {
+        base44.analytics.track({ eventName: 'legal_leadership_selected', properties: { path: trackKey } });
+        base44.analytics.track({ eventName: 'legal_specialization_selected', properties: { specialization: roleLabel } });
+        if (roleLabel === 'Legal Service Delivery Leadership') {
+          base44.analytics.track({ eventName: 'legal_service_delivery_selected', properties: { specialization: roleLabel } });
+        }
+      } catch (e) {}
+    }
     setPhase('quiz');
   };
 

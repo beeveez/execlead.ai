@@ -31,6 +31,8 @@ export const buildCareerIntelligencePrompt = (ctx) => {
   };
 
   line("Target Role", ctx.target_role);
+  line("Leadership Track", ctx.leadership_track);
+  line("Target Executive Role", ctx.target_executive_role);
   line("Industry", ctx.industry);
   line("Target Country", ctx.country);
   line("AI Coaching Persona", ctx.ai_persona);

@@ -6,7 +6,8 @@ import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 import { callAI } from "@/lib/ai";
 import { buildSimulatorPrompt } from "@/lib/resume";
-import { evaluateSimulation, buildSimulationEvidenceRecord } from "@/lib/simulationIntelligenceEngine";
+import { evaluateSimulation, buildSimulationEvidenceRecord, scenariosForPath } from "@/lib/simulationIntelligenceEngine";
+import { LEADERSHIP_TRACKS } from "@/lib/readinessAssessmentEngine";
 import SimulationIntelligenceReport from "@/components/simulation-intelligence/SimulationIntelligenceReport";
 import ExecutiveChallengeLoop from "@/components/simulator/ExecutiveChallengeLoop";
 
@@ -23,12 +24,18 @@ export default function Simulator() {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState(null);
   const [session, setSession] = useState(null);
+  const [seedScenario, setSeedScenario] = useState(null);
+  const [leadershipTrack, setLeadershipTrack] = useState("");
   const bottomRef = useRef(null);
 
   useEffect(() => {
     const load = async () => {
       const profiles = await base44.entities.UserProfile.list();
       if (profiles.length > 0) setProfile(profiles[0]);
+      try {
+        const me = await base44.auth.me();
+        setLeadershipTrack(me?.leadership_track || "");
+      } catch (e) {}
       const resumes = await base44.entities.ResumeVersion.list("-created_date", 1);
       if (resumes.length > 0) {
         try { setResumeData(JSON.parse(resumes[0].extracted_data)); } catch (e) {}
@@ -41,16 +48,17 @@ export default function Simulator() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const startSession = async () => {
-    const isChallengeLoop = sessionType === "executive_challenge";
-    if (!sessionType || (!isChallengeLoop && !interviewer)) return;
+  const startSession = async (opts) => {
+    const effectiveType = opts?.sessionType || sessionType;
+    const isChallengeLoop = effectiveType === "executive_challenge";
+    if (!effectiveType || (!isChallengeLoop && !interviewer)) return;
     setLoading(true);
-    const typeLabel = SESSION_TYPES.find(s => s.id === sessionType)?.label || sessionType;
+    const typeLabel = SESSION_TYPES.find(s => s.id === effectiveType)?.label || effectiveType;
     const personality = AI_PERSONALITIES.find(p => p.id === profile?.ai_personality) || AI_PERSONALITIES[0];
 
     try {
       const s = await base44.entities.SimulationSession.create({
-        session_type: sessionType,
+        session_type: effectiveType,
         target_company: profile?.target_company || "IT Company",
         target_role: profile?.target_role || "Senior Manager",
         interviewer_profile: interviewer,
@@ -87,6 +95,12 @@ Start the session. Introduce yourself, set the context, and ask your first quest
       console.error(e);
     }
     setLoading(false);
+  };
+
+  const launchScenario = (s) => {
+    setSessionType("executive_challenge");
+    setSeedScenario(s);
+    startSession({ sessionType: "executive_challenge", seed: s });
   };
 
   const sendMessage = async () => {
@@ -194,9 +208,13 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
     setLoading(false);
   };
 
+  const trackLabel = LEADERSHIP_TRACKS.find(t => t.key === leadershipTrack)?.label;
+  const pathScenarios = trackLabel ? scenariosForPath(trackLabel) : [];
+
   const reset = () => {
     setStep("setup");
     setSessionType("");
+    setSeedScenario(null);
     setInterviewer("");
     setDifficulty("Intermediate");
     setDuration(45);
@@ -229,6 +247,21 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
                 ))}
               </div>
             </div>
+
+            {pathScenarios.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-white/40 uppercase tracking-wider mb-3">Your Leadership Path Simulations</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {pathScenarios.map(s => (
+                    <button key={s.id} onClick={() => launchScenario(s)} disabled={loading} className="px-4 py-3 rounded-lg text-left bg-white/[0.03] border border-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all disabled:opacity-40">
+                      <div className="text-sm font-medium">{s.title}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-white/30 mt-0.5">{s.domain} · {s.difficulty}</div>
+                      <div className="text-xs text-white/40 mt-1 line-clamp-2">{s.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {sessionType !== "executive_challenge" && (
               <div>
@@ -315,6 +348,7 @@ Continue the session. Ask follow-ups, challenge when needed, stay in character. 
               profile={profile}
               difficulty={difficulty}
               session={session}
+              seedScenario={seedScenario}
               onFinish={(report) => { setSummary(report); setStep("summary"); }}
               onExit={reset}
             />

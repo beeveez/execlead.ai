@@ -157,7 +157,7 @@ export const LEGAL_SIMULATION_TEMPLATES = [
     id: 'legal_service_delivery_crisis',
     title: 'Legal Service Delivery Crisis',
     difficulty: 'expert',
-    competencies: ['strategic_thinking', 'decision_quality', 'stakeholder_management', 'organizational_leadership', 'ri******'],
+    competencies: ['strategic_thinking', 'decision_quality', 'stakeholder_management', 'organizational_leadership', 'risk_leadership'],
     description: 'Legal requests have increased significantly while the legal team has limited capacity. Determine intake strategy, prioritization, escalation model, SLA strategy, stakeholder communication, resource allocation, and process improvement.',
   },
   {
@@ -171,7 +171,7 @@ export const LEGAL_SIMULATION_TEMPLATES = [
     id: 'legal_technology_investment',
     title: 'Legal Technology Investment',
     difficulty: 'advanced',
-    competencies: ['business_acumen', 'decision_quality', 'ri******', 'executive_communication', 'strategic_thinking'],
+    competencies: ['business_acumen', 'decision_quality', 'risk_leadership', 'executive_communication', 'strategic_thinking'],
     description: 'The legal department requests investment in a new legal technology platform. Prepare a business case, risk analysis, adoption strategy, ROI assumptions (clearly identified — never fabricated), governance model, and executive recommendation.',
   },
   {
@@ -185,14 +185,14 @@ export const LEGAL_SIMULATION_TEMPLATES = [
     id: 'legal_outside_counsel_management',
     title: 'Outside Counsel Management',
     difficulty: 'intermediate',
-    competencies: ['business_acumen', 'stakeholder_management', 'ri******', 'executive_communication'],
+    competencies: ['business_acumen', 'stakeholder_management', 'risk_leadership', 'executive_communication'],
     description: 'External legal spend is increasing. Evaluate vendor governance, matter visibility, spend controls, performance metrics, stakeholder management, and escalation.',
   },
   {
     id: 'legal_ai_governance',
     title: 'Legal AI Governance',
     difficulty: 'expert',
-    competencies: ['ri******', 'decision_quality', 'change_leadership', 'stakeholder_management', 'executive_communication'],
+    competencies: ['risk_leadership', 'decision_quality', 'change_leadership', 'stakeholder_management', 'executive_communication'],
     description: 'An enterprise wants to introduce generative AI into the legal function. Evaluate governance, human oversight, data protection, risk controls, accuracy verification, auditability, change management, and responsible AI.',
   },
 ];

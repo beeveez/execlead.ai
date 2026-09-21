@@ -28,6 +28,9 @@ export const LEADERSHIP_TRACKS = [
   { key: 'government', label: 'Government & Public Sector', roles: ['Department Head', 'Public Sector Executive'] },
   { key: 'healthcare', label: 'Healthcare Leadership', roles: ['Hospital Executive', 'Clinical Director'] },
   { key: 'education', label: 'Education Leadership', roles: ['Dean', 'School Administrator', 'University Executive'] },
+  // Legal Leadership Track™ — roles are the track's specializations
+  // (Legal Leadership Track™ module is the single source of truth).
+  { key: 'legal', label: 'Legal Leadership', roles: ['General Counsel / Chief Legal Officer', 'Legal Operations Leadership', 'Legal Service Delivery Leadership', 'Legal Transformation Leadership', 'Corporate Counsel Leadership', 'Contract Operations Leadership', 'Legal Risk & Governance Leadership', 'Legal Technology Leadership', 'Legal AI Governance Leadership', 'Custom Legal Leadership Goal'] },
   { key: 'custom', label: 'Custom Leadership Goal', roles: [] },
 ];
 

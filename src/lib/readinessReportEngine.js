@@ -106,6 +106,7 @@ const ROLE_SIM = {
   government: 'Simulator: Public Mandate & Stakeholder Accountability',
   healthcare: 'Simulator: Clinical Governance & Patient Safety',
   education: 'Simulator: Academic Strategy & Faculty Alignment',
+  legal: 'Simulator: Legal Service Delivery & Legal Operations Governance',
   custom: 'Simulator: Executive Strategy & Stakeholder Influence',
 };
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Cpu, Briefcase, DollarSign, Users, Megaphone, Lightbulb, Landmark, HeartPulse, GraduationCap,
+  Cpu, Briefcase, DollarSign, Users, Megaphone, Lightbulb, Landmark, HeartPulse, GraduationCap, Scale,
   Target, ArrowRight, Loader2, Check, Star, Play, Sparkles, Shield,
   Gauge, Brain, Swords, Map, Route, Share2, BookOpen, FolderOpen, LineChart, Building2,
   Compass, MessageSquare, Crown, RefreshCw, TrendingUp, Clock, Lock,
@@ -12,11 +12,12 @@ import ExecPersonalizedPreview from '@/components/readiness-assessment/ExecPerso
 import ExecutiveJourneyVisual from '@/components/readiness-assessment/ExecutiveJourneyVisual';
 import ExecActivationSequence from '@/components/readiness-assessment/ExecActivationSequence';
 import ExecutiveReadinessSample from '@/components/readiness-assessment/ExecutiveReadinessSample';
+import LegalLeadershipPreview from '@/components/readiness-assessment/LegalLeadershipPreview';
 
 const ICONS = {
   technology: Cpu, digital_transformation: Sparkles, business: Briefcase, finance: DollarSign,
   hr: Users, sales_marketing: Megaphone, product: Lightbulb, government: Landmark,
-  healthcare: HeartPulse, education: GraduationCap, custom: Target,
+  healthcare: HeartPulse, education: GraduationCap, legal: Scale, custom: Target,
 };
 
 const TRACK_DESCRIPTIONS = {
@@ -30,6 +31,7 @@ const TRACK_DESCRIPTIONS = {
   government: 'Lead public-sector strategy, policy execution, and citizen-impact initiatives.',
   healthcare: 'Lead clinical, operational, and patient-centered transformation in healthcare organizations.',
   education: 'Lead academic, institutional, and learning transformation in education.',
+  legal: 'Lead modern enterprise legal functions through strategic thinking, legal operations, service delivery, governance, risk management, technology transformation, stakeholder leadership, and responsible AI adoption.',
   custom: 'Define your own executive leadership destination and we will personalize the journey.',
 };
 
@@ -72,6 +74,7 @@ const PATH_COMPETENCIES = {
   government: ['Public-Sector Strategy', 'Policy Leadership', 'Executive Communication', 'Stakeholder Engagement', 'Citizen Impact', 'Organizational Leadership'],
   healthcare: ['Clinical Leadership', 'Operational Transformation', 'Executive Communication', 'Patient-Centered Strategy', 'Change Leadership', 'Organizational Leadership'],
   education: ['Academic Leadership', 'Institutional Strategy', 'Executive Communication', 'Learning Transformation', 'Stakeholder Engagement', 'Organizational Leadership'],
+  legal: ['Strategic Legal Leadership', 'Legal Operations Management', 'Legal Service Delivery', 'Risk & Governance Leadership', 'Executive Communication', 'Decision Quality'],
   custom: ['Executive Communication', 'Strategic Thinking', 'Enterprise Decision Making', 'Leadership Presence', 'Organizational Leadership', 'Business Acumen'],
 };
 
@@ -90,7 +93,7 @@ function deriveDestination(trackKey, role) {
     if (/manager/.test(r)) return 'Manager';
     if (/lead/.test(r)) return 'Team Lead';
   }
-  const defaults = { technology: 'C-Level Executive', digital_transformation: 'C-Level Executive', business: 'Vice President', finance: 'C-Level Executive', hr: 'C-Level Executive', sales_marketing: 'Vice President', product: 'Vice President', government: 'Director', healthcare: 'Director', education: 'Director', custom: 'Director' };
+  const defaults = { technology: 'C-Level Executive', digital_transformation: 'C-Level Executive', business: 'Vice President', finance: 'C-Level Executive', hr: 'C-Level Executive', sales_marketing: 'Vice President', product: 'Vice President', government: 'Director', healthcare: 'Director', education: 'Director', legal: 'C-Level Executive', custom: 'Director' };
   return defaults[trackKey] || 'Director';
 }
 
@@ -221,6 +224,9 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
             {/* EXEC™ Personalized Preview */}
             <ExecPersonalizedPreview trackLabel={selectedTrack.label} competencies={PATH_COMPETENCIES[track]} />
 
+            {/* Legal Leadership Track™ preview — specialization-personalized (TEST 4) */}
+            {track === 'legal' && <LegalLeadershipPreview specializationLabel={role} />}
+
             {/* Journey summary */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="rounded-xl bg-white/[0.03] border border-white/8 p-3">
@@ -249,7 +255,11 @@ export default function LeadershipTrackSelector({ onSelect, saving }) {
 
             {/* Role selection */}
             <div className="text-[11px] uppercase tracking-wider text-white/40 mb-3">
-              {track === 'custom' ? 'Enter your target executive role' : `Select your target role — ${selectedTrack.label}`}
+              {track === 'custom'
+                ? 'Enter your target executive role'
+                : track === 'legal'
+                  ? 'Select your Legal Leadership specialization'
+                  : `Select your target role — ${selectedTrack.label}`}
             </div>
             {track === 'custom' ? (
               <input

@@ -205,6 +205,29 @@ export const ADAPTIVE_QUESTIONS = {
       { label: 'Defer the reallocation', score: 2 },
     ]),
   ],
+  legal: [
+    T(1001, 'scenario', 'Legal requests have doubled while your team\'s capacity is unchanged. As the leader of the legal function, your first move is to:', [
+      { label: 'Redesign intake and triage so demand is prioritized by business impact and risk, then reset stakeholder expectations on SLAs', score: 4 },
+      { label: 'Have the team work longer hours to keep response times unchanged', score: 1 },
+      { label: 'Decline new requests until the backlog clears', score: 2 },
+      { label: 'Escalate to the CEO for more headcount before anything else', score: 0 },
+    ]),
+    T(1002, 'likert', 'I can lead a legal operating model — intake, workflow, SLAs, and service metrics — in executive terms.', [
+      { label: 'Almost always', score: 4 }, { label: 'Often', score: 3 }, { label: 'Sometimes', score: 2 }, { label: 'Rarely', score: 1 }, { label: 'Almost never', score: 0 },
+    ]),
+    T(1003, 'scenario', 'The business wants to adopt generative AI in the legal function. As its leader, you:', [
+      { label: 'Stand up a governance model covering human oversight, data protection, accuracy verification, and auditability, then phase adoption', score: 4 },
+      { label: 'Block adoption until regulation is settled', score: 1 },
+      { label: 'Approve broad adoption and let teams self-govern', score: 0 },
+      { label: 'Pilot quietly without executive visibility', score: 2 },
+    ]),
+    T(1004, 'scenario', 'Outside counsel spend is rising faster than legal demand. Your executive response:', [
+      { label: 'Introduce matter-level visibility, spend controls, and performance metrics, then renegotiate the vendor portfolio', score: 4 },
+      { label: 'Across-the-board 20% cut to all firms', score: 2 },
+      { label: 'Switch everything to the cheapest firm', score: 1 },
+      { label: 'Absorb the increase — quality matters most', score: 0 },
+    ]),
+  ],
   custom: [
     T(901, 'scenario', 'Your board challenges your 12-month strategy. Your executive response:', [
       { label: 'Re-anchor the strategy to enterprise outcomes, surface assumptions, and offer a review checkpoint', score: 4 },
@@ -240,6 +263,7 @@ export const ROLE_FOCUS = {
   healthcare: ['Clinical Governance', 'Patient Outcomes', 'Healthcare Transformation', 'Regulatory Leadership'],
   education: ['Academic Strategy', 'Institutional Leadership', 'Faculty Development', 'Educational Innovation'],
   government: ['Public Mandate Delivery', 'Stakeholder Accountability', 'Service Transformation', 'Resource Reallocation'],
+  legal: ['Legal Operating Model', 'Legal Service Delivery', 'Risk & Governance', 'Legal Technology & AI Governance'],
   custom: ['Enterprise Strategy', 'Stakeholder Influence', 'Operational Leverage', 'Executive Decision-Making'],
 };
 
@@ -253,6 +277,7 @@ export const ROLE_COACHING = {
   healthcare: ['Run a patient-safety transparency rehearsal.', 'Balance a clinical-quality vs cost decision on paper.', 'Engage a regulator early on a threatened service line.', 'Co-design a transformation with a clinical champion.'],
   education: ['Build a faculty coalition for a curriculum change.', 'Align an academic plan to financial sustainability.', 'Diagnose an enrollment decline by segment.', 'Prioritize edtech by learning impact.'],
   government: ['Sequence a public mandate transformation by citizen impact.', 'Navigate a cross-stakeholder accountability map.', 'Rehearse a public-service-failure transparency statement.', 'Score competing public priorities transparently.'],
+  legal: ['Design a legal intake and triage model prioritized by business impact.', 'Define SLAs and service metrics for your legal function on one page.', 'Draft an AI governance model for the legal function with human oversight.', 'Build an outside-counsel governance scorecard.'],
   custom: ['Re-anchor your 12-month strategy to enterprise outcomes.', 'Translate your function\'s work into business outcomes.', 'Co-create a 3-priority strategy for an inherited team.', 'Frame a high-stakes decision with a review checkpoint.'],
 };
 

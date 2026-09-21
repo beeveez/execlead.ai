@@ -45,9 +45,15 @@ export const ORCHESTRATION_ERROR_CODES = {
   UNAUTHORIZED_TOOL: "UNAUTHORIZED_TOOL",
   AGENT_EXECUTION_ERROR: "AGENT_EXECUTION_ERROR",
   AGENT_TIMEOUT: "AGENT_TIMEOUT",
+  UNAUTHORIZED_DELEGATION: "UNAUTHORIZED_DELEGATION",
+  DELEGATION_DEPTH_EXCEEDED: "DELEGATION_DEPTH_EXCEEDED",
 };
 
 export const DEFAULT_AGENT_TIMEOUT_MS = 15000;
+
+// Phase 3A — the delegation boundary: agent-to-agent delegation is capped at
+// exactly ONE hop. A delegated agent (depth 1) can never delegate further.
+export const MAX_DELEGATION_DEPTH = 1;
 export const ORCHESTRATION_TIMEOUT_MARK = "__AGENT_ORCHESTRATION_TIMEOUT__";
 
 function ownKeys(input) {
@@ -70,12 +76,20 @@ function newRequestId() {
  * @param {function} [params.onResult] — structured telemetry sink (result, failureCategory)
  * @returns {Promise<{ok, agent, agentVersion, requestId, data?, error?, toolsRequested, toolsSucceeded, timeoutMs, durationMs, startedAt, completedAt}>}
  */
-export async function orchestrateCore({ agentName, input, context, registry, toolInvoker, onResult }) {
+export async function orchestrateCore({ agentName, input, context, registry, toolInvoker, onResult, delegation }) {
   const startedAt = Date.now();
   const startedAtIso = new Date().toISOString();
   const requestId = newRequestId();
   const user = context?.user || null;
   const userId = user?.id || null;
+  // Delegation lineage (Phase 3A) — inherited from the orchestrator, never
+  // caller-controlled. A top-level orchestration runs at depth 0; a governed
+  // delegation executes the child at depth 1 with the SAME immutable
+  // authenticated context.
+  const delegationDepth =
+    typeof delegation?.depth === "number" && delegation.depth >= 0 ? delegation.depth : 0;
+  const parentAgentName = typeof delegation?.parentAgentName === "string" ? delegation.parentAgentName : null;
+  const parentRequestId = typeof delegation?.parentRequestId === "string" ? delegation.parentRequestId : null;
 
   const emit = (result, failureCategory) => {
     try {
@@ -100,6 +114,7 @@ export async function orchestrateCore({ agentName, input, context, registry, too
       durationMs,
       startedAt: startedAtIso,
       completedAt: new Date().toISOString(),
+      delegation: Object.freeze({ depth: delegationDepth, parentAgentName, parentRequestId }),
     };
   };
 
@@ -168,36 +183,19 @@ export async function orchestrateCore({ agentName, input, context, registry, too
     );
   }
 
-  // 6. Immutable execution context — frozen; identity derived from the
-  //    authenticated user only.
+  // 6. Tool permission boundary — the ONLY tool capability accessor the
+  //    agent receives. Not on the agent's allowed-tools list → rejected
+  //    here, the underlying tool never executes. Authorized tools are
+  //    delegated to the Tool Gateway™ (which independently re-authorizes).
+  //    Delegated (child) executions are marked so audits can distinguish
+  //    parent from child gateway calls.
   const workspace = context.workspace || null;
-  const executionContext = Object.freeze({
-    requestId,
-    agentName: agent.name,
-    agentVersion: agent.version,
-    requestedAt: startedAtIso,
-    user: Object.freeze({
-      id: user.id,
-      fullName: user.full_name || user.fullName || null,
-      email: user.email || null,
-    }),
-    workspace: workspace
-      ? Object.freeze({ id: workspace.id || null, name: workspace.name || null })
-      : null,
-    tenantContext: Object.freeze({ organizationId: user?.data?.organization_id || null }),
-    permissions: Object.freeze([...agent.requiredPermissions]),
-    getRuntimeProfile: context.getRuntimeProfile,
-  });
-
-  // 7. Tool permission boundary — the ONLY capability accessor the agent
-  //    receives. Not on the agent's allowed-tools list → rejected here,
-  //    the underlying tool never executes. Authorized tools are delegated to
-  //    the Tool Gateway™ (which independently re-authorizes).
   const allowedTools = Object.freeze([...agent.allowedTools]);
   const toolOptions = Object.freeze({
     user,
     activeWorkspace: workspace,
     runtimeProfile: context.runtimeProfile || null,
+    delegatedBy: delegationDepth > 0 ? parentAgentName : null,
   });
   const invokeTool = async (toolName, toolInput = {}) => {
     if (typeof toolName !== "string" || !allowedTools.includes(toolName)) {
@@ -216,11 +214,102 @@ export async function orchestrateCore({ agentName, input, context, registry, too
     return toolInvoker(toolName, toolInput, toolOptions);
   };
 
-  // 8. Bounded execution — exactly one attempt, no retries, no recursion.
+  // 7. Bounded agent-to-agent delegation boundary (Phase 3A) — the ONLY
+  //    delegation accessor an agent receives:
+  //      • the target must be on the agent's EXPLICIT allowedDelegations
+  //        whitelist (no dynamic or arbitrary agent selection);
+  //      • maximum delegation depth is MAX_DELEGATION_DEPTH (1) — a
+  //        delegated agent cannot delegate further;
+  //      • the child executes through this same governed pipeline with the
+  //        SAME immutable authenticated context and Tool Gateway™ invoker.
+  //    Rejections are normalized and emitted to telemetry; no child agent
+  //    ever executes for a rejected delegation.
+  const delegateAgent = async (targetName, delegateInput = {}) => {
+    const attemptedDepth = delegationDepth + 1;
+    const reject = (code, message) =>
+      emit(
+        {
+          ok: false,
+          agent: typeof targetName === "string" ? targetName : null,
+          agentVersion: null,
+          requestId,
+          error: { code, message },
+          toolsRequested: null,
+          toolsSucceeded: null,
+          timeoutMs: null,
+          durationMs: 0,
+          startedAt: new Date().toISOString(),
+          completedAt: new Date().toISOString(),
+          delegation: Object.freeze({
+            depth: attemptedDepth,
+            parentAgentName: agent.name,
+            parentRequestId: requestId,
+          }),
+        },
+        code
+      );
+    if (attemptedDepth > MAX_DELEGATION_DEPTH) {
+      return reject(
+        ORCHESTRATION_ERROR_CODES.DELEGATION_DEPTH_EXCEEDED,
+        `Delegation rejected: depth ${attemptedDepth} exceeds the maximum delegation depth of ${MAX_DELEGATION_DEPTH}.`
+      );
+    }
+    const allowedDelegations = Array.isArray(agent.allowedDelegations) ? agent.allowedDelegations : [];
+    if (typeof targetName !== "string" || !allowedDelegations.includes(targetName)) {
+      return reject(
+        ORCHESTRATION_ERROR_CODES.UNAUTHORIZED_DELEGATION,
+        `Agent ${agent.name} is not authorized to delegate to: ${String(targetName)}.`
+      );
+    }
+    return orchestrateCore({
+      agentName: targetName,
+      input: delegateInput,
+      context,
+      registry,
+      toolInvoker,
+      onResult,
+      delegation: {
+        depth: attemptedDepth,
+        parentAgentName: agent.name,
+        parentRequestId: requestId,
+      },
+    });
+  };
+
+  // 8. Immutable execution context — frozen; identity derived from the
+  //    authenticated user only. The delegation lineage is inherited from
+  //    the orchestrator, never caller-controlled; a delegated child receives
+  //    the same frozen user/tenant identity.
+  const executionContext = Object.freeze({
+    requestId,
+    agentName: agent.name,
+    agentVersion: agent.version,
+    requestedAt: startedAtIso,
+    user: Object.freeze({
+      id: user.id,
+      fullName: user.full_name || user.fullName || null,
+      email: user.email || null,
+    }),
+    workspace: workspace
+      ? Object.freeze({ id: workspace.id || null, name: workspace.name || null })
+      : null,
+    tenantContext: Object.freeze({ organizationId: user?.data?.organization_id || null }),
+    permissions: Object.freeze([...agent.requiredPermissions]),
+    delegation: Object.freeze({
+      depth: delegationDepth,
+      parentAgentName,
+      parentRequestId,
+      maxDelegationDepth: MAX_DELEGATION_DEPTH,
+    }),
+    getRuntimeProfile: context.getRuntimeProfile,
+    delegateAgent,
+  });
+
+  // 9. Bounded execution — exactly one attempt, no retries, no recursion.
   const timeoutMs =
     typeof agent.timeoutMs === "number" && agent.timeoutMs > 0 ? agent.timeoutMs : DEFAULT_AGENT_TIMEOUT_MS;
   const handlerPromise = Promise.resolve().then(() =>
-    agent.handler({ context: executionContext, input: input || {}, invokeTool })
+    agent.handler({ context: executionContext, input: input || {}, invokeTool, delegateAgent })
   );
   let timer = null;
   const timeoutPromise = new Promise((_, reject) => {

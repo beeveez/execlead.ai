@@ -81,7 +81,7 @@ function classifyCoverage(coverage) {
   return "limited";
 }
 
-async function handler({ context, invokeTool }) {
+async function handler({ context, invokeTool, delegateAgent }) {
   const requested = [...ALLOWED_TOOLS];
   const tools = [];
   const byTool = {};
@@ -155,6 +155,38 @@ async function handler({ context, invokeTool }) {
     interpretationParts.push(
       `${dimEntries.length} readiness dimension(s) carry platform-computed measurements.`
     );
+  }
+
+  // ── Bounded delegation (Phase 3A): exactly one hop, ONLY to the
+  //    explicitly whitelisted executive_evidence_agent, with a structured
+  //    contract (never free-form instructions). On any failure: no retry,
+  //    no alternate agent — the evidence intelligence is reported
+  //    unavailable and the readiness analysis continues from its own
+  //    authoritative sources. The delegated child inherits the same
+  //    immutable authenticated context.
+  let evidenceAnalysis = null;
+  let evidenceDelegation = null;
+  if (typeof delegateAgent === "function") {
+    const del = await delegateAgent("executive_evidence_agent", {
+      requested_analysis: "evidence_gap_analysis",
+      relevant_dimensions: dimEntries.map(([k]) => k),
+      readiness_context: { readinessScore: score, evidenceCoverage: overallCoverage },
+    });
+    evidenceDelegation = {
+      agent: "executive_evidence_agent",
+      ok: del.ok === true,
+      requestId: del.requestId || null,
+      delegationDepth: del.delegation?.depth ?? null,
+      parentRequestId: del.delegation?.parentRequestId || null,
+      error_code: del.ok ? null : del.error?.code || null,
+    };
+    if (del.ok) {
+      evidenceAnalysis = del.data || null;
+    } else {
+      unavailable.push(
+        `Evidence-gap analysis (executive_evidence_agent) was unavailable (${evidenceDelegation.error_code}) — evidence intelligence is omitted rather than estimated.`
+      );
+    }
   }
 
   const analysis = {
@@ -292,6 +324,11 @@ async function handler({ context, invokeTool }) {
         : null,
 
     unavailable_notes: unavailable,
+
+    // Phase 3A — governed 1-hop delegation result (evidence intelligence).
+    // The readiness agent remains responsible for the final analysis.
+    evidence_delegation: evidenceDelegation,
+    evidence_analysis: evidenceAnalysis,
   };
 
   return {
@@ -313,6 +350,9 @@ const executiveReadinessAgent = {
   enabled: true,
   requiredPermissions: Object.freeze(["authenticated"]),
   allowedTools: ALLOWED_TOOLS,
+  // Phase 3A — EXPLICIT delegation whitelist: this agent may delegate ONLY
+  // to executive_evidence_agent (bounded, structured, max depth 1).
+  allowedDelegations: Object.freeze(["executive_evidence_agent"]),
   timeoutMs: 10000,
   handlerName: "AgentOrchestrator.readinessAnalysis",
   inputSchema: {

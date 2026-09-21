@@ -13,6 +13,9 @@
  *   • executive_readiness_agent (Phase 2B) — evidence-grounded Executive
  *     Readiness™ development analysis; the existing readiness engine remains
  *     the sole source of truth and the authoritative score is preserved exactly
+ *   • executive_evidence_agent (Phase 3A) — read-only leadership-evidence
+ *     and evidence-gap analysis; the sole whitelisted 1-hop delegation
+ *     target of executive_readiness_agent and itself NEVER delegates
  *
  * Invariants:
  *   • The orchestrator NEVER bypasses the Tool Gateway™ — an agent's only
@@ -42,6 +45,7 @@ import { createAgentRegistry } from "./registry.js";
 import { orchestrateCore, ORCHESTRATION_ERROR_CODES, DEFAULT_AGENT_TIMEOUT_MS } from "./orchestratorCore.js";
 import executiveContextAgent from "./agents/executiveContextAgent.js";
 import executiveReadinessAgent from "./agents/executiveReadinessAgent.js";
+import executiveEvidenceAgent from "./agents/executiveEvidenceAgent.js";
 
 export const AGENT_ORCHESTRATOR_VERSION = "1.0.0";
 
@@ -49,6 +53,7 @@ export const AGENT_ORCHESTRATOR_VERSION = "1.0.0";
 const agentRegistry = createAgentRegistry();
 agentRegistry.register(executiveContextAgent);
 agentRegistry.register(executiveReadinessAgent);
+agentRegistry.register(executiveEvidenceAgent);
 
 export function listRegisteredAgents() {
   return agentRegistry.list();
@@ -101,6 +106,9 @@ export async function orchestrateAgent(agentName, input = {}, options = {}) {
           agent: result.agent,
           agentVersion: result.agentVersion,
           requestId: result.requestId,
+          parentAgent: result.delegation?.parentAgentName || null,
+          parentRequestId: result.delegation?.parentRequestId || null,
+          delegationDepth: result.delegation?.depth ?? 0,
           toolsRequested: result.toolsRequested,
           toolsSucceeded: result.toolsSucceeded,
         },
@@ -115,6 +123,8 @@ export async function orchestrateAgent(agentName, input = {}, options = {}) {
             success: result.ok,
             durationMs: result.durationMs,
             failureCategory: failureCategory || null,
+            parentAgent: result.delegation?.parentAgentName || null,
+            delegationDepth: result.delegation?.depth ?? 0,
             toolsRequestedCount: result.toolsRequested?.length ?? 0,
             toolsSucceededCount: result.toolsSucceeded?.length ?? 0,
           },
@@ -139,6 +149,9 @@ export function getAgentOrchestratorStatus() {
       status: e.status,
       durationMs: e.latencyMs,
       failureCategory: e.error || null,
+      parentAgent: e.parentAgent || null,
+      parentRequestId: e.parentRequestId || null,
+      delegationDepth: e.delegationDepth ?? 0,
       toolsRequested: e.toolsRequested || [],
       toolsSucceeded: e.toolsSucceeded || [],
       timestamp: new Date(e.ts).toISOString(),

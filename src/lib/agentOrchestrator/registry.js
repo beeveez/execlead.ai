@@ -13,6 +13,10 @@
  *   • requiredPermissions  — authorization requirements ("authenticated")
  *   • allowedTools         — EXPLICIT Tool Gateway™ tool whitelist; the
  *                            orchestrator rejects any tool not on this list
+ *   • allowedDelegations (optional) — EXPLICIT agent-to-agent delegation
+ *                            whitelist; the orchestrator rejects delegation
+ *                            to any agent not on this list, and delegation
+ *                            depth is capped at MAX_DELEGATION_DEPTH (1)
  *   • handler              — async ({ context, input, invokeTool }) => data
  *   • inputSchema          — JSON-schema-shaped input contract
  *   • outputSchema         — JSON-schema-shaped output contract
@@ -43,6 +47,7 @@ export const AGENT_CONTRACT_FIELDS = [
   "enabled",
   "requiredPermissions",
   "allowedTools",
+  "allowedDelegations",
   "handler",
   "inputSchema",
   "outputSchema",
@@ -88,6 +93,18 @@ export function validateAgentDefinition(def) {
   }
   if (def.timeoutMs !== undefined && (typeof def.timeoutMs !== "number" || def.timeoutMs <= 0)) {
     return { valid: false, error: `Agent ${def.name}: timeoutMs must be a positive number.` };
+  }
+  if (def.allowedDelegations !== undefined) {
+    if (
+      !Array.isArray(def.allowedDelegations) ||
+      def.allowedDelegations.length === 0 ||
+      def.allowedDelegations.some((t) => typeof t !== "string" || !t.trim())
+    ) {
+      return {
+        valid: false,
+        error: `Agent ${def.name}: allowedDelegations must be a non-empty array of registered agent names (explicit delegation whitelist — no wildcards).`,
+      };
+    }
   }
   return { valid: true };
 }
@@ -136,6 +153,7 @@ export function createAgentRegistry() {
         enabled: a.enabled !== false,
         requiredPermissions: [...a.requiredPermissions],
         allowedTools: [...a.allowedTools],
+        allowedDelegations: Array.isArray(a.allowedDelegations) ? [...a.allowedDelegations] : null,
         timeoutMs: a.timeoutMs || null,
         handlerName: a.handlerName || a.handler.name || "anonymous",
         inputSchema: a.inputSchema,

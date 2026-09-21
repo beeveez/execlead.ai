@@ -27,6 +27,7 @@ import { createAgentRegistry, validateAgentDefinition } from "./registry.js";
 import { orchestrateCore, ORCHESTRATION_ERROR_CODES } from "./orchestratorCore.js";
 import executiveContextAgent from "./agents/executiveContextAgent.js";
 import executiveReadinessAgent from "./agents/executiveReadinessAgent.js";
+import executiveEvidenceAgent from "./agents/executiveEvidenceAgent.js";
 import { matchOrchestrationIntent, formatAgentResponse } from "./agentRouter.js";
 import { createToolRegistry } from "../toolGateway/registry.js";
 import { invokeToolCore } from "../toolGateway/gatewayCore.js";
@@ -120,6 +121,7 @@ function makeRegistry() {
   const reg = createAgentRegistry();
   reg.register(executiveContextAgent);
   reg.register(executiveReadinessAgent);
+  reg.register(executiveEvidenceAgent);
   return reg;
 }
 
@@ -159,7 +161,7 @@ console.log("── Agent Orchestrator™ Phase 2B Test Suite ──\n");
 
   const reg = makeRegistry();
   assert(reg.has("executive_readiness_agent") === true, "A10: registered in the existing Agent Registry (no second registry)");
-  assertEqual(reg.size(), 2, "A11: registry holds exactly the two production agents");
+  assertEqual(reg.size(), 3, "A11: registry holds exactly the three production agents");
 }
 
 // ============================================================
@@ -189,7 +191,12 @@ let RICH_RESULT;
     "B5: tools requested recorded"
   );
   assertEqual(RICH_RESULT.toolsSucceeded.length, 3, "B6: all three tools succeeded");
-  assert(gw.calls.length === 3, "B7: Tool Gateway™ used for every retrieval (no direct service access)");
+  assert(
+    gw.calls.length === 5 &&
+      gw.calls.filter((c) => c.toolOptions.delegatedBy === null).length === 3 &&
+      gw.calls.filter((c) => c.toolOptions.delegatedBy === "executive_readiness_agent").length === 2,
+    "B7: Tool Gateway™ used for every retrieval — 3 parent + 2 governed delegated child calls (no direct service access)"
+  );
   assert(
     gw.calls.every((c) => c.toolOptions.user.id === USER_A.id),
     "B8: authenticated identity preserved on every gateway call"
@@ -477,8 +484,9 @@ let RICH_RESULT;
   assert(r.ok === true, "I1: orchestration completes without uncontrolled crash");
   assertEqual(r.data.toolsSucceeded.length, 2, "I2: remaining tools succeeded");
   assert(
-    gw.calls.filter((c) => c.toolName === "getExecutiveReadiness").length === 1,
-    "I3: exactly ONE attempt — no uncontrolled retry"
+    gw.calls.filter((c) => c.toolName === "getExecutiveReadiness" && c.toolOptions.delegatedBy === null).length === 1 &&
+      gw.calls.filter((c) => c.toolName === "getExecutiveReadiness" && c.toolOptions.delegatedBy === "executive_readiness_agent").length === 1,
+    "I3: exactly ONE attempt per governed execution (parent + delegated child) — no uncontrolled retry"
   );
   assert(
     r.data.analysis.unavailable_notes.some((n) => n.includes("Executive Readiness™ data could not be retrieved")),
@@ -593,14 +601,23 @@ let RICH_RESULT;
     toolInvoker: makeGateway(RUNTIME_PROFILE_RICH).invoker,
     onResult,
   });
-  assert(events.length === 1 && events[0].result.ok === true, "L1: success telemetry recorded");
-  const s = events[0].result;
+  assert(
+    events.length === 2 && events.every((e) => e.result.ok === true),
+    "L1: success telemetry recorded for BOTH the parent and the governed delegated child"
+  );
+  const parentEvt = events.find((e) => e.result.agent === "executive_readiness_agent");
+  const childEvt = events.find((e) => e.result.agent === "executive_evidence_agent");
+  assert(!!parentEvt && !!childEvt, "L1b: parent + child telemetry events present");
+  const s = parentEvt.result;
   assert(s.requestId.startsWith("orch-"), "L2: request id recorded");
   assertEqual(s.agent, "executive_readiness_agent", "L3: agent name recorded");
   assertEqual(s.agentVersion, "1.0.0", "L4: agent version recorded");
   assert(typeof s.startedAt === "string" && typeof s.completedAt === "string" && typeof s.durationMs === "number", "L5: timestamps + duration recorded");
   assertEqual(s.toolsSucceeded.length, 3, "L6: tools successfully executed recorded");
-  assertEqual(events[0].failureCategory, null, "L7: success has no failure category");
+  assertEqual(parentEvt.failureCategory, null, "L7: success has no failure category");
+  assertEqual(childEvt.result.delegation?.depth, 1, "L7b: child event records delegation depth 1");
+  assertEqual(childEvt.result.delegation?.parentAgentName, "executive_readiness_agent", "L7c: child event records the parent agent");
+  assertEqual(childEvt.result.delegation?.parentRequestId, s.requestId, "L7d: child event links to the parent request id");
 
   const failResult = await orchestrateCore({
     agentName: "executive_readiness_agent",
@@ -611,7 +628,7 @@ let RICH_RESULT;
     onResult,
   });
   assert(failResult.ok === false, "L8: failure occurs");
-  assertEqual(events[1].failureCategory, ORCHESTRATION_ERROR_CODES.AUTHENTICATION_REQUIRED, "L9: failure category recorded");
+  assertEqual(events[2].failureCategory, ORCHESTRATION_ERROR_CODES.AUTHENTICATION_REQUIRED, "L9: failure category recorded");
 
   // No sensitive payloads in the telemetry record
   const serialized = JSON.stringify(events);

@@ -162,6 +162,55 @@ function formatReadinessAnalysisResponse(data, agentMeta = {}) {
     );
   }
 
+  // Phase 3A — delegated evidence intelligence (governed 1-hop delegation)
+  if (a.evidence_delegation?.ok && a.evidence_analysis) {
+    const ea = a.evidence_analysis;
+    const evLines2 = [];
+    if (ea.evidence_summary?.overallCoverage != null) {
+      evLines2.push(`• Overall evidence coverage: ${ea.evidence_summary.overallCoverage}%`);
+    }
+    if (ea.evidence_summary?.source_counts) {
+      evLines2.push(
+        `• Sources — fully documented: ${ea.evidence_summary.source_counts.verified}, partial: ${ea.evidence_summary.source_counts.partial}, missing/limited: ${ea.evidence_summary.source_counts.missing}`
+      );
+    }
+    for (const v of ea.verified_evidence || []) evLines2.push(`• Fully documented: ${v.label} (${v.coverage}%)`);
+    for (const p of ea.partial_evidence || []) evLines2.push(`• Partially documented: ${p.label} (${p.coverage}%)`);
+    for (const m of ea.missing_evidence || []) evLines2.push(`• Missing/limited: ${m.label} (${m.coverage}%)`);
+    if (
+      evLines2.length > 0 ||
+      (ea.evidence_gaps || []).length > 0 ||
+      (ea.recommended_evidence_actions || []).length > 0
+    ) {
+      lines.push(
+        "",
+        `**Evidence Intelligence** (governed 1-hop delegation → executive_evidence_agent v${ea.agent_version || "1.0.0"} — read-only evidence analysis)`
+      );
+      if (evLines2.length > 0) lines.push(evLines2.join("\n"));
+      if (ea.evidence_summary?.interpretation?.text) {
+        lines.push(`\n_Interpretation (AI synthesis): ${ea.evidence_summary.interpretation.text}_`);
+      }
+      if ((ea.evidence_gaps || []).length > 0) {
+        lines.push("", "**Evidence Gaps** (verified platform data)", ea.evidence_gaps.map((g) => `• ${g.description}`).join("\n"));
+      }
+      if ((ea.recommended_evidence_actions || []).length > 0) {
+        lines.push(
+          "",
+          "**Recommended Evidence Actions** — _recommendations grounded in retrieved evidence; not verified facts._",
+          ea.recommended_evidence_actions.map((r, i) => `${i + 1}. ${r.action}`).join("\n")
+        );
+      }
+      if ((ea.unavailable_notes || []).length > 0) {
+        lines.push("", `_Evidence notes: ${ea.unavailable_notes.join(" ")}_`);
+      }
+    }
+  } else if (a.evidence_delegation && a.evidence_delegation.ok === false) {
+    lines.push(
+      "",
+      `**Evidence Intelligence:** unavailable (${a.evidence_delegation.error_code}) — no evidence analysis is fabricated.`
+    );
+  }
+
   if (a.confidence) {
     lines.push(
       "",

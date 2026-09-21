@@ -86,6 +86,19 @@ export default function AgentOrchestratorPanel() {
               </span>
             ))}
           </div>
+          {agent.allowedDelegations && agent.allowedDelegations.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] text-white/30">delegates to (max depth 1) →</span>
+              {agent.allowedDelegations.map((target) => (
+                <span
+                  key={target}
+                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20"
+                >
+                  {target}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       ))}
 
@@ -100,7 +113,7 @@ export default function AgentOrchestratorPanel() {
           <div className="space-y-1.5">
             {status.recentInvocations.map((inv, i) => (
               <div
-                key={inv.requestId || i}
+                key={`${inv.requestId || "inv"}-${i}`}
                 className="flex items-center justify-between gap-3 bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -113,6 +126,11 @@ export default function AgentOrchestratorPanel() {
                   <span className="text-[10px] text-white/30 truncate">
                     {inv.toolsSucceeded?.length ?? 0}/{inv.toolsRequested?.length ?? 0} tools
                   </span>
+                  {inv.parentAgent && (
+                    <span className="text-[10px] text-amber-300/80 border border-amber-500/20 bg-amber-500/10 rounded px-1.5 py-0.5 flex-shrink-0">
+                      ← {inv.parentAgent} · depth {inv.delegationDepth ?? 1}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-white/30 flex-shrink-0">
                   {inv.failureCategory && (
@@ -127,9 +145,9 @@ export default function AgentOrchestratorPanel() {
       </div>
 
       <p className="text-[10px] text-white/25 leading-relaxed">
-        Phase 2A scope: governed delegation only — agents access tools exclusively through the Tool Gateway™
-        (orchestrator permission check → gateway authorization → existing service). No MCP, no autonomous
-        loops, no agent-to-agent execution.
+        Phase 3A scope: governed delegation only — agents access tools exclusively through the Tool Gateway™
+        (orchestrator permission check → gateway authorization → existing service). Agent-to-agent delegation
+        is whitelisted per agent and capped at exactly 1 hop. No MCP, no autonomous loops, no swarms.
       </p>
     </section>
   );

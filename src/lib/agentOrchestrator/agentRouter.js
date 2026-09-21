@@ -33,6 +33,10 @@ const READINESS_ANALYSIS_PATTERNS = [
   /\bwhat\s+should\s+i\s+work\s+on\b/i,
   /\bwork\s+on\s+next\b/i,
   /\banaly[sz]e?s?\b.*\breadiness\b|\breadiness\b.*\banaly[sz]e?s?\b/i,
+  // Routing-precedence fix: development-plan / development-action requests
+  // grounded in the member's readiness are leadership analysis (the broad
+  // commercial fallback previously claimed bare "plan" as pricing).
+  /\b(development|leadership|growth)\s+(actions?|plan|priorities)\b/i,
 ];
 
 /**

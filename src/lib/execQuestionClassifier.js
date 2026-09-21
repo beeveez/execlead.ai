@@ -32,7 +32,15 @@ export function classifyExecQuestion(question = '') {
   if (matches(text, /\b(i want to buy|purchase|buy (?:a|the|this)?\s*(?:plan|membership|subscription)|subscribe|start (?:a )?(?:paid )?subscription)\b/)) {
     return EXEC_QUESTION_CATEGORIES.PURCHASE_INTENT;
   }
-  if (matches(text, /\b(plans?|pricing|price|cost|memberships?|included in professional|included in executive|enterprise pricing)\b/)) {
+  // Routing precedence: a personal DEVELOPMENT PLAN (leadership analysis)
+  // is not a pricing plan. The leadership-development-plan exemption is
+  // evaluated before the broad commercial fallback so leadership-analysis
+  // requests are never claimed as pricing — without weakening genuine
+  // pricing detection (pricing/price/cost/membership still match exactly).
+  if (
+    matches(text, /\b(plans?|pricing|price|cost|memberships?|included in professional|included in executive|enterprise pricing)\b/) &&
+    !matches(text, /\b(development|coaching|learning|career|growth|action)\s+plans?\b/)
+  ) {
     return EXEC_QUESTION_CATEGORIES.INFORMATIONAL_PRICING;
   }
 

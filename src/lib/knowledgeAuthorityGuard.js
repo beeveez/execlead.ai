@@ -64,12 +64,13 @@ export function isCompanyKnowledgeQuestion(text) {
   return false;
 }
 
-const PRICING_INFO_PATTERN = /\b(plans?|pricing|price|cost|memberships?|included in professional|included in executive|enterprise pricing)\b/i;
-const COMMERCIAL_ACTION_PATTERN = /\b(which plan should|right plan for me|recommend(?: a)? plan|should i buy|buy|purchase|join|apply|participate|upgrade|switch plans?|change my plan|subscribe|sign up)\b/i;
-
-export function isInformationalPricingQuestion(query = "") {
-  return PRICING_INFO_PATTERN.test(query) && !COMMERCIAL_ACTION_PATTERN.test(query);
-}
+// Pricing-intent predicates live in the dependency-free pricingIntent module
+// so the EXEC™ routing precedence matrix can be regression-tested offline.
+// The module carries the leadership-development-plan exemption: a personal
+// development plan is a leadership-analysis artifact, never a pricing plan.
+// Re-exported for backward compatibility (ExecConciergeContext imports it here).
+import { isInformationalPricingQuestion } from "@/lib/pricingIntent";
+export { isInformationalPricingQuestion };
 
 export async function answerInformationalPricingQuestion(query = "") {
   if (!isInformationalPricingQuestion(query)) return null;

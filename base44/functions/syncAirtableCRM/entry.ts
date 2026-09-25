@@ -211,7 +211,11 @@ export default async function(req) {
   }
 
   if (!auth.isSystemCall) {
-    const adminRoles = ['admin', 'super_admin', 'platform_admin', 'developer'];
+    // founder_root_admin is the platform automation identity for entity-trigger
+    // automations; it may sync the triggering record's owner. The per-user boundary
+    // is unchanged for every other role — a normal user still cannot sync another
+    // user's data.
+    const adminRoles = ['admin', 'super_admin', 'platform_admin', 'developer', 'founder_root_admin'];
     if (auth.user.id !== userId && !adminRoles.includes(auth.user.role)) {
       return Response.json({ error: "Forbidden — cannot sync another user's data" }, { status: 403 });
     }

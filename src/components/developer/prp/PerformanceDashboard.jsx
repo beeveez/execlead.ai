@@ -17,7 +17,33 @@ const SUMMARY_CARDS = [
   { label: "Avg Cache Hit", value: `${PERFORMANCE_SUMMARY.avgCacheHit}%`, icon: Gauge },
 ];
 
+// ── Gate Reason — derived ONLY from the existing measured metrics in this table ──
+// The comparison baseline is the existing PASS baseline of the same dataset
+// (worst measured value among rows whose existing status is "pass"). No new
+// thresholds, no new scoring and no invented causes are introduced.
+const PASS_BASELINE = {
+  p99: Math.max(...PERFORMANCE_WORKFLOWS.filter((w) => w.status === "pass").map((w) => w.p99)),
+  errorRate: Math.max(...PERFORMANCE_WORKFLOWS.filter((w) => w.status === "pass").map((w) => w.errorRate)),
+  apiLatency: Math.max(...PERFORMANCE_WORKFLOWS.filter((w) => w.status === "pass").map((w) => w.apiLatency)),
+};
+
+const REASON_METRICS = [
+  { key: "p99", label: "P99" },
+  { key: "errorRate", label: "Error rate" },
+  { key: "apiLatency", label: "API latency" },
+];
+
+function getGateReason(w) {
+  if (w.status !== "degrade") return null;
+  const exceeded = REASON_METRICS.filter((m) => w[m.key] > PASS_BASELINE[m.key]);
+  if (exceeded.length === 0) return null;
+  if (exceeded.length === 1) return { summary: `${exceeded[0].label} above threshold`, detail: null };
+  return { summary: "Multiple launch thresholds exceeded", detail: exceeded.map((m) => m.label).join(" · ") };
+}
+
 export default function PerformanceDashboard() {
+  const rows = PERFORMANCE_WORKFLOWS.map((w) => ({ ...w, gateReason: getGateReason(w) }));
+
   return (
     <div className="space-y-4">
       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
@@ -47,13 +73,13 @@ export default function PerformanceDashboard() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/5">
-                {["Workflow", "Cat", "P50", "P95", "P99", "R/s", "Err%", "CPU", "Mem", "DB", "Cache", "API", "Status"].map((h) => (
+                {["Workflow", "Cat", "P50", "P95", "P99", "R/s", "Err%", "CPU", "Mem", "DB", "Cache", "API", "Status", "Gate Reason"].map((h) => (
                   <th key={h} className="text-[9px] text-white/30 uppercase tracking-wider font-medium py-2 pr-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {PERFORMANCE_WORKFLOWS.map((w) => (
+              {rows.map((w) => (
                 <tr key={w.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
                   <td className="text-[11px] font-medium text-white py-2.5 pr-3 whitespace-nowrap">{w.name}</td>
                   <td className="text-[10px] text-white/40 py-2.5 pr-3">{w.category}</td>
@@ -70,6 +96,16 @@ export default function PerformanceDashboard() {
                   <td className="py-2.5">
                     <span className={`text-[9px] px-2 py-1 rounded border whitespace-nowrap ${STATUS_STYLES[w.status]}`}>{w.status}</span>
                   </td>
+                  <td className="py-2.5 pr-3">
+                    {w.gateReason ? (
+                      <div className="min-w-[160px]">
+                        <div className="text-[10px] text-amber-400">{w.gateReason.summary}</div>
+                        {w.gateReason.detail && <div className="text-[9px] text-white/30">{w.gateReason.detail}</div>}
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-white/20">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -77,6 +113,9 @@ export default function PerformanceDashboard() {
         </div>
         <p className="text-[10px] text-white/30 italic mt-3">
           Measured against 10 real platform workflows. AI-dependent workflows (EXEC™, Leadership DNA™, Simulations) show elevated p95/p99 due to external AI provider latency.
+        </p>
+        <p className="text-[10px] text-white/30 mt-2">
+          Gate Reason is derived from the existing measured metrics in this table, compared against the existing PASS baseline of the same dataset (P99 {PASS_BASELINE.p99}ms · Error rate {PASS_BASELINE.errorRate}% · API latency {PASS_BASELINE.apiLatency}ms). No new thresholds or metrics are introduced.
         </p>
       </div>
     </div>

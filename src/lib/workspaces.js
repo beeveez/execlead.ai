@@ -205,7 +205,7 @@ export const WORKSPACE_NAV = {
       { path: "/developer/architecture-audit", label: "Architecture Audit™", icon: Building2 },
       { path: "/architecture-governance", label: "Architecture Governance Board™", icon: Building2 },
       { path: "/developer/scalability", label: "Scalability™", icon: TrendingUp },
-      { path: "/developer/performance-resilience", label: "Performance & Resilience™", icon: Gauge },
+      { path: "/developer/performance-resilience", label: "Performance & Resilience", icon: Gauge },
       { path: "/developer/experience-audit", label: "Autonomic Experience Engine™", icon: ClipboardCheck },
     ]},
     { label: "AI Control Plane", items: [

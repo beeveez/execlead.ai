@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from "react";
 import {
   Gauge, TrendingUp, AlertTriangle, Brain, Shield, Activity,
-  DollarSign, Award, CheckCircle2,
+  DollarSign, Award, CheckCircle2, Info,
 } from "lucide-react";
-import { ENTERPRISE_RESILIENCE_SCORE, getErsLevel } from "@/lib/performanceResilienceEngine";
+import { ENTERPRISE_RESILIENCE_SCORE, getErsLevel, PERFORMANCE_SUMMARY } from "@/lib/performanceResilienceEngine";
 import { computeProductionReadinessCertification } from "@/lib/productionReadinessEngine";
 import PerformanceDashboard from "./PerformanceDashboard";
 import ScalabilityValidation from "./ScalabilityValidation";
@@ -54,14 +54,23 @@ export default function PerformanceResilienceCenter() {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-3xl font-bold text-white">{ENTERPRISE_RESILIENCE_SCORE}</span>
-              <span className="text-[9px] text-white/30 uppercase tracking-wider">ERS™</span>
+              <span className="text-[9px] text-white/30 uppercase tracking-wider flex items-center gap-1">
+                ERS™
+                {/* ERS™ definition — existing meaning: weighted composite of the 10 resilience dimensions, mapped to the existing maturity levels */}
+                <span className="group/ers relative inline-flex cursor-help">
+                  <Info size={9} className="text-white/30" />
+                  <span className="pointer-events-none absolute left-1/2 bottom-full z-20 mb-2 w-60 -translate-x-1/2 rounded-lg border border-white/10 bg-[#0d0d14] p-2.5 text-[9px] font-normal normal-case tracking-normal leading-relaxed text-white/60 opacity-0 shadow-xl transition-opacity group-hover/ers:opacity-100">
+                    Enterprise Resilience Score™ — weighted composite of the 10 resilience dimensions (each dimension carries a fixed weight), expressed as a 0–100 score and mapped to the maturity levels L0 Fragile → L5 Mission-Critical.
+                  </span>
+                </span>
+              </span>
             </div>
           </div>
 
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-lg font-bold text-white mb-1">Performance & Resilience Program™</h2>
+            <h2 className="text-lg font-bold text-white mb-1">Performance & Resilience Gate™</h2>
             <p className="text-sm text-white/50 mb-2">
-              {ersMaturity.short} — {ersMaturity.name} · Final engineering phase before public launch
+              {ersMaturity.short} — Resilience Validation · Pre-Launch Engineering Gate
             </p>
             <div className="flex items-center gap-2 justify-center md:justify-start">
               <span className={`text-[10px] px-2 py-1 rounded border font-bold ${isGo ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border-red-500/20 text-red-400"}`}>
@@ -78,8 +87,24 @@ export default function PerformanceResilienceCenter() {
         </div>
       </div>
 
+      {/* Production Launch Gate — count derived from the existing workflow status data (no new scoring) */}
+      <div className="bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex items-center gap-2">
+          <Activity size={14} className={isGo ? "text-emerald-400" : "text-red-400"} />
+          <span className="text-xs font-medium text-white/70">Production Launch Gate</span>
+        </div>
+        <span className={`text-[10px] px-2 py-1 rounded border font-bold ${isGo ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border-red-500/20 text-red-400"}`}>
+          {cert.recommendation}
+        </span>
+        <span className="text-xs text-white/50">
+          {PERFORMANCE_SUMMARY.degradeCount > 0
+            ? `${PERFORMANCE_SUMMARY.degradeCount} workflows require remediation`
+            : "No workflows require remediation"}
+        </span>
+      </div>
+
       {/* Tab Navigation */}
-      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-thin">
+      <div className="flex gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = tab.id === activeTab;

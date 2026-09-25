@@ -290,7 +290,8 @@ export default function OperationsCenterShell({ initialWorkspaceId = "mission-co
               >
                 <Icon size={15} className="flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-medium truncate">{ws.name}</div>
+                  {/* Active item must display its full label — never truncate the selected workspace name */}
+                  <div className={`text-xs font-medium ${isActive ? "leading-tight" : "truncate"}`}>{ws.name}</div>
                   <div className={`text-[9px] truncate ${isActive ? "opacity-60" : "text-white/30"}`}>{ws.description}</div>
                 </div>
                 {isActive && <ChevronRight size={12} className="flex-shrink-0" />}

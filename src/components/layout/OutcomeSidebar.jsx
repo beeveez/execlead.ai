@@ -185,7 +185,8 @@ export default function OutcomeSidebar({
                                 <Link key={it.path} to={it.path} onClick={onNavigate}
                                   className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] transition-colors ${active ? "bg-accent-orange/10 text-accent-orange" : "text-white/55 hover:text-white hover:bg-white/5"}`}>
                                   {it.icon && <it.icon size={15} className={active ? "text-accent-orange" : "text-white/35"} />}
-                                  <span className="flex-1 truncate">{it.label}</span>
+                                  {/* Active item displays its full label — never truncated */}
+                                  <span className={`flex-1 ${active ? "" : "truncate"}`}>{it.label}</span>
                                 </Link>
                               );
                             })}

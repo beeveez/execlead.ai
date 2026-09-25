@@ -9,8 +9,11 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Admin-only — retention cleanup is a platform operation
-    if (user.role !== 'super_admin' && user.role !== 'platform_admin' && user.role !== 'admin' && user.role !== 'developer') {
+    // Admin-only — retention cleanup is a platform operation.
+    // founder_root_admin is included because the platform's scheduled
+    // automation invocation authenticates as the app's founder/root admin
+    // role (the same role every other scheduled function already accepts).
+    if (user.role !== 'super_admin' && user.role !== 'platform_admin' && user.role !== 'admin' && user.role !== 'developer' && user.role !== 'founder_root_admin') {
       return Response.json({ error: 'Forbidden — admin access required' }, { status: 403 });
     }
 

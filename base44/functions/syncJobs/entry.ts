@@ -282,8 +282,11 @@ Deno.serve(async (req) => {
     }
     authedUser = user;
 
-    // 2. Require Platform Administrator or Developer role
-    if (user.role !== 'admin' && user.role !== 'developer') {
+    // 2. Require Platform Administrator or Developer role.
+    // founder_root_admin is included because the platform's scheduled
+    // automation invocation authenticates as the app's founder/root admin
+    // role (the same role every other scheduled function already accepts).
+    if (user.role !== 'admin' && user.role !== 'developer' && user.role !== 'founder_root_admin') {
       await auditLog('denied', 'insufficient_role');
       return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }

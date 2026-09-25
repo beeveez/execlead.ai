@@ -15,8 +15,11 @@ Deno.serve(async (req) => {
       // Scheduled automation — no user context
     }
 
-    // Only block non-admin authenticated users from manual calls
-    if (isManualCall && user && user.role !== 'admin') {
+    // Only block non-admin authenticated users from manual calls.
+    // The platform's scheduled automation invocation authenticates as the
+    // app's founder/root admin role, so it is accepted alongside the
+    // platform admin roles.
+    if (isManualCall && user && !['admin', 'super_admin', 'platform_admin', 'developer', 'founder_root_admin'].includes(user.role)) {
       return Response.json({ error: 'Forbidden — admin only' }, { status: 403 });
     }
 

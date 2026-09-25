@@ -150,6 +150,10 @@ Deno.serve(async (req) => {
         body,
         requireAdmin: true,
         allowSystemSecret: true,
+        // Scheduled automation identity: the platform's scheduled invocation
+        // authenticates as the app's founder/root admin role. Same verified
+        // hierarchy (system secret OR authenticated admin) — no new tier.
+        adminRoles: ['super_admin', 'platform_admin', 'admin', 'developer', 'founder_root_admin'],
       });
       const authError = await enforceAuth(base44, auth, 'process_batch', clientIp);
       if (authError) return authError;

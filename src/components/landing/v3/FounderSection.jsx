@@ -14,7 +14,7 @@ export default function FounderSection() {
         <div className="text-center mb-10">
           <div className="text-[11px] uppercase tracking-wider text-accent-orange/80 font-semibold mb-3">FOUNDER</div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">Built from firsthand leadership preparation.</h2>
-          <p className="text-white/70 max-w-xl mx-auto text-sm font-semibold">Reynaldo D. Valdez · Founder</p>
+          <p className="text-white/70 max-w-xl mx-auto text-sm font-semibold">Reynaldo D. Valdez · Founder &amp; Chief Product Architect</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

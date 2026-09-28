@@ -46,3 +46,12 @@ npx skills add base44/skills
 - Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
 - Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
 - Run the relevant checks from `package.json` before finishing code changes.
+
+## Base44 Dev Environment (docker-compose.base44.yml)
+
+- The app is a **frontend-only Vite + React project** that connects to the **hosted Base44 backend** at `https://base44.app` via the `@base44/sdk` and `@base44/vite-plugin`. There is no local backend or database — all API calls are proxied to `base44.app` through the Vite dev server's `/api` proxy.
+- Run with: `docker compose -f docker-compose.base44.yml up -d` (binds port 3000 → Vite's 5173).
+- The container runs `npm install --legacy-peer-deps` then `npx vite --host 0.0.0.0 --port 5173` with file-watch polling enabled for bind-mount compatibility.
+- **Required env var:** `VITE_BASE44_APP_ID` — the Base44 app ID from the dashboard. A development placeholder is in `.env.base44-defaults`; the real value must be set via the platform Secrets page (delivered to `/run/base44/app.env`). Without the real value, the SDK cannot connect to the correct app on the hosted backend.
+- `VITE_BASE44_APP_BASE_URL` defaults to `https://base44.app` (set in `vite.config.js` and compose `environment:`).
+- Healthcheck: `fetch('http://localhost:5173/')` — verifies Vite is serving.
